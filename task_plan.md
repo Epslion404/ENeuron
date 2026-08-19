@@ -236,3 +236,43 @@
 - [x] P6：XC7Z020 Vivado 综合/布局布线/时序/DRC/功耗签核
 - [x] P7：32/64/128 核阵列资源、路由和吞吐报告；容量边界与共享 lane 周期模型已形成，128 并行 routed 保持 NOT_PROVEN
 - [x] P8：固定 4->2->2 Pulse-Mini 网络端到端训练与冻结推理
+
+## 两版本纯仿真比较阶段（2026-08-19）
+
+- [x] S0：冻结比较口径、共同数据集和不可直接比较项
+- [x] S1：实现单神经元统一实验 runner
+- [x] S2：完成空间、时间、噪声、冲突和反馈延迟扫描
+- [x] S3：完成固定 4->2->2 软件网络对照与既有 RTL 协同仿真复核
+- [x] S4：生成 JSON 原始数据、Markdown 完整报告和可复现命令
+
+### 本阶段验收结果
+
+- `python compare_simulation.py --seeds 20 --rtl-cosim` 通过；未调用 Vivado。
+- 共同单神经元任务：两版均由 10/20 提升到 20/20，推理权重冻结。
+- RTL 协同仿真：两版单核各 20000 事务、ENeuron Tile 10000 事务、Pulse-Mini 网络 272 命令均与黄金模型一致。
+- `python -m unittest discover -v`：196 项通过；`python -m compileall -q .` 通过。
+- 完整报告为 `SIMULATION_COMPARISON_REPORT.md`，原始数据为 `comparison_simulation_results.json`。
+
+### 本阶段错误记录
+
+| 错误 | 尝试 | 处理 |
+|---|---:|---|
+| PowerShell 不支持 Bash heredoc `python - <<'PY'` | 1 | 临时探针改用 PowerShell here-string；未修改项目源文件 |
+| 两次误用 `functions.wait` 等待不存在的 cell | 2 | 停止使用 cell wait，统一用 `write_stdin` 轮询真实会话 |
+| 报告测试要求出现精确短语“仅仿真”，初稿只有“纯仿真” | 1 | 在范围声明中加入明确的“仅仿真评估”字样 |
+
+## Pulse-Mini L1 泄放升级阶段（2026-08-19）
+
+- [x] 冻结膜电位泄放定时器合同与可关闭的无泄放对照
+- [x] 为 Python 黄金模型增加 leak_timer，并补齐边界黄金向量
+- [x] 将同一语义映射到 Pulse-Mini RTL、阵列/网络包装器和协同仿真
+- [x] 完成 LEAK_PERIOD 扫描、单元任务、4->2->2 网络和推理冻结比较
+- [x] 更新纯仿真报告、原始 JSON 和阶段证据
+
+### 本阶段冻结决策
+
+- L1 默认 `LEAK_PERIOD=8`；`0` 仅用于无泄放消融对照。初始候选 `4` 经弱连接密集事件扫描淘汰。
+- 只在接受成功的逻辑 `TICK` 上计时，不使用派生时钟。
+- 到期时膜电位向零移动一个单位；顺序为“先泄放，再加入本 tick 输入，再判阈值”。
+- 不应期内泄放计时器暂停；自然发放和 `STATE_CLEAR` 都清零计时器。
+- `CAPTURE/FEEDBACK`、权重范围、训练/推理冻结和一拍网络路由合同不变。

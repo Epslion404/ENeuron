@@ -22,9 +22,10 @@ class NetworkTick:
 class PulseMiniNetwork:
     """两个隐藏核、两个输出核；输出核只读取上一 tick 的隐藏脉冲。"""
 
-    def __init__(self) -> None:
-        self.hidden = [PulseMiniReference() for _ in range(2)]
-        self.output = [PulseMiniReference() for _ in range(2)]
+    def __init__(self, *, leak_period: int = PulseMiniReference.LEAK_PERIOD) -> None:
+        self.leak_period = leak_period
+        self.hidden = [PulseMiniReference(leak_period=leak_period) for _ in range(2)]
+        self.output = [PulseMiniReference(leak_period=leak_period) for _ in range(2)]
         self.pending_hidden = 0
         self.tick_index = 0
         self.ledger: list[dict] = []
@@ -96,8 +97,13 @@ class PulseMiniNetwork:
         return output_mask
 
 
-def train_network(repetitions: int = 6, *, feedback_enabled: bool = True) -> PulseMiniNetwork:
-    network = PulseMiniNetwork()
+def train_network(
+    repetitions: int = 6,
+    *,
+    feedback_enabled: bool = True,
+    leak_period: int = PulseMiniReference.LEAK_PERIOD,
+) -> PulseMiniNetwork:
+    network = PulseMiniNetwork(leak_period=leak_period)
     network.mode_set(Mode.TRAIN)
     # 先训练隐藏层：输入通道 0/1 分别教给两个隐藏核。
     for neuron, feature in ((0, 0b0001), (1, 0b0010)):

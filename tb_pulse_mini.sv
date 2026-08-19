@@ -18,6 +18,7 @@ module tb_pulse_mini;
     logic signed [3:0] weight0, weight1, weight2, weight3;
     logic signed [7:0] soma_state;
     logic [3:0] refractory_state;
+    logic [3:0] leak_timer_state;
     logic [15:0] pre_age_flat;
     logic [3:0] post_age_state;
     logic [3:0] positive_evidence;
@@ -45,10 +46,10 @@ module tb_pulse_mini;
             #1 cmd_valid = 1'b0;
             @(negedge clk);
             while (!rsp_valid) @(negedge clk);
-            $display("R %0d %0d %0d %0d %0d %0d %0d %0d %0d %0d %0d %0d %0d %0d %0d %0d %0d %0d %0d",
+            $display("R %0d %0d %0d %0d %0d %0d %0d %0d %0d %0d %0d %0d %0d %0d %0d %0d %0d %0d %0d %0d",
                 seq, rsp_status, rsp_data, spike, mode_state, pending_valid,
                 protocol_error, weight0, weight1, weight2, weight3, soma_state,
-                refractory_state, pre_age_flat, post_age_state,
+                refractory_state, leak_timer_state, pre_age_flat, post_age_state,
                 positive_evidence, negative_evidence, captured_direction_flat, rsp_valid);
             seq = seq + 1;
             rsp_ready = 1'b1;

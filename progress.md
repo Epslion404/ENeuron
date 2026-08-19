@@ -1,5 +1,13 @@
 # 进度记录
 
+## 2026-08-19 Pulse-Mini L1
+
+- 已确认当前 Pulse-Mini 的关键能力缺口是胞体无泄漏，稀疏事件可无限累加。
+- 已实现共享膜电位泄放计时器：只随成功 `TICK` 推进，先泄放、后输入、再阈值判断；`STATE_CLEAR`、自然发放和硬复位清零。
+- Python 黄金模型 17 项定向测试、单核 20000 事务、固定网络 272 命令和 32/64/128 阵列指标均通过。
+- 预注册扫描 `{0,1,2,4,8,12}`：周期 8 是满足当前密集命中、稀疏误发放、训练权重一致和网络合同的最小候选；周期 4 会损失弱连接 `+1` 的密集命中。
+- 已生成 `SIMULATION_COMPARISON_REPORT.md` 与 `comparison_simulation_results.json`，并完成 200 项 Python 回归、Pulse-Mini 单核 20000 事务、固定网络 272 命令、形式深度20证明。
+
 ## 2026-08-13
 
 - 启动 G4 能力边界调研；当前只形成可审核实验方案，不修改核心训练模型或 RTL。
@@ -190,3 +198,17 @@
 - 新增 `test_pulse_original.py` 与 `tb_pulse_original.sv`。Python 定向测试 4/4 通过，覆盖学习上限回绕、计数越大分频周期越短、阈值发放/同步睡眠和正向学习局限。
 - 新增 `vivado_pulse_original_synth.tcl` 与 `run_vivado_pulse_original_synth.ps1`，使用 Vivado 2024.1、`xc7z020clg400-1`、100 MHz OOC 完成综合、布局布线、资源/时序/功耗报告。
 - 当前真实 routed 资源：183 LUT、85 FF、0 BRAM、0 DSP；WNS `-1.605 ns`、TNS `-30.454 ns`、WHS `+0.150 ns`、THS `0 ns`。负 WNS 记录为原始基线时序不足，不能据此宣称 100 MHz 通过；主要路径受字面宽整数比较/饱和组合逻辑影响，后续 Pulse-Mini 应采用窄位宽显式算术。
+## 2026-08-19 两版本纯仿真比较
+
+- 用户要求仅通过仿真进一步比较 ENeuron 1.0 与 Pulse-Mini，并形成完整报告。
+- 比较范围暂不包含 Vivado 综合、布局布线、LUT/FF、BRAM/DSP、功耗或板级证据。
+- 计划使用相同四输入事件数据和相同训练样本预算，分别测量准确率、收敛、扰动鲁棒性、时间间隔敏感性、冲突证据和推理冻结。
+- 新增 `compare_simulation.py` 与 `test_compare_simulation.py`，统一生成共同任务、收敛、反馈负对照、结果延迟、证据次数、稀疏事件、冲突证据、四类噪声和固定网络结果。
+- 正式执行 20 seeds：共同单神经元任务两版均从 10/20 提升到 20/20；一次正负训练重复后均达到满分。
+- 结果延迟扫描显示：两版当前实际权重更新窗口均为 gap 0..2；ENeuron eligibility 在 gap 3..9 仍非零，但定点右移后权重变化为 0。
+- 重复证据扫描显示：1到8次事件使 ENeuron eligibility 从16增长到189、单次提交权重变化从2增长并饱和到7；Pulse-Mini 始终只记录方向1并更新一步。
+- 稀疏事件扫描显示：各训练一次后，Pulse-Mini 的六个事件即使间隔12 tick仍发放；ENeuron 在间隔2 tick起不再发放，体现无泄漏累计与泄漏时间过滤的差异。
+- 固定共同网络上，ENeuron 20/20 seeds训练后均为100%，Pulse-Mini为20/20；两版推理权重均冻结。
+- 原生网络上，ENeuron教师与混合协议均为100%，纯全局reward均值22.5%；Pulse-Mini局部教师为20/20，纯全局reward保持未测试。
+- Icarus/Python 旁证通过：ENeuron/Pulse-Mini 单核各20000事务、ENeuron Tile 10000事务、Pulse-Mini网络272命令。
+- 生成 `comparison_simulation_results.json` 与 `SIMULATION_COMPARISON_REPORT.md`；完整196项回归、`compileall` 和 `git diff --check` 通过。

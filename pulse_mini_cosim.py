@@ -12,7 +12,7 @@ from pulse_mini_reference import Command, Mode, Opcode, PulseMiniReference
 from rtl_tile_cosim import find_tool
 
 ROOT = Path(__file__).resolve().parent
-ROW_RE = re.compile(r"^R\s+(\d+)\s+(-?\d+)\s+(-?\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(-?\d+)\s+(-?\d+)\s+(-?\d+)\s+(-?\d+)\s+(-?\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(-?\d+)\s+(\d+)$")
+ROW_RE = re.compile(r"^R\s+(\d+)\s+(-?\d+)\s+(-?\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(-?\d+)\s+(-?\d+)\s+(-?\d+)\s+(-?\d+)\s+(-?\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(-?\d+)\s+(\d+)$")
 
 
 def make_commands(seed: int, count: int) -> list[tuple[int, int, int]]:
@@ -65,6 +65,7 @@ def expected_rows(commands: list[tuple[int, int, int]]) -> list[tuple[int, ...]]
             *state.weights,
             state.soma,
             state.refractory,
+            state.leak_timer,
             sum(age << (4 * index) for index, age in enumerate(state.pre_age)),
             state.post_age,
             sum((1 if value else 0) << index for index, value in enumerate(state.positive_evidence)),
@@ -111,7 +112,7 @@ def run(seed: int, count: int = 1000) -> None:
             actual.append((
                 next(name for name, code in status_codes.items() if code == status),
                 values[2], values[3], values[4], values[5], values[6],
-                *values[7:17], values[17] & 0xFF,
+                *values[7:18], values[18] & 0xFF,
             ))
         if len(actual) != len(expected):
             raise AssertionError(f"响应数量不符 actual={len(actual)} expected={len(expected)}\n{result.stdout[-2000:]}")

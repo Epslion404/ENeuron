@@ -1,0 +1,2006 @@
+{
+  "scope": {
+    "method": "simulation_only",
+    "vivado_used": false,
+    "rtl_simulation_used": true,
+    "seed_count": 20,
+    "report_date": "2026-08-19"
+  },
+  "model_contracts": {
+    "shared": {
+      "inputs": 4,
+      "weight_range": [
+        -7,
+        7
+      ],
+      "threshold": 6,
+      "refractory_ticks": 1,
+      "common_initial_weights": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "eneuron": {
+      "state": "leaky current + leaky membrane + pre/post traces + signed eligibility",
+      "result_interface": "signed modulator applied to eligibility snapshot",
+      "learning_resolution": "multi-bit magnitude, fixed-point shifted update",
+      "threshold": "adaptive during training"
+    },
+    "pulse_mini": {
+      "state": "eight-tick soma leak + three-tick presence window",
+      "result_interface": "CAPTURE direction then signed FEEDBACK",
+      "learning_resolution": "-1/0/+1 direction, one weight step per feedback",
+      "threshold": "fixed",
+      "leak_period": 8,
+      "leak_semantics": "accepted TICK only; toward-zero one step before input; refractory pauses phase"
+    }
+  },
+  "single_neuron": {
+    "shared_task": {
+      "samples": 20,
+      "training_samples": 12,
+      "initial_weights": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "eneuron": {
+        "baseline_correct": 10,
+        "trained_correct": 20,
+        "final_weights": [
+          7,
+          -7,
+          0,
+          0
+        ],
+        "inference_weights_frozen": true
+      },
+      "pulse_mini": {
+        "baseline_correct": 10,
+        "trained_correct": 20,
+        "final_weights": [
+          6,
+          -6,
+          0,
+          0
+        ],
+        "inference_weights_frozen": true
+      }
+    },
+    "result_delay_scan": [
+      {
+        "gap_ticks": 0,
+        "eneuron_eligibility": 16,
+        "eneuron_weight_delta": 2,
+        "pulse_mini_direction": 1,
+        "pulse_mini_weight_delta": 1
+      },
+      {
+        "gap_ticks": 1,
+        "eneuron_eligibility": 12,
+        "eneuron_weight_delta": 1,
+        "pulse_mini_direction": 1,
+        "pulse_mini_weight_delta": 1
+      },
+      {
+        "gap_ticks": 2,
+        "eneuron_eligibility": 9,
+        "eneuron_weight_delta": 1,
+        "pulse_mini_direction": 1,
+        "pulse_mini_weight_delta": 1
+      },
+      {
+        "gap_ticks": 3,
+        "eneuron_eligibility": 7,
+        "eneuron_weight_delta": 0,
+        "pulse_mini_direction": 0,
+        "pulse_mini_weight_delta": 0
+      },
+      {
+        "gap_ticks": 4,
+        "eneuron_eligibility": 6,
+        "eneuron_weight_delta": 0,
+        "pulse_mini_direction": 0,
+        "pulse_mini_weight_delta": 0
+      },
+      {
+        "gap_ticks": 5,
+        "eneuron_eligibility": 5,
+        "eneuron_weight_delta": 0,
+        "pulse_mini_direction": 0,
+        "pulse_mini_weight_delta": 0
+      },
+      {
+        "gap_ticks": 6,
+        "eneuron_eligibility": 4,
+        "eneuron_weight_delta": 0,
+        "pulse_mini_direction": 0,
+        "pulse_mini_weight_delta": 0
+      },
+      {
+        "gap_ticks": 7,
+        "eneuron_eligibility": 3,
+        "eneuron_weight_delta": 0,
+        "pulse_mini_direction": 0,
+        "pulse_mini_weight_delta": 0
+      },
+      {
+        "gap_ticks": 8,
+        "eneuron_eligibility": 2,
+        "eneuron_weight_delta": 0,
+        "pulse_mini_direction": 0,
+        "pulse_mini_weight_delta": 0
+      },
+      {
+        "gap_ticks": 9,
+        "eneuron_eligibility": 1,
+        "eneuron_weight_delta": 0,
+        "pulse_mini_direction": 0,
+        "pulse_mini_weight_delta": 0
+      },
+      {
+        "gap_ticks": 10,
+        "eneuron_eligibility": 0,
+        "eneuron_weight_delta": 0,
+        "pulse_mini_direction": 0,
+        "pulse_mini_weight_delta": 0
+      },
+      {
+        "gap_ticks": 11,
+        "eneuron_eligibility": 0,
+        "eneuron_weight_delta": 0,
+        "pulse_mini_direction": 0,
+        "pulse_mini_weight_delta": 0
+      },
+      {
+        "gap_ticks": 12,
+        "eneuron_eligibility": 0,
+        "eneuron_weight_delta": 0,
+        "pulse_mini_direction": 0,
+        "pulse_mini_weight_delta": 0
+      }
+    ],
+    "event_multiplicity_scan": [
+      {
+        "event_count": 1,
+        "eneuron_eligibility": 16,
+        "eneuron_weight_delta": 2,
+        "pulse_mini_direction": 1,
+        "pulse_mini_weight_delta": 1
+      },
+      {
+        "event_count": 2,
+        "eneuron_eligibility": 40,
+        "eneuron_weight_delta": 5,
+        "pulse_mini_direction": 1,
+        "pulse_mini_weight_delta": 1
+      },
+      {
+        "event_count": 3,
+        "eneuron_eligibility": 68,
+        "eneuron_weight_delta": 7,
+        "pulse_mini_direction": 1,
+        "pulse_mini_weight_delta": 1
+      },
+      {
+        "event_count": 4,
+        "eneuron_eligibility": 97,
+        "eneuron_weight_delta": 7,
+        "pulse_mini_direction": 1,
+        "pulse_mini_weight_delta": 1
+      },
+      {
+        "event_count": 5,
+        "eneuron_eligibility": 125,
+        "eneuron_weight_delta": 7,
+        "pulse_mini_direction": 1,
+        "pulse_mini_weight_delta": 1
+      },
+      {
+        "event_count": 6,
+        "eneuron_eligibility": 150,
+        "eneuron_weight_delta": 7,
+        "pulse_mini_direction": 1,
+        "pulse_mini_weight_delta": 1
+      },
+      {
+        "event_count": 7,
+        "eneuron_eligibility": 171,
+        "eneuron_weight_delta": 7,
+        "pulse_mini_direction": 1,
+        "pulse_mini_weight_delta": 1
+      },
+      {
+        "event_count": 8,
+        "eneuron_eligibility": 189,
+        "eneuron_weight_delta": 7,
+        "pulse_mini_direction": 1,
+        "pulse_mini_weight_delta": 1
+      }
+    ],
+    "identical_weight_spacing_scan": [
+      {
+        "gap_ticks": 0,
+        "sample_ticks": 6,
+        "eneuron_spikes": 0,
+        "pulse_mini_spikes": 1
+      },
+      {
+        "gap_ticks": 1,
+        "sample_ticks": 11,
+        "eneuron_spikes": 0,
+        "pulse_mini_spikes": 0
+      },
+      {
+        "gap_ticks": 2,
+        "sample_ticks": 16,
+        "eneuron_spikes": 0,
+        "pulse_mini_spikes": 0
+      },
+      {
+        "gap_ticks": 3,
+        "sample_ticks": 21,
+        "eneuron_spikes": 0,
+        "pulse_mini_spikes": 0
+      },
+      {
+        "gap_ticks": 4,
+        "sample_ticks": 26,
+        "eneuron_spikes": 0,
+        "pulse_mini_spikes": 0
+      },
+      {
+        "gap_ticks": 5,
+        "sample_ticks": 31,
+        "eneuron_spikes": 0,
+        "pulse_mini_spikes": 0
+      },
+      {
+        "gap_ticks": 6,
+        "sample_ticks": 36,
+        "eneuron_spikes": 0,
+        "pulse_mini_spikes": 0
+      },
+      {
+        "gap_ticks": 7,
+        "sample_ticks": 41,
+        "eneuron_spikes": 0,
+        "pulse_mini_spikes": 0
+      },
+      {
+        "gap_ticks": 8,
+        "sample_ticks": 46,
+        "eneuron_spikes": 0,
+        "pulse_mini_spikes": 0
+      },
+      {
+        "gap_ticks": 9,
+        "sample_ticks": 51,
+        "eneuron_spikes": 0,
+        "pulse_mini_spikes": 0
+      },
+      {
+        "gap_ticks": 10,
+        "sample_ticks": 56,
+        "eneuron_spikes": 0,
+        "pulse_mini_spikes": 0
+      },
+      {
+        "gap_ticks": 11,
+        "sample_ticks": 61,
+        "eneuron_spikes": 0,
+        "pulse_mini_spikes": 0
+      },
+      {
+        "gap_ticks": 12,
+        "sample_ticks": 66,
+        "eneuron_spikes": 0,
+        "pulse_mini_spikes": 0
+      }
+    ],
+    "one_update_spacing_scan": [
+      {
+        "gap_ticks": 0,
+        "sample_ticks": 6,
+        "eneuron_weight": 2,
+        "pulse_mini_weight": 1,
+        "eneuron_spikes": 2,
+        "pulse_mini_spikes": 1
+      },
+      {
+        "gap_ticks": 1,
+        "sample_ticks": 11,
+        "eneuron_weight": 2,
+        "pulse_mini_weight": 1,
+        "eneuron_spikes": 1,
+        "pulse_mini_spikes": 0
+      },
+      {
+        "gap_ticks": 2,
+        "sample_ticks": 16,
+        "eneuron_weight": 2,
+        "pulse_mini_weight": 1,
+        "eneuron_spikes": 0,
+        "pulse_mini_spikes": 0
+      },
+      {
+        "gap_ticks": 3,
+        "sample_ticks": 21,
+        "eneuron_weight": 2,
+        "pulse_mini_weight": 1,
+        "eneuron_spikes": 0,
+        "pulse_mini_spikes": 0
+      },
+      {
+        "gap_ticks": 4,
+        "sample_ticks": 26,
+        "eneuron_weight": 2,
+        "pulse_mini_weight": 1,
+        "eneuron_spikes": 0,
+        "pulse_mini_spikes": 0
+      },
+      {
+        "gap_ticks": 5,
+        "sample_ticks": 31,
+        "eneuron_weight": 2,
+        "pulse_mini_weight": 1,
+        "eneuron_spikes": 0,
+        "pulse_mini_spikes": 0
+      },
+      {
+        "gap_ticks": 6,
+        "sample_ticks": 36,
+        "eneuron_weight": 2,
+        "pulse_mini_weight": 1,
+        "eneuron_spikes": 0,
+        "pulse_mini_spikes": 0
+      },
+      {
+        "gap_ticks": 7,
+        "sample_ticks": 41,
+        "eneuron_weight": 2,
+        "pulse_mini_weight": 1,
+        "eneuron_spikes": 0,
+        "pulse_mini_spikes": 0
+      },
+      {
+        "gap_ticks": 8,
+        "sample_ticks": 46,
+        "eneuron_weight": 2,
+        "pulse_mini_weight": 1,
+        "eneuron_spikes": 0,
+        "pulse_mini_spikes": 0
+      },
+      {
+        "gap_ticks": 9,
+        "sample_ticks": 51,
+        "eneuron_weight": 2,
+        "pulse_mini_weight": 1,
+        "eneuron_spikes": 0,
+        "pulse_mini_spikes": 0
+      },
+      {
+        "gap_ticks": 10,
+        "sample_ticks": 56,
+        "eneuron_weight": 2,
+        "pulse_mini_weight": 1,
+        "eneuron_spikes": 0,
+        "pulse_mini_spikes": 0
+      },
+      {
+        "gap_ticks": 11,
+        "sample_ticks": 61,
+        "eneuron_weight": 2,
+        "pulse_mini_weight": 1,
+        "eneuron_spikes": 0,
+        "pulse_mini_spikes": 0
+      },
+      {
+        "gap_ticks": 12,
+        "sample_ticks": 66,
+        "eneuron_weight": 2,
+        "pulse_mini_weight": 1,
+        "eneuron_spikes": 0,
+        "pulse_mini_spikes": 0
+      }
+    ],
+    "leak_period_scan": {
+      "periods": [
+        0,
+        1,
+        2,
+        4,
+        8,
+        12
+      ],
+      "candidate_selection_rule": {
+        "dense_hit_drop_max": 0.05,
+        "sparse_false_drop_min": 0.2,
+        "network_accuracy_drop_max": 0.05,
+        "training_weights_must_match_no_leak": true
+      },
+      "selected_minimal_period": 8,
+      "baseline_no_leak_network": {
+        "correct": 20,
+        "samples": 20,
+        "accuracy": 1.0,
+        "weights": [
+          [
+            6,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            6,
+            0,
+            0
+          ],
+          [
+            3,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            3,
+            0,
+            0
+          ]
+        ],
+        "weights_frozen": true,
+        "one_tick_route": true,
+        "route_delay_observed": true
+      },
+      "rows": [
+        {
+          "leak_period": 0,
+          "dense_hit_rate": 1.0,
+          "sparse_false_spike_rate": 1.0,
+          "temporal_selectivity": 0.0,
+          "training_weights": [
+            6,
+            -6,
+            0,
+            0
+          ],
+          "training_matches_no_leak": true,
+          "network": {
+            "correct": 20,
+            "samples": 20,
+            "accuracy": 1.0,
+            "weights": [
+              [
+                6,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                6,
+                0,
+                0
+              ],
+              [
+                3,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                3,
+                0,
+                0
+              ]
+            ],
+            "weights_frozen": true,
+            "one_tick_route": true,
+            "route_delay_observed": true
+          },
+          "network_accuracy_delta_vs_no_leak": 0.0,
+          "direct": {
+            "dense": [
+              {
+                "spike_count": 1,
+                "first_spike_tick": 5,
+                "sample_ticks": 6,
+                "final_soma": 0,
+                "max_soma": 5
+              },
+              {
+                "spike_count": 1,
+                "first_spike_tick": 5,
+                "sample_ticks": 8,
+                "final_soma": 1,
+                "max_soma": 5
+              },
+              {
+                "spike_count": 1,
+                "first_spike_tick": 2,
+                "sample_ticks": 6,
+                "final_soma": 4,
+                "max_soma": 4
+              },
+              {
+                "spike_count": 2,
+                "first_spike_tick": 2,
+                "sample_ticks": 8,
+                "final_soma": 0,
+                "max_soma": 4
+              },
+              {
+                "spike_count": 2,
+                "first_spike_tick": 1,
+                "sample_ticks": 6,
+                "final_soma": 0,
+                "max_soma": 3
+              },
+              {
+                "spike_count": 3,
+                "first_spike_tick": 1,
+                "sample_ticks": 8,
+                "final_soma": 0,
+                "max_soma": 3
+              },
+              {
+                "spike_count": 3,
+                "first_spike_tick": 0,
+                "sample_ticks": 6,
+                "final_soma": 0,
+                "max_soma": 0
+              },
+              {
+                "spike_count": 4,
+                "first_spike_tick": 0,
+                "sample_ticks": 8,
+                "final_soma": 0,
+                "max_soma": 0
+              }
+            ],
+            "sparse_gap_8": [
+              {
+                "spike_count": 1,
+                "first_spike_tick": 45,
+                "sample_ticks": 46,
+                "final_soma": 0,
+                "max_soma": 5
+              },
+              {
+                "spike_count": 1,
+                "first_spike_tick": 45,
+                "sample_ticks": 64,
+                "final_soma": 2,
+                "max_soma": 5
+              },
+              {
+                "spike_count": 2,
+                "first_spike_tick": 18,
+                "sample_ticks": 46,
+                "final_soma": 0,
+                "max_soma": 4
+              },
+              {
+                "spike_count": 2,
+                "first_spike_tick": 18,
+                "sample_ticks": 64,
+                "final_soma": 4,
+                "max_soma": 4
+              },
+              {
+                "spike_count": 3,
+                "first_spike_tick": 9,
+                "sample_ticks": 46,
+                "final_soma": 0,
+                "max_soma": 3
+              },
+              {
+                "spike_count": 4,
+                "first_spike_tick": 9,
+                "sample_ticks": 64,
+                "final_soma": 0,
+                "max_soma": 3
+              },
+              {
+                "spike_count": 6,
+                "first_spike_tick": 0,
+                "sample_ticks": 46,
+                "final_soma": 0,
+                "max_soma": 0
+              },
+              {
+                "spike_count": 8,
+                "first_spike_tick": 0,
+                "sample_ticks": 64,
+                "final_soma": 0,
+                "max_soma": 0
+              }
+            ]
+          },
+          "passes_minimal_gate": false
+        },
+        {
+          "leak_period": 1,
+          "dense_hit_rate": 0.75,
+          "sparse_false_spike_rate": 0.25,
+          "temporal_selectivity": 0.5,
+          "training_weights": [
+            6,
+            -6,
+            0,
+            0
+          ],
+          "training_matches_no_leak": true,
+          "network": {
+            "correct": 20,
+            "samples": 20,
+            "accuracy": 1.0,
+            "weights": [
+              [
+                6,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                6,
+                0,
+                0
+              ],
+              [
+                4,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                4,
+                0,
+                0
+              ]
+            ],
+            "weights_frozen": true,
+            "one_tick_route": true,
+            "route_delay_observed": true
+          },
+          "network_accuracy_delta_vs_no_leak": 0.0,
+          "direct": {
+            "dense": [
+              {
+                "spike_count": 0,
+                "first_spike_tick": null,
+                "sample_ticks": 6,
+                "final_soma": 1,
+                "max_soma": 1
+              },
+              {
+                "spike_count": 0,
+                "first_spike_tick": null,
+                "sample_ticks": 8,
+                "final_soma": 1,
+                "max_soma": 1
+              },
+              {
+                "spike_count": 1,
+                "first_spike_tick": 4,
+                "sample_ticks": 6,
+                "final_soma": 0,
+                "max_soma": 5
+              },
+              {
+                "spike_count": 1,
+                "first_spike_tick": 4,
+                "sample_ticks": 8,
+                "final_soma": 3,
+                "max_soma": 5
+              },
+              {
+                "spike_count": 1,
+                "first_spike_tick": 2,
+                "sample_ticks": 6,
+                "final_soma": 5,
+                "max_soma": 5
+              },
+              {
+                "spike_count": 2,
+                "first_spike_tick": 2,
+                "sample_ticks": 8,
+                "final_soma": 0,
+                "max_soma": 5
+              },
+              {
+                "spike_count": 3,
+                "first_spike_tick": 0,
+                "sample_ticks": 6,
+                "final_soma": 0,
+                "max_soma": 0
+              },
+              {
+                "spike_count": 4,
+                "first_spike_tick": 0,
+                "sample_ticks": 8,
+                "final_soma": 0,
+                "max_soma": 0
+              }
+            ],
+            "sparse_gap_8": [
+              {
+                "spike_count": 0,
+                "first_spike_tick": null,
+                "sample_ticks": 46,
+                "final_soma": 1,
+                "max_soma": 1
+              },
+              {
+                "spike_count": 0,
+                "first_spike_tick": null,
+                "sample_ticks": 64,
+                "final_soma": 1,
+                "max_soma": 1
+              },
+              {
+                "spike_count": 0,
+                "first_spike_tick": null,
+                "sample_ticks": 46,
+                "final_soma": 2,
+                "max_soma": 2
+              },
+              {
+                "spike_count": 0,
+                "first_spike_tick": null,
+                "sample_ticks": 64,
+                "final_soma": 2,
+                "max_soma": 2
+              },
+              {
+                "spike_count": 0,
+                "first_spike_tick": null,
+                "sample_ticks": 46,
+                "final_soma": 3,
+                "max_soma": 3
+              },
+              {
+                "spike_count": 0,
+                "first_spike_tick": null,
+                "sample_ticks": 64,
+                "final_soma": 3,
+                "max_soma": 3
+              },
+              {
+                "spike_count": 6,
+                "first_spike_tick": 0,
+                "sample_ticks": 46,
+                "final_soma": 0,
+                "max_soma": 0
+              },
+              {
+                "spike_count": 8,
+                "first_spike_tick": 0,
+                "sample_ticks": 64,
+                "final_soma": 0,
+                "max_soma": 0
+              }
+            ]
+          },
+          "passes_minimal_gate": false
+        },
+        {
+          "leak_period": 2,
+          "dense_hit_rate": 0.75,
+          "sparse_false_spike_rate": 0.25,
+          "temporal_selectivity": 0.5,
+          "training_weights": [
+            6,
+            -6,
+            0,
+            0
+          ],
+          "training_matches_no_leak": true,
+          "network": {
+            "correct": 20,
+            "samples": 20,
+            "accuracy": 1.0,
+            "weights": [
+              [
+                6,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                6,
+                0,
+                0
+              ],
+              [
+                4,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                4,
+                0,
+                0
+              ]
+            ],
+            "weights_frozen": true,
+            "one_tick_route": true,
+            "route_delay_observed": true
+          },
+          "network_accuracy_delta_vs_no_leak": 0.0,
+          "direct": {
+            "dense": [
+              {
+                "spike_count": 0,
+                "first_spike_tick": null,
+                "sample_ticks": 6,
+                "final_soma": 3,
+                "max_soma": 3
+              },
+              {
+                "spike_count": 0,
+                "first_spike_tick": null,
+                "sample_ticks": 8,
+                "final_soma": 4,
+                "max_soma": 4
+              },
+              {
+                "spike_count": 1,
+                "first_spike_tick": 3,
+                "sample_ticks": 6,
+                "final_soma": 2,
+                "max_soma": 5
+              },
+              {
+                "spike_count": 1,
+                "first_spike_tick": 3,
+                "sample_ticks": 8,
+                "final_soma": 5,
+                "max_soma": 5
+              },
+              {
+                "spike_count": 1,
+                "first_spike_tick": 2,
+                "sample_ticks": 6,
+                "final_soma": 5,
+                "max_soma": 5
+              },
+              {
+                "spike_count": 2,
+                "first_spike_tick": 2,
+                "sample_ticks": 8,
+                "final_soma": 0,
+                "max_soma": 5
+              },
+              {
+                "spike_count": 3,
+                "first_spike_tick": 0,
+                "sample_ticks": 6,
+                "final_soma": 0,
+                "max_soma": 0
+              },
+              {
+                "spike_count": 4,
+                "first_spike_tick": 0,
+                "sample_ticks": 8,
+                "final_soma": 0,
+                "max_soma": 0
+              }
+            ],
+            "sparse_gap_8": [
+              {
+                "spike_count": 0,
+                "first_spike_tick": null,
+                "sample_ticks": 46,
+                "final_soma": 1,
+                "max_soma": 1
+              },
+              {
+                "spike_count": 0,
+                "first_spike_tick": null,
+                "sample_ticks": 64,
+                "final_soma": 1,
+                "max_soma": 1
+              },
+              {
+                "spike_count": 0,
+                "first_spike_tick": null,
+                "sample_ticks": 46,
+                "final_soma": 2,
+                "max_soma": 2
+              },
+              {
+                "spike_count": 0,
+                "first_spike_tick": null,
+                "sample_ticks": 64,
+                "final_soma": 2,
+                "max_soma": 2
+              },
+              {
+                "spike_count": 0,
+                "first_spike_tick": null,
+                "sample_ticks": 46,
+                "final_soma": 3,
+                "max_soma": 3
+              },
+              {
+                "spike_count": 0,
+                "first_spike_tick": null,
+                "sample_ticks": 64,
+                "final_soma": 3,
+                "max_soma": 3
+              },
+              {
+                "spike_count": 6,
+                "first_spike_tick": 0,
+                "sample_ticks": 46,
+                "final_soma": 0,
+                "max_soma": 0
+              },
+              {
+                "spike_count": 8,
+                "first_spike_tick": 0,
+                "sample_ticks": 64,
+                "final_soma": 0,
+                "max_soma": 0
+              }
+            ]
+          },
+          "passes_minimal_gate": false
+        },
+        {
+          "leak_period": 4,
+          "dense_hit_rate": 0.875,
+          "sparse_false_spike_rate": 0.5,
+          "temporal_selectivity": 0.375,
+          "training_weights": [
+            6,
+            -6,
+            0,
+            0
+          ],
+          "training_matches_no_leak": true,
+          "network": {
+            "correct": 20,
+            "samples": 20,
+            "accuracy": 1.0,
+            "weights": [
+              [
+                6,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                6,
+                0,
+                0
+              ],
+              [
+                4,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                4,
+                0,
+                0
+              ]
+            ],
+            "weights_frozen": true,
+            "one_tick_route": true,
+            "route_delay_observed": true
+          },
+          "network_accuracy_delta_vs_no_leak": 0.0,
+          "direct": {
+            "dense": [
+              {
+                "spike_count": 0,
+                "first_spike_tick": null,
+                "sample_ticks": 6,
+                "final_soma": 5,
+                "max_soma": 5
+              },
+              {
+                "spike_count": 1,
+                "first_spike_tick": 6,
+                "sample_ticks": 8,
+                "final_soma": 0,
+                "max_soma": 5
+              },
+              {
+                "spike_count": 1,
+                "first_spike_tick": 2,
+                "sample_ticks": 6,
+                "final_soma": 4,
+                "max_soma": 4
+              },
+              {
+                "spike_count": 2,
+                "first_spike_tick": 2,
+                "sample_ticks": 8,
+                "final_soma": 0,
+                "max_soma": 4
+              },
+              {
+                "spike_count": 2,
+                "first_spike_tick": 1,
+                "sample_ticks": 6,
+                "final_soma": 0,
+                "max_soma": 3
+              },
+              {
+                "spike_count": 3,
+                "first_spike_tick": 1,
+                "sample_ticks": 8,
+                "final_soma": 0,
+                "max_soma": 3
+              },
+              {
+                "spike_count": 3,
+                "first_spike_tick": 0,
+                "sample_ticks": 6,
+                "final_soma": 0,
+                "max_soma": 0
+              },
+              {
+                "spike_count": 4,
+                "first_spike_tick": 0,
+                "sample_ticks": 8,
+                "final_soma": 0,
+                "max_soma": 0
+              }
+            ],
+            "sparse_gap_8": [
+              {
+                "spike_count": 0,
+                "first_spike_tick": null,
+                "sample_ticks": 46,
+                "final_soma": 1,
+                "max_soma": 1
+              },
+              {
+                "spike_count": 0,
+                "first_spike_tick": null,
+                "sample_ticks": 64,
+                "final_soma": 1,
+                "max_soma": 1
+              },
+              {
+                "spike_count": 0,
+                "first_spike_tick": null,
+                "sample_ticks": 46,
+                "final_soma": 2,
+                "max_soma": 2
+              },
+              {
+                "spike_count": 0,
+                "first_spike_tick": null,
+                "sample_ticks": 64,
+                "final_soma": 2,
+                "max_soma": 2
+              },
+              {
+                "spike_count": 1,
+                "first_spike_tick": 36,
+                "sample_ticks": 46,
+                "final_soma": 3,
+                "max_soma": 5
+              },
+              {
+                "spike_count": 1,
+                "first_spike_tick": 36,
+                "sample_ticks": 64,
+                "final_soma": 5,
+                "max_soma": 5
+              },
+              {
+                "spike_count": 6,
+                "first_spike_tick": 0,
+                "sample_ticks": 46,
+                "final_soma": 0,
+                "max_soma": 0
+              },
+              {
+                "spike_count": 8,
+                "first_spike_tick": 0,
+                "sample_ticks": 64,
+                "final_soma": 0,
+                "max_soma": 0
+              }
+            ]
+          },
+          "passes_minimal_gate": false
+        },
+        {
+          "leak_period": 8,
+          "dense_hit_rate": 1.0,
+          "sparse_false_spike_rate": 0.75,
+          "temporal_selectivity": 0.25,
+          "training_weights": [
+            6,
+            -6,
+            0,
+            0
+          ],
+          "training_matches_no_leak": true,
+          "network": {
+            "correct": 20,
+            "samples": 20,
+            "accuracy": 1.0,
+            "weights": [
+              [
+                6,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                6,
+                0,
+                0
+              ],
+              [
+                3,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                3,
+                0,
+                0
+              ]
+            ],
+            "weights_frozen": true,
+            "one_tick_route": true,
+            "route_delay_observed": true
+          },
+          "network_accuracy_delta_vs_no_leak": 0.0,
+          "direct": {
+            "dense": [
+              {
+                "spike_count": 1,
+                "first_spike_tick": 5,
+                "sample_ticks": 6,
+                "final_soma": 0,
+                "max_soma": 5
+              },
+              {
+                "spike_count": 1,
+                "first_spike_tick": 5,
+                "sample_ticks": 8,
+                "final_soma": 1,
+                "max_soma": 5
+              },
+              {
+                "spike_count": 1,
+                "first_spike_tick": 2,
+                "sample_ticks": 6,
+                "final_soma": 4,
+                "max_soma": 4
+              },
+              {
+                "spike_count": 2,
+                "first_spike_tick": 2,
+                "sample_ticks": 8,
+                "final_soma": 0,
+                "max_soma": 4
+              },
+              {
+                "spike_count": 2,
+                "first_spike_tick": 1,
+                "sample_ticks": 6,
+                "final_soma": 0,
+                "max_soma": 3
+              },
+              {
+                "spike_count": 3,
+                "first_spike_tick": 1,
+                "sample_ticks": 8,
+                "final_soma": 0,
+                "max_soma": 3
+              },
+              {
+                "spike_count": 3,
+                "first_spike_tick": 0,
+                "sample_ticks": 6,
+                "final_soma": 0,
+                "max_soma": 0
+              },
+              {
+                "spike_count": 4,
+                "first_spike_tick": 0,
+                "sample_ticks": 8,
+                "final_soma": 0,
+                "max_soma": 0
+              }
+            ],
+            "sparse_gap_8": [
+              {
+                "spike_count": 0,
+                "first_spike_tick": null,
+                "sample_ticks": 46,
+                "final_soma": 1,
+                "max_soma": 1
+              },
+              {
+                "spike_count": 0,
+                "first_spike_tick": null,
+                "sample_ticks": 64,
+                "final_soma": 1,
+                "max_soma": 1
+              },
+              {
+                "spike_count": 1,
+                "first_spike_tick": 36,
+                "sample_ticks": 46,
+                "final_soma": 2,
+                "max_soma": 5
+              },
+              {
+                "spike_count": 1,
+                "first_spike_tick": 36,
+                "sample_ticks": 64,
+                "final_soma": 4,
+                "max_soma": 5
+              },
+              {
+                "spike_count": 2,
+                "first_spike_tick": 18,
+                "sample_ticks": 46,
+                "final_soma": 0,
+                "max_soma": 5
+              },
+              {
+                "spike_count": 2,
+                "first_spike_tick": 18,
+                "sample_ticks": 64,
+                "final_soma": 5,
+                "max_soma": 5
+              },
+              {
+                "spike_count": 6,
+                "first_spike_tick": 0,
+                "sample_ticks": 46,
+                "final_soma": 0,
+                "max_soma": 0
+              },
+              {
+                "spike_count": 8,
+                "first_spike_tick": 0,
+                "sample_ticks": 64,
+                "final_soma": 0,
+                "max_soma": 0
+              }
+            ]
+          },
+          "passes_minimal_gate": true
+        },
+        {
+          "leak_period": 12,
+          "dense_hit_rate": 1.0,
+          "sparse_false_spike_rate": 0.75,
+          "temporal_selectivity": 0.25,
+          "training_weights": [
+            6,
+            -6,
+            0,
+            0
+          ],
+          "training_matches_no_leak": true,
+          "network": {
+            "correct": 20,
+            "samples": 20,
+            "accuracy": 1.0,
+            "weights": [
+              [
+                6,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                6,
+                0,
+                0
+              ],
+              [
+                3,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                3,
+                0,
+                0
+              ]
+            ],
+            "weights_frozen": true,
+            "one_tick_route": true,
+            "route_delay_observed": true
+          },
+          "network_accuracy_delta_vs_no_leak": 0.0,
+          "direct": {
+            "dense": [
+              {
+                "spike_count": 1,
+                "first_spike_tick": 5,
+                "sample_ticks": 6,
+                "final_soma": 0,
+                "max_soma": 5
+              },
+              {
+                "spike_count": 1,
+                "first_spike_tick": 5,
+                "sample_ticks": 8,
+                "final_soma": 1,
+                "max_soma": 5
+              },
+              {
+                "spike_count": 1,
+                "first_spike_tick": 2,
+                "sample_ticks": 6,
+                "final_soma": 4,
+                "max_soma": 4
+              },
+              {
+                "spike_count": 2,
+                "first_spike_tick": 2,
+                "sample_ticks": 8,
+                "final_soma": 0,
+                "max_soma": 4
+              },
+              {
+                "spike_count": 2,
+                "first_spike_tick": 1,
+                "sample_ticks": 6,
+                "final_soma": 0,
+                "max_soma": 3
+              },
+              {
+                "spike_count": 3,
+                "first_spike_tick": 1,
+                "sample_ticks": 8,
+                "final_soma": 0,
+                "max_soma": 3
+              },
+              {
+                "spike_count": 3,
+                "first_spike_tick": 0,
+                "sample_ticks": 6,
+                "final_soma": 0,
+                "max_soma": 0
+              },
+              {
+                "spike_count": 4,
+                "first_spike_tick": 0,
+                "sample_ticks": 8,
+                "final_soma": 0,
+                "max_soma": 0
+              }
+            ],
+            "sparse_gap_8": [
+              {
+                "spike_count": 0,
+                "first_spike_tick": null,
+                "sample_ticks": 46,
+                "final_soma": 3,
+                "max_soma": 3
+              },
+              {
+                "spike_count": 0,
+                "first_spike_tick": null,
+                "sample_ticks": 64,
+                "final_soma": 3,
+                "max_soma": 3
+              },
+              {
+                "spike_count": 1,
+                "first_spike_tick": 27,
+                "sample_ticks": 46,
+                "final_soma": 3,
+                "max_soma": 5
+              },
+              {
+                "spike_count": 2,
+                "first_spike_tick": 27,
+                "sample_ticks": 64,
+                "final_soma": 0,
+                "max_soma": 5
+              },
+              {
+                "spike_count": 2,
+                "first_spike_tick": 9,
+                "sample_ticks": 46,
+                "final_soma": 3,
+                "max_soma": 5
+              },
+              {
+                "spike_count": 3,
+                "first_spike_tick": 9,
+                "sample_ticks": 64,
+                "final_soma": 0,
+                "max_soma": 5
+              },
+              {
+                "spike_count": 6,
+                "first_spike_tick": 0,
+                "sample_ticks": 46,
+                "final_soma": 0,
+                "max_soma": 0
+              },
+              {
+                "spike_count": 8,
+                "first_spike_tick": 0,
+                "sample_ticks": 64,
+                "final_soma": 0,
+                "max_soma": 0
+              }
+            ]
+          },
+          "passes_minimal_gate": true
+        }
+      ]
+    },
+    "conflicting_evidence": {
+      "input_masks": [
+        1,
+        0,
+        1
+      ],
+      "eneuron_spikes": [
+        1,
+        0,
+        1
+      ],
+      "eneuron_eligibility": 60,
+      "pulse_mini_spikes": [
+        1,
+        0,
+        1
+      ],
+      "pulse_mini_positive_evidence": true,
+      "pulse_mini_negative_evidence": true,
+      "pulse_mini_captured_direction": 0
+    },
+    "convergence": {
+      "rows": [
+        {
+          "repetitions": 0,
+          "training_samples": 0,
+          "eneuron_correct": 10,
+          "pulse_mini_correct": 10,
+          "samples": 20,
+          "eneuron_weights": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "pulse_mini_weights": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "repetitions": 1,
+          "training_samples": 2,
+          "eneuron_correct": 20,
+          "pulse_mini_correct": 20,
+          "samples": 20,
+          "eneuron_weights": [
+            2,
+            -2,
+            0,
+            0
+          ],
+          "pulse_mini_weights": [
+            1,
+            -1,
+            0,
+            0
+          ]
+        },
+        {
+          "repetitions": 2,
+          "training_samples": 4,
+          "eneuron_correct": 20,
+          "pulse_mini_correct": 20,
+          "samples": 20,
+          "eneuron_weights": [
+            4,
+            -4,
+            0,
+            0
+          ],
+          "pulse_mini_weights": [
+            2,
+            -2,
+            0,
+            0
+          ]
+        },
+        {
+          "repetitions": 3,
+          "training_samples": 6,
+          "eneuron_correct": 20,
+          "pulse_mini_correct": 20,
+          "samples": 20,
+          "eneuron_weights": [
+            6,
+            -6,
+            0,
+            0
+          ],
+          "pulse_mini_weights": [
+            3,
+            -3,
+            0,
+            0
+          ]
+        },
+        {
+          "repetitions": 4,
+          "training_samples": 8,
+          "eneuron_correct": 20,
+          "pulse_mini_correct": 20,
+          "samples": 20,
+          "eneuron_weights": [
+            7,
+            -7,
+            0,
+            0
+          ],
+          "pulse_mini_weights": [
+            4,
+            -4,
+            0,
+            0
+          ]
+        },
+        {
+          "repetitions": 5,
+          "training_samples": 10,
+          "eneuron_correct": 20,
+          "pulse_mini_correct": 20,
+          "samples": 20,
+          "eneuron_weights": [
+            7,
+            -7,
+            0,
+            0
+          ],
+          "pulse_mini_weights": [
+            5,
+            -5,
+            0,
+            0
+          ]
+        },
+        {
+          "repetitions": 6,
+          "training_samples": 12,
+          "eneuron_correct": 20,
+          "pulse_mini_correct": 20,
+          "samples": 20,
+          "eneuron_weights": [
+            7,
+            -7,
+            0,
+            0
+          ],
+          "pulse_mini_weights": [
+            6,
+            -6,
+            0,
+            0
+          ]
+        },
+        {
+          "repetitions": 7,
+          "training_samples": 14,
+          "eneuron_correct": 20,
+          "pulse_mini_correct": 20,
+          "samples": 20,
+          "eneuron_weights": [
+            7,
+            -7,
+            0,
+            0
+          ],
+          "pulse_mini_weights": [
+            7,
+            -7,
+            0,
+            0
+          ]
+        }
+      ],
+      "eneuron_first_full_score_repetition": 1,
+      "pulse_mini_first_full_score_repetition": 1
+    },
+    "negative_controls": {
+      "eneuron": {
+        "correct_feedback": 20,
+        "no_feedback": 10,
+        "reversed_feedback": 0,
+        "label_shuffled": 10
+      },
+      "pulse_mini": {
+        "correct_feedback": 20,
+        "no_feedback": 10,
+        "reversed_feedback": 0,
+        "label_shuffled": 10
+      }
+    },
+    "noise_sweep": {
+      "seed_count": 20,
+      "samples_per_seed": 200,
+      "levels": [
+        0.0,
+        0.1,
+        0.25,
+        0.5,
+        0.75,
+        0.9
+      ],
+      "profiles": {
+        "dropout": [
+          {
+            "severity": 0.0,
+            "eneuron_mean_accuracy": 1.0,
+            "eneuron_min_accuracy": 1.0,
+            "eneuron_max_accuracy": 1.0,
+            "pulse_mini_mean_accuracy": 1.0,
+            "pulse_mini_min_accuracy": 1.0,
+            "pulse_mini_max_accuracy": 1.0
+          },
+          {
+            "severity": 0.1,
+            "eneuron_mean_accuracy": 1.0,
+            "eneuron_min_accuracy": 1.0,
+            "eneuron_max_accuracy": 1.0,
+            "pulse_mini_mean_accuracy": 1.0,
+            "pulse_mini_min_accuracy": 1.0,
+            "pulse_mini_max_accuracy": 1.0
+          },
+          {
+            "severity": 0.25,
+            "eneuron_mean_accuracy": 1.0,
+            "eneuron_min_accuracy": 1.0,
+            "eneuron_max_accuracy": 1.0,
+            "pulse_mini_mean_accuracy": 1.0,
+            "pulse_mini_min_accuracy": 1.0,
+            "pulse_mini_max_accuracy": 1.0
+          },
+          {
+            "severity": 0.5,
+            "eneuron_mean_accuracy": 0.9984999999999999,
+            "eneuron_min_accuracy": 0.985,
+            "eneuron_max_accuracy": 1.0,
+            "pulse_mini_mean_accuracy": 0.9984999999999999,
+            "pulse_mini_min_accuracy": 0.985,
+            "pulse_mini_max_accuracy": 1.0
+          },
+          {
+            "severity": 0.75,
+            "eneuron_mean_accuracy": 0.953,
+            "eneuron_min_accuracy": 0.925,
+            "eneuron_max_accuracy": 0.98,
+            "pulse_mini_mean_accuracy": 0.953,
+            "pulse_mini_min_accuracy": 0.925,
+            "pulse_mini_max_accuracy": 0.98
+          },
+          {
+            "severity": 0.9,
+            "eneuron_mean_accuracy": 0.78575,
+            "eneuron_min_accuracy": 0.725,
+            "eneuron_max_accuracy": 0.815,
+            "pulse_mini_mean_accuracy": 0.78575,
+            "pulse_mini_min_accuracy": 0.725,
+            "pulse_mini_max_accuracy": 0.815
+          }
+        ],
+        "cross_class": [
+          {
+            "severity": 0.0,
+            "eneuron_mean_accuracy": 1.0,
+            "eneuron_min_accuracy": 1.0,
+            "eneuron_max_accuracy": 1.0,
+            "pulse_mini_mean_accuracy": 1.0,
+            "pulse_mini_min_accuracy": 1.0,
+            "pulse_mini_max_accuracy": 1.0
+          },
+          {
+            "severity": 0.1,
+            "eneuron_mean_accuracy": 1.0,
+            "eneuron_min_accuracy": 1.0,
+            "eneuron_max_accuracy": 1.0,
+            "pulse_mini_mean_accuracy": 1.0,
+            "pulse_mini_min_accuracy": 1.0,
+            "pulse_mini_max_accuracy": 1.0
+          },
+          {
+            "severity": 0.25,
+            "eneuron_mean_accuracy": 1.0,
+            "eneuron_min_accuracy": 1.0,
+            "eneuron_max_accuracy": 1.0,
+            "pulse_mini_mean_accuracy": 1.0,
+            "pulse_mini_min_accuracy": 1.0,
+            "pulse_mini_max_accuracy": 1.0
+          },
+          {
+            "severity": 0.5,
+            "eneuron_mean_accuracy": 0.99825,
+            "eneuron_min_accuracy": 0.99,
+            "eneuron_max_accuracy": 1.0,
+            "pulse_mini_mean_accuracy": 0.99825,
+            "pulse_mini_min_accuracy": 0.99,
+            "pulse_mini_max_accuracy": 1.0
+          },
+          {
+            "severity": 0.75,
+            "eneuron_mean_accuracy": 0.951,
+            "eneuron_min_accuracy": 0.915,
+            "eneuron_max_accuracy": 0.985,
+            "pulse_mini_mean_accuracy": 0.951,
+            "pulse_mini_min_accuracy": 0.915,
+            "pulse_mini_max_accuracy": 0.985
+          },
+          {
+            "severity": 0.9,
+            "eneuron_mean_accuracy": 0.7885,
+            "eneuron_min_accuracy": 0.74,
+            "eneuron_max_accuracy": 0.85,
+            "pulse_mini_mean_accuracy": 0.7885,
+            "pulse_mini_min_accuracy": 0.74,
+            "pulse_mini_max_accuracy": 0.85
+          }
+        ],
+        "neutral": [
+          {
+            "severity": 0.0,
+            "eneuron_mean_accuracy": 1.0,
+            "eneuron_min_accuracy": 1.0,
+            "eneuron_max_accuracy": 1.0,
+            "pulse_mini_mean_accuracy": 1.0,
+            "pulse_mini_min_accuracy": 1.0,
+            "pulse_mini_max_accuracy": 1.0
+          },
+          {
+            "severity": 0.1,
+            "eneuron_mean_accuracy": 1.0,
+            "eneuron_min_accuracy": 1.0,
+            "eneuron_max_accuracy": 1.0,
+            "pulse_mini_mean_accuracy": 1.0,
+            "pulse_mini_min_accuracy": 1.0,
+            "pulse_mini_max_accuracy": 1.0
+          },
+          {
+            "severity": 0.25,
+            "eneuron_mean_accuracy": 1.0,
+            "eneuron_min_accuracy": 1.0,
+            "eneuron_max_accuracy": 1.0,
+            "pulse_mini_mean_accuracy": 1.0,
+            "pulse_mini_min_accuracy": 1.0,
+            "pulse_mini_max_accuracy": 1.0
+          },
+          {
+            "severity": 0.5,
+            "eneuron_mean_accuracy": 1.0,
+            "eneuron_min_accuracy": 1.0,
+            "eneuron_max_accuracy": 1.0,
+            "pulse_mini_mean_accuracy": 1.0,
+            "pulse_mini_min_accuracy": 1.0,
+            "pulse_mini_max_accuracy": 1.0
+          },
+          {
+            "severity": 0.75,
+            "eneuron_mean_accuracy": 1.0,
+            "eneuron_min_accuracy": 1.0,
+            "eneuron_max_accuracy": 1.0,
+            "pulse_mini_mean_accuracy": 1.0,
+            "pulse_mini_min_accuracy": 1.0,
+            "pulse_mini_max_accuracy": 1.0
+          },
+          {
+            "severity": 0.9,
+            "eneuron_mean_accuracy": 1.0,
+            "eneuron_min_accuracy": 1.0,
+            "eneuron_max_accuracy": 1.0,
+            "pulse_mini_mean_accuracy": 1.0,
+            "pulse_mini_min_accuracy": 1.0,
+            "pulse_mini_max_accuracy": 1.0
+          }
+        ],
+        "combined": [
+          {
+            "severity": 0.0,
+            "eneuron_mean_accuracy": 1.0,
+            "eneuron_min_accuracy": 1.0,
+            "eneuron_max_accuracy": 1.0,
+            "pulse_mini_mean_accuracy": 1.0,
+            "pulse_mini_min_accuracy": 1.0,
+            "pulse_mini_max_accuracy": 1.0
+          },
+          {
+            "severity": 0.1,
+            "eneuron_mean_accuracy": 0.994,
+            "eneuron_min_accuracy": 0.985,
+            "eneuron_max_accuracy": 1.0,
+            "pulse_mini_mean_accuracy": 0.994,
+            "pulse_mini_min_accuracy": 0.985,
+            "pulse_mini_max_accuracy": 1.0
+          },
+          {
+            "severity": 0.25,
+            "eneuron_mean_accuracy": 0.93875,
+            "eneuron_min_accuracy": 0.9,
+            "eneuron_max_accuracy": 0.96,
+            "pulse_mini_mean_accuracy": 0.93775,
+            "pulse_mini_min_accuracy": 0.9,
+            "pulse_mini_max_accuracy": 0.965
+          },
+          {
+            "severity": 0.5,
+            "eneuron_mean_accuracy": 0.49775,
+            "eneuron_min_accuracy": 0.44,
+            "eneuron_max_accuracy": 0.565,
+            "pulse_mini_mean_accuracy": 0.50225,
+            "pulse_mini_min_accuracy": 0.44,
+            "pulse_mini_max_accuracy": 0.56
+          },
+          {
+            "severity": 0.75,
+            "eneuron_mean_accuracy": 0.062,
+            "eneuron_min_accuracy": 0.04,
+            "eneuron_max_accuracy": 0.1,
+            "pulse_mini_mean_accuracy": 0.061250000000000006,
+            "pulse_mini_min_accuracy": 0.035,
+            "pulse_mini_max_accuracy": 0.1
+          },
+          {
+            "severity": 0.9,
+            "eneuron_mean_accuracy": 0.0072499999999999995,
+            "eneuron_min_accuracy": 0.0,
+            "eneuron_max_accuracy": 0.02,
+            "pulse_mini_mean_accuracy": 0.0072499999999999995,
+            "pulse_mini_min_accuracy": 0.0,
+            "pulse_mini_max_accuracy": 0.02
+          }
+        ]
+      },
+      "inference_weights_frozen": true
+    }
+  },
+  "network_4x2x2": {
+    "shared_task": {
+      "samples": 20,
+      "training_samples_per_epoch": 2,
+      "eneuron": {
+        "seeds": 20,
+        "baseline_mean_accuracy": 0.43499999999999994,
+        "baseline_min_accuracy": 0.2,
+        "trained_mean_accuracy": 1.0,
+        "trained_min_accuracy": 1.0,
+        "trained_success_rate": 1.0,
+        "inference_weights_frozen": true
+      },
+      "pulse_mini": {
+        "baseline_correct": 0,
+        "trained_correct": 20,
+        "inference_weights_frozen": true,
+        "trained_weights": [
+          [
+            6,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            6,
+            0,
+            0
+          ],
+          [
+            3,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            3,
+            0,
+            0
+          ]
+        ]
+      }
+    },
+    "native_protocols": {
+      "eneuron_teacher": {
+        "seeds": 20,
+        "clean_success_rate": 1.0,
+        "clean_mean_accuracy": 1.0,
+        "clean_min_accuracy": 1.0,
+        "noisy_mean_accuracy": 1.0,
+        "noisy_min_accuracy": 1.0
+      },
+      "eneuron_global_reward": {
+        "seeds": 20,
+        "clean_success_rate": 0.0,
+        "clean_mean_accuracy": 0.225,
+        "clean_min_accuracy": 0.0,
+        "noisy_mean_accuracy": 0.225,
+        "noisy_min_accuracy": 0.0
+      },
+      "eneuron_hybrid": {
+        "seeds": 20,
+        "clean_success_rate": 1.0,
+        "clean_mean_accuracy": 1.0,
+        "clean_min_accuracy": 1.0,
+        "noisy_mean_accuracy": 1.0,
+        "noisy_min_accuracy": 1.0
+      },
+      "pulse_mini_local_teacher": {
+        "baseline_correct": 0,
+        "clean_correct": 20,
+        "clean_samples": 20,
+        "no_feedback_outputs": [
+          0,
+          0
+        ],
+        "inference_weights_frozen": true,
+        "one_tick_route": true,
+        "direct_weight_write_count": 0
+      },
+      "pulse_mini_global_reward": "not_tested"
+    }
+  },
+  "rtl_cosimulation": {
+    "tool": "Icarus Verilog + Python golden model",
+    "eneuron_core": {
+      "seeds": 20,
+      "transactions": 20000,
+      "result": "bit_exact_pass"
+    },
+    "pulse_mini_core": {
+      "seeds": 20,
+      "transactions": 20000,
+      "result": "bit_exact_pass"
+    },
+    "eneuron_tile_4x2x2": {
+      "seeds": 20,
+      "transactions": 10000,
+      "result": "bit_exact_pass"
+    },
+    "pulse_mini_network_4x2x2": {
+      "commands": 272,
+      "result": "bit_exact_pass",
+      "one_tick_route": true
+    }
+  }
+}

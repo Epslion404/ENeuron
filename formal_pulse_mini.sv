@@ -14,6 +14,7 @@ module formal_pulse_mini(input logic clk);
     logic signed [3:0] weight0, weight1, weight2, weight3;
     logic signed [7:0] soma_state;
     logic [3:0] refractory_state;
+    logic [3:0] leak_timer_state;
     logic [15:0] pre_age_flat;
     logic [3:0] post_age_state, positive_evidence, negative_evidence;
     logic signed [7:0] captured_direction_flat;
@@ -53,6 +54,7 @@ module formal_pulse_mini(input logic clk);
             assert(weight2 != -8);
             assert(weight3 != -8);
             assert(refractory_state <= 1);
+            assert(leak_timer_state <= 7);
             assert(post_age_state <= 3);
 
             // 推理 tick 不得改写连接、窗口证据和 pending 槽。

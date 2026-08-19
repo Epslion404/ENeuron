@@ -1,8 +1,8 @@
 """Pulse-Mini 四输入脉冲单元的整数黄金模型。
 
-本文件只描述 P2 行为合同，不试图模拟 RTL 的实现细节。模型固定四条
+本文件描述 Pulse-Mini-L 的整数行为合同，不试图模拟 RTL 的实现细节。模型固定四条
 输入、四位有符号连接(-7..+7)、八位有符号饱和胞体、阈值 6、一个 tick
-的不应期和长度为 3 的时间窗口。所有命令都经过一个一槽响应口；响应未
+的不应期、默认八 tick 的膜电位泄放和长度为 3 的时间窗口。所有命令都经过一个一槽响应口；响应未
 被消费时，新的命令不会被接受。
 
 命令字段约定：
@@ -110,6 +110,7 @@ class StateView:
     weights: tuple[int, ...]
     soma: int
     refractory: int
+    leak_timer: int
     pre_age: tuple[int, ...]
     post_age: int
     positive_evidence: tuple[bool, ...]
@@ -160,6 +161,7 @@ class PulseMiniReference:
     SOMA_MAX = 127
     THRESHOLD = 6
     REFRACTORY_LENGTH = 1
+    LEAK_PERIOD = 8
     WINDOW = 3
 
     def __init__(
@@ -170,20 +172,25 @@ class PulseMiniReference:
         threshold: int = THRESHOLD,
         window: int = WINDOW,
         refractory_length: int = REFRACTORY_LENGTH,
+        leak_period: int = LEAK_PERIOD,
     ) -> None:
         if threshold != self.THRESHOLD or window != self.WINDOW:
-            raise ValueError("P2 contract fixes threshold=6 and window=3")
+            raise ValueError("Pulse-Mini contract fixes threshold=6 and window=3")
         if refractory_length != self.REFRACTORY_LENGTH:
             raise ValueError("P2 contract fixes refractory_length=1")
+        if not isinstance(leak_period, int) or isinstance(leak_period, bool) or not 0 <= leak_period <= 15:
+            raise ValueError("leak_period must be an integer in 0..15")
         if initial_weights is None:
             initial_weights = [init_weight] * self.N_INPUTS
         if len(initial_weights) != self.N_INPUTS:
             raise ValueError("Pulse-Mini has exactly four inputs")
         self._initial_weights = [decode_weight(int(value)) for value in initial_weights]
+        self.leak_period = leak_period
         self.mode = Mode.CONFIG
         self.weights = list(self._initial_weights)
         self.soma = 0
         self.refractory = 0
+        self.leak_timer = 0
         self.pre_age = [0] * self.N_INPUTS
         self.post_age = 0
         self.positive_evidence = [False] * self.N_INPUTS
@@ -217,6 +224,7 @@ class PulseMiniReference:
             weights=tuple(self.weights),
             soma=self.soma,
             refractory=self.refractory,
+            leak_timer=self.leak_timer,
             pre_age=tuple(self.pre_age),
             post_age=self.post_age,
             positive_evidence=tuple(self.positive_evidence),
@@ -235,6 +243,7 @@ class PulseMiniReference:
             "weights": list(value.weights),
             "soma": value.soma,
             "refractory": value.refractory,
+            "leak_timer": value.leak_timer,
             "pre_age": list(value.pre_age),
             "post_age": value.post_age,
             "positive_evidence": list(value.positive_evidence),
@@ -251,6 +260,7 @@ class PulseMiniReference:
         self.weights = list(self._initial_weights)
         self.soma = 0
         self.refractory = 0
+        self.leak_timer = 0
         self.pre_age = [0] * self.N_INPUTS
         self.post_age = 0
         self.positive_evidence = [False] * self.N_INPUTS
@@ -410,6 +420,7 @@ class PulseMiniReference:
             return Status.BUSY_PENDING, {"reason": "clear requires no pending feedback"}
         self.soma = 0
         self.refractory = 0
+        self.leak_timer = 0
         self.pre_age = [0] * self.N_INPUTS
         self.post_age = 0
         self.positive_evidence = [False] * self.N_INPUTS
@@ -436,6 +447,7 @@ class PulseMiniReference:
         old_pre = tuple(self.pre_age)
         old_post = self.post_age
         old_soma = self.soma
+        old_leak_timer = self.leak_timer
         was_refractory = self.refractory > 0
         active = tuple(index for index in range(self.N_INPUTS) if input_mask & (1 << index))
         natural_spike = False
@@ -446,13 +458,28 @@ class PulseMiniReference:
         if was_refractory:
             self.soma = 0
             self.refractory = max(0, self.refractory - 1)
+            # 不应期内胞体已被强制为零，暂停泄放相位，避免相位依赖。
+            self.leak_timer = old_leak_timer
         else:
+            # 只在成功接受的逻辑 TICK 上计时；到期先把膜电位向零移动一个单位。
+            leak_due = self.leak_period > 0 and old_leak_timer == self.leak_period - 1
+            if leak_due:
+                if self.soma > 0:
+                    self.soma -= 1
+                elif self.soma < 0:
+                    self.soma += 1
+                self.leak_timer = 0
+            elif self.leak_period > 0:
+                self.leak_timer = old_leak_timer + 1
+            else:
+                self.leak_timer = 0
             total = sum(self.weights[index] for index in active)
             candidate = saturate(self.soma + total, self.SOMA_MIN, self.SOMA_MAX)
             if candidate >= self.THRESHOLD:
                 natural_spike = True
                 self.soma = 0
                 self.refractory = self.REFRACTORY_LENGTH
+                self.leak_timer = 0
             else:
                 self.soma = candidate
 
@@ -493,6 +520,11 @@ class PulseMiniReference:
             "old_pre_age": list(old_pre),
             "old_post_age": old_post,
             "old_soma": old_soma,
+            "old_leak_timer": old_leak_timer,
+            "leak_period": self.leak_period,
+            "leak_due": int(not was_refractory and self.leak_period > 0
+                             and old_leak_timer == self.leak_period - 1),
+            "leak_timer": self.leak_timer,
             "contribution": total,
             "candidate": candidate,
             "post_event": int(post_event),

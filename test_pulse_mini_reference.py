@@ -266,6 +266,78 @@ class PulseMiniReferenceTests(unittest.TestCase):
         self.assertEqual(model.last_spike, 0)
         self.assertEqual(model.post_age, PulseMiniReference.WINDOW)
 
+    def test_leak_timer_cadence_and_signed_toward_zero(self) -> None:
+        model = PulseMiniReference(leak_period=4)
+        self.infer(model)
+        model.soma = 5
+        for expected_timer in (1, 2, 3):
+            send(model, Opcode.TICK, 0)
+            self.assertEqual(model.soma, 5)
+            self.assertEqual(model.leak_timer, expected_timer)
+        send(model, Opcode.TICK, 0)
+        self.assertEqual(model.soma, 4)
+        self.assertEqual(model.leak_timer, 0)
+
+        model.soma = -3
+        model.leak_timer = 3
+        send(model, Opcode.TICK, 0)
+        self.assertEqual(model.soma, -2)
+        self.assertEqual(model.leak_timer, 0)
+
+    def test_leak_is_before_input_and_refractory_holds_phase(self) -> None:
+        model = PulseMiniReference(initial_weights=(5, 0, 0, 0), leak_period=4)
+        self.infer(model)
+        model.soma = 1
+        model.leak_timer = 3
+        response = send(model, Opcode.TICK, 1)
+        self.assertEqual(response.spike, 0)
+        self.assertEqual(model.soma, 5)  # 1 -> 0 泄放后再加 5
+        self.assertEqual(model.leak_timer, 0)
+
+        model.refractory = 1
+        model.soma = 5
+        model.leak_timer = 2
+        send(model, Opcode.TICK, 1)
+        self.assertEqual(model.soma, 0)
+        self.assertEqual(model.refractory, 0)
+        self.assertEqual(model.leak_timer, 2)
+
+    def test_state_clear_and_infer_freeze_include_leak_timer(self) -> None:
+        model = PulseMiniReference(initial_weights=(1, -1, 0, 0), leak_period=4)
+        self.train(model)
+        send(model, Opcode.TICK, 1)
+        self.assertGreater(model.leak_timer, 0)
+        self.assertEqual(send(model, Opcode.STATE_CLEAR).status, Status.OK)
+        self.assertEqual(model.leak_timer, 0)
+
+        before = model.state
+        self.assertEqual(send(model, Opcode.MODE_SET, Mode.INFER).status, Status.OK)
+        send(model, Opcode.TICK, 1)
+        after = model.state
+        self.assertNotEqual(after.leak_timer, before.leak_timer)
+        self.assertEqual(after.weights, before.weights)
+        self.assertEqual(after.pre_age, before.pre_age)
+        self.assertEqual(after.post_age, before.post_age)
+        self.assertEqual(after.positive_evidence, before.positive_evidence)
+        self.assertEqual(after.negative_evidence, before.negative_evidence)
+        self.assertEqual(after.captured_direction, before.captured_direction)
+
+    def test_invalid_and_backpressured_commands_do_not_advance_leak_timer(self) -> None:
+        model = PulseMiniReference()
+        self.infer(model)
+        model.leak_timer = 3
+        before = model.state
+        self.assertEqual(send(model, Opcode.TICK, 0x10).status, Status.BAD_ARG)
+        self.assertEqual(model.leak_timer, before.leak_timer)
+
+        accepted = model.cycle(cmd_valid=True, command=Command(Opcode.TICK, 0), rsp_ready=False)
+        self.assertTrue(accepted.cmd_ready)
+        self.assertFalse(model.cmd_ready)
+        stalled = model.cycle(cmd_valid=True, command=Command(Opcode.TICK, 0), rsp_ready=False)
+        self.assertFalse(stalled.cmd_ready)
+        self.assertEqual(model.leak_timer, 4)
+        model.cycle(rsp_ready=True)
+
     def test_every_accepted_command_has_ordered_structured_log(self) -> None:
         model = PulseMiniReference()
         commands = [

@@ -63,6 +63,7 @@ module pulse_mini_network_4x2x2 (
     logic signed [3:0] unused_w3 [0:3];
     logic signed [7:0] unused_soma [0:3];
     logic [3:0] unused_refractory [0:3];
+    logic [3:0] unused_leak_timer [0:3];
     logic [15:0] unused_pre_age [0:3];
     logic [3:0] unused_post_age [0:3];
     logic [3:0] unused_positive [0:3];
@@ -85,6 +86,7 @@ module pulse_mini_network_4x2x2 (
                 .weight0(unused_w0[g]), .weight1(unused_w1[g]),
                 .weight2(unused_w2[g]), .weight3(unused_w3[g]),
                 .soma_state(unused_soma[g]), .refractory_state(unused_refractory[g]),
+                .leak_timer_state(unused_leak_timer[g]),
                 .pre_age_flat(unused_pre_age[g]), .post_age_state(unused_post_age[g]),
                 .positive_evidence(unused_positive[g]), .negative_evidence(unused_negative[g]),
                 .captured_direction_flat(unused_direction[g])

@@ -1,12 +1,13 @@
 // Pulse-Mini 固定四输入脉冲神经元。
 //
-// 这是 P3 的最小 RTL：输入脉冲直接选择有符号连接强度，胞体做一次
+// 这是 Pulse-Mini-L 的最小 RTL：输入脉冲直接选择有符号连接强度，胞体做一次
 // 饱和累加；TRAIN 保存输入/输出先后证据，CAPTURE 锁存单槽方向，
-// FEEDBACK 以一步数值更新连接。所有状态只由 clk/rst 驱动。
+// FEEDBACK 以一步数值更新连接。膜电位泄放由固定周期计时器驱动，所有状态只由 clk/rst 驱动。
 module pulse_mini_core #(
     parameter int THRESHOLD = 6,
     parameter int WINDOW = 3,
-    parameter int REFRACTORY_LENGTH = 1
+    parameter int REFRACTORY_LENGTH = 1,
+    parameter int LEAK_PERIOD = 8
 ) (
     input  logic                         clk,
     input  logic                         rst,
@@ -29,6 +30,7 @@ module pulse_mini_core #(
     output logic signed [3:0]            weight3,
     output logic signed [7:0]            soma_state,
     output logic [3:0]                   refractory_state,
+    output logic [3:0]                   leak_timer_state,
     output logic [15:0]                  pre_age_flat,
     output logic [3:0]                   post_age_state,
     output logic [3:0]                   positive_evidence,
@@ -63,6 +65,7 @@ module pulse_mini_core #(
     logic [1:0] mode_reg;
     logic signed [7:0] soma_reg;
     logic [3:0] refractory_reg;
+    logic [3:0] leak_timer_reg;
     logic [3:0] post_age_reg;
     logic pending_reg;
     logic response_valid_reg;
@@ -93,6 +96,7 @@ module pulse_mini_core #(
     assign weight3 = weights[3];
     assign soma_state = soma_reg;
     assign refractory_state = refractory_reg;
+    assign leak_timer_state = leak_timer_reg;
     assign pre_age_flat[3:0] = pre_age[0];
     assign pre_age_flat[7:4] = pre_age[1];
     assign pre_age_flat[11:8] = pre_age[2];
@@ -137,6 +141,7 @@ module pulse_mini_core #(
             mode_reg <= MODE_CONFIG;
             soma_reg <= '0;
             refractory_reg <= '0;
+            leak_timer_reg <= '0;
             post_age_reg <= '0;
             pending_reg <= 1'b0;
             response_valid_reg <= 1'b0;
@@ -187,6 +192,7 @@ module pulse_mini_core #(
                         end else begin
                             soma_reg <= '0;
                             refractory_reg <= '0;
+                            leak_timer_reg <= '0;
                             post_age_reg <= '0;
                             for (i = 0; i < 4; i = i + 1) begin
                                 pre_age[i] <= '0;
@@ -220,12 +226,28 @@ module pulse_mini_core #(
                                 soma_reg <= '0;
                                 refractory_reg <= refractory_reg - 1'b1;
                             end else begin
-                                candidate_value = sat_soma($signed(soma_reg) + total_value);
+                                if ((LEAK_PERIOD != 0) &&
+                                    (leak_timer_reg == LEAK_PERIOD - 1)) begin
+                                    if ($signed(soma_reg) > 0)
+                                        candidate_value = sat_soma($signed(soma_reg) - 1 + total_value);
+                                    else if ($signed(soma_reg) < 0)
+                                        candidate_value = sat_soma($signed(soma_reg) + 1 + total_value);
+                                    else
+                                        candidate_value = sat_soma($signed(soma_reg) + total_value);
+                                    leak_timer_reg <= '0;
+                                end else begin
+                                    candidate_value = sat_soma($signed(soma_reg) + total_value);
+                                    if (LEAK_PERIOD != 0)
+                                        leak_timer_reg <= leak_timer_reg + 1'b1;
+                                    else
+                                        leak_timer_reg <= '0;
+                                end
                                 if (candidate_value >= THRESHOLD) begin
                                     natural_spike_value = 1;
                                     spike_reg <= 1'b1;
                                     soma_reg <= '0;
                                     refractory_reg <= REFRACTORY_LENGTH[3:0];
+                                    leak_timer_reg <= '0;
                                 end else begin
                                     soma_reg <= candidate_value[7:0];
                                 end

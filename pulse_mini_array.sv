@@ -28,7 +28,7 @@ module pulse_mini_array #(
         for (g = 0; g < N_CORES; g = g + 1) begin : gen_core
             logic signed [3:0] weight0, weight1, weight2, weight3;
             logic signed [7:0] soma_state;
-            logic [3:0] refractory_state, post_age_state;
+            logic [3:0] refractory_state, leak_timer_state, post_age_state;
             logic [15:0] pre_age_flat;
             logic [3:0] positive_evidence, negative_evidence;
             logic signed [7:0] captured_direction_flat;
@@ -42,7 +42,7 @@ module pulse_mini_array #(
                 .spike(spike_vector[g]), .pending_valid(pending_vector[g]),
                 .protocol_error(protocol_error_vector[g]), .mode_state,
                 .weight0, .weight1, .weight2, .weight3, .soma_state,
-                .refractory_state, .pre_age_flat, .post_age_state,
+                .refractory_state, .leak_timer_state, .pre_age_flat, .post_age_state,
                 .positive_evidence, .negative_evidence, .captured_direction_flat
             );
         end
