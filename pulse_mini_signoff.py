@@ -45,6 +45,11 @@ def build_summary() -> dict[str, object]:
         "pulse_mini_network_4x2x2.sv",
         "pulse_mini_network_rtl_cosim.py",
         "tb_pulse_mini_network_file.sv",
+        "pulse_mini_array_metrics.py",
+        "tb_pulse_mini_array_metrics.sv",
+        "pulse_mini_lane_model.py",
+        "test_pulse_mini_lane_model.py",
+        "verify_pulse_mini_p7.py",
     )
     files = {name: sha256_file(ROOT / name) for name in source_files}
     transaction_records: list[dict[str, object]] = []
@@ -82,6 +87,16 @@ def build_summary() -> dict[str, object]:
             "commands": 272,
             "expected_result": "PULSE_MINI_NETWORK_RTL_COSIM_PASS commands=272 one_tick_route=1 positive=1 negative=2",
             "command": "python pulse_mini_network_rtl_cosim.py",
+        },
+        "p7": {
+            "command": "python verify_pulse_mini_p7.py",
+            "summary": "pulse_mini_p7_signoff_summary.json",
+            "largest_parallel_100mhz_proven": 32,
+            "capacity_claim": "NOT_PROVEN",
+            "metric_command": "python pulse_mini_array_metrics.py",
+            "metric_result": "PULSE_MINI_ARRAY_METRICS_PASS tick_latency=1 protocol_gap=2 sustained_rate=0.5 broadcast_spikes=all",
+            "lane_model_command": "python pulse_mini_lane_model.py",
+            "lane_model_result": "PULSE_MINI_LANE_MODEL_PASS points=15",
         },
         "status": "PASS",
     }

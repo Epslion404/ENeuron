@@ -15,7 +15,12 @@
     "test_pulse_mini_task.py": "91f38f034ba3e867ee0e5ed7b25bdd76833afa95d9c40e0c8da36bfd7c2b0d14",
     "pulse_mini_network_4x2x2.sv": "ab41fb2ba068de173a9db1de55de2e8ff87d46d09582af993b8575b0d638b3a6",
     "pulse_mini_network_rtl_cosim.py": "56d261f3fd21c3e40c1dbf7761d89c92c2803e885c413d9fd24d6f56fc72c98c",
-    "tb_pulse_mini_network_file.sv": "ccdc7758f2888eb368635961b08cd77f8fb1d298e41e75f8f2ed424dba04719d"
+    "tb_pulse_mini_network_file.sv": "ccdc7758f2888eb368635961b08cd77f8fb1d298e41e75f8f2ed424dba04719d",
+    "pulse_mini_array_metrics.py": "c40828a6a9865edec2ea839b955c4bb8203c6585123ce829151b14430be18263",
+    "tb_pulse_mini_array_metrics.sv": "767e8b687c3e5ecb2c9875a536672c2c47d82492372b9b486bf4b3b9958a59af",
+    "pulse_mini_lane_model.py": "69a288b1a50f23c09a58273db1785efdacf4ce849965f760142fa374d2d14dc2",
+    "test_pulse_mini_lane_model.py": "725952fb37eac8db99de4e5e7706524cf95fd77225dd1a68565640db98b90283",
+    "verify_pulse_mini_p7.py": "857bdedf5c056ba0adc6b94157d404e4d7d9526f46c62c974fa6cfe7bdbb49f4"
   },
   "cosim": {
     "seeds": 20,
@@ -39,6 +44,16 @@
     "commands": 272,
     "expected_result": "PULSE_MINI_NETWORK_RTL_COSIM_PASS commands=272 one_tick_route=1 positive=1 negative=2",
     "command": "python pulse_mini_network_rtl_cosim.py"
+  },
+  "p7": {
+    "command": "python verify_pulse_mini_p7.py",
+    "summary": "pulse_mini_p7_signoff_summary.json",
+    "largest_parallel_100mhz_proven": 32,
+    "capacity_claim": "NOT_PROVEN",
+    "metric_command": "python pulse_mini_array_metrics.py",
+    "metric_result": "PULSE_MINI_ARRAY_METRICS_PASS tick_latency=1 protocol_gap=2 sustained_rate=0.5 broadcast_spikes=all",
+    "lane_model_command": "python pulse_mini_lane_model.py",
+    "lane_model_result": "PULSE_MINI_LANE_MODEL_PASS points=15"
   },
   "status": "PASS"
 }

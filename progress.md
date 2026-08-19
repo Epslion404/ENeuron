@@ -180,6 +180,10 @@
 - 修正 P8 RTL 协同仿真的训练教师时序：输出层教师事件必须放在第 6 个 tick，等待隐藏层重复脉冲窗口结束；第 1 个 tick 会造成正负 presence 同时出现，方向被正确抵消。修正后 RTL 输出层权重与 Python 黄金模型一致为 `+3`。
 - P8 RTL 网络协同仿真通过：`PULSE_MINI_NETWORK_RTL_COSIM_PASS commands=272 one_tick_route=1 positive=1 negative=2`；推理连续 8 tick，正类只产生输出位 1，负类只产生输出位 2。
 - 新增 `pulse_mini_signoff.py` 和 `pulse_mini_signoff_summary.json`，摘要绑定 Pulse-Mini RTL、黄金模型、协同仿真、形式验证、负向控制、任务和网络 RTL 文件哈希；P4 机器可读签核摘要完成。
+- P0 合同状态由历史 `REVIEW_REQUIRED` 收口为 `APPROVED`：所有固定参数、TICK 顺序、presence 冲突、模式、clear、不应期和统一事务接口均已由现有黄金模型/RTL/测试实现并验证。
+- P7 新增 `pulse_mini_array_metrics.py`：32/64/128 核均实测单条 TICK 响应延迟 1 周期、持续命令接受率 0.5 命令/周期；全广播时一次 TICK 可同时产生 N 个输出脉冲，反馈一次广播更新 N 个 pending 核。
+- P7 新增 `pulse_mini_lane_model.py` 与 `verify_pulse_mini_p7.py`，比较全并行与共享 lane 的周期上限，并生成 `pulse_mini_p7_signoff_summary.json`。结论是 100 MHz routed 最大并行规模 32 核；64/128 核仍为 NOT_PROVEN，lane 模型不冒充物理签核。
+- `TODO.md` 所有待办 checkbox 已完成，状态改为 `APPROVED` / `P7_CAPACITY_BOUNDARY_DOCUMENTED`；该状态明确表示 TODO 已执行完毕，同时保留 128 并行容量未证明这一负向结论。
 ## 2026-08-19 P1 原始计数/分频基线
 
 - 新增 `pulse_original_core.sv`：固定四输入、每路 8 位学习计数器与 8 位分频进度、16 位胞体、4 位同步睡眠；学习计数上限回绕和只能增强语义按原始方案保留，未加入 Pulse-Mini 的负权重、反馈、模式或 pending 功能。

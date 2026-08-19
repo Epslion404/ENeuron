@@ -1,0 +1,106 @@
+{
+  "schema": "pulse_mini_p7_signoff_v1",
+  "resource_rows": [
+    {
+      "N_CORES": 32,
+      "LUT": 5867,
+      "FF": 2432,
+      "BRAM": 0,
+      "DSP": 0,
+      "WNS_NS": 0.151,
+      "TNS_NS": 0.0,
+      "CLOCK_MHZ": 100.0
+    },
+    {
+      "N_CORES": 64,
+      "LUT": 11699,
+      "FF": 4864,
+      "BRAM": 0,
+      "DSP": 0,
+      "WNS_NS": -0.131,
+      "TNS_NS": -0.786,
+      "CLOCK_MHZ": 100.0
+    },
+    {
+      "N_CORES": 128,
+      "LUT": 23342,
+      "FF": 9728,
+      "BRAM": 0,
+      "DSP": 0,
+      "WNS_NS": -0.466,
+      "TNS_NS": -12.734,
+      "CLOCK_MHZ": 100.0
+    }
+  ],
+  "protocol_metrics": [
+    {
+      "N_CORES": 32,
+      "TICK_LATENCY": 1,
+      "SPIKES": 32,
+      "TICK_TOTAL": 1,
+      "FEEDBACK_LATENCY": 1,
+      "BURST_CYCLES": 64,
+      "BURST_ACCEPTS": 32
+    },
+    {
+      "N_CORES": 64,
+      "TICK_LATENCY": 1,
+      "SPIKES": 64,
+      "TICK_TOTAL": 1,
+      "FEEDBACK_LATENCY": 1,
+      "BURST_CYCLES": 64,
+      "BURST_ACCEPTS": 32
+    },
+    {
+      "N_CORES": 128,
+      "TICK_LATENCY": 1,
+      "SPIKES": 128,
+      "TICK_TOTAL": 1,
+      "FEEDBACK_LATENCY": 1,
+      "BURST_CYCLES": 64,
+      "BURST_ACCEPTS": 32
+    }
+  ],
+  "lane_model": [
+    {
+      "cores": 128,
+      "lanes": 1,
+      "cycles_per_tick": 128,
+      "ticks_per_cycle": 0.0078125,
+      "feedback_cycles_per_all_core_update": 128
+    },
+    {
+      "cores": 128,
+      "lanes": 2,
+      "cycles_per_tick": 64,
+      "ticks_per_cycle": 0.015625,
+      "feedback_cycles_per_all_core_update": 64
+    },
+    {
+      "cores": 128,
+      "lanes": 4,
+      "cycles_per_tick": 32,
+      "ticks_per_cycle": 0.03125,
+      "feedback_cycles_per_all_core_update": 32
+    },
+    {
+      "cores": 128,
+      "lanes": 8,
+      "cycles_per_tick": 16,
+      "ticks_per_cycle": 0.0625,
+      "feedback_cycles_per_all_core_update": 16
+    },
+    {
+      "cores": 128,
+      "lanes": 128,
+      "cycles_per_tick": 1,
+      "ticks_per_cycle": 1.0,
+      "feedback_cycles_per_all_core_update": 1
+    }
+  ],
+  "timing_all_pass": false,
+  "largest_parallel_100mhz_proven": 32,
+  "capacity_claim": "NOT_PROVEN",
+  "parallel_architecture_note": "32 parallel cores pass; 64/128 fail the 100 MHz setup gate in simple broadcast architecture.",
+  "shared_lane_note": "Lane rows are cycle-model results, not routed physical capacity claims."
+}

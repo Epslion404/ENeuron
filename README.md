@@ -92,6 +92,8 @@ Vivado 2024.1 对 `xc7a35tcpg236-1` 的最终 OOC post-route 结果：
 
 `python verify_goal.py` 会重跑完整回归、M3 的 957 命令真实双时钟训练闭环、Tile 24 拍 BMC、Controller 20 拍 BMC、20 seeds x 500 个 Tile 事务，并独立解析 Tile、真实 XPM 与完整系统 routed 报告。M3 会生成 `m3_signoff_summary.txt`，绑定命令和响应账本哈希。独立 Tile 当前冻结资源预算为 `LUT <= 3200`、`FF <= 2000`、`BRAM/DSP = 0`。脚本成功表示原始 Goal M1-M4 最小硬件基石门槛通过；共享 RAM 扩展、板级闭环和通用 AI 仍不在该结论内。
 
+Pulse-Mini 的完整执行清单见 `TODO.md`，当前状态为 `APPROVED` / `P7_CAPACITY_BOUNDARY_DOCUMENTED`。单核已完成黄金模型、RTL、形式、任务和 XC7Z020 routed 闭环；固定 `4 -> 2 -> 2` 网络已完成 Python 与 RTL 协同仿真。P7 还提供 `python pulse_mini_array_metrics.py`、`python pulse_mini_lane_model.py` 和 `python verify_pulse_mini_p7.py`：广播阵列的单条逻辑 TICK 响应延迟为 1 个周期，但单槽协议持续接受率为 0.5 命令/周期；32 核是当前 100 MHz routed 已证明的最大并行规模，64/128 核的简单广播阵列 setup 未通过。共享 lane 数字结果是周期模型，不是物理容量声明。
+
 Git 不保存报告文件的修改时间。全新检出第一次复验应使用 `python verify_goal.py --rerun-vivado` 重建 Vivado 证据；已有同一工作区可直接运行默认命令审计现存报告。
 
 V3 Temporal development cohort 已实现 5 个固定 split、1312 个唯一语义输入、四阶 motif、精确输入 schema、全局冻结 burst width、IID/OOD 间隔域和生成器重放认证。`g4_temporal_development_manifest.json` 使用 manifest V2，同时绑定输入哈希、完整样本哈希和实际 `g4_benchmark.py` 源码；所有 model seeds 共享同一数据集，统计口径为 paired model-seed。该产物仍只是 development cohort，不代表三任务 P0a/P0b 或 G4 通过。
