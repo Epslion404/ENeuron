@@ -1,0 +1,19 @@
+Time resolution is 1 ps
+Info: [XPM_MEMORY 20-1] MEMORY_PRIMITIVE (0) instructs Vivado Synthesis to choose the memory primitive type. Depending on their values, other XPM_MEMORY parameters may preclude the choice of certain memory primitive types. Review XPM_MEMORY documentation and parameter values to understand any limitations, or set MEMORY_PRIMITIVE to a different value. tb_vivado_xpm_wrapper.dut.command_fifo.gnuram_async_fifo.xpm_fifo_base_inst.gen_sdpram.xpm_memory_base_inst.config_drc
+Time: 1 ps  Iteration: 0  Process: /tb_vivado_xpm_wrapper/dut/command_fifo/gnuram_async_fifo.xpm_fifo_base_inst/gen_sdpram.xpm_memory_base_inst/Initial302_33  Scope: tb_vivado_xpm_wrapper.dut.command_fifo.gnuram_async_fifo.xpm_fifo_base_inst.gen_sdpram.xpm_memory_base_inst.config_drc  File: G:/Xilinx/Vivado/2024.1/data/ip/xpm/xpm_memory/hdl/xpm_memory.sv Line: 514
+Warning: SIM_ASSERT_CHK (1) specifies simulation message reporting, messages related to potential misuse will be reported.
+Time: 1 ps  Iteration: 0  Process: /tb_vivado_xpm_wrapper/dut/command_fifo/gnuram_async_fifo.xpm_fifo_base_inst/Initial1559_119  Scope: tb_vivado_xpm_wrapper.dut.command_fifo.gnuram_async_fifo.xpm_fifo_base_inst  File: G:/Xilinx/Vivado/2024.1/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv Line: 1566
+Info: [XPM_MEMORY 20-1] MEMORY_PRIMITIVE (0) instructs Vivado Synthesis to choose the memory primitive type. Depending on their values, other XPM_MEMORY parameters may preclude the choice of certain memory primitive types. Review XPM_MEMORY documentation and parameter values to understand any limitations, or set MEMORY_PRIMITIVE to a different value. tb_vivado_xpm_wrapper.dut.response_fifo.gnuram_async_fifo.xpm_fifo_base_inst.gen_sdpram.xpm_memory_base_inst.config_drc
+Time: 1 ps  Iteration: 0  Process: /tb_vivado_xpm_wrapper/dut/response_fifo/gnuram_async_fifo.xpm_fifo_base_inst/gen_sdpram.xpm_memory_base_inst/Initial302_33  Scope: tb_vivado_xpm_wrapper.dut.response_fifo.gnuram_async_fifo.xpm_fifo_base_inst.gen_sdpram.xpm_memory_base_inst.config_drc  File: G:/Xilinx/Vivado/2024.1/data/ip/xpm/xpm_memory/hdl/xpm_memory.sv Line: 514
+Warning: SIM_ASSERT_CHK (1) specifies simulation message reporting, messages related to potential misuse will be reported.
+Time: 1 ps  Iteration: 0  Process: /tb_vivado_xpm_wrapper/dut/response_fifo/gnuram_async_fifo.xpm_fifo_base_inst/Initial1559_119  Scope: tb_vivado_xpm_wrapper.dut.response_fifo.gnuram_async_fifo.xpm_fifo_base_inst  File: G:/Xilinx/Vivado/2024.1/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv Line: 1566
+XPM_PHASE command_fill_begin time=670000
+XPM_PHASE command_fill_end time=1020000 count=17
+XPM_PHASE command_drain_end time=1652000
+XPM_PHASE command_wrap_end time=4326000
+XPM_PHASE response_fill_begin time=4326000
+XPM_PHASE response_fill_end time=4578000 count=17
+XPM_PHASE response_drain_end time=5440000
+XPM_PHASE response_wrap_end time=8840000
+VIVADO_XPM_WRAPPER_PASS command_capacity=17 response_capacity=17
+$finish called at time : 9870 ns : File "D:/Documents/Code/ENeuron/tb_vivado_xpm_wrapper.sv" Line 284

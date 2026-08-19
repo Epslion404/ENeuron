@@ -1,0 +1,81 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2024.1 (win64) Build 5076996 Wed May 22 18:37:14 MDT 2024
+| Date         : Thu Aug 13 19:01:23 2026
+| Host         : LAPTOP-AJQHFMKI running 64-bit major release  (build 9200)
+| Command      : report_utilization -hierarchical -file D:/Documents/Code/ENeuron/vivado_host_bridge_reports/utilization_hierarchical_synth.rpt
+| Design       : digital_snn_host_bridge_system
+| Device       : xc7a35tcpg236-1
+| Speed File   : -1
+| Design State : Synthesized
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+Utilization Design Information
+
+Table of Contents
+-----------------
+1. Utilization by Hierarchy
+
+1. Utilization by Hierarchy
+---------------------------
+
++------------------------------------------------+--------------------------------------+------------+------------+---------+------+------+--------+--------+------------+
+|                    Instance                    |                Module                | Total LUTs | Logic LUTs | LUTRAMs | SRLs |  FFs | RAMB36 | RAMB18 | DSP Blocks |
++------------------------------------------------+--------------------------------------+------------+------------+---------+------+------+--------+--------+------------+
+| digital_snn_host_bridge_system                 |                                (top) |       3722 |       3722 |       0 |    0 | 2574 |      4 |      0 |          0 |
+|   controller                                   |   digital_snn_host_bridge_controller |        507 |        507 |       0 |    0 |  361 |      0 |      0 |          0 |
+|   host_bridge                                  |              digital_snn_host_bridge |        153 |        153 |       0 |    0 |  243 |      4 |      0 |          0 |
+|     (host_bridge)                              |              digital_snn_host_bridge |          7 |          7 |       0 |    0 |    5 |      0 |      0 |          0 |
+|     command_fifo                               |                    xpm_fifo_async__1 |         73 |         73 |       0 |    0 |  119 |      2 |      0 |          0 |
+|       (command_fifo)                           |                    xpm_fifo_async__1 |          0 |          0 |       0 |    0 |    0 |      0 |      0 |          0 |
+|       gnuram_async_fifo.xpm_fifo_base_inst     |                     xpm_fifo_base__1 |         73 |         73 |       0 |    0 |  119 |      2 |      0 |          0 |
+|         (gnuram_async_fifo.xpm_fifo_base_inst) |                     xpm_fifo_base__1 |          3 |          3 |       0 |    0 |    5 |      0 |      0 |          0 |
+|         gen_cdc_pntr.rd_pntr_cdc_dc_inst       |      xpm_cdc_gray__parameterized1__1 |          6 |          6 |       0 |    0 |   15 |      0 |      0 |          0 |
+|         gen_cdc_pntr.rd_pntr_cdc_inst          |                      xpm_cdc_gray__2 |          5 |          5 |       0 |    0 |   12 |      0 |      0 |          0 |
+|         gen_cdc_pntr.rpw_gray_reg              |                   xpm_fifo_reg_vec_5 |          3 |          3 |       0 |    0 |    4 |      0 |      0 |          0 |
+|         gen_cdc_pntr.wpr_gray_reg              |                   xpm_fifo_reg_vec_6 |          3 |          3 |       0 |    0 |    4 |      0 |      0 |          0 |
+|         gen_cdc_pntr.wr_pntr_cdc_dc_inst       |      xpm_cdc_gray__parameterized0__1 |          6 |          6 |       0 |    0 |   25 |      0 |      0 |          0 |
+|         gen_cdc_pntr.wr_pntr_cdc_inst          |                      xpm_cdc_gray__3 |          5 |          5 |       0 |    0 |   12 |      0 |      0 |          0 |
+|         gen_fwft.rdpp1_inst                    |                   xpm_counter_updn_7 |          3 |          3 |       0 |    0 |    2 |      0 |      0 |          0 |
+|         gen_sdpram.xpm_memory_base_inst        |                   xpm_memory_base__1 |          0 |          0 |       0 |    0 |    0 |      2 |      0 |          0 |
+|         rdp_inst                               |   xpm_counter_updn__parameterized0_8 |          8 |          8 |       0 |    0 |    5 |      0 |      0 |          0 |
+|         rdpp1_inst                             |   xpm_counter_updn__parameterized1_9 |          3 |          3 |       0 |    0 |    4 |      0 |      0 |          0 |
+|         rst_d1_inst                            |                  xpm_fifo_reg_bit_10 |          0 |          0 |       0 |    0 |    1 |      0 |      0 |          0 |
+|         wrp_inst                               |  xpm_counter_updn__parameterized0_11 |          3 |          3 |       0 |    0 |    5 |      0 |      0 |          0 |
+|         wrpp1_inst                             |  xpm_counter_updn__parameterized1_12 |          3 |          3 |       0 |    0 |    4 |      0 |      0 |          0 |
+|         wrpp2_inst                             |  xpm_counter_updn__parameterized2_13 |          3 |          3 |       0 |    0 |    4 |      0 |      0 |          0 |
+|         xpm_fifo_rst_inst                      |                      xpm_fifo_rst_14 |         19 |         19 |       0 |    0 |   17 |      0 |      0 |          0 |
+|           (xpm_fifo_rst_inst)                  |                      xpm_fifo_rst_14 |         19 |         19 |       0 |    0 |   13 |      0 |      0 |          0 |
+|           gen_rst_ic.rrst_wr_inst              |                  xpm_cdc_sync_rst__2 |          0 |          0 |       0 |    0 |    2 |      0 |      0 |          0 |
+|           gen_rst_ic.wrst_rd_inst              |                  xpm_cdc_sync_rst__3 |          0 |          0 |       0 |    0 |    2 |      0 |      0 |          0 |
+|     response_fifo                              |                       xpm_fifo_async |         73 |         73 |       0 |    0 |  119 |      2 |      0 |          0 |
+|       (response_fifo)                          |                       xpm_fifo_async |          0 |          0 |       0 |    0 |    0 |      0 |      0 |          0 |
+|       gnuram_async_fifo.xpm_fifo_base_inst     |                        xpm_fifo_base |         73 |         73 |       0 |    0 |  119 |      2 |      0 |          0 |
+|         (gnuram_async_fifo.xpm_fifo_base_inst) |                        xpm_fifo_base |          3 |          3 |       0 |    0 |    5 |      0 |      0 |          0 |
+|         gen_cdc_pntr.rd_pntr_cdc_dc_inst       |         xpm_cdc_gray__parameterized1 |          6 |          6 |       0 |    0 |   15 |      0 |      0 |          0 |
+|         gen_cdc_pntr.rd_pntr_cdc_inst          |                         xpm_cdc_gray |          5 |          5 |       0 |    0 |   12 |      0 |      0 |          0 |
+|         gen_cdc_pntr.rpw_gray_reg              |                     xpm_fifo_reg_vec |          3 |          3 |       0 |    0 |    4 |      0 |      0 |          0 |
+|         gen_cdc_pntr.wpr_gray_reg              |                   xpm_fifo_reg_vec_2 |          3 |          3 |       0 |    0 |    4 |      0 |      0 |          0 |
+|         gen_cdc_pntr.wr_pntr_cdc_dc_inst       |         xpm_cdc_gray__parameterized0 |          6 |          6 |       0 |    0 |   25 |      0 |      0 |          0 |
+|         gen_cdc_pntr.wr_pntr_cdc_inst          |                      xpm_cdc_gray__1 |          5 |          5 |       0 |    0 |   12 |      0 |      0 |          0 |
+|         gen_fwft.rdpp1_inst                    |                     xpm_counter_updn |          3 |          3 |       0 |    0 |    2 |      0 |      0 |          0 |
+|         gen_sdpram.xpm_memory_base_inst        |                      xpm_memory_base |          0 |          0 |       0 |    0 |    0 |      2 |      0 |          0 |
+|         rdp_inst                               |     xpm_counter_updn__parameterized0 |          8 |          8 |       0 |    0 |    5 |      0 |      0 |          0 |
+|         rdpp1_inst                             |     xpm_counter_updn__parameterized1 |          3 |          3 |       0 |    0 |    4 |      0 |      0 |          0 |
+|         rst_d1_inst                            |                     xpm_fifo_reg_bit |          0 |          0 |       0 |    0 |    1 |      0 |      0 |          0 |
+|         wrp_inst                               |   xpm_counter_updn__parameterized0_3 |          3 |          3 |       0 |    0 |    5 |      0 |      0 |          0 |
+|         wrpp1_inst                             |   xpm_counter_updn__parameterized1_4 |          3 |          3 |       0 |    0 |    4 |      0 |      0 |          0 |
+|         wrpp2_inst                             |     xpm_counter_updn__parameterized2 |          3 |          3 |       0 |    0 |    4 |      0 |      0 |          0 |
+|         xpm_fifo_rst_inst                      |                         xpm_fifo_rst |         19 |         19 |       0 |    0 |   17 |      0 |      0 |          0 |
+|           (xpm_fifo_rst_inst)                  |                         xpm_fifo_rst |         19 |         19 |       0 |    0 |   13 |      0 |      0 |          0 |
+|           gen_rst_ic.rrst_wr_inst              |                     xpm_cdc_sync_rst |          0 |          0 |       0 |    0 |    2 |      0 |      0 |          0 |
+|           gen_rst_ic.wrst_rd_inst              |                  xpm_cdc_sync_rst__1 |          0 |          0 |       0 |    0 |    2 |      0 |      0 |          0 |
+|   tile                                         |               digital_snn_tile_4x2x2 |       3071 |       3071 |       0 |    0 | 1970 |      0 |      0 |          0 |
+|     (tile)                                     |               digital_snn_tile_4x2x2 |         62 |         62 |       0 |    0 |  122 |      0 |      0 |          0 |
+|     hidden0                                    |                   digital_lif_engine |        803 |        803 |       0 |    0 |  544 |      0 |      0 |          0 |
+|     hidden1                                    |                 digital_lif_engine_0 |        787 |        787 |       0 |    0 |  544 |      0 |      0 |          0 |
+|     output0                                    |   digital_lif_engine__parameterized0 |        707 |        707 |       0 |    0 |  380 |      0 |      0 |          0 |
+|     output1                                    | digital_lif_engine__parameterized0_1 |        712 |        712 |       0 |    0 |  380 |      0 |      0 |          0 |
++------------------------------------------------+--------------------------------------+------------+------------+---------+------+------+--------+--------+------------+
+
+

@@ -1,0 +1,9 @@
+VIVADO_XPM_WRAPPER_PASS
+vivado_version=2024.1
+part=xc7a35tcpg236-1
+xpm_libraries=XPM_FIFO
+simulation_top=tb_vivado_xpm_wrapper
+synthesis_top=digital_snn_host_bridge
+synthesis_status=synth_design complete
+reset_reentry_assertion_in_netlist=0
+cdc_report=D:/Documents/Code/ENeuron/vivado_xpm_wrapper_sim/cdc_post_synth.rpt

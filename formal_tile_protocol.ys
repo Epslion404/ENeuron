@@ -1,0 +1,7 @@
+# 使用 Yosys 内置 SAT 对真实 4->2->2 Tile 做有限深度协议证明。
+read_verilog -formal -sv digital_lif_engine.sv digital_snn_tile_4x2x2.sv formal_tile_protocol.sv
+prep -top formal_tile_protocol -flatten
+async2sync
+memory_map
+opt_clean
+sat -seq 24 -set-assumes -set-init-zero -prove-asserts -verify -dump_vcd formal_tile_protocol_cex.vcd

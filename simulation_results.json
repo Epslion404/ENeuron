@@ -1,0 +1,79 @@
+{
+  "seed": 7,
+  "epochs": 30,
+  "task": "equal-count channel discrimination",
+  "candidates": {
+    "counter_if": {
+      "initial_weights": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "final_weights": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "positive_spikes": 2,
+      "negative_spikes": 2,
+      "separated": false,
+      "complexity": {
+        "name": "counter_if",
+        "state_bits": 84,
+        "event_ops": 3,
+        "learning_ops": 0
+      },
+      "saturation_count": 0
+    },
+    "pair_stdp_lif": {
+      "initial_weights": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "final_weights": [
+        7,
+        7,
+        7,
+        7
+      ],
+      "positive_spikes": 6,
+      "negative_spikes": 6,
+      "separated": false,
+      "complexity": {
+        "name": "pair_stdp_lif",
+        "state_bits": 108,
+        "event_ops": 9,
+        "learning_ops": 4
+      },
+      "saturation_count": 530
+    },
+    "three_factor_lif": {
+      "initial_weights": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "final_weights": [
+        7,
+        7,
+        -7,
+        -7
+      ],
+      "positive_spikes": 6,
+      "negative_spikes": 0,
+      "separated": true,
+      "complexity": {
+        "name": "three_factor_lif",
+        "state_bits": 169,
+        "event_ops": 16,
+        "learning_ops": 4
+      },
+      "saturation_count": 115
+    }
+  }
+}

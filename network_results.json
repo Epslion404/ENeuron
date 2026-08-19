@@ -1,0 +1,37 @@
+{
+  "training_epochs": 30,
+  "last_epoch_accuracy": 1.0,
+  "clean_accuracy": 1.0,
+  "noisy_accuracy": 1.0,
+  "hidden_weights": [
+    [
+      -7,
+      -7,
+      7,
+      7
+    ],
+    [
+      7,
+      7,
+      -7,
+      -7
+    ]
+  ],
+  "output_weights": [
+    [
+      7,
+      -7
+    ],
+    [
+      -7,
+      7
+    ]
+  ],
+  "complexity": {
+    "neuron_count": 4,
+    "synapse_count": 12,
+    "state_bits_proxy": 564,
+    "event_ops_proxy": 64
+  },
+  "train_protocol": "host_label_to_signed_local_modulator"
+}

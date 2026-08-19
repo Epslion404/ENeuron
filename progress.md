@@ -1,0 +1,162 @@
+# 进度记录
+
+## 2026-08-13
+
+- 启动 G4 能力边界调研；当前只形成可审核实验方案，不修改核心训练模型或 RTL。
+- 审计确认现有训练仅有两个固定模板，所谓 noisy test 与训练模板同源；teacher sweep 也没有 20 个独立初始化。
+- 确认历史 `network_sweep_results.json` 早于当前 `network_sim.py`，且未被 `verify_goal.py` 纳入门槛，不能作为当前签核结果。
+- 冻结下一步为三任务只读探测、原始资料核对、统计门槛和硬件映射方案；用户审核后才进入正式实现。
+- 主会话独立复跑 3 任务 x 3 模式 x 10 seeds，与子任务结果和数据集抽样 SHA-256 完全一致；未创建临时实验文件。
+- 探测确认 Spatial teacher/hybrid 为 100%，Spatial reward 为 15%；Temporal 全部为 0%，XOR 仅 hybrid seed 9 命中 8/256，且失败主要表现为无输出 spike。
+- 核对 e-prop 与 GEM 原始资料，形成 `g4_capability_validation_proposal.md` 审核稿；方案增加活动率校准、strict decoder、direct-weight 容量对照、当前 RTL/no-WTA 与 Python/WTA 分组，以及持续学习 ACC/BWT/FWT。
+- 完成固定全 2 初态的 burst calibration 探测：`B=1` 无活动，`B=2` 三任务均达到 100% hidden/output activity，并与 `RtlReferenceNeuron` 的 300 样本 spike count 完全一致。
+- 随机初始化探测确认继续增大 burst 不能保证救活所有 seed；V2 将 calibration 限定为固定初态编码正对照，各训练模式必须独立验收 activity/coverage。
+- 完成任务/统计反例审查：旧 Temporal 首事件泄漏标签，label shuffle 可被全 abstain 伪通过，持续学习排列不是独立样本；已在 V2 中分别修正。
+- 完成 Host Bridge/P5 反例审查：reward 可与 action 恢复二分类标签，hybrid 只能冻结隐藏权重，Host 无法读回完整内部学习状态；已冻结纯全局 reward、黑盒/白盒证据边界及逐 seed 权重装载合同。
+- `g4_capability_validation_proposal.md` 已修订为 V2 审核稿；核心 Python 模型与所有 RTL 均未修改，当前等待用户批准五项冻结决策。
+- 对 V2 做第二轮独立反证审计，确认 Temporal 仍有单位置/半程计数/bigram 确定性泄漏，P4 未冻结 Host replay 权限，P5 存在同源 oracle 自证和真实 XPM 层级混称风险。
+- 独立枚举验证新的 10-symbol 循环 Temporal motif：两类在逐位置 unigram/bigram、前后半计数和全局 1..3-gram 分布上完全相同，类别差异从 4-gram 开始。
+- 审核稿已升级为 V3：episode 改为 64 tick；P4 增加 no-replay 与 joint-training 上限；P5 拆为接口等价 FIFO 完整 cohort 和真实 XPM 短 cohort；新增 P6 共享 RAM 多参数点扩展性硬门。
+- 核心 Python 模型和 RTL 仍未修改；旧 48-tick `B=2` 结果只保留为探索证据，等待用户审核 V3 六项冻结决策。
+- 完成 V3 Temporal 64-tick 只读活动探针：128 样本下 `B=2/3/4` 均 100% active，高层/RTL-reference spike count 全一致；固定全 2 权重的 strict decoder 仍全 abstain。
+- 完成 Temporal 容量预判：225 个有效隐藏权重形成 137 种唯一签名；6929 个隐藏组合 x 全 225x225 输出读出器中最好为 25/32，独立高层重放一致。该结果记录为风险，不作容量否证。
+
+- `verify_goal.py` 一键审计通过：43 项前的软件回归、10000 个 Tile 混合事务和最终 Vivado routed 报告均满足既定 G1/G2 门槛；脚本明确保留 G3/G4 与形式等价为未证明。
+- 独立协议审查发现并由 Icarus 定向测试复现 Tile 并发命令优先级 bug：非法高优先级 SNAPSHOT 可与低优先级合法 WEIGHT 同周期发生，Tile 报错但子核仍写权重。
+- 修正组合派发逻辑：命令存在决定优先级，合法性只决定是否产生子核请求，使其与时序仲裁一致。
+- 完整 Python/Icarus 回归增加至 43 项并全部通过；20 seeds x 500 Tile 混合事务再次通过，共 10000 事务。
+- Yosys 0.56 使用真实四核和敌对任意命令输入完成 24 拍协议 BMC：约 451 万变量、1252 万子句，无反例。
+- 报告时间戳门正确拒绝旧 Vivado 报告；经官方 `vivado.bat` 重跑后，100 MHz setup `+0.053 ns`、hold `+0.026 ns`、route error 0，资源 3144 LUT / 1971 FF。
+- `verify_goal.py` 已把 24 拍 BMC 纳入硬门槛；最终结论仍限定为 G1 与固定 4->2->2 G2，G3/G4 和全状态形式等价未证明。
+- 完成 G3 前端调研：现有 Python 有事件 FIFO/背压，Tile 只有聚合 mask，缺少可综合桥接、响应保持与 CDC。
+- 确认 Python `flush_route()` 只推进输出层，普通零输入 Tile TICK 语义不等价；V1 必须新增 `ROUTE_FLUSH`。
+- 形成 `host_bridge_v1_proposal.md` 审核稿：128-bit 双流、两个 XPM async FIFO、episode/tick staging、单槽 snapshot 背压和 exactly-once 响应合同；尚未开始 RTL 实现。
+- 完成 Host Bridge 第二轮只读反例审查，发现响应 opcode 截断、TRAIN EP_END 部分提交、hard reset 清权重、txn_id 无重传去重、ABORT 未冻结、tick 回绕、零 pending flush、组合权重读和 XPM reset-busy 等 10 项合同缺口。
+- 修订 `host_bridge_v1_proposal.md`：改为同构 128-bit 响应；EP_END 先完整预检；明确 17-bit tick 尾态、无条件 ROUTE_FLUSH、两拍 WEIGHT_READ、破坏性 hard reset 与有序 ABORT；当前仍处于用户审核阶段，未开始 Host Bridge RTL。
+
+## 2026-08-11
+
+- 完成空项目检查。
+- 确定比较对象：无泄漏 IF 基线、二因子 STDP LIF、三因子资格迹线 LIF。
+- 完成标准库 Python 模拟、单元测试和硬件复杂度代理指标。
+- 完成 10 种训练顺序和 100 组输入扰动实验。
+- 推荐三因子 LIF 作为面向自训练与推理的最小可塑单元。
+- 完成 4->2->2 两层事件网络，隐藏到输出固定 1 tick 路由延迟。
+- 完成 Host `commit_id` + eligibility 快照协议，验证训练提交与主机延迟解耦。
+- 完成 20 seeds 初始网络 sweep：可寻址目标调制 100% 成功；未加 WTA 的全局 reward 约 50%。
+- 增加数字逐 tick WTA 和随机初始权重；纯全局 reward 仍只有 22.5%，确认 WTA 不等于信用分配。
+- 增加两阶段 Host 训练：目标调制隐藏层、reward 训练输出层；20 seeds 干净/扰动准确率均为 100%。
+- 修正不应期输入门控，使原型与推荐规格一致；回归测试和 sweep 结果保持不变。
+- 增加 `cycle_transport.py` 有界 FIFO/背压周期模型和 `rtl_contract.md`。
+- 周期协议测试覆盖同 tick 原子提交、一拍输出路由、输出时间戳、未排空 FIFO 拒绝新 episode、延迟 commit 快照；总测试数 22 项。
+- 增加 `digital_lif_core.sv` 单神经元 RTL 参考核、`rtl_smoke.py` 和 `rtl_smoke_results.json`；静态接口检查通过，但本机无 HDL 编译/综合工具。
+- 开始 Goal 证明审计；当前回归为 27 项中 25 通过、1 失败、1 错误，失败均位于新增 RTL 参考验证层。
+- 确认当前 Python RTL 参考与 SystemVerilog 核存在多处状态更新语义差异，尚不能建立 bit-exact 证据。
+- 尝试执行 `git diff --stat` 失败：当前目录不是 Git 仓库；后续以工作区文件、测试日志和工具报告作为审计证据。
+
+## 2026-08-12
+
+- 恢复多周期 RTL 工作上下文，读取计划、发现、现有黄金模型与冻结契约。
+- 使用 Icarus Verilog 编译最新 `digital_lif_engine.sv`，返回码为 0。
+- 重跑完整基线回归，38 项全部通过；这些测试尚未覆盖多周期 FSM。
+- 初审发现零调制错误清除 snapshot，以及非二次幂输入数的地址宽度配置风险。
+- 新增多周期事务级 Icarus/Python 协同仿真；5 个 seed × 128 个事务和 `N_INPUTS=1/3/5` 边界通过。
+- 扩大到 20 个 seed × 1000 个混合事务，共 20000 个事务全部通过。
+- 完整回归增加至 40 项并全部通过；Yosys 初检发现地址临时变量多驱动，正在修正。
+- 第一次增加周期/原子性断言的整块补丁因上下文不匹配未应用；已改为逐段小补丁，不重复原失败操作。
+- 修正地址临时变量多驱动后，Yosys `check` 只剩数组展开提示，不再报告结构问题。
+- 依次根据 Vivado 最差路径完成突触两拍流水、定宽 eligibility/trace/state 衰减和 resolve 三段流水。
+- 最终 Vivado 2024.1 post-route 达到 100 MHz：WNS +0.469 ns、TNS 0、setup/hold 零失败；资源 813 LUT / 544 FF / 0 BRAM / 0 DSP。
+- 完整回归 40 项全部通过；新增原子性和精确周期合同后，10 seeds × 256 事务继续通过。
+- 新增 4->2->2 Tile RTL 与独立 Python tile oracle；seed 0 的 24 事务冒烟和 `test_rtl_tile_cosim.py` 当前单测通过。
+- Tile 结构复查第一次调用因当前 PowerShell `PATH` 中没有 `yosys` 而中止；这是工具定位问题，尚未形成新的结构检查结论。
+- Tile 扩大随机协同仿真通过 20 seeds × 500 个混合事务，共 10000 个事务；完整回归增加至 41 项并全部通过，`compileall` 通过。
+- Tile Vivado 首次启动在 PowerShell `.bat` 调用边界失败，Vivado 尚未读取设计；运行器已改为经 `cmd.exe /d /c` 调用官方 wrapper。
+- Tile 首次 Vivado OOC 实现已路由成功：+0.231 ns setup、+0.128 ns hold，3157 LUT / 1972 FF；因缺 `HD.CLK_SRC`，已补 OOC 时钟上下文并准备重跑，最终报告以后一次为准。
+- 补充 `HD.CLK_SRC` 后重跑最终 Tile OOC：WNS +0.148 ns、TNS 0、WHS +0.057 ns、THS 0、3861 个端点零失败、route error 0；资源 3156 LUT / 1972 FF / 0 BRAM / 0 DSP。
+- Tile DRC 仅有 OOC `CFGBVS-1` warning；methodology 的 162 个 `TIMING-18` 均来自未设置真实顶层 I/O delay。功耗 0.104 W、Medium confidence、无活动文件。
+- 增加固定黄金回归，明确断言一 tick 路由、非零 eligibility、合法 MOD 后的已知权重、过期 commit 拒绝、零调制和 INFER 冻结；完整回归 42 项通过。
+- 更新 RTL 合同、推荐设计、README 和 Goal 审计；当前结论分为 G1 学习基石已验收、固定 G2 Tile 原型已验收、G3 板级系统与 G4 通用自训练未完成。
+- 增加 `verify_goal.py` 一键审计：重跑软件回归与 10000 个 Tile 事务，并硬检查 Vivado timing、route、DRC、资源和功耗报告；成功结果仍明确标记 G3/G4 未证明。
+
+## 2026-08-13
+
+- 完成 Host Bridge V1 第三轮终审，修正 STATUS 两页覆盖、EP_END 动态字段优先级、response_accept 提交边界、flush spike 保持和 sticky fatal 语义。
+- 直接核对本机 Vivado 2024.1 `xpm_fifo_async` 源码和官方实例模板，冻结 FWFT 为 `FIFO_READ_LATENCY=0`；根据“`rst` 必须同步于写时钟”修正双域 reset 方案，并保留 reset-busy 双侧门控合同。
+- 在 `host_bridge_v1_proposal.md` 增加七类实现任务依赖图和逐项权威验收证据表；当前仍未修改 Tile/Bridge RTL，等待用户批准五项架构决策。
+- 记录两次工具/补丁异常：一次并行 Vivado 路径检索因不存在目录返回非零，改为精确读取 XPM 源码；一次上下文补丁未匹配且未产生部分写入，改用精确小补丁完成。
+- 最终放行复核发现 XPM reset 重入合同缺失；已冻结为两个 FIFO 的 write-side `wr_rst_busy` 均退出后才允许再次断言 `bridge_rst`，并将断言和随机合法重入加入 T4 验收。
+- T1 Tile `ROUTE_FLUSH` 已完成：Icarus 定向回归 5/5、真实四核 24 拍 BMC 无反例；Vivado 2024.1 OOC 为 3152 LUT / 1972 FF、WNS +0.213 ns、WHS +0.026 ns、TNS/THS 0、route error 0。
+- T3 controller 已通过 Icarus 语法检查；当前 RED 测试明确缺少 `host_bridge_controller_cosim.py`，下一步用真实 controller + Tile + 四个 `digital_lif_engine` 建立逐命令 scoreboard。
+- T2 Host Bridge oracle 终检完成：32 项测试通过，包含 1000 个 codec 随机向量与 10 seeds x 1000 混合命令；全量 discovery 的唯一错误仍是 T3 缺失 cosim 模块。
+- T3 新增 `host_bridge_controller_cosim.py`，实例化真实 controller、Tile 和四个 `digital_lif_engine`；定向流及 20 seeds x 1000 混合命令逐响应、逐架构状态、逐 Tile/核心状态 bit-exact。
+- T3 的随机 testbench 对每条响应施加 0..4 周期背压，断言 `rsp_data` 保持、Host architectural state 在 `response_accept` 前不提交；定向 MOD 响应确认返回更新后 `weight_epoch=1`。
+- 修正 `static_bad_field()` 的隐式模块寄存器依赖，MOD 编码合法性现在直接检查函数局部 `arg1`，保持函数纯度。
+- T3 定向流扩展为 64 条命令，并硬性覆盖全部 V1 非保留、非 `INTERNAL_FATAL` 状态码；`INTERNAL_FATAL` 留给显式 Tile 故障注入/formal，不用正常 Tile 行为伪造。
+- T4 新增 `digital_snn_host_bridge.sv` 与接口等价 `xpm_fifo_async_sim.sv`；两个 128-bit depth-16 FWFT FIFO 的满队列、40 项回绕、双向背压、合法 hard reset 和非法 reset 重入三项测试通过。
+- T4 首轮测试曾因仿真 FIFO 的 `full -> write_accept -> wr_gray_next -> full` 组合环在 delta-cycle 死锁并超时 120 秒；将 full 改为写时钟域寄存状态后，定向 transport 单测 0.054 秒通过，根因闭环。
+- T6 controller formal：负向环境控制在 depth 4 复现无请求 `tile_done` 反例；加入抽象 Tile 合同后 depth 20 safety BMC 无反例（1,459,959 variables / 3,970,672 clauses）。
+- T6 六类非空 witness 均可达：response stall 8 拍、architectural commit 10 拍、protocol error 8 拍、fatal 14 拍、WEIGHT_READ 12 拍、TRAIN EP_END 20 拍；仍不等于无限时域或 CDC 证明。
+- 新增 `digital_snn_host_bridge_system.sv`，显式集成 transport、controller 与真实四核 Tile；Icarus 全层次 elaboration 通过，Vivado 2024.1 OOC 综合无 black box、0 error/critical warning，资源 3722 LUT / 2574 FF / 4 RAMB36 / 0 DSP。
+- T5 新增 `host_bridge_system_cosim.py` 与双时钟系统回归；20 seeds x 2000 flit（共 40000 命令）在随机非整数时钟比、随机相位、producer/consumer 背压下逐响应与 Python oracle 一致，且命令/响应背压均被实际覆盖。
+- T5 hard reset 固定回归通过：reset 前写权重并验证饱和值，response 阻塞时形成 12 个 outstanding 命令，hard reset 后旧 ledger/响应丢弃且权重恢复 INIT_WEIGHT=2。
+- T5 首个 hard-reset RED 是测试手写期望错误：请求权重 9 被硬件合法饱和为 7；改由独立 oracle 生成期望后通过，未修改 RTL。
+- 修复 Icarus FWFT 预取槽模型：RAM 搬入预取槽独立推进读指针；T4 三项全部通过，完整回归保持 85/85。
+- 真实 Vivado 2024.1 XPM xsim 完成双向容量 17、排空、64 字回绕、背压和 hard reset；日志无 fatal/reset misuse/overflow/underflow，综合确认仿真断言未入网表。
+- 系统双时钟 cosim 重跑通过：20 seeds x 2000 flit，共 40000 命令；`compileall` 和全量 85 项回归通过。
+- 完成 Host 50 MHz / Tile 100 MHz 系统 post-route：Host WNS/WHS +14.306/+0.105 ns，Tile WNS/WHS +0.081/+0.058 ns；两域 TNS/THS 0，route/DRC 0。
+- 系统 CDC 8 条全部限定在官方 XPM 内部；XPM 外 Critical/Unsafe/Warning 均为 0。资源为 3682 LUT / 2486 FF / 4 RAMB36 / 0 DSP。
+- 升级 `verify_goal.py`：发现不少于 85 项回归，运行 Tile/Controller 两套有限 BMC，审计真实 XPM 与完整系统 routed 报告；继续明确板级、无限时域和通用 AI 未证明。
+- 最终执行 `python verify_goal.py` 退出码 0：85 项回归、Tile depth-24 BMC、Controller depth-20 BMC 与 6 类 witness、额外 10000 个 Tile 事务、真实 XPM 17/17 容量和系统 post-route/CDC/DRC 全部通过，打印 `GOAL_AUDIT_PASS`。
+
+## 2026-08-13 V3 批准后实施
+
+- 用户批准 V3 六项冻结决策，Goal 保持 active；G4 与 P6 完成前不得标记 complete。
+- 已启动 T0：审计确认 `verify_goal.py` 尚未检查独立 Tile，旧文档数字也与最新原始报告漂移。
+- 已将 `vivado_tile_synth.tcl` 改为生成机器可读摘要并执行时序、路由、白名单告警和资源预算硬门。
+- 已将 `run_vivado_tile_synth.ps1` 改为使用 `$PSScriptRoot`、限定清理固定目录、检查必需产物与新鲜度。
+- T1 测试和 T0 验证器测试由两个独立任务按文件边界并行编写，主线不修改其目标测试文件。
+- T0 独立 Tile Vivado 2024.1 最终硬门通过：3152 LUT / 1972 FF、WNS/WHS +0.213/+0.026 ns、route error 0、白名单 DRC/methodology、0.103 W Medium-confidence vector-less 估算。
+- 修复 XPM 摘要解析：首行必须精确为 `VIVADO_XPM_WRAPPER_PASS`，后续继续使用严格 `KEY=VALUE`；定向 7 项与真实 XPM 报告通过。
+- Temporal RED 反例覆盖 `label_hint`、duplicate+nonce、跨 split/label 的 B、非法 IID/OOD 区间、伪造 seed/sample/skeleton provenance、skeleton ID 复用和 manifest 源路径伪造。
+- Breaking API 冻结为共享数据集：`generate_temporal_split(master_seed, split, burst_width)`；model seed 只改变模型初始化/训练随机性，统计按 paired model-seed。
+- Temporal validator 增加精确 schema、全局冻结 B、直接 skeleton ID 配对和按冻结参数重放认证；manifest V2 增加 input/example 双哈希并绑定真实生成器源码。
+- 重生成 `g4_temporal_development_manifest.json`：1312 个唯一输入与完整样本，SHA-256 `97A57856E3038E5AAC8FE32E435735742081AE2FD7D6EE0EC63F65782D6281AA`；仍只是 development cohort，不代表 P0a/P0b 或 G4 通过。
+- 完整 156 项回归、两套 formal、额外 10000 个 Tile 事务、独立 Tile 和真实 XPM 均通过后，一键审计在系统 `cdc_classification.txt` 的固定首行 `CDC_CLASSIFICATION` 处失败；未把该解析失败误报为系统签核失败。
+- 新增系统 CDC 专用严格解析器与 3 项合同测试；通用 `KEY=VALUE` 和 XPM 专用解析器保持不变。真实系统报告重新验证通过，discovery 增至 159 项。
+- 最终执行 `python verify_goal.py` 用时约 274 秒并以退出码 0 完成：159 项回归、Tile depth-24 BMC、Controller depth-20 BMC 与 6 类 witness、20 seeds x 500 Tile 压力、独立 Tile、真实 XPM 和系统 routed/CDC/DRC 全部通过，打印 `GOAL_AUDIT_PASS`。
+- 最终审计仍明确打印 `NOT_PROVEN`：无限时域/全状态等价、板级 I/O/异步复位源、bitstream 在板闭环、真实活动功耗与 G4 通用 AI 自训练未证明。
+- T0/T1/T2 已收口；下一阶段是 T3 训练策略与 P0-P4，P5/P6 仍按已批准的分层 RTL cohort 和 Host V2/共享 RAM 架构执行。Goal 保持 active。
+- 收齐 T3 的 Tile 协议、Host API 和容量/运行成本三路只读审计；未修改训练实现或 RTL。
+- 新建 `g4_t3_execution_spec.md` 审核稿，明确 12 项二级冻结决策、当前 inference freeze FAIL、Temporal 容量风险、精确统计算法和批准后的测试先行任务顺序。
+- `task_plan.md` 已增加 T3 二级审核 gate；在用户批准前不创建正式训练 runner。Goal 保持 active。
+- 收齐 T3 三路独立反证；确认原审核稿存在公共置换统计失真、P3 comparator 未定义、canonical 枚举不可复现和按“权重实际改变”计 commit 可能不终止等批准阻断项。
+- 修订 `g4_t3_execution_spec.md` 的 12 项二级合同：加入信用状态机、公共 permutation、GEM 公式、80-tick 计分边界、`python -I -S` worker、model-only bundle、RandomPlan、确定性 direct search、完整 Spatial/XOR canonical 数据合同、clone checkpoint 和 fresh-run commit 预算。
+- 本轮只修改执行规格与计划记录；未修改训练实现、神经元方程或 RTL。V3 六项保持已批准，T3 十二项仍等待用户审核，Goal 保持 active。
+- 本机补测 `python -I -S`：`sys.path` 只含 Python 标准库，直接执行旧 `network_sim.py` 无法导入同目录模块。已据此把 D5 worker 收紧为自包含单入口/受控 bootstrap，而不是降低隔离强度。
+- T3 Host/no-replay 最终复核发现 D5 的原审计钩子合同会同时阻断合法 bundle 首次加载；本机 Python 3.14.2 审计事件探针复现 `compile` 与 `exec` 事件。已把规格改为哈希冻结 bootstrap + 单文件 bundle、一次性 `LOADING_VERIFIED_BUNDLE -> SEALED` 状态机，并保持 T3 十二项状态为 `REVIEW_REQUIRED`；未创建 runner、未修改神经元方程或 RTL。
+- D5 修订后通过独立 Host/no-replay 终审；三路 T3 反证审计均无剩余 P0/P1。最终规格 SHA-256 为 `D88EBE4A64C34DAE42E5C16888E2F786F4C560D6BE0B90EBFF1F48749009DE0C`；D1-D12 计数、`g4_rng_v1` golden vector、D10 空间/golden skeleton 和 `compileall` 均通过，核心模型及 Temporal manifest 哈希未变化。当前等待用户明确批准 T3 十二项二级决策。
+- 按用户要求回到原始 Goal 做证据复核，不继续扩写 T3。确认当前核心仍是寄存器化固定 4->2->2，Host `WEIGHT_WRITE` 可直接写权重，历史 Hybrid 还会直接重置输出权重；因此后续必须把“初始化权限”和“训练权限”分离，以命令轨迹证明训练期只经 eligibility snapshot + MOD_COMMIT 更新，并将共享 RAM/共享流水线 P6 提升为原始 Goal 的核心硬门。
+- 新建 `original_goal_alignment_review.md` 审核稿：把原始 Goal 主线收敛为 C1 训练来源封印、C2 真实 RTL 任务闭环、C3/C4 共享 RAM 三参数点扩展、C5 板级 golden loop；T3/G4 的纯 reward、持续学习、no-replay 和复杂统计保留为后续研究，不再作为核心硬件前置门。审核前不修改 Host/RTL。
+- 对对齐稿做第二次第一性原理修订：撤销把 `RUN_SEAL`、共享 RAM 三参数点和板级 bitstream 列为最小基石必要门槛。核心完成条件改为 M1-M4，其中唯一未完成的是现有 Host Bridge + Tile 上的任务级 RTL 训练/局部更新/冻结推理闭环及学习来源账本；扩展性、板级和 G4 均改为后续独立声明。
+
+## 2026-08-14 原始 Goal M1-M4 批准后实施
+
+- 用户明确批准原始 Goal M1-M4 四项决策；`original_goal_alignment_review.md` 状态改为 `APPROVED`。
+- 实施顺序冻结为 C1 最小任务合同、C2 真实双时钟 RTL 任务闭环、C3 学习来源审计、C4 独立验收器。现有神经元方程和 RTL 默认保持不变，以 RED 测试决定是否需要最小修正。
+- C1 只读复核完成：两轮、四次 `MOD_COMMIT` 是最小可靠训练量；训练前全 abstain，训练后 clean 与冻结扰动均正确，训练命令中 `WEIGHT_WRITE=0`。
+- 新增 `m3_task.py`/`test_m3_task.py` 的 oracle 合同和 `m3_training_ledger.py`/`test_m3_training_ledger.py` 的命令哈希链审计；新增 `run_command_sequence()` 作为真实双时钟 RTL 连续命令入口。相关 4 项测试已通过。
+- C2/C3 已通过：真实双时钟 RTL 连续执行 957 条命令，四次提交逐次读回全部 12 权重，20/20 扰动推理正确，训练期 `WEIGHT_WRITE=0`，最终权重冻结。
+- 新增 `m3_acceptance.py` 与反例测试，冻结四次 eligibility/定点 delta/饱和向量、命令 SHA、响应账本 SHA 和 hash-chain 尾值；篡改快照、账本或任务结果均会失败。
+- `verify_goal.py` 已加入 M3 独立硬门和 `m3_signoff_summary.txt` 生成，回归数量下限提高到 169；文档结论更新为原始 Goal M1-M4 已成立，扩展性、板级和通用 AI 仍未证明。
+- 最终执行 `python verify_goal.py` 用时 294.8 秒并以退出码 0 完成：169/169 回归、Tile depth-24 BMC、Controller depth-20 BMC 与 6 类 witness、10000 个 Tile 压力事务、957 条 M3 双时钟闭环，以及 Tile/XPM/系统 Vivado 报告全部通过，打印 `GOAL_AUDIT_PASS: 原始 Goal M1-M4 最小硬件基石门槛通过`。
+
+## 2026-08-19 ENeuron 1.0 与 Pulse-Mini
+
+- 用户授权完全访问并明确要求先提交当前版本，再规划 Pulse-Mini 并形成 `TODO.md`。
+- 恢复并复核既有计划文件、M1-M4 对齐稿、README、M3/T0 摘要和 Zynq-7020/Vivado 实测报告。
+- 确认当前目录尚未初始化 Git；版本提交将从 `main` 分支的首个提交开始。
+- 识别到发布可复现性约束：不能整目录忽略 Vivado 证据，必须保留 `verify_goal.py` 默认读取和新鲜度检查依赖的最小产物集合。
+- 记录两次只读 PowerShell 命令写法错误，均未修改项目文件；已改用精确路径和中间变量完成审计。
+- 独立发布审查定位 `rtl_contract.md` 的旧 Tile 资源/时序数字，已与当前 Vivado 冻结摘要统一，并在 README/发布说明中补充干净检出的 `--rerun-vivado` 要求。
+- 发布前完整执行 `python verify_goal.py`，退出码 0：169/169 回归、Tile/Controller 有限 BMC、10000 个 Tile 事务、957 条 M3 命令和 Vivado 报告审计全部通过；`TODO.md` 此时仍不存在。
