@@ -1,0 +1,15 @@
+RESULT=PASS
+VIVADO_VERSION=2024.1
+PART=xc7z020clg400-1
+TOP=pulse_original_core
+MODE=OUT_OF_CONTEXT
+CLOCK_MHZ=100.000
+LUT=183
+FF=85
+BRAM36=0
+BRAM18=0
+DSP=0
+WNS_NS=-1.605
+WHS_NS=0.150
+TIMING_SCOPE=REGISTER_TO_REGISTER_ONLY
+NOTES=Original counter/divider baseline; upper-limit wrap and positive-only learning intentionally retained

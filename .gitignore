@@ -16,6 +16,7 @@ clockInfo.txt
 # Vivado working state
 .Xil/
 vivado_xpm_wrapper_sim/project/**
+vivado_pulse_original_sim/
 
 # Keep the minimum routed Tile evidence required by verify_goal.py.
 !vivado_tile_reports/digital_snn_tile_4x2x2_impl.dcp

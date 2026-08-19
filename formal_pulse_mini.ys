@@ -1,0 +1,7 @@
+# Pulse-Mini 有限深度协议和状态不变量证明。
+read_verilog -formal -sv pulse_mini_core.sv formal_pulse_mini.sv
+prep -top formal_pulse_mini -flatten
+async2sync
+memory_map
+opt_clean
+sat -seq 20 -set-assumes -set-init-zero -prove-asserts -verify -dump_vcd formal_pulse_mini_cex.vcd

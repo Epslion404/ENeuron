@@ -224,3 +224,15 @@
 | 只读并行审查脚本中 PowerShell 字符串未正确转义，导致 JavaScript 编排语法错误 | 1 | 拆成三个独立 `exec_command` 并显式转义字符串，审查成功 |
 | 误用 `functions.wait` 等待不存在的 cell `noop` | 2 | 停止调用 cell wait，改用 `collaboration.wait_agent` 等待代理消息 |
 | Pulse-Mini 初稿把跨样本分频进度、三态冲突抵消和无 ID exactly-once 写得过强 | 1 | 独立语义审查后收敛为直接有符号事件累加、presence flag、统一 cmd/rsp 和单生产者有序 exactly-once |
+
+## Pulse-Mini 实施阶段（2026-08-19）
+
+- [x] P1：完成原始计数器/分频基线 RTL、Python 定向测试和 Vivado OOC runner 初版
+- [x] P2：完成固定宽度 Python 黄金模型、14 项行为/事务测试和结构化日志
+- [x] P3：完成统一 cmd/rsp、一槽响应、饱和胞体、presence 证据和反馈 RTL
+- [x] P4 前置：完成 Icarus/Python 20 seeds × 1000 transactions bit-exact 协同仿真（20000 条）
+- [x] P4：有限 BMC、负向反例和机器可读签核摘要
+- [x] P5：训练前后任务、留出扰动、负对照和训练账本
+- [x] P6：XC7Z020 Vivado 综合/布局布线/时序/DRC/功耗签核
+- [ ] P7：32/64/128 核阵列资源、路由和吞吐报告
+- [x] P8：固定 4->2->2 Pulse-Mini 网络端到端训练与冻结推理

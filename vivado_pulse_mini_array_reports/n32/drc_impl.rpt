@@ -1,0 +1,54 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2024.1 (win64) Build 5076996 Wed May 22 18:37:14 MDT 2024
+| Date         : Wed Aug 19 20:00:14 2026
+| Host         : LAPTOP-AJQHFMKI running 64-bit major release  (build 9200)
+| Command      : report_drc -file D:/Documents/Code/ENeuron/vivado_pulse_mini_array_reports/n32/drc_impl.rpt
+| Design       : pulse_mini_array
+| Device       : xc7z020clg400-1
+| Speed File   : -1
+| Design State : Fully Routed
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Report DRC
+
+Table of Contents
+-----------------
+1. REPORT SUMMARY
+2. REPORT DETAILS
+
+1. REPORT SUMMARY
+-----------------
+            Netlist: pulse_mini_array
+          Floorplan: design_1
+      Design limits: <entire design considered>
+           Ruledeck: default
+             Max violations: <unlimited>
+             Violations found: 2
++-----------+----------+--------------------+------------+
+| Rule      | Severity | Description        | Violations |
++-----------+----------+--------------------+------------+
+| RTSTAT-10 | Warning  | No routable loads  | 1          |
+| ZPS7-1    | Warning  | PS7 block required | 1          |
++-----------+----------+--------------------+------------+
+
+2. REPORT DETAILS
+-----------------
+RTSTAT-10#1 Warning
+No routable loads  
+258 net(s) have no routable loads. The problem bus(es) and/or net(s) are cmd_ready, gen_core[0].core/protocol_error,
+gen_core[10].core/protocol_error, gen_core[11].core/protocol_error,
+gen_core[13].core/protocol_error, gen_core[14].core/protocol_error,
+gen_core[15].core/protocol_error, gen_core[19].core/protocol_error,
+gen_core[20].core/protocol_error, gen_core[22].core/protocol_error,
+gen_core[24].core/protocol_error, gen_core[30].core/protocol_error,
+gen_core[31].core/protocol_error, gen_core[3].core/protocol_error,
+gen_core[6].core/protocol_error (the first 15 of 98 listed nets/buses).
+Related violations: <none>
+
+ZPS7-1#1 Warning
+PS7 block required  
+The PS7 cell must be used in this Zynq design in order to enable correct default configuration.
+Related violations: <none>
+
+

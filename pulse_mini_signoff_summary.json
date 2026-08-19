@@ -1,0 +1,44 @@
+{
+  "schema": "pulse_mini_signoff_v1",
+  "implementation": "Pulse-Mini fixed four-input signed event neuron",
+  "source_sha256": {
+    "pulse_mini_core.sv": "a7beafed08505f7749f81bb0b4ccfe8a61156ef3abeab912e7838ea526472ba4",
+    "pulse_mini_reference.py": "94d207d40f9e6b122126a7e32a76d238336122a0083b77589235a3bc1e122b4a",
+    "pulse_mini_cosim.py": "40e76e9cff9148e2dea10a4c83e19ad953474cdbf95ec345d06b6dc1a3c3ef29",
+    "test_pulse_mini_reference.py": "c213481d55d1deaf9e68263c8521c575f319117a928cdea12da84bd4e08c9ad9",
+    "formal_pulse_mini.sv": "9a4b97a6b0d3b717533e7bd2e0c16e92beb5cea173d8d336b888be1677d36d37",
+    "formal_pulse_mini.ys": "5e8f5665a80149373076f419902af043e0facb40a12c84c7760e8271e93a0092",
+    "run_formal_pulse_mini.ps1": "74d233d4ad16a733c01b89a01e26ac681f010924620c346cf7cd1e0a47fe31fb",
+    "pulse_mini_negative_control.py": "09662683306370ce5a79e99cf67476a4fb016ce5db0213eddf1a1babc4bcc9d5",
+    "test_pulse_mini_negative.py": "d4248c427f3fa6ce8e5b83c4729f2ac6a2fcfc0e8ce68ece11cea53650954f65",
+    "pulse_mini_task.py": "44a98a4224e108f49ea38dcb60b168a4b4a6d33f47b028b02b3ed1db1cf710cf",
+    "test_pulse_mini_task.py": "91f38f034ba3e867ee0e5ed7b25bdd76833afa95d9c40e0c8da36bfd7c2b0d14",
+    "pulse_mini_network_4x2x2.sv": "ab41fb2ba068de173a9db1de55de2e8ff87d46d09582af993b8575b0d638b3a6",
+    "pulse_mini_network_rtl_cosim.py": "56d261f3fd21c3e40c1dbf7761d89c92c2803e885c413d9fd24d6f56fc72c98c",
+    "tb_pulse_mini_network_file.sv": "ccdc7758f2888eb368635961b08cd77f8fb1d298e41e75f8f2ed424dba04719d"
+  },
+  "cosim": {
+    "seeds": 20,
+    "transactions_per_seed": 1000,
+    "transactions": 20000,
+    "golden_transaction_digest_sha256": "c23632c135d8492e65a10b3d880534226ecca1af0584da3d7a089e1903153eb4",
+    "command": "python pulse_mini_cosim.py",
+    "expected_result": "PULSE_MINI_COSIM_PASS seeds=20 transactions=20000"
+  },
+  "formal": {
+    "engine": "Yosys 0.56 SAT",
+    "depth": 20,
+    "expected_result": "PULSE_MINI_FORMAL_PASS depth=20",
+    "command": ".\\run_formal_pulse_mini.ps1"
+  },
+  "negative_control": {
+    "expected_result": "PULSE_MINI_NEGATIVE_CONTROL_PASS duplicate_feedback_counterexample=1",
+    "command": "python pulse_mini_negative_control.py"
+  },
+  "network_rtl_cosim": {
+    "commands": 272,
+    "expected_result": "PULSE_MINI_NETWORK_RTL_COSIM_PASS commands=272 one_tick_route=1 positive=1 negative=2",
+    "command": "python pulse_mini_network_rtl_cosim.py"
+  },
+  "status": "PASS"
+}

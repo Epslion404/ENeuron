@@ -166,3 +166,23 @@
 - 独立 Pulse-Mini 语义审查发现 8 项阻断：跨样本分频与清除冲突、三态顺序歧义、signed 更新未定义、STDP 窗口未冻结、无 ID exactly-once 过强、分立事务接口不闭合、clear/freeze 污染和网络声明缺 P8 证据。
 - 已按审查结果修订 `TODO.md`：主路径改为直接有符号事件累加；presence flag 替代三态累加；统一 cmd/rsp；明确 TICK 顺序、窗口端点、非法编码、clear 集合和单生产者 exactly-once；新增固定 `4->2->2` P8 网络闭环门。
 - 修订后 `TODO.md` 仍保持 `REVIEW_REQUIRED`，未创建 Pulse-Mini RTL；下一步应由用户审核 P0 冻结决策。
+
+## 2026-08-19 Pulse-Mini 实施
+
+- P1 原始方案 RTL、Python 定向测试和 Vivado 2024.1 OOC 已完成：183 LUT / 85 FF / 0 BRAM / 0 DSP，100 MHz WNS -1.605 ns；该结果仅作为原始成本/缺陷基线。
+- P2 黄金模型与 14 项测试完成；固定四输入、-7..+7、阈值 6、窗口 3、不应期 1、presence flag、单槽反馈和 INFER 冻结均有固定向量。
+- P3 `pulse_mini_core.sv` 完成；Icarus/Python 20 seeds × 1000 transactions（20000 条）bit-exact 通过。修复了不应期内把候选阈值误当自然 post 的边界错误。
+- P4 Yosys 0.56 有限 BMC depth=20 通过；负向控制证明去掉 pending exactly-once 门后可构造重复反馈反例。
+- P5 最小监督任务通过：训练前 10/20 严格 abstain，训练后 20/20，20 个留出扰动全部正确；无反馈、反向反馈、标签打乱均未通过门槛，训练期直接权重写入为 0。结论限定为神经元级局部监督，不是纯全局 reward。
+- P6 Pulse-Mini 单核 XC7Z020 routed 实测：182 LUT / 76 FF / 0 BRAM / 0 DSP，WNS +0.463 ns、TNS 0、WHS +0.205 ns、THS 0，独立摘要审计通过。
+- P7 采用 `keep_hierarchy/dont_touch` 后重新得到真实复制结果：32 核 5867 LUT / 2432 FF / WNS +0.151 ns；64 核 11699 LUT / 4864 FF / WNS -0.131 ns；128 核 23342 LUT / 9728 FF / WNS -0.466 ns。资源报告完成，但简单广播阵列的 64/128 核 100 MHz 硬门未通过，128 核容量声明保持 NOT_PROVEN。
+- P8 Python 固定 4->2->2 网络闭环通过：训练前双类 abstain，训练后正/负类 10+10 留出样本全对，一拍 pending 路由可观察，INFER 权重/学习字段冻结，训练账本直接权重写入为 0；结论是固定小网络原型，不外推通用 AI。
+- 修正 P8 RTL 协同仿真的训练教师时序：输出层教师事件必须放在第 6 个 tick，等待隐藏层重复脉冲窗口结束；第 1 个 tick 会造成正负 presence 同时出现，方向被正确抵消。修正后 RTL 输出层权重与 Python 黄金模型一致为 `+3`。
+- P8 RTL 网络协同仿真通过：`PULSE_MINI_NETWORK_RTL_COSIM_PASS commands=272 one_tick_route=1 positive=1 negative=2`；推理连续 8 tick，正类只产生输出位 1，负类只产生输出位 2。
+- 新增 `pulse_mini_signoff.py` 和 `pulse_mini_signoff_summary.json`，摘要绑定 Pulse-Mini RTL、黄金模型、协同仿真、形式验证、负向控制、任务和网络 RTL 文件哈希；P4 机器可读签核摘要完成。
+## 2026-08-19 P1 原始计数/分频基线
+
+- 新增 `pulse_original_core.sv`：固定四输入、每路 8 位学习计数器与 8 位分频进度、16 位胞体、4 位同步睡眠；学习计数上限回绕和只能增强语义按原始方案保留，未加入 Pulse-Mini 的负权重、反馈、模式或 pending 功能。
+- 新增 `test_pulse_original.py` 与 `tb_pulse_original.sv`。Python 定向测试 4/4 通过，覆盖学习上限回绕、计数越大分频周期越短、阈值发放/同步睡眠和正向学习局限。
+- 新增 `vivado_pulse_original_synth.tcl` 与 `run_vivado_pulse_original_synth.ps1`，使用 Vivado 2024.1、`xc7z020clg400-1`、100 MHz OOC 完成综合、布局布线、资源/时序/功耗报告。
+- 当前真实 routed 资源：183 LUT、85 FF、0 BRAM、0 DSP；WNS `-1.605 ns`、TNS `-30.454 ns`、WHS `+0.150 ns`、THS `0 ns`。负 WNS 记录为原始基线时序不足，不能据此宣称 100 MHz 通过；主要路径受字面宽整数比较/饱和组合逻辑影响，后续 Pulse-Mini 应采用窄位宽显式算术。

@@ -298,3 +298,33 @@
 - `STATE_CLEAR` 仅在 idle 且无 pending 时接受，清动态与学习证据但保留连接；INFER 的冻结只约束 TICK，不把显式样本边界清除误判为学习写入。
 - Pulse-Mini 目标预算更新为 `140~240 LUT / 100~140 FF / 0 BRAM / 0 DSP`，算法与 pending 状态约 69 位；XC7Z020 容量表改按约 45% 资源预留计算。
 - 目标声明收窄为“可作为固定小网络构件”；新增 P8 固定 `4->2->2` 训练/冻结推理闭环，未通过前不宣称已经完成网络级基石。
+
+## Pulse-Mini P2 黄金模型（2026-08-19）
+
+- 新增 `pulse_mini_reference.py`：固定四输入、权重 `-7..+7`、八位有符号饱和胞体、阈值 6、不应期 1 tick、窗口 3；实现 `MODE_SET/STATE_CLEAR/TICK/CAPTURE/FEEDBACK/WEIGHT_WRITE/WEIGHT_READ` 和单槽严格有序 `cmd/rsp` valid-ready 事务。
+- 参考模型以每条树突正/负 presence flag 记录先后证据；`CAPTURE` 映射为 `+1/0/-1`，`FEEDBACK` 按一步数值更新并在 `-7..+7` 饱和，非法四位权重 `1000 (-8)` 和反馈编码 `10` 显式拒绝。
+- `INFER` 的 `TICK` 不改变权重、年龄、presence 或 pending 学习字段；`train_post` 只参与学习事件，不伪造自然 `spike`。`STATE_CLEAR` 保留连接，仅在无 pending 时清动态与证据。
+- 新增 `test_pulse_mini_reference.py`，14 项回归覆盖全部 16 输入掩码、所有输入排列、正负零连接、正负胞体饱和、窗口端点和冲突证据、反馈饱和/零消费/exactly-once、pending 背压、非法模式与权重编码、CONFIG 写入、推理冻结、结构化日志。`python -m unittest -v test_pulse_mini_reference.py`：14/14 通过。
+
+## Pulse-Mini P3-P8 证据（2026-08-19）
+
+- `pulse_mini_core.sv` 与 `pulse_mini_reference.py` 逐事务一致；`python pulse_mini_cosim.py` 输出 `PULSE_MINI_COSIM_PASS seeds=20 transactions=20000`。
+- `& .\run_formal_pulse_mini.ps1` 使用 Yosys 0.56 SAT depth=20 输出 `PULSE_MINI_FORMAL_PASS depth=20`，无 model found。
+- `pulse_mini_negative_control.py` 输出 `PULSE_MINI_NEGATIVE_CONTROL_PASS duplicate_feedback_counterexample=1`；真实模型的第二次反馈返回 `NO_PENDING`，错误实现的反例会把权重从 1 错误推进到 2。
+- P5 训练 runner 输出：训练前 10/20，训练后 20/20，no-feedback 10/20，反向反馈 0/20，label-shuffled 10/20，训练期 `train_weight_write_count=0`，最终权重 `[6,-6,0,0]`。这只是神经元级 `train_post` 监督任务。
+- Pulse-Mini 单核 Vivado 2024.1 `xc7z020clg400-1` routed 摘要：182 LUT / 76 FF / 0 BRAM / 0 DSP，WNS +0.463 ns，TNS 0，WHS +0.205 ns，THS 0；`python verify_pulse_mini.py` 通过。vector-less power 只作估算。
+- 阵列报告必须使用 `keep_hierarchy/dont_touch`，否则广播相同输入会被综合器等价合并成一个核。保留实例后真实结果为 32 核 5867/2432/+0.151 ns，64 核 11699/4864/-0.131 ns，128 核 23342/9728/-0.466 ns。故 P7 只能报告资源与失败边界，不能声称 128 核 100 MHz 通过。
+- Python P8 固定 4->2->2 网络通过：训练前双类输出均为 0，训练后正类输出位 1、负类输出位 2，各 10 个扰动样本全对；`route_delay_observed=1`、`weights_frozen=True`、`direct_weight_write_count=0`、无反馈输出 `[0,0]`。结论限定为固定小网络训练/推理原型。
+## P1 原始方案实测证据（2026-08-19）
+
+- `pulse_original_core.sv` 的冻结映射为 `period=max(1,255-learn_count)`：学习值越大，分频周期越短；输入事件在该通道达到周期时产生树突脉冲并清零进度。
+- 定向模型通过 4/4：学习计数器从 `255` 再学习一次回绕为 `0`；强连接周期 2 拍、弱连接周期 7 拍；胞体达到阈值后输出一拍脉冲并进入同步睡眠；接口没有负反馈或抑制路径。
+- Vivado 2024.1 `xc7z020clg400-1` routed 报告：`183 LUT / 85 FF / 0 BRAM / 0 DSP`，vector-less 功耗 `0.105 W`（报告未绑定活动文件）。100 MHz 核心时序为 `WNS=-1.605 ns, TNS=-30.454 ns, WHS=+0.150 ns, THS=0`，因此 P1 仅作为成本/缺陷基线，100 MHz 时序门未通过。
+- Vivado 日志无综合错误、无 DRC Error/Critical Warning，route status 的失败/未布线网络为 0；OOC 输入/输出封装延迟被 false-path 排除，摘要明确标注 `REGISTER_TO_REGISTER_ONLY`。
+
+## Pulse-Mini P4/P8 收口（2026-08-19）
+
+- `pulse_mini_signoff_summary.json` 为 `pulse_mini_signoff_v1` 机器摘要，绑定 `pulse_mini_core.sv`、Python 黄金模型、20,000 条固定协同事务的黄金摘要、形式脚本、负向控制、P5 任务和网络 RTL 文件 SHA-256。
+- P4 正向证据闭环为 20 seeds × 1000 transactions bit-exact、Yosys 0.56 depth 20 无反例、重复反馈负向控制反例；摘要状态为 `PASS`。
+- P8 RTL 网络协同仿真共 272 条命令。输出层训练教师事件固定在第 6 个 tick；第 1 个 tick 会让后续隐藏重复脉冲进入负证据窗口，导致方向抵消，这不是路由丢失。
+- P8 RTL 通过后，固定 `4 -> 2 -> 2` 网络可以称为训练/冻结推理原型；仍不能外推为通用 AI、纯全局 reward 学习或任意规模网络。
