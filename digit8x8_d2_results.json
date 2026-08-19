@@ -22,7 +22,7 @@
     "manifest_sha256": "63539eec5018f19ac8303f280cb87f1f3780d505b5955f961ea4aa629e131537",
     "runner_source_sha256": "c6991df19c9736e8ea5d531002cbcf957e3da466d7cd1acb2d4a31db562fb7fe",
     "model_source_sha256": "836499e549187becb2aa8c38d373b4a407c9de1a819cb1f3c54a20da842b3350",
-    "git_commit": "0850bca72a8c3e4fcdd9ada91d30532cccd1f775"
+    "git_commit": "e50329b9e992800d0542f25d3deb12fa16d9da8a"
   },
   "primary": [
     {
