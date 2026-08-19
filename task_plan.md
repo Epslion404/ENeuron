@@ -300,3 +300,22 @@
 - 参考模型 8/8、20 seeds × 1000 transactions（20000 条）协同仿真和 Yosys depth-20 SAT 通过。
 - L2 在四类组合任务达到约 66.9% coverage，covered accuracy 100%；时间顺序任务仍失败；全局标量奖励没有形成有效 coverage。
 - 最终硬件实测为 366 LUT / 91 FF / 0 BRAM / 0 DSP，WNS -4.690 ns、WHS +0.152 ns；L2 不是 100 MHz setup 通过版本。
+
+## ENeuron 固定图像数字识别阶段（2026-08-19）
+
+- [x] 用户批准 8×8、K=16、64→16→4→10、逐事件局部教师和能力门五项冻结决策
+- [x] D0：生成固定 8×8 数字 fixture、分层 manifest 和 SHA-256
+- [x] D0：实现 rank-order latency 编码与 2×2 patch mask 往返合同
+- [x] D0：完成确定性、恒定事件数、标签独立和 split 防泄漏测试
+- [ ] D1：无学习基线、软件可分性上限和十分类解码
+- [ ] D2：固定特征、只训练 10 个输出神经元
+- [ ] D3：分层局部教师训练与 ENeuron/L2/STDP 对照
+- [ ] D4：dropout、时间抖动、遮挡和平移鲁棒性
+- [ ] D5：8×8 图像 wrapper Python/RTL bit-exact 与 30 核 routed
+- [ ] D6：16×16 共享 lane/RAM 扩展评估
+
+### D0 冻结边界
+
+- 首轮真实输入是固定 8×8 灰度十分类，不覆盖 TODO 中较小的 `4→8→10` 协议探针。
+- 图像网络目标形状为 `64→16→4→10`，共 30 个四输入 ENeuron；该规模目前只有资源估算，没有 routed 证据。
+- 现有 ENeuron 单核和 Pulse-Mini 合同不修改；图像输入使用新增 wrapper。

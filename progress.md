@@ -226,6 +226,14 @@
 - 实验结果：三类通道两版 local teacher 100%；四类组合 L 覆盖 0%，L2 覆盖约 66.9% 且覆盖样本准确率 100%；时间顺序两版均失败；多标签 L2 略优于 L1；全局标量奖励没有形成有效覆盖。
 - 使用 Vivado 2024.1 XC7Z020 完成 L2 OOC routed：366 LUT / 91 FF / 0 BRAM / 0 DSP，WNS -4.690 ns、WHS +0.152 ns；相对 L1 增加 184 LUT、15 FF，真实 setup 失败，不能宣称 L2 100 MHz 通过。
 
+## 2026-08-19 ENeuron 图像识别 D0
+
+- 用户批准固定 8×8 灰度十分类、rank-order `K=16/T=16`、`64→16→4→10` 30 核拓扑、逐事件 replay 局部教师和能力/强门。
+- 新增 `digit8x8.py`、`generate_digit8x8_fixture.py`、`digit8x8_fixture.json`、`digit8x8_manifest.json`、`test_digit8x8.py` 和 `DIGIT_RECOGNITION_D0.md`。
+- fixture 共 1797 个样本，train/validation/test 为 1252/270/275；三路 split 互不相交且各含 10 类，fixture SHA-256 为 `6fa95b5b7493856708b0ab66814ef98a8f151efc2d9245ca10286860f9d21f5e`。
+- D0 编码合同通过：每图恰好 16 个事件、同亮度按像素编号稳定打破平局、2×2 patch mask 可无损还原、编码不读取标签和全局随机状态。
+- `python -m unittest -v test_digit8x8.py`：6/6 通过。D0 仍不包含数字识别准确率、ENeuron 网络训练或 RTL/Vivado 证据。
+
 ## 2026-08-19 Pulse-Mini 规划收口
 
 - 用户要求先提交当前版本，再评估原始方案并形成 Pulse-Mini 规划。
