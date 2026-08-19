@@ -307,7 +307,7 @@
 - [x] D0：生成固定 8×8 数字 fixture、分层 manifest 和 SHA-256
 - [x] D0：实现 rank-order latency 编码与 2×2 patch mask 往返合同
 - [x] D0：完成确定性、恒定事件数、标签独立和 split 防泄漏测试
-- [ ] D1：无学习基线、软件可分性上限和十分类解码
+- [x] D1：无学习基线、软件可分性上限和十分类解码
 - [ ] D2：固定特征、只训练 10 个输出神经元
 - [ ] D3：分层局部教师训练与 ENeuron/L2/STDP 对照
 - [ ] D4：dropout、时间抖动、遮挡和平移鲁棒性
@@ -319,3 +319,9 @@
 - 首轮真实输入是固定 8×8 灰度十分类，不覆盖 TODO 中较小的 `4→8→10` 协议探针。
 - 图像网络目标形状为 `64→16→4→10`，共 30 个四输入 ENeuron；该规模目前只有资源估算，没有 routed 证据。
 - 现有 ENeuron 单核和 Pulse-Mini 合同不修改；图像输入使用新增 wrapper。
+
+### D1 结果
+
+- 最近质心 + rank-order 发放 tick：测试集 balanced accuracy 79.80%、accuracy 80.00%、macro-F1 79.46%、coverage 100%。
+- 只看总事件数、首 tick、末 tick 的基线均无有效覆盖；标签打乱后 balanced accuracy 8.69%，接近十分类机会水平。
+- D1 判定 `PASS`，允许进入 ENeuron 输出层训练；软件上限不能替代神经元训练证据。

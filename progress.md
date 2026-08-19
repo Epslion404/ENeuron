@@ -234,6 +234,14 @@
 - D0 编码合同通过：每图恰好 16 个事件、同亮度按像素编号稳定打破平局、2×2 patch mask 可无损还原、编码不读取标签和全局随机状态。
 - `python -m unittest -v test_digit8x8.py`：6/6 通过。D0 仍不包含数字识别准确率、ENeuron 网络训练或 RTL/Vivado 证据。
 
+## 2026-08-19 ENeuron 图像识别 D1
+
+- 新增 `digit8x8_experiment.py`、`digit8x8_d1_results.json`、`test_digit8x8_experiment.py` 和 `DIGIT_RECOGNITION_D1.md`。
+- 最近质心 + rank-order 发放 tick 在测试集达到 balanced accuracy 79.80%、accuracy 80.00%、macro-F1 79.46%、coverage 100%。
+- 总事件数、首 tick、末 tick 对照没有有效覆盖；标签打乱后的 balanced accuracy 为 8.69%，接近十分类机会水平。
+- D1 通过，说明固定输入编码具有可学习信息且没有明显总脉冲量/标签泄漏；尚未证明 ENeuron 网络训练能力。
+- D1 专项回归为 10/10 通过；全量回归将在 D2 变更后重跑。
+
 ## 2026-08-19 Pulse-Mini 规划收口
 
 - 用户要求先提交当前版本，再评估原始方案并形成 Pulse-Mini 规划。
