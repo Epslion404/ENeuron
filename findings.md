@@ -356,3 +356,15 @@
 - 同一连接形成正负presence冲突时，Pulse-Mini按合同CAPTURE为0；ENeuron在对应自然spike序列后仍保留eligibility 60。前者确定但丢强度，后者保留净信用但更依赖参数缩放。
 - 四类共同噪声扫描中，两版均对未训练通道噪声完全不敏感；在当前饱和对称权重下，对dropout和对立通道噪声的曲线也几乎一致，因此这组任务不能证明谁在一般噪声下更强。
 - 共同固定网络上，ENeuron 20 seeds训练后均为100%，Pulse-Mini为20/20。原生协议再次复现ENeuron纯全局reward 22.5%均值，Pulse-Mini仍没有可替代的纯全局reward证据。
+
+## Pulse-Mini-L2 训练协议与多任务评估（2026-08-19）
+
+- 用户批准进入 L2 实现阶段。L2 采用每条连接 2 位正证据计数器 + 2 位负证据计数器；每种证据每个成功 TICK 最多计一次；CAPTURE 保存正减负的有符号步长，范围 -2..+2；FEEDBACK 仍使用原有 0/+1/-1 编码并一次消费 pending 槽。
+- 训练协议冻结为“每个样本 STATE_CLEAR；每个输入段为输入 tick -> teacher-post tick -> 三个空 tick；CAPTURE -> 定向 FEEDBACK”。该安排避免长序列只在末尾发 post 导致窗口外证据丢失，也避免相邻 teacher-post 把同一事件同时记成正负证据。
+- 多类输出采用 one-hot：三类使用 3 个输出单元，四类使用 4 个输出单元；没有用 2-bit binary code 代替类别。多标签任务使用 4 个独立输出位，不使用 WTA。
+- `local_teacher` 定义为按标签给目标输出 +1、非目标输出 -1 的 neuron-specific supervised credit；`global_scalar_reward` 定义为所有输出收到同一个环境标量的负对照，两个结果不合并。
+- 新增 `pulse_mini_protocol_experiments.py`，固定 8 个 seed，比较三类通道、四类组合、三类时间顺序和四位多标签任务。三类通道 local teacher：L/L2 均 100%；四类组合：L 覆盖 0%，L2 覆盖约 66.9%，覆盖样本准确率 100%；时间顺序任务两者均 0%；多标签 exact-match：L 30.2%，L2 33.3%，bit-level accuracy：L 73.7%，L2 75.4%。全局标量奖励在这些固定任务上均 0% 覆盖，说明没有信用分配不能替代局部教师。
+- 新增 `pulse_mini_l2_reference.py`、`pulse_mini_l2_core.sv`、L2 事务回归、L2 Icarus/Python 20 seeds x 1000（20000 条）协同仿真和 depth-20 Yosys SAT 证明；均通过。
+- Pulse-Mini-L2 Vivado 2024.1 XC7Z020 routed 最终实测为 `366 LUT / 91 FF / 0 BRAM / 0 DSP`，WNS `-4.690 ns`、WHS `+0.152 ns`。相对 L1 的 `182/76/+0.463 ns`，L2 增加 `184 LUT / 15 FF`；LUT 约增加 101.1%，FF 约增加 19.7%，且 100 MHz setup 失败。这是真实硬件边界，不能继续沿用 L1 的时序通过声明。
+- L2 的主要价值是让重复局部证据产生幅度 `-2..+2` 的一次反馈，已在四类组合任务把 L1 的 0% 覆盖提高到约 66.9%，覆盖样本准确率 100%；它没有增加顺序记忆，也没有使全局标量奖励获得信用分配能力。
+- L2 时序失败主要出现在权重到胞体/发放和证据幅度更新共享的整数组合路径；后续若追求 100 MHz，应拆分窄位宽 TICK 与 CAPTURE/FEEDBACK 数据路径，而不是删除证据强度功能。

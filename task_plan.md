@@ -277,3 +277,17 @@
 - 到期时膜电位向零移动一个单位；顺序为“先泄放，再加入本 tick 输入，再判阈值”。
 - 不应期内泄放计时器暂停；自然发放和 `STATE_CLEAR` 都清零计时器。
 - `CAPTURE/FEEDBACK`、权重范围、训练/推理冻结和一拍网络路由合同不变。
+
+## Pulse-Mini-L2 证据强度升级阶段（2026-08-19）
+
+- [x] 冻结 PN2 正/负证据计数与 `-2..+2` 幅度反馈协议
+- [x] 更新 Python 黄金模型、RTL、事务回归、协同仿真和形式验证
+- [x] 完成三类、四类、多标签和时间顺序任务的 local_teacher / global_scalar_reward 对照
+- [x] 完成 XC7Z020 Vivado 2024.1 routed 资源与时序复核
+- [x] 同步最终报告数字并记录 100 MHz setup 失败边界
+
+### 本阶段验收结果
+
+- 参考模型 8/8、20 seeds × 1000 transactions（20000 条）协同仿真和 Yosys depth-20 SAT 通过。
+- L2 在四类组合任务达到约 66.9% coverage，covered accuracy 100%；时间顺序任务仍失败；全局标量奖励没有形成有效 coverage。
+- 最终硬件实测为 366 LUT / 91 FF / 0 BRAM / 0 DSP，WNS -4.690 ns、WHS +0.152 ns；L2 不是 100 MHz setup 通过版本。
