@@ -160,3 +160,9 @@
 - 记录两次只读 PowerShell 命令写法错误，均未修改项目文件；已改用精确路径和中间变量完成审计。
 - 独立发布审查定位 `rtl_contract.md` 的旧 Tile 资源/时序数字，已与当前 Vivado 冻结摘要统一，并在 README/发布说明中补充干净检出的 `--rerun-vivado` 要求。
 - 发布前完整执行 `python verify_goal.py`，退出码 0：169/169 回归、Tile/Controller 有限 BMC、10000 个 Tile 事务、957 条 M3 命令和 Vivado 报告审计全部通过；`TODO.md` 此时仍不存在。
+- 创建根提交 `499fc8a`：`release: ENeuron 1.0 verified hardware baseline`，并创建 annotated tag `v1.0`；标签后工作区干净且 `TODO.md` 不存在，满足先发布再规划的顺序。
+- 标签完成后才创建 `TODO.md`：逐模块审计原始计数/分频方案，提出固定四输入 Pulse-Mini 的直接有符号事件累加、同步不应期、presence flag 本地历史、单槽反馈和 CONFIG/TRAIN/INFER 合同。
+- Pulse-Mini 当前保持 `REVIEW_REQUIRED`；未创建 RTL。计划将资源估算、目标预算和未来 Vivado 实测严格分开，并以 260 LUT / 140 FF / 0 BRAM / 0 DSP / 100 MHz 为单核硬门。
+- 独立 Pulse-Mini 语义审查发现 8 项阻断：跨样本分频与清除冲突、三态顺序歧义、signed 更新未定义、STDP 窗口未冻结、无 ID exactly-once 过强、分立事务接口不闭合、clear/freeze 污染和网络声明缺 P8 证据。
+- 已按审查结果修订 `TODO.md`：主路径改为直接有符号事件累加；presence flag 替代三态累加；统一 cmd/rsp；明确 TICK 顺序、窗口端点、非法编码、clear 集合和单生产者 exactly-once；新增固定 `4->2->2` P8 网络闭环门。
+- 修订后 `TODO.md` 仍保持 `REVIEW_REQUIRED`，未创建 Pulse-Mini RTL；下一步应由用户审核 P0 冻结决策。

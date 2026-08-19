@@ -278,3 +278,23 @@
 - Pulse-Mini 的规划必须与 1.0 分开：1.0 是已验证的完整三因子硬件基线，Pulse-Mini 是重新审视原始计数/分频构想后的低成本候选，不能用估算资源冒充综合实测。
 - 发布交叉审查发现 `rtl_contract.md` 仍保留早期 Tile 数值 `3144/1971/+0.053 ns`；已按冻结摘要统一为 `3152/1972/+0.213 ns`。
 - Git 检出不保留原始 mtime，而 `verify_goal.py` 会检查报告晚于源码；因此全新检出的权威复验入口是 `python verify_goal.py --rerun-vivado`，默认命令只适用于已保存同一工作区时间关系的审计。
+
+## Pulse-Mini 方案结论（2026-08-19）
+
+- 原始四输入方案的 84 位状态代理成立，但上限复位、单向增强、无抑制、分频方向不明、内部 RST 和无延迟反馈使它不能直接完成任务导向训练。
+- Pulse-Mini 初稿曾保留 3 位模 8 脉冲进度和 2 位三态方向；该方案已在语义反审查中废止，最终推荐为 4 位有符号连接、4 位最近输入窗口、正/负两个 presence flag，以及共享 8 位有符号胞体、4 位最近输出和 4 位同步不应期。
+- `train_post` 只进入学习时间检测器，不直接拉高 `spike_out`；它允许可信 Host 提供神经元级教师事件，同时逐树突变化仍由本地输入历史决定。
+- 单槽 CAPTURE/FEEDBACK 只对单生产者、严格有序链路承诺 exactly-once；不增加 core commit ID、多槽 RAM 或 FIFO，跨 CDC/重试由 wrapper 加序号。
+- 算法与 pending 状态约 69 位；综合目标为 `140~240 LUT / 100~140 FF / 0 BRAM / 0 DSP`，这是待 RTL/Vivado 验证的预算，不是实测。
+- 以 XC7Z020 的 53200 LUT 为边界，按约 45% 资源预留后，固定四输入核的工程量级约 121~209 个；首版阵列目标为 128 核，只有 routed 通过后才能改称实测容量。
+
+## Pulse-Mini 语义反审查修订（2026-08-19）
+
+- 独立审查确认：跨样本保存 3 位分频进度会与 `STATE_CLEAR` 冲突。清除它会让短样本中的弱连接不可观察；保留它又会让结果依赖前一个样本。因此推荐 Pulse-Mini 删除跨样本分频进度，输入脉冲直接条件加入当前有符号连接；原始分频仅在 P1 做忠实成本基线。
+- 独立审查确认：一个饱和三态不能同时保证“冲突抵消”和“顺序无关”。已改为每条树突两个 presence flag；CAPTURE 时仅正证据为 `+1`、仅负证据为 `-1`、两者同现为 `0`。
+- 连接更新已冻结为数值规则 `weight_next=saturate(weight + feedback_sign * captured_direction,-7,+7)`；4 位编码 `1000` 的 `-8` 非法并返回错误。
+- 已冻结窗口只随成功接受的逻辑 TICK 推进、同 tick `natural_spike OR train_post` 只算一个 post 事件、阈值使用本 tick 贡献后的胞体、presence flag 只在 P0 明确顺序表后写 RTL。
+- 分立 valid/ready 端口改为统一 `cmd_valid/cmd_ready` + `rsp_valid/rsp_ready`；非法请求必须握手返回错误，`WEIGHT_READ` 必须返回符号扩展数据。无 core commit ID 时，exactly-once 只承诺单生产者严格有序链路，跨 CDC/重试由 wrapper 加序号。
+- `STATE_CLEAR` 仅在 idle 且无 pending 时接受，清动态与学习证据但保留连接；INFER 的冻结只约束 TICK，不把显式样本边界清除误判为学习写入。
+- Pulse-Mini 目标预算更新为 `140~240 LUT / 100~140 FF / 0 BRAM / 0 DSP`，算法与 pending 状态约 69 位；XC7Z020 容量表改按约 45% 资源预留计算。
+- 目标声明收窄为“可作为固定小网络构件”；新增 P8 固定 `4->2->2` 训练/冻结推理闭环，未通过前不宣称已经完成网络级基石。

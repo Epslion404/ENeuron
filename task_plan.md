@@ -204,9 +204,9 @@
 - [x] 复核 M1-M4、M3 账本、Vivado 报告和 1.0 声明边界
 - [x] 创建 1.0 版本文件和可审计的生成物忽略规则
 - [x] 运行 `python verify_goal.py`，以当前源码重建最终签核摘要
-- [ ] 初始化 `main` 分支并提交 `ENeuron 1.0`，创建 annotated tag `v1.0`
-- [ ] 标签完成后评估原始计数/分频方案，形成独立 `TODO.md`
-- [ ] 复核 Pulse-Mini 资源预算、阶段门槛和非目标，单独提交规划
+- [x] 初始化 `main` 分支并提交 `ENeuron 1.0`，创建 annotated tag `v1.0`
+- [x] 标签完成后评估原始计数/分频方案，形成独立 `TODO.md`
+- [x] 复核 Pulse-Mini 资源预算、阶段门槛和非目标，单独提交规划
 
 ### 本阶段顺序约束
 
@@ -221,3 +221,6 @@
 |---|---:|---|
 | PowerShell 将传给 `rg` 的 `run_vivado_*.ps1` 和 `*.md` 当作非法路径通配符 | 1 | 改用 `rg -g` 或精确文件列表，不重复 Windows 路径通配写法 |
 | PowerShell 在 `foreach` 表达式后直接接管道时报空管道元素 | 1 | 先把循环结果赋给 `$rows`，再单独送入 `Format-Table` |
+| 只读并行审查脚本中 PowerShell 字符串未正确转义，导致 JavaScript 编排语法错误 | 1 | 拆成三个独立 `exec_command` 并显式转义字符串，审查成功 |
+| 误用 `functions.wait` 等待不存在的 cell `noop` | 2 | 停止调用 cell wait，改用 `collaboration.wait_agent` 等待代理消息 |
+| Pulse-Mini 初稿把跨样本分频进度、三态冲突抵消和无 ID exactly-once 写得过强 | 1 | 独立语义审查后收敛为直接有符号事件累加、presence flag、统一 cmd/rsp 和单生产者有序 exactly-once |
