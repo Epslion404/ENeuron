@@ -308,7 +308,7 @@
 - [x] D0：实现 rank-order latency 编码与 2×2 patch mask 往返合同
 - [x] D0：完成确定性、恒定事件数、标签独立和 split 防泄漏测试
 - [x] D1：无学习基线、软件可分性上限和十分类解码
-- [ ] D2：固定特征、只训练 10 个输出神经元
+- [x] D2：固定特征、只训练 10 个输出神经元（协议 PASS，性能 FAIL_GENERALIZATION）
 - [ ] D3：分层局部教师训练与 ENeuron/L2/STDP 对照
 - [ ] D4：dropout、时间抖动、遮挡和平移鲁棒性
 - [ ] D5：8×8 图像 wrapper Python/RTL bit-exact 与 30 核 routed
@@ -325,3 +325,25 @@
 - 最近质心 + rank-order 发放 tick：测试集 balanced accuracy 79.80%、accuracy 80.00%、macro-F1 79.46%、coverage 100%。
 - 只看总事件数、首 tick、末 tick 的基线均无有效覆盖；标签打乱后 balanced accuracy 8.69%，接近十分类机会水平。
 - D1 判定 `PASS`，允许进入 ENeuron 输出层训练；软件上限不能替代神经元训练证据。
+
+### D2 当前实施口径
+
+- 前 20 个单元（64→16→4）使用冻结参数，只生成固定特征脉冲。
+- 仅十个输出单元参与学习；训练期间禁止直接权重写入。
+- 每个输入事件后显式注入一个教师 post 事件，再留出三个空 tick；教师事件不计入自然发放统计。
+- 每次提交记录样本、类别、输出单元、资格迹快照、调制值和权重变化，形成训练来源账本。
+- 推理阶段关闭学习和调制，权重与所有学习字段必须保持不变。
+
+### D2 结果
+
+- D2 协议/账本合同测试 14 项通过；训练期自然输出为 0，直接权重写入为 0，固定特征指纹不变，推理并列严格 abstain。
+- 10 个固定 seed、每个 3 epochs 的正式实验已落盘 `digit8x8_d2_results.json`；validation BAcc 均值 4.61%、最小 1.11%，coverage 均值 56.04%、最小 39.26%，达到 `BAcc≥70% 且 coverage≥90%` 的 seed 为 0/10。
+- test BAcc 均值 4.74%、coverage 均值 52.18%；固定权重与标签打乱对照均未达到主门槛。
+- 结论为 `D2_FAIL_GENERALIZATION`，部分 seed 同时属于 `D2_FAIL_ACTIVITY`；在批准输出层信用修正并重新通过 D2 前，不进入 D3 解冻隐藏层。
+
+### D2 错误记录
+
+| 错误 | 尝试 | 处理 |
+|---|---:|---|
+| PowerShell 不支持 Bash heredoc `python - <<'PY'` | 1 | 未修改源文件；改用 `python -c` 进行同一只读探针 |
+| 结果汇总探针误把列表推导变量写成未定义的 `x` | 1 | 未修改结果文件；改用独立列表变量 `z` 重跑统计 |

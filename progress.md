@@ -242,6 +242,22 @@
 - D1 通过，说明固定输入编码具有可学习信息且没有明显总脉冲量/标签泄漏；尚未证明 ENeuron 网络训练能力。
 - D1 专项回归为 10/10 通过；全量回归将在 D2 变更后重跑。
 
+## 2026-08-19 ENeuron 图像识别 D2 启动
+
+- 用户批准进入 D2：固定前两层，只训练十个输出神经元。
+- 先复跑全量回归并核对现有 `ThreeFactorNeuron` 接口；D2 不修改已签核 RTL 或既有神经元方程。
+- 训练协议采用显式 teacher-post 事件，禁止把自然 spike 当教师；训练期权重变化必须可由资格迹快照与调制值解释。
+- 当前状态：实现与测试进行中。
+
+## 2026-08-19 ENeuron 图像识别 D2 收口
+
+- 新增 `digit8x8_d2.py`：固定 `64→16→4` 特征层，仅训练 10 个输出单元；显式 `teacher-post` 采用“输入→下一 tick 教师→3 个空 tick”微窗口。
+- 新增 `digit8x8_d2_acceptance.py`、`test_digit8x8_d2_acceptance.py`、`test_digit8x8_d2_contract.py`、`run_digit8x8_d2.py` 和 `test_run_digit8x8_d2.py`。
+- 协议/账本相关 14 项测试通过；训练自然 spike=0、训练期直接写权重=0、账本可按 `old + delta = new` 重算、推理权重冻结。
+- 正式 10 seed × 3 epoch 结果写入 `digit8x8_d2_results.json`；validation BAcc 均值 4.61%、coverage 均值 56.04%，0/10 seed 达到基础门；test BAcc 均值 4.74%、coverage 均值 52.18%。
+- D2 结论：`D2_FAIL_GENERALIZATION`，部分 seed 为 `D2_FAIL_ACTIVITY`。失败原因是固定特征与当前十分类局部调制使输出权重趋同，严格 abstain 合同因此拒绝伪造分类结果。
+- `DIGIT_RECOGNITION_D2.md` 已更新为完整失败报告；D3 暂停，下一步需单独批准最小的输出层信用分配修正。
+
 ## 2026-08-19 Pulse-Mini 规划收口
 
 - 用户要求先提交当前版本，再评估原始方案并形成 Pulse-Mini 规划。
