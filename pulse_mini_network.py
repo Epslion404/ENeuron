@@ -133,11 +133,13 @@ def train_network(
     return network
 
 
-def run_p8() -> dict:
-    baseline = PulseMiniNetwork()
+def run_p8(*, leak_period: int = PulseMiniReference.LEAK_PERIOD) -> dict:
+    """运行固定网络 P8 闭环；周期 0 是无泄放 Pulse-Mini 基线。"""
+
+    baseline = PulseMiniNetwork(leak_period=leak_period)
     baseline.mode_set(Mode.INFER)
     baseline_scores = {"positive": baseline.infer(0b0001), "negative": baseline.infer(0b0010)}
-    network = train_network()
+    network = train_network(leak_period=leak_period)
     network.mode_set(Mode.INFER)
     before_weights = network.weights
     positive = [network.infer(0b1001 if index % 3 == 0 else 0b0001) for index in range(10)]
@@ -150,7 +152,7 @@ def run_p8() -> dict:
         and second["output_spikes"] != 0
         for first, second in zip(ticks, ticks[1:])
     )
-    no_feedback = train_network(feedback_enabled=False)
+    no_feedback = train_network(feedback_enabled=False, leak_period=leak_period)
     no_feedback.mode_set(Mode.INFER)
     no_feedback_scores = [no_feedback.infer(0b0001), no_feedback.infer(0b0010)]
     return {

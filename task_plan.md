@@ -237,7 +237,7 @@
 - [x] P7：32/64/128 核阵列资源、路由和吞吐报告；容量边界与共享 lane 周期模型已形成，128 并行 routed 保持 NOT_PROVEN
 - [x] P8：固定 4->2->2 Pulse-Mini 网络端到端训练与冻结推理
 
-## 两版本纯仿真比较阶段（2026-08-19）
+## 三版本纯仿真比较阶段（2026-08-19）
 
 - [x] S0：冻结比较口径、共同数据集和不可直接比较项
 - [x] S1：实现单神经元统一实验 runner
@@ -248,9 +248,10 @@
 ### 本阶段验收结果
 
 - `python compare_simulation.py --seeds 20 --rtl-cosim` 通过；未调用 Vivado。
-- 共同单神经元任务：两版均由 10/20 提升到 20/20，推理权重冻结。
-- RTL 协同仿真：两版单核各 20000 事务、ENeuron Tile 10000 事务、Pulse-Mini 网络 272 命令均与黄金模型一致。
-- `python -m unittest discover -v`：196 项通过；`python -m compileall -q .` 通过。
+- 共同单神经元任务：ENeuron 1.0、无泄放 Pulse-Mini 和 Pulse-Mini-L 均由 10/20 提升到 20/20，推理权重冻结。
+- 固定 `4->2->2` 共同任务：三者训练后均满分；两个 Pulse 版本训练权重逐位一致。
+- RTL 协同仿真旁证：ENeuron 单核 20000 事务、ENeuron Tile 10000 事务、默认 `LEAK_PERIOD=8` 的 Pulse-Mini-L 单核 20000 事务和网络 272 命令均与黄金模型一致。
+- `python -m unittest discover -v`：200 项通过；`python -m compileall -q .` 通过；Pulse-Mini 有限形式验证 depth 20 无反例。
 - 完整报告为 `SIMULATION_COMPARISON_REPORT.md`，原始数据为 `comparison_simulation_results.json`。
 
 ### 本阶段错误记录
