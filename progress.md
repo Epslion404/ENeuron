@@ -9,6 +9,7 @@
 - 已生成 `SIMULATION_COMPARISON_REPORT.md` 与 `comparison_simulation_results.json`，并完成 200 项 Python 回归、Pulse-Mini 单核 20000 事务、固定网络 272 命令、形式深度20证明。
 - 统一比较已补齐第三方键名：`eneuron`、`pulse_mini` 和 `pulse_mini_l`；收敛、负对照、噪声、稀疏度、共同网络与原生网络协议均同时输出三者。
 - 正式执行 `python compare_simulation.py --seeds 20 --rtl-cosim` 通过；报告明确区分黄金模型三方消融与默认 Pulse-Mini-L RTL 旁证，没有把局部教师训练写成纯全局 reward 能力。
+- 报告新增“网络层优缺点”表，分别列出 ENeuron、Pulse-Mini 与 Pulse-Mini-L 在状态表达、复制/路由、稀疏事件和全局 reward 方面的取舍。
 
 ## 2026-08-13
 

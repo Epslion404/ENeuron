@@ -118,6 +118,8 @@ class SimulationComparisonTests(unittest.TestCase):
         self.assertEqual(saved["scope"]["method"], "simulation_only")
         self.assertIn("仅仿真", report)
         self.assertIn("共同条件直接比较", report)
+        self.assertIn("网络层优缺点", report)
+        self.assertIn("Pulse-Mini-L 网络", report)
         self.assertIn("不能得出的结论", report)
 
 
