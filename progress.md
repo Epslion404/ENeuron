@@ -225,3 +225,11 @@
 - 新增 `pulse_mini_protocol_experiments.py`，冻结 local_teacher / global_scalar_reward 两类协议，覆盖三类通道、四类组合、三类时间顺序和四位多标签；生成 `pulse_mini_protocol_experiments.json` 与 `PULSE_MINI_L2_PROTOCOL_REPORT.md`。
 - 实验结果：三类通道两版 local teacher 100%；四类组合 L 覆盖 0%，L2 覆盖约 66.9% 且覆盖样本准确率 100%；时间顺序两版均失败；多标签 L2 略优于 L1；全局标量奖励没有形成有效覆盖。
 - 使用 Vivado 2024.1 XC7Z020 完成 L2 OOC routed：366 LUT / 91 FF / 0 BRAM / 0 DSP，WNS -4.690 ns、WHS +0.152 ns；相对 L1 增加 184 LUT、15 FF，真实 setup 失败，不能宣称 L2 100 MHz 通过。
+
+## 2026-08-19 Pulse-Mini 规划收口
+
+- 用户要求先提交当前版本，再评估原始方案并形成 Pulse-Mini 规划。
+- 复核确认工作树原本已干净，`v1.0` 指向 ENeuron 1.0 提交 `499fc8a`，当前 Pulse-Mini 基线为 `64aff70`；未制造空提交。
+- 将原始计数/分频核 `183 LUT / 85 FF / WNS -1.605 ns`、Pulse-Mini-L `182 LUT / 76 FF / WNS +0.463 ns`、L2 `366 LUT / 91 FF / WNS -4.690 ns` 和阵列 32/64/128 核边界写入 `TODO.md`。
+- 新增 P9-P13：数字识别软件门、输入扇入与共享存储、L2 时序修复、阵列系统化、板级与持续学习边界。
+- `python -m unittest discover -v`：208/208 通过；`git diff --check`：通过。
