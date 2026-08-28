@@ -485,5 +485,6 @@ P0-P8 已完成并签核
 - [x] NP1：公共 `2:4` 黄金模型、不可作弊工作量计数、B0 固定向量和 SHA-256 摘要。
 - [x] NP2：三种神经元完成 dense/random/S0-S3、gain 1/2/3 扫描及同分/clip/稳定性统计；最小合格 gain 为 `1/2/1`。
 - [x] NP3：三模型一次/渐进剪枝均为 100%，错误符号均为 0%；零 Host mask 写入、被剪状态和 INFER 冻结账本通过，选择一次剪枝。
-- [ ] B2.1：三模型分别比较 output-2:4、detector-3:4、detector-2:4；保持 BAcc/coverage ≥98%，且全网络读取与发射均 ≤132（减少 ≥45%）后才允许进入 RTL。
-- [x] Pulse-Mini-L 使用固定 `0→0, 1→2` 证据编码恢复 S2 算法门；仍须独立通过 NP3/B2.1，不能借用 L2 结果。
+- [x] B2.1：三模型三候选均为 BAcc/coverage 100%；output-2:4 与 detector-3:4 为 120，detector-2:4 为 80。按 KISS 选择 output-2:4，允许进入 NP4 设计审核。
+- [x] Pulse-Mini-L 使用固定 `0→0, 1→2` 证据编码恢复 S2 算法门，并已独立通过 NP3/B2.1；没有借用 L2 结果。
+- [ ] NP4：审核并冻结隐藏/输出统一 `2:4`、gain=`1/2/1`、一次提交、无 detector gate 的 V1 RTL 接口；当前尚无 RTL/Vivado 证据。

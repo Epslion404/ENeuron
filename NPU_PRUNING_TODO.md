@@ -227,6 +227,8 @@ B2.1 通过门：
 
 B2.1、NP2 剩余统计和 NP3 负对照未同时通过前，禁止启动 NP4-NP7。
 
+B2.1 已完成（2026-08-28）：三模型的 output-2:4、detector-3:4、detector-2:4 均保持 BAcc/coverage 100%；全网读取/发射分别为 120/120/80，10/10 seed 不低于共享随机 mask。按 KISS 冻结 output-2:4，因为它复用既有控制器且不新增跨层 channel enable。软件联合门允许启动 NP4，但不代表 RTL 已证明。完整证据见 `LOCAL_PRUNE_B21_REPORT.md` 和 `local_prune_b21_results.json`。
+
 ### B3：图像任务
 
 当前 D2 稠密 ENeuron 测试 BAcc 只有 4.74%，不能作为剪枝正向基线。只有在修订后的稠密图像模型先达到原门槛后，才允许加入剪枝比较：
@@ -324,16 +326,19 @@ B1/B2 和最小量化扫描已完成。三模型分别选择 S2 gain=`1/2/1`，B
 
 B1/B2/NP3 闭环已完成。三模型从同一父 checkpoint 运行一次、软件渐进和错误符号分支；一次与渐进均为 100%，错误符号均为 0%，因此选择一次剪枝。账本证明零 Host mask 写入、每 detector 一次 commit、两次公平微调、被剪权重/历史冻结和同分支 INFER 指纹不变。完整证据见 `LOCAL_PRUNE_NP3_REPORT.md`。
 
-当前硬门结论：三模型已通过 NP2/NP3，但正常分支都只减少 33.33% 全网络工作量。B2.1 未通过前禁止启动 NP4。
+当前硬门结论：三模型已通过 NP2/NP3；B2.1 output-2:4 也已将全网读取/发射降到 120，减少 50%，因此 NP4 实现门已打开。NP4-NP7 本身仍全部未完成，禁止把软件结果写成 RTL 或功耗结论。
 
 ### NP4：局部剪枝 RTL
 
+- [ ] 用户审核并冻结 B2.1 推荐的六项 NP4 V1 接口决定。
 - [ ] 新建独立 `local_prune_gate_2of4.sv`，暂不侵入已签核核心。
 - [ ] 使用多周期四路扫描生成前两名，明确每条命令的精确延迟。
 - [ ] 接入 ENeuron snapshot/mod commit 旁路或测试适配器，不复制神经元方程。
 - [ ] 提供 `PRUNE_CLEAR / PRUNE_COMMIT / MASK_READ`；CONFIG 测试口单独控制。
 - [ ] 所有状态只使用主时钟和同步使能，不生成门控时钟。
 - [ ] 添加结构化日志或仿真审计端口，综合版本不依赖字符串日志。
+- [ ] 同一控制器同时支持隐藏层组和输出层组；V1 不实现整 detector channel enable。
+- [ ] 三模型 wrapper 固定 evidence gain=`1/2/1`，输出恢复只使用既有训练事务。
 
 硬门：不修改原 ENeuron 与 Pulse-Mini 的冻结行为；新模块可独立旁路。
 
