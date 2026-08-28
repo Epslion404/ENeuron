@@ -1,0 +1,1640 @@
+{
+  "claim_boundary": {
+    "adapter_quantization_only": true,
+    "image_pruning_proven": false,
+    "per_seed_tuning": false,
+    "power_savings_proven": false,
+    "rtl_proven": false,
+    "system_work_gate_proven": false,
+    "vivado_timing_proven": false
+  },
+  "evidence_gains": [
+    1,
+    2,
+    3
+  ],
+  "generated_date": "2026-08-28",
+  "git_commit": "bb152963a6cf270eb560afc05e881df90ac4cf1f",
+  "models": {
+    "eneuron": {
+      "algorithm_gate_pass": true,
+      "dense_balanced_accuracy": 1.0,
+      "dense_coverage": 1.0,
+      "dense_network_weight_reads_issued": 240,
+      "gains": {
+        "1": {
+          "algorithm_gate_pass": true,
+          "audit": {
+            "boundary_tie_rate": 0.0,
+            "clip_event_rate": 0.0,
+            "final_window_stability": 1.0,
+            "groups": [
+              {
+                "boundary_tie": false,
+                "clip_events": 0,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 5,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 92,
+                "utility": [
+                  12,
+                  1,
+                  12,
+                  1
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 0,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 5,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 92,
+                "utility": [
+                  12,
+                  1,
+                  12,
+                  1
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 0,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 5,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 92,
+                "utility": [
+                  12,
+                  1,
+                  12,
+                  1
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 0,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 5,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 92,
+                "utility": [
+                  12,
+                  1,
+                  12,
+                  1
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 0,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 10,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 92,
+                "utility": [
+                  1,
+                  12,
+                  1,
+                  13
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 0,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 10,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 92,
+                "utility": [
+                  1,
+                  12,
+                  1,
+                  13
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 0,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 10,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 92,
+                "utility": [
+                  1,
+                  12,
+                  1,
+                  13
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 0,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 10,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 92,
+                "utility": [
+                  1,
+                  12,
+                  1,
+                  13
+                ]
+              }
+            ],
+            "index_tiebreak_rate": 0.0,
+            "lane_saturation_rate": 0.0,
+            "mask_distribution": {
+              "0x5": 4,
+              "0xa": 4
+            },
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "pre_mislead_match_rate": 1.0,
+            "unique_masks": 2
+          },
+          "balanced_accuracy": 1.0,
+          "coverage": 1.0,
+          "network_synapse_ops_issued": 160,
+          "network_weight_reads_issued": 160,
+          "s2_minus_random_median_pp": 25.0,
+          "s2_not_below_random_seeds": 10
+        },
+        "2": {
+          "algorithm_gate_pass": true,
+          "audit": {
+            "boundary_tie_rate": 0.0,
+            "clip_event_rate": 0.010869565217391304,
+            "final_window_stability": 1.0,
+            "groups": [
+              {
+                "boundary_tie": false,
+                "clip_events": 0,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 5,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 92,
+                "utility": [
+                  12,
+                  2,
+                  13,
+                  2
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 0,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 5,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 92,
+                "utility": [
+                  12,
+                  2,
+                  13,
+                  2
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 0,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 5,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 92,
+                "utility": [
+                  12,
+                  2,
+                  13,
+                  2
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 0,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 5,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 92,
+                "utility": [
+                  12,
+                  2,
+                  13,
+                  2
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 2,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 10,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 92,
+                "utility": [
+                  2,
+                  12,
+                  2,
+                  14
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 2,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 10,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 92,
+                "utility": [
+                  2,
+                  12,
+                  2,
+                  14
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 2,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 10,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 92,
+                "utility": [
+                  2,
+                  12,
+                  2,
+                  14
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 2,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 10,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 92,
+                "utility": [
+                  2,
+                  12,
+                  2,
+                  14
+                ]
+              }
+            ],
+            "index_tiebreak_rate": 0.0,
+            "lane_saturation_rate": 0.0,
+            "mask_distribution": {
+              "0x5": 4,
+              "0xa": 4
+            },
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "pre_mislead_match_rate": 1.0,
+            "unique_masks": 2
+          },
+          "balanced_accuracy": 1.0,
+          "coverage": 1.0,
+          "network_synapse_ops_issued": 160,
+          "network_weight_reads_issued": 160,
+          "s2_minus_random_median_pp": 25.0,
+          "s2_not_below_random_seeds": 10
+        },
+        "3": {
+          "algorithm_gate_pass": true,
+          "audit": {
+            "boundary_tie_rate": 0.0,
+            "clip_event_rate": 0.021739130434782608,
+            "final_window_stability": 1.0,
+            "groups": [
+              {
+                "boundary_tie": false,
+                "clip_events": 1,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 5,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 92,
+                "utility": [
+                  12,
+                  3,
+                  14,
+                  5
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 1,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 5,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 92,
+                "utility": [
+                  12,
+                  3,
+                  14,
+                  5
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 1,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 5,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 92,
+                "utility": [
+                  12,
+                  3,
+                  14,
+                  5
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 1,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 5,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 92,
+                "utility": [
+                  12,
+                  3,
+                  14,
+                  5
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 3,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 10,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 92,
+                "utility": [
+                  3,
+                  12,
+                  3,
+                  14
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 3,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 10,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 92,
+                "utility": [
+                  3,
+                  12,
+                  3,
+                  14
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 3,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 10,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 92,
+                "utility": [
+                  3,
+                  12,
+                  3,
+                  14
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 3,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 10,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 92,
+                "utility": [
+                  3,
+                  12,
+                  3,
+                  14
+                ]
+              }
+            ],
+            "index_tiebreak_rate": 0.0,
+            "lane_saturation_rate": 0.0,
+            "mask_distribution": {
+              "0x5": 4,
+              "0xa": 4
+            },
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "pre_mislead_match_rate": 1.0,
+            "unique_masks": 2
+          },
+          "balanced_accuracy": 1.0,
+          "coverage": 1.0,
+          "network_synapse_ops_issued": 160,
+          "network_weight_reads_issued": 160,
+          "s2_minus_random_median_pp": 25.0,
+          "s2_not_below_random_seeds": 10
+        }
+      },
+      "random_balanced_accuracy_values": [
+        0.5,
+        0.75,
+        0.75,
+        0.75,
+        0.75,
+        0.75,
+        0.5,
+        1.0,
+        0.5,
+        1.0
+      ],
+      "random_median_balanced_accuracy": 0.75,
+      "selected_gain": 1
+    },
+    "pulse_mini_l": {
+      "algorithm_gate_pass": true,
+      "dense_balanced_accuracy": 1.0,
+      "dense_coverage": 1.0,
+      "dense_network_weight_reads_issued": 240,
+      "gains": {
+        "1": {
+          "algorithm_gate_pass": false,
+          "audit": {
+            "boundary_tie_rate": 0.0,
+            "clip_event_rate": 0.0,
+            "final_window_stability": 0.0,
+            "groups": [
+              {
+                "boundary_tie": false,
+                "clip_events": 0,
+                "final_window_matches": 0,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 10,
+                "pre_mislead_match": false,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  0,
+                  1,
+                  0,
+                  1
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 0,
+                "final_window_matches": 0,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 10,
+                "pre_mislead_match": false,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  0,
+                  1,
+                  0,
+                  1
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 0,
+                "final_window_matches": 0,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 10,
+                "pre_mislead_match": false,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  0,
+                  1,
+                  0,
+                  1
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 0,
+                "final_window_matches": 0,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 10,
+                "pre_mislead_match": false,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  0,
+                  1,
+                  0,
+                  1
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 0,
+                "final_window_matches": 0,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 5,
+                "pre_mislead_match": false,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  1,
+                  0,
+                  1,
+                  0
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 0,
+                "final_window_matches": 0,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 5,
+                "pre_mislead_match": false,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  1,
+                  0,
+                  1,
+                  0
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 0,
+                "final_window_matches": 0,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 5,
+                "pre_mislead_match": false,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  1,
+                  0,
+                  1,
+                  0
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 0,
+                "final_window_matches": 0,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 5,
+                "pre_mislead_match": false,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  1,
+                  0,
+                  1,
+                  0
+                ]
+              }
+            ],
+            "index_tiebreak_rate": 0.0,
+            "lane_saturation_rate": 0.0,
+            "mask_distribution": {
+              "0x5": 4,
+              "0xa": 4
+            },
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "pre_mislead_match_rate": 0.0,
+            "unique_masks": 2
+          },
+          "balanced_accuracy": 0.0,
+          "coverage": 0.0,
+          "network_synapse_ops_issued": 80,
+          "network_weight_reads_issued": 80,
+          "s2_minus_random_median_pp": -25.0,
+          "s2_not_below_random_seeds": 3
+        },
+        "2": {
+          "algorithm_gate_pass": true,
+          "audit": {
+            "boundary_tie_rate": 0.0,
+            "clip_event_rate": 0.0,
+            "final_window_stability": 1.0,
+            "groups": [
+              {
+                "boundary_tie": false,
+                "clip_events": 0,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 5,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  6,
+                  2,
+                  6,
+                  3
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 0,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 5,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  6,
+                  2,
+                  6,
+                  3
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 0,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 5,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  6,
+                  2,
+                  6,
+                  3
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 0,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 5,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  6,
+                  2,
+                  6,
+                  3
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 0,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 10,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  2,
+                  6,
+                  2,
+                  13
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 0,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 10,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  2,
+                  6,
+                  2,
+                  13
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 0,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 10,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  2,
+                  6,
+                  2,
+                  13
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 0,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 10,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  2,
+                  6,
+                  2,
+                  13
+                ]
+              }
+            ],
+            "index_tiebreak_rate": 0.0,
+            "lane_saturation_rate": 0.0,
+            "mask_distribution": {
+              "0x5": 4,
+              "0xa": 4
+            },
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "pre_mislead_match_rate": 1.0,
+            "unique_masks": 2
+          },
+          "balanced_accuracy": 1.0,
+          "coverage": 1.0,
+          "network_synapse_ops_issued": 160,
+          "network_weight_reads_issued": 160,
+          "s2_minus_random_median_pp": 75.0,
+          "s2_not_below_random_seeds": 10
+        },
+        "3": {
+          "algorithm_gate_pass": true,
+          "audit": {
+            "boundary_tie_rate": 0.0,
+            "clip_event_rate": 0.03214285714285714,
+            "final_window_stability": 0.8333333333333334,
+            "groups": [
+              {
+                "boundary_tie": false,
+                "clip_events": 3,
+                "final_window_matches": 2,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 5,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  12,
+                  3,
+                  14,
+                  11
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 3,
+                "final_window_matches": 2,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 5,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  12,
+                  3,
+                  14,
+                  11
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 3,
+                "final_window_matches": 2,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 5,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  12,
+                  3,
+                  14,
+                  11
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 3,
+                "final_window_matches": 2,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 5,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  12,
+                  3,
+                  14,
+                  11
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 6,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 10,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  3,
+                  12,
+                  4,
+                  14
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 6,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 10,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  3,
+                  12,
+                  4,
+                  14
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 6,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 10,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  3,
+                  12,
+                  4,
+                  14
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 6,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 10,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  3,
+                  12,
+                  4,
+                  14
+                ]
+              }
+            ],
+            "index_tiebreak_rate": 0.0,
+            "lane_saturation_rate": 0.0,
+            "mask_distribution": {
+              "0x5": 4,
+              "0xa": 4
+            },
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "pre_mislead_match_rate": 1.0,
+            "unique_masks": 2
+          },
+          "balanced_accuracy": 1.0,
+          "coverage": 1.0,
+          "network_synapse_ops_issued": 160,
+          "network_weight_reads_issued": 160,
+          "s2_minus_random_median_pp": 75.0,
+          "s2_not_below_random_seeds": 10
+        }
+      },
+      "random_balanced_accuracy_values": [
+        0.25,
+        0.25,
+        0.0,
+        0.25,
+        0.5,
+        0.25,
+        0.0,
+        0.5,
+        0.0,
+        0.75
+      ],
+      "random_median_balanced_accuracy": 0.25,
+      "selected_gain": 2
+    },
+    "pulse_mini_l2": {
+      "algorithm_gate_pass": true,
+      "dense_balanced_accuracy": 1.0,
+      "dense_coverage": 1.0,
+      "dense_network_weight_reads_issued": 240,
+      "gains": {
+        "1": {
+          "algorithm_gate_pass": true,
+          "audit": {
+            "boundary_tie_rate": 0.0,
+            "clip_event_rate": 0.0,
+            "final_window_stability": 1.0,
+            "groups": [
+              {
+                "boundary_tie": false,
+                "clip_events": 0,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 5,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  6,
+                  1,
+                  6,
+                  1
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 0,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 5,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  6,
+                  1,
+                  6,
+                  1
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 0,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 5,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  6,
+                  1,
+                  6,
+                  1
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 0,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 5,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  6,
+                  1,
+                  6,
+                  1
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 0,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 10,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  1,
+                  6,
+                  1,
+                  7
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 0,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 10,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  1,
+                  6,
+                  1,
+                  7
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 0,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 10,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  1,
+                  6,
+                  1,
+                  7
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 0,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 10,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  1,
+                  6,
+                  1,
+                  7
+                ]
+              }
+            ],
+            "index_tiebreak_rate": 0.0,
+            "lane_saturation_rate": 0.0,
+            "mask_distribution": {
+              "0x5": 4,
+              "0xa": 4
+            },
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "pre_mislead_match_rate": 1.0,
+            "unique_masks": 2
+          },
+          "balanced_accuracy": 1.0,
+          "coverage": 1.0,
+          "network_synapse_ops_issued": 160,
+          "network_weight_reads_issued": 160,
+          "s2_minus_random_median_pp": 75.0,
+          "s2_not_below_random_seeds": 10
+        },
+        "2": {
+          "algorithm_gate_pass": true,
+          "audit": {
+            "boundary_tie_rate": 0.0,
+            "clip_event_rate": 0.010714285714285714,
+            "final_window_stability": 1.0,
+            "groups": [
+              {
+                "boundary_tie": false,
+                "clip_events": 0,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 5,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  12,
+                  2,
+                  13,
+                  3
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 0,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 5,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  12,
+                  2,
+                  13,
+                  3
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 0,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 5,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  12,
+                  2,
+                  13,
+                  3
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 0,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 5,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  12,
+                  2,
+                  13,
+                  3
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 3,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 10,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  2,
+                  12,
+                  2,
+                  14
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 3,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 10,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  2,
+                  12,
+                  2,
+                  14
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 3,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 10,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  2,
+                  12,
+                  2,
+                  14
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 3,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 10,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  2,
+                  12,
+                  2,
+                  14
+                ]
+              }
+            ],
+            "index_tiebreak_rate": 0.0,
+            "lane_saturation_rate": 0.0,
+            "mask_distribution": {
+              "0x5": 4,
+              "0xa": 4
+            },
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "pre_mislead_match_rate": 1.0,
+            "unique_masks": 2
+          },
+          "balanced_accuracy": 1.0,
+          "coverage": 1.0,
+          "network_synapse_ops_issued": 160,
+          "network_weight_reads_issued": 160,
+          "s2_minus_random_median_pp": 75.0,
+          "s2_not_below_random_seeds": 10
+        },
+        "3": {
+          "algorithm_gate_pass": true,
+          "audit": {
+            "boundary_tie_rate": 0.0,
+            "clip_event_rate": 0.03214285714285714,
+            "final_window_stability": 0.8333333333333334,
+            "groups": [
+              {
+                "boundary_tie": false,
+                "clip_events": 3,
+                "final_window_matches": 2,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 5,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  12,
+                  3,
+                  14,
+                  11
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 3,
+                "final_window_matches": 2,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 5,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  12,
+                  3,
+                  14,
+                  11
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 3,
+                "final_window_matches": 2,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 5,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  12,
+                  3,
+                  14,
+                  11
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 3,
+                "final_window_matches": 2,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 5,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  12,
+                  3,
+                  14,
+                  11
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 6,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 10,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  3,
+                  12,
+                  4,
+                  14
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 6,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 10,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  3,
+                  12,
+                  4,
+                  14
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 6,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 10,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  3,
+                  12,
+                  4,
+                  14
+                ]
+              },
+              {
+                "boundary_tie": false,
+                "clip_events": 6,
+                "final_window_matches": 3,
+                "final_window_samples": 3,
+                "index_tiebreak": false,
+                "mask": 10,
+                "pre_mislead_match": true,
+                "saturated_lanes": 0,
+                "update_opportunities": 140,
+                "utility": [
+                  3,
+                  12,
+                  4,
+                  14
+                ]
+              }
+            ],
+            "index_tiebreak_rate": 0.0,
+            "lane_saturation_rate": 0.0,
+            "mask_distribution": {
+              "0x5": 4,
+              "0xa": 4
+            },
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "pre_mislead_match_rate": 1.0,
+            "unique_masks": 2
+          },
+          "balanced_accuracy": 1.0,
+          "coverage": 1.0,
+          "network_synapse_ops_issued": 160,
+          "network_weight_reads_issued": 160,
+          "s2_minus_random_median_pp": 75.0,
+          "s2_not_below_random_seeds": 10
+        }
+      },
+      "random_balanced_accuracy_values": [
+        0.25,
+        0.25,
+        0.0,
+        0.25,
+        0.5,
+        0.25,
+        0.0,
+        0.5,
+        0.0,
+        0.75
+      ],
+      "random_median_balanced_accuracy": 0.25,
+      "selected_gain": 1
+    }
+  },
+  "schema": "eneuron.local_prune_np2.v1",
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "selection_rule": "smallest_global_gain_passing_b2_algorithm_gate",
+  "source_sha256": {
+    "local_prune_b1.py": "ab59d9c378315c9eec16342bfa84f6f7d43af60531473893c1c6b2ca2e2a7caa",
+    "local_prune_b2.py": "a8d72e4171d505f9a4b7d8d9bde69fcccbd015e5a97e3f52e03be051d7a973e7",
+    "local_prune_np2.py": "1f8e398c48f26a14b04ad4fef95f55a9285fb8b3b453d9c55e2868db64af474c",
+    "local_prune_reference.py": "04ee276c3d028ef0557bd01bdc2820b9a792ad98153c3ed6c3a548642bc7fec3",
+    "neuron_sim.py": "1b31c6a84a77b4b47669d02eb2a7fc46c6bdd70051799dcf059e75d51002e3a2",
+    "pulse_mini_l2_reference.py": "6a964d1ffa0e895dce77a1efd908540f9c1d5a2c52b561a7a9774099c12dedcd",
+    "pulse_mini_reference.py": "6fe1c969ac2dee3c050ec939b9735d28b7ae534f3008537fbc81b3b98311cb28",
+    "run_local_prune_np2.py": "b28c95922bc1d04353fb5e0d3b5a3ac1b6e5e658ba28076c45f24b0280bee76a"
+  }
+}

@@ -392,9 +392,9 @@
 - [x] 形成 `NPU_PRUNING_TODO.md`，并在根 `TODO.md` 增加待审核入口
 - [x] 用户批准 NP0 八项决策，并要求 ENeuron、Pulse-Mini-L、Pulse-Mini-L2 三种神经元全部运行
 - [x] NP1：统一黄金模型与不可作弊工作量计数（19 项 B0 测试、固定向量和 SHA-256 摘要通过）
-- [ ] NP2：三种神经元分别完成 S0/S1/S2/S3 消融（B1/B2 已跑；量化扫描和统计字段待补）
+- [x] NP2：三种神经元完成 S0-S3、gain 1/2/3 扫描及同分/clip/稳定性统计；选择 `1/2/1`
 - [ ] NP3：三种神经元分别完成剪枝—微调闭环和负对照（B1 闭环、B2 三类负对照完成；错误符号/渐进待补）
-- [ ] B2.1：ENeuron/L2 软件比较 output-2:4、detector-3:4、detector-2:4；保持 BAcc/coverage ≥98%，全网络读取与发射均 ≤132（减少 ≥45%）
+- [ ] B2.1：三模型软件比较 output-2:4、detector-3:4、detector-2:4；保持 BAcc/coverage ≥98%，全网络读取与发射均 ≤132（减少 ≥45%）
 - [ ] 根据三线软件结果决定 NP4-NP7 的 RTL 和共享 lane 路线
 
 ### 本阶段错误记录

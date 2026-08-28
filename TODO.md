@@ -483,7 +483,7 @@ P0-P8 已完成并签核
 局部结构化剪枝与动态门控已经独立规划到 `NPU_PRUNING_TODO.md`。NP0 八项决策已批准，ENeuron、Pulse-Mini-L、Pulse-Mini-L2 三种神经元必须分别运行；主线采用每四条连接保留两条、结构掩码与输入活动相交、共享 lane 在权重读取和计算发射前跳过无效连接。
 
 - [x] NP1：公共 `2:4` 黄金模型、不可作弊工作量计数、B0 固定向量和 SHA-256 摘要。
-- [ ] NP2：三种神经元分别完成 dense/random/S0-S3 软件消融（B1/B2 已完成；量化扫描与完整统计待补）。
+- [x] NP2：三种神经元完成 dense/random/S0-S3、gain 1/2/3 扫描及同分/clip/稳定性统计；最小合格 gain 为 `1/2/1`。
 - [ ] NP3：三种神经元分别完成剪枝、稀疏微调、冻结推理与负对照（错误符号和渐进剪枝待补）。
-- [ ] B2.1：仅对 ENeuron/L2 比较 output-2:4、detector-3:4、detector-2:4；保持 BAcc/coverage ≥98%，且全网络读取与发射均 ≤132（减少 ≥45%）后才允许进入 RTL。
-- [x] Pulse-Mini-L 累计评分路线判定 `NO_GO`；不得借用 L2 的成功进入剪枝 RTL。
+- [ ] B2.1：三模型分别比较 output-2:4、detector-3:4、detector-2:4；保持 BAcc/coverage ≥98%，且全网络读取与发射均 ≤132（减少 ≥45%）后才允许进入 RTL。
+- [x] Pulse-Mini-L 使用固定 `0→0, 1→2` 证据编码恢复 S2 算法门；仍须独立通过 NP3/B2.1，不能借用 L2 结果。
