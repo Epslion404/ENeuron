@@ -1,5 +1,15 @@
 # 进度记录
 
+## 2026-08-28 NPU 局部剪枝 B1
+
+- 完成 ENeuron、Pulse-Mini-L、Pulse-Mini-L2 三个薄适配器；未修改三个神经元方程或已签核 RTL。
+- Pulse 网络增加 `core_type` 注入，使 L/L2 共用同一个 P8 结构、训练顺序和一拍路由；默认 L 行为保持不变。
+- 三模型从各自单一稠密 checkpoint 公平分支 dense/random/S0-S3；随机 seed 1016 和掩码 `1001/1100` 跨模型一致。
+- 三模型 dense 与 S0-S3 均为 20/20、coverage 100%；随机均为 10/20。S0-S3 全部选择 `0011/0011`，所以 B1 通过协议闭环但不能选择评分算法。
+- 全网络发射计数相对 dense 仅减少 ENeuron 18.21%、Pulse-Mini-L/L2 19.78%，未达到 45% 系统收益门；输出层保持稠密且活跃通道被保留是主要原因。
+- 修正审计漏洞：补一拍 output route flush；不应期不计权重读取或结构节省；Pulse 直接写权重计数来自真实核心日志；checkpoint 哈希绑定控制器、utility 和 mask；工作量按阶段差分并标注全网络 scope。
+- B1 机器结果绑定代码提交 `2b8bd55`；相关专项实现回归 87/87 通过。下一步只进入 B2 软件实验，不进入剪枝 RTL。
+
 ## 2026-08-28 NPU 局部剪枝 NP1
 
 - 完成独立 `LocalPrune2of4` 黄金模型：S0-S3、严格 `2:4`、TRAIN/CONFIG/INFER 模式、16 位 commit/observation ID、V1 禁止自动长回和确定性事务日志。

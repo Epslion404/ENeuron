@@ -1,0 +1,2689 @@
+{
+  "claim_boundary": {
+    "b1_only": true,
+    "distinguishes_score_methods": false,
+    "image_pruning_proven": false,
+    "power_savings_proven": false,
+    "rtl_skip_proven": false
+  },
+  "config": {
+    "eneuron_fine_tune_epochs": 5,
+    "eneuron_warmup_epochs": 30,
+    "pulse_fine_tune_repetitions": 2,
+    "pulse_warmup_repetitions": 6,
+    "seed": 7
+  },
+  "generated_date": "2026-08-28",
+  "git_commit": "2b8bd558ee911e38bbf606990ae3767228b079b9",
+  "models": {
+    "eneuron": {
+      "branches": {
+        "S0": {
+          "final_metrics": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "total": 20
+          },
+          "immediate_metrics": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "total": 20
+          },
+          "inference_learning_state_frozen": true,
+          "mask_source": "S0",
+          "masks": [
+            3,
+            3
+          ],
+          "parent_checkpoint_sha256": "9a73ee1d92039ca1a4d8333229751f08d3d1ce0cafc932467a96b9d2ff67ef9d",
+          "score_method": "S0",
+          "snapshot": {
+            "checkpoint_sha256": "7eeb8b20b49e73c4cb5af7aa788762a79c64cb0d25c909f376d36ad008ea7c4b",
+            "masks": [
+              3,
+              3
+            ],
+            "utilities": [
+              [
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0
+              ]
+            ],
+            "weights": [
+              [
+                7,
+                -7,
+                2,
+                3
+              ],
+              [
+                -7,
+                7,
+                3,
+                1
+              ],
+              [
+                7,
+                -7
+              ],
+              [
+                -7,
+                7
+              ]
+            ],
+            "work_counters": {
+              "hidden_dense_reads_requested": 786,
+              "hidden_reads_saved_by_structure": 216,
+              "hidden_synapse_ops_issued": 570,
+              "hidden_weight_reads_issued": 570,
+              "network_synapse_ops_issued": 970,
+              "network_weight_reads_issued": 970,
+              "output_synapse_ops_issued": 400,
+              "output_weight_reads_issued": 400,
+              "refractory_gate_skips": 200,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            }
+          },
+          "variant": "S0",
+          "work_by_stage": {
+            "final_infer": {
+              "hidden_dense_reads_requested": 348,
+              "hidden_reads_saved_by_structure": 108,
+              "hidden_synapse_ops_issued": 240,
+              "hidden_weight_reads_issued": 240,
+              "network_synapse_ops_issued": 400,
+              "network_weight_reads_issued": 400,
+              "output_synapse_ops_issued": 160,
+              "output_weight_reads_issued": 160,
+              "refractory_gate_skips": 80,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "fine_tune": {
+              "hidden_dense_reads_requested": 90,
+              "hidden_reads_saved_by_structure": 0,
+              "hidden_synapse_ops_issued": 90,
+              "hidden_weight_reads_issued": 90,
+              "network_synapse_ops_issued": 170,
+              "network_weight_reads_issued": 170,
+              "output_synapse_ops_issued": 80,
+              "output_weight_reads_issued": 80,
+              "refractory_gate_skips": 40,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "immediate_infer": {
+              "hidden_dense_reads_requested": 348,
+              "hidden_reads_saved_by_structure": 108,
+              "hidden_synapse_ops_issued": 240,
+              "hidden_weight_reads_issued": 240,
+              "network_synapse_ops_issued": 400,
+              "network_weight_reads_issued": 400,
+              "output_synapse_ops_issued": 160,
+              "output_weight_reads_issued": 160,
+              "refractory_gate_skips": 80,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "total": {
+              "hidden_dense_reads_requested": 786,
+              "hidden_reads_saved_by_structure": 216,
+              "hidden_synapse_ops_issued": 570,
+              "hidden_weight_reads_issued": 570,
+              "network_synapse_ops_issued": 970,
+              "network_weight_reads_issued": 970,
+              "output_synapse_ops_issued": 400,
+              "output_weight_reads_issued": 400,
+              "refractory_gate_skips": 200,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            }
+          }
+        },
+        "S1": {
+          "final_metrics": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "total": 20
+          },
+          "immediate_metrics": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "total": 20
+          },
+          "inference_learning_state_frozen": true,
+          "mask_source": "S1",
+          "masks": [
+            3,
+            3
+          ],
+          "parent_checkpoint_sha256": "9a73ee1d92039ca1a4d8333229751f08d3d1ce0cafc932467a96b9d2ff67ef9d",
+          "score_method": "S1",
+          "snapshot": {
+            "checkpoint_sha256": "6c656befc7b20df83c9559dae0c1a88db786eef10108d22c552da2a0daa726b7",
+            "masks": [
+              3,
+              3
+            ],
+            "utilities": [
+              [
+                3,
+                0,
+                0,
+                0
+              ],
+              [
+                3,
+                0,
+                0,
+                0
+              ]
+            ],
+            "weights": [
+              [
+                7,
+                -7,
+                2,
+                3
+              ],
+              [
+                -7,
+                7,
+                3,
+                1
+              ],
+              [
+                7,
+                -7
+              ],
+              [
+                -7,
+                7
+              ]
+            ],
+            "work_counters": {
+              "hidden_dense_reads_requested": 786,
+              "hidden_reads_saved_by_structure": 216,
+              "hidden_synapse_ops_issued": 570,
+              "hidden_weight_reads_issued": 570,
+              "network_synapse_ops_issued": 970,
+              "network_weight_reads_issued": 970,
+              "output_synapse_ops_issued": 400,
+              "output_weight_reads_issued": 400,
+              "refractory_gate_skips": 200,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            }
+          },
+          "variant": "S1",
+          "work_by_stage": {
+            "final_infer": {
+              "hidden_dense_reads_requested": 348,
+              "hidden_reads_saved_by_structure": 108,
+              "hidden_synapse_ops_issued": 240,
+              "hidden_weight_reads_issued": 240,
+              "network_synapse_ops_issued": 400,
+              "network_weight_reads_issued": 400,
+              "output_synapse_ops_issued": 160,
+              "output_weight_reads_issued": 160,
+              "refractory_gate_skips": 80,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "fine_tune": {
+              "hidden_dense_reads_requested": 90,
+              "hidden_reads_saved_by_structure": 0,
+              "hidden_synapse_ops_issued": 90,
+              "hidden_weight_reads_issued": 90,
+              "network_synapse_ops_issued": 170,
+              "network_weight_reads_issued": 170,
+              "output_synapse_ops_issued": 80,
+              "output_weight_reads_issued": 80,
+              "refractory_gate_skips": 40,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "immediate_infer": {
+              "hidden_dense_reads_requested": 348,
+              "hidden_reads_saved_by_structure": 108,
+              "hidden_synapse_ops_issued": 240,
+              "hidden_weight_reads_issued": 240,
+              "network_synapse_ops_issued": 400,
+              "network_weight_reads_issued": 400,
+              "output_synapse_ops_issued": 160,
+              "output_weight_reads_issued": 160,
+              "refractory_gate_skips": 80,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "total": {
+              "hidden_dense_reads_requested": 786,
+              "hidden_reads_saved_by_structure": 216,
+              "hidden_synapse_ops_issued": 570,
+              "hidden_weight_reads_issued": 570,
+              "network_synapse_ops_issued": 970,
+              "network_weight_reads_issued": 970,
+              "output_synapse_ops_issued": 400,
+              "output_weight_reads_issued": 400,
+              "refractory_gate_skips": 200,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            }
+          }
+        },
+        "S2": {
+          "final_metrics": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "total": 20
+          },
+          "immediate_metrics": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "total": 20
+          },
+          "inference_learning_state_frozen": true,
+          "mask_source": "S2",
+          "masks": [
+            3,
+            3
+          ],
+          "parent_checkpoint_sha256": "9a73ee1d92039ca1a4d8333229751f08d3d1ce0cafc932467a96b9d2ff67ef9d",
+          "score_method": "S2",
+          "snapshot": {
+            "checkpoint_sha256": "8ff4a85480d1885a3f139b1d5f95c332f9217a2202d80c668b6910d3cd1a3291",
+            "masks": [
+              3,
+              3
+            ],
+            "utilities": [
+              [
+                15,
+                14,
+                0,
+                0
+              ],
+              [
+                15,
+                14,
+                0,
+                0
+              ]
+            ],
+            "weights": [
+              [
+                7,
+                -7,
+                2,
+                3
+              ],
+              [
+                -7,
+                7,
+                3,
+                1
+              ],
+              [
+                7,
+                -7
+              ],
+              [
+                -7,
+                7
+              ]
+            ],
+            "work_counters": {
+              "hidden_dense_reads_requested": 786,
+              "hidden_reads_saved_by_structure": 216,
+              "hidden_synapse_ops_issued": 570,
+              "hidden_weight_reads_issued": 570,
+              "network_synapse_ops_issued": 970,
+              "network_weight_reads_issued": 970,
+              "output_synapse_ops_issued": 400,
+              "output_weight_reads_issued": 400,
+              "refractory_gate_skips": 200,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            }
+          },
+          "variant": "S2",
+          "work_by_stage": {
+            "final_infer": {
+              "hidden_dense_reads_requested": 348,
+              "hidden_reads_saved_by_structure": 108,
+              "hidden_synapse_ops_issued": 240,
+              "hidden_weight_reads_issued": 240,
+              "network_synapse_ops_issued": 400,
+              "network_weight_reads_issued": 400,
+              "output_synapse_ops_issued": 160,
+              "output_weight_reads_issued": 160,
+              "refractory_gate_skips": 80,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "fine_tune": {
+              "hidden_dense_reads_requested": 90,
+              "hidden_reads_saved_by_structure": 0,
+              "hidden_synapse_ops_issued": 90,
+              "hidden_weight_reads_issued": 90,
+              "network_synapse_ops_issued": 170,
+              "network_weight_reads_issued": 170,
+              "output_synapse_ops_issued": 80,
+              "output_weight_reads_issued": 80,
+              "refractory_gate_skips": 40,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "immediate_infer": {
+              "hidden_dense_reads_requested": 348,
+              "hidden_reads_saved_by_structure": 108,
+              "hidden_synapse_ops_issued": 240,
+              "hidden_weight_reads_issued": 240,
+              "network_synapse_ops_issued": 400,
+              "network_weight_reads_issued": 400,
+              "output_synapse_ops_issued": 160,
+              "output_weight_reads_issued": 160,
+              "refractory_gate_skips": 80,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "total": {
+              "hidden_dense_reads_requested": 786,
+              "hidden_reads_saved_by_structure": 216,
+              "hidden_synapse_ops_issued": 570,
+              "hidden_weight_reads_issued": 570,
+              "network_synapse_ops_issued": 970,
+              "network_weight_reads_issued": 970,
+              "output_synapse_ops_issued": 400,
+              "output_weight_reads_issued": 400,
+              "refractory_gate_skips": 200,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            }
+          }
+        },
+        "S3": {
+          "final_metrics": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "total": 20
+          },
+          "immediate_metrics": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "total": 20
+          },
+          "inference_learning_state_frozen": true,
+          "mask_source": "S3",
+          "masks": [
+            3,
+            3
+          ],
+          "parent_checkpoint_sha256": "9a73ee1d92039ca1a4d8333229751f08d3d1ce0cafc932467a96b9d2ff67ef9d",
+          "score_method": "S3",
+          "snapshot": {
+            "checkpoint_sha256": "6de88c7931f7392e3d4896748af2293b8de9aa3f57f94ce13d3ccf3c26b1ee21",
+            "masks": [
+              3,
+              3
+            ],
+            "utilities": [
+              [
+                15,
+                14,
+                0,
+                0
+              ],
+              [
+                15,
+                14,
+                0,
+                0
+              ]
+            ],
+            "weights": [
+              [
+                7,
+                -7,
+                2,
+                3
+              ],
+              [
+                -7,
+                7,
+                3,
+                1
+              ],
+              [
+                7,
+                -7
+              ],
+              [
+                -7,
+                7
+              ]
+            ],
+            "work_counters": {
+              "hidden_dense_reads_requested": 786,
+              "hidden_reads_saved_by_structure": 216,
+              "hidden_synapse_ops_issued": 570,
+              "hidden_weight_reads_issued": 570,
+              "network_synapse_ops_issued": 970,
+              "network_weight_reads_issued": 970,
+              "output_synapse_ops_issued": 400,
+              "output_weight_reads_issued": 400,
+              "refractory_gate_skips": 200,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            }
+          },
+          "variant": "S3",
+          "work_by_stage": {
+            "final_infer": {
+              "hidden_dense_reads_requested": 348,
+              "hidden_reads_saved_by_structure": 108,
+              "hidden_synapse_ops_issued": 240,
+              "hidden_weight_reads_issued": 240,
+              "network_synapse_ops_issued": 400,
+              "network_weight_reads_issued": 400,
+              "output_synapse_ops_issued": 160,
+              "output_weight_reads_issued": 160,
+              "refractory_gate_skips": 80,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "fine_tune": {
+              "hidden_dense_reads_requested": 90,
+              "hidden_reads_saved_by_structure": 0,
+              "hidden_synapse_ops_issued": 90,
+              "hidden_weight_reads_issued": 90,
+              "network_synapse_ops_issued": 170,
+              "network_weight_reads_issued": 170,
+              "output_synapse_ops_issued": 80,
+              "output_weight_reads_issued": 80,
+              "refractory_gate_skips": 40,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "immediate_infer": {
+              "hidden_dense_reads_requested": 348,
+              "hidden_reads_saved_by_structure": 108,
+              "hidden_synapse_ops_issued": 240,
+              "hidden_weight_reads_issued": 240,
+              "network_synapse_ops_issued": 400,
+              "network_weight_reads_issued": 400,
+              "output_synapse_ops_issued": 160,
+              "output_weight_reads_issued": 160,
+              "refractory_gate_skips": 80,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "total": {
+              "hidden_dense_reads_requested": 786,
+              "hidden_reads_saved_by_structure": 216,
+              "hidden_synapse_ops_issued": 570,
+              "hidden_weight_reads_issued": 570,
+              "network_synapse_ops_issued": 970,
+              "network_weight_reads_issued": 970,
+              "output_synapse_ops_issued": 400,
+              "output_weight_reads_issued": 400,
+              "refractory_gate_skips": 200,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            }
+          }
+        },
+        "dense": {
+          "final_metrics": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "total": 20
+          },
+          "immediate_metrics": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "total": 20
+          },
+          "inference_learning_state_frozen": true,
+          "mask_source": "dense",
+          "masks": [
+            15,
+            15
+          ],
+          "parent_checkpoint_sha256": "9a73ee1d92039ca1a4d8333229751f08d3d1ce0cafc932467a96b9d2ff67ef9d",
+          "score_method": null,
+          "snapshot": {
+            "checkpoint_sha256": "4de6ab303194d90ff0e2d9aac7a68423f09850f99b0764616e187ebdea39e7a1",
+            "masks": [
+              15,
+              15
+            ],
+            "utilities": [
+              [
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0
+              ]
+            ],
+            "weights": [
+              [
+                7,
+                -7,
+                2,
+                3
+              ],
+              [
+                -7,
+                7,
+                3,
+                1
+              ],
+              [
+                7,
+                -7
+              ],
+              [
+                -7,
+                7
+              ]
+            ],
+            "work_counters": {
+              "hidden_dense_reads_requested": 786,
+              "hidden_reads_saved_by_structure": 0,
+              "hidden_synapse_ops_issued": 786,
+              "hidden_weight_reads_issued": 786,
+              "network_synapse_ops_issued": 1186,
+              "network_weight_reads_issued": 1186,
+              "output_synapse_ops_issued": 400,
+              "output_weight_reads_issued": 400,
+              "refractory_gate_skips": 200,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            }
+          },
+          "variant": "dense",
+          "work_by_stage": {
+            "final_infer": {
+              "hidden_dense_reads_requested": 348,
+              "hidden_reads_saved_by_structure": 0,
+              "hidden_synapse_ops_issued": 348,
+              "hidden_weight_reads_issued": 348,
+              "network_synapse_ops_issued": 508,
+              "network_weight_reads_issued": 508,
+              "output_synapse_ops_issued": 160,
+              "output_weight_reads_issued": 160,
+              "refractory_gate_skips": 80,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "fine_tune": {
+              "hidden_dense_reads_requested": 90,
+              "hidden_reads_saved_by_structure": 0,
+              "hidden_synapse_ops_issued": 90,
+              "hidden_weight_reads_issued": 90,
+              "network_synapse_ops_issued": 170,
+              "network_weight_reads_issued": 170,
+              "output_synapse_ops_issued": 80,
+              "output_weight_reads_issued": 80,
+              "refractory_gate_skips": 40,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "immediate_infer": {
+              "hidden_dense_reads_requested": 348,
+              "hidden_reads_saved_by_structure": 0,
+              "hidden_synapse_ops_issued": 348,
+              "hidden_weight_reads_issued": 348,
+              "network_synapse_ops_issued": 508,
+              "network_weight_reads_issued": 508,
+              "output_synapse_ops_issued": 160,
+              "output_weight_reads_issued": 160,
+              "refractory_gate_skips": 80,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "total": {
+              "hidden_dense_reads_requested": 786,
+              "hidden_reads_saved_by_structure": 0,
+              "hidden_synapse_ops_issued": 786,
+              "hidden_weight_reads_issued": 786,
+              "network_synapse_ops_issued": 1186,
+              "network_weight_reads_issued": 1186,
+              "output_synapse_ops_issued": 400,
+              "output_weight_reads_issued": 400,
+              "refractory_gate_skips": 200,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            }
+          }
+        },
+        "random": {
+          "final_metrics": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.75,
+            "covered": 15,
+            "total": 20
+          },
+          "immediate_metrics": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.75,
+            "covered": 15,
+            "total": 20
+          },
+          "inference_learning_state_frozen": true,
+          "mask_source": "random_config_control",
+          "masks": [
+            9,
+            12
+          ],
+          "parent_checkpoint_sha256": "9a73ee1d92039ca1a4d8333229751f08d3d1ce0cafc932467a96b9d2ff67ef9d",
+          "score_method": null,
+          "snapshot": {
+            "checkpoint_sha256": "b32c283901992338c4ded46dcd856f14d2356bbe487f95b758bc2d6a70dd2f37",
+            "masks": [
+              9,
+              12
+            ],
+            "utilities": [
+              [
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0
+              ]
+            ],
+            "weights": [
+              [
+                7,
+                -7,
+                2,
+                3
+              ],
+              [
+                -7,
+                7,
+                3,
+                1
+              ],
+              [
+                7,
+                -7
+              ],
+              [
+                -7,
+                7
+              ]
+            ],
+            "work_counters": {
+              "hidden_dense_reads_requested": 861,
+              "hidden_reads_saved_by_structure": 540,
+              "hidden_synapse_ops_issued": 321,
+              "hidden_weight_reads_issued": 321,
+              "network_synapse_ops_issued": 601,
+              "network_weight_reads_issued": 601,
+              "output_synapse_ops_issued": 280,
+              "output_weight_reads_issued": 280,
+              "refractory_gate_skips": 130,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            }
+          },
+          "variant": "random",
+          "work_by_stage": {
+            "final_infer": {
+              "hidden_dense_reads_requested": 378,
+              "hidden_reads_saved_by_structure": 225,
+              "hidden_synapse_ops_issued": 153,
+              "hidden_weight_reads_issued": 153,
+              "network_synapse_ops_issued": 273,
+              "network_weight_reads_issued": 273,
+              "output_synapse_ops_issued": 120,
+              "output_weight_reads_issued": 120,
+              "refractory_gate_skips": 55,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "fine_tune": {
+              "hidden_dense_reads_requested": 105,
+              "hidden_reads_saved_by_structure": 90,
+              "hidden_synapse_ops_issued": 15,
+              "hidden_weight_reads_issued": 15,
+              "network_synapse_ops_issued": 55,
+              "network_weight_reads_issued": 55,
+              "output_synapse_ops_issued": 40,
+              "output_weight_reads_issued": 40,
+              "refractory_gate_skips": 20,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "immediate_infer": {
+              "hidden_dense_reads_requested": 378,
+              "hidden_reads_saved_by_structure": 225,
+              "hidden_synapse_ops_issued": 153,
+              "hidden_weight_reads_issued": 153,
+              "network_synapse_ops_issued": 273,
+              "network_weight_reads_issued": 273,
+              "output_synapse_ops_issued": 120,
+              "output_weight_reads_issued": 120,
+              "refractory_gate_skips": 55,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "total": {
+              "hidden_dense_reads_requested": 861,
+              "hidden_reads_saved_by_structure": 540,
+              "hidden_synapse_ops_issued": 321,
+              "hidden_weight_reads_issued": 321,
+              "network_synapse_ops_issued": 601,
+              "network_weight_reads_issued": 601,
+              "output_synapse_ops_issued": 280,
+              "output_weight_reads_issued": 280,
+              "refractory_gate_skips": 130,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            }
+          }
+        }
+      },
+      "decoder_id": "strict_single_active_v1",
+      "evaluation_samples": 20,
+      "fine_tune_epochs": 5,
+      "model_id": "eneuron",
+      "parent_checkpoint_sha256": "9a73ee1d92039ca1a4d8333229751f08d3d1ce0cafc932467a96b9d2ff67ef9d",
+      "quantizer_id": "eneuron_abs_eligibility_ceil16_sat3_v1",
+      "schema": "eneuron.local_prune_b1.v1",
+      "seed": 7,
+      "training_schedule_id": "eneuron_teacher_all_neurons_per_sample_v1",
+      "warmup_epochs": 30
+    },
+    "pulse_mini_l": {
+      "branches": {
+        "S0": {
+          "final_metrics": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "total": 20
+          },
+          "immediate_metrics": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "total": 20
+          },
+          "inference_learning_state_frozen": true,
+          "mask_source": "S0",
+          "masks": [
+            3,
+            3
+          ],
+          "parent_checkpoint_sha256": "08e6422030e5ca6838a9ddfe928544bb684e384b32756fc327270c78e134f0ee",
+          "score_method": "S0",
+          "snapshot": {
+            "checkpoint_sha256": "7a00ca2d342831f56e65417b336a64145ca1514ca7f14f028b3f0623d3ef2b79",
+            "controllers": [
+              {
+                "dense_weight_reads_requested": 374,
+                "mask": 3,
+                "mask_valid": true,
+                "reads_saved_by_structure": 112,
+                "synapse_ops_issued": 262,
+                "utility": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "weight_reads_issued": 262
+              },
+              {
+                "dense_weight_reads_requested": 366,
+                "mask": 3,
+                "mask_valid": true,
+                "reads_saved_by_structure": 104,
+                "synapse_ops_issued": 262,
+                "utility": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "weight_reads_issued": 262
+              }
+            ],
+            "core_type": "PulseMiniReference",
+            "direct_weight_write_count": 0,
+            "parent_checkpoint_sha256": "08e6422030e5ca6838a9ddfe928544bb684e384b32756fc327270c78e134f0ee",
+            "weights": [
+              [
+                7,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                7,
+                0,
+                0
+              ],
+              [
+                3,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                3,
+                0,
+                0
+              ]
+            ],
+            "work_counters": {
+              "hidden_dense_reads_requested": 740,
+              "hidden_reads_saved_by_structure": 216,
+              "hidden_synapse_ops_issued": 524,
+              "hidden_weight_reads_issued": 524,
+              "network_synapse_ops_issued": 876,
+              "network_weight_reads_issued": 876,
+              "output_synapse_ops_issued": 352,
+              "output_weight_reads_issued": 352,
+              "refractory_gate_skips": 176,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            }
+          },
+          "variant": "S0",
+          "work_by_stage": {
+            "final_infer": {
+              "hidden_dense_reads_requested": 348,
+              "hidden_reads_saved_by_structure": 108,
+              "hidden_synapse_ops_issued": 240,
+              "hidden_weight_reads_issued": 240,
+              "network_synapse_ops_issued": 400,
+              "network_weight_reads_issued": 400,
+              "output_synapse_ops_issued": 160,
+              "output_weight_reads_issued": 160,
+              "refractory_gate_skips": 80,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "fine_tune": {
+              "hidden_dense_reads_requested": 44,
+              "hidden_reads_saved_by_structure": 0,
+              "hidden_synapse_ops_issued": 44,
+              "hidden_weight_reads_issued": 44,
+              "network_synapse_ops_issued": 76,
+              "network_weight_reads_issued": 76,
+              "output_synapse_ops_issued": 32,
+              "output_weight_reads_issued": 32,
+              "refractory_gate_skips": 16,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "immediate_infer": {
+              "hidden_dense_reads_requested": 348,
+              "hidden_reads_saved_by_structure": 108,
+              "hidden_synapse_ops_issued": 240,
+              "hidden_weight_reads_issued": 240,
+              "network_synapse_ops_issued": 400,
+              "network_weight_reads_issued": 400,
+              "output_synapse_ops_issued": 160,
+              "output_weight_reads_issued": 160,
+              "refractory_gate_skips": 80,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "total": {
+              "hidden_dense_reads_requested": 740,
+              "hidden_reads_saved_by_structure": 216,
+              "hidden_synapse_ops_issued": 524,
+              "hidden_weight_reads_issued": 524,
+              "network_synapse_ops_issued": 876,
+              "network_weight_reads_issued": 876,
+              "output_synapse_ops_issued": 352,
+              "output_weight_reads_issued": 352,
+              "refractory_gate_skips": 176,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            }
+          }
+        },
+        "S1": {
+          "final_metrics": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "total": 20
+          },
+          "immediate_metrics": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "total": 20
+          },
+          "inference_learning_state_frozen": true,
+          "mask_source": "S1",
+          "masks": [
+            3,
+            3
+          ],
+          "parent_checkpoint_sha256": "08e6422030e5ca6838a9ddfe928544bb684e384b32756fc327270c78e134f0ee",
+          "score_method": "S1",
+          "snapshot": {
+            "checkpoint_sha256": "8bfa94736c2ddde54769f1c5d9e79c9bb6e303fce7ff4c2c789182e323190ab3",
+            "controllers": [
+              {
+                "dense_weight_reads_requested": 374,
+                "mask": 3,
+                "mask_valid": true,
+                "reads_saved_by_structure": 112,
+                "synapse_ops_issued": 262,
+                "utility": [
+                  1,
+                  0,
+                  0,
+                  0
+                ],
+                "weight_reads_issued": 262
+              },
+              {
+                "dense_weight_reads_requested": 366,
+                "mask": 3,
+                "mask_valid": true,
+                "reads_saved_by_structure": 104,
+                "synapse_ops_issued": 262,
+                "utility": [
+                  0,
+                  1,
+                  0,
+                  0
+                ],
+                "weight_reads_issued": 262
+              }
+            ],
+            "core_type": "PulseMiniReference",
+            "direct_weight_write_count": 0,
+            "parent_checkpoint_sha256": "08e6422030e5ca6838a9ddfe928544bb684e384b32756fc327270c78e134f0ee",
+            "weights": [
+              [
+                7,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                7,
+                0,
+                0
+              ],
+              [
+                3,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                3,
+                0,
+                0
+              ]
+            ],
+            "work_counters": {
+              "hidden_dense_reads_requested": 740,
+              "hidden_reads_saved_by_structure": 216,
+              "hidden_synapse_ops_issued": 524,
+              "hidden_weight_reads_issued": 524,
+              "network_synapse_ops_issued": 876,
+              "network_weight_reads_issued": 876,
+              "output_synapse_ops_issued": 352,
+              "output_weight_reads_issued": 352,
+              "refractory_gate_skips": 176,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            }
+          },
+          "variant": "S1",
+          "work_by_stage": {
+            "final_infer": {
+              "hidden_dense_reads_requested": 348,
+              "hidden_reads_saved_by_structure": 108,
+              "hidden_synapse_ops_issued": 240,
+              "hidden_weight_reads_issued": 240,
+              "network_synapse_ops_issued": 400,
+              "network_weight_reads_issued": 400,
+              "output_synapse_ops_issued": 160,
+              "output_weight_reads_issued": 160,
+              "refractory_gate_skips": 80,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "fine_tune": {
+              "hidden_dense_reads_requested": 44,
+              "hidden_reads_saved_by_structure": 0,
+              "hidden_synapse_ops_issued": 44,
+              "hidden_weight_reads_issued": 44,
+              "network_synapse_ops_issued": 76,
+              "network_weight_reads_issued": 76,
+              "output_synapse_ops_issued": 32,
+              "output_weight_reads_issued": 32,
+              "refractory_gate_skips": 16,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "immediate_infer": {
+              "hidden_dense_reads_requested": 348,
+              "hidden_reads_saved_by_structure": 108,
+              "hidden_synapse_ops_issued": 240,
+              "hidden_weight_reads_issued": 240,
+              "network_synapse_ops_issued": 400,
+              "network_weight_reads_issued": 400,
+              "output_synapse_ops_issued": 160,
+              "output_weight_reads_issued": 160,
+              "refractory_gate_skips": 80,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "total": {
+              "hidden_dense_reads_requested": 740,
+              "hidden_reads_saved_by_structure": 216,
+              "hidden_synapse_ops_issued": 524,
+              "hidden_weight_reads_issued": 524,
+              "network_synapse_ops_issued": 876,
+              "network_weight_reads_issued": 876,
+              "output_synapse_ops_issued": 352,
+              "output_weight_reads_issued": 352,
+              "refractory_gate_skips": 176,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            }
+          }
+        },
+        "S2": {
+          "final_metrics": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "total": 20
+          },
+          "immediate_metrics": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "total": 20
+          },
+          "inference_learning_state_frozen": true,
+          "mask_source": "S2",
+          "masks": [
+            3,
+            3
+          ],
+          "parent_checkpoint_sha256": "08e6422030e5ca6838a9ddfe928544bb684e384b32756fc327270c78e134f0ee",
+          "score_method": "S2",
+          "snapshot": {
+            "checkpoint_sha256": "b13dab7050552a403b093219880990189b27f3a7a27ae2b6a41a04a8ae4acf8b",
+            "controllers": [
+              {
+                "dense_weight_reads_requested": 374,
+                "mask": 3,
+                "mask_valid": true,
+                "reads_saved_by_structure": 112,
+                "synapse_ops_issued": 262,
+                "utility": [
+                  1,
+                  0,
+                  0,
+                  0
+                ],
+                "weight_reads_issued": 262
+              },
+              {
+                "dense_weight_reads_requested": 366,
+                "mask": 3,
+                "mask_valid": true,
+                "reads_saved_by_structure": 104,
+                "synapse_ops_issued": 262,
+                "utility": [
+                  0,
+                  1,
+                  0,
+                  0
+                ],
+                "weight_reads_issued": 262
+              }
+            ],
+            "core_type": "PulseMiniReference",
+            "direct_weight_write_count": 0,
+            "parent_checkpoint_sha256": "08e6422030e5ca6838a9ddfe928544bb684e384b32756fc327270c78e134f0ee",
+            "weights": [
+              [
+                7,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                7,
+                0,
+                0
+              ],
+              [
+                3,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                3,
+                0,
+                0
+              ]
+            ],
+            "work_counters": {
+              "hidden_dense_reads_requested": 740,
+              "hidden_reads_saved_by_structure": 216,
+              "hidden_synapse_ops_issued": 524,
+              "hidden_weight_reads_issued": 524,
+              "network_synapse_ops_issued": 876,
+              "network_weight_reads_issued": 876,
+              "output_synapse_ops_issued": 352,
+              "output_weight_reads_issued": 352,
+              "refractory_gate_skips": 176,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            }
+          },
+          "variant": "S2",
+          "work_by_stage": {
+            "final_infer": {
+              "hidden_dense_reads_requested": 348,
+              "hidden_reads_saved_by_structure": 108,
+              "hidden_synapse_ops_issued": 240,
+              "hidden_weight_reads_issued": 240,
+              "network_synapse_ops_issued": 400,
+              "network_weight_reads_issued": 400,
+              "output_synapse_ops_issued": 160,
+              "output_weight_reads_issued": 160,
+              "refractory_gate_skips": 80,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "fine_tune": {
+              "hidden_dense_reads_requested": 44,
+              "hidden_reads_saved_by_structure": 0,
+              "hidden_synapse_ops_issued": 44,
+              "hidden_weight_reads_issued": 44,
+              "network_synapse_ops_issued": 76,
+              "network_weight_reads_issued": 76,
+              "output_synapse_ops_issued": 32,
+              "output_weight_reads_issued": 32,
+              "refractory_gate_skips": 16,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "immediate_infer": {
+              "hidden_dense_reads_requested": 348,
+              "hidden_reads_saved_by_structure": 108,
+              "hidden_synapse_ops_issued": 240,
+              "hidden_weight_reads_issued": 240,
+              "network_synapse_ops_issued": 400,
+              "network_weight_reads_issued": 400,
+              "output_synapse_ops_issued": 160,
+              "output_weight_reads_issued": 160,
+              "refractory_gate_skips": 80,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "total": {
+              "hidden_dense_reads_requested": 740,
+              "hidden_reads_saved_by_structure": 216,
+              "hidden_synapse_ops_issued": 524,
+              "hidden_weight_reads_issued": 524,
+              "network_synapse_ops_issued": 876,
+              "network_weight_reads_issued": 876,
+              "output_synapse_ops_issued": 352,
+              "output_weight_reads_issued": 352,
+              "refractory_gate_skips": 176,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            }
+          }
+        },
+        "S3": {
+          "final_metrics": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "total": 20
+          },
+          "immediate_metrics": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "total": 20
+          },
+          "inference_learning_state_frozen": true,
+          "mask_source": "S3",
+          "masks": [
+            3,
+            3
+          ],
+          "parent_checkpoint_sha256": "08e6422030e5ca6838a9ddfe928544bb684e384b32756fc327270c78e134f0ee",
+          "score_method": "S3",
+          "snapshot": {
+            "checkpoint_sha256": "7b3117d5d0e6bd14c3b0883e7310f30ef4173c294e91c00d352ab7577c107794",
+            "controllers": [
+              {
+                "dense_weight_reads_requested": 374,
+                "mask": 3,
+                "mask_valid": true,
+                "reads_saved_by_structure": 112,
+                "synapse_ops_issued": 262,
+                "utility": [
+                  1,
+                  0,
+                  0,
+                  0
+                ],
+                "weight_reads_issued": 262
+              },
+              {
+                "dense_weight_reads_requested": 366,
+                "mask": 3,
+                "mask_valid": true,
+                "reads_saved_by_structure": 104,
+                "synapse_ops_issued": 262,
+                "utility": [
+                  0,
+                  1,
+                  0,
+                  0
+                ],
+                "weight_reads_issued": 262
+              }
+            ],
+            "core_type": "PulseMiniReference",
+            "direct_weight_write_count": 0,
+            "parent_checkpoint_sha256": "08e6422030e5ca6838a9ddfe928544bb684e384b32756fc327270c78e134f0ee",
+            "weights": [
+              [
+                7,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                7,
+                0,
+                0
+              ],
+              [
+                3,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                3,
+                0,
+                0
+              ]
+            ],
+            "work_counters": {
+              "hidden_dense_reads_requested": 740,
+              "hidden_reads_saved_by_structure": 216,
+              "hidden_synapse_ops_issued": 524,
+              "hidden_weight_reads_issued": 524,
+              "network_synapse_ops_issued": 876,
+              "network_weight_reads_issued": 876,
+              "output_synapse_ops_issued": 352,
+              "output_weight_reads_issued": 352,
+              "refractory_gate_skips": 176,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            }
+          },
+          "variant": "S3",
+          "work_by_stage": {
+            "final_infer": {
+              "hidden_dense_reads_requested": 348,
+              "hidden_reads_saved_by_structure": 108,
+              "hidden_synapse_ops_issued": 240,
+              "hidden_weight_reads_issued": 240,
+              "network_synapse_ops_issued": 400,
+              "network_weight_reads_issued": 400,
+              "output_synapse_ops_issued": 160,
+              "output_weight_reads_issued": 160,
+              "refractory_gate_skips": 80,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "fine_tune": {
+              "hidden_dense_reads_requested": 44,
+              "hidden_reads_saved_by_structure": 0,
+              "hidden_synapse_ops_issued": 44,
+              "hidden_weight_reads_issued": 44,
+              "network_synapse_ops_issued": 76,
+              "network_weight_reads_issued": 76,
+              "output_synapse_ops_issued": 32,
+              "output_weight_reads_issued": 32,
+              "refractory_gate_skips": 16,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "immediate_infer": {
+              "hidden_dense_reads_requested": 348,
+              "hidden_reads_saved_by_structure": 108,
+              "hidden_synapse_ops_issued": 240,
+              "hidden_weight_reads_issued": 240,
+              "network_synapse_ops_issued": 400,
+              "network_weight_reads_issued": 400,
+              "output_synapse_ops_issued": 160,
+              "output_weight_reads_issued": 160,
+              "refractory_gate_skips": 80,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "total": {
+              "hidden_dense_reads_requested": 740,
+              "hidden_reads_saved_by_structure": 216,
+              "hidden_synapse_ops_issued": 524,
+              "hidden_weight_reads_issued": 524,
+              "network_synapse_ops_issued": 876,
+              "network_weight_reads_issued": 876,
+              "output_synapse_ops_issued": 352,
+              "output_weight_reads_issued": 352,
+              "refractory_gate_skips": 176,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            }
+          }
+        },
+        "dense": {
+          "final_metrics": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "total": 20
+          },
+          "immediate_metrics": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "total": 20
+          },
+          "inference_learning_state_frozen": true,
+          "mask_source": "dense",
+          "masks": [
+            15,
+            15
+          ],
+          "parent_checkpoint_sha256": "08e6422030e5ca6838a9ddfe928544bb684e384b32756fc327270c78e134f0ee",
+          "score_method": null,
+          "snapshot": {
+            "checkpoint_sha256": "7ff0cdf953dc37ccd3478d30534c0a30357b6aa235359fcc50f5af106f6ae587",
+            "controllers": [
+              {
+                "dense_weight_reads_requested": 374,
+                "mask": 15,
+                "mask_valid": false,
+                "reads_saved_by_structure": 0,
+                "synapse_ops_issued": 374,
+                "utility": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "weight_reads_issued": 374
+              },
+              {
+                "dense_weight_reads_requested": 366,
+                "mask": 15,
+                "mask_valid": false,
+                "reads_saved_by_structure": 0,
+                "synapse_ops_issued": 366,
+                "utility": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "weight_reads_issued": 366
+              }
+            ],
+            "core_type": "PulseMiniReference",
+            "direct_weight_write_count": 0,
+            "parent_checkpoint_sha256": "08e6422030e5ca6838a9ddfe928544bb684e384b32756fc327270c78e134f0ee",
+            "weights": [
+              [
+                7,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                7,
+                0,
+                0
+              ],
+              [
+                3,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                3,
+                0,
+                0
+              ]
+            ],
+            "work_counters": {
+              "hidden_dense_reads_requested": 740,
+              "hidden_reads_saved_by_structure": 0,
+              "hidden_synapse_ops_issued": 740,
+              "hidden_weight_reads_issued": 740,
+              "network_synapse_ops_issued": 1092,
+              "network_weight_reads_issued": 1092,
+              "output_synapse_ops_issued": 352,
+              "output_weight_reads_issued": 352,
+              "refractory_gate_skips": 176,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            }
+          },
+          "variant": "dense",
+          "work_by_stage": {
+            "final_infer": {
+              "hidden_dense_reads_requested": 348,
+              "hidden_reads_saved_by_structure": 0,
+              "hidden_synapse_ops_issued": 348,
+              "hidden_weight_reads_issued": 348,
+              "network_synapse_ops_issued": 508,
+              "network_weight_reads_issued": 508,
+              "output_synapse_ops_issued": 160,
+              "output_weight_reads_issued": 160,
+              "refractory_gate_skips": 80,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "fine_tune": {
+              "hidden_dense_reads_requested": 44,
+              "hidden_reads_saved_by_structure": 0,
+              "hidden_synapse_ops_issued": 44,
+              "hidden_weight_reads_issued": 44,
+              "network_synapse_ops_issued": 76,
+              "network_weight_reads_issued": 76,
+              "output_synapse_ops_issued": 32,
+              "output_weight_reads_issued": 32,
+              "refractory_gate_skips": 16,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "immediate_infer": {
+              "hidden_dense_reads_requested": 348,
+              "hidden_reads_saved_by_structure": 0,
+              "hidden_synapse_ops_issued": 348,
+              "hidden_weight_reads_issued": 348,
+              "network_synapse_ops_issued": 508,
+              "network_weight_reads_issued": 508,
+              "output_synapse_ops_issued": 160,
+              "output_weight_reads_issued": 160,
+              "refractory_gate_skips": 80,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "total": {
+              "hidden_dense_reads_requested": 740,
+              "hidden_reads_saved_by_structure": 0,
+              "hidden_synapse_ops_issued": 740,
+              "hidden_weight_reads_issued": 740,
+              "network_synapse_ops_issued": 1092,
+              "network_weight_reads_issued": 1092,
+              "output_synapse_ops_issued": 352,
+              "output_weight_reads_issued": 352,
+              "refractory_gate_skips": 176,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            }
+          }
+        },
+        "random": {
+          "final_metrics": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "total": 20
+          },
+          "immediate_metrics": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "total": 20
+          },
+          "inference_learning_state_frozen": true,
+          "mask_source": "random_config_control",
+          "masks": [
+            9,
+            12
+          ],
+          "parent_checkpoint_sha256": "08e6422030e5ca6838a9ddfe928544bb684e384b32756fc327270c78e134f0ee",
+          "score_method": null,
+          "snapshot": {
+            "checkpoint_sha256": "24df31b3aa7f2c9e72ebaa659f4ba890cea4b09ff9fc59c326012e0e0484177c",
+            "controllers": [
+              {
+                "dense_weight_reads_requested": 374,
+                "mask": 9,
+                "mask_valid": true,
+                "reads_saved_by_structure": 174,
+                "synapse_ops_issued": 200,
+                "utility": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "weight_reads_issued": 200
+              },
+              {
+                "dense_weight_reads_requested": 492,
+                "mask": 12,
+                "mask_valid": true,
+                "reads_saved_by_structure": 348,
+                "synapse_ops_issued": 144,
+                "utility": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "weight_reads_issued": 144
+              }
+            ],
+            "core_type": "PulseMiniReference",
+            "direct_weight_write_count": 0,
+            "parent_checkpoint_sha256": "08e6422030e5ca6838a9ddfe928544bb684e384b32756fc327270c78e134f0ee",
+            "weights": [
+              [
+                7,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                6,
+                0,
+                0
+              ],
+              [
+                3,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                3,
+                0,
+                0
+              ]
+            ],
+            "work_counters": {
+              "hidden_dense_reads_requested": 866,
+              "hidden_reads_saved_by_structure": 522,
+              "hidden_synapse_ops_issued": 344,
+              "hidden_weight_reads_issued": 344,
+              "network_synapse_ops_issued": 520,
+              "network_weight_reads_issued": 520,
+              "output_synapse_ops_issued": 176,
+              "output_weight_reads_issued": 176,
+              "refractory_gate_skips": 88,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            }
+          },
+          "variant": "random",
+          "work_by_stage": {
+            "final_infer": {
+              "hidden_dense_reads_requested": 408,
+              "hidden_reads_saved_by_structure": 240,
+              "hidden_synapse_ops_issued": 168,
+              "hidden_weight_reads_issued": 168,
+              "network_synapse_ops_issued": 248,
+              "network_weight_reads_issued": 248,
+              "output_synapse_ops_issued": 80,
+              "output_weight_reads_issued": 80,
+              "refractory_gate_skips": 40,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "fine_tune": {
+              "hidden_dense_reads_requested": 50,
+              "hidden_reads_saved_by_structure": 42,
+              "hidden_synapse_ops_issued": 8,
+              "hidden_weight_reads_issued": 8,
+              "network_synapse_ops_issued": 24,
+              "network_weight_reads_issued": 24,
+              "output_synapse_ops_issued": 16,
+              "output_weight_reads_issued": 16,
+              "refractory_gate_skips": 8,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "immediate_infer": {
+              "hidden_dense_reads_requested": 408,
+              "hidden_reads_saved_by_structure": 240,
+              "hidden_synapse_ops_issued": 168,
+              "hidden_weight_reads_issued": 168,
+              "network_synapse_ops_issued": 248,
+              "network_weight_reads_issued": 248,
+              "output_synapse_ops_issued": 80,
+              "output_weight_reads_issued": 80,
+              "refractory_gate_skips": 40,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "total": {
+              "hidden_dense_reads_requested": 866,
+              "hidden_reads_saved_by_structure": 522,
+              "hidden_synapse_ops_issued": 344,
+              "hidden_weight_reads_issued": 344,
+              "network_synapse_ops_issued": 520,
+              "network_weight_reads_issued": 520,
+              "output_synapse_ops_issued": 176,
+              "output_weight_reads_issued": 176,
+              "refractory_gate_skips": 88,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            }
+          }
+        }
+      },
+      "core_type": "PulseMiniReference",
+      "decoder_id": "strict_single_active_v1",
+      "evaluation_samples": 20,
+      "fine_tune_repetitions": 2,
+      "model_id": "pulse_mini_l",
+      "parent_checkpoint_sha256": "08e6422030e5ca6838a9ddfe928544bb684e384b32756fc327270c78e134f0ee",
+      "quantizer_id": "pulse_l_abs_captured_direction_0_1_v1",
+      "schema": "eneuron.local_prune_b1.v1",
+      "seed": 7,
+      "training_schedule_id": "pulse_p8_hidden_then_output_v1",
+      "warmup_repetitions": 6
+    },
+    "pulse_mini_l2": {
+      "branches": {
+        "S0": {
+          "final_metrics": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "total": 20
+          },
+          "immediate_metrics": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "total": 20
+          },
+          "inference_learning_state_frozen": true,
+          "mask_source": "S0",
+          "masks": [
+            3,
+            3
+          ],
+          "parent_checkpoint_sha256": "7249a3303d79d29963fe7559fbbcad91659027d6ae4703f2def570a7bbe9dd99",
+          "score_method": "S0",
+          "snapshot": {
+            "checkpoint_sha256": "773ff9f60094c16830d9a7c6ea349eff4bf89471dc1d48936dd9e53936095cca",
+            "controllers": [
+              {
+                "dense_weight_reads_requested": 374,
+                "mask": 3,
+                "mask_valid": true,
+                "reads_saved_by_structure": 112,
+                "synapse_ops_issued": 262,
+                "utility": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "weight_reads_issued": 262
+              },
+              {
+                "dense_weight_reads_requested": 366,
+                "mask": 3,
+                "mask_valid": true,
+                "reads_saved_by_structure": 104,
+                "synapse_ops_issued": 262,
+                "utility": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "weight_reads_issued": 262
+              }
+            ],
+            "core_type": "PulseMiniL2Reference",
+            "direct_weight_write_count": 0,
+            "parent_checkpoint_sha256": "7249a3303d79d29963fe7559fbbcad91659027d6ae4703f2def570a7bbe9dd99",
+            "weights": [
+              [
+                7,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                7,
+                0,
+                0
+              ],
+              [
+                6,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                6,
+                0,
+                0
+              ]
+            ],
+            "work_counters": {
+              "hidden_dense_reads_requested": 740,
+              "hidden_reads_saved_by_structure": 216,
+              "hidden_synapse_ops_issued": 524,
+              "hidden_weight_reads_issued": 524,
+              "network_synapse_ops_issued": 876,
+              "network_weight_reads_issued": 876,
+              "output_synapse_ops_issued": 352,
+              "output_weight_reads_issued": 352,
+              "refractory_gate_skips": 176,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            }
+          },
+          "variant": "S0",
+          "work_by_stage": {
+            "final_infer": {
+              "hidden_dense_reads_requested": 348,
+              "hidden_reads_saved_by_structure": 108,
+              "hidden_synapse_ops_issued": 240,
+              "hidden_weight_reads_issued": 240,
+              "network_synapse_ops_issued": 400,
+              "network_weight_reads_issued": 400,
+              "output_synapse_ops_issued": 160,
+              "output_weight_reads_issued": 160,
+              "refractory_gate_skips": 80,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "fine_tune": {
+              "hidden_dense_reads_requested": 44,
+              "hidden_reads_saved_by_structure": 0,
+              "hidden_synapse_ops_issued": 44,
+              "hidden_weight_reads_issued": 44,
+              "network_synapse_ops_issued": 76,
+              "network_weight_reads_issued": 76,
+              "output_synapse_ops_issued": 32,
+              "output_weight_reads_issued": 32,
+              "refractory_gate_skips": 16,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "immediate_infer": {
+              "hidden_dense_reads_requested": 348,
+              "hidden_reads_saved_by_structure": 108,
+              "hidden_synapse_ops_issued": 240,
+              "hidden_weight_reads_issued": 240,
+              "network_synapse_ops_issued": 400,
+              "network_weight_reads_issued": 400,
+              "output_synapse_ops_issued": 160,
+              "output_weight_reads_issued": 160,
+              "refractory_gate_skips": 80,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "total": {
+              "hidden_dense_reads_requested": 740,
+              "hidden_reads_saved_by_structure": 216,
+              "hidden_synapse_ops_issued": 524,
+              "hidden_weight_reads_issued": 524,
+              "network_synapse_ops_issued": 876,
+              "network_weight_reads_issued": 876,
+              "output_synapse_ops_issued": 352,
+              "output_weight_reads_issued": 352,
+              "refractory_gate_skips": 176,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            }
+          }
+        },
+        "S1": {
+          "final_metrics": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "total": 20
+          },
+          "immediate_metrics": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "total": 20
+          },
+          "inference_learning_state_frozen": true,
+          "mask_source": "S1",
+          "masks": [
+            3,
+            3
+          ],
+          "parent_checkpoint_sha256": "7249a3303d79d29963fe7559fbbcad91659027d6ae4703f2def570a7bbe9dd99",
+          "score_method": "S1",
+          "snapshot": {
+            "checkpoint_sha256": "739e6dd9072ed33a45094a1564141d3b76b251b9b31d35f12b6a356fcbc2f4f7",
+            "controllers": [
+              {
+                "dense_weight_reads_requested": 374,
+                "mask": 3,
+                "mask_valid": true,
+                "reads_saved_by_structure": 112,
+                "synapse_ops_issued": 262,
+                "utility": [
+                  2,
+                  0,
+                  0,
+                  0
+                ],
+                "weight_reads_issued": 262
+              },
+              {
+                "dense_weight_reads_requested": 366,
+                "mask": 3,
+                "mask_valid": true,
+                "reads_saved_by_structure": 104,
+                "synapse_ops_issued": 262,
+                "utility": [
+                  0,
+                  2,
+                  0,
+                  0
+                ],
+                "weight_reads_issued": 262
+              }
+            ],
+            "core_type": "PulseMiniL2Reference",
+            "direct_weight_write_count": 0,
+            "parent_checkpoint_sha256": "7249a3303d79d29963fe7559fbbcad91659027d6ae4703f2def570a7bbe9dd99",
+            "weights": [
+              [
+                7,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                7,
+                0,
+                0
+              ],
+              [
+                6,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                6,
+                0,
+                0
+              ]
+            ],
+            "work_counters": {
+              "hidden_dense_reads_requested": 740,
+              "hidden_reads_saved_by_structure": 216,
+              "hidden_synapse_ops_issued": 524,
+              "hidden_weight_reads_issued": 524,
+              "network_synapse_ops_issued": 876,
+              "network_weight_reads_issued": 876,
+              "output_synapse_ops_issued": 352,
+              "output_weight_reads_issued": 352,
+              "refractory_gate_skips": 176,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            }
+          },
+          "variant": "S1",
+          "work_by_stage": {
+            "final_infer": {
+              "hidden_dense_reads_requested": 348,
+              "hidden_reads_saved_by_structure": 108,
+              "hidden_synapse_ops_issued": 240,
+              "hidden_weight_reads_issued": 240,
+              "network_synapse_ops_issued": 400,
+              "network_weight_reads_issued": 400,
+              "output_synapse_ops_issued": 160,
+              "output_weight_reads_issued": 160,
+              "refractory_gate_skips": 80,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "fine_tune": {
+              "hidden_dense_reads_requested": 44,
+              "hidden_reads_saved_by_structure": 0,
+              "hidden_synapse_ops_issued": 44,
+              "hidden_weight_reads_issued": 44,
+              "network_synapse_ops_issued": 76,
+              "network_weight_reads_issued": 76,
+              "output_synapse_ops_issued": 32,
+              "output_weight_reads_issued": 32,
+              "refractory_gate_skips": 16,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "immediate_infer": {
+              "hidden_dense_reads_requested": 348,
+              "hidden_reads_saved_by_structure": 108,
+              "hidden_synapse_ops_issued": 240,
+              "hidden_weight_reads_issued": 240,
+              "network_synapse_ops_issued": 400,
+              "network_weight_reads_issued": 400,
+              "output_synapse_ops_issued": 160,
+              "output_weight_reads_issued": 160,
+              "refractory_gate_skips": 80,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "total": {
+              "hidden_dense_reads_requested": 740,
+              "hidden_reads_saved_by_structure": 216,
+              "hidden_synapse_ops_issued": 524,
+              "hidden_weight_reads_issued": 524,
+              "network_synapse_ops_issued": 876,
+              "network_weight_reads_issued": 876,
+              "output_synapse_ops_issued": 352,
+              "output_weight_reads_issued": 352,
+              "refractory_gate_skips": 176,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            }
+          }
+        },
+        "S2": {
+          "final_metrics": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "total": 20
+          },
+          "immediate_metrics": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "total": 20
+          },
+          "inference_learning_state_frozen": true,
+          "mask_source": "S2",
+          "masks": [
+            3,
+            3
+          ],
+          "parent_checkpoint_sha256": "7249a3303d79d29963fe7559fbbcad91659027d6ae4703f2def570a7bbe9dd99",
+          "score_method": "S2",
+          "snapshot": {
+            "checkpoint_sha256": "77c76adfb22d8a67c191686d2a19e1891cfd2cf8a304a72dc83469bec6ac73b4",
+            "controllers": [
+              {
+                "dense_weight_reads_requested": 374,
+                "mask": 3,
+                "mask_valid": true,
+                "reads_saved_by_structure": 112,
+                "synapse_ops_issued": 262,
+                "utility": [
+                  3,
+                  0,
+                  0,
+                  0
+                ],
+                "weight_reads_issued": 262
+              },
+              {
+                "dense_weight_reads_requested": 366,
+                "mask": 3,
+                "mask_valid": true,
+                "reads_saved_by_structure": 104,
+                "synapse_ops_issued": 262,
+                "utility": [
+                  0,
+                  3,
+                  0,
+                  0
+                ],
+                "weight_reads_issued": 262
+              }
+            ],
+            "core_type": "PulseMiniL2Reference",
+            "direct_weight_write_count": 0,
+            "parent_checkpoint_sha256": "7249a3303d79d29963fe7559fbbcad91659027d6ae4703f2def570a7bbe9dd99",
+            "weights": [
+              [
+                7,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                7,
+                0,
+                0
+              ],
+              [
+                6,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                6,
+                0,
+                0
+              ]
+            ],
+            "work_counters": {
+              "hidden_dense_reads_requested": 740,
+              "hidden_reads_saved_by_structure": 216,
+              "hidden_synapse_ops_issued": 524,
+              "hidden_weight_reads_issued": 524,
+              "network_synapse_ops_issued": 876,
+              "network_weight_reads_issued": 876,
+              "output_synapse_ops_issued": 352,
+              "output_weight_reads_issued": 352,
+              "refractory_gate_skips": 176,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            }
+          },
+          "variant": "S2",
+          "work_by_stage": {
+            "final_infer": {
+              "hidden_dense_reads_requested": 348,
+              "hidden_reads_saved_by_structure": 108,
+              "hidden_synapse_ops_issued": 240,
+              "hidden_weight_reads_issued": 240,
+              "network_synapse_ops_issued": 400,
+              "network_weight_reads_issued": 400,
+              "output_synapse_ops_issued": 160,
+              "output_weight_reads_issued": 160,
+              "refractory_gate_skips": 80,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "fine_tune": {
+              "hidden_dense_reads_requested": 44,
+              "hidden_reads_saved_by_structure": 0,
+              "hidden_synapse_ops_issued": 44,
+              "hidden_weight_reads_issued": 44,
+              "network_synapse_ops_issued": 76,
+              "network_weight_reads_issued": 76,
+              "output_synapse_ops_issued": 32,
+              "output_weight_reads_issued": 32,
+              "refractory_gate_skips": 16,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "immediate_infer": {
+              "hidden_dense_reads_requested": 348,
+              "hidden_reads_saved_by_structure": 108,
+              "hidden_synapse_ops_issued": 240,
+              "hidden_weight_reads_issued": 240,
+              "network_synapse_ops_issued": 400,
+              "network_weight_reads_issued": 400,
+              "output_synapse_ops_issued": 160,
+              "output_weight_reads_issued": 160,
+              "refractory_gate_skips": 80,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "total": {
+              "hidden_dense_reads_requested": 740,
+              "hidden_reads_saved_by_structure": 216,
+              "hidden_synapse_ops_issued": 524,
+              "hidden_weight_reads_issued": 524,
+              "network_synapse_ops_issued": 876,
+              "network_weight_reads_issued": 876,
+              "output_synapse_ops_issued": 352,
+              "output_weight_reads_issued": 352,
+              "refractory_gate_skips": 176,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            }
+          }
+        },
+        "S3": {
+          "final_metrics": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "total": 20
+          },
+          "immediate_metrics": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "total": 20
+          },
+          "inference_learning_state_frozen": true,
+          "mask_source": "S3",
+          "masks": [
+            3,
+            3
+          ],
+          "parent_checkpoint_sha256": "7249a3303d79d29963fe7559fbbcad91659027d6ae4703f2def570a7bbe9dd99",
+          "score_method": "S3",
+          "snapshot": {
+            "checkpoint_sha256": "aca3f4dcbc3398f0268b291db53522a7626caac14a840f73629d4309229c2fcd",
+            "controllers": [
+              {
+                "dense_weight_reads_requested": 374,
+                "mask": 3,
+                "mask_valid": true,
+                "reads_saved_by_structure": 112,
+                "synapse_ops_issued": 262,
+                "utility": [
+                  3,
+                  0,
+                  0,
+                  0
+                ],
+                "weight_reads_issued": 262
+              },
+              {
+                "dense_weight_reads_requested": 366,
+                "mask": 3,
+                "mask_valid": true,
+                "reads_saved_by_structure": 104,
+                "synapse_ops_issued": 262,
+                "utility": [
+                  0,
+                  3,
+                  0,
+                  0
+                ],
+                "weight_reads_issued": 262
+              }
+            ],
+            "core_type": "PulseMiniL2Reference",
+            "direct_weight_write_count": 0,
+            "parent_checkpoint_sha256": "7249a3303d79d29963fe7559fbbcad91659027d6ae4703f2def570a7bbe9dd99",
+            "weights": [
+              [
+                7,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                7,
+                0,
+                0
+              ],
+              [
+                6,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                6,
+                0,
+                0
+              ]
+            ],
+            "work_counters": {
+              "hidden_dense_reads_requested": 740,
+              "hidden_reads_saved_by_structure": 216,
+              "hidden_synapse_ops_issued": 524,
+              "hidden_weight_reads_issued": 524,
+              "network_synapse_ops_issued": 876,
+              "network_weight_reads_issued": 876,
+              "output_synapse_ops_issued": 352,
+              "output_weight_reads_issued": 352,
+              "refractory_gate_skips": 176,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            }
+          },
+          "variant": "S3",
+          "work_by_stage": {
+            "final_infer": {
+              "hidden_dense_reads_requested": 348,
+              "hidden_reads_saved_by_structure": 108,
+              "hidden_synapse_ops_issued": 240,
+              "hidden_weight_reads_issued": 240,
+              "network_synapse_ops_issued": 400,
+              "network_weight_reads_issued": 400,
+              "output_synapse_ops_issued": 160,
+              "output_weight_reads_issued": 160,
+              "refractory_gate_skips": 80,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "fine_tune": {
+              "hidden_dense_reads_requested": 44,
+              "hidden_reads_saved_by_structure": 0,
+              "hidden_synapse_ops_issued": 44,
+              "hidden_weight_reads_issued": 44,
+              "network_synapse_ops_issued": 76,
+              "network_weight_reads_issued": 76,
+              "output_synapse_ops_issued": 32,
+              "output_weight_reads_issued": 32,
+              "refractory_gate_skips": 16,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "immediate_infer": {
+              "hidden_dense_reads_requested": 348,
+              "hidden_reads_saved_by_structure": 108,
+              "hidden_synapse_ops_issued": 240,
+              "hidden_weight_reads_issued": 240,
+              "network_synapse_ops_issued": 400,
+              "network_weight_reads_issued": 400,
+              "output_synapse_ops_issued": 160,
+              "output_weight_reads_issued": 160,
+              "refractory_gate_skips": 80,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "total": {
+              "hidden_dense_reads_requested": 740,
+              "hidden_reads_saved_by_structure": 216,
+              "hidden_synapse_ops_issued": 524,
+              "hidden_weight_reads_issued": 524,
+              "network_synapse_ops_issued": 876,
+              "network_weight_reads_issued": 876,
+              "output_synapse_ops_issued": 352,
+              "output_weight_reads_issued": 352,
+              "refractory_gate_skips": 176,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            }
+          }
+        },
+        "dense": {
+          "final_metrics": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "total": 20
+          },
+          "immediate_metrics": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "total": 20
+          },
+          "inference_learning_state_frozen": true,
+          "mask_source": "dense",
+          "masks": [
+            15,
+            15
+          ],
+          "parent_checkpoint_sha256": "7249a3303d79d29963fe7559fbbcad91659027d6ae4703f2def570a7bbe9dd99",
+          "score_method": null,
+          "snapshot": {
+            "checkpoint_sha256": "b7b4d88e0eb3cd0166ce3ab291b234423bec66d69ba265f8525d9cdf78241071",
+            "controllers": [
+              {
+                "dense_weight_reads_requested": 374,
+                "mask": 15,
+                "mask_valid": false,
+                "reads_saved_by_structure": 0,
+                "synapse_ops_issued": 374,
+                "utility": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "weight_reads_issued": 374
+              },
+              {
+                "dense_weight_reads_requested": 366,
+                "mask": 15,
+                "mask_valid": false,
+                "reads_saved_by_structure": 0,
+                "synapse_ops_issued": 366,
+                "utility": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "weight_reads_issued": 366
+              }
+            ],
+            "core_type": "PulseMiniL2Reference",
+            "direct_weight_write_count": 0,
+            "parent_checkpoint_sha256": "7249a3303d79d29963fe7559fbbcad91659027d6ae4703f2def570a7bbe9dd99",
+            "weights": [
+              [
+                7,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                7,
+                0,
+                0
+              ],
+              [
+                6,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                6,
+                0,
+                0
+              ]
+            ],
+            "work_counters": {
+              "hidden_dense_reads_requested": 740,
+              "hidden_reads_saved_by_structure": 0,
+              "hidden_synapse_ops_issued": 740,
+              "hidden_weight_reads_issued": 740,
+              "network_synapse_ops_issued": 1092,
+              "network_weight_reads_issued": 1092,
+              "output_synapse_ops_issued": 352,
+              "output_weight_reads_issued": 352,
+              "refractory_gate_skips": 176,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            }
+          },
+          "variant": "dense",
+          "work_by_stage": {
+            "final_infer": {
+              "hidden_dense_reads_requested": 348,
+              "hidden_reads_saved_by_structure": 0,
+              "hidden_synapse_ops_issued": 348,
+              "hidden_weight_reads_issued": 348,
+              "network_synapse_ops_issued": 508,
+              "network_weight_reads_issued": 508,
+              "output_synapse_ops_issued": 160,
+              "output_weight_reads_issued": 160,
+              "refractory_gate_skips": 80,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "fine_tune": {
+              "hidden_dense_reads_requested": 44,
+              "hidden_reads_saved_by_structure": 0,
+              "hidden_synapse_ops_issued": 44,
+              "hidden_weight_reads_issued": 44,
+              "network_synapse_ops_issued": 76,
+              "network_weight_reads_issued": 76,
+              "output_synapse_ops_issued": 32,
+              "output_weight_reads_issued": 32,
+              "refractory_gate_skips": 16,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "immediate_infer": {
+              "hidden_dense_reads_requested": 348,
+              "hidden_reads_saved_by_structure": 0,
+              "hidden_synapse_ops_issued": 348,
+              "hidden_weight_reads_issued": 348,
+              "network_synapse_ops_issued": 508,
+              "network_weight_reads_issued": 508,
+              "output_synapse_ops_issued": 160,
+              "output_weight_reads_issued": 160,
+              "refractory_gate_skips": 80,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "total": {
+              "hidden_dense_reads_requested": 740,
+              "hidden_reads_saved_by_structure": 0,
+              "hidden_synapse_ops_issued": 740,
+              "hidden_weight_reads_issued": 740,
+              "network_synapse_ops_issued": 1092,
+              "network_weight_reads_issued": 1092,
+              "output_synapse_ops_issued": 352,
+              "output_weight_reads_issued": 352,
+              "refractory_gate_skips": 176,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            }
+          }
+        },
+        "random": {
+          "final_metrics": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "total": 20
+          },
+          "immediate_metrics": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "total": 20
+          },
+          "inference_learning_state_frozen": true,
+          "mask_source": "random_config_control",
+          "masks": [
+            9,
+            12
+          ],
+          "parent_checkpoint_sha256": "7249a3303d79d29963fe7559fbbcad91659027d6ae4703f2def570a7bbe9dd99",
+          "score_method": null,
+          "snapshot": {
+            "checkpoint_sha256": "78355e2865d3f2b068594e8d3fe782c99c79d0db8bd91de866474f00699230e6",
+            "controllers": [
+              {
+                "dense_weight_reads_requested": 374,
+                "mask": 9,
+                "mask_valid": true,
+                "reads_saved_by_structure": 174,
+                "synapse_ops_issued": 200,
+                "utility": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "weight_reads_issued": 200
+              },
+              {
+                "dense_weight_reads_requested": 492,
+                "mask": 12,
+                "mask_valid": true,
+                "reads_saved_by_structure": 348,
+                "synapse_ops_issued": 144,
+                "utility": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "weight_reads_issued": 144
+              }
+            ],
+            "core_type": "PulseMiniL2Reference",
+            "direct_weight_write_count": 0,
+            "parent_checkpoint_sha256": "7249a3303d79d29963fe7559fbbcad91659027d6ae4703f2def570a7bbe9dd99",
+            "weights": [
+              [
+                7,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                6,
+                0,
+                0
+              ],
+              [
+                6,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                6,
+                0,
+                0
+              ]
+            ],
+            "work_counters": {
+              "hidden_dense_reads_requested": 866,
+              "hidden_reads_saved_by_structure": 522,
+              "hidden_synapse_ops_issued": 344,
+              "hidden_weight_reads_issued": 344,
+              "network_synapse_ops_issued": 520,
+              "network_weight_reads_issued": 520,
+              "output_synapse_ops_issued": 176,
+              "output_weight_reads_issued": 176,
+              "refractory_gate_skips": 88,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            }
+          },
+          "variant": "random",
+          "work_by_stage": {
+            "final_infer": {
+              "hidden_dense_reads_requested": 408,
+              "hidden_reads_saved_by_structure": 240,
+              "hidden_synapse_ops_issued": 168,
+              "hidden_weight_reads_issued": 168,
+              "network_synapse_ops_issued": 248,
+              "network_weight_reads_issued": 248,
+              "output_synapse_ops_issued": 80,
+              "output_weight_reads_issued": 80,
+              "refractory_gate_skips": 40,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "fine_tune": {
+              "hidden_dense_reads_requested": 50,
+              "hidden_reads_saved_by_structure": 42,
+              "hidden_synapse_ops_issued": 8,
+              "hidden_weight_reads_issued": 8,
+              "network_synapse_ops_issued": 24,
+              "network_weight_reads_issued": 24,
+              "output_synapse_ops_issued": 16,
+              "output_weight_reads_issued": 16,
+              "refractory_gate_skips": 8,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "immediate_infer": {
+              "hidden_dense_reads_requested": 408,
+              "hidden_reads_saved_by_structure": 240,
+              "hidden_synapse_ops_issued": 168,
+              "hidden_weight_reads_issued": 168,
+              "network_synapse_ops_issued": 248,
+              "network_weight_reads_issued": 248,
+              "output_synapse_ops_issued": 80,
+              "output_weight_reads_issued": 80,
+              "refractory_gate_skips": 40,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            },
+            "total": {
+              "hidden_dense_reads_requested": 866,
+              "hidden_reads_saved_by_structure": 522,
+              "hidden_synapse_ops_issued": 344,
+              "hidden_weight_reads_issued": 344,
+              "network_synapse_ops_issued": 520,
+              "network_weight_reads_issued": 520,
+              "output_synapse_ops_issued": 176,
+              "output_weight_reads_issued": 176,
+              "refractory_gate_skips": 88,
+              "scope": "full_4x2x2_hidden_structural_output_dense"
+            }
+          }
+        }
+      },
+      "core_type": "PulseMiniL2Reference",
+      "decoder_id": "strict_single_active_v1",
+      "evaluation_samples": 20,
+      "fine_tune_repetitions": 2,
+      "model_id": "pulse_mini_l2",
+      "parent_checkpoint_sha256": "7249a3303d79d29963fe7559fbbcad91659027d6ae4703f2def570a7bbe9dd99",
+      "quantizer_id": "pulse_l2_abs_captured_direction_0_2_v1",
+      "schema": "eneuron.local_prune_b1.v1",
+      "seed": 7,
+      "training_schedule_id": "pulse_p8_hidden_then_output_v1",
+      "warmup_repetitions": 6
+    }
+  },
+  "schema": "eneuron.local_prune_b1_matrix.v1",
+  "source_sha256": {
+    "eneuron_prune_adapter.py": "ab3b38638197c32c2ae9e4e0eae7d81b41d5867c4135f825b766bfd9cab46369",
+    "local_prune_b1.py": "ab59d9c378315c9eec16342bfa84f6f7d43af60531473893c1c6b2ca2e2a7caa",
+    "local_prune_reference.py": "04ee276c3d028ef0557bd01bdc2820b9a792ad98153c3ed6c3a548642bc7fec3",
+    "pulse_mini_network.py": "e6778c248745642334a2b5b69d0e7b28418ae3c3de54c86e2506faf63f03a67d",
+    "pulse_prune_adapter.py": "fc2acc7c86030f0b7a012e3994e59193bcd0fea92f3a037d7f5a0df093378aa2",
+    "run_local_prune_b1.py": "7db67f5e5de2b8a05b94296e31f0c0db231f2355763e4db8d5234fc49111cf86"
+  },
+  "task": {
+    "decoder_id": "strict_single_active_v1",
+    "evaluation_dataset_sha256": "fecc61b7d15e7b4a8798e36d7b4b1ab854cbf645dce19a8c3a14c42c8449c34f",
+    "evaluation_samples": 20,
+    "mask_scope": "hidden_only",
+    "random_mask_seed": 1016,
+    "route_latency_ticks": 1,
+    "task_id": "shared_4x2x2_b1_v1",
+    "topology": "4->2->2",
+    "training_dataset_sha256": "79b6bb28591fcf8c91a108ad92be39a7622604269b73398564f72a45912136c7",
+    "training_samples": 2
+  }
+}
