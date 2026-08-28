@@ -17,6 +17,7 @@ LOGGER = logging.getLogger("run_local_prune_b2")
 ROOT = Path(__file__).resolve().parent
 SOURCE_FILES = (
     "local_prune_reference.py",
+    "local_prune_b1.py",
     "local_prune_b2.py",
     "run_local_prune_b2.py",
     "neuron_sim.py",
@@ -48,9 +49,12 @@ def decide_model(
     """按预注册精度门和系统工作量门生成逐模型决定。"""
     dense = summary["dense"]["median_balanced_accuracy"]
     s2 = summary["S2"]["median_balanced_accuracy"]
+    dense_coverage = summary["dense"]["median_coverage"]
+    s2_coverage = summary["S2"]["median_coverage"]
     gates = summary["gates"]
     algorithm_gate = (
         dense - s2 <= 0.02
+        and dense_coverage - s2_coverage <= 0.02
         and gates["s2_minus_random_median_pp"] >= 5.0
         and gates["s2_not_below_random_seeds"] >= 8
     )

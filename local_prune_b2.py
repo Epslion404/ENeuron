@@ -406,11 +406,19 @@ def run_b2_matrix(*, seeds: Sequence[int]) -> dict[str, object]:
                 row["models"][checkpoint.model_id][branch]["balanced_accuracy"]  # type: ignore[index]
                 for row in per_seed
             ]
+            coverages = [
+                row["models"][checkpoint.model_id][branch]["coverage"]  # type: ignore[index]
+                for row in per_seed
+            ]
             model_summary[branch] = {
                 "median_balanced_accuracy": statistics.median(accuracies),
                 "min_balanced_accuracy": min(accuracies),
                 "max_balanced_accuracy": max(accuracies),
                 "values": accuracies,
+                "median_coverage": statistics.median(coverages),
+                "min_coverage": min(coverages),
+                "max_coverage": max(coverages),
+                "coverage_values": coverages,
             }
         s2_values = model_summary["S2"]["values"]  # type: ignore[index]
         random_values = model_summary["random"]["values"]  # type: ignore[index]
@@ -428,7 +436,7 @@ def run_b2_matrix(*, seeds: Sequence[int]) -> dict[str, object]:
         }
         summary[checkpoint.model_id] = model_summary
     return {
-        "schema": "eneuron.local_prune_b2_matrix.v1",
+        "schema": "eneuron.local_prune_b2_matrix.v2",
         "seeds": list(seeds),
         "per_seed": per_seed,
         "summary": summary,
