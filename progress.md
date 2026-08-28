@@ -1,5 +1,13 @@
 # 进度记录
 
+## 2026-08-29 NPU 局部剪枝 NP1
+
+- 完成独立 `LocalPrune2of4` 黄金模型：S0-S3、严格 `2:4`、TRAIN/CONFIG/INFER 模式、16 位 commit/observation ID、V1 禁止自动长回和确定性事务日志。
+- 动态门控在发射前执行 `structural_mask & activity_mask`；账本分开记录稠密请求、真实权重读取、突触操作、结构节省、全零不活动组和结构完全跳过组。
+- B0 扩展为 19 项测试，覆盖 16 种活动输入、16 种配置掩码、6 种合法输出、S0-S3 区分、饱和/衰减、exactly-once、原子拒绝和 INFER 冻结。
+- 固定 `local_prune_b0_vectors.json` 与 `local_prune_b0_results.json`，摘要绑定四个源文件 SHA-256；NP1 已达到软件黄金模型硬门。
+- 下一步进入 NP2/NP3：三种神经元从同一稠密 checkpoint 分支 dense/random/S0-S3，先跑 B1 协议闭环，再设计有辨识力的多 seed B2。
+
 ## 2026-08-28 NPU 局部自动剪枝规划
 
 - 新增 `NPU_PRUNING_TODO.md`，状态为 `REVIEW_REQUIRED`；本轮只规划，不修改已签核神经元 RTL。

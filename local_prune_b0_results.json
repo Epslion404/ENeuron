@@ -1,0 +1,104 @@
+{
+  "all_output_masks": {
+    "10": 10,
+    "12": 12,
+    "3": 3,
+    "5": 5,
+    "6": 6,
+    "9": 9
+  },
+  "issue_masks": [
+    0,
+    0,
+    2,
+    2,
+    0,
+    0,
+    2,
+    2,
+    8,
+    8,
+    10,
+    10,
+    8,
+    8,
+    10,
+    10
+  ],
+  "issue_totals": {
+    "dense_reads": 32,
+    "inactive_groups": 1,
+    "issued_reads": 16,
+    "saved_reads": 16,
+    "structurally_skipped_groups": 3
+  },
+  "schema": "eneuron.local_prune_b0_signoff.v1",
+  "score_results": [
+    {
+      "mask": 12,
+      "method": "S0",
+      "reason": "abs_weight_index",
+      "selected": [
+        2,
+        3
+      ],
+      "utility": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "mask": 6,
+      "method": "S1",
+      "reason": "snapshot_abs_index",
+      "selected": [
+        1,
+        2
+      ],
+      "utility": [
+        0,
+        3,
+        2,
+        0
+      ]
+    },
+    {
+      "mask": 3,
+      "method": "S2",
+      "reason": "utility_index",
+      "selected": [
+        0,
+        1
+      ],
+      "utility": [
+        2,
+        3,
+        2,
+        0
+      ]
+    },
+    {
+      "mask": 6,
+      "method": "S3",
+      "reason": "utility_abs_weight_index",
+      "selected": [
+        1,
+        2
+      ],
+      "utility": [
+        2,
+        3,
+        2,
+        0
+      ]
+    }
+  ],
+  "source_sha256": {
+    "local_prune_b0_signoff.py": "74b611b5a56e7d4f5817745c4b3682feaccd4eae2d9a4e20d3921a223e9f1c10",
+    "local_prune_b0_vectors.json": "12a24a4ca8bc2d96c70a6f797cf379ce738e6ef10225f9ec4c24fde4856eac6e",
+    "local_prune_reference.py": "04ee276c3d028ef0557bd01bdc2820b9a792ad98153c3ed6c3a548642bc7fec3",
+    "test_local_prune_reference.py": "1e87f50326264a5a707900749b95854ea4ee63c13fd5b16ef924cf3feea6c4c7"
+  }
+}

@@ -1,5 +1,14 @@
 # 调研与实验发现
 
+## NPU 局部剪枝 NP1（2026-08-29）
+
+- 公共控制器必须接收由各神经元适配器归一化后的 `evidence_levels=0..3`；直接在控制器内右移原始证据会把 Pulse-Mini-L 的 `0/1` 和 L2 的 `0/1/2` 消成零。
+- S2 比较键冻结为 `utility, input_index`，S3 才加入 `abs(weight)`；若 S2 也用权重破同分，两种方法会退化为同一算法。
+- V1 的“不恢复”要求 `mask_valid=1` 后拒绝第二次剪枝，直到 CONFIG 执行 `PRUNE_CLEAR`；否则更高 commit ID 可让已剪连接自动长回。
+- `groups_skipped` 不能把 `activity_mask=0` 计为结构收益。NP1 因而分开记录 `inactive_groups` 与非零活动被结构完全挡住的 `groups_skipped`，并直接累计 `reads_saved_by_structure`。
+- 每次本地证据观察增加严格递增的 observation ID，避免同一 CAPTURE/snapshot 被 S2/S3 重复累计；非法命令只改变拒绝日志和计数，不改变权重工作量、分数、掩码或提交状态。
+- 固定 B0 摘要中，16 种 activity mask 在结构掩码 `1010` 下产生 32 次稠密请求、16 次真实读取和 16 次结构节省；这是黄金模型的发射计数证据，不是现有并行 RTL 已获得周期或功耗收益的声明。
+
 ## Pulse-Mini L1 泄放升级（2026-08-19）
 
 - 当前默认 Pulse-Mini 没有膜电位泄漏，导致长时间稀疏输入仍能累加；这是保持架构简洁时最直接、最有价值的能力缺口。

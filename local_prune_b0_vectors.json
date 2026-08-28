@@ -1,0 +1,56 @@
+{
+  "schema": "eneuron.local_prune_b0_vectors.v1",
+  "score_vectors": [
+    {
+      "method": "S0",
+      "weights": [1, 2, 9, 8],
+      "observations": [],
+      "expected_mask": 12
+    },
+    {
+      "method": "S1",
+      "weights": [1, 2, 9, 8],
+      "observations": [
+        [3, 0, 0, 0],
+        [0, 3, 2, 0]
+      ],
+      "expected_mask": 6
+    },
+    {
+      "method": "S2",
+      "weights": [1, 2, 9, 8],
+      "observations": [
+        [3, 0, 0, 0],
+        [0, 3, 2, 0]
+      ],
+      "expected_mask": 3
+    },
+    {
+      "method": "S3",
+      "weights": [1, 2, 9, 8],
+      "observations": [
+        [3, 0, 0, 0],
+        [0, 3, 2, 0]
+      ],
+      "expected_mask": 6
+    }
+  ],
+  "all_output_masks": {
+    "3": [9, 8, 2, 1],
+    "5": [9, 2, 8, 1],
+    "9": [9, 2, 1, 8],
+    "6": [2, 9, 8, 1],
+    "10": [2, 9, 1, 8],
+    "12": [2, 1, 9, 8]
+  },
+  "issue_vector": {
+    "structural_mask": 10,
+    "activity_masks": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+    "expected_issue_masks": [0, 0, 2, 2, 0, 0, 2, 2, 8, 8, 10, 10, 8, 8, 10, 10],
+    "expected_dense_reads": 32,
+    "expected_issued_reads": 16,
+    "expected_saved_reads": 16,
+    "expected_inactive_groups": 1,
+    "expected_structurally_skipped_groups": 3
+  }
+}
