@@ -1,5 +1,16 @@
 # 进度记录
 
+## 2026-08-28 NPU 局部剪枝 B2
+
+- 新增固定 `4→8→2` 冗余 detector 压力任务；所有 10 个神经元仍是四输入，输出要求至少 3/4 同类 detector 同时响应。
+- 10 seed 结果：ENeuron S2/S3 median BAcc 100%、随机 75%；L2 S2/S3 100%、随机 25%；L S2/S3 0%、随机 25%。
+- ENeuron/L2 的 S2 均为 10/10 seed 不低于随机，算法门通过；L 仅 3/10，不通过。
+- S3 相对 S2 没有精度增益，按 KISS 删除 S3 额外复杂度；ENeuron/L2 只保留 S2 软件候选。
+- 负对照：过早剪枝均为 50%；S1 均为 0%；分数打乱 median 为 ENeuron 50%、L/L2 25%。
+- 工作量：ENeuron/L2 保持精度时全网络读取由 240 降至 160，仅减少 33.33%；L 降至 80 但 BAcc 为 0%，不算有效节省。
+- 三模型联合决定均为 `rtl_go=false`。下一步先在软件层验证输出 detector/通道门控，使有效全网络减少跨过 45%，并补 NP3 剩余负对照。
+- B2 机器结果绑定代码提交 `6f52a7a`；schema v2 已补 coverage 门和 `local_prune_b1.py` 依赖哈希，本阶段不进入 Vivado。
+
 ## 2026-08-28 NPU 局部剪枝 B1
 
 - 完成 ENeuron、Pulse-Mini-L、Pulse-Mini-L2 三个薄适配器；未修改三个神经元方程或已签核 RTL。

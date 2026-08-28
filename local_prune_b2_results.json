@@ -1,0 +1,6980 @@
+{
+  "claim_boundary": {
+    "image_pruning_proven": false,
+    "power_savings_proven": false,
+    "shared_lane_rtl_proven": false,
+    "synthetic_pressure_task": true,
+    "vivado_timing_proven": false
+  },
+  "decisions": {
+    "eneuron": {
+      "algorithm_gate_pass": true,
+      "dense_network_reads": 240,
+      "full_network_reduction": 0.3333333333333333,
+      "reason": "S2 passes accuracy but full-network work reduction is below 45%; test output-layer sparsity",
+      "recommended_score": "S2",
+      "rtl_go": false,
+      "s2_network_reads": 160,
+      "s3_minus_s2_median_pp": 0.0,
+      "system_work_gate_pass": false
+    },
+    "pulse_mini_l": {
+      "algorithm_gate_pass": false,
+      "dense_network_reads": 240,
+      "full_network_reduction": 0.6666666666666666,
+      "reason": "local evidence does not pass the B2 algorithm gate",
+      "recommended_score": null,
+      "rtl_go": false,
+      "s2_network_reads": 80,
+      "s3_minus_s2_median_pp": 0.0,
+      "system_work_gate_pass": true
+    },
+    "pulse_mini_l2": {
+      "algorithm_gate_pass": true,
+      "dense_network_reads": 240,
+      "full_network_reduction": 0.3333333333333333,
+      "reason": "S2 passes accuracy but full-network work reduction is below 45%; test output-layer sparsity",
+      "recommended_score": "S2",
+      "rtl_go": false,
+      "s2_network_reads": 160,
+      "s3_minus_s2_median_pp": 0.0,
+      "system_work_gate_pass": false
+    }
+  },
+  "generated_date": "2026-08-28",
+  "git_commit": "6f52a7a27d04acb8305f2b0021e6d9b5b07b8fcd",
+  "per_seed": [
+    {
+      "models": {
+        "eneuron": {
+          "S0": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S1": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 160,
+              "network_weight_reads_issued": 160,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_early": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_shuffled": {
+            "accuracy": 0.75,
+            "balanced_accuracy": 0.75,
+            "correct": 15,
+            "coverage": 0.75,
+            "covered": 15,
+            "masks": [
+              3,
+              6,
+              9,
+              3,
+              3,
+              5,
+              10,
+              12
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S3": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 160,
+              "network_weight_reads_issued": 160,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "dense": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 160,
+              "network_synapse_ops_issued": 240,
+              "network_weight_reads_issued": 240,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "random": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              3,
+              12,
+              10,
+              12,
+              5,
+              9,
+              9,
+              12
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 110,
+              "network_weight_reads_issued": 110,
+              "output_weight_reads_issued": 30,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          }
+        },
+        "pulse_mini_l": {
+          "S0": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S1": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_early": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_shuffled": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              5,
+              6,
+              5,
+              10,
+              3,
+              3,
+              3,
+              3
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 125,
+              "network_weight_reads_issued": 125,
+              "output_weight_reads_issued": 45,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S3": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "dense": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 160,
+              "network_synapse_ops_issued": 240,
+              "network_weight_reads_issued": 240,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "random": {
+            "accuracy": 0.25,
+            "balanced_accuracy": 0.25,
+            "correct": 5,
+            "coverage": 0.25,
+            "covered": 5,
+            "masks": [
+              3,
+              12,
+              10,
+              12,
+              5,
+              9,
+              9,
+              12
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 110,
+              "network_weight_reads_issued": 110,
+              "output_weight_reads_issued": 30,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          }
+        },
+        "pulse_mini_l2": {
+          "S0": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S1": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 160,
+              "network_weight_reads_issued": 160,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_early": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_shuffled": {
+            "accuracy": 0.25,
+            "balanced_accuracy": 0.25,
+            "correct": 5,
+            "coverage": 0.25,
+            "covered": 5,
+            "masks": [
+              10,
+              6,
+              3,
+              6,
+              3,
+              3,
+              3,
+              3
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 115,
+              "network_weight_reads_issued": 115,
+              "output_weight_reads_issued": 35,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S3": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 160,
+              "network_weight_reads_issued": 160,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "dense": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 160,
+              "network_synapse_ops_issued": 240,
+              "network_weight_reads_issued": 240,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "random": {
+            "accuracy": 0.25,
+            "balanced_accuracy": 0.25,
+            "correct": 5,
+            "coverage": 0.25,
+            "covered": 5,
+            "masks": [
+              3,
+              12,
+              10,
+              12,
+              5,
+              9,
+              9,
+              12
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 110,
+              "network_weight_reads_issued": 110,
+              "output_weight_reads_issued": 30,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          }
+        }
+      },
+      "seed": 0
+    },
+    {
+      "models": {
+        "eneuron": {
+          "S0": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S1": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 160,
+              "network_weight_reads_issued": 160,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_early": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_shuffled": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              10,
+              3,
+              6,
+              3,
+              9,
+              3,
+              5,
+              3
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 110,
+              "network_weight_reads_issued": 110,
+              "output_weight_reads_issued": 30,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S3": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 160,
+              "network_weight_reads_issued": 160,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "dense": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 160,
+              "network_synapse_ops_issued": 240,
+              "network_weight_reads_issued": 240,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "random": {
+            "accuracy": 0.75,
+            "balanced_accuracy": 0.75,
+            "correct": 15,
+            "coverage": 0.75,
+            "covered": 15,
+            "masks": [
+              10,
+              3,
+              10,
+              5,
+              9,
+              3,
+              12,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          }
+        },
+        "pulse_mini_l": {
+          "S0": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S1": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_early": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_shuffled": {
+            "accuracy": 0.75,
+            "balanced_accuracy": 0.75,
+            "correct": 15,
+            "coverage": 0.75,
+            "covered": 15,
+            "masks": [
+              6,
+              12,
+              12,
+              5,
+              10,
+              6,
+              10,
+              9
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 135,
+              "network_weight_reads_issued": 135,
+              "output_weight_reads_issued": 55,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S3": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "dense": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 160,
+              "network_synapse_ops_issued": 240,
+              "network_weight_reads_issued": 240,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "random": {
+            "accuracy": 0.25,
+            "balanced_accuracy": 0.25,
+            "correct": 5,
+            "coverage": 0.25,
+            "covered": 5,
+            "masks": [
+              10,
+              3,
+              10,
+              5,
+              9,
+              3,
+              12,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          }
+        },
+        "pulse_mini_l2": {
+          "S0": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S1": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 160,
+              "network_weight_reads_issued": 160,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_early": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_shuffled": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              5,
+              5,
+              3,
+              9,
+              6,
+              3,
+              3,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 135,
+              "network_weight_reads_issued": 135,
+              "output_weight_reads_issued": 55,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S3": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 160,
+              "network_weight_reads_issued": 160,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "dense": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 160,
+              "network_synapse_ops_issued": 240,
+              "network_weight_reads_issued": 240,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "random": {
+            "accuracy": 0.25,
+            "balanced_accuracy": 0.25,
+            "correct": 5,
+            "coverage": 0.25,
+            "covered": 5,
+            "masks": [
+              10,
+              3,
+              10,
+              5,
+              9,
+              3,
+              12,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          }
+        }
+      },
+      "seed": 1
+    },
+    {
+      "models": {
+        "eneuron": {
+          "S0": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S1": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 160,
+              "network_weight_reads_issued": 160,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_early": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_shuffled": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              10,
+              10,
+              3,
+              9,
+              6,
+              6,
+              10,
+              3
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 115,
+              "network_weight_reads_issued": 115,
+              "output_weight_reads_issued": 35,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S3": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 160,
+              "network_weight_reads_issued": 160,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "dense": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 160,
+              "network_synapse_ops_issued": 240,
+              "network_weight_reads_issued": 240,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "random": {
+            "accuracy": 0.75,
+            "balanced_accuracy": 0.75,
+            "correct": 15,
+            "coverage": 0.75,
+            "covered": 15,
+            "masks": [
+              6,
+              3,
+              3,
+              6,
+              5,
+              6,
+              12,
+              6
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 115,
+              "network_weight_reads_issued": 115,
+              "output_weight_reads_issued": 35,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          }
+        },
+        "pulse_mini_l": {
+          "S0": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S1": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_early": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_shuffled": {
+            "accuracy": 0.25,
+            "balanced_accuracy": 0.25,
+            "correct": 5,
+            "coverage": 0.25,
+            "covered": 5,
+            "masks": [
+              6,
+              9,
+              10,
+              10,
+              3,
+              12,
+              6,
+              6
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 110,
+              "network_weight_reads_issued": 110,
+              "output_weight_reads_issued": 30,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S3": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "dense": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 160,
+              "network_synapse_ops_issued": 240,
+              "network_weight_reads_issued": 240,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "random": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              6,
+              3,
+              3,
+              6,
+              5,
+              6,
+              12,
+              6
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 115,
+              "network_weight_reads_issued": 115,
+              "output_weight_reads_issued": 35,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          }
+        },
+        "pulse_mini_l2": {
+          "S0": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S1": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 160,
+              "network_weight_reads_issued": 160,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_early": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_shuffled": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              3,
+              9,
+              3,
+              5,
+              3,
+              12,
+              6,
+              3
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 125,
+              "network_weight_reads_issued": 125,
+              "output_weight_reads_issued": 45,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S3": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 160,
+              "network_weight_reads_issued": 160,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "dense": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 160,
+              "network_synapse_ops_issued": 240,
+              "network_weight_reads_issued": 240,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "random": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              6,
+              3,
+              3,
+              6,
+              5,
+              6,
+              12,
+              6
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 115,
+              "network_weight_reads_issued": 115,
+              "output_weight_reads_issued": 35,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          }
+        }
+      },
+      "seed": 2
+    },
+    {
+      "models": {
+        "eneuron": {
+          "S0": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S1": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 160,
+              "network_weight_reads_issued": 160,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_early": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_shuffled": {
+            "accuracy": 0.25,
+            "balanced_accuracy": 0.25,
+            "correct": 5,
+            "coverage": 0.25,
+            "covered": 5,
+            "masks": [
+              10,
+              10,
+              6,
+              3,
+              9,
+              5,
+              3,
+              9
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 105,
+              "network_weight_reads_issued": 105,
+              "output_weight_reads_issued": 25,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S3": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 160,
+              "network_weight_reads_issued": 160,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "dense": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 160,
+              "network_synapse_ops_issued": 240,
+              "network_weight_reads_issued": 240,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "random": {
+            "accuracy": 0.75,
+            "balanced_accuracy": 0.75,
+            "correct": 15,
+            "coverage": 0.75,
+            "covered": 15,
+            "masks": [
+              10,
+              6,
+              3,
+              12,
+              3,
+              9,
+              12,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          }
+        },
+        "pulse_mini_l": {
+          "S0": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S1": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_early": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_shuffled": {
+            "accuracy": 0.25,
+            "balanced_accuracy": 0.25,
+            "correct": 5,
+            "coverage": 0.25,
+            "covered": 5,
+            "masks": [
+              9,
+              10,
+              3,
+              5,
+              9,
+              5,
+              3,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 110,
+              "network_weight_reads_issued": 110,
+              "output_weight_reads_issued": 30,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S3": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "dense": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 160,
+              "network_synapse_ops_issued": 240,
+              "network_weight_reads_issued": 240,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "random": {
+            "accuracy": 0.25,
+            "balanced_accuracy": 0.25,
+            "correct": 5,
+            "coverage": 0.25,
+            "covered": 5,
+            "masks": [
+              10,
+              6,
+              3,
+              12,
+              3,
+              9,
+              12,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          }
+        },
+        "pulse_mini_l2": {
+          "S0": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S1": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 160,
+              "network_weight_reads_issued": 160,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_early": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_shuffled": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              5,
+              12,
+              5,
+              3,
+              3,
+              12,
+              3,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 125,
+              "network_weight_reads_issued": 125,
+              "output_weight_reads_issued": 45,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S3": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 160,
+              "network_weight_reads_issued": 160,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "dense": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 160,
+              "network_synapse_ops_issued": 240,
+              "network_weight_reads_issued": 240,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "random": {
+            "accuracy": 0.25,
+            "balanced_accuracy": 0.25,
+            "correct": 5,
+            "coverage": 0.25,
+            "covered": 5,
+            "masks": [
+              10,
+              6,
+              3,
+              12,
+              3,
+              9,
+              12,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          }
+        }
+      },
+      "seed": 3
+    },
+    {
+      "models": {
+        "eneuron": {
+          "S0": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S1": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 160,
+              "network_weight_reads_issued": 160,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_early": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_shuffled": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              12,
+              10,
+              5,
+              6,
+              3,
+              6,
+              6,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 115,
+              "network_weight_reads_issued": 115,
+              "output_weight_reads_issued": 35,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S3": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 160,
+              "network_weight_reads_issued": 160,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "dense": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 160,
+              "network_synapse_ops_issued": 240,
+              "network_weight_reads_issued": 240,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "random": {
+            "accuracy": 0.75,
+            "balanced_accuracy": 0.75,
+            "correct": 15,
+            "coverage": 0.75,
+            "covered": 15,
+            "masks": [
+              5,
+              12,
+              3,
+              6,
+              10,
+              12,
+              9,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 125,
+              "network_weight_reads_issued": 125,
+              "output_weight_reads_issued": 45,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          }
+        },
+        "pulse_mini_l": {
+          "S0": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S1": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_early": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_shuffled": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              3,
+              9,
+              12,
+              10,
+              10,
+              10,
+              10,
+              9
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 130,
+              "network_weight_reads_issued": 130,
+              "output_weight_reads_issued": 50,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S3": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "dense": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 160,
+              "network_synapse_ops_issued": 240,
+              "network_weight_reads_issued": 240,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "random": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              5,
+              12,
+              3,
+              6,
+              10,
+              12,
+              9,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 125,
+              "network_weight_reads_issued": 125,
+              "output_weight_reads_issued": 45,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          }
+        },
+        "pulse_mini_l2": {
+          "S0": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S1": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 160,
+              "network_weight_reads_issued": 160,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_early": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_shuffled": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              9,
+              3,
+              12,
+              10,
+              12,
+              5,
+              5,
+              12
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 105,
+              "network_weight_reads_issued": 105,
+              "output_weight_reads_issued": 25,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S3": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 160,
+              "network_weight_reads_issued": 160,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "dense": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 160,
+              "network_synapse_ops_issued": 240,
+              "network_weight_reads_issued": 240,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "random": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              5,
+              12,
+              3,
+              6,
+              10,
+              12,
+              9,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 125,
+              "network_weight_reads_issued": 125,
+              "output_weight_reads_issued": 45,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          }
+        }
+      },
+      "seed": 4
+    },
+    {
+      "models": {
+        "eneuron": {
+          "S0": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S1": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 160,
+              "network_weight_reads_issued": 160,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_early": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_shuffled": {
+            "accuracy": 0.75,
+            "balanced_accuracy": 0.75,
+            "correct": 15,
+            "coverage": 0.75,
+            "covered": 15,
+            "masks": [
+              12,
+              9,
+              9,
+              5,
+              3,
+              6,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 115,
+              "network_weight_reads_issued": 115,
+              "output_weight_reads_issued": 35,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S3": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 160,
+              "network_weight_reads_issued": 160,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "dense": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 160,
+              "network_synapse_ops_issued": 240,
+              "network_weight_reads_issued": 240,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "random": {
+            "accuracy": 0.75,
+            "balanced_accuracy": 0.75,
+            "correct": 15,
+            "coverage": 0.75,
+            "covered": 15,
+            "masks": [
+              5,
+              10,
+              6,
+              3,
+              3,
+              12,
+              6,
+              6
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          }
+        },
+        "pulse_mini_l": {
+          "S0": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S1": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_early": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_shuffled": {
+            "accuracy": 0.25,
+            "balanced_accuracy": 0.25,
+            "correct": 5,
+            "coverage": 0.25,
+            "covered": 5,
+            "masks": [
+              6,
+              5,
+              6,
+              10,
+              5,
+              9,
+              5,
+              6
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 110,
+              "network_weight_reads_issued": 110,
+              "output_weight_reads_issued": 30,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S3": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "dense": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 160,
+              "network_synapse_ops_issued": 240,
+              "network_weight_reads_issued": 240,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "random": {
+            "accuracy": 0.25,
+            "balanced_accuracy": 0.25,
+            "correct": 5,
+            "coverage": 0.25,
+            "covered": 5,
+            "masks": [
+              5,
+              10,
+              6,
+              3,
+              3,
+              12,
+              6,
+              6
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          }
+        },
+        "pulse_mini_l2": {
+          "S0": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S1": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 160,
+              "network_weight_reads_issued": 160,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_early": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_shuffled": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              6,
+              9,
+              10,
+              6,
+              6,
+              3,
+              5,
+              9
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 110,
+              "network_weight_reads_issued": 110,
+              "output_weight_reads_issued": 30,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S3": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 160,
+              "network_weight_reads_issued": 160,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "dense": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 160,
+              "network_synapse_ops_issued": 240,
+              "network_weight_reads_issued": 240,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "random": {
+            "accuracy": 0.25,
+            "balanced_accuracy": 0.25,
+            "correct": 5,
+            "coverage": 0.25,
+            "covered": 5,
+            "masks": [
+              5,
+              10,
+              6,
+              3,
+              3,
+              12,
+              6,
+              6
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          }
+        }
+      },
+      "seed": 5
+    },
+    {
+      "models": {
+        "eneuron": {
+          "S0": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S1": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 160,
+              "network_weight_reads_issued": 160,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_early": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_shuffled": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              6,
+              3,
+              6,
+              3,
+              5,
+              5,
+              5,
+              6
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 105,
+              "network_weight_reads_issued": 105,
+              "output_weight_reads_issued": 25,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S3": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 160,
+              "network_weight_reads_issued": 160,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "dense": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 160,
+              "network_synapse_ops_issued": 240,
+              "network_weight_reads_issued": 240,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "random": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              9,
+              12,
+              12,
+              10,
+              5,
+              6,
+              3,
+              12
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 110,
+              "network_weight_reads_issued": 110,
+              "output_weight_reads_issued": 30,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          }
+        },
+        "pulse_mini_l": {
+          "S0": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S1": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_early": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_shuffled": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              6,
+              5,
+              10,
+              10,
+              9,
+              9,
+              6,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 110,
+              "network_weight_reads_issued": 110,
+              "output_weight_reads_issued": 30,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S3": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "dense": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 160,
+              "network_synapse_ops_issued": 240,
+              "network_weight_reads_issued": 240,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "random": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              9,
+              12,
+              12,
+              10,
+              5,
+              6,
+              3,
+              12
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 110,
+              "network_weight_reads_issued": 110,
+              "output_weight_reads_issued": 30,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          }
+        },
+        "pulse_mini_l2": {
+          "S0": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S1": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 160,
+              "network_weight_reads_issued": 160,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_early": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_shuffled": {
+            "accuracy": 0.25,
+            "balanced_accuracy": 0.25,
+            "correct": 5,
+            "coverage": 0.25,
+            "covered": 5,
+            "masks": [
+              5,
+              6,
+              6,
+              9,
+              3,
+              5,
+              5,
+              3
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 115,
+              "network_weight_reads_issued": 115,
+              "output_weight_reads_issued": 35,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S3": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 160,
+              "network_weight_reads_issued": 160,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "dense": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 160,
+              "network_synapse_ops_issued": 240,
+              "network_weight_reads_issued": 240,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "random": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              9,
+              12,
+              12,
+              10,
+              5,
+              6,
+              3,
+              12
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 110,
+              "network_weight_reads_issued": 110,
+              "output_weight_reads_issued": 30,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          }
+        }
+      },
+      "seed": 6
+    },
+    {
+      "models": {
+        "eneuron": {
+          "S0": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S1": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 160,
+              "network_weight_reads_issued": 160,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_early": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_shuffled": {
+            "accuracy": 0.75,
+            "balanced_accuracy": 0.75,
+            "correct": 15,
+            "coverage": 0.75,
+            "covered": 15,
+            "masks": [
+              3,
+              9,
+              10,
+              3,
+              9,
+              9,
+              3,
+              3
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 115,
+              "network_weight_reads_issued": 115,
+              "output_weight_reads_issued": 35,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S3": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 160,
+              "network_weight_reads_issued": 160,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "dense": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 160,
+              "network_synapse_ops_issued": 240,
+              "network_weight_reads_issued": 240,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "random": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              5,
+              6,
+              6,
+              5,
+              12,
+              10,
+              6,
+              6
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 135,
+              "network_weight_reads_issued": 135,
+              "output_weight_reads_issued": 55,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          }
+        },
+        "pulse_mini_l": {
+          "S0": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S1": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_early": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_shuffled": {
+            "accuracy": 0.25,
+            "balanced_accuracy": 0.25,
+            "correct": 5,
+            "coverage": 0.25,
+            "covered": 5,
+            "masks": [
+              5,
+              6,
+              10,
+              3,
+              3,
+              12,
+              3,
+              3
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S3": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "dense": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 160,
+              "network_synapse_ops_issued": 240,
+              "network_weight_reads_issued": 240,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "random": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              5,
+              6,
+              6,
+              5,
+              12,
+              10,
+              6,
+              6
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 135,
+              "network_weight_reads_issued": 135,
+              "output_weight_reads_issued": 55,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          }
+        },
+        "pulse_mini_l2": {
+          "S0": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S1": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 160,
+              "network_weight_reads_issued": 160,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_early": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_shuffled": {
+            "accuracy": 0.25,
+            "balanced_accuracy": 0.25,
+            "correct": 5,
+            "coverage": 0.25,
+            "covered": 5,
+            "masks": [
+              5,
+              10,
+              3,
+              3,
+              5,
+              12,
+              3,
+              9
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 115,
+              "network_weight_reads_issued": 115,
+              "output_weight_reads_issued": 35,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S3": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 160,
+              "network_weight_reads_issued": 160,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "dense": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 160,
+              "network_synapse_ops_issued": 240,
+              "network_weight_reads_issued": 240,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "random": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              5,
+              6,
+              6,
+              5,
+              12,
+              10,
+              6,
+              6
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 135,
+              "network_weight_reads_issued": 135,
+              "output_weight_reads_issued": 55,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          }
+        }
+      },
+      "seed": 7
+    },
+    {
+      "models": {
+        "eneuron": {
+          "S0": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S1": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 160,
+              "network_weight_reads_issued": 160,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_early": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_shuffled": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              6,
+              6,
+              3,
+              10,
+              3,
+              3,
+              10,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 115,
+              "network_weight_reads_issued": 115,
+              "output_weight_reads_issued": 35,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S3": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 160,
+              "network_weight_reads_issued": 160,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "dense": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 160,
+              "network_synapse_ops_issued": 240,
+              "network_weight_reads_issued": 240,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "random": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              10,
+              10,
+              12,
+              5,
+              9,
+              5,
+              9,
+              3
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 110,
+              "network_weight_reads_issued": 110,
+              "output_weight_reads_issued": 30,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          }
+        },
+        "pulse_mini_l": {
+          "S0": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S1": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_early": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_shuffled": {
+            "accuracy": 0.25,
+            "balanced_accuracy": 0.25,
+            "correct": 5,
+            "coverage": 0.25,
+            "covered": 5,
+            "masks": [
+              9,
+              6,
+              10,
+              9,
+              3,
+              10,
+              12,
+              12
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S3": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "dense": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 160,
+              "network_synapse_ops_issued": 240,
+              "network_weight_reads_issued": 240,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "random": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              12,
+              5,
+              9,
+              5,
+              9,
+              3
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 110,
+              "network_weight_reads_issued": 110,
+              "output_weight_reads_issued": 30,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          }
+        },
+        "pulse_mini_l2": {
+          "S0": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S1": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 160,
+              "network_weight_reads_issued": 160,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_early": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_shuffled": {
+            "accuracy": 0.25,
+            "balanced_accuracy": 0.25,
+            "correct": 5,
+            "coverage": 0.25,
+            "covered": 5,
+            "masks": [
+              3,
+              9,
+              9,
+              9,
+              3,
+              9,
+              5,
+              12
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 115,
+              "network_weight_reads_issued": 115,
+              "output_weight_reads_issued": 35,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S3": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 160,
+              "network_weight_reads_issued": 160,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "dense": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 160,
+              "network_synapse_ops_issued": 240,
+              "network_weight_reads_issued": 240,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "random": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              12,
+              5,
+              9,
+              5,
+              9,
+              3
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 110,
+              "network_weight_reads_issued": 110,
+              "output_weight_reads_issued": 30,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          }
+        }
+      },
+      "seed": 8
+    },
+    {
+      "models": {
+        "eneuron": {
+          "S0": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S1": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 160,
+              "network_weight_reads_issued": 160,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_early": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_shuffled": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              10,
+              5,
+              6,
+              12,
+              9,
+              12,
+              3,
+              12
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S3": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 160,
+              "network_weight_reads_issued": 160,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "dense": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 160,
+              "network_synapse_ops_issued": 240,
+              "network_weight_reads_issued": 240,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "random": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              3,
+              6,
+              9,
+              5,
+              9,
+              10,
+              3,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 135,
+              "network_weight_reads_issued": 135,
+              "output_weight_reads_issued": 55,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          }
+        },
+        "pulse_mini_l": {
+          "S0": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S1": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_early": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_shuffled": {
+            "accuracy": 0.25,
+            "balanced_accuracy": 0.25,
+            "correct": 5,
+            "coverage": 0.25,
+            "covered": 5,
+            "masks": [
+              5,
+              10,
+              6,
+              3,
+              12,
+              9,
+              12,
+              12
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S3": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "dense": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 160,
+              "network_synapse_ops_issued": 240,
+              "network_weight_reads_issued": 240,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "random": {
+            "accuracy": 0.75,
+            "balanced_accuracy": 0.75,
+            "correct": 15,
+            "coverage": 0.75,
+            "covered": 15,
+            "masks": [
+              3,
+              6,
+              9,
+              5,
+              9,
+              10,
+              3,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 135,
+              "network_weight_reads_issued": 135,
+              "output_weight_reads_issued": 55,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          }
+        },
+        "pulse_mini_l2": {
+          "S0": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S1": {
+            "accuracy": 0.0,
+            "balanced_accuracy": 0.0,
+            "correct": 0,
+            "coverage": 0.0,
+            "covered": 0,
+            "masks": [
+              10,
+              10,
+              10,
+              10,
+              5,
+              5,
+              5,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 80,
+              "network_weight_reads_issued": 80,
+              "output_weight_reads_issued": 0,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 160,
+              "network_weight_reads_issued": 160,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_early": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9,
+              9
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 120,
+              "network_weight_reads_issued": 120,
+              "output_weight_reads_issued": 40,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S2_shuffled": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "correct": 10,
+            "coverage": 0.5,
+            "covered": 10,
+            "masks": [
+              3,
+              9,
+              5,
+              9,
+              10,
+              10,
+              6,
+              5
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 130,
+              "network_weight_reads_issued": 130,
+              "output_weight_reads_issued": 50,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "S3": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              5,
+              5,
+              5,
+              5,
+              10,
+              10,
+              10,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 160,
+              "network_weight_reads_issued": 160,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "dense": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "correct": 20,
+            "coverage": 1.0,
+            "covered": 20,
+            "masks": [
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15,
+              15
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 160,
+              "network_synapse_ops_issued": 240,
+              "network_weight_reads_issued": 240,
+              "output_weight_reads_issued": 80,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          },
+          "random": {
+            "accuracy": 0.75,
+            "balanced_accuracy": 0.75,
+            "correct": 15,
+            "coverage": 0.75,
+            "covered": 15,
+            "masks": [
+              3,
+              6,
+              9,
+              5,
+              9,
+              10,
+              3,
+              10
+            ],
+            "total": 20,
+            "work": {
+              "hidden_weight_reads_issued": 80,
+              "network_synapse_ops_issued": 135,
+              "network_weight_reads_issued": 135,
+              "output_weight_reads_issued": 55,
+              "scope": "full_4x8x2_hidden_structural_output_dense"
+            }
+          }
+        }
+      },
+      "seed": 9
+    }
+  ],
+  "schema": "eneuron.local_prune_b2_matrix.v2",
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "source_sha256": {
+    "local_prune_b1.py": "ab59d9c378315c9eec16342bfa84f6f7d43af60531473893c1c6b2ca2e2a7caa",
+    "local_prune_b2.py": "a8d72e4171d505f9a4b7d8d9bde69fcccbd015e5a97e3f52e03be051d7a973e7",
+    "local_prune_reference.py": "04ee276c3d028ef0557bd01bdc2820b9a792ad98153c3ed6c3a548642bc7fec3",
+    "neuron_sim.py": "1b31c6a84a77b4b47669d02eb2a7fc46c6bdd70051799dcf059e75d51002e3a2",
+    "pulse_mini_l2_reference.py": "6a964d1ffa0e895dce77a1efd908540f9c1d5a2c52b561a7a9774099c12dedcd",
+    "pulse_mini_reference.py": "6fe1c969ac2dee3c050ec939b9735d28b7ae534f3008537fbc81b3b98311cb28",
+    "run_local_prune_b2.py": "cf790e84c12af63f7f81d4c3fd0a9c7ef6c4de000a9514b6d84914f3136cdcef"
+  },
+  "summary": {
+    "eneuron": {
+      "S0": {
+        "coverage_values": [
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5
+        ],
+        "max_balanced_accuracy": 0.5,
+        "max_coverage": 0.5,
+        "median_balanced_accuracy": 0.5,
+        "median_coverage": 0.5,
+        "min_balanced_accuracy": 0.5,
+        "min_coverage": 0.5,
+        "values": [
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5
+        ]
+      },
+      "S1": {
+        "coverage_values": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "max_balanced_accuracy": 0.0,
+        "max_coverage": 0.0,
+        "median_balanced_accuracy": 0.0,
+        "median_coverage": 0.0,
+        "min_balanced_accuracy": 0.0,
+        "min_coverage": 0.0,
+        "values": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "S2": {
+        "coverage_values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "max_balanced_accuracy": 1.0,
+        "max_coverage": 1.0,
+        "median_balanced_accuracy": 1.0,
+        "median_coverage": 1.0,
+        "min_balanced_accuracy": 1.0,
+        "min_coverage": 1.0,
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "S2_early": {
+        "coverage_values": [
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5
+        ],
+        "max_balanced_accuracy": 0.5,
+        "max_coverage": 0.5,
+        "median_balanced_accuracy": 0.5,
+        "median_coverage": 0.5,
+        "min_balanced_accuracy": 0.5,
+        "min_coverage": 0.5,
+        "values": [
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5
+        ]
+      },
+      "S2_shuffled": {
+        "coverage_values": [
+          0.75,
+          0.5,
+          0.5,
+          0.25,
+          0.5,
+          0.75,
+          0.5,
+          0.75,
+          0.5,
+          0.5
+        ],
+        "max_balanced_accuracy": 0.75,
+        "max_coverage": 0.75,
+        "median_balanced_accuracy": 0.5,
+        "median_coverage": 0.5,
+        "min_balanced_accuracy": 0.25,
+        "min_coverage": 0.25,
+        "values": [
+          0.75,
+          0.5,
+          0.5,
+          0.25,
+          0.5,
+          0.75,
+          0.5,
+          0.75,
+          0.5,
+          0.5
+        ]
+      },
+      "S3": {
+        "coverage_values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "max_balanced_accuracy": 1.0,
+        "max_coverage": 1.0,
+        "median_balanced_accuracy": 1.0,
+        "median_coverage": 1.0,
+        "min_balanced_accuracy": 1.0,
+        "min_coverage": 1.0,
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "dense": {
+        "coverage_values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "max_balanced_accuracy": 1.0,
+        "max_coverage": 1.0,
+        "median_balanced_accuracy": 1.0,
+        "median_coverage": 1.0,
+        "min_balanced_accuracy": 1.0,
+        "min_coverage": 1.0,
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "gates": {
+        "s2_minus_random_median_pp": 25.0,
+        "s2_minus_s0_median_pp": 50.0,
+        "s2_not_below_random_seeds": 10
+      },
+      "random": {
+        "coverage_values": [
+          0.5,
+          0.75,
+          0.75,
+          0.75,
+          0.75,
+          0.75,
+          0.5,
+          1.0,
+          0.5,
+          1.0
+        ],
+        "max_balanced_accuracy": 1.0,
+        "max_coverage": 1.0,
+        "median_balanced_accuracy": 0.75,
+        "median_coverage": 0.75,
+        "min_balanced_accuracy": 0.5,
+        "min_coverage": 0.5,
+        "values": [
+          0.5,
+          0.75,
+          0.75,
+          0.75,
+          0.75,
+          0.75,
+          0.5,
+          1.0,
+          0.5,
+          1.0
+        ]
+      }
+    },
+    "pulse_mini_l": {
+      "S0": {
+        "coverage_values": [
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5
+        ],
+        "max_balanced_accuracy": 0.5,
+        "max_coverage": 0.5,
+        "median_balanced_accuracy": 0.5,
+        "median_coverage": 0.5,
+        "min_balanced_accuracy": 0.5,
+        "min_coverage": 0.5,
+        "values": [
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5
+        ]
+      },
+      "S1": {
+        "coverage_values": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "max_balanced_accuracy": 0.0,
+        "max_coverage": 0.0,
+        "median_balanced_accuracy": 0.0,
+        "median_coverage": 0.0,
+        "min_balanced_accuracy": 0.0,
+        "min_coverage": 0.0,
+        "values": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "S2": {
+        "coverage_values": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "max_balanced_accuracy": 0.0,
+        "max_coverage": 0.0,
+        "median_balanced_accuracy": 0.0,
+        "median_coverage": 0.0,
+        "min_balanced_accuracy": 0.0,
+        "min_coverage": 0.0,
+        "values": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "S2_early": {
+        "coverage_values": [
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5
+        ],
+        "max_balanced_accuracy": 0.5,
+        "max_coverage": 0.5,
+        "median_balanced_accuracy": 0.5,
+        "median_coverage": 0.5,
+        "min_balanced_accuracy": 0.5,
+        "min_coverage": 0.5,
+        "values": [
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5
+        ]
+      },
+      "S2_shuffled": {
+        "coverage_values": [
+          0.5,
+          0.75,
+          0.25,
+          0.25,
+          0.5,
+          0.25,
+          0.0,
+          0.25,
+          0.25,
+          0.25
+        ],
+        "max_balanced_accuracy": 0.75,
+        "max_coverage": 0.75,
+        "median_balanced_accuracy": 0.25,
+        "median_coverage": 0.25,
+        "min_balanced_accuracy": 0.0,
+        "min_coverage": 0.0,
+        "values": [
+          0.5,
+          0.75,
+          0.25,
+          0.25,
+          0.5,
+          0.25,
+          0.0,
+          0.25,
+          0.25,
+          0.25
+        ]
+      },
+      "S3": {
+        "coverage_values": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "max_balanced_accuracy": 0.0,
+        "max_coverage": 0.0,
+        "median_balanced_accuracy": 0.0,
+        "median_coverage": 0.0,
+        "min_balanced_accuracy": 0.0,
+        "min_coverage": 0.0,
+        "values": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "dense": {
+        "coverage_values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "max_balanced_accuracy": 1.0,
+        "max_coverage": 1.0,
+        "median_balanced_accuracy": 1.0,
+        "median_coverage": 1.0,
+        "min_balanced_accuracy": 1.0,
+        "min_coverage": 1.0,
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "gates": {
+        "s2_minus_random_median_pp": -25.0,
+        "s2_minus_s0_median_pp": -50.0,
+        "s2_not_below_random_seeds": 3
+      },
+      "random": {
+        "coverage_values": [
+          0.25,
+          0.25,
+          0.0,
+          0.25,
+          0.5,
+          0.25,
+          0.0,
+          0.5,
+          0.0,
+          0.75
+        ],
+        "max_balanced_accuracy": 0.75,
+        "max_coverage": 0.75,
+        "median_balanced_accuracy": 0.25,
+        "median_coverage": 0.25,
+        "min_balanced_accuracy": 0.0,
+        "min_coverage": 0.0,
+        "values": [
+          0.25,
+          0.25,
+          0.0,
+          0.25,
+          0.5,
+          0.25,
+          0.0,
+          0.5,
+          0.0,
+          0.75
+        ]
+      }
+    },
+    "pulse_mini_l2": {
+      "S0": {
+        "coverage_values": [
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5
+        ],
+        "max_balanced_accuracy": 0.5,
+        "max_coverage": 0.5,
+        "median_balanced_accuracy": 0.5,
+        "median_coverage": 0.5,
+        "min_balanced_accuracy": 0.5,
+        "min_coverage": 0.5,
+        "values": [
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5
+        ]
+      },
+      "S1": {
+        "coverage_values": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "max_balanced_accuracy": 0.0,
+        "max_coverage": 0.0,
+        "median_balanced_accuracy": 0.0,
+        "median_coverage": 0.0,
+        "min_balanced_accuracy": 0.0,
+        "min_coverage": 0.0,
+        "values": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "S2": {
+        "coverage_values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "max_balanced_accuracy": 1.0,
+        "max_coverage": 1.0,
+        "median_balanced_accuracy": 1.0,
+        "median_coverage": 1.0,
+        "min_balanced_accuracy": 1.0,
+        "min_coverage": 1.0,
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "S2_early": {
+        "coverage_values": [
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5
+        ],
+        "max_balanced_accuracy": 0.5,
+        "max_coverage": 0.5,
+        "median_balanced_accuracy": 0.5,
+        "median_coverage": 0.5,
+        "min_balanced_accuracy": 0.5,
+        "min_coverage": 0.5,
+        "values": [
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5
+        ]
+      },
+      "S2_shuffled": {
+        "coverage_values": [
+          0.25,
+          0.5,
+          0.5,
+          0.5,
+          0.0,
+          0.0,
+          0.25,
+          0.25,
+          0.25,
+          0.5
+        ],
+        "max_balanced_accuracy": 0.5,
+        "max_coverage": 0.5,
+        "median_balanced_accuracy": 0.25,
+        "median_coverage": 0.25,
+        "min_balanced_accuracy": 0.0,
+        "min_coverage": 0.0,
+        "values": [
+          0.25,
+          0.5,
+          0.5,
+          0.5,
+          0.0,
+          0.0,
+          0.25,
+          0.25,
+          0.25,
+          0.5
+        ]
+      },
+      "S3": {
+        "coverage_values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "max_balanced_accuracy": 1.0,
+        "max_coverage": 1.0,
+        "median_balanced_accuracy": 1.0,
+        "median_coverage": 1.0,
+        "min_balanced_accuracy": 1.0,
+        "min_coverage": 1.0,
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "dense": {
+        "coverage_values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "max_balanced_accuracy": 1.0,
+        "max_coverage": 1.0,
+        "median_balanced_accuracy": 1.0,
+        "median_coverage": 1.0,
+        "min_balanced_accuracy": 1.0,
+        "min_coverage": 1.0,
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "gates": {
+        "s2_minus_random_median_pp": 75.0,
+        "s2_minus_s0_median_pp": 50.0,
+        "s2_not_below_random_seeds": 10
+      },
+      "random": {
+        "coverage_values": [
+          0.25,
+          0.25,
+          0.0,
+          0.25,
+          0.5,
+          0.25,
+          0.0,
+          0.5,
+          0.0,
+          0.75
+        ],
+        "max_balanced_accuracy": 0.75,
+        "max_coverage": 0.75,
+        "median_balanced_accuracy": 0.25,
+        "median_coverage": 0.25,
+        "min_balanced_accuracy": 0.0,
+        "min_coverage": 0.0,
+        "values": [
+          0.25,
+          0.25,
+          0.0,
+          0.25,
+          0.5,
+          0.25,
+          0.0,
+          0.5,
+          0.0,
+          0.75
+        ]
+      }
+    }
+  },
+  "task": {
+    "all_neurons_four_input": true,
+    "decoder_id": "strict_single_active_v1",
+    "evaluation_samples": 20,
+    "output_requires_detectors": 3,
+    "random_mask_seed_rule": "seed+2003",
+    "task_id": "redundant_detector_4x8x2_b2_v1",
+    "topology": "4->8->2"
+  }
+}
