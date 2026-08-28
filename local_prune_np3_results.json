@@ -1,0 +1,7022 @@
+{
+  "branch_contract": {
+    "fine_tune_observations_per_detector": 2,
+    "host_mask_writes": 0,
+    "progressive_stage1_is_software_only": true,
+    "real_prune_commits_per_detector": 1,
+    "shared_parent_checkpoint": true
+  },
+  "claim_boundary": {
+    "image_pruning_proven": false,
+    "rtl_proven": false,
+    "software_training_closure": true,
+    "system_work_gate_proven": false
+  },
+  "decisions": {
+    "eneuron": {
+      "equal_budget_pass": true,
+      "ledger_and_freeze_pass": true,
+      "np3_pass": true,
+      "one_shot_matches_progressive": true,
+      "reason": "NP3 passes; B2.1 system work gate remains pending",
+      "recommended_flow": "S2_one_shot",
+      "rtl_go": false,
+      "shared_parent_pass": true,
+      "task_gate_pass": true,
+      "wrong_sign_negative_control_pass": true
+    },
+    "pulse_mini_l": {
+      "equal_budget_pass": true,
+      "ledger_and_freeze_pass": true,
+      "np3_pass": true,
+      "one_shot_matches_progressive": true,
+      "reason": "NP3 passes; B2.1 system work gate remains pending",
+      "recommended_flow": "S2_one_shot",
+      "rtl_go": false,
+      "shared_parent_pass": true,
+      "task_gate_pass": true,
+      "wrong_sign_negative_control_pass": true
+    },
+    "pulse_mini_l2": {
+      "equal_budget_pass": true,
+      "ledger_and_freeze_pass": true,
+      "np3_pass": true,
+      "one_shot_matches_progressive": true,
+      "reason": "NP3 passes; B2.1 system work gate remains pending",
+      "recommended_flow": "S2_one_shot",
+      "rtl_go": false,
+      "shared_parent_pass": true,
+      "task_gate_pass": true,
+      "wrong_sign_negative_control_pass": true
+    }
+  },
+  "generated_date": "2026-08-28",
+  "git_commit": "56525761693c1950cb7d7e2337aee64bfbaa55c6",
+  "models": {
+    "eneuron": {
+      "branches": {
+        "S2_one_shot": {
+          "after_fine_tune": {
+            "balanced_accuracy": 1.0,
+            "coverage": 1.0,
+            "network_synapse_ops_issued": 160,
+            "network_weight_reads_issued": 160
+          },
+          "final_masks": [
+            5,
+            5,
+            5,
+            5,
+            10,
+            10,
+            10,
+            10
+          ],
+          "fine_tune_observations_per_detector": 2,
+          "immediate": {
+            "balanced_accuracy": 1.0,
+            "coverage": 1.0,
+            "network_synapse_ops_issued": 160,
+            "network_weight_reads_issued": 160
+          },
+          "infer_freeze_pass": true,
+          "mask_stable_during_fine_tune": true,
+          "mask_write_count": 0,
+          "parent_checkpoint_sha256": "94993805c9fa1bd7827634c94ab68e7feac25a2cb1383a07ea93d9ee49bd127b",
+          "prune_commit_counts": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "pruned_history_zero": true,
+          "pruned_weights_unchanged": true,
+          "stage1_after_fine_tune": null,
+          "stage1_kind": null,
+          "stage1_masks": [],
+          "training_ledger": [
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 0,
+              "evidence_levels": [
+                3,
+                0,
+                3,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "eneuron",
+              "observation_id": 23,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                14,
+                1,
+                14,
+                1
+              ],
+              "utility_before": [
+                12,
+                1,
+                12,
+                1
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 1,
+              "evidence_levels": [
+                3,
+                0,
+                3,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "eneuron",
+              "observation_id": 23,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                14,
+                1,
+                14,
+                1
+              ],
+              "utility_before": [
+                12,
+                1,
+                12,
+                1
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 2,
+              "evidence_levels": [
+                3,
+                0,
+                3,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "eneuron",
+              "observation_id": 23,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                14,
+                1,
+                14,
+                1
+              ],
+              "utility_before": [
+                12,
+                1,
+                12,
+                1
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 3,
+              "evidence_levels": [
+                3,
+                0,
+                3,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "eneuron",
+              "observation_id": 23,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                14,
+                1,
+                14,
+                1
+              ],
+              "utility_before": [
+                12,
+                1,
+                12,
+                1
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 4,
+              "evidence_levels": [
+                0,
+                3,
+                0,
+                3
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "eneuron",
+              "observation_id": 23,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                1,
+                14,
+                1,
+                15
+              ],
+              "utility_before": [
+                1,
+                12,
+                1,
+                13
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 5,
+              "evidence_levels": [
+                0,
+                3,
+                0,
+                3
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "eneuron",
+              "observation_id": 23,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                1,
+                14,
+                1,
+                15
+              ],
+              "utility_before": [
+                1,
+                12,
+                1,
+                13
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 6,
+              "evidence_levels": [
+                0,
+                3,
+                0,
+                3
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "eneuron",
+              "observation_id": 23,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                1,
+                14,
+                1,
+                15
+              ],
+              "utility_before": [
+                1,
+                12,
+                1,
+                13
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 7,
+              "evidence_levels": [
+                0,
+                3,
+                0,
+                3
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "eneuron",
+              "observation_id": 23,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                1,
+                14,
+                1,
+                15
+              ],
+              "utility_before": [
+                1,
+                12,
+                1,
+                13
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 0,
+              "evidence_levels": [
+                3,
+                0,
+                3,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "eneuron",
+              "observation_id": 24,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                15,
+                1,
+                15,
+                1
+              ],
+              "utility_before": [
+                14,
+                1,
+                14,
+                1
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 1,
+              "evidence_levels": [
+                3,
+                0,
+                3,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "eneuron",
+              "observation_id": 24,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                15,
+                1,
+                15,
+                1
+              ],
+              "utility_before": [
+                14,
+                1,
+                14,
+                1
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 2,
+              "evidence_levels": [
+                3,
+                0,
+                3,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "eneuron",
+              "observation_id": 24,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                15,
+                1,
+                15,
+                1
+              ],
+              "utility_before": [
+                14,
+                1,
+                14,
+                1
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 3,
+              "evidence_levels": [
+                3,
+                0,
+                3,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "eneuron",
+              "observation_id": 24,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                15,
+                1,
+                15,
+                1
+              ],
+              "utility_before": [
+                14,
+                1,
+                14,
+                1
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 4,
+              "evidence_levels": [
+                0,
+                3,
+                0,
+                3
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "eneuron",
+              "observation_id": 24,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                1,
+                15,
+                1,
+                15
+              ],
+              "utility_before": [
+                1,
+                14,
+                1,
+                15
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 5,
+              "evidence_levels": [
+                0,
+                3,
+                0,
+                3
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "eneuron",
+              "observation_id": 24,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                1,
+                15,
+                1,
+                15
+              ],
+              "utility_before": [
+                1,
+                14,
+                1,
+                15
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 6,
+              "evidence_levels": [
+                0,
+                3,
+                0,
+                3
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "eneuron",
+              "observation_id": 24,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                1,
+                15,
+                1,
+                15
+              ],
+              "utility_before": [
+                1,
+                14,
+                1,
+                15
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 7,
+              "evidence_levels": [
+                0,
+                3,
+                0,
+                3
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "eneuron",
+              "observation_id": 24,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                1,
+                15,
+                1,
+                15
+              ],
+              "utility_before": [
+                1,
+                14,
+                1,
+                15
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            }
+          ]
+        },
+        "S2_progressive": {
+          "after_fine_tune": {
+            "balanced_accuracy": 1.0,
+            "coverage": 1.0,
+            "network_synapse_ops_issued": 160,
+            "network_weight_reads_issued": 160
+          },
+          "final_masks": [
+            5,
+            5,
+            5,
+            5,
+            10,
+            10,
+            10,
+            10
+          ],
+          "fine_tune_observations_per_detector": 2,
+          "immediate": {
+            "balanced_accuracy": 1.0,
+            "coverage": 1.0,
+            "network_synapse_ops_issued": 200,
+            "network_weight_reads_issued": 200
+          },
+          "infer_freeze_pass": true,
+          "mask_stable_during_fine_tune": true,
+          "mask_write_count": 0,
+          "parent_checkpoint_sha256": "94993805c9fa1bd7827634c94ab68e7feac25a2cb1383a07ea93d9ee49bd127b",
+          "prune_commit_counts": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "pruned_history_zero": true,
+          "pruned_weights_unchanged": true,
+          "stage1_after_fine_tune": {
+            "balanced_accuracy": 1.0,
+            "coverage": 1.0,
+            "network_synapse_ops_issued": 200,
+            "network_weight_reads_issued": 200
+          },
+          "stage1_kind": "software_3of4_training_mask",
+          "stage1_masks": [
+            7,
+            7,
+            7,
+            7,
+            11,
+            11,
+            11,
+            11
+          ],
+          "training_ledger": [
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 0,
+              "evidence_levels": [
+                3,
+                0,
+                3,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 15,
+              "mask_before": 15,
+              "mask_valid_after": false,
+              "mask_valid_before": false,
+              "model_id": "eneuron",
+              "observation_id": 23,
+              "stage": "progressive_3of4",
+              "training_mask": 7,
+              "utility_after": [
+                14,
+                0,
+                14,
+                0
+              ],
+              "utility_before": [
+                12,
+                1,
+                12,
+                1
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 1,
+              "evidence_levels": [
+                3,
+                0,
+                3,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 15,
+              "mask_before": 15,
+              "mask_valid_after": false,
+              "mask_valid_before": false,
+              "model_id": "eneuron",
+              "observation_id": 23,
+              "stage": "progressive_3of4",
+              "training_mask": 7,
+              "utility_after": [
+                14,
+                0,
+                14,
+                0
+              ],
+              "utility_before": [
+                12,
+                1,
+                12,
+                1
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 2,
+              "evidence_levels": [
+                3,
+                0,
+                3,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 15,
+              "mask_before": 15,
+              "mask_valid_after": false,
+              "mask_valid_before": false,
+              "model_id": "eneuron",
+              "observation_id": 23,
+              "stage": "progressive_3of4",
+              "training_mask": 7,
+              "utility_after": [
+                14,
+                0,
+                14,
+                0
+              ],
+              "utility_before": [
+                12,
+                1,
+                12,
+                1
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 3,
+              "evidence_levels": [
+                3,
+                0,
+                3,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 15,
+              "mask_before": 15,
+              "mask_valid_after": false,
+              "mask_valid_before": false,
+              "model_id": "eneuron",
+              "observation_id": 23,
+              "stage": "progressive_3of4",
+              "training_mask": 7,
+              "utility_after": [
+                14,
+                0,
+                14,
+                0
+              ],
+              "utility_before": [
+                12,
+                1,
+                12,
+                1
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 4,
+              "evidence_levels": [
+                0,
+                3,
+                0,
+                3
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 15,
+              "mask_before": 15,
+              "mask_valid_after": false,
+              "mask_valid_before": false,
+              "model_id": "eneuron",
+              "observation_id": 23,
+              "stage": "progressive_3of4",
+              "training_mask": 11,
+              "utility_after": [
+                0,
+                14,
+                0,
+                15
+              ],
+              "utility_before": [
+                1,
+                12,
+                1,
+                13
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 5,
+              "evidence_levels": [
+                0,
+                3,
+                0,
+                3
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 15,
+              "mask_before": 15,
+              "mask_valid_after": false,
+              "mask_valid_before": false,
+              "model_id": "eneuron",
+              "observation_id": 23,
+              "stage": "progressive_3of4",
+              "training_mask": 11,
+              "utility_after": [
+                0,
+                14,
+                0,
+                15
+              ],
+              "utility_before": [
+                1,
+                12,
+                1,
+                13
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 6,
+              "evidence_levels": [
+                0,
+                3,
+                0,
+                3
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 15,
+              "mask_before": 15,
+              "mask_valid_after": false,
+              "mask_valid_before": false,
+              "model_id": "eneuron",
+              "observation_id": 23,
+              "stage": "progressive_3of4",
+              "training_mask": 11,
+              "utility_after": [
+                0,
+                14,
+                0,
+                15
+              ],
+              "utility_before": [
+                1,
+                12,
+                1,
+                13
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 7,
+              "evidence_levels": [
+                0,
+                3,
+                0,
+                3
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 15,
+              "mask_before": 15,
+              "mask_valid_after": false,
+              "mask_valid_before": false,
+              "model_id": "eneuron",
+              "observation_id": 23,
+              "stage": "progressive_3of4",
+              "training_mask": 11,
+              "utility_after": [
+                0,
+                14,
+                0,
+                15
+              ],
+              "utility_before": [
+                1,
+                12,
+                1,
+                13
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 0,
+              "evidence_levels": [
+                3,
+                0,
+                3,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "eneuron",
+              "observation_id": 24,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                15,
+                0,
+                15,
+                0
+              ],
+              "utility_before": [
+                14,
+                0,
+                14,
+                0
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 1,
+              "evidence_levels": [
+                3,
+                0,
+                3,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "eneuron",
+              "observation_id": 24,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                15,
+                0,
+                15,
+                0
+              ],
+              "utility_before": [
+                14,
+                0,
+                14,
+                0
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 2,
+              "evidence_levels": [
+                3,
+                0,
+                3,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "eneuron",
+              "observation_id": 24,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                15,
+                0,
+                15,
+                0
+              ],
+              "utility_before": [
+                14,
+                0,
+                14,
+                0
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 3,
+              "evidence_levels": [
+                3,
+                0,
+                3,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "eneuron",
+              "observation_id": 24,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                15,
+                0,
+                15,
+                0
+              ],
+              "utility_before": [
+                14,
+                0,
+                14,
+                0
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 4,
+              "evidence_levels": [
+                0,
+                3,
+                0,
+                3
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "eneuron",
+              "observation_id": 24,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                0,
+                15,
+                0,
+                15
+              ],
+              "utility_before": [
+                0,
+                14,
+                0,
+                15
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 5,
+              "evidence_levels": [
+                0,
+                3,
+                0,
+                3
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "eneuron",
+              "observation_id": 24,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                0,
+                15,
+                0,
+                15
+              ],
+              "utility_before": [
+                0,
+                14,
+                0,
+                15
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 6,
+              "evidence_levels": [
+                0,
+                3,
+                0,
+                3
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "eneuron",
+              "observation_id": 24,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                0,
+                15,
+                0,
+                15
+              ],
+              "utility_before": [
+                0,
+                14,
+                0,
+                15
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 7,
+              "evidence_levels": [
+                0,
+                3,
+                0,
+                3
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "eneuron",
+              "observation_id": 24,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                0,
+                15,
+                0,
+                15
+              ],
+              "utility_before": [
+                0,
+                14,
+                0,
+                15
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            }
+          ]
+        },
+        "S2_wrong_sign": {
+          "after_fine_tune": {
+            "balanced_accuracy": 0.0,
+            "coverage": 0.0,
+            "network_synapse_ops_issued": 80,
+            "network_weight_reads_issued": 80
+          },
+          "final_masks": [
+            5,
+            5,
+            5,
+            5,
+            10,
+            10,
+            10,
+            10
+          ],
+          "fine_tune_observations_per_detector": 2,
+          "immediate": {
+            "balanced_accuracy": 1.0,
+            "coverage": 1.0,
+            "network_synapse_ops_issued": 160,
+            "network_weight_reads_issued": 160
+          },
+          "infer_freeze_pass": true,
+          "mask_stable_during_fine_tune": true,
+          "mask_write_count": 0,
+          "parent_checkpoint_sha256": "94993805c9fa1bd7827634c94ab68e7feac25a2cb1383a07ea93d9ee49bd127b",
+          "prune_commit_counts": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "pruned_history_zero": true,
+          "pruned_weights_unchanged": true,
+          "stage1_after_fine_tune": null,
+          "stage1_kind": null,
+          "stage1_masks": [],
+          "training_ledger": [
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 0,
+              "evidence_levels": [
+                3,
+                0,
+                3,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "eneuron",
+              "observation_id": 23,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                14,
+                1,
+                14,
+                1
+              ],
+              "utility_before": [
+                12,
+                1,
+                12,
+                1
+              ],
+              "weights_after": [
+                -4,
+                -7,
+                -4,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 1,
+              "evidence_levels": [
+                3,
+                0,
+                3,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "eneuron",
+              "observation_id": 23,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                14,
+                1,
+                14,
+                1
+              ],
+              "utility_before": [
+                12,
+                1,
+                12,
+                1
+              ],
+              "weights_after": [
+                -4,
+                -7,
+                -4,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 2,
+              "evidence_levels": [
+                3,
+                0,
+                3,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "eneuron",
+              "observation_id": 23,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                14,
+                1,
+                14,
+                1
+              ],
+              "utility_before": [
+                12,
+                1,
+                12,
+                1
+              ],
+              "weights_after": [
+                -4,
+                -7,
+                -4,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 3,
+              "evidence_levels": [
+                3,
+                0,
+                3,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "eneuron",
+              "observation_id": 23,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                14,
+                1,
+                14,
+                1
+              ],
+              "utility_before": [
+                12,
+                1,
+                12,
+                1
+              ],
+              "weights_after": [
+                -4,
+                -7,
+                -4,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 4,
+              "evidence_levels": [
+                0,
+                3,
+                0,
+                3
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "eneuron",
+              "observation_id": 23,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                1,
+                14,
+                1,
+                15
+              ],
+              "utility_before": [
+                1,
+                12,
+                1,
+                13
+              ],
+              "weights_after": [
+                -7,
+                -4,
+                -7,
+                -4
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 5,
+              "evidence_levels": [
+                0,
+                3,
+                0,
+                3
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "eneuron",
+              "observation_id": 23,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                1,
+                14,
+                1,
+                15
+              ],
+              "utility_before": [
+                1,
+                12,
+                1,
+                13
+              ],
+              "weights_after": [
+                -7,
+                -4,
+                -7,
+                -4
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 6,
+              "evidence_levels": [
+                0,
+                3,
+                0,
+                3
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "eneuron",
+              "observation_id": 23,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                1,
+                14,
+                1,
+                15
+              ],
+              "utility_before": [
+                1,
+                12,
+                1,
+                13
+              ],
+              "weights_after": [
+                -7,
+                -4,
+                -7,
+                -4
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 7,
+              "evidence_levels": [
+                0,
+                3,
+                0,
+                3
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "eneuron",
+              "observation_id": 23,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                1,
+                14,
+                1,
+                15
+              ],
+              "utility_before": [
+                1,
+                12,
+                1,
+                13
+              ],
+              "weights_after": [
+                -7,
+                -4,
+                -7,
+                -4
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 0,
+              "evidence_levels": [
+                3,
+                0,
+                3,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "eneuron",
+              "observation_id": 24,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                15,
+                1,
+                15,
+                1
+              ],
+              "utility_before": [
+                14,
+                1,
+                14,
+                1
+              ],
+              "weights_after": [
+                -7,
+                -7,
+                -7,
+                -7
+              ],
+              "weights_before": [
+                -4,
+                -7,
+                -4,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 1,
+              "evidence_levels": [
+                3,
+                0,
+                3,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "eneuron",
+              "observation_id": 24,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                15,
+                1,
+                15,
+                1
+              ],
+              "utility_before": [
+                14,
+                1,
+                14,
+                1
+              ],
+              "weights_after": [
+                -7,
+                -7,
+                -7,
+                -7
+              ],
+              "weights_before": [
+                -4,
+                -7,
+                -4,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 2,
+              "evidence_levels": [
+                3,
+                0,
+                3,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "eneuron",
+              "observation_id": 24,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                15,
+                1,
+                15,
+                1
+              ],
+              "utility_before": [
+                14,
+                1,
+                14,
+                1
+              ],
+              "weights_after": [
+                -7,
+                -7,
+                -7,
+                -7
+              ],
+              "weights_before": [
+                -4,
+                -7,
+                -4,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 3,
+              "evidence_levels": [
+                3,
+                0,
+                3,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "eneuron",
+              "observation_id": 24,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                15,
+                1,
+                15,
+                1
+              ],
+              "utility_before": [
+                14,
+                1,
+                14,
+                1
+              ],
+              "weights_after": [
+                -7,
+                -7,
+                -7,
+                -7
+              ],
+              "weights_before": [
+                -4,
+                -7,
+                -4,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 4,
+              "evidence_levels": [
+                0,
+                3,
+                0,
+                3
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "eneuron",
+              "observation_id": 24,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                1,
+                15,
+                1,
+                15
+              ],
+              "utility_before": [
+                1,
+                14,
+                1,
+                15
+              ],
+              "weights_after": [
+                -7,
+                -7,
+                -7,
+                -7
+              ],
+              "weights_before": [
+                -7,
+                -4,
+                -7,
+                -4
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 5,
+              "evidence_levels": [
+                0,
+                3,
+                0,
+                3
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "eneuron",
+              "observation_id": 24,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                1,
+                15,
+                1,
+                15
+              ],
+              "utility_before": [
+                1,
+                14,
+                1,
+                15
+              ],
+              "weights_after": [
+                -7,
+                -7,
+                -7,
+                -7
+              ],
+              "weights_before": [
+                -7,
+                -4,
+                -7,
+                -4
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 6,
+              "evidence_levels": [
+                0,
+                3,
+                0,
+                3
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "eneuron",
+              "observation_id": 24,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                1,
+                15,
+                1,
+                15
+              ],
+              "utility_before": [
+                1,
+                14,
+                1,
+                15
+              ],
+              "weights_after": [
+                -7,
+                -7,
+                -7,
+                -7
+              ],
+              "weights_before": [
+                -7,
+                -4,
+                -7,
+                -4
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 7,
+              "evidence_levels": [
+                0,
+                3,
+                0,
+                3
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "eneuron",
+              "observation_id": 24,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                1,
+                15,
+                1,
+                15
+              ],
+              "utility_before": [
+                1,
+                14,
+                1,
+                15
+              ],
+              "weights_after": [
+                -7,
+                -7,
+                -7,
+                -7
+              ],
+              "weights_before": [
+                -7,
+                -4,
+                -7,
+                -4
+              ]
+            }
+          ]
+        }
+      },
+      "evidence_gain": 1,
+      "parent_checkpoint_sha256": "94993805c9fa1bd7827634c94ab68e7feac25a2cb1383a07ea93d9ee49bd127b"
+    },
+    "pulse_mini_l": {
+      "branches": {
+        "S2_one_shot": {
+          "after_fine_tune": {
+            "balanced_accuracy": 1.0,
+            "coverage": 1.0,
+            "network_synapse_ops_issued": 160,
+            "network_weight_reads_issued": 160
+          },
+          "final_masks": [
+            5,
+            5,
+            5,
+            5,
+            10,
+            10,
+            10,
+            10
+          ],
+          "fine_tune_observations_per_detector": 2,
+          "immediate": {
+            "balanced_accuracy": 1.0,
+            "coverage": 1.0,
+            "network_synapse_ops_issued": 160,
+            "network_weight_reads_issued": 160
+          },
+          "infer_freeze_pass": true,
+          "mask_stable_during_fine_tune": true,
+          "mask_write_count": 0,
+          "parent_checkpoint_sha256": "bbfb1e4d9cc77e6a1f7c9b35814a16396af22389c233aa702a87bd0277be5413",
+          "prune_commit_counts": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "pruned_history_zero": true,
+          "pruned_weights_unchanged": true,
+          "stage1_after_fine_tune": null,
+          "stage1_kind": null,
+          "stage1_masks": [],
+          "training_ledger": [
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 0,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l",
+              "observation_id": 35,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                7,
+                2,
+                7,
+                3
+              ],
+              "utility_before": [
+                6,
+                2,
+                6,
+                3
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 1,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l",
+              "observation_id": 35,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                7,
+                2,
+                7,
+                3
+              ],
+              "utility_before": [
+                6,
+                2,
+                6,
+                3
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 2,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l",
+              "observation_id": 35,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                7,
+                2,
+                7,
+                3
+              ],
+              "utility_before": [
+                6,
+                2,
+                6,
+                3
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 3,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l",
+              "observation_id": 35,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                7,
+                2,
+                7,
+                3
+              ],
+              "utility_before": [
+                6,
+                2,
+                6,
+                3
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 4,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l",
+              "observation_id": 35,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                2,
+                7,
+                2,
+                14
+              ],
+              "utility_before": [
+                2,
+                6,
+                2,
+                13
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 5,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l",
+              "observation_id": 35,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                2,
+                7,
+                2,
+                14
+              ],
+              "utility_before": [
+                2,
+                6,
+                2,
+                13
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 6,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l",
+              "observation_id": 35,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                2,
+                7,
+                2,
+                14
+              ],
+              "utility_before": [
+                2,
+                6,
+                2,
+                13
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 7,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l",
+              "observation_id": 35,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                2,
+                7,
+                2,
+                14
+              ],
+              "utility_before": [
+                2,
+                6,
+                2,
+                13
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 0,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                8,
+                2,
+                8,
+                3
+              ],
+              "utility_before": [
+                7,
+                2,
+                7,
+                3
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 1,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                8,
+                2,
+                8,
+                3
+              ],
+              "utility_before": [
+                7,
+                2,
+                7,
+                3
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 2,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                8,
+                2,
+                8,
+                3
+              ],
+              "utility_before": [
+                7,
+                2,
+                7,
+                3
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 3,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                8,
+                2,
+                8,
+                3
+              ],
+              "utility_before": [
+                7,
+                2,
+                7,
+                3
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 4,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                2,
+                8,
+                2,
+                15
+              ],
+              "utility_before": [
+                2,
+                7,
+                2,
+                14
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 5,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                2,
+                8,
+                2,
+                15
+              ],
+              "utility_before": [
+                2,
+                7,
+                2,
+                14
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 6,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                2,
+                8,
+                2,
+                15
+              ],
+              "utility_before": [
+                2,
+                7,
+                2,
+                14
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 7,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                2,
+                8,
+                2,
+                15
+              ],
+              "utility_before": [
+                2,
+                7,
+                2,
+                14
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            }
+          ]
+        },
+        "S2_progressive": {
+          "after_fine_tune": {
+            "balanced_accuracy": 1.0,
+            "coverage": 1.0,
+            "network_synapse_ops_issued": 160,
+            "network_weight_reads_issued": 160
+          },
+          "final_masks": [
+            5,
+            5,
+            5,
+            5,
+            10,
+            10,
+            10,
+            10
+          ],
+          "fine_tune_observations_per_detector": 2,
+          "immediate": {
+            "balanced_accuracy": 1.0,
+            "coverage": 1.0,
+            "network_synapse_ops_issued": 200,
+            "network_weight_reads_issued": 200
+          },
+          "infer_freeze_pass": true,
+          "mask_stable_during_fine_tune": true,
+          "mask_write_count": 0,
+          "parent_checkpoint_sha256": "bbfb1e4d9cc77e6a1f7c9b35814a16396af22389c233aa702a87bd0277be5413",
+          "prune_commit_counts": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "pruned_history_zero": true,
+          "pruned_weights_unchanged": true,
+          "stage1_after_fine_tune": {
+            "balanced_accuracy": 1.0,
+            "coverage": 1.0,
+            "network_synapse_ops_issued": 200,
+            "network_weight_reads_issued": 200
+          },
+          "stage1_kind": "software_3of4_training_mask",
+          "stage1_masks": [
+            13,
+            13,
+            13,
+            13,
+            11,
+            11,
+            11,
+            11
+          ],
+          "training_ledger": [
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 0,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 15,
+              "mask_before": 15,
+              "mask_valid_after": false,
+              "mask_valid_before": false,
+              "model_id": "pulse_mini_l",
+              "observation_id": 35,
+              "stage": "progressive_3of4",
+              "training_mask": 13,
+              "utility_after": [
+                7,
+                1,
+                7,
+                2
+              ],
+              "utility_before": [
+                6,
+                2,
+                6,
+                3
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 1,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 15,
+              "mask_before": 15,
+              "mask_valid_after": false,
+              "mask_valid_before": false,
+              "model_id": "pulse_mini_l",
+              "observation_id": 35,
+              "stage": "progressive_3of4",
+              "training_mask": 13,
+              "utility_after": [
+                7,
+                1,
+                7,
+                2
+              ],
+              "utility_before": [
+                6,
+                2,
+                6,
+                3
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 2,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 15,
+              "mask_before": 15,
+              "mask_valid_after": false,
+              "mask_valid_before": false,
+              "model_id": "pulse_mini_l",
+              "observation_id": 35,
+              "stage": "progressive_3of4",
+              "training_mask": 13,
+              "utility_after": [
+                7,
+                1,
+                7,
+                2
+              ],
+              "utility_before": [
+                6,
+                2,
+                6,
+                3
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 3,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 15,
+              "mask_before": 15,
+              "mask_valid_after": false,
+              "mask_valid_before": false,
+              "model_id": "pulse_mini_l",
+              "observation_id": 35,
+              "stage": "progressive_3of4",
+              "training_mask": 13,
+              "utility_after": [
+                7,
+                1,
+                7,
+                2
+              ],
+              "utility_before": [
+                6,
+                2,
+                6,
+                3
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 4,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 15,
+              "mask_before": 15,
+              "mask_valid_after": false,
+              "mask_valid_before": false,
+              "model_id": "pulse_mini_l",
+              "observation_id": 35,
+              "stage": "progressive_3of4",
+              "training_mask": 11,
+              "utility_after": [
+                1,
+                7,
+                1,
+                14
+              ],
+              "utility_before": [
+                2,
+                6,
+                2,
+                13
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 5,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 15,
+              "mask_before": 15,
+              "mask_valid_after": false,
+              "mask_valid_before": false,
+              "model_id": "pulse_mini_l",
+              "observation_id": 35,
+              "stage": "progressive_3of4",
+              "training_mask": 11,
+              "utility_after": [
+                1,
+                7,
+                1,
+                14
+              ],
+              "utility_before": [
+                2,
+                6,
+                2,
+                13
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 6,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 15,
+              "mask_before": 15,
+              "mask_valid_after": false,
+              "mask_valid_before": false,
+              "model_id": "pulse_mini_l",
+              "observation_id": 35,
+              "stage": "progressive_3of4",
+              "training_mask": 11,
+              "utility_after": [
+                1,
+                7,
+                1,
+                14
+              ],
+              "utility_before": [
+                2,
+                6,
+                2,
+                13
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 7,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 15,
+              "mask_before": 15,
+              "mask_valid_after": false,
+              "mask_valid_before": false,
+              "model_id": "pulse_mini_l",
+              "observation_id": 35,
+              "stage": "progressive_3of4",
+              "training_mask": 11,
+              "utility_after": [
+                1,
+                7,
+                1,
+                14
+              ],
+              "utility_before": [
+                2,
+                6,
+                2,
+                13
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 0,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                8,
+                1,
+                8,
+                2
+              ],
+              "utility_before": [
+                7,
+                1,
+                7,
+                2
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 1,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                8,
+                1,
+                8,
+                2
+              ],
+              "utility_before": [
+                7,
+                1,
+                7,
+                2
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 2,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                8,
+                1,
+                8,
+                2
+              ],
+              "utility_before": [
+                7,
+                1,
+                7,
+                2
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 3,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                8,
+                1,
+                8,
+                2
+              ],
+              "utility_before": [
+                7,
+                1,
+                7,
+                2
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 4,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                1,
+                8,
+                1,
+                15
+              ],
+              "utility_before": [
+                1,
+                7,
+                1,
+                14
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 5,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                1,
+                8,
+                1,
+                15
+              ],
+              "utility_before": [
+                1,
+                7,
+                1,
+                14
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 6,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                1,
+                8,
+                1,
+                15
+              ],
+              "utility_before": [
+                1,
+                7,
+                1,
+                14
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 7,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                1,
+                8,
+                1,
+                15
+              ],
+              "utility_before": [
+                1,
+                7,
+                1,
+                14
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            }
+          ]
+        },
+        "S2_wrong_sign": {
+          "after_fine_tune": {
+            "balanced_accuracy": 0.0,
+            "coverage": 0.0,
+            "network_synapse_ops_issued": 80,
+            "network_weight_reads_issued": 80
+          },
+          "final_masks": [
+            5,
+            5,
+            5,
+            5,
+            10,
+            10,
+            10,
+            10
+          ],
+          "fine_tune_observations_per_detector": 2,
+          "immediate": {
+            "balanced_accuracy": 1.0,
+            "coverage": 1.0,
+            "network_synapse_ops_issued": 160,
+            "network_weight_reads_issued": 160
+          },
+          "infer_freeze_pass": true,
+          "mask_stable_during_fine_tune": true,
+          "mask_write_count": 0,
+          "parent_checkpoint_sha256": "bbfb1e4d9cc77e6a1f7c9b35814a16396af22389c233aa702a87bd0277be5413",
+          "prune_commit_counts": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "pruned_history_zero": true,
+          "pruned_weights_unchanged": true,
+          "stage1_after_fine_tune": null,
+          "stage1_kind": null,
+          "stage1_masks": [],
+          "training_ledger": [
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 0,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l",
+              "observation_id": 35,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                7,
+                2,
+                7,
+                3
+              ],
+              "utility_before": [
+                6,
+                2,
+                6,
+                3
+              ],
+              "weights_after": [
+                6,
+                -7,
+                6,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 1,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l",
+              "observation_id": 35,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                7,
+                2,
+                7,
+                3
+              ],
+              "utility_before": [
+                6,
+                2,
+                6,
+                3
+              ],
+              "weights_after": [
+                6,
+                -7,
+                6,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 2,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l",
+              "observation_id": 35,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                7,
+                2,
+                7,
+                3
+              ],
+              "utility_before": [
+                6,
+                2,
+                6,
+                3
+              ],
+              "weights_after": [
+                6,
+                -7,
+                6,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 3,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l",
+              "observation_id": 35,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                7,
+                2,
+                7,
+                3
+              ],
+              "utility_before": [
+                6,
+                2,
+                6,
+                3
+              ],
+              "weights_after": [
+                6,
+                -7,
+                6,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 4,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l",
+              "observation_id": 35,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                2,
+                7,
+                2,
+                14
+              ],
+              "utility_before": [
+                2,
+                6,
+                2,
+                13
+              ],
+              "weights_after": [
+                -7,
+                6,
+                -7,
+                6
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 5,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l",
+              "observation_id": 35,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                2,
+                7,
+                2,
+                14
+              ],
+              "utility_before": [
+                2,
+                6,
+                2,
+                13
+              ],
+              "weights_after": [
+                -7,
+                6,
+                -7,
+                6
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 6,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l",
+              "observation_id": 35,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                2,
+                7,
+                2,
+                14
+              ],
+              "utility_before": [
+                2,
+                6,
+                2,
+                13
+              ],
+              "weights_after": [
+                -7,
+                6,
+                -7,
+                6
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 7,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l",
+              "observation_id": 35,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                2,
+                7,
+                2,
+                14
+              ],
+              "utility_before": [
+                2,
+                6,
+                2,
+                13
+              ],
+              "weights_after": [
+                -7,
+                6,
+                -7,
+                6
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 0,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                8,
+                2,
+                8,
+                3
+              ],
+              "utility_before": [
+                7,
+                2,
+                7,
+                3
+              ],
+              "weights_after": [
+                5,
+                -7,
+                5,
+                -7
+              ],
+              "weights_before": [
+                6,
+                -7,
+                6,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 1,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                8,
+                2,
+                8,
+                3
+              ],
+              "utility_before": [
+                7,
+                2,
+                7,
+                3
+              ],
+              "weights_after": [
+                5,
+                -7,
+                5,
+                -7
+              ],
+              "weights_before": [
+                6,
+                -7,
+                6,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 2,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                8,
+                2,
+                8,
+                3
+              ],
+              "utility_before": [
+                7,
+                2,
+                7,
+                3
+              ],
+              "weights_after": [
+                5,
+                -7,
+                5,
+                -7
+              ],
+              "weights_before": [
+                6,
+                -7,
+                6,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 3,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                8,
+                2,
+                8,
+                3
+              ],
+              "utility_before": [
+                7,
+                2,
+                7,
+                3
+              ],
+              "weights_after": [
+                5,
+                -7,
+                5,
+                -7
+              ],
+              "weights_before": [
+                6,
+                -7,
+                6,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 4,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                2,
+                8,
+                2,
+                15
+              ],
+              "utility_before": [
+                2,
+                7,
+                2,
+                14
+              ],
+              "weights_after": [
+                -7,
+                5,
+                -7,
+                5
+              ],
+              "weights_before": [
+                -7,
+                6,
+                -7,
+                6
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 5,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                2,
+                8,
+                2,
+                15
+              ],
+              "utility_before": [
+                2,
+                7,
+                2,
+                14
+              ],
+              "weights_after": [
+                -7,
+                5,
+                -7,
+                5
+              ],
+              "weights_before": [
+                -7,
+                6,
+                -7,
+                6
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 6,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                2,
+                8,
+                2,
+                15
+              ],
+              "utility_before": [
+                2,
+                7,
+                2,
+                14
+              ],
+              "weights_after": [
+                -7,
+                5,
+                -7,
+                5
+              ],
+              "weights_before": [
+                -7,
+                6,
+                -7,
+                6
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 7,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                2,
+                8,
+                2,
+                15
+              ],
+              "utility_before": [
+                2,
+                7,
+                2,
+                14
+              ],
+              "weights_after": [
+                -7,
+                5,
+                -7,
+                5
+              ],
+              "weights_before": [
+                -7,
+                6,
+                -7,
+                6
+              ]
+            }
+          ]
+        }
+      },
+      "evidence_gain": 2,
+      "parent_checkpoint_sha256": "bbfb1e4d9cc77e6a1f7c9b35814a16396af22389c233aa702a87bd0277be5413"
+    },
+    "pulse_mini_l2": {
+      "branches": {
+        "S2_one_shot": {
+          "after_fine_tune": {
+            "balanced_accuracy": 1.0,
+            "coverage": 1.0,
+            "network_synapse_ops_issued": 160,
+            "network_weight_reads_issued": 160
+          },
+          "final_masks": [
+            5,
+            5,
+            5,
+            5,
+            10,
+            10,
+            10,
+            10
+          ],
+          "fine_tune_observations_per_detector": 2,
+          "immediate": {
+            "balanced_accuracy": 1.0,
+            "coverage": 1.0,
+            "network_synapse_ops_issued": 160,
+            "network_weight_reads_issued": 160
+          },
+          "infer_freeze_pass": true,
+          "mask_stable_during_fine_tune": true,
+          "mask_write_count": 0,
+          "parent_checkpoint_sha256": "42a478d4016576048ad3eb892b2b7083346060d00c5e03b4af95245417a470dc",
+          "prune_commit_counts": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "pruned_history_zero": true,
+          "pruned_weights_unchanged": true,
+          "stage1_after_fine_tune": null,
+          "stage1_kind": null,
+          "stage1_masks": [],
+          "training_ledger": [
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 0,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 35,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                7,
+                1,
+                7,
+                1
+              ],
+              "utility_before": [
+                6,
+                1,
+                6,
+                1
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 1,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 35,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                7,
+                1,
+                7,
+                1
+              ],
+              "utility_before": [
+                6,
+                1,
+                6,
+                1
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 2,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 35,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                7,
+                1,
+                7,
+                1
+              ],
+              "utility_before": [
+                6,
+                1,
+                6,
+                1
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 3,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 35,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                7,
+                1,
+                7,
+                1
+              ],
+              "utility_before": [
+                6,
+                1,
+                6,
+                1
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 4,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 35,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                1,
+                7,
+                1,
+                8
+              ],
+              "utility_before": [
+                1,
+                6,
+                1,
+                7
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 5,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 35,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                1,
+                7,
+                1,
+                8
+              ],
+              "utility_before": [
+                1,
+                6,
+                1,
+                7
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 6,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 35,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                1,
+                7,
+                1,
+                8
+              ],
+              "utility_before": [
+                1,
+                6,
+                1,
+                7
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 7,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 35,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                1,
+                7,
+                1,
+                8
+              ],
+              "utility_before": [
+                1,
+                6,
+                1,
+                7
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 0,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                8,
+                1,
+                8,
+                1
+              ],
+              "utility_before": [
+                7,
+                1,
+                7,
+                1
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 1,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                8,
+                1,
+                8,
+                1
+              ],
+              "utility_before": [
+                7,
+                1,
+                7,
+                1
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 2,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                8,
+                1,
+                8,
+                1
+              ],
+              "utility_before": [
+                7,
+                1,
+                7,
+                1
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 3,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                8,
+                1,
+                8,
+                1
+              ],
+              "utility_before": [
+                7,
+                1,
+                7,
+                1
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 4,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                1,
+                8,
+                1,
+                9
+              ],
+              "utility_before": [
+                1,
+                7,
+                1,
+                8
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 5,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                1,
+                8,
+                1,
+                9
+              ],
+              "utility_before": [
+                1,
+                7,
+                1,
+                8
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 6,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                1,
+                8,
+                1,
+                9
+              ],
+              "utility_before": [
+                1,
+                7,
+                1,
+                8
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_one_shot",
+              "detector": 7,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                1,
+                8,
+                1,
+                9
+              ],
+              "utility_before": [
+                1,
+                7,
+                1,
+                8
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            }
+          ]
+        },
+        "S2_progressive": {
+          "after_fine_tune": {
+            "balanced_accuracy": 1.0,
+            "coverage": 1.0,
+            "network_synapse_ops_issued": 160,
+            "network_weight_reads_issued": 160
+          },
+          "final_masks": [
+            5,
+            5,
+            5,
+            5,
+            10,
+            10,
+            10,
+            10
+          ],
+          "fine_tune_observations_per_detector": 2,
+          "immediate": {
+            "balanced_accuracy": 1.0,
+            "coverage": 1.0,
+            "network_synapse_ops_issued": 200,
+            "network_weight_reads_issued": 200
+          },
+          "infer_freeze_pass": true,
+          "mask_stable_during_fine_tune": true,
+          "mask_write_count": 0,
+          "parent_checkpoint_sha256": "42a478d4016576048ad3eb892b2b7083346060d00c5e03b4af95245417a470dc",
+          "prune_commit_counts": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "pruned_history_zero": true,
+          "pruned_weights_unchanged": true,
+          "stage1_after_fine_tune": {
+            "balanced_accuracy": 1.0,
+            "coverage": 1.0,
+            "network_synapse_ops_issued": 200,
+            "network_weight_reads_issued": 200
+          },
+          "stage1_kind": "software_3of4_training_mask",
+          "stage1_masks": [
+            7,
+            7,
+            7,
+            7,
+            11,
+            11,
+            11,
+            11
+          ],
+          "training_ledger": [
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 0,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 15,
+              "mask_before": 15,
+              "mask_valid_after": false,
+              "mask_valid_before": false,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 35,
+              "stage": "progressive_3of4",
+              "training_mask": 7,
+              "utility_after": [
+                7,
+                0,
+                7,
+                0
+              ],
+              "utility_before": [
+                6,
+                1,
+                6,
+                1
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 1,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 15,
+              "mask_before": 15,
+              "mask_valid_after": false,
+              "mask_valid_before": false,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 35,
+              "stage": "progressive_3of4",
+              "training_mask": 7,
+              "utility_after": [
+                7,
+                0,
+                7,
+                0
+              ],
+              "utility_before": [
+                6,
+                1,
+                6,
+                1
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 2,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 15,
+              "mask_before": 15,
+              "mask_valid_after": false,
+              "mask_valid_before": false,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 35,
+              "stage": "progressive_3of4",
+              "training_mask": 7,
+              "utility_after": [
+                7,
+                0,
+                7,
+                0
+              ],
+              "utility_before": [
+                6,
+                1,
+                6,
+                1
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 3,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 15,
+              "mask_before": 15,
+              "mask_valid_after": false,
+              "mask_valid_before": false,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 35,
+              "stage": "progressive_3of4",
+              "training_mask": 7,
+              "utility_after": [
+                7,
+                0,
+                7,
+                0
+              ],
+              "utility_before": [
+                6,
+                1,
+                6,
+                1
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 4,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 15,
+              "mask_before": 15,
+              "mask_valid_after": false,
+              "mask_valid_before": false,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 35,
+              "stage": "progressive_3of4",
+              "training_mask": 11,
+              "utility_after": [
+                0,
+                7,
+                0,
+                8
+              ],
+              "utility_before": [
+                1,
+                6,
+                1,
+                7
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 5,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 15,
+              "mask_before": 15,
+              "mask_valid_after": false,
+              "mask_valid_before": false,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 35,
+              "stage": "progressive_3of4",
+              "training_mask": 11,
+              "utility_after": [
+                0,
+                7,
+                0,
+                8
+              ],
+              "utility_before": [
+                1,
+                6,
+                1,
+                7
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 6,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 15,
+              "mask_before": 15,
+              "mask_valid_after": false,
+              "mask_valid_before": false,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 35,
+              "stage": "progressive_3of4",
+              "training_mask": 11,
+              "utility_after": [
+                0,
+                7,
+                0,
+                8
+              ],
+              "utility_before": [
+                1,
+                6,
+                1,
+                7
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 7,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 15,
+              "mask_before": 15,
+              "mask_valid_after": false,
+              "mask_valid_before": false,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 35,
+              "stage": "progressive_3of4",
+              "training_mask": 11,
+              "utility_after": [
+                0,
+                7,
+                0,
+                8
+              ],
+              "utility_before": [
+                1,
+                6,
+                1,
+                7
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 0,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                8,
+                0,
+                8,
+                0
+              ],
+              "utility_before": [
+                7,
+                0,
+                7,
+                0
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 1,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                8,
+                0,
+                8,
+                0
+              ],
+              "utility_before": [
+                7,
+                0,
+                7,
+                0
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 2,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                8,
+                0,
+                8,
+                0
+              ],
+              "utility_before": [
+                7,
+                0,
+                7,
+                0
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 3,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                8,
+                0,
+                8,
+                0
+              ],
+              "utility_before": [
+                7,
+                0,
+                7,
+                0
+              ],
+              "weights_after": [
+                7,
+                -7,
+                7,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 4,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                0,
+                8,
+                0,
+                9
+              ],
+              "utility_before": [
+                0,
+                7,
+                0,
+                8
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 5,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                0,
+                8,
+                0,
+                9
+              ],
+              "utility_before": [
+                0,
+                7,
+                0,
+                8
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 6,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                0,
+                8,
+                0,
+                9
+              ],
+              "utility_before": [
+                0,
+                7,
+                0,
+                8
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": 1,
+              "branch": "S2_progressive",
+              "detector": 7,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                0,
+                8,
+                0,
+                9
+              ],
+              "utility_before": [
+                0,
+                7,
+                0,
+                8
+              ],
+              "weights_after": [
+                -7,
+                7,
+                -7,
+                7
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            }
+          ]
+        },
+        "S2_wrong_sign": {
+          "after_fine_tune": {
+            "balanced_accuracy": 0.0,
+            "coverage": 0.0,
+            "network_synapse_ops_issued": 80,
+            "network_weight_reads_issued": 80
+          },
+          "final_masks": [
+            5,
+            5,
+            5,
+            5,
+            10,
+            10,
+            10,
+            10
+          ],
+          "fine_tune_observations_per_detector": 2,
+          "immediate": {
+            "balanced_accuracy": 1.0,
+            "coverage": 1.0,
+            "network_synapse_ops_issued": 160,
+            "network_weight_reads_issued": 160
+          },
+          "infer_freeze_pass": true,
+          "mask_stable_during_fine_tune": true,
+          "mask_write_count": 0,
+          "parent_checkpoint_sha256": "42a478d4016576048ad3eb892b2b7083346060d00c5e03b4af95245417a470dc",
+          "prune_commit_counts": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "pruned_history_zero": true,
+          "pruned_weights_unchanged": true,
+          "stage1_after_fine_tune": null,
+          "stage1_kind": null,
+          "stage1_masks": [],
+          "training_ledger": [
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 0,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 35,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                7,
+                1,
+                7,
+                1
+              ],
+              "utility_before": [
+                6,
+                1,
+                6,
+                1
+              ],
+              "weights_after": [
+                5,
+                -7,
+                5,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 1,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 35,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                7,
+                1,
+                7,
+                1
+              ],
+              "utility_before": [
+                6,
+                1,
+                6,
+                1
+              ],
+              "weights_after": [
+                5,
+                -7,
+                5,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 2,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 35,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                7,
+                1,
+                7,
+                1
+              ],
+              "utility_before": [
+                6,
+                1,
+                6,
+                1
+              ],
+              "weights_after": [
+                5,
+                -7,
+                5,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 3,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 35,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                7,
+                1,
+                7,
+                1
+              ],
+              "utility_before": [
+                6,
+                1,
+                6,
+                1
+              ],
+              "weights_after": [
+                5,
+                -7,
+                5,
+                -7
+              ],
+              "weights_before": [
+                7,
+                -7,
+                7,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 4,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 35,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                1,
+                7,
+                1,
+                8
+              ],
+              "utility_before": [
+                1,
+                6,
+                1,
+                7
+              ],
+              "weights_after": [
+                -7,
+                5,
+                -7,
+                5
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 5,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 35,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                1,
+                7,
+                1,
+                8
+              ],
+              "utility_before": [
+                1,
+                6,
+                1,
+                7
+              ],
+              "weights_after": [
+                -7,
+                5,
+                -7,
+                5
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 6,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 35,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                1,
+                7,
+                1,
+                8
+              ],
+              "utility_before": [
+                1,
+                6,
+                1,
+                7
+              ],
+              "weights_after": [
+                -7,
+                5,
+                -7,
+                5
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 7,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 35,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                1,
+                7,
+                1,
+                8
+              ],
+              "utility_before": [
+                1,
+                6,
+                1,
+                7
+              ],
+              "weights_after": [
+                -7,
+                5,
+                -7,
+                5
+              ],
+              "weights_before": [
+                -7,
+                7,
+                -7,
+                7
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 0,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                8,
+                1,
+                8,
+                1
+              ],
+              "utility_before": [
+                7,
+                1,
+                7,
+                1
+              ],
+              "weights_after": [
+                3,
+                -7,
+                3,
+                -7
+              ],
+              "weights_before": [
+                5,
+                -7,
+                5,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 1,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                8,
+                1,
+                8,
+                1
+              ],
+              "utility_before": [
+                7,
+                1,
+                7,
+                1
+              ],
+              "weights_after": [
+                3,
+                -7,
+                3,
+                -7
+              ],
+              "weights_before": [
+                5,
+                -7,
+                5,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 2,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                8,
+                1,
+                8,
+                1
+              ],
+              "utility_before": [
+                7,
+                1,
+                7,
+                1
+              ],
+              "weights_after": [
+                3,
+                -7,
+                3,
+                -7
+              ],
+              "weights_before": [
+                5,
+                -7,
+                5,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 3,
+              "evidence_levels": [
+                2,
+                0,
+                2,
+                0
+              ],
+              "expected_modulator": 1,
+              "input_mask": 5,
+              "mask_after": 5,
+              "mask_before": 5,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 5,
+              "utility_after": [
+                8,
+                1,
+                8,
+                1
+              ],
+              "utility_before": [
+                7,
+                1,
+                7,
+                1
+              ],
+              "weights_after": [
+                3,
+                -7,
+                3,
+                -7
+              ],
+              "weights_before": [
+                5,
+                -7,
+                5,
+                -7
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 4,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                1,
+                8,
+                1,
+                9
+              ],
+              "utility_before": [
+                1,
+                7,
+                1,
+                8
+              ],
+              "weights_after": [
+                -7,
+                3,
+                -7,
+                3
+              ],
+              "weights_before": [
+                -7,
+                5,
+                -7,
+                5
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 5,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                1,
+                8,
+                1,
+                9
+              ],
+              "utility_before": [
+                1,
+                7,
+                1,
+                8
+              ],
+              "weights_after": [
+                -7,
+                3,
+                -7,
+                3
+              ],
+              "weights_before": [
+                -7,
+                5,
+                -7,
+                5
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 6,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                1,
+                8,
+                1,
+                9
+              ],
+              "utility_before": [
+                1,
+                7,
+                1,
+                8
+              ],
+              "weights_after": [
+                -7,
+                3,
+                -7,
+                3
+              ],
+              "weights_before": [
+                -7,
+                5,
+                -7,
+                5
+              ]
+            },
+            {
+              "applied_modulator": -1,
+              "branch": "S2_wrong_sign",
+              "detector": 7,
+              "evidence_levels": [
+                0,
+                2,
+                0,
+                2
+              ],
+              "expected_modulator": 1,
+              "input_mask": 10,
+              "mask_after": 10,
+              "mask_before": 10,
+              "mask_valid_after": true,
+              "mask_valid_before": true,
+              "model_id": "pulse_mini_l2",
+              "observation_id": 36,
+              "stage": "sparse_fine_tune",
+              "training_mask": 10,
+              "utility_after": [
+                1,
+                8,
+                1,
+                9
+              ],
+              "utility_before": [
+                1,
+                7,
+                1,
+                8
+              ],
+              "weights_after": [
+                -7,
+                3,
+                -7,
+                3
+              ],
+              "weights_before": [
+                -7,
+                5,
+                -7,
+                5
+              ]
+            }
+          ]
+        }
+      },
+      "evidence_gain": 1,
+      "parent_checkpoint_sha256": "42a478d4016576048ad3eb892b2b7083346060d00c5e03b4af95245417a470dc"
+    }
+  },
+  "schema": "eneuron.local_prune_np3.v1",
+  "source_sha256": {
+    "local_prune_b1.py": "ab59d9c378315c9eec16342bfa84f6f7d43af60531473893c1c6b2ca2e2a7caa",
+    "local_prune_b2.py": "a8d72e4171d505f9a4b7d8d9bde69fcccbd015e5a97e3f52e03be051d7a973e7",
+    "local_prune_np3.py": "8c4aef617c374426cd72ae263cd8c2dbef72d3c505c854215e08c4ce895c60a4",
+    "local_prune_reference.py": "04ee276c3d028ef0557bd01bdc2820b9a792ad98153c3ed6c3a548642bc7fec3",
+    "neuron_sim.py": "1b31c6a84a77b4b47669d02eb2a7fc46c6bdd70051799dcf059e75d51002e3a2",
+    "pulse_mini_l2_reference.py": "6a964d1ffa0e895dce77a1efd908540f9c1d5a2c52b561a7a9774099c12dedcd",
+    "pulse_mini_reference.py": "6fe1c969ac2dee3c050ec939b9735d28b7ae534f3008537fbc81b3b98311cb28",
+    "run_local_prune_np3.py": "41b05573e873a63e1057b8af55969bea3199386ae09f74a6901248ac557a9420"
+  }
+}
