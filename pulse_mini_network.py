@@ -22,10 +22,15 @@ class NetworkTick:
 class PulseMiniNetwork:
     """两个隐藏核、两个输出核；输出核只读取上一 tick 的隐藏脉冲。"""
 
-    def __init__(self, *, leak_period: int = PulseMiniReference.LEAK_PERIOD) -> None:
+    def __init__(
+        self,
+        *,
+        core_type: type[PulseMiniReference] = PulseMiniReference,
+        leak_period: int = PulseMiniReference.LEAK_PERIOD,
+    ) -> None:
         self.leak_period = leak_period
-        self.hidden = [PulseMiniReference(leak_period=leak_period) for _ in range(2)]
-        self.output = [PulseMiniReference(leak_period=leak_period) for _ in range(2)]
+        self.hidden = [core_type(leak_period=leak_period) for _ in range(2)]
+        self.output = [core_type(leak_period=leak_period) for _ in range(2)]
         self.pending_hidden = 0
         self.tick_index = 0
         self.ledger: list[dict] = []
@@ -101,9 +106,10 @@ def train_network(
     repetitions: int = 6,
     *,
     feedback_enabled: bool = True,
+    core_type: type[PulseMiniReference] = PulseMiniReference,
     leak_period: int = PulseMiniReference.LEAK_PERIOD,
 ) -> PulseMiniNetwork:
-    network = PulseMiniNetwork(leak_period=leak_period)
+    network = PulseMiniNetwork(core_type=core_type, leak_period=leak_period)
     network.mode_set(Mode.TRAIN)
     # 先训练隐藏层：输入通道 0/1 分别教给两个隐藏核。
     for neuron, feature in ((0, 0b0001), (1, 0b0010)):
@@ -133,13 +139,17 @@ def train_network(
     return network
 
 
-def run_p8(*, leak_period: int = PulseMiniReference.LEAK_PERIOD) -> dict:
+def run_p8(
+    *,
+    core_type: type[PulseMiniReference] = PulseMiniReference,
+    leak_period: int = PulseMiniReference.LEAK_PERIOD,
+) -> dict:
     """运行固定网络 P8 闭环；周期 0 是无泄放 Pulse-Mini 基线。"""
 
-    baseline = PulseMiniNetwork(leak_period=leak_period)
+    baseline = PulseMiniNetwork(core_type=core_type, leak_period=leak_period)
     baseline.mode_set(Mode.INFER)
     baseline_scores = {"positive": baseline.infer(0b0001), "negative": baseline.infer(0b0010)}
-    network = train_network(leak_period=leak_period)
+    network = train_network(core_type=core_type, leak_period=leak_period)
     network.mode_set(Mode.INFER)
     before_weights = network.weights
     positive = [network.infer(0b1001 if index % 3 == 0 else 0b0001) for index in range(10)]
@@ -152,7 +162,11 @@ def run_p8(*, leak_period: int = PulseMiniReference.LEAK_PERIOD) -> dict:
         and second["output_spikes"] != 0
         for first, second in zip(ticks, ticks[1:])
     )
-    no_feedback = train_network(feedback_enabled=False, leak_period=leak_period)
+    no_feedback = train_network(
+        feedback_enabled=False,
+        core_type=core_type,
+        leak_period=leak_period,
+    )
     no_feedback.mode_set(Mode.INFER)
     no_feedback_scores = [no_feedback.infer(0b0001), no_feedback.infer(0b0010)]
     return {
