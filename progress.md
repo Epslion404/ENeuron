@@ -1,6 +1,6 @@
 # 进度记录
 
-## 2026-08-29 NPU 局部剪枝 NP1
+## 2026-08-28 NPU 局部剪枝 NP1
 
 - 完成独立 `LocalPrune2of4` 黄金模型：S0-S3、严格 `2:4`、TRAIN/CONFIG/INFER 模式、16 位 commit/observation ID、V1 禁止自动长回和确定性事务日志。
 - 动态门控在发射前执行 `structural_mask & activity_mask`；账本分开记录稠密请求、真实权重读取、突触操作、结构节省、全零不活动组和结构完全跳过组。
