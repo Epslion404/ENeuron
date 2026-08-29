@@ -1,5 +1,15 @@
 # 进度记录
 
+## 2026-08-29 NPU 局部剪枝 NP4A/NP5 公共控制器
+
+- 新增独立 `local_prune_gate_2of4.sv`：S2-only、四路 4-bit utility、四拍 top-2、一次原子严格 `2:4` 提交。
+- 新增三种固定 gain 适配器，ENeuron/Pulse-Mini-L/Pulse-Mini-L2=`1/2/1`；公共控制器不包含模型选择或权重绝对值比较器。
+- `issue_mask` 在读取/发射边界前组合形成，hidden/output 的稠密请求、实际读取/操作和结构节省分别计数。
+- 三模型各完成 20 seeds × 1000 逐事务 Python/Icarus 协同仿真，总计 60000 条，零差异。
+- 非原子提交与反向同分规则两个故障变体均产生预期反例。
+- Yosys 0.56 depth=32 有限形式检查通过；独立可达性检查强制 `mask_commits=1`，证明不是空证明。
+- 当前只签核公共控制器。ENeuron snapshot evidence 旁路、Pulse FEEDBACK 前证据锁存和真正四输入输出组仍待实现，NP6 Vivado 未启动。
+
 ## 2026-08-29 NPU 局部剪枝 NP4 V1 接口批准
 
 - 用户批准 B2.1 推荐的六项 V1 决定，NP4 从 `REVIEW_REQUIRED` 转为 `IMPLEMENTATION_APPROVED`。

@@ -488,4 +488,6 @@ P0-P8 已完成并签核
 - [x] B2.1：三模型三候选均为 BAcc/coverage 100%；output-2:4 与 detector-3:4 为 120，detector-2:4 为 80。按 KISS 选择 output-2:4，允许进入 NP4 设计审核。
 - [x] Pulse-Mini-L 使用固定 `0→0, 1→2` 证据编码恢复 S2 算法门，并已独立通过 NP3/B2.1；没有借用 L2 结果。
 - [x] NP4 接口审核：已于 2026-08-29 冻结隐藏/输出统一 `2:4`、gain=`1/2/1`、一次原子提交、无 detector gate、只走既有训练恢复、读取/发射前形成 `issue_mask` 六项 V1 决定。
-- [ ] NP4 实现：独立剪枝控制器、三模型 wrapper 与层级结构节省计数尚无 RTL/Vivado 证据。
+- [x] NP4A 公共控制器：独立 `2:4` RTL、固定 gain 适配器、四拍原子提交、读取前门控和层级结构节省计数已通过。
+- [x] NP5 公共控制器验证：三模型共 60000 条逐事务协同仿真、两个负向反例、depth=32 有限形式与成功提交可达性通过。
+- [ ] NP4B 正式集成：ENeuron snapshot evidence 旁路、Pulse FEEDBACK evidence 锁存和真正四输入输出组尚未实现；当前无 Vivado NP6 证据。

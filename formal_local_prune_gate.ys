@@ -1,0 +1,7 @@
+# 局部 2:4 剪枝控制器 32 拍有限深度检查。
+read_verilog -formal -sv local_prune_gate_2of4.sv formal_local_prune_gate.sv
+prep -top formal_local_prune_gate -flatten
+async2sync
+memory_map
+opt_clean
+sat -seq 32 -set-assumes -set-init-zero -prove-asserts -verify -dump_vcd formal_local_prune_gate_cex.vcd

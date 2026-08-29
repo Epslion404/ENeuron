@@ -1,0 +1,71 @@
+{
+  "claim_boundary": "\u516c\u5171 2:4 \u63a7\u5236\u5668\u53ca gain \u9002\u914d\u8fb9\u754c\u901a\u8fc7 NP4/NP5\uff1b\u73b0\u6709\u795e\u7ecf\u5143\u6838\u5fc3\u6b63\u5f0f\u65c1\u8def\u3001\u8f93\u51fa\u56db\u8def\u62d3\u6251\u3001\u5171\u4eab lane \u548c Vivado NP6/NP7 \u5c1a\u672a\u5b8c\u6210",
+  "cosim": {
+    "directed_contract_pass": true,
+    "models": 3,
+    "negative_mutants": {
+      "non_atomic_commit": "COUNTEREXAMPLE_FOUND",
+      "reversed_equal_tiebreak": "COUNTEREXAMPLE_FOUND"
+    },
+    "seeds_per_model": 20,
+    "status": "PASS",
+    "transactions_per_seed": 1000,
+    "transactions_total": 60000
+  },
+  "cycle_contract": {
+    "mask_switches_only_on_final_scan_edge": true,
+    "prune_commit_scan_edges": 4,
+    "single_cycle_command_extra_edges": 0
+  },
+  "date": "2026-08-29",
+  "fixed_evidence_gains": {
+    "eneuron": 1,
+    "pulse_mini_l": 2,
+    "pulse_mini_l2": 1
+  },
+  "formal": {
+    "depth": 32,
+    "properties": [
+      "exact_two_when_valid",
+      "dense_mask_before_commit",
+      "atomic_mask_during_scan",
+      "deterministic_top2_index_tiebreak",
+      "response_backpressure_stable",
+      "second_commit_rejected",
+      "stale_observation_rejected",
+      "infer_mutation_rejected_and_frozen"
+    ],
+    "status": "PASS",
+    "successful_commit_reachable": true
+  },
+  "hardware_scope": {
+    "common_controller_rtl": true,
+    "eneuron_snapshot_export_integrated": false,
+    "existing_4x2x2_output_2of4_integrated": false,
+    "fixed_gain_adapters": true,
+    "hidden_output_layer_counters": true,
+    "pulse_feedback_wrapper_integrated": false,
+    "shared_lane_skip_cycles_proven": false,
+    "vivado_resource_timing_proven": false
+  },
+  "schema": "eneuron.local_prune_rtl.v1",
+  "score_method": "S2_ONLY",
+  "source_sha256": {
+    "LOCAL_PRUNE_RTL_CONTRACT.md": "32aff8419dde12b7047e84d09e4cb5b1eb04f8175beb17b31dffe203e92a42be",
+    "formal_local_prune_gate.sv": "dadab30b991ab907b9024b892203b37a05c59c3b4bb5e3ebc7e5b7ce896b7e6b",
+    "formal_local_prune_gate.ys": "306db803c4b9295214d2f907fd4436d2f63d49174ba188c9375492bd35e0d6a4",
+    "formal_local_prune_gate_reach.ys": "2dd23cab3ec2af87d94a816cbbd2c8ef6459d29f9d9b083418d293edcac7638d",
+    "local_prune_evidence_gain.sv": "4b2bb7c3d45808a0907ac60f547fe0ab0a607e3e8b4340410ea4467705b8301c",
+    "local_prune_gate_2of4.sv": "d52a1fd3bcdaba8d6e2823ddfda11adb72a1e5789528b4ce6f890929c939c321",
+    "local_prune_gate_cosim.py": "b4d4243d6a12321bd600150c390266b636b98fa368d289aa5f243380de777fae",
+    "local_prune_rtl_reference.py": "16400290cc615eb905bdd9ae4f9be9ee82a64f0cb7956d6e310e4a5bc418b1fb",
+    "run_formal_local_prune_gate.ps1": "1ca35d4f87692966523c45926d57429176f2b9fa34a4096c7cd878e2668ae4a3",
+    "test_local_prune_gate_rtl.py": "d5f273ac3f537fd3f6a7fc2f0b4400a00b2dd4d299e24663da7e5e53db2ad37a",
+    "verify_local_prune_rtl.py": "882580d2555bf8bd766ead58099d30360e3eff381d1703b9a4af7b105542c638"
+  },
+  "status": "COMMON_CONTROLLER_NP4_NP5_PASS_INTEGRATION_PENDING",
+  "tools": {
+    "iverilog": "Icarus Verilog version 12.0 (stable) ()",
+    "yosys": "Yosys 0.56 (git sha1 9c447ad9d4b1ea589369364eea38b4d70da2c599, x86_64-w64-mingw32-g++ 15.2.0 -march=nocona -msahf -mtune=generic -O2 -fstack-protector-strong -O3)"
+  }
+}

@@ -1,0 +1,7 @@
+# 非空性检查：在第 8 拍强制到达一次成功提交后的 mask-valid 状态。
+read_verilog -formal -sv local_prune_gate_2of4.sv formal_local_prune_gate.sv
+prep -top formal_local_prune_gate -flatten
+async2sync
+memory_map
+opt_clean
+sat -seq 8 -set-assumes -set-init-zero -set-at 8 mask_valid_state 1 -set-at 8 mask_commits_state 1 -show mask_valid_state,structural_mask_state,mask_commits_state

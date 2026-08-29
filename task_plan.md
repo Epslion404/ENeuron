@@ -33,12 +33,14 @@
 ## NPU 局部剪枝 NP4/NP5 实施阶段（2026-08-29）
 
 - [x] 用户批准 NP4 V1 六项决定：隐藏/输出统一严格 `2:4`、gain=`1/2/1`、一次原子提交、无 detector gate、只走既有训练恢复、读取/发射前形成 `issue_mask`
-- [ ] 冻结独立控制器的命令、端口、拒绝规则和逐周期合同
-- [ ] 测试先行实现 `local_prune_gate_2of4.sv`，不侵入已签核神经元核心
-- [ ] 实现 ENeuron、Pulse-Mini-L、Pulse-Mini-L2 的固定 gain 适配边界
-- [ ] 实现隐藏层/输出层统一接入和互不重叠的结构节省计数
-- [ ] 完成至少 20000 个混合事务的 Python/Icarus 逐事务协同仿真
-- [ ] 完成原子提交、INFER 冻结、非法命令无副作用和负向反例检查
+- [x] 冻结独立控制器的命令、端口、拒绝规则和逐周期合同
+- [x] 测试先行实现 `local_prune_gate_2of4.sv`，不侵入已签核神经元核心
+- [x] 实现 ENeuron、Pulse-Mini-L、Pulse-Mini-L2 的固定 gain 适配边界
+- [x] 实现隐藏层/输出层统一门控接口和互不重叠的结构节省计数
+- [x] 完成三模型共 60000 个混合事务的 Python/Icarus 逐事务协同仿真
+- [x] 完成原子提交、INFER 冻结、非法命令无副作用、有限形式和负向反例检查
+- [ ] 实现 ENeuron snapshot evidence 与 Pulse FEEDBACK evidence 的正式 wrapper
+- [ ] 建立真正四输入的输出 `2:4` 分组并完成端到端集成协同仿真
 - [ ] NP4/NP5 通过后再提请审核是否进入 NP6 Vivado 物理成本
 
 ## Goal 证明审计阶段

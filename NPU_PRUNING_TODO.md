@@ -331,26 +331,33 @@ B1/B2/NP3 闭环已完成。三模型从同一父 checkpoint 运行一次、软�
 ### NP4：局部剪枝 RTL
 
 - [x] 用户审核并冻结 B2.1 推荐的六项 NP4 V1 接口决定。
-- [ ] 新建独立 `local_prune_gate_2of4.sv`，暂不侵入已签核核心。
-- [ ] 使用多周期四路扫描生成前两名，明确每条命令的精确延迟。
+- [x] 新建独立 `local_prune_gate_2of4.sv`，暂不侵入已签核核心。
+- [x] 使用多周期四路扫描生成前两名，明确每条命令的精确延迟。
 - [ ] 接入 ENeuron snapshot/mod commit 旁路或测试适配器，不复制神经元方程。
-- [ ] 提供 `PRUNE_CLEAR / PRUNE_COMMIT / MASK_READ`；CONFIG 测试口单独控制。
-- [ ] 所有状态只使用主时钟和同步使能，不生成门控时钟。
-- [ ] 添加结构化日志或仿真审计端口，综合版本不依赖字符串日志。
-- [ ] 同一控制器同时支持隐藏层组和输出层组；V1 不实现整 detector channel enable。
-- [ ] 三模型 wrapper 固定 evidence gain=`1/2/1`，输出恢复只使用既有训练事务。
+- [x] 提供 `OBSERVE / PRUNE_CLEAR / PRUNE_COMMIT / MASK_READ`；CONFIG 测试口单独控制。
+- [x] 所有状态只使用主时钟和同步使能，不生成门控时钟。
+- [x] 添加定宽综合审计端口，综合版本不依赖字符串日志。
+- [x] 同一控制器支持隐藏层组和输出层分账；V1 不实现整 detector channel enable。
+- [x] 三模型固定 evidence gain=`1/2/1`，控制器不存在直接权重恢复写口。
+- [ ] Pulse-Mini-L/L2 wrapper 在 FEEDBACK 接受沿锁存 evidence、成功响应后提交 OBSERVE。
+- [ ] 建立真正四输入的输出分组 wrapper；现有 `4→2→2` tile 输出核只有两输入，不能冒充输出 `2:4`。
 
 硬门：不修改原 ENeuron 与 Pulse-Mini 的冻结行为；新模块可独立旁路。
 
 NP4 V1 六项决定已于 2026-08-29 获用户批准并冻结：隐藏层和输出层统一严格 `2:4`；三模型 evidence gain 固定为 `1/2/1`；每组只允许一次原子 `PRUNE_COMMIT`；不实现整 detector/channel enable；输出稀疏后的恢复只走既有 TRAIN/FEEDBACK；`issue_mask` 必须在权重读取和计算发射前形成，并分别统计隐藏层与输出层结构节省。批准只开放 NP4/NP5 实现，不代表 RTL、资源、时序或功耗已经通过。
 
+NP4A 公共控制器已于 2026-08-29 通过：四拍扫描、原子双位 mask、固定 gain 适配器、读取前 `issue_mask` 和层级分账均已实现。NP4B 正式接入仍未完成，因为 ENeuron 尚无可综合 snapshot evidence 输出，Pulse 尚需在 FEEDBACK 清除前锁存 evidence，现有 `4→2→2` 输出层也不是四输入组。完整边界见 `LOCAL_PRUNE_RTL_REPORT.md`。
+
 ### NP5：协同仿真和形式检查
 
-- [ ] 建立 Python/Icarus 逐事务协同仿真，至少 20000 个混合事务。
-- [ ] 覆盖分数边界、完全同分、负权重绝对值、忙时和重复 commit ID。
-- [ ] 证明 mask 只原子切换，不出现瞬时 `1:4`、`3:4` 或未知位。
-- [ ] 证明 INFER 不写 utility/mask，非法命令不改变状态。
-- [ ] 建立负向实现，去掉原子提交或 tie-break 后必须产生反例。
+- [x] 建立 Python/Icarus 逐事务协同仿真：三模型各 20×1000，总计 60000 个混合事务。
+- [x] 覆盖 utility/evidence 边界、完全同分、忙时、重复/倒退 observation ID 和第二次 commit；S2-only 不再引入已淘汰的权重绝对值比较器。
+- [x] 证明 mask 只原子切换，不出现瞬时 `1:4`、`3:4` 或未知位。
+- [x] 证明 INFER 不写 utility/mask，非法命令不改变状态。
+- [x] 建立负向实现，去掉原子提交或反转 tie-break 均产生固定反例。
+- [x] 完成 depth=32 有限形式检查，并额外证明一次真实成功 commit 可达，排除空证明。
+
+NP5 当前签核范围仅为独立公共控制器；三核心 wrapper 完成后仍需重新做端到端逐事务协同仿真，不能直接沿用本次结果替代集成验证。
 
 ### NP6：单组物理成本
 
