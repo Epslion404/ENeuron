@@ -56,7 +56,7 @@
 ### NP4B 当前执行顺序
 
 - [x] NP4B1：ENeuron committed snapshot 端口、量化与原子 MOD/OBSERVE wrapper
-- [ ] NP4B2：Pulse-Mini-L/L2 共享 bridge 与两个薄 wrapper
+- [x] NP4B2：Pulse-Mini-L/L2 共享 bridge 与两个薄 wrapper
 - [ ] NP4B3：公共 `4→8→2` 调度、固定一拍路由和 10-gate 原子屏障（TICK/flush 与 commit→clear 已完成，训练调度和 wrapper 接线待做）
 - [ ] NP4B4：三模型各 20×1000 端到端协同事务
 - [ ] NP4B5：负向实现、Pulse 形式 harness 修复与 wrapper/network 非空形式检查（裸 L/L2 harness 已修复，wrapper/network 待做）
@@ -68,6 +68,8 @@
 |---|---:|---|
 | `hardware-design-flow` 按技能清单中的 `.agents` 路径不存在 | 1 | 从同一清单给出的 `.codex/skills/hardware-design-flow` 实际路径完整读取，不跳过技能 |
 | PowerShell 下 `rg ... *.py` 把通配符作为非法 Windows 路径 | 1 | 后续先用 `rg --files -g '*.py'` 或直接指定文件，不重复该写法 |
+| Pulse wrapper 自动 clear 定向测试首次在 `PRUNE_COMMIT` ready 上超时 | 1 | 修正 bridge 的 sideband 接受/响应槽次序；L/L2 的自动 clear 与网络管理 clear 共四种实例全部通过 |
+| 把 `pulse_mini_cosim.py`/`pulse_mini_l2_cosim.py` 误写成 unittest 模块名 | 1 | 不重复错误调用；改为直接执行两个脚本，分别通过 20 seeds × 1000 事务 |
 
 ## Goal 证明审计阶段
 

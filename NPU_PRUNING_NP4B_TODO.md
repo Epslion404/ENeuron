@@ -187,6 +187,8 @@ NP4B0 状态：`PASS`。本批准不构成 NP4B 集成、Vivado、共享 lane �
 
 ### NP4B2：Pulse-Mini-L/L2 wrapper
 
+状态：`PASS`。L/L2 均通过公开接口、原子 FEEDBACK/OBSERVE、双 commit-clear 部署、TICK 门控、不应期分账和未提交 mask 旁路等价验证；wrapper/network 形式性质仍留在 NP4B5。
+
 预计新增：
 
 - `pulse_mini_prune_bridge.sv`
@@ -196,13 +198,13 @@ NP4B0 状态：`PASS`。本批准不构成 NP4B 集成、Vivado、共享 lane �
 
 任务：
 
-- [ ] 共享 bridge 负责 FEEDBACK response 暂存、OBSERVE exactly-once、observation ID 和 commit→clear 编排。
-- [ ] 两个薄 wrapper 只负责实例化原核心、规范化 evidence 宽度和接入固定 gain。
-- [ ] 不修改 `pulse_mini_core.sv`、`pulse_mini_l2_core.sv` 或其 opcode。
-- [ ] TICK 接受前应用 `issue_mask`，非法、CONFIG、pending 或不应期 TICK 不虚增工作量计数。
-- [ ] 成功非零 FEEDBACK 恰好产生一次 OBSERVE；零反馈和所有错误响应不观察。
-- [ ] 上游看到 FEEDBACK 成功时，utility 更新已经成功完成。
-- [ ] 在 `mask_valid=0` 的旁路模式分别与裸 L/L2 核心逐事务 bit-exact。
+- [x] 共享 bridge 负责 FEEDBACK response 暂存、OBSERVE exactly-once、observation ID 和 commit→clear 编排。
+- [x] 两个薄 wrapper 只负责实例化原核心、规范化 evidence 宽度和接入固定 gain。
+- [x] 不修改 `pulse_mini_core.sv`、`pulse_mini_l2_core.sv` 或其 opcode。
+- [x] TICK 接受前应用 `issue_mask`，非法、CONFIG、pending 或不应期 TICK 不虚增工作量计数。
+- [x] 成功非零 FEEDBACK 恰好产生一次 OBSERVE；零反馈和所有错误响应不观察。
+- [x] 上游看到 FEEDBACK 成功时，utility 更新已经成功完成。
+- [x] 在 `mask_valid=0` 的旁路模式分别与裸 L/L2 核心逐事务 bit-exact。
 
 建议最小 bridge 状态：
 

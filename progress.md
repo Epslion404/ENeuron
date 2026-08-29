@@ -426,3 +426,18 @@
 - 将原始计数/分频核 `183 LUT / 85 FF / WNS -1.605 ns`、Pulse-Mini-L `182 LUT / 76 FF / WNS +0.463 ns`、L2 `366 LUT / 91 FF / WNS -4.690 ns` 和阵列 32/64/128 核边界写入 `TODO.md`。
 - 新增 P9-P13：数字识别软件门、输入扇入与共享存储、L2 时序修复、阵列系统化、板级与持续学习边界。
 - `python -m unittest discover -v`：208/208 通过；`git diff --check`：通过。
+
+# 2026-08-29 NP4B 续作
+
+- 恢复并复核 `NPU_PRUNING_NP4B_TODO.md`、Git 状态和并行实现状态；NP4B1 已提交，NP4B2 与 ENeuron `4→8→2` 顶层仍在实施。
+- Pulse-L/L2 wrapper 公开接口和 FEEDBACK exactly-once 当前 2/2 通过。
+- 新增的 commit→clear 双部署合同首次复验为 RED：单核自动 clear 模式在 `PRUNE_COMMIT` ready 等待超时；已把该失败交回实现任务按 TDD 修复。
+- NP6 Vivado 仍未获再次批准，本阶段没有运行物理实现。
+
+## 2026-08-29 NP4B2 Pulse wrapper 收口
+
+- 新增共享 `pulse_mini_prune_bridge.sv` 与 L/L2 两个薄 wrapper；原 Pulse 核心和 3-bit opcode 未修改，剪枝仍走独立 sideband。
+- FEEDBACK 接受沿锁存旧 captured direction；只有核心成功的非零反馈才提交一次 OBSERVE，utility 更新完成后才公开原反馈成功响应。
+- 零反馈、`NO_PENDING`、响应背压、`AUTO_CLEAR_ON_COMMIT=1/0`、TICK 输入门控、不应期独立分账及未提交 mask 旁路均已定向通过。
+- `test_pulse_mini_prune_wrapper.py`：5/5 通过；L/L2 裸核心各自 20 seeds × 1000 协同事务通过。
+- clear 故障注入、观察 ID 耗尽、非法 direction 动态注入及 wrapper/network 形式检查明确留给 NP4B5，不冒充本阶段已证明。
