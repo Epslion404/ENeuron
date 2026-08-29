@@ -452,4 +452,24 @@ module eneuron_local_prune_wrapper #(
         end
     end
 
+`ifdef FORMAL
+    // 非零 MOD 的核心更新与 gate OBSERVE 必须在同一接受沿原子发生。
+    // 这些信号只存在于形式编译，不改变综合接口或数据通路。
+    wire formal_core_mod_accept = core_mod_valid && core_ready;
+    wire formal_gate_observe_accept = internal_observe_request
+        && gate_cmd_valid && gate_cmd_ready && (gate_cmd_opcode == OP_OBSERVE);
+
+    always_ff @(posedge clk) begin
+        if (!rst && (state == S_IDLE) && ready && selected_mod
+                && (modulator != 0)) begin
+            assert(formal_core_mod_accept == formal_gate_observe_accept);
+            if (!mod_metadata_valid || !mod_observation_id_valid
+                    || !gate_cmd_ready) begin
+                assert(!formal_core_mod_accept);
+                assert(!formal_gate_observe_accept);
+            end
+        end
+    end
+`endif
+
 endmodule

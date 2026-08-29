@@ -1,0 +1,7 @@
+# 非空检查：公开 TRAIN TICK 产生 eligibility，再 SNAPSHOT、非零 MOD 并成功 done。
+read_verilog -formal -D FORMAL -sv digital_lif_engine.sv local_prune_gate_2of4.sv eneuron_local_prune_wrapper.sv formal_eneuron_prune_wrapper.sv
+prep -top formal_eneuron_prune_wrapper -flatten
+async2sync
+memory_map
+opt_clean
+sat -seq 32 -set-assumes -set-init-zero -prove reached_public_nonzero_mod_success 0 -falsify -show rst -show mode_state -show tick_valid -show input_spikes -show snapshot_we -show snapshot_commit_id -show mod_valid -show mod_commit_id -show modulator -show ready -show busy -show done -show protocol_error -show snapshot_valid_state -show eligibility_snapshot_flat_state -show pending_snapshot_valid_state -show pending_snapshot_id_state -show utility_flat -show last_observation_valid_state -show last_observation_id_state -show reached_public_nonzero_mod_success -dump_vcd formal_eneuron_prune_wrapper_mod_reach.vcd

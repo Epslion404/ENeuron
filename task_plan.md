@@ -59,7 +59,7 @@
 - [x] NP4B2：Pulse-Mini-L/L2 共享 bridge 与两个薄 wrapper
 - [x] NP4B3：公共 `4→8→2` 调度、固定一拍路由、三模型十 wrapper 接线和 10-gate 原子屏障
 - [x] NP4B4：ENeuron、Pulse-L、Pulse-L2 分别完成 20×1000 端到端协同事务
-- [ ] NP4B5：负向实现、Pulse 形式 harness 修复与 wrapper/network 非空形式检查（四类负向控制、裸 L/L2 和两个 Pulse wrapper 已通过；ENeuron 与网络 barrier 待做）
+- [ ] NP4B5：负向实现、Pulse/ENeuron wrapper 与网络 barrier 非空形式检查（技术检查已通过；ENeuron 正式证据待独立提交，最终还需在 P4 新鲜重跑）
 - [ ] NP4B6：318 项以上全仓回归、机器摘要、文档签核与 NP6 二次审批
 
 ### NP4B 当前细粒度 TODO
@@ -70,26 +70,30 @@
 - [x] Pulse-L2 独立完成 20000 条正式事务并提交
 - [x] 提交并复验 Pulse-L wrapper depth=32 非空形式证据
 - [x] 完成 Pulse-L2 wrapper exactly-once 非空形式证据
-- [ ] 完成 ENeuron MOD/OBSERVE 原子接受非空形式证据
-- [ ] 完成公共十参与者 commit/clear barrier 抽象证明与真实顶层绑定
+- [x] 完成 ENeuron MOD/OBSERVE 原子接受非空形式证据（技术验证通过，仓库提交待完成）
+- [x] 完成公共十参与者 commit/clear barrier 抽象证明与真实顶层绑定
 - [ ] 三模型各自重跑 20000 条、全仓回归不少于 318 项、编译/lint/formal 全通过
 - [ ] 生成 SHA-256 机器摘要并停在 `NP6_REVIEW_REQUIRED`，不运行 Vivado
 
-### 2026-08-29 当前续跑批次（待审核）
+### 2026-08-29 当前续跑批次（执行中）
 
 - [x] P0：独立签入已完成的 Pulse-L/L2 wrapper proof/reach、正式日志、非空 witness 与 verifier；排除 cex/tmp 产物
-- [ ] P1：ENeuron wrapper 同拍 MOD/OBSERVE 内部握手证明、公开事务结果证明和非零成功 witness
+- [x] P1：ENeuron wrapper 同拍 MOD/OBSERVE 内部握手证明、公开事务结果证明和非零成功 witness
 - [x] P2：真实 N=10 barrier 小状态证明、公共 gate exact-two 组合绑定、三个真实顶层 runtime 阻塞验证
 - [ ] P3：INFER 控制级形式检查与真实 RTL mutation 负向控制已通过；完整随机冻结留待 P4 三模型重跑
 - [ ] P4：源码冻结后重跑三模型各 20000、全部 formal runner/verifier、>=318 全仓、compileall/iverilog/diff-check
 - [ ] P5：fail-closed 总摘要、精确 SHA-256 集合、文档签核；随后停在 `NP6_REVIEW_REQUIRED`
 
-当前硬阻断：C1/C2 已通过但未签入；C3/C4/C5、ENeuron 独立 20k 结果文件、NP4B 总摘要/verifier 均不存在，因此禁止写入 `NP4B_INTEGRATION_PASS`。
+当前硬阻断：P1 证据尚未独立提交；冻结源码后的三模型正式重跑、ENeuron 独立 20k 结果文件、全部形式证据新鲜重跑和 NP4B 总摘要/verifier 均未完成，因此禁止写入 `NP4B_INTEGRATION_PASS`。
+
+批准后唯一执行主链：P1 独立入库 → 固定 seed `101..120/201..220/301..320` → 三模型各 20,000 条 → 全部形式 runner/verifier → 全仓回归与编译 → fail-closed 摘要 → 文档签核。任何硬门失败均停在当前阶段，不运行 Vivado。
 
 ### NP4B 实施错误记录
 
 | 错误 | 尝试 | 处理 |
 |---|---:|---|
+| P1.7 复验直接调用 `iverilog` 时当前 PowerShell `PATH` 找不到命令 | 1 | 不重复同一调用；定位并使用 `C:\msys64\ucrt64\bin\iverilog.exe`，`-Wall -tnull` 编译通过 |
+| NP4B 最终 TODO 首次使用跨四文件整包补丁时，`task_plan.md` 上下文不匹配 | 1 | 补丁工具原子拒绝且未产生部分修改；改为逐文件小补丁并按当前精确行更新 |
 | `hardware-design-flow` 按技能清单中的 `.agents` 路径不存在 | 1 | 从同一清单给出的 `.codex/skills/hardware-design-flow` 实际路径完整读取，不跳过技能 |
 | PowerShell 下 `rg ... *.py` 把通配符作为非法 Windows 路径 | 1 | 后续先用 `rg --files -g '*.py'` 或直接指定文件，不重复该写法 |
 | Pulse wrapper 自动 clear 定向测试首次在 `PRUNE_COMMIT` ready 上超时 | 1 | 修正 bridge 的 sideband 接受/响应槽次序；L/L2 的自动 clear 与网络管理 clear 共四种实例全部通过 |
@@ -105,6 +109,7 @@
 | P2 barrier 首版断言要求上一拍十路 clear response 同时为高 | 1 | 真实屏障允许错拍并用 sticky seen 汇合；断言改为检查小状态参与者累计 `clear_replied==10'h3ff`，DUT 不改 |
 | P2 reach 脚本无法解析 harness 层次信号 `reached_success` | 1 | 正在改用正确转义/选择方式；保持成功 witness 需覆盖错拍、背压与解除阻塞的要求，不放宽性质 |
 | 恢复执行时误调用不存在的 `functions.wait` cell | 1 | 该调用立即失败且未改状态；后续只对真实 session 使用 `write_stdin`，代理等待使用 `collaboration.wait_agent` |
+| P1 并行验证中的临时 VVP 创建/删除 PowerShell 命令被进程策略拒绝 | 1 | 未执行到 RTL 检查；改用 Icarus `-tnull` 无输出编译，避免临时文件和复杂 shell 转义 |
 
 ## Goal 证明审计阶段
 

@@ -14,9 +14,10 @@
 
 ## 当前事实
 
+- 持久工作流已提交：`df0e7bc docs: add persistent project workflow`。
 - 已提交 P0：`67b6019 test: prove Pulse pruning wrapper atomicity`。
 - 已提交 P2/P3：`c0108a0 test: prove pruning network commit barrier`。
-- ENeuron P1 技术验证已经通过，当前为 `PROOF_PASS / REPOSITORY_CLOSURE_PENDING`。
+- ENeuron P1 verifier、3 项定向测试、Python 编译和绝对路径 Icarus `-Wall -tnull` 均已复验通过，当前为 `PROOF_PASS / REPOSITORY_CLOSURE_PENDING`。
 - 工作树包含 P1 源码、形式脚本、verifier、规划文档以及被 `.gitignore` 忽略的正式日志/witness。
 - P4 冻结后全量重跑和 P5 总签核尚未开始。
 - NP6 尚未获再次批准，禁止运行 Vivado。
@@ -36,7 +37,7 @@
 
 ## 下一动作
 
-用户已批准八项决定并要求执行 TODO。当前从 P1.7 开始，不跳到 P4。
+按 P1.7 精确暂存源码、脚本、四份规划文档、状态文件、正式日志和成功 witness；确认 staged 中无 cex/tmp 后独立提交。
 
 ## 恢复检查
 

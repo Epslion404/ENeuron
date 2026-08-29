@@ -429,9 +429,9 @@ NP4B 完成前禁止运行 NP6。NP4B 通过后：
 4. `test: prove pruning network commit barrier`：C4/C5 的抽象证明、真实顶层绑定和控制级冻结检查。
 5. `docs: sign off NP4B pruning integration`：D 的全仓结果、机器摘要和文档状态。
 
-## 9. 从当前工作树继续执行的 TODO（2026-08-29，待审核）
+## 9. 从当前工作树继续执行的 TODO（2026-08-29，执行中）
 
-本节是第 8 节的“当前工作树视图”，不改变已批准的八项架构决定。当前事实为：C1/C2 形式证明已通过但尚未签入；C3/C4/C5 与 D1→D6 尚未完成；不得写入 `NP4B_INTEGRATION_PASS`，不得运行 Vivado。
+本节是第 8 节的当前执行稿，不改变已批准的八项架构决定。当前事实为：P0 已提交为 `67b6019`；P2/P3 已提交为 `c0108a0`；P1 技术验证已经通过，但源码、脚本、正式日志和 witness 仍在工作树中，尚未形成独立仓库提交；P4/P5 尚未执行。不得写入 `NP4B_INTEGRATION_PASS`，不得运行 Vivado。
 
 ### P0：固化 Pulse-L/L2 已完成证据
 
@@ -451,14 +451,17 @@ P0 状态：`PASS`。Yosys 0.56 新鲜重跑；Pulse-L/L2 正式日志分别为 
 
 ### P1：ENeuron MOD/OBSERVE 原子性形式闭环
 
-- [ ] P1.1：先写有限深度 harness 与失败敏感断言；不修改神经元方程，不增加综合接口。
-- [ ] P1.2：用验证专用 bind/内部断言证明：合法非零 MOD 在接受沿上，核心 MOD 与 gate OBSERVE 同拍接受；任一侧不能接受时，两侧均不得部分启动。
-- [ ] P1.3：用公开状态证明事务级结果：成功 `done` 前 utility 与 observation ID 已更新，pending snapshot 已消费；错误模式、错误 ID、重复 ID 和 gate 反压不得产生部分更新。
-- [ ] P1.4：证明在途事务阻止新的运行/剪枝事务；剪枝响应背压期间 status、ID、mask 和相关状态稳定。
-- [ ] P1.5：成功 witness 必须从公开命令走完 `TRAIN→非零 snapshot→非零 MOD→utility 非零变化→成功 done`，不得直接假设内部 snapshot 或 utility 非零。
-- [ ] P1.6：生成独立 runner、proof/reach 脚本、正式日志、非空 witness 和 fail-closed verifier，然后独立提交。
+- [x] P1.1：先写有限深度 harness 与失败敏感断言；不修改神经元方程，不增加综合接口。
+- [x] P1.2：用验证专用 bind/内部断言证明：合法非零 MOD 在接受沿上，核心 MOD 与 gate OBSERVE 同拍接受；任一侧不能接受时，两侧均不得部分启动。
+- [x] P1.3：用公开状态证明事务级结果：成功 `done` 前 utility 与 observation ID 已更新，pending snapshot 已消费；错误模式、错误 ID、重复 ID 和 gate 反压不得产生部分更新。
+- [x] P1.4：证明在途事务阻止新的运行/剪枝事务；剪枝响应背压期间 status、ID、mask 和相关状态稳定。
+- [x] P1.5：成功 witness 必须从公开命令走完 `TRAIN→非零 snapshot→非零 MOD→utility 非零变化→成功 done`，不得直接假设内部 snapshot 或 utility 非零。
+- [x] P1.6：生成独立 runner、proof/reach 脚本、正式日志、非空 witness 和 fail-closed verifier。
+- [ ] P1.7：精确暂存 P1 文件和四份规划文档，强制加入正式 `.log`/成功 witness，排除 `*_cex.vcd` 与临时产物；复核 staged diff 后独立提交 `test: prove ENeuron pruning wrapper atomicity`。
 
 P1 验收门：同一性质同时具备“不变量无反例”和“真实成功路径可达”；只凭外部最终状态不得宣称已经证明内部同拍接受。
+
+P1 状态：`PROOF_PASS / REPOSITORY_CLOSURE_PENDING`。Yosys 0.56 depth=32 proof 无反例；公开路径 witness 由 TRAIN TICK 产生非零 eligibility，经 SNAPSHOT 后执行非零 MOD，utility 与 observation ID 在成功 done 前更新，pending snapshot 被消费。正式日志 862,510 bytes，witness 24,069 bytes。只有 P1.7 提交完成后，P1 才改为 `PASS`。
 
 ### P2：十参与者 commit/clear barrier 组合证明
 
@@ -486,26 +489,50 @@ P3 当前状态：`CONTROL_AND_MUTATION_PASS / FULL_RANDOM_FREEZE_PENDING_P4`。
 
 ### P4：冻结源码后重跑正式签核
 
-- [ ] P4.1：冻结 P0→P3 的 RTL、oracle、testbench 和形式脚本；冻结后再运行三模型各自 `20 seeds × 1000 transactions`。
-- [ ] P4.2：为 ENeuron 新增独立 20,000 事务结果文件；三模型分别固定 seed 集合、事务数和零差异字段，不用合计数替代单模型结果。
-- [ ] P4.3：运行全部 formal runner，再运行全部 verifier；禁止 verifier 只读取历史日志而不重新生成证据。
-- [ ] P4.4：运行 `python -m unittest discover -v`，保存实际执行测试 ID 与结果，要求不少于 318 项、零失败、零错误。
-- [ ] P4.5：运行 `python -m compileall -q .`、公共 barrier、三个 wrapper、三个 `4→8→2` 顶层的 `iverilog -Wall` 编译，以及 `git diff --check`。
+- [ ] P4.0：先完成 P1.7；记录冻结后的 HEAD 和工作树状态。P1 未入库时禁止启动正式长矩阵。
+- [ ] P4.1：冻结 RTL、oracle、testbench、runner 与形式脚本；固定 seed 为 ENeuron `101..120`、Pulse-L `201..220`、Pulse-L2 `301..320`，每个 seed 恰好 1000 条事务。
+- [ ] P4.2：新增 ENeuron 正式 runner、独立结果文件和 fail-closed verifier；随后新鲜重跑三模型各自 20,000 条，分别检查零差异、完整 INFER 冻结、strict `2:4`、被剪 lane 冻结、epoch、路由、背压和旁路 bit-exact。
+- [ ] P4.3：按 runner→verifier 顺序新鲜重跑 ENeuron wrapper、Pulse-L wrapper、Pulse-L2 wrapper、公共 gate、十参与者 barrier 的全部 proof/reach；禁止 verifier 只读取未由本批次生成的历史日志。
+- [ ] P4.4：运行 `python -m unittest discover -v`，保存实际 `Ran N tests`，要求 `N >= 318`、零失败、零错误；测试数下降也视为失败。
+- [ ] P4.5：运行 `python -m compileall -q .`；对公共 gate/barrier、三个 wrapper、三个 `4→8→2` 顶层执行 `iverilog -Wall -tnull`；对人工维护文件执行 `git diff --check`。
+- [ ] P4.6：把三份模型结果、全部新鲜形式证据、工具版本、命令、退出码和时间写入待签核证据索引；原始 Yosys 日志只做标记与哈希验证，不清洗工具生成空白。
+
+P4 硬门：三模型必须分别出现 20,000 条通过结论；任一模型、任一 verifier、任一编译或全仓测试失败，立即停在 P4 修复，不生成总签核摘要。
 
 ### P5：fail-closed 总摘要、文档与停止点
 
-- [ ] P5.1：新增 NP4B 总机器摘要和独立 verifier；固定检查三模型 seed 集合、各 20,000 事务、精确统计/恒等式、零差异、INFER 冻结、strict 2:4、epoch、背压和旁路 bit-exact。
-- [ ] P5.2：摘要记录 Python/Icarus/Yosys 版本、形式深度、runner 命令与退出码、实际 unittest 数量、witness 数量和字节数。
-- [ ] P5.3：SHA-256 精确绑定 RTL、oracle、testbench、runner、tests、formal harness/脚本、正式日志、witness、结果文件和总 verifier 自身；键集合缺失或多余都失败。
-- [ ] P5.4：同步 `NPU_PRUNING_NP4B_TODO.md`、`task_plan.md`、`progress.md`、`findings.md` 与项目报告，只引用证据索引，不复制整份日志。
-- [ ] P5.5：所有硬门通过后提交 `docs: sign off NP4B pruning integration`，只写入：
+- [ ] P5.1：新增 `np4b_signoff_summary.json` 和独立 `verify_np4b_signoff.py`；固定检查三组 seed、各 20,000 事务、精确统计/恒等式、零差异、INFER 冻结、strict `2:4`、epoch、背压和旁路 bit-exact。
+- [ ] P5.2：摘要记录 Python/Icarus/Yosys 版本、形式深度、完整 runner 命令与退出码、执行时间、实际 unittest 数量、正式 witness 数量和字节数。
+- [ ] P5.3：SHA-256 精确绑定 RTL、oracle、testbench、runner、tests、formal harness/脚本、正式日志、成功 witness、结果文件和总 verifier 自身；键集合缺失、多余、文件陈旧或出现 cex/tmp 证据均失败。
+- [ ] P5.4：从摘要中重算并校验逻辑账本恒等式；明确这些计数只代表功能级访问/发射门控，不代表物理 BRAM 跳读、墙钟周期、功耗或 Vivado 时序。
+- [ ] P5.5：同步 `NPU_PRUNING_NP4B_TODO.md`、`task_plan.md`、`progress.md`、`findings.md` 与 `PROJECT_REPORT.md`，只引用证据索引，不复制整份日志。
+- [ ] P5.6：所有硬门通过后提交 `docs: sign off NP4B pruning integration`，只写入：
 
 ```text
 NP4B_INTEGRATION_PASS
 NP6_REVIEW_REQUIRED
 ```
 
-- [ ] P5.6：提交后停止，等待用户再次批准 NP6；此前不调用 Vivado，不声称物理周期、BRAM 访问或功耗收益。
+- [ ] P5.7：提交后停止，等待用户再次批准 NP6；此前不调用 Vivado，不声称物理周期、BRAM 访问或功耗收益。
+
+### 当前批准后执行顺序
+
+```text
+P1.7 证据入库
+  → P4.1 冻结源码与 seed
+  → P4.2 三模型各 20,000 条
+  → P4.3 全部形式 runner/verifier
+  → P4.4/P4.5 全仓回归与编译
+  → P4.6 证据索引
+  → P5 fail-closed 总摘要与文档签核
+  → NP4B_INTEGRATION_PASS
+  → NP6_REVIEW_REQUIRED（停止）
+```
+
+建议只保留两个后续提交边界：
+
+1. `test: prove ENeuron pruning wrapper atomicity`：仅 P1 正式证据和同步规划记录。
+2. `docs: sign off NP4B pruning integration`：P4/P5 新鲜结果、总摘要/verifier 和最终文档；若 P4 需要修改 RTL 或测试逻辑，则先单独提交修复，再从冻结点重跑 P4。
 
 ### 执行顺序与并行边界
 

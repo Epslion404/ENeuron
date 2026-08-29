@@ -1,0 +1,7 @@
+# ENeuron 剪枝 wrapper：MOD/OBSERVE 原子接受与公开事务状态不变量。
+read_verilog -formal -D FORMAL -sv digital_lif_engine.sv local_prune_gate_2of4.sv eneuron_local_prune_wrapper.sv formal_eneuron_prune_wrapper.sv
+prep -top formal_eneuron_prune_wrapper -flatten
+async2sync
+memory_map
+opt_clean
+sat -seq 32 -set-assumes -set-init-zero -prove-asserts -verify -dump_vcd formal_eneuron_prune_wrapper_cex.vcd

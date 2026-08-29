@@ -545,3 +545,30 @@
 - barrier proof/reach 日志分别为 255,927/193,918 bytes，成功 witness 为 12,944 bytes；三个真实顶层均通过 `iverilog -Wall` elaboration 与 runtime-ready 合同绑定。
 - P3 新增三类真实 RTL 源码 mutation 和三模型输出路由结构 mutation；7/7 负向控制、35 项相关 wrapper/network 回归通过，正式 RTL 未因测试而改写。
 - 完整三模型 INFER 学习状态冻结继续由 P4 各 20,000 条新鲜矩阵签核，不用当前小范围回归冒充最终长事务证据。
+
+## 2026-08-29 P1 ENeuron wrapper 形式收口
+
+- `eneuron_local_prune_wrapper.sv` 仅增加 `FORMAL` 条件内部断言，不改变综合接口、神经元方程或普通 RTL 数据通路。
+- depth=32 invariant 证明合法非零 MOD 的核心更新与 gate OBSERVE 同拍接受，失败路径不部分启动，公开事务状态与剪枝响应背压稳定。
+- reach witness 从公开 TRAIN TICK 产生非零 eligibility，随后公开 SNAPSHOT、非零 MOD、utility 非零变化与成功 done；未 assume 内部 snapshot 或 utility。
+- 主线程新鲜重跑 runner，正式日志 862,510 bytes、witness 24,069 bytes；独立 verifier、2 项 wrapper 回归、Python 编译和 `iverilog -Wall -tnull` 全通过。
+
+## 2026-08-29 NP4B 最终收口 TODO 规划
+
+- 本轮只规划，不运行仿真矩阵、形式 runner 或 Vivado。
+- 复核仓库状态：P0 已提交为 `67b6019`，P2/P3 已提交为 `c0108a0`；P1 技术验证通过但仍未形成独立提交。
+- 将剩余工作收敛为唯一串行主链：P1 证据入库 → 固定三组 seed 并冻结源码 → 三模型各 20,000 条新鲜重跑 → 全部形式 runner/verifier → 全仓回归/编译 → fail-closed 总摘要与文档签核。
+- 最终状态仍只能停在 `NP4B_INTEGRATION_PASS / NP6_REVIEW_REQUIRED`；NP6 未再次批准前禁止调用 Vivado。
+
+## 2026-08-29 NP4B 最终收口获批
+
+- 用户明确批准八项决定并要求执行 TODO、控制任务粒度、及时更新文档和提交。
+- 持久工作流状态由 `REVIEW_REQUIRED` 切换为 `IN_PROGRESS`；第一项执行任务固定为 P1.7 ENeuron wrapper 形式证据独立入库。
+- 授权不包含 NP6；P4/P5 完成前及再次批准前仍禁止调用 Vivado。
+
+## 2026-08-29 持久工作流与 P1.7 提交前复验
+
+- 新增 `WORKFLOW.md`、`WORKFLOW_STATE.md` 和只读 `workflow_resume.ps1`；Check/Resume 两种模式均通过并确认未修改仓库。
+- 持久工作流已独立提交为 `df0e7bc docs: add persistent project workflow`，未混入 P1 形式证明文件。
+- P1 独立 verifier 输出 `ENEURON_PRUNE_WRAPPER_FORMAL_CONTRACT_PASS`；wrapper/formal 联合回归 3/3 通过，Python 编译通过。
+- 当前 PowerShell `PATH` 不含 Icarus；改用 `C:\msys64\ucrt64\bin\iverilog.exe` 后，ENeuron wrapper `-g2012 -Wall -tnull` 编译通过。

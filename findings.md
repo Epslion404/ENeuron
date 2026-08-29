@@ -624,3 +624,23 @@
 - gate reach 现在显式约束第 8 拍 `mask_valid=1`、`mask_commits=1`、mask=`0011` 并输出 VCD，避免“存在某个模型”却没有可审计 exact-two witness。
 - P2 首版 cex 暴露的是 harness 错误地要求十路 clear 同拍返回；真实设计允许错拍 response 并用 sticky seen 汇合。修正验证模型后 DUT 无需修改。
 - P3 的 mutation 基于当前真实 RTL 源文本，能捕获指定的 evidence 时序、学习输入门控、runtime barrier 和输出路由错误；它们仍不是每个错误版本的动态 Icarus 仿真，因此最终正确性继续由正式 RTL cosim/formal 共同承担。
+
+## 2026-08-29 P1 ENeuron 形式事实
+
+- 当前公开端口只能证明事务级结果；内部同拍接受通过 `FORMAL` 条件断言直接比较 `core_mod_valid&&core_ready` 与 gate OBSERVE handshake，验证逻辑不进入普通综合接口。
+- 非空 witness 的成功粘滞位在 MOD 完成后的下一拍置位，因此 VCD 最后一拍可以出现新的任意输入甚至 reset；真正成功证据位于前一拍的 `done=1`、`protocol_error=0`、utility 已更新、pending 已清。不能只读取最终一拍解释轨迹。
+- P1 完整展开 `digital_lif_engine`、gate 和 wrapper，depth=32 SAT 明显重于小状态 barrier；仍保持真实公开 TICK→SNAPSHOT→MOD 路径，没有用内部状态假设换取快速通过。
+
+## 2026-08-29 NP4B 最终收口规划事实
+
+- P1 的“技术证明通过”与“证据已进入仓库”必须分开记录；当前准确状态是 `PROOF_PASS / REPOSITORY_CLOSURE_PENDING`。
+- P4 必须在 P1 独立提交后冻结源码与 seed，再重跑三模型。先跑长矩阵、后修改源码会使结果与最终 RTL 失去绑定。
+- 三模型 seed 固定为 ENeuron `101..120`、Pulse-L `201..220`、Pulse-L2 `301..320`；每个模型必须独立报告 20,000 条，合计数不能代替单模型门槛。
+- 最终摘要必须 fail-closed：精确文件键集合、SHA-256、新鲜 runner 退出码、工具版本、witness 字节数和实际 unittest 数量缺一即失败。
+- NP4B 的逻辑访问计数只能证明门控语义。物理 BRAM 跳读、真实周期缩短、功耗和 XC7Z020 时序仍属于 NP6/NP7，当前 TODO 不授权 Vivado。
+
+## 2026-08-29 持久工作流事实
+
+- `WORKFLOW_STATE.md` 是当前状态指针，活动 TODO 是详细合同；状态文件不复制完整设计任务，避免形成第二份真值。
+- `workflow_resume.ps1` 只做 fail-closed 只读恢复：检查持久文件和必要字段，输出 HEAD、工作树、活动 TODO 未完成数及最近记录，不执行验证、提交或 Vivado。
+- Windows 会话不能假设 `iverilog` 位于 `PATH`；当前可复现绝对路径为 `C:\msys64\ucrt64\bin\iverilog.exe`，后续签核应记录该工具路径和版本。
