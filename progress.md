@@ -578,3 +578,16 @@
 - P1 精确暂存集合包含 ENeuron wrapper、formal harness、proof/reach 脚本、runner、verifier、定向测试、正式日志、成功 witness 和同步文档。
 - staged 审计确认 `cex/tmp` 为零，人工维护文件 `git diff --check` 通过。
 - 已提交为 `c811bcf test: prove ENeuron pruning wrapper atomicity`；P1 状态从 `PROOF_PASS / REPOSITORY_CLOSURE_PENDING` 更新为 `PASS`。
+
+## 2026-08-29 P4.1 冻结
+
+- 新增 ENeuron 独立正式 runner、严格摘要 verifier 和两项快速合同测试；复用现有 `run_matrix`，未修改 RTL、黄金模型或协同仿真语义。
+- 快速合同测试 2/2、Python 编译和人工文件 `git diff --check` 通过。
+- 基础设施提交为 `33e0aed test: add ENeuron pruning signoff runner`；该提交是 P4 三模型新鲜重跑的源码、runner 和 seed 冻结点。
+
+## 2026-08-29 P4.2 三模型新鲜矩阵
+
+- 从冻结点 `33e0aed` 并行运行 ENeuron seed `101..120`、Pulse-L seed `201..220`、Pulse-L2 seed `301..320`，每个 seed 1000 条；三个进程均退出码 0。
+- ENeuron 20,000 条：零 RTL/Python 差异、零 strict `2:4` 违反、零 INFER 冻结违反、零被剪权重/utility 变化；合法 snapshot nonzero→0 发布 277 次，0→非零为 0。
+- Pulse-L 与 L2 各 20,000 条：各 20 次 commit、133,400 次 exact-two 检查、266,800 次被剪 lane 检查；被剪权重/evidence/utility 变化均为 0。
+- `verify_eneuron_pruned_network_summary.py` 与 `verify_pulse_pruned_network_summaries.py` 均通过；三模型结果继续标记为 `logical_functional_cosim_only`，不外推物理收益。

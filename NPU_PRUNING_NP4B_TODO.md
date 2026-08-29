@@ -481,17 +481,17 @@ P2 状态：`PASS`。公共 gate proof/reach/verifier 与 N=10 barrier proof/rea
 ### P3：INFER 冻结与负向控制补强
 
 - [x] P3.1：形式检查只覆盖控制级不变量：INFER 不产生 OBSERVE、不接受 PRUNE_COMMIT，被拒绝命令不改变 utility、mask、observation/commit ID。
-- [ ] P3.2：完整学习状态冻结继续由三模型随机协同仿真逐周期比较，不展开十个完整核心做大规模 SAT。
+- [x] P3.2：完整学习状态冻结由冻结点 `33e0aed` 后的三模型各 20,000 条随机协同仿真逐周期比较通过，不展开十个完整核心做大规模 SAT。
 - [x] P3.3：把前三类 Python 玩具负向控制升级为至少一个真实 RTL mutation/接线变体检查，确认验收器能抓到“事后读取 evidence”“只掩数值路径”“部分 epoch 可见”；第四类结构检查扩展到 Pulse-L/L2 顶层。
 - [x] P3.4：所有 mutation 必须“错误版本失败、正式 RTL 通过”，且错误版本不得进入正式 RTL 文件。
 
-P3 当前状态：`CONTROL_AND_MUTATION_PASS / FULL_RANDOM_FREEZE_PENDING_P4`。7 项负向控制全部先拒绝真实源码 mutation、再接受正式 RTL；相关 35 项 wrapper/network 回归通过。完整三模型长事务冻结仍由 P4 新鲜重跑签核。
+P3 状态：`PASS`。7 项负向控制全部先拒绝真实源码 mutation、再接受正式 RTL；相关 35 项 wrapper/network 回归通过。完整三模型 INFER/被剪学习状态冻结已由 P4 新鲜 60,000 条独立矩阵签核。
 
 ### P4：冻结源码后重跑正式签核
 
 - [x] P4.0：先完成 P1.7；记录冻结后的 HEAD 和工作树状态。P1 已提交为 `c811bcf`，允许进入 P4.1。
-- [ ] P4.1：冻结 RTL、oracle、testbench、runner 与形式脚本；固定 seed 为 ENeuron `101..120`、Pulse-L `201..220`、Pulse-L2 `301..320`，每个 seed 恰好 1000 条事务。
-- [ ] P4.2：新增 ENeuron 正式 runner、独立结果文件和 fail-closed verifier；随后新鲜重跑三模型各自 20,000 条，分别检查零差异、完整 INFER 冻结、strict `2:4`、被剪 lane 冻结、epoch、路由、背压和旁路 bit-exact。
+- [x] P4.1：冻结 RTL、oracle、testbench、runner 与形式脚本；冻结点为 `33e0aed`，seed 固定为 ENeuron `101..120`、Pulse-L `201..220`、Pulse-L2 `301..320`，每个 seed 恰好 1000 条事务。
+- [x] P4.2：新增 ENeuron 正式 runner、独立结果文件和 fail-closed verifier；冻结点后新鲜重跑三模型各自 20,000 条，三个摘要 verifier 全部通过。
 - [ ] P4.3：按 runner→verifier 顺序新鲜重跑 ENeuron wrapper、Pulse-L wrapper、Pulse-L2 wrapper、公共 gate、十参与者 barrier 的全部 proof/reach；禁止 verifier 只读取未由本批次生成的历史日志。
 - [ ] P4.4：运行 `python -m unittest discover -v`，保存实际 `Ran N tests`，要求 `N >= 318`、零失败、零错误；测试数下降也视为失败。
 - [ ] P4.5：运行 `python -m compileall -q .`；对公共 gate/barrier、三个 wrapper、三个 `4→8→2` 顶层执行 `iverilog -Wall -tnull`；对人工维护文件执行 `git diff --check`。

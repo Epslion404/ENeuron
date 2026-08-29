@@ -19,7 +19,7 @@
 - 已提交 P2/P3：`c0108a0 test: prove pruning network commit barrier`。
 - ENeuron P1 已提交：`c811bcf test: prove ENeuron pruning wrapper atomicity`。
 - P1 verifier、3 项定向测试、Python 编译和绝对路径 Icarus `-Wall -tnull` 均通过；正式日志与成功 witness 已入库，cex/tmp 未纳入。
-- P4 冻结后全量重跑和 P5 总签核尚未开始。
+- P4 源码/runner 冻结点为 `33e0aed test: add ENeuron pruning signoff runner`；三模型各 20,000 条新鲜矩阵和三个摘要 verifier 已通过，P5 尚未开始。
 - NP6 尚未获再次批准，禁止运行 Vivado。
 
 ## 允许动作
@@ -35,7 +35,7 @@
 
 ## 下一动作
 
-执行 P4.1：冻结当前源码、runner、测试与 seed 集合，审计三模型正式入口和结果文件，然后从 ENeuron 独立 20,000 条开始。
+提交 P4.2 三份独立结果和同步文档，然后执行 P4.3：新鲜运行全部 wrapper、公共 gate 和十参与者 barrier 的 proof/reach runner 与 verifier。
 
 ## 恢复检查
 

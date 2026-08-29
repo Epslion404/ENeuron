@@ -80,7 +80,7 @@
 - [x] P0：独立签入已完成的 Pulse-L/L2 wrapper proof/reach、正式日志、非空 witness 与 verifier；排除 cex/tmp 产物
 - [x] P1：ENeuron wrapper 同拍 MOD/OBSERVE 内部握手证明、公开事务结果证明和非零成功 witness
 - [x] P2：真实 N=10 barrier 小状态证明、公共 gate exact-two 组合绑定、三个真实顶层 runtime 阻塞验证
-- [ ] P3：INFER 控制级形式检查与真实 RTL mutation 负向控制已通过；完整随机冻结留待 P4 三模型重跑
+- [x] P3：INFER 控制级形式检查、真实 RTL mutation 负向控制和 P4 三模型共 60,000 条完整随机冻结均通过
 - [ ] P4：源码冻结后重跑三模型各 20000、全部 formal runner/verifier、>=318 全仓、compileall/iverilog/diff-check
 - [ ] P5：fail-closed 总摘要、精确 SHA-256 集合、文档签核；随后停在 `NP6_REVIEW_REQUIRED`
 
