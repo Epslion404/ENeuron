@@ -523,3 +523,10 @@
 - 单核部署需要 commit 成功后自动 `STATE_CLEAR`；网络部署必须关闭自动 clear，由十参与者公共屏障在全体 commit 完成后统一清理。一个参数化 bridge 已覆盖两种合同。
 - 结构 mask 必须在 TICK 进入核心前应用；核心处于不应期时属于动态跳过，应单独计数，不能记入结构剪枝收益。
 - 未提交 mask 时，L/L2 wrapper 已与裸核心逐事务 bit-exact；这证明旁路没有改变原运行语义，但不证明网络级或物理加速。
+
+## 2026-08-29 NP4B3 ENeuron 网络事实
+
+- 真正的输出层 `2:4` 需要两个四输入输出神经元分别消费四个隐藏事件；原 `4→2→2` 的二输入输出核不能通过包装变成严格 `2:4`。
+- 固定一拍路由由独立 scheduler 保证：本拍输出只读旧 pending，本拍隐藏结果在 all-done 后成为下一拍 pending；route flush 只推进输出并清 pending。
+- 十 gate 原子提交不能只汇合 gate 响应；成功公开前还必须等待十个核心的 `STATE_CLEAR`，否则新 mask 与旧学习历史会同时对外可见。
+- 分层计数必须由实例身份驱动。ENeuron 顶层现已证明 8 个 hidden 和 2 个 output 的 dense/issued/saved 互不串账；这仍是逻辑事件账本，不是 BRAM 跳读、周期缩短或功耗证据。

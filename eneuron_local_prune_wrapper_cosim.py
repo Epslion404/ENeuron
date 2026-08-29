@@ -356,6 +356,8 @@ module tb;
   logic [3:0] prune_rsp_mask; logic cfg_mask_valid,cfg_mask_ready,cfg_mask_done,cfg_mask_error;
   logic [3:0] cfg_mask_data,issue_mask,structural_mask_state; logic [15:0] utility_flat;
   logic mask_valid_state,last_observation_valid_state; logic [15:0] last_observation_id_state;
+  logic [31:0] hidden_dense_reads_state,hidden_reads_issued_state,hidden_reads_saved_state;
+  logic [31:0] output_dense_reads_state,output_reads_issued_state,output_reads_saved_state;
 
   eneuron_local_prune_wrapper #(.AUTO_CLEAR_ON_COMMIT(1'b0)) dut (.*);
 

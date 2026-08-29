@@ -2,7 +2,9 @@
 // 只负责事务协调、committed snapshot 量化和 TICK 前输入门控；不复制神经元方程。
 module eneuron_local_prune_wrapper #(
     // 单核使用 1；网络级 all-done barrier 使用 0 并随后广播 STATE_CLEAR。
-    parameter bit AUTO_CLEAR_ON_COMMIT = 1'b1
+    parameter bit AUTO_CLEAR_ON_COMMIT = 1'b1,
+    // 0=隐藏层账本，1=输出层账本；默认值保持既有单核实例行为。
+    parameter bit LAYER_OUTPUT = 1'b0
 ) (
     input  logic                         clk,
     input  logic                         rst,
@@ -53,7 +55,13 @@ module eneuron_local_prune_wrapper #(
     output logic [3:0]                   structural_mask_state,
     output logic                         mask_valid_state,
     output logic                         last_observation_valid_state,
-    output logic [15:0]                  last_observation_id_state
+    output logic [15:0]                  last_observation_id_state,
+    output logic [31:0]                  hidden_dense_reads_state,
+    output logic [31:0]                  hidden_reads_issued_state,
+    output logic [31:0]                  hidden_reads_saved_state,
+    output logic [31:0]                  output_dense_reads_state,
+    output logic [31:0]                  output_reads_issued_state,
+    output logic [31:0]                  output_reads_saved_state
 );
 
     localparam logic [1:0] MODE_CONFIG = 2'd0;
@@ -279,7 +287,7 @@ module eneuron_local_prune_wrapper #(
         .cfg_mask_error(gate_cfg_mask_error),
         .issue_valid(gate_issue_valid),
         .activity_mask(input_spikes),
-        .issue_layer_output(1'b0),
+        .issue_layer_output(LAYER_OUTPUT),
         .issue_mask(issue_mask),
         .busy(gate_busy),
         .protocol_error(gate_protocol_error),
@@ -294,14 +302,14 @@ module eneuron_local_prune_wrapper #(
         .last_commit_id_state(),
         .mask_commits_state(),
         .illegal_commands_state(),
-        .hidden_dense_reads_state(),
-        .hidden_reads_issued_state(),
+        .hidden_dense_reads_state(hidden_dense_reads_state),
+        .hidden_reads_issued_state(hidden_reads_issued_state),
         .hidden_synapse_ops_state(),
-        .hidden_reads_saved_state(),
-        .output_dense_reads_state(),
-        .output_reads_issued_state(),
+        .hidden_reads_saved_state(hidden_reads_saved_state),
+        .output_dense_reads_state(output_dense_reads_state),
+        .output_reads_issued_state(output_reads_issued_state),
         .output_synapse_ops_state(),
-        .output_reads_saved_state(),
+        .output_reads_saved_state(output_reads_saved_state),
         .inactive_groups_state(),
         .groups_skipped_state()
     );

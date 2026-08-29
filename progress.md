@@ -441,3 +441,11 @@
 - 零反馈、`NO_PENDING`、响应背压、`AUTO_CLEAR_ON_COMMIT=1/0`、TICK 输入门控、不应期独立分账及未提交 mask 旁路均已定向通过。
 - `test_pulse_mini_prune_wrapper.py`：5/5 通过；L/L2 裸核心各自 20 seeds × 1000 协同事务通过。
 - clear 故障注入、观察 ID 耗尽、非法 direction 动态注入及 wrapper/network 形式检查明确留给 NP4B5，不冒充本阶段已证明。
+
+## 2026-08-29 NP4B3 ENeuron 4→8→2 顶层
+
+- 新增严格 `4→8→2` ENeuron 顶层：8 个隐藏和 2 个输出均实例化四输入剪枝 wrapper，输出分别固定读取旧 `pending[3:0]` 与 `[7:4]`。
+- 复用公共 TICK/flush 调度器和十参与者 commit barrier；commit 期间阻塞 TICK、flush 与 Host 命令，全体 gate 完成后广播十核 `STATE_CLEAR`，最后统一公开响应。
+- Host 只广播/寻址转发 CLEAR、SNAPSHOT、MOD、WEIGHT，不在 tile 内生成标签、损失、reward 或调制值。
+- wrapper 增加默认 `LAYER_OUTPUT=0` 参数；顶层分别汇总 hidden/output 的 dense、issued、saved，定向结果为首拍 hidden `32/16/16`、output `0/0/0`，次拍 output `8/4/4` 且 hidden 不变。
+- 顶层与相关回归 13/13 通过；当前子状态为 `NP4B3_ENEURON_NETWORK_PASS`，Pulse-L/L2 网络与 NP4B4 长事务仍未完成。

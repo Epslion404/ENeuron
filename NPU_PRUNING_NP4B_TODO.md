@@ -223,7 +223,7 @@ ERROR_HALT
 
 ### NP4B3：真正严格 `2:4` 的 `4→8→2` 测试网络
 
-当前进度：网络级 `commit→STATE_CLEAR` 原子屏障和固定 `4→8→2` TICK/route-flush 调度均已实现为独立参数化模块；10 个 wrapper 接线与训练命令调度仍待完成。
+当前进度：网络级 `commit→STATE_CLEAR` 原子屏障和固定 `4→8→2` TICK/route-flush 调度均已实现为独立参数化模块；ENeuron 十 wrapper 顶层、Host 广播/寻址训练转发和分层工作量账本已通过，Pulse-L/L2 两个网络顶层仍待完成。
 
 预计新增：
 
@@ -245,8 +245,10 @@ ERROR_HALT
 - [x] TICK 同时启动 8 个 detector 和 2 个 output；输出层只读取 tick 开始前的 pending detector 路由。
 - [x] episode 尾部 route flush 只排空输出层，不再推进隐藏层，并在完成后清 pending 路由。
 - [x] 多 gate commit 先全体预检、统一启动；使用 sticky done 汇合错拍响应，并在全部自动 `STATE_CLEAR` 后统一公开。
-- [ ] Host 只提供已有调制/反馈；tile 不生成标签、损失或 reward。
-- [ ] 隐藏/输出 mask、读取、发射、结构节省和非活动跳过分别审计。
+- [ ] Host 只提供已有调制/反馈；tile 不生成标签、损失或 reward。（ENeuron 已通过，Pulse-L/L2 待完成）
+- [ ] 隐藏/输出 mask、读取、发射、结构节省和非活动跳过分别审计。（ENeuron dense/issued/saved 已通过，三模型完整账本待 NP4B4）
+
+ENeuron 子状态：`NP4B3_ENEURON_NETWORK_PASS`。这不等于 NP4B3 整体通过。
 
 硬门：任何时刻都不能用现有两输入输出核替代四输入 output group。
 
