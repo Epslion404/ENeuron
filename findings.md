@@ -10,6 +10,8 @@
 - 既有 `pulse_mini_network_4x2x2.sv` 逐核串行调度且输出只有两输入，不能直接扩参数得到批准的 `4→8→2`；NP4B3 应把公共 commit/clear 屏障与模型专用 TICK/训练调度分开。
 - Pulse 旧形式 harness 把 `past_valid` 仅在非复位分支置位，同时在该分支第一次执行 `assume(rst)`，会让复位释放轨迹不可达；只有“无反例”而没有成功命令 witness 的旧日志不能继续使用。
 - 修复后的 reach 使用 falsify 证明成功路径可达；日志中的 `model found: FAIL!` 在这些专门的 reach 查询中是预期 witness，不是设计失败，verifier 必须按查询类型计数。
+- `4→8→2` 的一拍路由不需要先运行隐藏层、再运行输出层；可以同拍启动 10 个核心，只要输出输入连接的是旧 `pending_hidden`，并在全部响应完成后才替换 pending。这既保留固定一逻辑 tick 延迟，也避免组合穿透。
+- episode 尾部 flush 必须是独立命令语义：只让输出层消费最后一个 pending，隐藏层 response ready 保持 0，完成后清 pending。
 
 ## NPU 局部剪枝 NP4B 接入审计（2026-08-29）
 

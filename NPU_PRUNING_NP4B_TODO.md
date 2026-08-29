@@ -219,7 +219,7 @@ ERROR_HALT
 
 ### NP4B3：真正严格 `2:4` 的 `4→8→2` 测试网络
 
-当前进度：网络级 `commit→STATE_CLEAR` 原子屏障已实现为独立参数化模块；模型专用 TICK/训练调度和 10 个 wrapper 接线仍待完成。
+当前进度：网络级 `commit→STATE_CLEAR` 原子屏障和固定 `4→8→2` TICK/route-flush 调度均已实现为独立参数化模块；10 个 wrapper 接线与训练命令调度仍待完成。
 
 预计新增：
 
@@ -238,8 +238,8 @@ ERROR_HALT
 任务：
 
 - [ ] 共用一个调度/屏障实现，三个模型顶层只做核心适配，避免复制三套网络控制器。
-- [ ] TICK 同时启动 8 个 detector；输出层只读取 tick 开始前的 pending detector 路由。
-- [ ] episode 尾部只排空输出层，不再推进隐藏层。
+- [x] TICK 同时启动 8 个 detector 和 2 个 output；输出层只读取 tick 开始前的 pending detector 路由。
+- [x] episode 尾部 route flush 只排空输出层，不再推进隐藏层，并在完成后清 pending 路由。
 - [x] 多 gate commit 先全体预检、统一启动；使用 sticky done 汇合错拍响应，并在全部自动 `STATE_CLEAR` 后统一公开。
 - [ ] Host 只提供已有调制/反馈；tile 不生成标签、损失或 reward。
 - [ ] 隐藏/输出 mask、读取、发射、结构节省和非活动跳过分别审计。

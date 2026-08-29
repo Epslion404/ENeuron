@@ -1,5 +1,14 @@
 # 进度记录
 
+## 2026-08-29 NP4B3 固定一拍网络调度
+
+- 新增 `pruned_network_tick_scheduler.sv`，一次合法 TICK 同拍启动 8 个 detector 和 2 个四输入 output。
+- 两个 output 的四路输入固定来自 TICK 接受前的 `pending_hidden`：output0 使用 detector 0..3，output1 使用 detector 4..7；本拍 detector 结果只在 all-done 后成为下一拍 pending。
+- 10 个核心响应允许错拍到达，使用 sticky done 汇合；对外 spike 与 pending 路由只在全部响应完成后原子更新。
+- route flush 只启动两个 output，不推进 detector；完成后清 pending，避免 episode 最后一拍丢失或重复推进隐藏层。
+- 新增两项 Icarus 公开接口测试，均按 RED→GREEN 完成；连同提交屏障共 5/5 通过。
+- 当前尚未把三种神经元 wrapper 实例化进网络，也未实现 CAPTURE/FEEDBACK/MOD 等训练命令调度。
+
 ## 2026-08-29 NP4B5 Pulse 形式 harness 修复
 
 - 修复 Pulse-Mini-L/L2 旧 harness 的复位矛盾：首拍要求 reset，之后持续 release，不再形成不可满足的正常运行轨迹。
