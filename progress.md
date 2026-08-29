@@ -449,3 +449,10 @@
 - Host 只广播/寻址转发 CLEAR、SNAPSHOT、MOD、WEIGHT，不在 tile 内生成标签、损失、reward 或调制值。
 - wrapper 增加默认 `LAYER_OUTPUT=0` 参数；顶层分别汇总 hidden/output 的 dense、issued、saved，定向结果为首拍 hidden `32/16/16`、output `0/0/0`，次拍 output `8/4/4` 且 hidden 不变。
 - 顶层与相关回归 13/13 通过；当前子状态为 `NP4B3_ENEURON_NETWORK_PASS`，Pulse-L/L2 网络与 NP4B4 长事务仍未完成。
+
+## 2026-08-29 NP4B3/NP4B4 恢复检查
+
+- 当前未提交区包含 ENeuron 只读审计端口/随机 oracle 草稿，以及 Pulse-L/L2 网络公开接口骨架；已确认这些内容不能视为完成证据。
+- Pulse 网络公开接口编译已通过，但共享控制面仍把 `host_cmd_ready` 常量拉低；综合行为测试稳定 RED 于首次广播 `MODE_SET`，尚未实例化十 wrapper 或接入 scheduler/barrier。
+- ENeuron 网络已有十 gate ID 与核心状态公开测试草稿通过，但 `20 seeds × 1000` 随机协同模块尚未完成；继续按最小 tracer 扩展。
+- 本阶段继续禁止运行 NP6 Vivado。

@@ -530,3 +530,15 @@
 - 固定一拍路由由独立 scheduler 保证：本拍输出只读旧 pending，本拍隐藏结果在 all-done 后成为下一拍 pending；route flush 只推进输出并清 pending。
 - 十 gate 原子提交不能只汇合 gate 响应；成功公开前还必须等待十个核心的 `STATE_CLEAR`，否则新 mask 与旧学习历史会同时对外可见。
 - 分层计数必须由实例身份驱动。ENeuron 顶层现已证明 8 个 hidden 和 2 个 output 的 dense/issued/saved 互不串账；这仍是逻辑事件账本，不是 BRAM 跳读、周期缩短或功耗证据。
+
+## 2026-08-29 Pulse 网络恢复审计
+
+- `pulse_mini_pruned_network_4x8x2.sv` 当前只是端口骨架，所有 ready/valid 和状态均为常量；薄顶层能够编译只证明接口形状，不证明网络执行。
+- 当前首个有效 RED 是广播 `MODE_SET` 的 `HOST_READY_TIMEOUT`。根因不是核心模式限制，而是共享网络没有实例化十个 wrapper，也没有目标 ready 汇合和 sticky response barrier。
+- Pulse 网络最小纵向实现顺序冻结为：十 wrapper 与 Host MODE_SET tracer → TICK/flush scheduler → CAPTURE/FEEDBACK → commit/clear barrier → 分层账本与背压。
+
+## 2026-08-29 ENeuron NP4B4 可观测性补齐
+
+- 网络长事务不能用层次路径核对十 gate epoch，因此 wrapper/顶层需要纯只读导出 observation/commit valid 与 ID；该补丁只连接既有 gate 状态，不改变方程或事务延迟。
+- 既有 `host_weight_rdata` 原先只保存事务完成值，空闲改变地址不会读取权重。复用同一端口增加 H_IDLE 组合寻址读，可在 INFER 前后无副作用比较权重；H_WAIT/H_RSP 仍保持锁存值和背压稳定。
+- 长事务黄金模型独立使用 `RtlReferenceNeuron` 复现十核、固定一拍路由、gate utility/mask/epoch 与分层账本；当前只完成模型和 64 事务 tracer 测试入口，协同驱动模块仍待落盘。

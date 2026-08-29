@@ -61,7 +61,15 @@ module eneuron_pruned_network_4x8x2 (
     output logic [35:0]                  network_hidden_reads_saved_state,
     output logic [35:0]                  network_output_dense_reads_state,
     output logic [35:0]                  network_output_reads_issued_state,
-    output logic [35:0]                  network_output_reads_saved_state
+    output logic [35:0]                  network_output_reads_saved_state,
+    output logic [9:0]                   last_observation_valids_state,
+    output logic [159:0]                 last_observation_ids_flat_state,
+    output logic [9:0]                   last_commit_valids_state,
+    output logic [159:0]                 last_commit_ids_flat_state,
+    output logic [159:0]                 membranes_flat_state,
+    output logic [79:0]                  thresholds_flat_state,
+    output logic [9:0]                   core_snapshot_valids_state,
+    output logic [479:0]                 eligibility_snapshots_flat_state
 );
 
     localparam integer N_NEURONS = 10;
@@ -176,7 +184,6 @@ module eneuron_pruned_network_4x8x2 (
     assign host_rsp_valid = host_state == H_RSP;
     assign host_rsp_status = host_response_status;
     assign host_rsp_neuron_addr = accepted_host_neuron;
-    assign host_weight_rdata = host_weight_rdata_reg;
     assign busy = scheduler_busy || barrier_runtime_blocked
         || (host_state != H_IDLE) || (|wrapper_busy);
     assign protocol_error = scheduler_protocol_error || barrier_internal_error
@@ -184,6 +191,18 @@ module eneuron_pruned_network_4x8x2 (
 
     assign barrier_safe_boundary = (host_state == H_IDLE) && !scheduler_busy
         && (&wrapper_ready);
+
+    // 空闲时复用既有读数据口做无副作用寻址读取；事务处理中保持锁存响应。
+    always_comb begin
+        host_weight_rdata = host_weight_rdata_reg;
+        if (host_state == H_IDLE) begin
+            if (!host_cmd_broadcast && (host_neuron_addr < N_NEURONS))
+                host_weight_rdata = wrapper_weight_rdata_flat[
+                    host_neuron_addr*8 +: 8];
+            else
+                host_weight_rdata = '0;
+        end
+    end
 
     pruned_network_tick_scheduler tick_scheduler (
         .clk(clk),
@@ -314,10 +333,11 @@ module eneuron_pruned_network_4x8x2 (
                 .done(wrapper_done[neuron_index]),
                 .protocol_error(wrapper_protocol_error[neuron_index]),
                 .spike(wrapper_spike[neuron_index]),
-                .membrane(),
-                .threshold_state(),
-                .snapshot_valid_state(),
-                .eligibility_snapshot_flat_state(),
+                .membrane(membranes_flat_state[neuron_index*16 +: 16]),
+                .threshold_state(thresholds_flat_state[neuron_index*8 +: 8]),
+                .snapshot_valid_state(core_snapshot_valids_state[neuron_index]),
+                .eligibility_snapshot_flat_state(
+                    eligibility_snapshots_flat_state[neuron_index*48 +: 48]),
                 .pending_snapshot_valid_state(
                     pending_snapshot_valids_state[neuron_index]),
                 .pending_snapshot_id_state(
@@ -343,8 +363,13 @@ module eneuron_pruned_network_4x8x2 (
                 .structural_mask_state(
                     structural_masks_flat[neuron_index*4 +: 4]),
                 .mask_valid_state(mask_valids_state[neuron_index]),
-                .last_observation_valid_state(),
-                .last_observation_id_state(),
+                .last_observation_valid_state(
+                    last_observation_valids_state[neuron_index]),
+                .last_observation_id_state(
+                    last_observation_ids_flat_state[neuron_index*16 +: 16]),
+                .last_commit_valid_state(last_commit_valids_state[neuron_index]),
+                .last_commit_id_state(
+                    last_commit_ids_flat_state[neuron_index*16 +: 16]),
                 .hidden_dense_reads_state(
                     wrapper_hidden_dense_reads_flat[neuron_index*32 +: 32]),
                 .hidden_reads_issued_state(

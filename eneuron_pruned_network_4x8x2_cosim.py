@@ -119,6 +119,12 @@ module tb;
   logic [35:0] network_output_dense_reads_state;
   logic [35:0] network_output_reads_issued_state;
   logic [35:0] network_output_reads_saved_state;
+  logic [9:0] last_observation_valids_state,last_commit_valids_state;
+  logic [159:0] last_observation_ids_flat_state,last_commit_ids_flat_state;
+  logic [159:0] membranes_flat_state;
+  logic [79:0] thresholds_flat_state;
+  logic [9:0] core_snapshot_valids_state;
+  logic [479:0] eligibility_snapshots_flat_state;
 
   eneuron_pruned_network_4x8x2 dut(.*);
 
@@ -298,6 +304,12 @@ module tb;
   logic [35:0] network_output_dense_reads_state;
   logic [35:0] network_output_reads_issued_state;
   logic [35:0] network_output_reads_saved_state;
+  logic [9:0] last_observation_valids_state,last_commit_valids_state;
+  logic [159:0] last_observation_ids_flat_state,last_commit_ids_flat_state;
+  logic [159:0] membranes_flat_state;
+  logic [79:0] thresholds_flat_state;
+  logic [9:0] core_snapshot_valids_state;
+  logic [479:0] eligibility_snapshots_flat_state;
 
   eneuron_pruned_network_4x8x2 dut(.*);
 
@@ -378,6 +390,19 @@ module tb;
         $fatal(1, "HOST_RESPONSE_BACKPRESSURE_UNSTABLE");
     end
     release_host_rsp();
+
+    // 空闲时既有读数据口按公开地址组合读取，不产生事务或任何副作用。
+    host_neuron_addr = 4'd0;
+    host_weight_addr = 2'd0;
+    #1;
+    if (host_weight_rdata != 2 || busy || host_rsp_valid)
+      $fatal(1, "IDLE_WEIGHT_READ_NEURON0_FAILED value=%0d busy=%0d rsp=%0d",
+             host_weight_rdata, busy, host_rsp_valid);
+    host_neuron_addr = 4'd9;
+    #1;
+    if (host_weight_rdata != 7 || busy || host_rsp_valid)
+      $fatal(1, "IDLE_WEIGHT_READ_NEURON9_FAILED value=%0d busy=%0d rsp=%0d",
+             host_weight_rdata, busy, host_rsp_valid);
 
     // 广播 snapshot 必须等待十核全部完成，并公开十份相同 commit ID。
     start_host(3'd1, 1'b1, 4'd0);
@@ -596,3 +621,115 @@ endmodule
     )
     if "NP4B_ENEURON_4X8X2_LAYER_ACCOUNTING_PASS" not in output:
         raise AssertionError("未看到 ENeuron 4→8→2 分层账本通过标记")
+
+
+def run_audit_state_and_id_contract() -> None:
+    """证明十 gate ID 与十核既有公开状态可从网络顶层读取。"""
+
+    output = _run_testbench(
+        r"""
+module tb;
+  logic clk = 1'b0; always #5 clk = ~clk;
+  logic rst; logic [1:0] mode_state;
+  logic tick_valid,route_flush_valid; logic [3:0] input_spikes; logic tick_rsp_ready;
+  logic host_cmd_valid,host_cmd_ready,host_cmd_broadcast; logic [2:0] host_cmd_opcode;
+  logic [3:0] host_neuron_addr; logic [15:0] host_snapshot_commit_id,host_mod_commit_id;
+  logic signed [1:0] host_modulator; logic [1:0] host_weight_addr;
+  logic signed [7:0] host_weight_wdata; logic host_rsp_valid,host_rsp_ready;
+  logic prune_commit_valid,prune_commit_ready; logic [15:0] prune_commit_id;
+  logic prune_rsp_valid,prune_rsp_ready; logic [2:0] prune_rsp_status;
+  logic [9:0] last_observation_valids_state,last_commit_valids_state;
+  logic [159:0] last_observation_ids_flat_state,last_commit_ids_flat_state;
+  logic [159:0] membranes_flat_state;
+  logic [79:0] thresholds_flat_state;
+  logic [9:0] core_snapshot_valids_state;
+  logic [479:0] eligibility_snapshots_flat_state;
+
+  eneuron_pruned_network_4x8x2 dut (
+    .clk(clk),.rst(rst),.mode_state(mode_state),
+    .tick_valid(tick_valid),.route_flush_valid(route_flush_valid),
+    .input_spikes(input_spikes),.tick_rsp_ready(tick_rsp_ready),
+    .host_cmd_valid(host_cmd_valid),.host_cmd_ready(host_cmd_ready),
+    .host_cmd_opcode(host_cmd_opcode),.host_cmd_broadcast(host_cmd_broadcast),
+    .host_neuron_addr(host_neuron_addr),
+    .host_snapshot_commit_id(host_snapshot_commit_id),
+    .host_mod_commit_id(host_mod_commit_id),.host_modulator(host_modulator),
+    .host_weight_addr(host_weight_addr),.host_weight_wdata(host_weight_wdata),
+    .host_rsp_valid(host_rsp_valid),.host_rsp_ready(host_rsp_ready),
+    .prune_commit_valid(prune_commit_valid),.prune_commit_ready(prune_commit_ready),
+    .prune_commit_id(prune_commit_id),.prune_rsp_valid(prune_rsp_valid),
+    .prune_rsp_ready(prune_rsp_ready),.prune_rsp_status(prune_rsp_status),
+    .last_observation_valids_state(last_observation_valids_state),
+    .last_observation_ids_flat_state(last_observation_ids_flat_state),
+    .last_commit_valids_state(last_commit_valids_state),
+    .last_commit_ids_flat_state(last_commit_ids_flat_state),
+    .membranes_flat_state(membranes_flat_state),
+    .thresholds_flat_state(thresholds_flat_state),
+    .core_snapshot_valids_state(core_snapshot_valids_state),
+    .eligibility_snapshots_flat_state(eligibility_snapshots_flat_state)
+  );
+
+  task automatic host_broadcast(input logic [2:0] opcode);
+    integer timeout;
+    begin
+      host_cmd_opcode=opcode; host_cmd_broadcast=1; host_cmd_valid=1; #1;
+      if(!host_cmd_ready) $fatal(1,"HOST_BROADCAST_NOT_READY");
+      @(posedge clk); #1; host_cmd_valid=0;
+      timeout=0;
+      while(!host_rsp_valid && timeout<500) begin @(posedge clk); #1; timeout=timeout+1; end
+      if(!host_rsp_valid) $fatal(1,"HOST_BROADCAST_TIMEOUT");
+      host_rsp_ready=1; @(posedge clk); #1; host_rsp_ready=0;
+    end
+  endtask
+
+  integer lane; integer timeout;
+  initial begin
+    rst=1; mode_state=2'd1; tick_valid=0; route_flush_valid=0; input_spikes=0;
+    tick_rsp_ready=0; host_cmd_valid=0; host_cmd_opcode=0; host_cmd_broadcast=0;
+    host_neuron_addr=0; host_snapshot_commit_id=16'h7101;
+    host_mod_commit_id=16'h7101; host_modulator=1;
+    host_weight_addr=0; host_weight_wdata=0; host_rsp_ready=0;
+    prune_commit_valid=0; prune_commit_id=16'h7201; prune_rsp_ready=0;
+    repeat(3) @(posedge clk); rst=0; #1;
+
+    for(lane=0; lane<10; lane=lane+1) begin
+      if($signed(membranes_flat_state[lane*16 +: 16]) != 0)
+        $fatal(1,"RESET_MEMBRANE_WRONG lane=%0d",lane);
+      if(thresholds_flat_state[lane*8 +: 8] != 8'd6)
+        $fatal(1,"RESET_THRESHOLD_WRONG lane=%0d",lane);
+    end
+
+    host_broadcast(3'd1);
+    if(core_snapshot_valids_state != 10'h3ff)
+      $fatal(1,"CORE_SNAPSHOT_VALID_NOT_PUBLIC value=%h",core_snapshot_valids_state);
+    if(eligibility_snapshots_flat_state != 0)
+      $fatal(1,"RESET_SNAPSHOT_CONTENT_WRONG");
+
+    host_broadcast(3'd2);
+    if(last_observation_valids_state != 10'h3ff)
+      $fatal(1,"OBSERVATION_VALIDS_WRONG value=%h",last_observation_valids_state);
+    for(lane=0; lane<10; lane=lane+1)
+      if(last_observation_ids_flat_state[lane*16 +: 16] != 16'h7101)
+        $fatal(1,"OBSERVATION_ID_WRONG lane=%0d id=%h",lane,
+               last_observation_ids_flat_state[lane*16 +: 16]);
+
+    prune_commit_valid=1; #1;
+    if(!prune_commit_ready) $fatal(1,"COMMIT_NOT_READY");
+    @(posedge clk); #1; prune_commit_valid=0; timeout=0;
+    while(!prune_rsp_valid && timeout<500) begin @(posedge clk); #1; timeout=timeout+1; end
+    if(!prune_rsp_valid || prune_rsp_status!=0) $fatal(1,"COMMIT_FAILED");
+    if(last_commit_valids_state != 10'h3ff)
+      $fatal(1,"COMMIT_VALIDS_WRONG value=%h",last_commit_valids_state);
+    for(lane=0; lane<10; lane=lane+1)
+      if(last_commit_ids_flat_state[lane*16 +: 16] != 16'h7201)
+        $fatal(1,"COMMIT_ID_WRONG lane=%0d id=%h",lane,
+               last_commit_ids_flat_state[lane*16 +: 16]);
+
+    $display("NP4B_ENEURON_4X8X2_AUDIT_ID_PASS");
+    $finish;
+  end
+endmodule
+"""
+    )
+    if "NP4B_ENEURON_4X8X2_AUDIT_ID_PASS" not in output:
+        raise AssertionError("未看到 ENeuron 4→8→2 audit/ID 通过标记")

@@ -5,6 +5,7 @@ from __future__ import annotations
 import unittest
 
 from eneuron_pruned_network_4x8x2_cosim import (
+    run_audit_state_and_id_contract,
     run_hidden_output_accounting_contract,
     run_host_transaction_and_backpressure_contract,
     run_topology_route_and_commit_contract,
@@ -12,6 +13,9 @@ from eneuron_pruned_network_4x8x2_cosim import (
 
 
 class ENeuronPrunedNetwork4x8x2Tests(unittest.TestCase):
+    def test_ten_gate_ids_and_core_audit_state_are_public(self) -> None:
+        run_audit_state_and_id_contract()
+
     def test_topology_route_and_atomic_commit(self) -> None:
         run_topology_route_and_commit_contract()
 
