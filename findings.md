@@ -611,3 +611,16 @@
 - `.gitignore` 默认排除 `.log`/`.vcd`，因此正式 proof 日志和成功 witness 必须按精确文件名强制加入；修改全局忽略规则会把大量历史中间产物带入仓库，不符合 KISS。
 - 旧 `*_cex.vcd` 和 `*.tmp.log` 只记录失败/中间尝试，不属于正式证据集合；最终 SHA-256 清单必须拒绝这些文件冒充签核 witness。
 - 原始 Yosys 日志含工具横幅行尾空格，普通 `git diff --check` 会对日志报噪声；修改日志会破坏原始证据。正确边界是对人工维护文件执行空白检查，对工具产物执行哈希和标记校验。
+
+## 2026-08-29 P1/P2/P3 启动审计事实
+
+- ENeuron 真实顶层已在 `FORMAL` 块中直接断言 `barrier_runtime_blocked` 时三类 ready 全低；Pulse 公共顶层的组合逻辑也显式包含该阻塞条件，但仍需同强度验证绑定，不能只凭源码目视签核。
+- 既有 `formal_local_prune_gate.sv` 已证明 `mask_valid→exact-two`、commit 原子发布、INFER 拒绝冻结和 response 背压；P2 总 verifier 应引用并哈希这组证据，而不是在 barrier 环境中重新声称独立证明 gate 算法。
+- 现有前三类 NP4B5 负向控制确实只运行 Python 自包含模型；它们适合说明合同含义，但不足以证明当前 RTL 验收链能捕获真实接线/时序 mutation，因此 P3 的 RTL 变体补强是必要硬门。
+
+## 2026-08-29 P2/P3 收口事实
+
+- barrier 的 exact-two 是组合结论：gate verifier 证明真实 gate 的 proof/reach/witness，barrier verifier 再证明十参与者原子汇合；只检查 gate `.ys` 文件含 proof 命令不构成证据绑定。
+- gate reach 现在显式约束第 8 拍 `mask_valid=1`、`mask_commits=1`、mask=`0011` 并输出 VCD，避免“存在某个模型”却没有可审计 exact-two witness。
+- P2 首版 cex 暴露的是 harness 错误地要求十路 clear 同拍返回；真实设计允许错拍 response 并用 sticky seen 汇合。修正验证模型后 DUT 无需修改。
+- P3 的 mutation 基于当前真实 RTL 源文本，能捕获指定的 evidence 时序、学习输入门控、runtime barrier 和输出路由错误；它们仍不是每个错误版本的动态 Icarus 仿真，因此最终正确性继续由正式 RTL cosim/formal 共同承担。

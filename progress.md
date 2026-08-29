@@ -531,3 +531,17 @@
 - 正式日志分别为 551,887 和 580,073 bytes；非空成功 witness 分别为 15,561 和 16,787 bytes。
 - P0 提交只纳入正式 harness、proof/reach 脚本、runner、verifier、日志和成功 witness；明确排除旧 cex 与 tmp 日志，未运行 Vivado。
 - Yosys 原始日志的 ASCII 横幅自带行尾空格；为保持证据原样，不清洗日志。源码、脚本和文档仍执行严格 `git diff --check`，日志完整性留给最终 SHA-256 摘要。
+
+## 2026-08-29 P1/P2/P3 并行启动
+
+- P0 已提交为 `67b6019 test: prove Pulse pruning wrapper atomicity`，提交后工作树干净。
+- P1、P2、P3 按独立文件边界并行：ENeuron wrapper proof/reach、N=10 barrier 组合证明、真实 RTL mutation 负向控制；三路均禁止提交和运行 Vivado，由主线程统一审计。
+- 主线程复核确认 ENeuron 顶层已有 runtime-blocked 形式断言，Pulse 顶层已有同等组合阻塞逻辑；后续仍需机器化验证，不以目视检查代替。
+
+## 2026-08-29 P2 barrier 与 P3 负向控制收口
+
+- 真实 `local_prune_commit_barrier` 固定 N=10 完成 depth=32 proof/reach；成功 witness 覆盖 gate 错拍、response 背压和响应消费后 runtime 解除阻塞。
+- 新增公共 gate 独立 verifier，并把 reach 固定为第 8 拍 exact-two mask=`0011`，生成 11,288-byte 成功 witness；barrier verifier 会实际调用 gate verifier，不再只检查脚本文本存在。
+- barrier proof/reach 日志分别为 255,927/193,918 bytes，成功 witness 为 12,944 bytes；三个真实顶层均通过 `iverilog -Wall` elaboration 与 runtime-ready 合同绑定。
+- P3 新增三类真实 RTL 源码 mutation 和三模型输出路由结构 mutation；7/7 负向控制、35 项相关 wrapper/network 回归通过，正式 RTL 未因测试而改写。
+- 完整三模型 INFER 学习状态冻结继续由 P4 各 20,000 条新鲜矩阵签核，不用当前小范围回归冒充最终长事务证据。

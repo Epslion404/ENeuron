@@ -22,4 +22,7 @@ $reachText = Get-Content -LiteralPath $reachLog -Raw
 if ($reachText -notmatch 'SAT solving finished - model found:') {
     throw 'Local prune gate reachability check did not reach a successful commit'
 }
+if (-not (Test-Path -LiteralPath (Join-Path $root 'formal_local_prune_gate_success.vcd'))) {
+    throw 'Local prune gate successful commit witness is missing'
+}
 Write-Host 'LOCAL_PRUNE_GATE_FORMAL_PASS depth=32 commit_reachable=1'

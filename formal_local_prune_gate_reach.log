@@ -1,0 +1,1156 @@
+
+-- Executing script file `D:\Documents\Code\ENeuron\formal_local_prune_gate_reach.ys' --
+
+1. Executing Verilog-2005 frontend: local_prune_gate_2of4.sv
+Parsing formal SystemVerilog input from `local_prune_gate_2of4.sv' to AST representation.
+Generating RTLIL representation for module `\local_prune_gate_2of4'.
+Warning: Replacing memory \utility with list of registers. See local_prune_gate_2of4.sv:209
+Successfully finished Verilog frontend.
+
+2. Executing Verilog-2005 frontend: formal_local_prune_gate.sv
+Parsing formal SystemVerilog input from `formal_local_prune_gate.sv' to AST representation.
+Generating RTLIL representation for module `\formal_local_prune_gate'.
+Successfully finished Verilog frontend.
+
+3. Executing PREP pass.
+
+3.1. Executing HIERARCHY pass (managing design hierarchy).
+
+3.1.1. Analyzing design hierarchy..
+Top module:  \formal_local_prune_gate
+Used module:     \local_prune_gate_2of4
+
+3.1.2. Analyzing design hierarchy..
+Top module:  \formal_local_prune_gate
+Used module:     \local_prune_gate_2of4
+Removed 0 unused modules.
+Module formal_local_prune_gate directly or indirectly contains formal properties -> setting "keep" attribute.
+Module local_prune_gate_2of4 directly or indirectly contains formal properties -> setting "keep" attribute.
+
+3.2. Executing PROC pass (convert processes to netlists).
+
+3.2.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Cleaned up 0 empty switches.
+
+3.2.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Marked 25 switch rules as full_case in process $proc$formal_local_prune_gate.sv:90$258 in module formal_local_prune_gate.
+Marked 2 switch rules as full_case in process $proc$local_prune_gate_2of4.sv:426$175 in module local_prune_gate_2of4.
+Removed 1 dead cases from process $proc$local_prune_gate_2of4.sv:205$58 in module local_prune_gate_2of4.
+Marked 22 switch rules as full_case in process $proc$local_prune_gate_2of4.sv:205$58 in module local_prune_gate_2of4.
+Removed 4 dead cases from process $proc$local_prune_gate_2of4.sv:0$28 in module local_prune_gate_2of4.
+Marked 6 switch rules as full_case in process $proc$local_prune_gate_2of4.sv:0$28 in module local_prune_gate_2of4.
+Removed a total of 5 dead cases.
+
+3.2.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+Removed 4 redundant assignments.
+Promoted 71 assignments to connections.
+
+3.2.4. Executing PROC_INIT pass (extract init attributes).
+
+3.2.5. Executing PROC_ARST pass (detect async resets in processes).
+
+3.2.6. Executing PROC_ROM pass (convert switches to ROMs).
+Converted 0 switches.
+<suppressed ~66 debug messages>
+
+3.2.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
+Creating decoders for process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+     1/104: $2\exact_two$func$formal_local_prune_gate.sv:194$242.$result[0:0]$536
+     2/104: $2\exact_two$func$formal_local_prune_gate.sv:194$242.value[3:0]$537
+     3/104: $2\exact_two$func$formal_local_prune_gate.sv:140$219.$result[0:0]$471
+     4/104: $2\exact_two$func$formal_local_prune_gate.sv:140$219.value[3:0]$472
+     5/104: $2\top2_mask$func$formal_local_prune_gate.sv:116$218.result[3:0]$330 [3]
+     6/104: $18\top2_mask$func$formal_local_prune_gate.sv:116$218.outrank_count[31:0]$433
+     7/104: $17\top2_mask$func$formal_local_prune_gate.sv:116$218.outrank_count[31:0]$427
+     8/104: $16\top2_mask$func$formal_local_prune_gate.sv:116$218.outrank_count[31:0]$421
+     9/104: $15\top2_mask$func$formal_local_prune_gate.sv:116$218.outrank_count[31:0]$415
+    10/104: $5\top2_mask$func$formal_local_prune_gate.sv:116$218.result[2:2]$410
+    11/104: $14\top2_mask$func$formal_local_prune_gate.sv:116$218.outrank_count[31:0]$407
+    12/104: $13\top2_mask$func$formal_local_prune_gate.sv:116$218.outrank_count[31:0]$401
+    13/104: $12\top2_mask$func$formal_local_prune_gate.sv:116$218.outrank_count[31:0]$395
+    14/104: $11\top2_mask$func$formal_local_prune_gate.sv:116$218.outrank_count[31:0]$389
+    15/104: $4\top2_mask$func$formal_local_prune_gate.sv:116$218.result[1:1]$384
+    16/104: $10\top2_mask$func$formal_local_prune_gate.sv:116$218.outrank_count[31:0]$381
+    17/104: $9\top2_mask$func$formal_local_prune_gate.sv:116$218.outrank_count[31:0]$375
+    18/104: $8\top2_mask$func$formal_local_prune_gate.sv:116$218.outrank_count[31:0]$369
+    19/104: $7\top2_mask$func$formal_local_prune_gate.sv:116$218.outrank_count[31:0]$363
+    20/104: $3\top2_mask$func$formal_local_prune_gate.sv:116$218.result[0:0]$358
+    21/104: $6\top2_mask$func$formal_local_prune_gate.sv:116$218.outrank_count[31:0]$355
+    22/104: $5\top2_mask$func$formal_local_prune_gate.sv:116$218.outrank_count[31:0]$349
+    23/104: $4\top2_mask$func$formal_local_prune_gate.sv:116$218.outrank_count[31:0]$343
+    24/104: $3\top2_mask$func$formal_local_prune_gate.sv:116$218.outrank_count[31:0]$337
+    25/104: $2\top2_mask$func$formal_local_prune_gate.sv:116$218.$result[3:0]$325
+    26/104: $2\top2_mask$func$formal_local_prune_gate.sv:116$218.i[31:0]$327
+    27/104: $2\top2_mask$func$formal_local_prune_gate.sv:116$218.result[3:0]$330 [2]
+    28/104: $2\top2_mask$func$formal_local_prune_gate.sv:116$218.j[31:0]$328
+    29/104: $2\top2_mask$func$formal_local_prune_gate.sv:116$218.outrank_count[31:0]$329
+    30/104: $2\top2_mask$func$formal_local_prune_gate.sv:116$218.value_j[3:0]$332
+    31/104: $2\top2_mask$func$formal_local_prune_gate.sv:116$218.value_i[3:0]$331
+    32/104: $2\top2_mask$func$formal_local_prune_gate.sv:116$218.result[3:0]$330 [1]
+    33/104: $2\top2_mask$func$formal_local_prune_gate.sv:116$218.result[3:0]$330 [0]
+    34/104: $6\top2_mask$func$formal_local_prune_gate.sv:116$218.result[3:3]$436
+    35/104: $2\top2_mask$func$formal_local_prune_gate.sv:116$218.values[15:0]$326
+    36/104: $0\expect_infer_reject[0:0]
+    37/104: $1\exact_two$func$formal_local_prune_gate.sv:194$242.value[3:0]$308
+    38/104: $1\exact_two$func$formal_local_prune_gate.sv:194$242.$result[0:0]$307
+    39/104: $1\exact_two$func$formal_local_prune_gate.sv:140$219.value[3:0]$306
+    40/104: $1\exact_two$func$formal_local_prune_gate.sv:140$219.$result[0:0]$305
+    41/104: $1\top2_mask$func$formal_local_prune_gate.sv:116$218.value_j[3:0]$304
+    42/104: $1\top2_mask$func$formal_local_prune_gate.sv:116$218.value_i[3:0]$303
+    43/104: $1\top2_mask$func$formal_local_prune_gate.sv:116$218.result[3:0]$302
+    44/104: $1\top2_mask$func$formal_local_prune_gate.sv:116$218.outrank_count[31:0]$301
+    45/104: $1\top2_mask$func$formal_local_prune_gate.sv:116$218.j[31:0]$300
+    46/104: $1\top2_mask$func$formal_local_prune_gate.sv:116$218.i[31:0]$299
+    47/104: $1\top2_mask$func$formal_local_prune_gate.sv:116$218.values[15:0]$298
+    48/104: $1\top2_mask$func$formal_local_prune_gate.sv:116$218.$result[3:0]$297
+    49/104: $assert$formal_local_prune_gate.sv:208$575_EN
+    50/104: $assert$formal_local_prune_gate.sv:207$573_EN
+    51/104: $assert$formal_local_prune_gate.sv:206$571_EN
+    52/104: $assert$formal_local_prune_gate.sv:205$569_EN
+    53/104: $assert$formal_local_prune_gate.sv:204$567_EN
+    54/104: $assert$formal_local_prune_gate.sv:203$565_EN
+    55/104: $assert$formal_local_prune_gate.sv:202$563_EN
+    56/104: $assert$formal_local_prune_gate.sv:201$561_EN
+    57/104: $assert$formal_local_prune_gate.sv:200$559_EN
+    58/104: $assert$formal_local_prune_gate.sv:199$558_EN
+    59/104: $assert$formal_local_prune_gate.sv:194$557_EN
+    60/104: $assert$formal_local_prune_gate.sv:193$544_EN
+    61/104: $assert$formal_local_prune_gate.sv:192$543_EN
+    62/104: $assert$formal_local_prune_gate.sv:191$541_EN
+    63/104: $assert$formal_local_prune_gate.sv:190$540_EN
+    64/104: $assert$formal_local_prune_gate.sv:189$538_EN
+    65/104: $assert$formal_local_prune_gate.sv:184$533_EN
+    66/104: $assert$formal_local_prune_gate.sv:183$531_EN
+    67/104: $assert$formal_local_prune_gate.sv:182$529_EN
+    68/104: $assert$formal_local_prune_gate.sv:181$528_EN
+    69/104: $assert$formal_local_prune_gate.sv:174$525_EN
+    70/104: $assert$formal_local_prune_gate.sv:173$523_EN
+    71/104: $assert$formal_local_prune_gate.sv:172$521_EN
+    72/104: $assert$formal_local_prune_gate.sv:171$519_EN
+    73/104: $assert$formal_local_prune_gate.sv:170$518_EN
+    74/104: $assert$formal_local_prune_gate.sv:162$515_EN
+    75/104: $assert$formal_local_prune_gate.sv:161$513_EN
+    76/104: $assert$formal_local_prune_gate.sv:160$511_EN
+    77/104: $assert$formal_local_prune_gate.sv:159$509_EN
+    78/104: $assert$formal_local_prune_gate.sv:158$507_EN
+    79/104: $assert$formal_local_prune_gate.sv:157$505_EN
+    80/104: $assert$formal_local_prune_gate.sv:156$503_EN
+    81/104: $assert$formal_local_prune_gate.sv:155$501_EN
+    82/104: $assert$formal_local_prune_gate.sv:154$499_EN
+    83/104: $assert$formal_local_prune_gate.sv:153$497_EN
+    84/104: $assert$formal_local_prune_gate.sv:152$495_EN
+    85/104: $assert$formal_local_prune_gate.sv:151$494_EN
+    86/104: $assert$formal_local_prune_gate.sv:146$491_EN
+    87/104: $assert$formal_local_prune_gate.sv:145$489_EN
+    88/104: $assert$formal_local_prune_gate.sv:144$487_EN
+    89/104: $assert$formal_local_prune_gate.sv:140$484_EN
+    90/104: $assert$formal_local_prune_gate.sv:137$467_EN
+    91/104: $assert$formal_local_prune_gate.sv:136$463_EN
+    92/104: $assert$formal_local_prune_gate.sv:135$458_EN
+    93/104: $assume$formal_local_prune_gate.sv:94$295_EN
+    94/104: $assume$formal_local_prune_gate.sv:92$294_EN
+    95/104: $0\infer_mask_commits_snapshot[31:0]
+    96/104: $0\infer_commit_id_snapshot[15:0]
+    97/104: $0\infer_commit_valid_snapshot[0:0]
+    98/104: $0\infer_observation_id_snapshot[15:0]
+    99/104: $0\infer_observation_valid_snapshot[0:0]
+   100/104: $0\infer_mask_valid_snapshot[0:0]
+   101/104: $0\infer_mask_snapshot[3:0]
+   102/104: $0\infer_utility_snapshot[15:0]
+   103/104: $0\expected_commit_mask[3:0]
+   104/104: $0\expected_commit_valid[0:0]
+Creating decoders for process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:0$209'.
+Creating decoders for process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:0$202'.
+Creating decoders for process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:426$175'.
+     1/12: $2\exact_two$func$local_prune_gate_2of4.sv:429$10.$result[0:0]$185
+     2/12: $2\popcount4$func$local_prune_gate_2of4.sv:140$11.$result[2:0]$187
+     3/12: $2\popcount4$func$local_prune_gate_2of4.sv:140$11.value[3:0]$188
+     4/12: $2\exact_two$func$local_prune_gate_2of4.sv:429$10.value[3:0]$186
+     5/12: $1\popcount4$func$local_prune_gate_2of4.sv:140$11.value[3:0]$184
+     6/12: $1\popcount4$func$local_prune_gate_2of4.sv:140$11.$result[2:0]$183
+     7/12: $1\exact_two$func$local_prune_gate_2of4.sv:429$10.value[3:0]$182
+     8/12: $1\exact_two$func$local_prune_gate_2of4.sv:429$10.$result[0:0]$181
+     9/12: $assert$local_prune_gate_2of4.sv:434$199_EN
+    10/12: $assert$local_prune_gate_2of4.sv:433$197_EN
+    11/12: $assert$local_prune_gate_2of4.sv:431$194_EN
+    12/12: $assert$local_prune_gate_2of4.sv:429$193_EN
+Creating decoders for process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+     1/96: $3\exact_two$func$local_prune_gate_2of4.sv:410$8.$result[0:0]$164
+     2/96: $3\popcount4$func$local_prune_gate_2of4.sv:140$9.$result[2:0]$166
+     3/96: $3\popcount4$func$local_prune_gate_2of4.sv:140$9.value[3:0]$167
+     4/96: $3\exact_two$func$local_prune_gate_2of4.sv:410$8.value[3:0]$165
+     5/96: $4\exact_two$func$local_prune_gate_2of4.sv:385$6.$result[0:0]$151
+     6/96: $4\popcount4$func$local_prune_gate_2of4.sv:140$7.$result[2:0]$153
+     7/96: $4\popcount4$func$local_prune_gate_2of4.sv:140$7.value[3:0]$154
+     8/96: $4\exact_two$func$local_prune_gate_2of4.sv:385$6.value[3:0]$152
+     9/96: $8\i[31:0]
+    10/96: $11\accumulated_value[31:0]
+    11/96: $11\decayed_value[31:0]
+    12/96: $10\accumulated_value[31:0]
+    13/96: $10\decayed_value[31:0]
+    14/96: $9\accumulated_value[31:0]
+    15/96: $9\decayed_value[31:0]
+    16/96: $8\accumulated_value[31:0]
+    17/96: $8\decayed_value[31:0]
+    18/96: $7\i[31:0]
+    19/96: $7\accumulated_value[31:0]
+    20/96: $7\decayed_value[31:0]
+    21/96: $6\accumulated_value[31:0]
+    22/96: $6\decayed_value[31:0]
+    23/96: $6\i[31:0]
+    24/96: $5\accumulated_value[31:0]
+    25/96: $5\decayed_value[31:0]
+    26/96: $5\i[31:0]
+    27/96: $4\accumulated_value[31:0]
+    28/96: $4\decayed_value[31:0]
+    29/96: $4\i[31:0]
+    30/96: $3\accumulated_value[31:0]
+    31/96: $3\decayed_value[31:0]
+    32/96: $3\i[31:0]
+    33/96: $3\popcount4$func$local_prune_gate_2of4.sv:140$7.value[3:0]$100
+    34/96: $3\popcount4$func$local_prune_gate_2of4.sv:140$7.$result[2:0]$99
+    35/96: $3\exact_two$func$local_prune_gate_2of4.sv:385$6.value[3:0]$98
+    36/96: $3\exact_two$func$local_prune_gate_2of4.sv:385$6.$result[0:0]$97
+    37/96: $2\popcount4$func$local_prune_gate_2of4.sv:140$7.value[3:0]$91
+    38/96: $2\popcount4$func$local_prune_gate_2of4.sv:140$7.$result[2:0]$90
+    39/96: $2\exact_two$func$local_prune_gate_2of4.sv:385$6.value[3:0]$89
+    40/96: $2\exact_two$func$local_prune_gate_2of4.sv:385$6.$result[0:0]$88
+    41/96: $2\accumulated_value[31:0]
+    42/96: $2\decayed_value[31:0]
+    43/96: $2\i[31:0]
+    44/96: $2\popcount4$func$local_prune_gate_2of4.sv:140$9.value[3:0]$95
+    45/96: $2\popcount4$func$local_prune_gate_2of4.sv:140$9.$result[2:0]$94
+    46/96: $2\exact_two$func$local_prune_gate_2of4.sv:410$8.value[3:0]$93
+    47/96: $2\exact_two$func$local_prune_gate_2of4.sv:410$8.$result[0:0]$92
+    48/96: $0\protocol_error[0:0]
+    49/96: $0\cfg_mask_error[0:0]
+    50/96: $0\cfg_mask_done[0:0]
+    51/96: $1\i[31:0]
+    52/96: $1\popcount4$func$local_prune_gate_2of4.sv:140$9.value[3:0]$74
+    53/96: $1\popcount4$func$local_prune_gate_2of4.sv:140$9.$result[2:0]$73
+    54/96: $1\exact_two$func$local_prune_gate_2of4.sv:410$8.value[3:0]$72
+    55/96: $1\exact_two$func$local_prune_gate_2of4.sv:410$8.$result[0:0]$71
+    56/96: $1\popcount4$func$local_prune_gate_2of4.sv:140$7.value[3:0]$70
+    57/96: $1\popcount4$func$local_prune_gate_2of4.sv:140$7.$result[2:0]$69
+    58/96: $1\exact_two$func$local_prune_gate_2of4.sv:385$6.value[3:0]$68
+    59/96: $1\exact_two$func$local_prune_gate_2of4.sv:385$6.$result[0:0]$67
+    60/96: $1\accumulated_value[31:0]
+    61/96: $1\decayed_value[31:0]
+    62/96: $0\utility[3][3:0]
+    63/96: $0\utility[2][3:0]
+    64/96: $0\utility[1][3:0]
+    65/96: $0\utility[0][3:0]
+    66/96: $0\groups_skipped[31:0]
+    67/96: $0\inactive_groups[31:0]
+    68/96: $0\output_reads_saved[31:0]
+    69/96: $0\output_synapse_ops[31:0]
+    70/96: $0\output_reads_issued[31:0]
+    71/96: $0\output_dense_reads[31:0]
+    72/96: $0\hidden_reads_saved[31:0]
+    73/96: $0\hidden_synapse_ops[31:0]
+    74/96: $0\hidden_reads_issued[31:0]
+    75/96: $0\hidden_dense_reads[31:0]
+    76/96: $0\illegal_commands[31:0]
+    77/96: $0\mask_commits[31:0]
+    78/96: $0\best2_index[1:0]
+    79/96: $0\best1_index[1:0]
+    80/96: $0\best2_score[3:0]
+    81/96: $0\best1_score[3:0]
+    82/96: $0\best2_valid[0:0]
+    83/96: $0\best1_valid[0:0]
+    84/96: $0\pending_commit_id[15:0]
+    85/96: $0\scan_index[1:0]
+    86/96: $0\rsp_mask_reg[3:0]
+    87/96: $0\rsp_id_reg[15:0]
+    88/96: $0\rsp_status_reg[2:0]
+    89/96: $0\rsp_valid_reg[0:0]
+    90/96: $0\last_commit_id[15:0]
+    91/96: $0\last_commit_valid[0:0]
+    92/96: $0\last_observation_id[15:0]
+    93/96: $0\last_observation_valid[0:0]
+    94/96: $0\mask_valid[0:0]
+    95/96: $0\structural_mask[3:0]
+    96/96: $0\state[0:0]
+Creating decoders for process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:0$28'.
+     1/21: $3$mem2reg_rd$\utility$local_prune_gate_2of4.sv:197$17_DATA[3:0]$54
+     2/21: $2\next_best2_index[1:0]
+     3/21: $2\next_best2_score[3:0]
+     4/21: $2$mem2reg_rd$\utility$local_prune_gate_2of4.sv:197$17_DATA[3:0]$53
+     5/21: $2$mem2reg_rd$\utility$local_prune_gate_2of4.sv:197$17_ADDR[1:0]$52
+     6/21: $2\next_best2_valid[0:0]
+     7/21: $2$mem2reg_rd$\utility$local_prune_gate_2of4.sv:195$16_DATA[3:0]$48
+     8/21: $2$mem2reg_rd$\utility$local_prune_gate_2of4.sv:193$15_DATA[3:0]$47
+     9/21: $1\next_best1_index[1:0]
+    10/21: $1\next_best1_score[3:0]
+    11/21: $1$mem2reg_rd$\utility$local_prune_gate_2of4.sv:193$15_DATA[3:0]$42
+    12/21: $1$mem2reg_rd$\utility$local_prune_gate_2of4.sv:193$15_ADDR[1:0]$41
+    13/21: $1\next_best1_valid[0:0]
+    14/21: $1\next_best2_index[1:0]
+    15/21: $1\next_best2_score[3:0]
+    16/21: $1\next_best2_valid[0:0]
+    17/21: $1$mem2reg_rd$\utility$local_prune_gate_2of4.sv:197$17_DATA[3:0]$46
+    18/21: $1$mem2reg_rd$\utility$local_prune_gate_2of4.sv:197$17_ADDR[1:0]$45
+    19/21: $1$mem2reg_rd$\utility$local_prune_gate_2of4.sv:195$16_DATA[3:0]$44
+    20/21: $1$mem2reg_rd$\utility$local_prune_gate_2of4.sv:195$16_ADDR[1:0]$43
+    21/21: $1$mem2reg_rd$\utility$local_prune_gate_2of4.sv:188$14_DATA[3:0]$37
+
+3.2.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+No latch inferred for signal `\local_prune_gate_2of4.\popcount4$func$local_prune_gate_2of4.sv:145$5.$result' from process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:0$209'.
+No latch inferred for signal `\local_prune_gate_2of4.\popcount4$func$local_prune_gate_2of4.sv:145$13.$result' from process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:0$209'.
+No latch inferred for signal `\local_prune_gate_2of4.\popcount4$func$local_prune_gate_2of4.sv:145$13.value' from process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:0$209'.
+No latch inferred for signal `\local_prune_gate_2of4.\popcount4$func$local_prune_gate_2of4.sv:144$4.$result' from process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:0$202'.
+No latch inferred for signal `\local_prune_gate_2of4.\popcount4$func$local_prune_gate_2of4.sv:144$12.$result' from process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:0$202'.
+No latch inferred for signal `\local_prune_gate_2of4.\popcount4$func$local_prune_gate_2of4.sv:144$12.value' from process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:0$202'.
+No latch inferred for signal `\local_prune_gate_2of4.\next_best1_valid' from process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:0$28'.
+No latch inferred for signal `\local_prune_gate_2of4.\next_best2_valid' from process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:0$28'.
+No latch inferred for signal `\local_prune_gate_2of4.\next_best1_score' from process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:0$28'.
+No latch inferred for signal `\local_prune_gate_2of4.\next_best2_score' from process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:0$28'.
+No latch inferred for signal `\local_prune_gate_2of4.\next_best1_index' from process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:0$28'.
+No latch inferred for signal `\local_prune_gate_2of4.\next_best2_index' from process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:0$28'.
+No latch inferred for signal `\local_prune_gate_2of4.\completed_commit_mask' from process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:0$28'.
+No latch inferred for signal `\local_prune_gate_2of4.$mem2reg_rd$\utility$local_prune_gate_2of4.sv:188$14_ADDR' from process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:0$28'.
+No latch inferred for signal `\local_prune_gate_2of4.$mem2reg_rd$\utility$local_prune_gate_2of4.sv:188$14_DATA' from process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:0$28'.
+No latch inferred for signal `\local_prune_gate_2of4.$mem2reg_rd$\utility$local_prune_gate_2of4.sv:193$15_ADDR' from process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:0$28'.
+No latch inferred for signal `\local_prune_gate_2of4.$mem2reg_rd$\utility$local_prune_gate_2of4.sv:193$15_DATA' from process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:0$28'.
+No latch inferred for signal `\local_prune_gate_2of4.$mem2reg_rd$\utility$local_prune_gate_2of4.sv:195$16_ADDR' from process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:0$28'.
+No latch inferred for signal `\local_prune_gate_2of4.$mem2reg_rd$\utility$local_prune_gate_2of4.sv:195$16_DATA' from process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:0$28'.
+No latch inferred for signal `\local_prune_gate_2of4.$mem2reg_rd$\utility$local_prune_gate_2of4.sv:197$17_ADDR' from process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:0$28'.
+No latch inferred for signal `\local_prune_gate_2of4.$mem2reg_rd$\utility$local_prune_gate_2of4.sv:197$17_DATA' from process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:0$28'.
+
+3.2.9. Executing PROC_DFF pass (convert process syncs to FFs).
+Creating register for signal `\formal_local_prune_gate.\past_valid' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2856' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.\expected_commit_valid' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2857' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.\expected_commit_mask' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2858' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.\expect_infer_reject' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2859' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.\infer_utility_snapshot' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2860' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.\infer_mask_snapshot' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2861' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.\infer_mask_valid_snapshot' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2862' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.\infer_observation_valid_snapshot' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2863' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.\infer_observation_id_snapshot' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2864' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.\infer_commit_valid_snapshot' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2865' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.\infer_commit_id_snapshot' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2866' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.\infer_mask_commits_snapshot' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2867' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.\top2_mask$func$formal_local_prune_gate.sv:116$218.$result' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2868' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.\top2_mask$func$formal_local_prune_gate.sv:116$218.values' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2869' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.\top2_mask$func$formal_local_prune_gate.sv:116$218.i' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2870' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.\top2_mask$func$formal_local_prune_gate.sv:116$218.j' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2871' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.\top2_mask$func$formal_local_prune_gate.sv:116$218.outrank_count' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2872' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.\top2_mask$func$formal_local_prune_gate.sv:116$218.result' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2873' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.\top2_mask$func$formal_local_prune_gate.sv:116$218.value_i' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2874' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.\top2_mask$func$formal_local_prune_gate.sv:116$218.value_j' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2875' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.\exact_two$func$formal_local_prune_gate.sv:140$219.$result' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2876' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.\exact_two$func$formal_local_prune_gate.sv:140$219.value' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2877' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.$past$formal_local_prune_gate.sv:144$220$0' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2878' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.$past$formal_local_prune_gate.sv:145$221$0' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2879' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.$past$formal_local_prune_gate.sv:150$222$0' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2880' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.$past$formal_local_prune_gate.sv:152$223$0' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2881' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.$past$formal_local_prune_gate.sv:153$224$0' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2882' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.$past$formal_local_prune_gate.sv:154$225$0' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2883' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.$past$formal_local_prune_gate.sv:155$226$0' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2884' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.$past$formal_local_prune_gate.sv:156$227$0' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2885' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.$past$formal_local_prune_gate.sv:157$228$0' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2886' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.$past$formal_local_prune_gate.sv:158$229$0' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2887' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.$past$formal_local_prune_gate.sv:159$230$0' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2888' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.$past$formal_local_prune_gate.sv:160$231$0' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2889' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.$past$formal_local_prune_gate.sv:161$232$0' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2890' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.$past$formal_local_prune_gate.sv:162$233$0' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2891' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.$past$formal_local_prune_gate.sv:166$234$0' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2892' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.$past$formal_local_prune_gate.sv:172$235$0' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2893' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.$past$formal_local_prune_gate.sv:173$236$0' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2894' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.$past$formal_local_prune_gate.sv:174$237$0' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2895' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.$past$formal_local_prune_gate.sv:178$238$0' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2896' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.$past$formal_local_prune_gate.sv:183$239$0' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2897' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.$past$formal_local_prune_gate.sv:184$240$0' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2898' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.$past$formal_local_prune_gate.sv:188$241$0' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2899' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.\exact_two$func$formal_local_prune_gate.sv:194$242.$result' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2900' with positive edge clock.
+Creating register for signal `\formal_local_prune_gate.\exact_two$func$formal_local_prune_gate.sv:194$242.value' using process `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+  created $dff cell `$procdff$2901' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\exact_two$func$local_prune_gate_2of4.sv:429$10.$result' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:426$175'.
+  created $dff cell `$procdff$2902' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\exact_two$func$local_prune_gate_2of4.sv:429$10.value' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:426$175'.
+  created $dff cell `$procdff$2903' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\popcount4$func$local_prune_gate_2of4.sv:140$11.$result' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:426$175'.
+  created $dff cell `$procdff$2904' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\popcount4$func$local_prune_gate_2of4.sv:140$11.value' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:426$175'.
+  created $dff cell `$procdff$2905' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\cfg_mask_done' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2906' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\cfg_mask_error' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2907' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\protocol_error' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2908' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\state' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2909' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\structural_mask' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2910' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\mask_valid' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2911' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\last_observation_valid' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2912' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\last_observation_id' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2913' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\last_commit_valid' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2914' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\last_commit_id' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2915' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\rsp_valid_reg' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2916' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\rsp_status_reg' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2917' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\rsp_id_reg' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2918' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\rsp_mask_reg' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2919' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\scan_index' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2920' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\pending_commit_id' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2921' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\best1_valid' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2922' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\best2_valid' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2923' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\best1_score' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2924' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\best2_score' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2925' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\best1_index' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2926' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\best2_index' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2927' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\mask_commits' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2928' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\illegal_commands' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2929' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\hidden_dense_reads' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2930' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\hidden_reads_issued' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2931' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\hidden_synapse_ops' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2932' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\hidden_reads_saved' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2933' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\output_dense_reads' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2934' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\output_reads_issued' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2935' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\output_synapse_ops' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2936' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\output_reads_saved' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2937' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\inactive_groups' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2938' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\groups_skipped' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2939' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\i' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2940' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\decayed_value' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2941' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\accumulated_value' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2942' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\exact_two$func$local_prune_gate_2of4.sv:385$6.$result' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2943' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\exact_two$func$local_prune_gate_2of4.sv:385$6.value' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2944' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\popcount4$func$local_prune_gate_2of4.sv:140$7.$result' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2945' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\popcount4$func$local_prune_gate_2of4.sv:140$7.value' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2946' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\exact_two$func$local_prune_gate_2of4.sv:410$8.$result' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2947' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\exact_two$func$local_prune_gate_2of4.sv:410$8.value' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2948' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\popcount4$func$local_prune_gate_2of4.sv:140$9.$result' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2949' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\popcount4$func$local_prune_gate_2of4.sv:140$9.value' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2950' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\utility[0]' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2951' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\utility[1]' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2952' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\utility[2]' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2953' with positive edge clock.
+Creating register for signal `\local_prune_gate_2of4.\utility[3]' using process `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+  created $dff cell `$procdff$2954' with positive edge clock.
+
+3.2.10. Executing PROC_MEMWR pass (convert process memory writes to cells).
+
+3.2.11. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Found and cleaned up 32 empty switches in `\formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+Removing empty process `formal_local_prune_gate.$proc$formal_local_prune_gate.sv:90$258'.
+Removing empty process `local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:0$209'.
+Removing empty process `local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:0$202'.
+Found and cleaned up 3 empty switches in `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:426$175'.
+Removing empty process `local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:426$175'.
+Found and cleaned up 25 empty switches in `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+Removing empty process `local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:205$58'.
+Found and cleaned up 6 empty switches in `\local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:0$28'.
+Removing empty process `local_prune_gate_2of4.$proc$local_prune_gate_2of4.sv:0$28'.
+Cleaned up 66 empty switches.
+
+3.2.12. Executing OPT_EXPR pass (perform const folding).
+Optimizing module formal_local_prune_gate.
+<suppressed ~46 debug messages>
+Optimizing module local_prune_gate_2of4.
+<suppressed ~202 debug messages>
+
+3.3. Executing FLATTEN pass (flatten design).
+Deleting now unused module local_prune_gate_2of4.
+<suppressed ~1 debug messages>
+
+3.4. Executing FUTURE pass.
+
+3.5. Executing OPT_EXPR pass (perform const folding).
+Optimizing module formal_local_prune_gate.
+<suppressed ~11 debug messages>
+
+3.6. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \formal_local_prune_gate..
+Removed 509 unused cells and 1565 unused wires.
+<suppressed ~569 debug messages>
+
+3.7. Executing CHECK pass (checking for obvious problems).
+Checking module formal_local_prune_gate...
+Found and reported 0 problems.
+
+3.8. Executing OPT pass (performing simple optimizations).
+
+3.8.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module formal_local_prune_gate.
+
+3.8.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\formal_local_prune_gate'.
+<suppressed ~324 debug messages>
+Removed a total of 108 cells.
+
+3.8.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \formal_local_prune_gate..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+      Replacing known input bits on port A of cell $flatten\dut.$procmux$2733: \dut.state -> 1'0
+      Replacing known input bits on port A of cell $flatten\dut.$procmux$2731: \dut.state -> 1'1
+      Replacing known input bits on port A of cell $flatten\dut.$procmux$2752: \dut.state -> 1'0
+      Replacing known input bits on port A of cell $flatten\dut.$procmux$2750: \dut.state -> 1'0
+      Replacing known input bits on port B of cell $flatten\dut.$procmux$2748: \dut.state -> 1'0
+      Replacing known input bits on port B of cell $flatten\dut.$procmux$2745: \dut.state -> 1'0
+      Replacing known input bits on port B of cell $flatten\dut.$procmux$2742: \dut.state -> 1'0
+      Replacing known input bits on port B of cell $flatten\dut.$procmux$2739: \dut.state -> 1'0
+  Analyzing evaluation results.
+    dead port 2/2 on $mux $flatten\dut.$procmux$2764.
+    dead port 1/2 on $mux $flatten\dut.$procmux$2767.
+    dead port 1/2 on $mux $flatten\dut.$procmux$2773.
+    dead port 1/2 on $mux $flatten\dut.$procmux$2779.
+    dead port 1/2 on $mux $flatten\dut.$procmux$2797.
+    dead port 2/2 on $mux $flatten\dut.$procmux$2813.
+    dead port 2/2 on $mux $procmux$671.
+    dead port 1/2 on $mux $procmux$674.
+    dead port 2/2 on $mux $procmux$716.
+    dead port 1/2 on $mux $procmux$719.
+    dead port 2/2 on $mux $procmux$761.
+    dead port 1/2 on $mux $procmux$764.
+    dead port 2/2 on $mux $procmux$860.
+    dead port 1/2 on $mux $procmux$863.
+Removed 14 multiplexer ports.
+<suppressed ~111 debug messages>
+
+3.8.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \formal_local_prune_gate.
+Performed a total of 0 changes.
+
+3.8.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\formal_local_prune_gate'.
+<suppressed ~237 debug messages>
+Removed a total of 79 cells.
+
+3.8.6. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \formal_local_prune_gate..
+Removed 0 unused cells and 205 unused wires.
+<suppressed ~5 debug messages>
+
+3.8.7. Executing OPT_EXPR pass (perform const folding).
+Optimizing module formal_local_prune_gate.
+<suppressed ~3 debug messages>
+
+3.8.8. Rerunning OPT passes. (Maybe there is more to do..)
+
+3.8.9. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \formal_local_prune_gate..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~72 debug messages>
+
+3.8.10. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \formal_local_prune_gate.
+Performed a total of 0 changes.
+
+3.8.11. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\formal_local_prune_gate'.
+<suppressed ~2 debug messages>
+Removed a total of 1 cells.
+
+3.8.12. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \formal_local_prune_gate..
+Removed 3 unused cells and 9 unused wires.
+<suppressed ~10 debug messages>
+
+3.8.13. Executing OPT_EXPR pass (perform const folding).
+Optimizing module formal_local_prune_gate.
+
+3.8.14. Rerunning OPT passes. (Maybe there is more to do..)
+
+3.8.15. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \formal_local_prune_gate..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~72 debug messages>
+
+3.8.16. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \formal_local_prune_gate.
+Performed a total of 0 changes.
+
+3.8.17. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\formal_local_prune_gate'.
+Removed a total of 0 cells.
+
+3.8.18. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \formal_local_prune_gate..
+
+3.8.19. Executing OPT_EXPR pass (perform const folding).
+Optimizing module formal_local_prune_gate.
+
+3.8.20. Finished OPT passes. (There is nothing left to do.)
+
+3.9. Executing WREDUCE pass (reducing word size of cells).
+Removed top 1 bits (of 3) from port B of cell formal_local_prune_gate.$eq$formal_local_prune_gate.sv:110$310 ($eq).
+Removed top 1 bits (of 2) from port B of cell formal_local_prune_gate.$eq$formal_local_prune_gate.sv:111$312 ($eq).
+Removed top 30 bits (of 32) from port B of cell formal_local_prune_gate.$add$formal_local_prune_gate.sv:78$344 ($add).
+Removed top 30 bits (of 32) from port B of cell formal_local_prune_gate.$add$formal_local_prune_gate.sv:78$350 ($add).
+Removed top 30 bits (of 32) from port B of cell formal_local_prune_gate.$add$formal_local_prune_gate.sv:78$356 ($add).
+Removed top 29 bits (of 32) from port B of cell formal_local_prune_gate.$lt$formal_local_prune_gate.sv:80$357 ($lt).
+Removed top 30 bits (of 32) from port B of cell formal_local_prune_gate.$add$formal_local_prune_gate.sv:78$370 ($add).
+Removed top 30 bits (of 32) from port B of cell formal_local_prune_gate.$add$formal_local_prune_gate.sv:78$376 ($add).
+Removed top 30 bits (of 32) from port B of cell formal_local_prune_gate.$add$formal_local_prune_gate.sv:78$382 ($add).
+Removed top 29 bits (of 32) from port B of cell formal_local_prune_gate.$lt$formal_local_prune_gate.sv:80$383 ($lt).
+Removed top 30 bits (of 32) from port B of cell formal_local_prune_gate.$add$formal_local_prune_gate.sv:78$396 ($add).
+Removed top 30 bits (of 32) from port B of cell formal_local_prune_gate.$add$formal_local_prune_gate.sv:78$402 ($add).
+Removed top 30 bits (of 32) from port B of cell formal_local_prune_gate.$add$formal_local_prune_gate.sv:78$408 ($add).
+Removed top 29 bits (of 32) from port B of cell formal_local_prune_gate.$lt$formal_local_prune_gate.sv:80$409 ($lt).
+Removed top 30 bits (of 32) from port B of cell formal_local_prune_gate.$add$formal_local_prune_gate.sv:78$422 ($add).
+Removed top 30 bits (of 32) from port B of cell formal_local_prune_gate.$add$formal_local_prune_gate.sv:78$428 ($add).
+Removed top 30 bits (of 32) from port B of cell formal_local_prune_gate.$add$formal_local_prune_gate.sv:78$434 ($add).
+Removed top 29 bits (of 32) from port B of cell formal_local_prune_gate.$lt$formal_local_prune_gate.sv:80$435 ($lt).
+Removed top 2 bits (of 3) from port B of cell formal_local_prune_gate.$eq$formal_local_prune_gate.sv:122$444 ($eq).
+Removed top 2 bits (of 4) from port B of cell formal_local_prune_gate.$eq$formal_local_prune_gate.sv:58$473 ($eq).
+Removed top 1 bits (of 4) from port B of cell formal_local_prune_gate.$eq$formal_local_prune_gate.sv:58$474 ($eq).
+Removed top 1 bits (of 4) from port B of cell formal_local_prune_gate.$eq$formal_local_prune_gate.sv:59$476 ($eq).
+Removed top 1 bits (of 3) from port B of cell formal_local_prune_gate.$eq$formal_local_prune_gate.sv:200$560 ($eq).
+Removed top 31 bits (of 32) from mux cell formal_local_prune_gate.$procmux$660 ($mux).
+Removed top 31 bits (of 32) from mux cell formal_local_prune_gate.$procmux$705 ($mux).
+Removed top 31 bits (of 32) from mux cell formal_local_prune_gate.$procmux$750 ($mux).
+Removed top 31 bits (of 32) from mux cell formal_local_prune_gate.$procmux$795 ($mux).
+Removed top 1 bits (of 2) from port B of cell formal_local_prune_gate.$flatten\dut.$procmux$2762_CMP0 ($eq).
+Removed top 1 bits (of 3) from mux cell formal_local_prune_gate.$flatten\dut.$procmux$2544 ($mux).
+Removed top 1 bits (of 3) from port B of cell formal_local_prune_gate.$flatten\dut.$procmux$2529_CMP0 ($eq).
+Removed top 1 bits (of 3) from mux cell formal_local_prune_gate.$flatten\dut.$procmux$2526 ($mux).
+Removed top 1 bits (of 3) from port B of cell formal_local_prune_gate.$flatten\dut.$eq$local_prune_gate_2of4.sv:140$192 ($eq).
+Removed top 1 bits (of 3) from port Y of cell formal_local_prune_gate.$flatten\dut.$add$local_prune_gate_2of4.sv:136$189 ($add).
+Removed top 1 bits (of 3) from port B of cell formal_local_prune_gate.$flatten\dut.$eq$local_prune_gate_2of4.sv:140$172 ($eq).
+Removed top 1 bits (of 3) from port Y of cell formal_local_prune_gate.$flatten\dut.$add$local_prune_gate_2of4.sv:136$169 ($add).
+Removed top 1 bits (of 3) from port B of cell formal_local_prune_gate.$flatten\dut.$eq$local_prune_gate_2of4.sv:140$158 ($eq).
+Removed top 1 bits (of 3) from port Y of cell formal_local_prune_gate.$flatten\dut.$add$local_prune_gate_2of4.sv:136$155 ($add).
+Removed top 27 bits (of 32) from port B of cell formal_local_prune_gate.$flatten\dut.$gt$local_prune_gate_2of4.sv:297$128 ($gt).
+Removed top 31 bits (of 32) from port B of cell formal_local_prune_gate.$flatten\dut.$sub$local_prune_gate_2of4.sv:294$125 ($sub).
+Removed top 27 bits (of 32) from port Y of cell formal_local_prune_gate.$flatten\dut.$sub$local_prune_gate_2of4.sv:294$125 ($sub).
+Removed top 27 bits (of 32) from port B of cell formal_local_prune_gate.$flatten\dut.$gt$local_prune_gate_2of4.sv:297$122 ($gt).
+Removed top 31 bits (of 32) from port B of cell formal_local_prune_gate.$flatten\dut.$sub$local_prune_gate_2of4.sv:294$119 ($sub).
+Removed top 27 bits (of 32) from port Y of cell formal_local_prune_gate.$flatten\dut.$sub$local_prune_gate_2of4.sv:294$119 ($sub).
+Removed top 27 bits (of 32) from port B of cell formal_local_prune_gate.$flatten\dut.$gt$local_prune_gate_2of4.sv:297$116 ($gt).
+Removed top 31 bits (of 32) from port B of cell formal_local_prune_gate.$flatten\dut.$sub$local_prune_gate_2of4.sv:294$113 ($sub).
+Removed top 27 bits (of 32) from port Y of cell formal_local_prune_gate.$flatten\dut.$sub$local_prune_gate_2of4.sv:294$113 ($sub).
+Removed top 27 bits (of 32) from port B of cell formal_local_prune_gate.$flatten\dut.$gt$local_prune_gate_2of4.sv:297$110 ($gt).
+Removed top 31 bits (of 32) from port B of cell formal_local_prune_gate.$flatten\dut.$sub$local_prune_gate_2of4.sv:294$107 ($sub).
+Removed top 27 bits (of 32) from port Y of cell formal_local_prune_gate.$flatten\dut.$sub$local_prune_gate_2of4.sv:294$107 ($sub).
+Removed top 1 bits (of 2) from port B of cell formal_local_prune_gate.$flatten\dut.$ne$local_prune_gate_2of4.sv:279$101 ($ne).
+Removed top 3 bits (of 4) from port A of cell formal_local_prune_gate.$flatten\dut.$shl$local_prune_gate_2of4.sv:202$56 ($shl).
+Removed top 3 bits (of 4) from port A of cell formal_local_prune_gate.$flatten\dut.$shl$local_prune_gate_2of4.sv:201$55 ($shl).
+Removed top 1 bits (of 3) from wire formal_local_prune_gate.$flatten\dut.$add$local_prune_gate_2of4.sv:136$155_Y.
+Removed top 1 bits (of 3) from wire formal_local_prune_gate.$flatten\dut.$add$local_prune_gate_2of4.sv:136$169_Y.
+Removed top 1 bits (of 3) from wire formal_local_prune_gate.$flatten\dut.$add$local_prune_gate_2of4.sv:136$189_Y.
+Removed top 1 bits (of 3) from wire formal_local_prune_gate.$flatten\dut.$add$local_prune_gate_2of4.sv:136$190_Y.
+Removed top 1 bits (of 3) from wire formal_local_prune_gate.$flatten\dut.$add$local_prune_gate_2of4.sv:136$191_Y.
+Removed top 1 bits (of 3) from wire formal_local_prune_gate.$flatten\dut.$procmux$2526_Y.
+Removed top 1 bits (of 3) from wire formal_local_prune_gate.$flatten\dut.$procmux$2544_Y.
+Removed top 1 bits (of 3) from wire formal_local_prune_gate.$flatten\dut.$procmux$2548_Y.
+Removed top 31 bits (of 32) from wire formal_local_prune_gate.$procmux$660_Y.
+Removed top 31 bits (of 32) from wire formal_local_prune_gate.$procmux$705_Y.
+Removed top 31 bits (of 32) from wire formal_local_prune_gate.$procmux$750_Y.
+Removed top 31 bits (of 32) from wire formal_local_prune_gate.$procmux$795_Y.
+
+3.10. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \formal_local_prune_gate..
+Removed 0 unused cells and 12 unused wires.
+<suppressed ~1 debug messages>
+
+3.11. Executing MEMORY_COLLECT pass (generating $mem cells).
+
+3.12. Executing OPT pass (performing simple optimizations).
+
+3.12.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module formal_local_prune_gate.
+
+3.12.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\formal_local_prune_gate'.
+Removed a total of 0 cells.
+
+3.12.3. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \formal_local_prune_gate..
+
+3.12.4. Finished fast OPT passes.
+
+3.13. Printing statistics.
+
+=== formal_local_prune_gate ===
+
+   Number of wires:                610
+   Number of wire bits:           4447
+   Number of public wires:         107
+   Number of public wire bits:     585
+   Number of ports:                  1
+   Number of port bits:              1
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                611
+     $add                           27
+     $anyseq                        13
+     $check                         49
+     $dff                           57
+     $eq                            54
+     $gt                            23
+     $le                             2
+     $logic_and                     30
+     $logic_not                     20
+     $logic_or                      19
+     $lt                             4
+     $mux                          277
+     $ne                             2
+     $not                            1
+     $or                             1
+     $pmux                          24
+     $reduce_bool                    1
+     $scopeinfo                      1
+     $shl                            2
+     $sub                            4
+
+3.14. Executing CHECK pass (checking for obvious problems).
+Checking module formal_local_prune_gate...
+Found and reported 0 problems.
+
+4. Executing ASYNC2SYNC pass.
+
+5. Executing MEMORY_MAP pass (converting memories to logic and flip-flops).
+
+6. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \formal_local_prune_gate..
+Removed 147 unused cells and 147 unused wires.
+<suppressed ~148 debug messages>
+
+7. Executing SAT pass (solving SAT problems in the circuit).
+
+Setting up time step 1:
+Final constraint equation: { } = { }
+Imported 709 cells to SAT database.
+Import constraint from assume cell: $auto$async2sync.cc:116:execute$3236 when $auto$async2sync.cc:107:execute$3232.
+Import constraint from assume cell: $auto$async2sync.cc:116:execute$3242 when $auto$async2sync.cc:107:execute$3238.
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$2968 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$2974 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$2980 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$2986 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$2992 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$2998 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$3004 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$3010 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$3016 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$3022 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$3028 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$3034 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$3040 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$3046 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$3052 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$3058 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$3064 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$3070 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$3076 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$3082 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$3088 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$3094 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$3100 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$3106 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$3112 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$3118 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$3124 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$3130 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$3136 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$3142 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$3148 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$3154 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$3160 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$3166 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$3172 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$3178 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$3184 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$3190 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$3196 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$3202 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$3208 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$3214 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$3220 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$3226 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$3232 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$3238 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$3244 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$3250 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:107:execute$3256 = 1'0
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$2972 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$2978 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$2984 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$2990 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$2996 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$3002 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$3008 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$3014 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$3020 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$3026 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$3032 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$3038 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$3044 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$3050 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$3056 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$3062 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$3068 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$3074 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$3080 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$3086 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$3092 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$3098 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$3104 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$3110 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$3116 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$3122 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$3128 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$3134 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$3140 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$3146 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$3152 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$3158 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$3164 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$3170 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$3176 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$3182 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$3188 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$3194 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$3200 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$3206 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$3212 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$3218 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$3224 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$3230 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$3236 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$3242 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$3248 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$3254 = 1'1
+Import set-constraint from init attribute: $auto$async2sync.cc:116:execute$3260 = 1'1
+Final init constraint equation: { $past$formal_local_prune_gate.sv:188$241$0 $past$formal_local_prune_gate.sv:184$240$0 $past$formal_local_prune_gate.sv:183$239$0 $past$formal_local_prune_gate.sv:178$238$0 $past$formal_local_prune_gate.sv:174$237$0 $past$formal_local_prune_gate.sv:173$236$0 $past$formal_local_prune_gate.sv:172$235$0 $past$formal_local_prune_gate.sv:166$234$0 $past$formal_local_prune_gate.sv:162$233$0 $past$formal_local_prune_gate.sv:161$232$0 $past$formal_local_prune_gate.sv:160$231$0 $past$formal_local_prune_gate.sv:159$230$0 $past$formal_local_prune_gate.sv:158$229$0 $past$formal_local_prune_gate.sv:157$228$0 $past$formal_local_prune_gate.sv:156$227$0 $past$formal_local_prune_gate.sv:155$226$0 $past$formal_local_prune_gate.sv:154$225$0 $past$formal_local_prune_gate.sv:153$224$0 $past$formal_local_prune_gate.sv:152$223$0 $past$formal_local_prune_gate.sv:150$222$0 $past$formal_local_prune_gate.sv:145$221$0 $past$formal_local_prune_gate.sv:144$220$0 \infer_mask_commits_snapshot \infer_commit_id_snapshot \infer_commit_valid_snapshot \infer_observation_id_snapshot \infer_observation_valid_snapshot \infer_mask_valid_snapshot \infer_mask_snapshot \infer_utility_snapshot \expect_infer_reject \expected_commit_mask \past_valid \dut.utility[3] \dut.utility[2] \dut.utility[1] \dut.utility[0] \dut.mask_commits \dut.best2_index \dut.best1_index \dut.best2_score \dut.best1_score \dut.best2_valid \dut.best1_valid \dut.pending_commit_id \dut.scan_index \dut.rsp_mask_reg \dut.rsp_id_reg \dut.rsp_status_reg \dut.rsp_valid_reg \dut.last_commit_id \dut.last_commit_valid \dut.last_observation_id \dut.last_observation_valid \dut.mask_valid \dut.structural_mask \dut.state $auto$async2sync.cc:116:execute$3260 $auto$async2sync.cc:116:execute$3254 $auto$async2sync.cc:116:execute$3248 $auto$async2sync.cc:116:execute$3242 $auto$async2sync.cc:116:execute$3236 $auto$async2sync.cc:116:execute$3230 $auto$async2sync.cc:116:execute$3224 $auto$async2sync.cc:116:execute$3218 $auto$async2sync.cc:116:execute$3212 $auto$async2sync.cc:116:execute$3206 $auto$async2sync.cc:116:execute$3200 $auto$async2sync.cc:116:execute$3194 $auto$async2sync.cc:116:execute$3188 $auto$async2sync.cc:116:execute$3182 $auto$async2sync.cc:116:execute$3176 $auto$async2sync.cc:116:execute$3170 $auto$async2sync.cc:116:execute$3164 $auto$async2sync.cc:116:execute$3158 $auto$async2sync.cc:116:execute$3152 $auto$async2sync.cc:116:execute$3146 $auto$async2sync.cc:116:execute$3140 $auto$async2sync.cc:116:execute$3134 $auto$async2sync.cc:116:execute$3128 $auto$async2sync.cc:116:execute$3122 $auto$async2sync.cc:116:execute$3116 $auto$async2sync.cc:116:execute$3110 $auto$async2sync.cc:116:execute$3104 $auto$async2sync.cc:116:execute$3098 $auto$async2sync.cc:116:execute$3092 $auto$async2sync.cc:116:execute$3086 $auto$async2sync.cc:116:execute$3080 $auto$async2sync.cc:116:execute$3074 $auto$async2sync.cc:116:execute$3068 $auto$async2sync.cc:116:execute$3062 $auto$async2sync.cc:116:execute$3056 $auto$async2sync.cc:116:execute$3050 $auto$async2sync.cc:116:execute$3044 $auto$async2sync.cc:116:execute$3038 $auto$async2sync.cc:116:execute$3032 $auto$async2sync.cc:116:execute$3026 $auto$async2sync.cc:116:execute$3020 $auto$async2sync.cc:116:execute$3014 $auto$async2sync.cc:116:execute$3008 $auto$async2sync.cc:116:execute$3002 $auto$async2sync.cc:116:execute$2996 $auto$async2sync.cc:116:execute$2990 $auto$async2sync.cc:116:execute$2984 $auto$async2sync.cc:116:execute$2978 $auto$async2sync.cc:116:execute$2972 $auto$async2sync.cc:107:execute$3256 $auto$async2sync.cc:107:execute$3250 $auto$async2sync.cc:107:execute$3244 $auto$async2sync.cc:107:execute$3238 $auto$async2sync.cc:107:execute$3232 $auto$async2sync.cc:107:execute$3226 $auto$async2sync.cc:107:execute$3220 $auto$async2sync.cc:107:execute$3214 $auto$async2sync.cc:107:execute$3208 $auto$async2sync.cc:107:execute$3202 $auto$async2sync.cc:107:execute$3196 $auto$async2sync.cc:107:execute$3190 $auto$async2sync.cc:107:execute$3184 $auto$async2sync.cc:107:execute$3178 $auto$async2sync.cc:107:execute$3172 $auto$async2sync.cc:107:execute$3166 $auto$async2sync.cc:107:execute$3160 $auto$async2sync.cc:107:execute$3154 $auto$async2sync.cc:107:execute$3148 $auto$async2sync.cc:107:execute$3142 $auto$async2sync.cc:107:execute$3136 $auto$async2sync.cc:107:execute$3130 $auto$async2sync.cc:107:execute$3124 $auto$async2sync.cc:107:execute$3118 $auto$async2sync.cc:107:execute$3112 $auto$async2sync.cc:107:execute$3106 $auto$async2sync.cc:107:execute$3100 $auto$async2sync.cc:107:execute$3094 $auto$async2sync.cc:107:execute$3088 $auto$async2sync.cc:107:execute$3082 $auto$async2sync.cc:107:execute$3076 $auto$async2sync.cc:107:execute$3070 $auto$async2sync.cc:107:execute$3064 $auto$async2sync.cc:107:execute$3058 $auto$async2sync.cc:107:execute$3052 $auto$async2sync.cc:107:execute$3046 $auto$async2sync.cc:107:execute$3040 $auto$async2sync.cc:107:execute$3034 $auto$async2sync.cc:107:execute$3028 $auto$async2sync.cc:107:execute$3022 $auto$async2sync.cc:107:execute$3016 $auto$async2sync.cc:107:execute$3010 $auto$async2sync.cc:107:execute$3004 $auto$async2sync.cc:107:execute$2998 $auto$async2sync.cc:107:execute$2992 $auto$async2sync.cc:107:execute$2986 $auto$async2sync.cc:107:execute$2980 $auto$async2sync.cc:107:execute$2974 $auto$async2sync.cc:107:execute$2968 } = 523'0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000011111111111111111111111111111111111111111111111110000000000000000000000000000000000000000000000000
+
+Setting up time step 2:
+Final constraint equation: { } = { }
+Imported 709 cells to SAT database.
+Import constraint from assume cell: $auto$async2sync.cc:116:execute$3236 when $auto$async2sync.cc:107:execute$3232.
+Import constraint from assume cell: $auto$async2sync.cc:116:execute$3242 when $auto$async2sync.cc:107:execute$3238.
+
+Setting up time step 3:
+Final constraint equation: { } = { }
+Imported 709 cells to SAT database.
+Import constraint from assume cell: $auto$async2sync.cc:116:execute$3236 when $auto$async2sync.cc:107:execute$3232.
+Import constraint from assume cell: $auto$async2sync.cc:116:execute$3242 when $auto$async2sync.cc:107:execute$3238.
+
+Setting up time step 4:
+Final constraint equation: { } = { }
+Imported 709 cells to SAT database.
+Import constraint from assume cell: $auto$async2sync.cc:116:execute$3236 when $auto$async2sync.cc:107:execute$3232.
+Import constraint from assume cell: $auto$async2sync.cc:116:execute$3242 when $auto$async2sync.cc:107:execute$3238.
+
+Setting up time step 5:
+Final constraint equation: { } = { }
+Imported 709 cells to SAT database.
+Import constraint from assume cell: $auto$async2sync.cc:116:execute$3236 when $auto$async2sync.cc:107:execute$3232.
+Import constraint from assume cell: $auto$async2sync.cc:116:execute$3242 when $auto$async2sync.cc:107:execute$3238.
+
+Setting up time step 6:
+Final constraint equation: { } = { }
+Imported 709 cells to SAT database.
+Import constraint from assume cell: $auto$async2sync.cc:116:execute$3236 when $auto$async2sync.cc:107:execute$3232.
+Import constraint from assume cell: $auto$async2sync.cc:116:execute$3242 when $auto$async2sync.cc:107:execute$3238.
+
+Setting up time step 7:
+Final constraint equation: { } = { }
+Imported 709 cells to SAT database.
+Import constraint from assume cell: $auto$async2sync.cc:116:execute$3236 when $auto$async2sync.cc:107:execute$3232.
+Import constraint from assume cell: $auto$async2sync.cc:116:execute$3242 when $auto$async2sync.cc:107:execute$3238.
+
+Setting up time step 8:
+Import set-constraint for this timestep: \mask_valid_state = 1'1
+Import set-constraint for this timestep: \mask_commits_state = 1
+Import set-constraint for this timestep: \structural_mask_state = 4'0011
+Final constraint equation: { \structural_mask_state \mask_commits_state \mask_valid_state } = 37'0011000000000000000000000000000000011
+Imported 709 cells to SAT database.
+Import constraint from assume cell: $auto$async2sync.cc:116:execute$3236 when $auto$async2sync.cc:107:execute$3232.
+Import constraint from assume cell: $auto$async2sync.cc:116:execute$3242 when $auto$async2sync.cc:107:execute$3238.
+Import show expression: { \mask_valid_state \structural_mask_state \mask_commits_state }
+
+Solving problem with 230101 variables and 627823 clauses..
+SAT solving finished - model found:
+
+  Time Signal Name                                             Dec       Hex                                 Bin
+  ---- ----------------------------------------------- ----------- --------- -----------------------------------
+  init $auto$async2sync.cc:107:execute$2968                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$2974                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$2980                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$2986                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$2992                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$2998                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$3004                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$3010                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$3016                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$3022                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$3028                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$3034                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$3040                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$3046                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$3052                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$3058                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$3064                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$3070                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$3076                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$3082                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$3088                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$3094                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$3100                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$3106                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$3112                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$3118                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$3124                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$3130                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$3136                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$3142                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$3148                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$3154                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$3160                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$3166                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$3172                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$3178                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$3184                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$3190                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$3196                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$3202                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$3208                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$3214                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$3220                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$3226                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$3232                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$3238                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$3244                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$3250                      0         0                                   0
+  init $auto$async2sync.cc:107:execute$3256                      0         0                                   0
+  init $auto$async2sync.cc:116:execute$2972                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$2978                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$2984                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$2990                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$2996                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$3002                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$3008                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$3014                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$3020                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$3026                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$3032                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$3038                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$3044                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$3050                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$3056                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$3062                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$3068                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$3074                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$3080                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$3086                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$3092                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$3098                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$3104                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$3110                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$3116                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$3122                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$3128                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$3134                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$3140                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$3146                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$3152                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$3158                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$3164                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$3170                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$3176                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$3182                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$3188                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$3194                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$3200                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$3206                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$3212                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$3218                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$3224                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$3230                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$3236                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$3242                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$3248                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$3254                      1         1                                   1
+  init $auto$async2sync.cc:116:execute$3260                      1         1                                   1
+  init $past$formal_local_prune_gate.sv:144$220$0                0         0                                0000
+  init $past$formal_local_prune_gate.sv:145$221$0                0         0                                   0
+  init $past$formal_local_prune_gate.sv:150$222$0                0         0                                   0
+  init $past$formal_local_prune_gate.sv:152$223$0                0         0                                 000
+  init $past$formal_local_prune_gate.sv:153$224$0                0         0                    0000000000000000
+  init $past$formal_local_prune_gate.sv:154$225$0                0         0                                0000
+  init $past$formal_local_prune_gate.sv:155$226$0                0         0                    0000000000000000
+  init $past$formal_local_prune_gate.sv:156$227$0                0         0                                0000
+  init $past$formal_local_prune_gate.sv:157$228$0                0         0                                   0
+  init $past$formal_local_prune_gate.sv:158$229$0                0         0                                   0
+  init $past$formal_local_prune_gate.sv:159$230$0                0         0                    0000000000000000
+  init $past$formal_local_prune_gate.sv:160$231$0                0         0                                   0
+  init $past$formal_local_prune_gate.sv:161$232$0                0         0                    0000000000000000
+  init $past$formal_local_prune_gate.sv:162$233$0                0         0    00000000000000000000000000000000
+  init $past$formal_local_prune_gate.sv:166$234$0                0         0                                   0
+  init $past$formal_local_prune_gate.sv:172$235$0                0         0                                0000
+  init $past$formal_local_prune_gate.sv:173$236$0                0         0                                   0
+  init $past$formal_local_prune_gate.sv:174$237$0                0         0    00000000000000000000000000000000
+  init $past$formal_local_prune_gate.sv:178$238$0                0         0                                   0
+  init $past$formal_local_prune_gate.sv:183$239$0                0         0                    0000000000000000
+  init $past$formal_local_prune_gate.sv:184$240$0                0         0                    0000000000000000
+  init $past$formal_local_prune_gate.sv:188$241$0                0         0                                   0
+  init \dut.best1_index                                          0         0                                  00
+  init \dut.best1_score                                          0         0                                0000
+  init \dut.best1_valid                                          0         0                                   0
+  init \dut.best2_index                                          0         0                                  00
+  init \dut.best2_score                                          0         0                                0000
+  init \dut.best2_valid                                          0         0                                   0
+  init \dut.last_commit_id                                       0         0                    0000000000000000
+  init \dut.last_commit_valid                                    0         0                                   0
+  init \dut.last_observation_id                                  0         0                    0000000000000000
+  init \dut.last_observation_valid                               0         0                                   0
+  init \dut.mask_commits                                         0         0    00000000000000000000000000000000
+  init \dut.mask_valid                                           0         0                                   0
+  init \dut.pending_commit_id                                    0         0                    0000000000000000
+  init \dut.rsp_id_reg                                           0         0                    0000000000000000
+  init \dut.rsp_mask_reg                                         0         0                                0000
+  init \dut.rsp_status_reg                                       0         0                                 000
+  init \dut.rsp_valid_reg                                        0         0                                   0
+  init \dut.scan_index                                           0         0                                  00
+  init \dut.state                                                0         0                                   0
+  init \dut.structural_mask                                      0         0                                0000
+  init \dut.utility[0]                                           0         0                                0000
+  init \dut.utility[1]                                           0         0                                0000
+  init \dut.utility[2]                                           0         0                                0000
+  init \dut.utility[3]                                           0         0                                0000
+  init \expect_infer_reject                                      0         0                                   0
+  init \expected_commit_mask                                     0         0                                0000
+  init \infer_commit_id_snapshot                                 0         0                    0000000000000000
+  init \infer_commit_valid_snapshot                              0         0                                   0
+  init \infer_mask_commits_snapshot                              0         0    00000000000000000000000000000000
+  init \infer_mask_snapshot                                      0         0                                0000
+  init \infer_mask_valid_snapshot                                0         0                                   0
+  init \infer_observation_id_snapshot                            0         0                    0000000000000000
+  init \infer_observation_valid_snapshot                         0         0                                   0
+  init \infer_utility_snapshot                                   0         0                    0000000000000000
+  init \past_valid                                               0         0                                   0
+  ---- ----------------------------------------------- ----------- --------- -----------------------------------
+     1 \mask_commits_state                                       0         0    00000000000000000000000000000000
+     1 \mask_valid_state                                         0         0                                   0
+     1 \structural_mask_state                                    0         0                                0000
+  ---- ----------------------------------------------- ----------- --------- -----------------------------------
+     2 \mask_commits_state                                       0         0    00000000000000000000000000000000
+     2 \mask_valid_state                                         0         0                                   0
+     2 \structural_mask_state                                   15         f                                1111
+  ---- ----------------------------------------------- ----------- --------- -----------------------------------
+     3 \mask_commits_state                                       0         0    00000000000000000000000000000000
+     3 \mask_valid_state                                         0         0                                   0
+     3 \structural_mask_state                                   15         f                                1111
+  ---- ----------------------------------------------- ----------- --------- -----------------------------------
+     4 \mask_commits_state                                       0         0    00000000000000000000000000000000
+     4 \mask_valid_state                                         0         0                                   0
+     4 \structural_mask_state                                   15         f                                1111
+  ---- ----------------------------------------------- ----------- --------- -----------------------------------
+     5 \mask_commits_state                                       0         0    00000000000000000000000000000000
+     5 \mask_valid_state                                         0         0                                   0
+     5 \structural_mask_state                                   15         f                                1111
+  ---- ----------------------------------------------- ----------- --------- -----------------------------------
+     6 \mask_commits_state                                       0         0    00000000000000000000000000000000
+     6 \mask_valid_state                                         0         0                                   0
+     6 \structural_mask_state                                   15         f                                1111
+  ---- ----------------------------------------------- ----------- --------- -----------------------------------
+     7 \mask_commits_state                                       1         1    00000000000000000000000000000001
+     7 \mask_valid_state                                         1         1                                   1
+     7 \structural_mask_state                                    3         3                                0011
+  ---- ----------------------------------------------- ----------- --------- -----------------------------------
+     8 \mask_commits_state                                       1         1    00000000000000000000000000000001
+     8 \mask_valid_state                                         1         1                                   1
+     8 \structural_mask_state                                    3         3                                0011
+Dumping SAT model to VCD file formal_local_prune_gate_success.vcd
+
+Warnings: 1 unique messages, 1 total
+End of script. Logfile hash: eb2ec29077
+Yosys 0.56 (git sha1 9c447ad9d4b1ea589369364eea38b4d70da2c599, x86_64-w64-mingw32-g++ 15.2.0 -march=nocona -msahf -mtune=generic -O2 -fstack-protector-strong -O3)
+Time spent: 3% 7x opt_expr (0 sec), 3% 7x opt_clean (0 sec), ...

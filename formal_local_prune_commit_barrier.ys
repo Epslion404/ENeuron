@@ -1,0 +1,5 @@
+read_verilog -formal -sv local_prune_commit_barrier.sv formal_local_prune_commit_barrier.sv
+prep -top formal_local_prune_commit_barrier -flatten
+async2sync
+opt_clean
+sat -seq 32 -set-assumes -set-init-zero -prove-asserts -verify -dump_vcd formal_local_prune_commit_barrier_cex.vcd

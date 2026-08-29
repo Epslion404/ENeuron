@@ -79,8 +79,8 @@
 
 - [x] P0：独立签入已完成的 Pulse-L/L2 wrapper proof/reach、正式日志、非空 witness 与 verifier；排除 cex/tmp 产物
 - [ ] P1：ENeuron wrapper 同拍 MOD/OBSERVE 内部握手证明、公开事务结果证明和非零成功 witness
-- [ ] P2：真实 N=10 barrier 小状态证明、公共 gate exact-two 组合绑定、三个真实顶层 runtime 阻塞验证
-- [ ] P3：INFER 控制级形式检查与真实 RTL mutation 负向控制补强
+- [x] P2：真实 N=10 barrier 小状态证明、公共 gate exact-two 组合绑定、三个真实顶层 runtime 阻塞验证
+- [ ] P3：INFER 控制级形式检查与真实 RTL mutation 负向控制已通过；完整随机冻结留待 P4 三模型重跑
 - [ ] P4：源码冻结后重跑三模型各 20000、全部 formal runner/verifier、>=318 全仓、compileall/iverilog/diff-check
 - [ ] P5：fail-closed 总摘要、精确 SHA-256 集合、文档签核；随后停在 `NP6_REVIEW_REQUIRED`
 
@@ -102,6 +102,9 @@
 | Pulse-L wrapper 初版形式 harness 只显式证明 OBSERVE 计数 exactly-once | 1 | 补充 utility 更新完成、失败零观察和响应背压期间 utility 稳定断言，再重新生成正式证明与 witness |
 | 首次追加 P0→P5 规划时补丁上下文与 `task_plan.md` 当前行不一致 | 1 | 补丁工具原子拒绝且未产生部分修改；改为逐文件小补丁并使用当前精确上下文 |
 | 正式 Yosys `.log` 纳入普通 `git diff --check` 时报告 ASCII 横幅行尾空格 | 1 | 不清洗原始工具证据；源码/脚本/文档独立执行 diff-check，日志由固定文件名和 SHA-256 保真 |
+| P2 barrier 首版断言要求上一拍十路 clear response 同时为高 | 1 | 真实屏障允许错拍并用 sticky seen 汇合；断言改为检查小状态参与者累计 `clear_replied==10'h3ff`，DUT 不改 |
+| P2 reach 脚本无法解析 harness 层次信号 `reached_success` | 1 | 正在改用正确转义/选择方式；保持成功 witness 需覆盖错拍、背压与解除阻塞的要求，不放宽性质 |
+| 恢复执行时误调用不存在的 `functions.wait` cell | 1 | 该调用立即失败且未改状态；后续只对真实 session 使用 `write_stdin`，代理等待使用 `collaboration.wait_agent` |
 
 ## Goal 证明审计阶段
 

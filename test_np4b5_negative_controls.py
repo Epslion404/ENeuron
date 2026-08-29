@@ -14,7 +14,10 @@ from np4b5_negative_controls import (
     SnapshotBeforeModModel,
     TickOnlyMaskModel,
     accept_atomic_ten_gate_epoch,
+    accept_atomic_epoch_rtl,
+    accept_feedback_evidence_snapshot,
     accept_four_input_output_groups,
+    accept_issue_mask_drives_learning_activity,
     accept_preupdate_evidence,
     accept_pruned_lane_freeze,
 )
@@ -41,16 +44,42 @@ class NP4B5NegativeControls(unittest.TestCase):
         accept_atomic_ten_gate_epoch(AtomicTenGateBarrierModel())
 
     def test_two_input_output_cannot_claim_two_of_four(self) -> None:
-        positive = (ROOT / "eneuron_pruned_network_4x8x2.sv").read_text(encoding="utf-8")
+        scheduler = (ROOT / "pruned_network_tick_scheduler.sv").read_text(encoding="utf-8")
+        for name, slice_expr in (
+            ("eneuron_pruned_network_4x8x2.sv", "(neuron_index-8)"),
+            ("pulse_mini_pruned_network_4x8x2.sv", "(mux_index-8)"),
+        ):
+            network = (ROOT / name).read_text(encoding="utf-8")
+            positive = network + "\n" + scheduler
+            negative = positive.replace(
+                f"scheduler_output_inputs_flat[{slice_expr}*4 +: 4]",
+                "scheduler_output_inputs_flat[0 +: 4]",
+            )
+            self.assert_rejects(accept_four_input_output_groups, negative)
+            accept_four_input_output_groups(positive)
+
+    def test_real_bridge_post_feedback_evidence_read_is_caught(self) -> None:
+        positive = (ROOT / "pulse_mini_prune_bridge.sv").read_text(encoding="utf-8")
         negative = positive.replace(
-            "logic [7:0] scheduler_output_inputs_flat;",
-            "logic [3:0] scheduler_output_inputs_flat;",
-        ).replace(
-            "scheduler_output_inputs_flat[(neuron_index-8)*4 +: 4]",
-            "scheduler_output_inputs_flat[(neuron_index-8)*2 +: 2]",
+            "gate_evidence = latched_evidence;", "gate_evidence = scaled_evidence_flat;"
         )
-        self.assert_rejects(accept_four_input_output_groups, negative)
-        accept_four_input_output_groups(positive)
+        self.assert_rejects(accept_feedback_evidence_snapshot, negative)
+        accept_feedback_evidence_snapshot(positive)
+
+    def test_real_bridge_tick_only_mask_is_caught(self) -> None:
+        positive = (ROOT / "pulse_mini_prune_bridge.sv").read_text(encoding="utf-8")
+        negative = positive.replace(
+            "? 4'b0000 : gate_issue_mask;", "? 4'b0000 : cmd_arg0[3:0];"
+        )
+        self.assert_rejects(accept_issue_mask_drives_learning_activity, negative)
+        accept_issue_mask_drives_learning_activity(positive)
+
+    def test_real_network_partial_epoch_runtime_accept_is_caught(self) -> None:
+        for name in ("eneuron_pruned_network_4x8x2.sv", "pulse_mini_pruned_network_4x8x2.sv"):
+            positive = (ROOT / name).read_text(encoding="utf-8")
+            negative = positive.replace("&& !barrier_runtime_blocked", "")
+            self.assert_rejects(accept_atomic_epoch_rtl, negative)
+            accept_atomic_epoch_rtl(positive)
 
 
 if __name__ == "__main__":

@@ -462,23 +462,27 @@ P1 验收门：同一性质同时具备“不变量无反例”和“真实成�
 
 ### P2：十参与者 commit/clear barrier 组合证明
 
-- [ ] P2.1：直接实例化真实 `local_prune_commit_barrier.sv`，固定 `N_GATES=10`；参与者响应采用小状态抽象，不展开十个完整神经元。
-- [ ] P2.2：证明预检失败时十路 gate 全不启动；安全提交时十路同拍启动且 ID 一致；每路 gate/clear response 最多接受一次。
-- [ ] P2.3：证明收齐十个成功 gate response 前不启动 clear，十路 clear 同拍启动，收齐十个成功 clear response 前不公开成功。
-- [ ] P2.4：证明成功只增加一次 epoch；commit 全程 `runtime_blocked=1`；响应背压期间 status、ID、40-bit mask 和 epoch 稳定。
-- [ ] P2.5：exact-two 采用组合证明：公共 gate 的既有证明负责 `ST_OK commit→mask 恰有两位`；barrier harness 只假设成功 gate 响应满足该合同；总 verifier 必须同时绑定 gate 与 barrier 两组证据。
-- [ ] P2.6：成功 witness 固定十参与者，允许 gate/clear 错拍返回，并覆盖 `10 gate done→10 clear done→success→epoch+1→背压保持→消费后解除阻塞`。
-- [ ] P2.7：三个真实 `4→8→2` 顶层都做 elaboration/结构检查，确认实例化同一公共 barrier、10 个四输入 wrapper、两组输出路由无重叠且覆盖 detector 0..7。
-- [ ] P2.8：三个真实顶层用定向/随机协同仿真证明 `runtime_blocked` 期间 `tick_ready`、`route_flush_ready`、`host_cmd_ready` 均不接受命令；单纯编译不能替代该性质。
+- [x] P2.1：直接实例化真实 `local_prune_commit_barrier.sv`，固定 `N_GATES=10`；参与者响应采用小状态抽象，不展开十个完整神经元。
+- [x] P2.2：证明预检失败时十路 gate 全不启动；安全提交时十路同拍启动且 ID 一致；每路 gate/clear response 最多接受一次。
+- [x] P2.3：证明收齐十个成功 gate response 前不启动 clear，十路 clear 同拍启动，收齐十个成功 clear response 前不公开成功。
+- [x] P2.4：证明成功只增加一次 epoch；commit 全程 `runtime_blocked=1`；响应背压期间 status、ID、40-bit mask 和 epoch 稳定。
+- [x] P2.5：exact-two 采用组合证明：公共 gate 的既有证明负责 `ST_OK commit→mask 恰有两位`；barrier harness 只假设成功 gate 响应满足该合同；总 verifier 必须同时绑定 gate 与 barrier 两组证据。
+- [x] P2.6：成功 witness 固定十参与者，允许 gate/clear 错拍返回，并覆盖 `10 gate done→10 clear done→success→epoch+1→背压保持→消费后解除阻塞`。
+- [x] P2.7：三个真实 `4→8→2` 顶层都做 elaboration/结构检查，确认实例化同一公共 barrier、10 个四输入 wrapper、两组输出路由无重叠且覆盖 detector 0..7。
+- [x] P2.8：三个真实顶层用定向/随机协同仿真证明 `runtime_blocked` 期间 `tick_ready`、`route_flush_ready`、`host_cmd_ready` 均不接受命令；单纯编译不能替代该性质。
 
 P2 验收门：抽象环境假设必须在机器摘要中列出来源；不得把 barrier 自身未检查的 exact-two 当作无条件结论。
 
+P2 状态：`PASS`。公共 gate proof/reach/verifier 与 N=10 barrier proof/reach/verifier 已组合绑定；三个真实顶层均通过 `iverilog -Wall` elaboration 和 runtime-ready 定向合同检查。barrier witness 覆盖错拍 gate、响应背压和消费后解除阻塞。
+
 ### P3：INFER 冻结与负向控制补强
 
-- [ ] P3.1：形式检查只覆盖控制级不变量：INFER 不产生 OBSERVE、不接受 PRUNE_COMMIT，被拒绝命令不改变 utility、mask、observation/commit ID。
+- [x] P3.1：形式检查只覆盖控制级不变量：INFER 不产生 OBSERVE、不接受 PRUNE_COMMIT，被拒绝命令不改变 utility、mask、observation/commit ID。
 - [ ] P3.2：完整学习状态冻结继续由三模型随机协同仿真逐周期比较，不展开十个完整核心做大规模 SAT。
-- [ ] P3.3：把前三类 Python 玩具负向控制升级为至少一个真实 RTL mutation/接线变体检查，确认验收器能抓到“事后读取 evidence”“只掩数值路径”“部分 epoch 可见”；第四类结构检查扩展到 Pulse-L/L2 顶层。
-- [ ] P3.4：所有 mutation 必须“错误版本失败、正式 RTL 通过”，且错误版本不得进入正式 RTL 文件。
+- [x] P3.3：把前三类 Python 玩具负向控制升级为至少一个真实 RTL mutation/接线变体检查，确认验收器能抓到“事后读取 evidence”“只掩数值路径”“部分 epoch 可见”；第四类结构检查扩展到 Pulse-L/L2 顶层。
+- [x] P3.4：所有 mutation 必须“错误版本失败、正式 RTL 通过”，且错误版本不得进入正式 RTL 文件。
+
+P3 当前状态：`CONTROL_AND_MUTATION_PASS / FULL_RANDOM_FREEZE_PENDING_P4`。7 项负向控制全部先拒绝真实源码 mutation、再接受正式 RTL；相关 35 项 wrapper/network 回归通过。完整三模型长事务冻结仍由 P4 新鲜重跑签核。
 
 ### P4：冻结源码后重跑正式签核
 

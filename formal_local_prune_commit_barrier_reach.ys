@@ -1,0 +1,5 @@
+read_verilog -formal -sv local_prune_commit_barrier.sv formal_local_prune_commit_barrier.sv
+prep -top formal_local_prune_commit_barrier -flatten
+async2sync
+opt_clean
+sat -seq 32 -set-assumes -set-init-zero -prove reached_success 0 -falsify -dump_vcd formal_local_prune_commit_barrier_success.vcd -show reached_success,saw_gate_stagger,saw_rsp_backpressure,saw_unblock,runtime_blocked,rsp_valid,rsp_ready,gate_rsp_valid,clear_rsp_valid
