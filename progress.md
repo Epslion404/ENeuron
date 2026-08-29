@@ -1,5 +1,14 @@
 # 进度记录
 
+## 2026-08-29 NP4B3 网络提交屏障
+
+- 新增参数化 `local_prune_commit_barrier.sv`，默认服务 10 个四输入组。
+- 提交前同时检查安全边界、全部 gate ready 和全部核心 clear ready；任一未就绪时返回 UNSAFE，零 gate 启动。
+- gate commit 与核心 `STATE_CLEAR` 分别使用 sticky done 屏障，允许响应错拍到达；外部成功、mask 集合和 epoch 只在第二个屏障后公开。
+- 清历史失败不回滚已提交 mask，置 sticky internal error 并永久阻止运行/新提交，避免伪造成功。
+- 新增三项公开接口 Icarus 测试；先复现缺模块 RED，再完成 GREEN。与公共 gate 测试合计 6/6 通过。
+- 该提交只完成 NP4B3 的公共原子屏障；`4→8→2` TICK/训练调度和三模型接线仍未完成。
+
 ## 2026-08-29 NPU 局部剪枝 NP4B 八项决定批准
 
 - 用户批准 NP4B 八项实现决定，状态由 `REVIEW_REQUIRED` 转为 `IMPLEMENTATION_APPROVED`。

@@ -57,10 +57,17 @@
 
 - [ ] NP4B1：ENeuron committed snapshot 端口、量化与原子 MOD/OBSERVE wrapper
 - [ ] NP4B2：Pulse-Mini-L/L2 共享 bridge 与两个薄 wrapper
-- [ ] NP4B3：公共 `4→8→2` 调度、固定一拍路由和 10-gate 原子屏障
+- [ ] NP4B3：公共 `4→8→2` 调度、固定一拍路由和 10-gate 原子屏障（commit→clear 屏障已完成，网络调度待接）
 - [ ] NP4B4：三模型各 20×1000 端到端协同事务
 - [ ] NP4B5：负向实现、Pulse 形式 harness 修复与 wrapper/network 非空形式检查
 - [ ] NP4B6：318 项以上全仓回归、机器摘要、文档签核与 NP6 二次审批
+
+### NP4B 实施错误记录
+
+| 错误 | 尝试 | 处理 |
+|---|---:|---|
+| `hardware-design-flow` 按技能清单中的 `.agents` 路径不存在 | 1 | 从同一清单给出的 `.codex/skills/hardware-design-flow` 实际路径完整读取，不跳过技能 |
+| PowerShell 下 `rg ... *.py` 把通配符作为非法 Windows 路径 | 1 | 后续先用 `rg --files -g '*.py'` 或直接指定文件，不重复该写法 |
 
 ## Goal 证明审计阶段
 

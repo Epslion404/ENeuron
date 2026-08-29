@@ -5,6 +5,9 @@
 - 八项决定已批准，后续不再为两输入输出兼容、核心 opcode 扩展、共享 gate 或 Host Bridge 集成保留分支。
 - 实施采用纵向 TDD：先证明 committed snapshot 公开接口，再接 ENeuron 原子观察；先证明 Pulse FEEDBACK exactly-once，再组合 commit→clear；最后才接网络屏障。
 - 每个可独立签核阶段及时更新规划、发现和进度文档并提交，避免把多个未验证层堆入同一提交。
+- 公共 gate 的响应是单槽并可背压，网络提交屏障必须为每个 gate 保存 done 位；只等待“当前拍全部 rsp_valid”会漏掉先完成者。
+- 网络原子性需要两个屏障：先汇合 10 个 gate commit 响应，再汇合 10 个核心 `STATE_CLEAR` 响应；外部 mask epoch 只能在第二个屏障后公开。
+- 既有 `pulse_mini_network_4x2x2.sv` 逐核串行调度且输出只有两输入，不能直接扩参数得到批准的 `4→8→2`；NP4B3 应把公共 commit/clear 屏障与模型专用 TICK/训练调度分开。
 
 ## NPU 局部剪枝 NP4B 接入审计（2026-08-29）
 
