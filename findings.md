@@ -589,3 +589,25 @@
 - route flush 必须显式清训练输入。若沿用上一笔 TICK 的 `output_train_post`，INFER 输出核会正确拒绝该 TICK；因此 testbench 必须检查 flush 状态，不能只等 valid。
 - Pulse-L 与 L2 各 20,000 条都逐事务一致，并分别记录 commit、exact-two、被剪 lane、INFER、issue-mask、背压和分层账本；这比只比较最终 spike 或只报告合计事务数更强。
 - Pulse-L 与 L2 的逻辑读取统计不同，因为两种本地证据强度导致后续膜状态、脉冲和活动掩码轨迹不同；这不是硬件吞吐或物理功耗差异证据。
+
+## 2026-08-29 NP4B5 Pulse wrapper 形式事实
+
+- 只证明 OBSERVE 计数增加一次，仍不足以直接签核“成功响应前 utility 已更新”；harness 必须同时观察 utility，并在运行响应背压期间证明它稳定。
+- L/L2 的共享 bridge 允许复用同一性质结构，但核心证据位宽和成功轨迹不同，因此必须保留两个独立 reach witness，不能用 L 的 witness 替代 L2。
+- reach 脚本中的 `-falsify` 找到模型表示目标成功路径确实可达；它与不变量脚本的“无模型即成功”语义相反，verifier 必须分别检查两个标志，避免把空证明当通过。
+
+## 2026-08-29 NP4B 续跑审计事实
+
+- 当前 Pulse-L/L2 形式源码、脚本、正式日志和 witness 尚未入库；“本地证明通过”与“仓库证据闭环”是两个不同状态，必须先形成独立提交。
+- ENeuron 当前公开端口能证明事务级原子结果，但不能单独证明内部核心 MOD 与 gate OBSERVE 同拍握手；强合同需要验证专用 bind/内部断言，且不得把该验证可见性变成运行时接口依赖。
+- `local_prune_commit_barrier.sv` 保存 gate 返回的 mask，但本身不检查 popcount。因此 `barrier success→十个 exact-two` 是组合结论，必须同时绑定公共 gate 的 `ST_OK commit→exact-two` 证明。
+- barrier 抽象只能直接证明 `runtime_blocked`，不能独立证明三个真实顶层的 TICK/flush/Host ready 已关闭；该绑定必须由真实顶层结构检查和定向/随机协同仿真完成。
+- 现有 Pulse 摘要 verifier 主要检查存在性和正数门槛，尚未绑定固定 seed、精确统计、源码/runner SHA-256 或证据新鲜度；它不能替代最终 NP4B fail-closed 总 verifier。
+- ENeuron 当前缺少独立落盘的 20,000 事务结果文件；最终 D1 必须在源码冻结后为三模型重新生成三个独立正式结果。
+
+## 2026-08-29 P0 形式证据固化事实
+
+- 两套 proof/reach 可安全并行运行，因为它们使用独立顶层、日志和 witness 文件；最终证据仍必须分别验证，不能把并行执行视为合并证明。
+- `.gitignore` 默认排除 `.log`/`.vcd`，因此正式 proof 日志和成功 witness 必须按精确文件名强制加入；修改全局忽略规则会把大量历史中间产物带入仓库，不符合 KISS。
+- 旧 `*_cex.vcd` 和 `*.tmp.log` 只记录失败/中间尝试，不属于正式证据集合；最终 SHA-256 清单必须拒绝这些文件冒充签核 witness。
+- 原始 Yosys 日志含工具横幅行尾空格，普通 `git diff --check` 会对日志报噪声；修改日志会破坏原始证据。正确边界是对人工维护文件执行空白检查，对工具产物执行哈希和标记校验。

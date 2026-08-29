@@ -59,7 +59,7 @@
 - [x] NP4B2：Pulse-Mini-L/L2 共享 bridge 与两个薄 wrapper
 - [x] NP4B3：公共 `4→8→2` 调度、固定一拍路由、三模型十 wrapper 接线和 10-gate 原子屏障
 - [x] NP4B4：ENeuron、Pulse-L、Pulse-L2 分别完成 20×1000 端到端协同事务
-- [ ] NP4B5：负向实现、Pulse 形式 harness 修复与 wrapper/network 非空形式检查（四类负向控制、裸 L/L2 和 Pulse-L wrapper 已通过；L2、ENeuron 与网络 barrier 待做）
+- [ ] NP4B5：负向实现、Pulse 形式 harness 修复与 wrapper/network 非空形式检查（四类负向控制、裸 L/L2 和两个 Pulse wrapper 已通过；ENeuron 与网络 barrier 待做）
 - [ ] NP4B6：318 项以上全仓回归、机器摘要、文档签核与 NP6 二次审批
 
 ### NP4B 当前细粒度 TODO
@@ -68,12 +68,23 @@
 - [x] 增加并校准 Pulse-L2 `1×64` tracer
 - [x] Pulse-L 独立完成 20000 条正式事务并提交
 - [x] Pulse-L2 独立完成 20000 条正式事务并提交
-- [ ] 提交并复验 Pulse-L wrapper depth=32 非空形式证据
-- [ ] 完成 Pulse-L2 wrapper exactly-once 非空形式证据
+- [x] 提交并复验 Pulse-L wrapper depth=32 非空形式证据
+- [x] 完成 Pulse-L2 wrapper exactly-once 非空形式证据
 - [ ] 完成 ENeuron MOD/OBSERVE 原子接受非空形式证据
 - [ ] 完成公共十参与者 commit/clear barrier 抽象证明与真实顶层绑定
 - [ ] 三模型各自重跑 20000 条、全仓回归不少于 318 项、编译/lint/formal 全通过
 - [ ] 生成 SHA-256 机器摘要并停在 `NP6_REVIEW_REQUIRED`，不运行 Vivado
+
+### 2026-08-29 当前续跑批次（待审核）
+
+- [x] P0：独立签入已完成的 Pulse-L/L2 wrapper proof/reach、正式日志、非空 witness 与 verifier；排除 cex/tmp 产物
+- [ ] P1：ENeuron wrapper 同拍 MOD/OBSERVE 内部握手证明、公开事务结果证明和非零成功 witness
+- [ ] P2：真实 N=10 barrier 小状态证明、公共 gate exact-two 组合绑定、三个真实顶层 runtime 阻塞验证
+- [ ] P3：INFER 控制级形式检查与真实 RTL mutation 负向控制补强
+- [ ] P4：源码冻结后重跑三模型各 20000、全部 formal runner/verifier、>=318 全仓、compileall/iverilog/diff-check
+- [ ] P5：fail-closed 总摘要、精确 SHA-256 集合、文档签核；随后停在 `NP6_REVIEW_REQUIRED`
+
+当前硬阻断：C1/C2 已通过但未签入；C3/C4/C5、ENeuron 独立 20k 结果文件、NP4B 总摘要/verifier 均不存在，因此禁止写入 `NP4B_INTEGRATION_PASS`。
 
 ### NP4B 实施错误记录
 
@@ -88,6 +99,9 @@
 | Pulse-L `1×1000` 在首个 INFER flush 出现 output0 leak timer 少推进一拍 | 1 | flush testbench 遗留上一笔 `output_train_post`，使 output0 在 INFER 返回 `BAD_MODE`，且旧 task 漏检状态；flush 现显式清训练输入并检查状态/背压 |
 | 新增 Pulse 长事务不变量检查时报 `NameError: Mode` | 1 | 显式从既有 `pulse_mini_reference` 导入冻结枚举，不复制模式数值 |
 | 同一新增检查继续报 `NameError: N_NEURONS` | 1 | 从独立网络 oracle 导入唯一拓扑常量，避免在 cosim 重复定义十核规模 |
+| Pulse-L wrapper 初版形式 harness 只显式证明 OBSERVE 计数 exactly-once | 1 | 补充 utility 更新完成、失败零观察和响应背压期间 utility 稳定断言，再重新生成正式证明与 witness |
+| 首次追加 P0→P5 规划时补丁上下文与 `task_plan.md` 当前行不一致 | 1 | 补丁工具原子拒绝且未产生部分修改；改为逐文件小补丁并使用当前精确上下文 |
+| 正式 Yosys `.log` 纳入普通 `git diff --check` 时报告 ASCII 横幅行尾空格 | 1 | 不清洗原始工具证据；源码/脚本/文档独立执行 diff-check，日志由固定文件名和 SHA-256 保真 |
 
 ## Goal 证明审计阶段
 

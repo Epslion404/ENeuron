@@ -1,0 +1,7 @@
+# 非空检查：必须找到完整的成功非零 FEEDBACK→一次 OBSERVE→成功响应轨迹。
+read_verilog -formal -sv local_prune_gate_2of4.sv local_prune_evidence_gain.sv pulse_mini_core.sv pulse_mini_prune_bridge.sv pulse_mini_l_prune_wrapper.sv formal_pulse_mini_prune_wrapper.sv
+prep -top formal_pulse_mini_prune_wrapper -flatten
+async2sync
+memory_map
+opt_clean
+sat -seq 32 -set-assumes -set-init-zero -prove reached_successful_nonzero_feedback 0 -falsify -show rst -show cmd_valid -show cmd_ready -show cmd_opcode -show cmd_arg0 -show cmd_arg1 -show rsp_ready -show rsp_valid -show rsp_status -show mode_state -show pending_valid -show prune_observe_count_state -show reached_successful_nonzero_feedback -dump_vcd formal_pulse_mini_prune_wrapper_feedback_reach.vcd

@@ -508,3 +508,26 @@
 - Pulse-L seed 201..220、Pulse-L2 seed 301..320 各完成 20×1000；12 项 wrapper/network/random 联合回归在 53.862 秒内通过，摘要 verifier 报告 `models=2 transactions=40000`。
 - 两模型各有 20 次 commit、133,400 次 exact-two 检查、266,800 次被剪 lane 检查；被剪权重、evidence、utility 变化均为 0，INFER 固定学习状态无变化。
 - 机器摘要明确 `logical_functional_cosim_only`，并把 physical speedup、BRAM skip、power reduction 均标记为未证明；本阶段未运行 Vivado。
+
+## 2026-08-29 NP4B5 Pulse wrapper 形式收口
+
+- Pulse-L 与 Pulse-L2 分别建立公开端口 harness、depth=32 不变量脚本、成功路径脚本、PowerShell runner 和独立 verifier。
+- Pulse-L 初版只显式约束 OBSERVE 计数；主线程补强为与 L2 相同的 utility 顺序、失败零观察和响应背压期间 utility 稳定合同后，重新运行证明。
+- 两模型不变量均为 `SAT proof finished - no model found: SUCCESS!`，成功路径均找到非空模型；L witness 为 15,561 bytes，L2 witness 为 16,787 bytes。
+- 两个 verifier 分别输出 `PULSE_PRUNE_WRAPPER_FORMAL_CONTRACT_PASS` 与 `PULSE_L2_PRUNE_WRAPPER_FORMAL_CONTRACT_PASS`。证明范围只到单 wrapper，不外推十核 commit barrier。
+
+## 2026-08-29 NP4B 当前续跑规划
+
+- 依据当前工作树和三路只读审计，将剩余工作冻结为 P0→P5：Pulse 证据固化、ENeuron wrapper 原子性、十参与者 barrier 组合证明、INFER/负向补强、冻结后全量重跑、fail-closed 总签核。
+- 计划显式区分“形式证明已通过”和“正式证据已签入”；C1/C2 当前属于前者，不得提前计入最终仓库签核。
+- 收紧 C3：内部同拍接受由验证专用 bind/断言证明，公开端口只证明事务级结果；非空 witness 必须由公开命令产生非零 snapshot 和 utility 更新。
+- 收紧 C4：barrier 不自行验证 exact-two，最终结论必须组合公共 gate 证明；真实顶层阻塞由协同仿真验证，不能用编译替代。
+- 总摘要将采用 fail-closed 精确键集合，绑定三模型结果、全部形式 proof/reach、witness、runner、测试和工具版本；本轮只更新规划，未运行 Vivado、未执行签核。
+
+## 2026-08-29 P0 Pulse wrapper 证据固化
+
+- 使用当前源码并行重跑 Pulse-L/L2 的 Yosys 0.56 depth=32 invariant 与 reach；两套 runner 均以退出码 0 完成。
+- Pulse-L verifier 输出 `PULSE_PRUNE_WRAPPER_FORMAL_CONTRACT_PASS`；L2 verifier 输出 `PULSE_L2_PRUNE_WRAPPER_FORMAL_CONTRACT_PASS`；两个 verifier 的 Python 编译检查通过。
+- 正式日志分别为 551,887 和 580,073 bytes；非空成功 witness 分别为 15,561 和 16,787 bytes。
+- P0 提交只纳入正式 harness、proof/reach 脚本、runner、verifier、日志和成功 witness；明确排除旧 cex 与 tmp 日志，未运行 Vivado。
+- Yosys 原始日志的 ASCII 横幅自带行尾空格；为保持证据原样，不清洗日志。源码、脚本和文档仍执行严格 `git diff --check`，日志完整性留给最终 SHA-256 摘要。

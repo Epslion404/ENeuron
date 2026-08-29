@@ -326,7 +326,7 @@ Pulse 旧形式 harness 修复：
 - [x] L/L2 分别重跑 depth 20：不变量检查通过，各找到四类成功路径 witness。
 - [x] 修复前的旧 Pulse 形式日志标为失效证据，不再用于签核。
 
-Pulse harness 当前状态：`NP4B5_PULSE_CORE_FORMAL_REPAIRED / PULSE_L_WRAPPER_FORMAL_PASS`。Pulse-L wrapper 已完成 depth=32 的非零 FEEDBACK→OBSERVE exactly-once 不变量检查，并找到成功非零反馈 witness；该结果尚未覆盖 Pulse-L2、ENeuron wrapper 或十核网络屏障。
+Pulse harness 当前状态：`NP4B5_PULSE_CORE_FORMAL_REPAIRED / PULSE_L_WRAPPER_FORMAL_PASS / PULSE_L2_WRAPPER_FORMAL_PASS`。L/L2 wrapper 均完成 depth=32 的非零 FEEDBACK→OBSERVE/utility 顺序检查，并找到成功非零反馈 witness；该结果尚未覆盖 ENeuron wrapper 或十核网络屏障。
 
 wrapper/network 形式性质：
 
@@ -404,8 +404,8 @@ NP4B 完成前禁止运行 NP6。NP4B 通过后：
 
 ### C. 完成 NP4B5 非空形式检查
 
-- [ ] C1：签入并复验 Pulse-L wrapper depth=32 exactly-once 证明、成功 witness、VCD 非空和 verifier 标记。
-- [ ] C2：以最小差异扩展 Pulse-L2 wrapper 证明，覆盖成功非零 FEEDBACK exactly-once、成功响应前 utility 已更新、失败响应零观察和背压稳定，并提供成功 witness。
+- [x] C1：Pulse-L wrapper depth=32 证明已复验；成功响应前 OBSERVE/utility 完成、失败零观察、双响应口背压稳定，成功 witness VCD 非空。
+- [x] C2：Pulse-L2 wrapper 同强度 depth=32 证明已复验，并提供 utility 非零的成功 witness。
 - [ ] C3：为 ENeuron wrapper 建立有限深度 harness，证明合法 MOD 与 OBSERVE 同时接受或同时拒绝，并提供非零 MOD 成功 witness。
 - [ ] C4：用公共 commit barrier 的小状态抽象证明十 gate 全部 exact-two、十核 clear 完成后才公开成功，commit 期间拒绝运行命令，响应背压字段稳定；再用真实三个顶层的编译/结构检查绑定该抽象。
 - [ ] C5：INFER 冻结优先由三模型随机协同仿真逐周期证明；形式检查只补关键控制不变量，避免展开十个完整神经元造成无收益的 SAT 膨胀。
@@ -424,6 +424,97 @@ NP4B 完成前禁止运行 NP6。NP4B 通过后：
 ### E. 建议提交边界
 
 1. `test: add Pulse pruning network random cosim`：A、B 的 oracle、driver、tests 和两模型长事务结果。
-2. `test: prove pruning wrapper atomicity`：C1→C3 的 harness、脚本、日志、witness 与 verifier。
-3. `test: prove pruning network commit barrier`：C4 的抽象证明及真实顶层绑定检查。
-4. `docs: sign off NP4B pruning integration`：D 的全仓结果、机器摘要和文档状态。
+2. `test: prove Pulse pruning wrapper atomicity`：先独立签入已经完成的 C1/C2，避免与尚未实现的 C3 混成一个不可审计提交。
+3. `test: prove ENeuron pruning wrapper atomicity`：C3 的 harness、脚本、日志、witness 与 verifier。
+4. `test: prove pruning network commit barrier`：C4/C5 的抽象证明、真实顶层绑定和控制级冻结检查。
+5. `docs: sign off NP4B pruning integration`：D 的全仓结果、机器摘要和文档状态。
+
+## 9. 从当前工作树继续执行的 TODO（2026-08-29，待审核）
+
+本节是第 8 节的“当前工作树视图”，不改变已批准的八项架构决定。当前事实为：C1/C2 形式证明已通过但尚未签入；C3/C4/C5 与 D1→D6 尚未完成；不得写入 `NP4B_INTEGRATION_PASS`，不得运行 Vivado。
+
+### P0：固化 Pulse-L/L2 已完成证据
+
+- [x] P0.1：复验两个独立 verifier，并对两个 verifier 执行 Python 编译检查。
+- [x] P0.2：只签入正式 harness、`.ys`、runner、verifier、两份正式 `.log` 和两份非空成功 witness。
+- [x] P0.3：明确排除 `*_cex.vcd`、`*.tmp.log` 和其他失败/中间产物；被 `.gitignore` 忽略的四份正式证据使用显式文件名强制加入，不修改全局忽略规则。
+- [x] P0.4：对源码、脚本和文档执行 `git diff --check`；Yosys 原生日志保留工具生成的 ASCII 横幅行尾空格并以 SHA-256 保真。提交为 `test: prove Pulse pruning wrapper atomicity`。
+
+P0 验收标记：
+
+```text
+PULSE_PRUNE_WRAPPER_FORMAL_CONTRACT_PASS
+PULSE_L2_PRUNE_WRAPPER_FORMAL_CONTRACT_PASS
+```
+
+P0 状态：`PASS`。Yosys 0.56 新鲜重跑；Pulse-L/L2 正式日志分别为 551,887/580,073 bytes，成功 witness 分别为 15,561/16,787 bytes。两套证明各自包含 invariant proof 和非零反馈 reach，不共享 witness。
+
+### P1：ENeuron MOD/OBSERVE 原子性形式闭环
+
+- [ ] P1.1：先写有限深度 harness 与失败敏感断言；不修改神经元方程，不增加综合接口。
+- [ ] P1.2：用验证专用 bind/内部断言证明：合法非零 MOD 在接受沿上，核心 MOD 与 gate OBSERVE 同拍接受；任一侧不能接受时，两侧均不得部分启动。
+- [ ] P1.3：用公开状态证明事务级结果：成功 `done` 前 utility 与 observation ID 已更新，pending snapshot 已消费；错误模式、错误 ID、重复 ID 和 gate 反压不得产生部分更新。
+- [ ] P1.4：证明在途事务阻止新的运行/剪枝事务；剪枝响应背压期间 status、ID、mask 和相关状态稳定。
+- [ ] P1.5：成功 witness 必须从公开命令走完 `TRAIN→非零 snapshot→非零 MOD→utility 非零变化→成功 done`，不得直接假设内部 snapshot 或 utility 非零。
+- [ ] P1.6：生成独立 runner、proof/reach 脚本、正式日志、非空 witness 和 fail-closed verifier，然后独立提交。
+
+P1 验收门：同一性质同时具备“不变量无反例”和“真实成功路径可达”；只凭外部最终状态不得宣称已经证明内部同拍接受。
+
+### P2：十参与者 commit/clear barrier 组合证明
+
+- [ ] P2.1：直接实例化真实 `local_prune_commit_barrier.sv`，固定 `N_GATES=10`；参与者响应采用小状态抽象，不展开十个完整神经元。
+- [ ] P2.2：证明预检失败时十路 gate 全不启动；安全提交时十路同拍启动且 ID 一致；每路 gate/clear response 最多接受一次。
+- [ ] P2.3：证明收齐十个成功 gate response 前不启动 clear，十路 clear 同拍启动，收齐十个成功 clear response 前不公开成功。
+- [ ] P2.4：证明成功只增加一次 epoch；commit 全程 `runtime_blocked=1`；响应背压期间 status、ID、40-bit mask 和 epoch 稳定。
+- [ ] P2.5：exact-two 采用组合证明：公共 gate 的既有证明负责 `ST_OK commit→mask 恰有两位`；barrier harness 只假设成功 gate 响应满足该合同；总 verifier 必须同时绑定 gate 与 barrier 两组证据。
+- [ ] P2.6：成功 witness 固定十参与者，允许 gate/clear 错拍返回，并覆盖 `10 gate done→10 clear done→success→epoch+1→背压保持→消费后解除阻塞`。
+- [ ] P2.7：三个真实 `4→8→2` 顶层都做 elaboration/结构检查，确认实例化同一公共 barrier、10 个四输入 wrapper、两组输出路由无重叠且覆盖 detector 0..7。
+- [ ] P2.8：三个真实顶层用定向/随机协同仿真证明 `runtime_blocked` 期间 `tick_ready`、`route_flush_ready`、`host_cmd_ready` 均不接受命令；单纯编译不能替代该性质。
+
+P2 验收门：抽象环境假设必须在机器摘要中列出来源；不得把 barrier 自身未检查的 exact-two 当作无条件结论。
+
+### P3：INFER 冻结与负向控制补强
+
+- [ ] P3.1：形式检查只覆盖控制级不变量：INFER 不产生 OBSERVE、不接受 PRUNE_COMMIT，被拒绝命令不改变 utility、mask、observation/commit ID。
+- [ ] P3.2：完整学习状态冻结继续由三模型随机协同仿真逐周期比较，不展开十个完整核心做大规模 SAT。
+- [ ] P3.3：把前三类 Python 玩具负向控制升级为至少一个真实 RTL mutation/接线变体检查，确认验收器能抓到“事后读取 evidence”“只掩数值路径”“部分 epoch 可见”；第四类结构检查扩展到 Pulse-L/L2 顶层。
+- [ ] P3.4：所有 mutation 必须“错误版本失败、正式 RTL 通过”，且错误版本不得进入正式 RTL 文件。
+
+### P4：冻结源码后重跑正式签核
+
+- [ ] P4.1：冻结 P0→P3 的 RTL、oracle、testbench 和形式脚本；冻结后再运行三模型各自 `20 seeds × 1000 transactions`。
+- [ ] P4.2：为 ENeuron 新增独立 20,000 事务结果文件；三模型分别固定 seed 集合、事务数和零差异字段，不用合计数替代单模型结果。
+- [ ] P4.3：运行全部 formal runner，再运行全部 verifier；禁止 verifier 只读取历史日志而不重新生成证据。
+- [ ] P4.4：运行 `python -m unittest discover -v`，保存实际执行测试 ID 与结果，要求不少于 318 项、零失败、零错误。
+- [ ] P4.5：运行 `python -m compileall -q .`、公共 barrier、三个 wrapper、三个 `4→8→2` 顶层的 `iverilog -Wall` 编译，以及 `git diff --check`。
+
+### P5：fail-closed 总摘要、文档与停止点
+
+- [ ] P5.1：新增 NP4B 总机器摘要和独立 verifier；固定检查三模型 seed 集合、各 20,000 事务、精确统计/恒等式、零差异、INFER 冻结、strict 2:4、epoch、背压和旁路 bit-exact。
+- [ ] P5.2：摘要记录 Python/Icarus/Yosys 版本、形式深度、runner 命令与退出码、实际 unittest 数量、witness 数量和字节数。
+- [ ] P5.3：SHA-256 精确绑定 RTL、oracle、testbench、runner、tests、formal harness/脚本、正式日志、witness、结果文件和总 verifier 自身；键集合缺失或多余都失败。
+- [ ] P5.4：同步 `NPU_PRUNING_NP4B_TODO.md`、`task_plan.md`、`progress.md`、`findings.md` 与项目报告，只引用证据索引，不复制整份日志。
+- [ ] P5.5：所有硬门通过后提交 `docs: sign off NP4B pruning integration`，只写入：
+
+```text
+NP4B_INTEGRATION_PASS
+NP6_REVIEW_REQUIRED
+```
+
+- [ ] P5.6：提交后停止，等待用户再次批准 NP6；此前不调用 Vivado，不声称物理周期、BRAM 访问或功耗收益。
+
+### 执行顺序与并行边界
+
+```text
+P0 Pulse 证据固化
+  ├─ P1 ENeuron wrapper 形式证明
+  └─ P2 barrier 形式证明与顶层绑定
+       \                    /
+        └──── P3 冻结补强 ─┘
+                  ↓
+              P4 全量重跑
+                  ↓
+              P5 总签核
+```
+
+P1 与 P2 可并行开发，但 P4 必须等待 P0→P3 的源码和脚本全部冻结。任何阶段出现空 witness、mutation 未被捕获、三模型任一零差异失败或测试数低于 318，立即停在当前阶段修复，不向后生成签核摘要。
