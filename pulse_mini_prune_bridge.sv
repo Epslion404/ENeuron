@@ -62,6 +62,7 @@ module pulse_mini_prune_bridge #(
     output logic [31:0]                  prune_refractory_skips_state,
     output logic                         prune_sticky_halt_state,
     output logic [7:0]                   prune_latched_evidence_state,
+    output logic [3:0]                   prune_issue_mask_state,
     output logic [31:0]                  prune_dense_reads_state,
     output logic [31:0]                  prune_reads_issued_state,
     output logic [31:0]                  prune_reads_saved_state
@@ -167,6 +168,7 @@ module pulse_mini_prune_bridge #(
     assign prune_refractory_skips_state = refractory_skips;
     assign prune_sticky_halt_state = sticky_halt;
     assign prune_latched_evidence_state = latched_evidence;
+    assign prune_issue_mask_state = gate_issue_mask;
     assign prune_dense_reads_state = LAYER_OUTPUT ? output_dense_reads : hidden_dense_reads;
     assign prune_reads_issued_state = LAYER_OUTPUT ? output_reads_issued : hidden_reads_issued;
     assign prune_reads_saved_state = LAYER_OUTPUT ? output_reads_saved : hidden_reads_saved;

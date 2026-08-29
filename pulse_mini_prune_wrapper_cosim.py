@@ -55,6 +55,7 @@ module tb;
   logic [31:0] prune_refractory_skips_state;
   logic prune_sticky_halt_state;
   logic [7:0] prune_latched_evidence_state;
+  logic [3:0] prune_issue_mask_state;
   logic [31:0] prune_dense_reads_state;
   logic [31:0] prune_reads_issued_state;
   logic [31:0] prune_reads_saved_state;
@@ -65,6 +66,8 @@ module tb;
     repeat (3) @(posedge clk);
     rst = 0;
     repeat (2) @(posedge clk);
+    if (prune_issue_mask_state !== dut.prune_issue_mask_state)
+      $fatal(1, "ISSUE_MASK_PORT_MISMATCH");
     $display("PUBLIC_INTERFACE_PASS");
     $finish;
   end
@@ -173,6 +176,7 @@ module tb;
   logic [31:0] prune_refractory_skips_state;
   logic prune_sticky_halt_state;
   logic [7:0] prune_latched_evidence_state;
+  logic [3:0] prune_issue_mask_state;
   logic [31:0] prune_dense_reads_state;
   logic [31:0] prune_reads_issued_state;
   logic [31:0] prune_reads_saved_state;
@@ -348,6 +352,7 @@ module tb;
   logic [31:0] prune_refractory_skips_state;
   logic prune_sticky_halt_state;
   logic [7:0] prune_latched_evidence_state;
+  logic [3:0] prune_issue_mask_state;
   logic [31:0] prune_dense_reads_state;
   logic [31:0] prune_reads_issued_state;
   logic [31:0] prune_reads_saved_state;
@@ -563,6 +568,7 @@ module tb;
   logic [31:0] prune_refractory_skips_state;
   logic prune_sticky_halt_state;
   logic [7:0] prune_latched_evidence_state;
+  logic [3:0] prune_issue_mask_state;
   logic [31:0] prune_dense_reads_state;
   logic [31:0] prune_reads_issued_state;
   logic [31:0] prune_reads_saved_state;
@@ -793,6 +799,7 @@ module tb;
   logic [31:0] prune_refractory_skips_state;
   logic prune_sticky_halt_state;
   logic [7:0] prune_latched_evidence_state;
+  logic [3:0] prune_issue_mask_state;
   logic [31:0] prune_dense_reads_state;
   logic [31:0] prune_reads_issued_state;
   logic [31:0] prune_reads_saved_state;
@@ -825,6 +832,7 @@ module tb;
     .prune_refractory_skips_state(prune_refractory_skips_state),
     .prune_sticky_halt_state(prune_sticky_halt_state),
     .prune_latched_evidence_state(prune_latched_evidence_state),
+    .prune_issue_mask_state(prune_issue_mask_state),
     .prune_dense_reads_state(prune_dense_reads_state),
     .prune_reads_issued_state(prune_reads_issued_state),
     .prune_reads_saved_state(prune_reads_saved_state)

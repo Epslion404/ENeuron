@@ -480,6 +480,13 @@
 - 主线程独立复验负向控制与相关正向回归 9/9 通过，Python 编译和 `git diff --check` 通过。
 - 该结果只证明验收器能识别四类指定错误，不代替 wrapper/network 形式验证或长事务协同仿真。
 
+## 2026-08-29 Pulse NP4B4 只读审计端口
+
+- 为避免 Pulse 长事务依赖 RTL 层次路径，bridge/wrapper 纯组合导出 4-bit `issue_mask`；网络顶层公开十核 40-bit issue mask、leak timer、post age 和统一 120-bit captured direction。
+- L 的每 lane 2-bit captured direction 在顶层符号扩展为 3-bit，L2 原 3-bit 值保持不变，使同一随机驱动可比较两种模型。
+- 补丁不修改核心、opcode、FSM 或事务延迟；wrapper/network 完整 8/8 定向测试通过。
+- 首轮测试生成器曾因 `.*` 缺新信号和脆弱字符串替换导致 5 项 RED；已补全所有 TB 声明并恢复行为测试，未通过删除断言绕过。
+
 ## 2026-08-29 NP4B TODO 规划复核
 
 - 按 `planning-with-files` 执行 session catch-up，并复核 `task_plan.md`、`NPU_PRUNING_TODO.md`、`NPU_PRUNING_NP4B_TODO.md` 与当前工作树。

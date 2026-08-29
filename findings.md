@@ -564,6 +564,12 @@
 - 网络原子性检查必须把部分 mask 可见与中途 TICK 接受结合起来；只检查最终十 mask 全有效会漏掉部分 epoch。
 - 严格 `2:4` 是每个输出神经元四输入保留两路，不能用总计四条二输入连接替代结构分组。
 
+## 2026-08-29 Pulse 长事务可观测性事实
+
+- 仅从 soma/spike 与读计数间接推断 issue mask 不足以满足逐周期前置门控签核；40-bit issue mask 必须作为只读 audit 状态公开。
+- Pulse 动态学习状态还包括 leak timer、post age 与 captured direction；缺失这些字段会让 INFER 冻结和被剪 evidence 检查不完整。
+- L/L2 的 captured direction 位宽不同，可在网络审计边界统一为每 lane 3-bit signed；这是表示归一化，不改变核心存储或学习规则。
+
 ## 2026-08-29 NP4B TODO 复核
 
 - ENeuron 随机网络协同仿真的最小 tracer 已实际通过；长矩阵仍需以正式 20 seeds × 1000 结果签核，不能只凭测试文件存在判定完成。

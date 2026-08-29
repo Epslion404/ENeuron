@@ -54,6 +54,7 @@ module tb;
   logic busy;
   logic protocol_error;
   logic [31:0] commit_epoch_state;
+  logic [39:0] issue_masks_flat;
   logic [39:0] structural_masks_flat;
   logic [9:0] mask_valids_state;
   logic [9:0] pending_valids_state;
@@ -61,6 +62,9 @@ module tb;
   logic [159:0] weights_flat_state;
   logic [79:0] soma_states_flat;
   logic [39:0] refractory_states_flat;
+  logic [39:0] leak_timer_states_flat;
+  logic [39:0] post_age_states_flat;
+  logic signed [119:0] captured_direction_flat_state;
   logic [159:0] pre_age_flat_state;
   logic [79:0] positive_evidence_flat_state;
   logic [79:0] negative_evidence_flat_state;
@@ -80,6 +84,11 @@ module tb;
     repeat (3) @(posedge clk);
     rst = 0;
     repeat (2) @(posedge clk);
+    if (issue_masks_flat !== dut.issue_masks_flat
+        || leak_timer_states_flat !== dut.leak_timer_states_flat
+        || post_age_states_flat !== dut.post_age_states_flat
+        || captured_direction_flat_state !== dut.captured_direction_flat_state)
+      $fatal(1, "AUDIT_PORT_MISMATCH");
     $display("PULSE_NETWORK_PUBLIC_INTERFACE_PASS");
     $finish;
   end
@@ -139,6 +148,11 @@ def _network_contract_tb(module_name: str) -> str:
     return _public_interface_tb(module_name).replace(
         "  initial begin\n    repeat (3) @(posedge clk);\n    rst = 0;\n"
         "    repeat (2) @(posedge clk);\n"
+        "    if (issue_masks_flat !== dut.issue_masks_flat\n"
+        "        || leak_timer_states_flat !== dut.leak_timer_states_flat\n"
+        "        || post_age_states_flat !== dut.post_age_states_flat\n"
+        "        || captured_direction_flat_state !== dut.captured_direction_flat_state)\n"
+        "      $fatal(1, \"AUDIT_PORT_MISMATCH\");\n"
         "    $display(\"PULSE_NETWORK_PUBLIC_INTERFACE_PASS\");\n"
         "    $finish;\n  end\nendmodule\n",
         r"""
@@ -434,6 +448,11 @@ def _host_error_and_latching_tb(module_name: str) -> str:
     return _public_interface_tb(module_name).replace(
         "  initial begin\n    repeat (3) @(posedge clk);\n    rst = 0;\n"
         "    repeat (2) @(posedge clk);\n"
+        "    if (issue_masks_flat !== dut.issue_masks_flat\n"
+        "        || leak_timer_states_flat !== dut.leak_timer_states_flat\n"
+        "        || post_age_states_flat !== dut.post_age_states_flat\n"
+        "        || captured_direction_flat_state !== dut.captured_direction_flat_state)\n"
+        "      $fatal(1, \"AUDIT_PORT_MISMATCH\");\n"
         "    $display(\"PULSE_NETWORK_PUBLIC_INTERFACE_PASS\");\n"
         "    $finish;\n  end\nendmodule\n",
         r"""

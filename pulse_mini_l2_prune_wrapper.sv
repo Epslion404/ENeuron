@@ -30,6 +30,7 @@ module pulse_mini_l2_prune_wrapper #(
     output logic [31:0] prune_refractory_skips_state,
     output logic prune_sticky_halt_state,
     output logic [7:0] prune_latched_evidence_state,
+    output logic [3:0] prune_issue_mask_state,
     output logic [31:0] prune_dense_reads_state,
     output logic [31:0] prune_reads_issued_state,
     output logic [31:0] prune_reads_saved_state
@@ -109,6 +110,7 @@ module pulse_mini_l2_prune_wrapper #(
         .prune_refractory_skips_state(prune_refractory_skips_state),
         .prune_sticky_halt_state(prune_sticky_halt_state),
         .prune_latched_evidence_state(prune_latched_evidence_state),
+        .prune_issue_mask_state(prune_issue_mask_state),
         .prune_dense_reads_state(prune_dense_reads_state),
         .prune_reads_issued_state(prune_reads_issued_state),
         .prune_reads_saved_state(prune_reads_saved_state)

@@ -42,6 +42,7 @@ module pulse_mini_pruned_network_4x8x2 #(
     output logic busy,
     output logic protocol_error,
     output logic [31:0] commit_epoch_state,
+    output logic [39:0] issue_masks_flat,
     output logic [39:0] structural_masks_flat,
     output logic [9:0] mask_valids_state,
     output logic [9:0] pending_valids_state,
@@ -49,6 +50,9 @@ module pulse_mini_pruned_network_4x8x2 #(
     output logic [159:0] weights_flat_state,
     output logic [79:0] soma_states_flat,
     output logic [39:0] refractory_states_flat,
+    output logic [39:0] leak_timer_states_flat,
+    output logic [39:0] post_age_states_flat,
+    output logic signed [119:0] captured_direction_flat_state,
     output logic [159:0] pre_age_flat_state,
     output logic [79:0] positive_evidence_flat_state,
     output logic [79:0] negative_evidence_flat_state,
@@ -372,6 +376,8 @@ module pulse_mini_pruned_network_4x8x2 #(
             logic [3:0] l_negative;
             logic [7:0] l2_positive;
             logic [7:0] l2_negative;
+            logic signed [7:0] l_captured_direction;
+            logic signed [11:0] l2_captured_direction;
             logic [31:0] local_dense_reads;
             logic [31:0] local_reads_issued;
             logic [31:0] local_reads_saved;
@@ -390,6 +396,22 @@ module pulse_mini_pruned_network_4x8x2 #(
                 neuron_index >= 8 ? local_reads_issued : 32'd0;
             assign wrapper_output_saved_flat[neuron_index*32 +: 32] =
                 neuron_index >= 8 ? local_reads_saved : 32'd0;
+
+            genvar direction_lane;
+            for (direction_lane = 0; direction_lane < 4;
+                 direction_lane = direction_lane + 1) begin : gen_direction_lane
+                if (USE_L2) begin : gen_l2_direction
+                    assign captured_direction_flat_state[
+                        neuron_index*12 + direction_lane*3 +: 3] =
+                        l2_captured_direction[direction_lane*3 +: 3];
+                end else begin : gen_l_direction
+                    assign captured_direction_flat_state[
+                        neuron_index*12 + direction_lane*3 +: 3] = {
+                            l_captured_direction[direction_lane*2 + 1],
+                            l_captured_direction[direction_lane*2 +: 2]
+                        };
+                end
+            end
 
             if (USE_L2) begin : gen_l2
                 assign positive_evidence_flat_state[neuron_index*8 +: 8] = l2_positive;
@@ -424,16 +446,19 @@ module pulse_mini_pruned_network_4x8x2 #(
                     .weight0(weight0), .weight1(weight1), .weight2(weight2), .weight3(weight3),
                     .soma_state(soma_states_flat[neuron_index*8 +: 8]),
                     .refractory_state(refractory_states_flat[neuron_index*4 +: 4]),
-                    .leak_timer_state(),
+                    .leak_timer_state(leak_timer_states_flat[neuron_index*4 +: 4]),
                     .pre_age_flat(pre_age_flat_state[neuron_index*16 +: 16]),
-                    .post_age_state(), .positive_evidence(l2_positive),
-                    .negative_evidence(l2_negative), .captured_direction_flat(),
+                    .post_age_state(post_age_states_flat[neuron_index*4 +: 4]),
+                    .positive_evidence(l2_positive),
+                    .negative_evidence(l2_negative),
+                    .captured_direction_flat(l2_captured_direction),
                     .prune_utility_state(utility_flat_state[neuron_index*16 +: 16]),
                     .prune_structural_mask_state(structural_masks_flat[neuron_index*4 +: 4]),
                     .prune_mask_valid_state(mask_valids_state[neuron_index]),
                     .prune_observe_count_state(observe_counts_flat_state[neuron_index*32 +: 32]),
                     .prune_refractory_skips_state(refractory_skips_flat_state[neuron_index*32 +: 32]),
                     .prune_sticky_halt_state(), .prune_latched_evidence_state(),
+                    .prune_issue_mask_state(issue_masks_flat[neuron_index*4 +: 4]),
                     .prune_dense_reads_state(local_dense_reads),
                     .prune_reads_issued_state(local_reads_issued),
                     .prune_reads_saved_state(local_reads_saved)
@@ -473,16 +498,19 @@ module pulse_mini_pruned_network_4x8x2 #(
                     .weight0(weight0), .weight1(weight1), .weight2(weight2), .weight3(weight3),
                     .soma_state(soma_states_flat[neuron_index*8 +: 8]),
                     .refractory_state(refractory_states_flat[neuron_index*4 +: 4]),
-                    .leak_timer_state(),
+                    .leak_timer_state(leak_timer_states_flat[neuron_index*4 +: 4]),
                     .pre_age_flat(pre_age_flat_state[neuron_index*16 +: 16]),
-                    .post_age_state(), .positive_evidence(l_positive),
-                    .negative_evidence(l_negative), .captured_direction_flat(),
+                    .post_age_state(post_age_states_flat[neuron_index*4 +: 4]),
+                    .positive_evidence(l_positive),
+                    .negative_evidence(l_negative),
+                    .captured_direction_flat(l_captured_direction),
                     .prune_utility_state(utility_flat_state[neuron_index*16 +: 16]),
                     .prune_structural_mask_state(structural_masks_flat[neuron_index*4 +: 4]),
                     .prune_mask_valid_state(mask_valids_state[neuron_index]),
                     .prune_observe_count_state(observe_counts_flat_state[neuron_index*32 +: 32]),
                     .prune_refractory_skips_state(refractory_skips_flat_state[neuron_index*32 +: 32]),
                     .prune_sticky_halt_state(), .prune_latched_evidence_state(),
+                    .prune_issue_mask_state(issue_masks_flat[neuron_index*4 +: 4]),
                     .prune_dense_reads_state(local_dense_reads),
                     .prune_reads_issued_state(local_reads_issued),
                     .prune_reads_saved_state(local_reads_saved)
