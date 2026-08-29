@@ -1,5 +1,17 @@
 # 调研与实验发现
 
+## NPU 局部剪枝 NP4B 接入审计（2026-08-29）
+
+- ENeuron 四输入 SNAPSHOT 在接受后经过四拍扫描和一拍 commit 才原子发布；只读端口必须连接正式 `eligibility_snapshot[]`，不能连接扫描工作副本。
+- 非零 MOD 在最终 commit 沿清核心 `snapshot_valid`，tile 再晚一拍完成；因此 evidence 必须在合法 MOD 接受边界读取，不能等 MOD done 后补读。
+- ENeuron 零 MOD 不清核心 snapshot，但 tile 会消费 tile 级 pending snapshot；NP4B 必须以 tile pending commit ID 为事务真值，不顺手改变现有核心语义。
+- Pulse-Mini-L/L2 都在合法 FEEDBACK 接受沿清 captured direction；wrapper 的时序逻辑可在同一沿看到旧值，core response 周期再读取已经来不及。
+- Pulse 的成功非零 FEEDBACK response 必须等 OBSERVE 完成后再向上游公开，避免权重已更新而 utility 尚未更新；response 背压期间必须禁止重复观察。
+- `cmd_ready` 只说明核心没有未消费 response，不能代替网络 episode/路由安全边界；commit 需要独立 `prune_safe_boundary` 或等价调度状态。
+- 提交新 mask 后必须先清动态学习历史再开放 TICK，否则新结构会继承旧结构的 trace/evidence；`STATE_CLEAR` 不能同时清 utility/mask，也不能替代 CONFIG 的 `PRUNE_CLEAR`。
+- 现有 `4→2→2` 网络的输出核只有两个输入。两层严格 `2:4` 必须使用新的 `4→8→2` 测试拓扑，不能用计数或命名掩盖扇入不满足。
+- NP4B 的逻辑 `issue_mask` 和发射计数仍不是 BRAM 真跳读、共享 lane 周期或功耗证据；这些结论继续留给 NP6/NP7。
+
 ## NPU 局部剪枝 NP4A/NP5 公共控制器（2026-08-29）
 
 - S2-only 生产控制器不需要权重输入；NP5 原“负权重绝对值”覆盖属于已淘汰的 S0/S3 路径，保留它会无谓增加 abs 和比较逻辑，因此从 RTL 门中删除。

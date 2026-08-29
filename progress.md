@@ -1,5 +1,15 @@
 # 进度记录
 
+## 2026-08-29 NPU 局部剪枝 NP4B 规划
+
+- 新增 `NPU_PRUNING_NP4B_TODO.md`，状态为 `REVIEW_REQUIRED`；本轮只规划和审计，未修改 RTL，未运行 Vivado。
+- ENeuron 接入必须导出 committed snapshot，并在合法 MOD 接受边界与 gate OBSERVE 原子协调；MOD 完成后再读取会遇到 snapshot valid 已清除。
+- Pulse-Mini-L/L2 必须在 FEEDBACK 接受沿锁存旧 captured direction，核心返回成功后再 OBSERVE；零反馈和失败响应不更新 utility。
+- 固定新建 `4→8→2` 测试网络：8 个四输入 detector、2 个四输入 output、固定一逻辑 tick 路由、每个神经元一个 gate；保留现有 `4→2→2` 网络。
+- network `PRUNE_COMMIT` 先全体预检、统一启动，完成全部 gate 与自动 `STATE_CLEAR` 后才对外成功；中间禁止运行命令。
+- 规划包含三模型各 20×1000 端到端事务、四类负向实现、Pulse 旧形式 harness 修复和进入 NP6 的九项签核门。
+- 下一步等待用户批准八项 NP4B 实现决定；批准前不写集成 RTL。
+
 ## 2026-08-29 NPU 局部剪枝 NP4A/NP5 公共控制器
 
 - 新增独立 `local_prune_gate_2of4.sv`：S2-only、四路 4-bit utility、四拍 top-2、一次原子严格 `2:4` 提交。
