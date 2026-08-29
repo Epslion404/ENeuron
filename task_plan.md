@@ -51,7 +51,7 @@
 - [x] 冻结 `4→8→2` 两层严格 `2:4` 测试拓扑、固定一拍路由和 10-gate all-done barrier
 - [x] 形成 `NPU_PRUNING_NP4B_TODO.md`，列明八项待批准决定、TDD 顺序、负向控制和停止条件
 - [x] 用户批准 NP4B 八项实现决定
-- [ ] 按 NP4B1→NP4B6 测试先行实施；完成前不运行 NP6 Vivado
+- [x] 按 NP4B1→NP4B6 测试先行实施并完成；未运行 NP6 Vivado
 
 ### NP4B 当前执行顺序
 
@@ -59,8 +59,8 @@
 - [x] NP4B2：Pulse-Mini-L/L2 共享 bridge 与两个薄 wrapper
 - [x] NP4B3：公共 `4→8→2` 调度、固定一拍路由、三模型十 wrapper 接线和 10-gate 原子屏障
 - [x] NP4B4：ENeuron、Pulse-L、Pulse-L2 分别完成 20×1000 端到端协同事务
-- [ ] NP4B5：负向实现、Pulse/ENeuron wrapper 与网络 barrier 非空形式检查（技术检查已通过；ENeuron 正式证据待独立提交，最终还需在 P4 新鲜重跑）
-- [ ] NP4B6：318 项以上全仓回归、机器摘要、文档签核与 NP6 二次审批
+- [x] NP4B5：负向实现、Pulse/ENeuron wrapper 与网络 barrier 非空形式检查全部通过
+- [x] NP4B6：359 项全仓回归、机器摘要和文档签核完成；NP6 二次审批待用户决定
 
 ### NP4B 当前细粒度 TODO
 
@@ -72,8 +72,8 @@
 - [x] 完成 Pulse-L2 wrapper exactly-once 非空形式证据
 - [x] 完成 ENeuron MOD/OBSERVE 原子接受非空形式证据并提交为 `c811bcf`
 - [x] 完成公共十参与者 commit/clear barrier 抽象证明与真实顶层绑定
-- [ ] 三模型各自重跑 20000 条、全仓回归不少于 318 项、编译/lint/formal 全通过
-- [ ] 生成 SHA-256 机器摘要并停在 `NP6_REVIEW_REQUIRED`，不运行 Vivado
+- [x] 三模型各自重跑 20000 条、全仓 359 项、编译/lint/formal 全通过
+- [x] 生成 87 文件 SHA-256 机器摘要并停在 `NP6_REVIEW_REQUIRED`，未运行 Vivado
 
 ### 2026-08-29 当前续跑批次（执行中）
 
@@ -81,10 +81,10 @@
 - [x] P1：ENeuron wrapper 同拍 MOD/OBSERVE 内部握手证明、公开事务结果证明和非零成功 witness
 - [x] P2：真实 N=10 barrier 小状态证明、公共 gate exact-two 组合绑定、三个真实顶层 runtime 阻塞验证
 - [x] P3：INFER 控制级形式检查、真实 RTL mutation 负向控制和 P4 三模型共 60,000 条完整随机冻结均通过
-- [x] P4：源码冻结后重跑三模型各 20000、全部 formal runner/verifier、356 项全仓、compileall/8 个 iverilog 目标/diff-check
-- [ ] P5：fail-closed 总摘要和精确 SHA-256 集合已通过；最终文档签核提交后停在 `NP6_REVIEW_REQUIRED`
+- [x] P4：源码冻结后重跑三模型各 20000、全部 formal runner/verifier、最终 359 项全仓、compileall/8 个 iverilog 目标/diff-check
+- [x] P5：fail-closed 总摘要、精确 SHA-256 集合和最终文档签核完成；停在 `NP6_REVIEW_REQUIRED`
 
-当前硬阻断：P1 证据尚未独立提交；冻结源码后的三模型正式重跑、ENeuron 独立 20k 结果文件、全部形式证据新鲜重跑和 NP4B 总摘要/verifier 均未完成，因此禁止写入 `NP4B_INTEGRATION_PASS`。
+当前阶段已完成。唯一剩余人工门是用户再次批准 NP6；批准前禁止调用 Vivado。
 
 批准后唯一执行主链：P1 独立入库 → 固定 seed `101..120/201..220/301..320` → 三模型各 20,000 条 → 全部形式 runner/verifier → 全仓回归与编译 → fail-closed 摘要 → 文档签核。任何硬门失败均停在当前阶段，不运行 Vivado。
 
@@ -480,7 +480,7 @@
 - [x] B2.1：三模型三候选均通过；output-2:4 为 120 次读取/发射，按 KISS 选为 V1
 - [x] 原始 Goal 完成审计：NP0 八项、三模型软件实验、文档和分阶段提交均有权威证据
 - [x] NP4A/NP5：公共 `2:4` 控制器、60000 条协同事务、有限检查和负向反例已通过
-- [ ] NP4B：八项决定已批准，wrapper 与严格 `4→8→2` 网络已完成；Pulse-L/L2 长事务、剩余形式检查和 NP4B6 签核待完成；NP6-NP7 未启动
+- [x] NP4B：三模型 wrapper、严格 `4→8→2` 网络、各 20,000 条、五套形式证据、359 项回归和总摘要全部通过；状态为 `NP6_REVIEW_REQUIRED`
 
 ### 本阶段错误记录
 

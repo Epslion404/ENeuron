@@ -624,3 +624,9 @@
 - `np4b_signoff_summary.json` 精确绑定 87 个文件，覆盖 RTL、oracle/cosim、定向与负向测试、五套 formal proof/reach、正式日志、成功 witness、三模型结果、runner 和 verifier 自身。
 - 总 verifier 复用三模型摘要 verifier 和五套形式证据 verifier，检查固定 seed、各 20,000 条、逻辑账本恒等式、精确哈希键集合、非空 witness、冻结提交祖先关系及未证明边界。
 - 最终输出 `NP4B_SIGNOFF_VERIFY_PASS models=3 transactions=60000 tests=359 formal=5 next=NP6_REVIEW_REQUIRED`；3 项摘要正/负向测试通过。
+
+## 2026-08-29 NP4B 最终文档签核
+
+- NP4B1→NP4B6 全部功能硬门完成；最终总 verifier、359 项回归、五套形式证据、三模型 60,000 条独立矩阵和 8 个 RTL 编译目标均通过。
+- 项目状态更新为 `NP4B_INTEGRATION_PASS / NP6_REVIEW_REQUIRED`；进入 NP6 的用户审批仍未发生。
+- 本阶段从头到尾未调用 Vivado，未声明物理 BRAM 跳读、真实周期缩短、功耗下降或 XC7Z020 时序收益。

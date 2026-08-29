@@ -633,7 +633,7 @@
 
 ## 2026-08-29 NP4B 最终收口规划事实
 
-- P1 的“技术证明通过”与“证据已进入仓库”必须分开记录；当前准确状态是 `PROOF_PASS / REPOSITORY_CLOSURE_PENDING`。
+- P1 执行期间证明了“技术证明通过”与“证据已进入仓库”必须分开记录；随后已由提交 `c811bcf` 完成仓库闭环。
 - P4 必须在 P1 独立提交后冻结源码与 seed，再重跑三模型。先跑长矩阵、后修改源码会使结果与最终 RTL 失去绑定。
 - 三模型 seed 固定为 ENeuron `101..120`、Pulse-L `201..220`、Pulse-L2 `301..320`；每个模型必须独立报告 20,000 条，合计数不能代替单模型门槛。
 - 最终摘要必须 fail-closed：精确文件键集合、SHA-256、新鲜 runner 退出码、工具版本、witness 字节数和实际 unittest 数量缺一即失败。
@@ -644,3 +644,11 @@
 - `WORKFLOW_STATE.md` 是当前状态指针，活动 TODO 是详细合同；状态文件不复制完整设计任务，避免形成第二份真值。
 - `workflow_resume.ps1` 只做 fail-closed 只读恢复：检查持久文件和必要字段，输出 HEAD、工作树、活动 TODO 未完成数及最近记录，不执行验证、提交或 Vivado。
 - Windows 会话不能假设 `iverilog` 位于 `PATH`；当前可复现绝对路径为 `C:\msys64\ucrt64\bin\iverilog.exe`，后续签核应记录该工具路径和版本。
+
+## 2026-08-29 NP4B 最终签核事实
+
+- 三种神经元在同一严格 `4→8→2`、十个四输入 gate 网络上分别完成 20 个固定 seed × 1000 条事务，逐事务零差异；合计 60,000 条不能替代三个独立 20,000 门槛，但三者均已分别通过。
+- 五套新鲜形式证据覆盖 ENeuron/Pulse-L/Pulse-L2 wrapper、公共 gate 和 N=10 barrier；每套同时具备不变量无反例与非空成功 witness。
+- 最终 discovery 纳入 P5 verifier 测试后为 359/359；总摘要绑定 87 个文件，并拒绝缺失、多余、陈旧哈希和 cex/tmp 证据。
+- NP4B 证明的是结构门控和功能集成：不能把 hidden/output 逻辑读取节省写成共享 BRAM 真跳读、墙钟加速、功耗下降或 XC7Z020 时序通过。
+- 下一阶段唯一合法状态是 `NP6_REVIEW_REQUIRED`；用户未批准前不调用 Vivado。

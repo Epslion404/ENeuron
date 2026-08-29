@@ -4,11 +4,11 @@
 
 最后更新：2026-08-29
 
-状态：`ACTIVE / IN_PROGRESS`
+状态：`ACTIVE / NEXT_REVIEW_REQUIRED`
 
 ## 当前活动目标
 
-完成 NPU 局部剪枝 NP4B 功能集成的最终证据闭环，并在全部硬门通过后停止于 `NP6_REVIEW_REQUIRED`。
+NP4B 功能集成证据闭环已经完成；当前等待用户决定是否批准 NP6 Vivado 物理成本阶段。
 
 活动合同：`NPU_PRUNING_NP4B_TODO.md` 第 9 节。
 
@@ -19,13 +19,16 @@
 - 已提交 P2/P3：`c0108a0 test: prove pruning network commit barrier`。
 - ENeuron P1 已提交：`c811bcf test: prove ENeuron pruning wrapper atomicity`。
 - P1 verifier、3 项定向测试、Python 编译和绝对路径 Icarus `-Wall -tnull` 均通过；正式日志与成功 witness 已入库，cex/tmp 未纳入。
-- P4 三模型矩阵、五套新鲜 proof/reach 和对应 verifier 已通过；证据哈希修复后的第二轮全仓 `356/356` 通过，compileall 与 8 个 RTL 编译目标通过，P5 尚未开始。
+- 三模型各 20,000 条新鲜矩阵、五套 proof/reach 与独立 verifier、8 个 RTL 编译目标和最终全仓 `359/359` 均通过。
+- P5 已提交：`e3708af test: add NP4B fail-closed signoff`；总摘要绑定 87 个文件并通过独立 verifier。
+- 当前正式状态为 `NP4B_INTEGRATION_PASS / NP6_REVIEW_REQUIRED`。
 - NP6 尚未获再次批准，禁止运行 Vivado。
 
 ## 允许动作
 
 - 只读恢复、状态核对和工作流维护。
-- 按活动 TODO 的 P4→P5 串行执行。
+- 只读审计、状态恢复和回答用户关于 NP4B 证据的问题。
+- 只有用户明确批准 NP6 后，才规划并运行 Vivado 物理成本评估。
 
 ## 禁止动作
 
@@ -35,7 +38,7 @@
 
 ## 下一动作
 
-提交 P4.4/P4.5 状态文档，然后执行 P4.6/P5：建立精确证据索引、总摘要、独立 verifier 和最终项目文档。
+停止实施，等待用户再次批准 NP6。此前不调用 Vivado。
 
 ## 恢复检查
 

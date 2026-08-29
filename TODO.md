@@ -492,4 +492,4 @@ P0-P8 已完成并签核
 - [x] NP5 公共控制器验证：三模型共 60000 条逐事务协同仿真、两个负向反例、depth=32 有限形式与成功提交可达性通过。
 - [x] NP4B 规划：形成 `NPU_PRUNING_NP4B_TODO.md` 审核稿，冻结接入边界、测试矩阵、停止条件和进入 NP6 的签核门。
 - [x] NP4B0 用户审核：已批准 committed snapshot 只读端口、Pulse 外部 wrapper、独立 `4→8→2` 网络、sideband 剪枝通道、一核一 gate、CLEAR 分离、commit 后自动清历史、NP6 二次审批八项决定。
-- [ ] NP4B 正式集成：ENeuron snapshot evidence 旁路、Pulse FEEDBACK evidence 锁存、真正四输入输出组与三模型端到端验证尚未实现；当前无 Vivado NP6 证据。
+- [x] NP4B 正式集成：ENeuron snapshot evidence 旁路、Pulse FEEDBACK evidence 锁存、真正四输入输出组、三模型各 20,000 条、五套形式证据和 359 项回归通过；当前为 `NP6_REVIEW_REQUIRED`，无 Vivado NP6 证据。

@@ -1,6 +1,6 @@
 # NPU 局部剪枝 NP4B 正式集成 TODO
 
-状态：`IMPLEMENTATION_APPROVED`
+状态：`NP4B_INTEGRATION_PASS / NP6_REVIEW_REQUIRED`
 
 日期：2026-08-29
 
@@ -15,7 +15,7 @@
 - ENeuron、Pulse-Mini-L、Pulse-Mini-L2 固定 evidence gain 已冻结为 `1/2/1`。
 - 三模型各完成 20 seeds × 1000 条公共控制器 Python/RTL 协同事务，共 60000 条，零差异。
 - depth=32 有限检查、成功提交可达性和两个故障变体反例均已通过。
-- 当前准确状态是 `NP4A/NP5_COMMON_CONTROLLER_PASS`、`NP4B_INTEGRATION_PENDING`、`NP6_NOT_STARTED`。
+- 当前准确状态是 `NP4B_INTEGRATION_PASS`、`NP6_REVIEW_REQUIRED`；NP6 尚未启动。
 
 尚未完成：
 
@@ -302,7 +302,7 @@ NP4B4 状态：`PASS`。三个模型分别保留独立 20,000 条结果，不以
 
 ### NP4B5：负向控制与形式检查修复
 
-负向控制子状态：`PASS`。四类显式错误模型均被对应验收器拒绝，正确合同模型和当前四输入正向结构通过；wrapper/network 形式检查仍在进行。
+负向控制与形式检查状态：`PASS`。四类显式错误模型和 7 项真实 RTL mutation 均被对应验收器拒绝；三个 wrapper、公共 gate 和十参与者 barrier 的 depth=32 proof/reach 与非空成功 witness 全部通过。
 
 负向实现至少包含：
 
@@ -342,17 +342,17 @@ wrapper/network 形式性质：
 
 以下项目必须全部完成：
 
-- [ ] ENeuron、Pulse-Mini-L、Pulse-Mini-L2 wrapper 全部通过。
-- [ ] `4→8→2` 的 10 个神经元均为四输入组，隐藏/输出全部严格 `2:4`。
-- [ ] 三模型端到端协同仿真全部通过。
-- [ ] 修复后的 Pulse 形式检查为非空证明。
-- [ ] 无剪枝旁路与原核心 bit-exact。
-- [ ] 全仓回归不低于当前 318 项，且零退化。
-- [ ] 机器摘要绑定所有 RTL、oracle、testbench、脚本和结果 SHA-256。
-- [ ] 文档明确 NP4B 不证明物理成本与真加速。
+- [x] ENeuron、Pulse-Mini-L、Pulse-Mini-L2 wrapper 全部通过。
+- [x] `4→8→2` 的 10 个神经元均为四输入组，隐藏/输出全部严格 `2:4`。
+- [x] 三模型端到端协同仿真全部通过。
+- [x] 修复后的 Pulse 形式检查为非空证明。
+- [x] 无剪枝旁路与原核心 bit-exact。
+- [x] 全仓回归达到 359 项，零失败、零错误。
+- [x] 机器摘要绑定 87 个 RTL、oracle、testbench、脚本、日志、witness 和结果文件 SHA-256。
+- [x] 文档明确 NP4B 不证明物理成本与真加速。
 - [ ] 用户再次批准进入 NP6。
 
-只有以上全部通过，状态才能改为：
+前八项完成功能集成签核；最后一项是进入下一阶段的独立人工门。当前状态为：
 
 ```text
 NP4B_INTEGRATION_PASS
@@ -406,20 +406,20 @@ NP4B 完成前禁止运行 NP6。NP4B 通过后：
 
 - [x] C1：Pulse-L wrapper depth=32 证明已复验；成功响应前 OBSERVE/utility 完成、失败零观察、双响应口背压稳定，成功 witness VCD 非空。
 - [x] C2：Pulse-L2 wrapper 同强度 depth=32 证明已复验，并提供 utility 非零的成功 witness。
-- [ ] C3：为 ENeuron wrapper 建立有限深度 harness，证明合法 MOD 与 OBSERVE 同时接受或同时拒绝，并提供非零 MOD 成功 witness。
-- [ ] C4：用公共 commit barrier 的小状态抽象证明十 gate 全部 exact-two、十核 clear 完成后才公开成功，commit 期间拒绝运行命令，响应背压字段稳定；再用真实三个顶层的编译/结构检查绑定该抽象。
-- [ ] C5：INFER 冻结优先由三模型随机协同仿真逐周期证明；形式检查只补关键控制不变量，避免展开十个完整神经元造成无收益的 SAT 膨胀。
+- [x] C3：ENeuron wrapper depth=32 harness 证明合法 MOD 与 OBSERVE 同时接受或同时拒绝，并提供公开非零 MOD 成功 witness。
+- [x] C4：公共 commit barrier 的 N=10 小状态证明和真实三个顶层绑定通过；成功公开前已完成十 gate exact-two 与十核 clear。
+- [x] C5：INFER 完整冻结由三模型各 20,000 条随机协同仿真逐周期证明；形式检查补齐关键控制不变量。
 
 验收门：每类不变量同时具备“无反例”和“成功路径可达”两类证据；空证明不得签核。
 
 ### D. 完成 NP4B6 全仓签核
 
-- [ ] D1：重新运行 ENeuron、Pulse-L、Pulse-L2 各 20000 条正式矩阵，生成三个独立结果文件。
-- [ ] D2：运行 `python -m unittest discover -v`，测试数不得低于 318，且零失败、零错误。
-- [ ] D3：运行 `python -m compileall -q .`、相关顶层 `iverilog -Wall` 编译、全部 formal verifier 和 `git diff --check`。
-- [ ] D4：生成 NP4B 机器摘要，绑定 RTL、Python oracle、testbench、形式脚本、日志、witness 与结果文件 SHA-256，并由独立 verifier 校验。
-- [ ] D5：同步 `NPU_PRUNING_NP4B_TODO.md`、`task_plan.md`、`progress.md`、`findings.md` 和项目报告；只在所有硬门通过后写入 `NP4B_INTEGRATION_PASS / NP6_REVIEW_REQUIRED`。
-- [ ] D6：提交 NP4B6 签核 commit 后停止；等待用户再次批准 NP6，不调用 Vivado。
+- [x] D1：重新运行 ENeuron、Pulse-L、Pulse-L2 各 20,000 条正式矩阵，生成三个独立结果文件。
+- [x] D2：最终运行 `python -m unittest discover -v`，359 项零失败、零错误。
+- [x] D3：`compileall`、8 个 `iverilog -Wall -tnull` 目标、全部 formal verifier 和 `git diff --check` 通过。
+- [x] D4：生成 NP4B 机器摘要，绑定 87 个 RTL、Python oracle、testbench、形式脚本、日志、witness 与结果文件 SHA-256，并由独立 verifier 校验。
+- [x] D5：同步全部规划文件和项目报告，并写入 `NP4B_INTEGRATION_PASS / NP6_REVIEW_REQUIRED`。
+- [x] D6：提交 NP4B6 签核后停止；等待用户再次批准 NP6，不调用 Vivado。
 
 ### E. 建议提交边界
 
@@ -429,9 +429,9 @@ NP4B 完成前禁止运行 NP6。NP4B 通过后：
 4. `test: prove pruning network commit barrier`：C4/C5 的抽象证明、真实顶层绑定和控制级冻结检查。
 5. `docs: sign off NP4B pruning integration`：D 的全仓结果、机器摘要和文档状态。
 
-## 9. 从当前工作树继续执行的 TODO（2026-08-29，执行中）
+## 9. 最终执行记录（2026-08-29，已完成）
 
-本节是第 8 节的当前执行稿，不改变已批准的八项架构决定。当前事实为：P0 已提交为 `67b6019`；P2/P3 已提交为 `c0108a0`；P1 技术验证已经通过，但源码、脚本、正式日志和 witness 仍在工作树中，尚未形成独立仓库提交；P4/P5 尚未执行。不得写入 `NP4B_INTEGRATION_PASS`，不得运行 Vivado。
+本节记录第 8 节的实际执行结果，不改变已批准的八项架构决定。P0、P1、P2/P3、P4 和 P5 均已形成独立证据提交；最终总 verifier 通过。NP6 仍须用户另行批准，本阶段未运行 Vivado。
 
 ### P0：固化 Pulse-L/L2 已完成证据
 
@@ -493,27 +493,33 @@ P3 状态：`PASS`。7 项负向控制全部先拒绝真实源码 mutation、再
 - [x] P4.1：冻结 RTL、oracle、testbench、runner 与形式脚本；冻结点为 `33e0aed`，seed 固定为 ENeuron `101..120`、Pulse-L `201..220`、Pulse-L2 `301..320`，每个 seed 恰好 1000 条事务。
 - [x] P4.2：新增 ENeuron 正式 runner、独立结果文件和 fail-closed verifier；冻结点后新鲜重跑三模型各自 20,000 条，三个摘要 verifier 全部通过。
 - [x] P4.3：按 runner→verifier 顺序新鲜重跑 ENeuron wrapper、Pulse-L wrapper、Pulse-L2 wrapper、公共 gate、十参与者 barrier 的全部 proof/reach；五个 runner 与五个独立 verifier 均通过。
-- [x] P4.4：证据哈希修复后完整重跑 `python -m unittest discover -v`，实际 `Ran 356 tests in 362.228s`，零失败、零错误。
+- [x] P4.4：最终完整重跑 `python -m unittest discover -v`，实际 `Ran 359 tests in 378.291s`，零失败、零错误。
 - [x] P4.5：`python -m compileall -q .` 通过；公共 gate/barrier、三个 wrapper、三个 `4→8→2` 顶层共 8 个目标通过 `iverilog -Wall -tnull`；人工文件 diff-check 通过。
-- [ ] P4.6：把三份模型结果、全部新鲜形式证据、工具版本、命令、退出码和时间写入待签核证据索引；原始 Yosys 日志只做标记与哈希验证，不清洗工具生成空白。
+- [x] P4.6：三份模型结果、全部新鲜形式证据、Python 3.14.2、Icarus 12.0、Yosys 0.56、命令、退出码和时间均写入总证据索引；原始 Yosys 日志只做标记与哈希验证，未清洗工具生成空白。
 
 P4 硬门：三模型必须分别出现 20,000 条通过结论；任一模型、任一 verifier、任一编译或全仓测试失败，立即停在 P4 修复，不生成总签核摘要。
 
 ### P5：fail-closed 总摘要、文档与停止点
 
-- [ ] P5.1：新增 `np4b_signoff_summary.json` 和独立 `verify_np4b_signoff.py`；固定检查三组 seed、各 20,000 事务、精确统计/恒等式、零差异、INFER 冻结、strict `2:4`、epoch、背压和旁路 bit-exact。
-- [ ] P5.2：摘要记录 Python/Icarus/Yosys 版本、形式深度、完整 runner 命令与退出码、执行时间、实际 unittest 数量、正式 witness 数量和字节数。
-- [ ] P5.3：SHA-256 精确绑定 RTL、oracle、testbench、runner、tests、formal harness/脚本、正式日志、成功 witness、结果文件和总 verifier 自身；键集合缺失、多余、文件陈旧或出现 cex/tmp 证据均失败。
-- [ ] P5.4：从摘要中重算并校验逻辑账本恒等式；明确这些计数只代表功能级访问/发射门控，不代表物理 BRAM 跳读、墙钟周期、功耗或 Vivado 时序。
-- [ ] P5.5：同步 `NPU_PRUNING_NP4B_TODO.md`、`task_plan.md`、`progress.md`、`findings.md` 与 `PROJECT_REPORT.md`，只引用证据索引，不复制整份日志。
-- [ ] P5.6：所有硬门通过后提交 `docs: sign off NP4B pruning integration`，只写入：
+- [x] P5.1：新增 `np4b_signoff_summary.json` 和独立 `verify_np4b_signoff.py`；固定检查三组 seed、各 20,000 事务、精确统计/恒等式、零差异、INFER 冻结、strict `2:4`、epoch、背压和旁路 bit-exact。
+- [x] P5.2：摘要记录 Python/Icarus/Yosys 版本、形式深度、完整 runner 命令与退出码、执行时间、实际 unittest 数量、正式 witness 数量和字节数。
+- [x] P5.3：SHA-256 精确绑定 87 个 RTL、oracle、testbench、runner、tests、formal harness/脚本、正式日志、成功 witness、结果文件和总 verifier 自身；键集合缺失、多余、文件陈旧或出现 cex/tmp 证据均失败。
+- [x] P5.4：总 verifier 重算逻辑账本恒等式；这些计数只代表功能级访问/发射门控，不代表物理 BRAM 跳读、墙钟周期、功耗或 Vivado 时序。
+- [x] P5.5：同步 `NPU_PRUNING_NP4B_TODO.md`、`task_plan.md`、`progress.md`、`findings.md` 与 `PROJECT_REPORT.md`，只引用证据索引，不复制整份日志。
+- [x] P5.6：所有硬门通过后提交 `docs: sign off NP4B pruning integration`，最终状态只写入：
 
 ```text
 NP4B_INTEGRATION_PASS
 NP6_REVIEW_REQUIRED
 ```
 
-- [ ] P5.7：提交后停止，等待用户再次批准 NP6；此前不调用 Vivado，不声称物理周期、BRAM 访问或功耗收益。
+- [x] P5.7：提交后停止，等待用户再次批准 NP6；此前不调用 Vivado，不声称物理周期、BRAM 访问或功耗收益。
+
+P5 状态：`PASS`。权威机器入口为 `python verify_np4b_signoff.py`，最终标记为：
+
+```text
+NP4B_SIGNOFF_VERIFY_PASS models=3 transactions=60000 tests=359 formal=5 next=NP6_REVIEW_REQUIRED
+```
 
 ### 当前批准后执行顺序
 
