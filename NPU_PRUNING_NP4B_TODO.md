@@ -295,11 +295,13 @@ dense warm-up
 
 Pulse 旧形式 harness 修复：
 
-- [ ] 改为一次启动 reset，之后 release，消除不可满足复位假设。
-- [ ] 增加 CAPTURE→FEEDBACK 成功可达性。
-- [ ] 增加 TICK/CAPTURE/FEEDBACK 实际路径 cover/reach。
-- [ ] L/L2 分别重跑 depth 20 或更高。
-- [ ] 修复前的旧 Pulse 形式日志标为失效证据，不再用于签核。
+- [x] 改为一次启动 reset，之后 release，消除不可满足复位假设。
+- [x] 增加 CAPTURE→FEEDBACK 成功可达性。
+- [x] 增加 TICK/CAPTURE/FEEDBACK 实际路径 reach witness。
+- [x] L/L2 分别重跑 depth 20：不变量检查通过，各找到四类成功路径 witness。
+- [x] 修复前的旧 Pulse 形式日志标为失效证据，不再用于签核。
+
+Pulse harness 当前状态：`NP4B5_PULSE_CORE_FORMAL_REPAIRED`。该结果只覆盖两个裸核心的有限深度不变量与可达性；wrapper/network 形式性质仍未完成。
 
 wrapper/network 形式性质：
 

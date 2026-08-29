@@ -19,20 +19,56 @@ module formal_pulse_mini_l2(input logic clk);
     logic [7:0] positive_evidence, negative_evidence;
     logic signed [11:0] captured_direction_flat;
     logic past_valid;
+    logic [2:0] accepted_opcode;
+    logic capture_completed;
+    (* keep *) logic reached_tick_ok;
+    (* keep *) logic reached_capture_ok;
+    (* keep *) logic reached_feedback_ok;
+    (* keep *) logic reached_capture_then_feedback_ok;
 
     pulse_mini_l2_core dut (.*);
 
     always_ff @(posedge clk) begin
+        // set-init-zero 令第一拍必须复位，之后复位必须持续释放。
+        past_valid <= 1'b1;
+        if (!past_valid)
+            assume(rst);
+        else
+            assume(!rst);
+
         if (rst) begin
-            past_valid <= 1'b0;
+            accepted_opcode <= 3'd0;
+            capture_completed <= 1'b0;
+            reached_tick_ok <= 1'b0;
+            reached_capture_ok <= 1'b0;
+            reached_feedback_ok <= 1'b0;
+            reached_capture_then_feedback_ok <= 1'b0;
         end else begin
-            past_valid <= 1'b1;
-            if (!past_valid) assume(rst);
-            else assume(!rst);
+            if (cmd_valid && cmd_ready)
+                accepted_opcode <= cmd_opcode;
+
+            // 可达性标记只认核心返回的成功响应，不把命令接受误当成功。
+            if (rsp_valid && rsp_status == 3'd0) begin
+                case (accepted_opcode)
+                    3'd2: reached_tick_ok <= 1'b1;
+                    3'd3: begin
+                        reached_capture_ok <= 1'b1;
+                        capture_completed <= 1'b1;
+                    end
+                    3'd4: begin
+                        reached_feedback_ok <= 1'b1;
+                        if (capture_completed)
+                            reached_capture_then_feedback_ok <= 1'b1;
+                        capture_completed <= 1'b0;
+                    end
+                    default: begin end
+                endcase
+            end
 
             assert(cmd_ready == !rsp_valid);
-            if (past_valid)
-                assert(rsp_valid == $past(cmd_valid && cmd_ready));
+            if (past_valid && !$past(rst))
+                assert(rsp_valid == ($past(cmd_valid && cmd_ready) ||
+                    ($past(rsp_valid) && !$past(rsp_ready))));
 
             if (past_valid && $past(rsp_valid && !rsp_ready)) begin
                 assert(rsp_valid);

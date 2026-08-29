@@ -1,5 +1,14 @@
 # 进度记录
 
+## 2026-08-29 NP4B5 Pulse 形式 harness 修复
+
+- 修复 Pulse-Mini-L/L2 旧 harness 的复位矛盾：首拍要求 reset，之后持续 release，不再形成不可满足的正常运行轨迹。
+- 响应断言补入背压保持语义，避免把合法多拍 `rsp_valid` 错判为失败。
+- 两个核心均新增 TICK、CAPTURE、FEEDBACK、CAPTURE→FEEDBACK 四类成功路径 reach 标记和独立 SAT witness。
+- L/L2 depth=20 不变量检查均通过；每个模型找到四个预期 witness，共生成 8 个非空 VCD。
+- 新日志 schema 为 `np4b5_v2`，明确 `old_v1_logs_invalid=1`；缺少该标记的历史 Pulse 形式日志不再作为有效证据。
+- 专属 verifier 通过，Pulse L/L2 Python 参考回归 26/26 通过。边界仍是有限深度检查，不是无限归纳或活性证明。
+
 ## 2026-08-29 NP4B3 网络提交屏障
 
 - 新增参数化 `local_prune_commit_barrier.sv`，默认服务 10 个四输入组。

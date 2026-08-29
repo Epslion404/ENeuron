@@ -1,0 +1,10 @@
+# Pulse-Mini-L2 非空轨迹检查：每个 falsify 查询都必须找到 reach=1 的 witness。
+read_verilog -formal -sv pulse_mini_l2_core.sv formal_pulse_mini_l2.sv
+prep -top formal_pulse_mini_l2 -flatten
+async2sync
+memory_map
+opt_clean
+sat -seq 20 -set-assumes -set-init-zero -prove reached_tick_ok 0 -falsify -show rst -show cmd_valid -show cmd_opcode -show cmd_arg0 -show cmd_arg1 -show rsp_ready -show rsp_valid -show rsp_status -show mode_state -show pending_valid -show reached_tick_ok -dump_vcd formal_pulse_mini_l2_tick_reach.vcd
+sat -seq 20 -set-assumes -set-init-zero -prove reached_capture_ok 0 -falsify -show rst -show cmd_valid -show cmd_opcode -show cmd_arg0 -show cmd_arg1 -show rsp_ready -show rsp_valid -show rsp_status -show mode_state -show pending_valid -show reached_capture_ok -dump_vcd formal_pulse_mini_l2_capture_reach.vcd
+sat -seq 20 -set-assumes -set-init-zero -prove reached_feedback_ok 0 -falsify -show rst -show cmd_valid -show cmd_opcode -show cmd_arg0 -show cmd_arg1 -show rsp_ready -show rsp_valid -show rsp_status -show mode_state -show pending_valid -show reached_feedback_ok -dump_vcd formal_pulse_mini_l2_feedback_reach.vcd
+sat -seq 20 -set-assumes -set-init-zero -prove reached_capture_then_feedback_ok 0 -falsify -show rst -show cmd_valid -show cmd_opcode -show cmd_arg0 -show cmd_arg1 -show rsp_ready -show rsp_valid -show rsp_status -show mode_state -show pending_valid -show reached_capture_then_feedback_ok -dump_vcd formal_pulse_mini_l2_capture_feedback_reach.vcd

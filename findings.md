@@ -8,6 +8,8 @@
 - 公共 gate 的响应是单槽并可背压，网络提交屏障必须为每个 gate 保存 done 位；只等待“当前拍全部 rsp_valid”会漏掉先完成者。
 - 网络原子性需要两个屏障：先汇合 10 个 gate commit 响应，再汇合 10 个核心 `STATE_CLEAR` 响应；外部 mask epoch 只能在第二个屏障后公开。
 - 既有 `pulse_mini_network_4x2x2.sv` 逐核串行调度且输出只有两输入，不能直接扩参数得到批准的 `4→8→2`；NP4B3 应把公共 commit/clear 屏障与模型专用 TICK/训练调度分开。
+- Pulse 旧形式 harness 把 `past_valid` 仅在非复位分支置位，同时在该分支第一次执行 `assume(rst)`，会让复位释放轨迹不可达；只有“无反例”而没有成功命令 witness 的旧日志不能继续使用。
+- 修复后的 reach 使用 falsify 证明成功路径可达；日志中的 `model found: FAIL!` 在这些专门的 reach 查询中是预期 witness，不是设计失败，verifier 必须按查询类型计数。
 
 ## NPU 局部剪枝 NP4B 接入审计（2026-08-29）
 
