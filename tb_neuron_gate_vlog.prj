@@ -1,0 +1,7 @@
+sv xil_defaultlib \
+"neuron_gate_core.sv" \
+"tb_neuron_gate.sv"
+
+verilog xil_defaultlib "glbl.v"
+
+nosort

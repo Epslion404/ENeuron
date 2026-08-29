@@ -1,0 +1,4 @@
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/MGL/Documents/Codex/2026-08-29/vivado/work/neuron_gate_core.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module neuron_gate_core
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/MGL/Documents/Codex/2026-08-29/vivado/work/tb_neuron_gate.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module tb_neuron_gate
