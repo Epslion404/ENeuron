@@ -82,7 +82,7 @@
 - [x] P2：真实 N=10 barrier 小状态证明、公共 gate exact-two 组合绑定、三个真实顶层 runtime 阻塞验证
 - [x] P3：INFER 控制级形式检查、真实 RTL mutation 负向控制和 P4 三模型共 60,000 条完整随机冻结均通过
 - [x] P4：源码冻结后重跑三模型各 20000、全部 formal runner/verifier、356 项全仓、compileall/8 个 iverilog 目标/diff-check
-- [ ] P5：fail-closed 总摘要、精确 SHA-256 集合、文档签核；随后停在 `NP6_REVIEW_REQUIRED`
+- [ ] P5：fail-closed 总摘要和精确 SHA-256 集合已通过；最终文档签核提交后停在 `NP6_REVIEW_REQUIRED`
 
 当前硬阻断：P1 证据尚未独立提交；冻结源码后的三模型正式重跑、ENeuron 独立 20k 结果文件、全部形式证据新鲜重跑和 NP4B 总摘要/verifier 均未完成，因此禁止写入 `NP4B_INTEGRATION_PASS`。
 
@@ -92,6 +92,7 @@
 
 | 错误 | 尝试 | 处理 |
 |---|---:|---|
+| P5 总 verifier 首次调用公共 gate verifier 的不存在 `main()` 接口 | 1 | gate 模块公开 `verify()`；只修正调用接口，因 verifier 自身被摘要哈希绑定，随后重新生成摘要并重跑全部 P5 测试 |
 | P4.4 首轮全仓 356 项中 `test_source_hashes_are_current` 发现 gate 形式文件哈希索引陈旧 | 2 | 首轮定位 reach 脚本后，定向测试继续捕获 runner 哈希；改为枚举比较全部 11 个绑定文件，确认只剩 runner 一项后统一修正，再重跑精确键集合测试和完整 356 项 |
 | P1.7 复验直接调用 `iverilog` 时当前 PowerShell `PATH` 找不到命令 | 1 | 不重复同一调用；定位并使用 `C:\msys64\ucrt64\bin\iverilog.exe`，`-Wall -tnull` 编译通过 |
 | NP4B 最终 TODO 首次使用跨四文件整包补丁时，`task_plan.md` 上下文不匹配 | 1 | 补丁工具原子拒绝且未产生部分修改；改为逐文件小补丁并按当前精确行更新 |

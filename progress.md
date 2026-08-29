@@ -611,3 +611,16 @@
 - 第二轮结果为 `Ran 356 tests in 362.228s / OK`，零失败、零错误，超过 `N >= 318` 硬门；首轮 355/356 不计入通过结论。
 - `python -m compileall -q .` 通过；Icarus 对公共 gate、barrier、ENeuron/Pulse-L/Pulse-L2 wrapper 和三个 `4→8→2` 顶层共 8 个目标执行 `-g2012 -Wall -tnull`，全部通过。
 - P4 全部硬门完成；下一步只做 P4.6/P5 证据索引、fail-closed 总摘要、独立 verifier 和文档签核，不运行 Vivado。
+
+## 2026-08-29 P5 总摘要初版
+
+- 新增总摘要生成器、独立 verifier 和 3 项失败敏感测试；初次生成绑定 87 个精确文件，三项摘要合同测试通过。
+- 总 verifier 首次运行在公共 gate verifier 接口处失败：该模块公开 `verify()` 而非 `main()`；前置的三模型结果和三个 wrapper verifier 已通过。
+- 仅修正接口调用，不改证据合同；由于 verifier 本身位于哈希集合中，必须重新生成摘要后再运行总 verifier 和测试。
+
+## 2026-08-29 P5 fail-closed 证据闭环
+
+- 最终完整 discovery 纳入新增的 3 项 P5 失败敏感测试，结果为 `Ran 359 tests in 378.291s / OK`；外层命令墙钟 378.676 秒。
+- `np4b_signoff_summary.json` 精确绑定 87 个文件，覆盖 RTL、oracle/cosim、定向与负向测试、五套 formal proof/reach、正式日志、成功 witness、三模型结果、runner 和 verifier 自身。
+- 总 verifier 复用三模型摘要 verifier 和五套形式证据 verifier，检查固定 seed、各 20,000 条、逻辑账本恒等式、精确哈希键集合、非空 witness、冻结提交祖先关系及未证明边界。
+- 最终输出 `NP4B_SIGNOFF_VERIFY_PASS models=3 transactions=60000 tests=359 formal=5 next=NP6_REVIEW_REQUIRED`；3 项摘要正/负向测试通过。
