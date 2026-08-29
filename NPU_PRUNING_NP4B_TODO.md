@@ -254,6 +254,8 @@ ERROR_HALT
 
 ### NP4B4：三模型端到端协同仿真
 
+当前状态：`ENEURON_PASS / PULSE_L_PENDING / PULSE_L2_PENDING`。
+
 每个模型独立运行：
 
 ```text
@@ -289,6 +291,8 @@ dense warm-up
 - `issue_mask` 在核心输入和发射前形成；
 - hidden/output 计数不串账；
 - 未启用剪枝时 wrapper/network 不改变原核心行为。
+
+ENeuron 已通过 20 个独立 seed × 1000，共 20,000 个事务。剪枝后被剪权重变化 0 次、utility 变化 0 次；277 次 committed snapshot 变化全部是显式后续 SNAPSHOT 将旧非零容器值覆盖为 0，未出现 0→非零。按第 3 节冻结合同，live eligibility 不对外导出，`STATE_CLEAR` 保留 committed snapshot；因此这类 nonzero→0 容器发布不计作被剪连接继续学习。
 
 ### NP4B5：负向控制与形式检查修复
 

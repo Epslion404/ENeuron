@@ -465,6 +465,14 @@
 - hidden/output dense、issued、saved 分层汇总，响应背压期间字段稳定；bridge sideband ready 改为 idle 时不依赖 valid，以支持 barrier 的 valid 前原子预检。
 - Pulse 网络 3/3、wrapper 5/5、scheduler/barrier 5/5 通过；相关 13 项定向回归与 `git diff --check` 通过。NP4B3 状态更新为 `PASS`。
 
+## 2026-08-29 NP4B4 ENeuron 长事务收口
+
+- 新增独立 `ENeuronPrunedNetworkReference` 和 Python/Icarus 随机网络协同驱动，不复用 RTL 控制状态、不读取层次路径。
+- 逐事务比对十 gate utility/mask/observation+commit ID、十核 membrane/threshold/snapshot、pending 路由、六项分层账本以及 40 个公开寻址权重；逐周期检查 mask 前置、commit 阻塞、exact-two 和三类响应背压。
+- `test_eneuron_pruned_network_random_cosim.py`：64 事务 tracer 与正式 20 seeds × 1000 均通过；主线程新鲜复验 `Ran 2 tests in 43.495s`。
+- 正式 20,000 事务中，被剪权重变化 0、utility 变化 0；committed snapshot 合法 nonzero→0 发布 277 次、0→非零 0 次。
+- NP4B4 当前只签核 ENeuron；Pulse-L 与 Pulse-L2 各自 20,000 事务仍待完成。
+
 ## 2026-08-29 NP4B TODO 规划复核
 
 - 按 `planning-with-files` 执行 session catch-up，并复核 `task_plan.md`、`NPU_PRUNING_TODO.md`、`NPU_PRUNING_NP4B_TODO.md` 与当前工作树。

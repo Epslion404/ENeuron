@@ -550,6 +550,13 @@
 - 既有 `host_weight_rdata` 原先只保存事务完成值，空闲改变地址不会读取权重。复用同一端口增加 H_IDLE 组合寻址读，可在 INFER 前后无副作用比较权重；H_WAIT/H_RSP 仍保持锁存值和背压稳定。
 - 长事务黄金模型独立使用 `RtlReferenceNeuron` 复现十核、固定一拍路由、gate utility/mask/epoch 与分层账本；当前只完成模型和 64 事务 tracer 测试入口，协同驱动模块仍待落盘。
 
+## 2026-08-29 NP4B4 ENeuron 长事务事实
+
+- 正式规模为 20 个独立 seed、每个 1000 个事务，三模型不得合并报告；ENeuron 本轮已独立完成 20,000。
+- INFER 冻结必须区分正常 TICK/flush 与显式 `STATE_CLEAR`：后者允许清动态 membrane/threshold，但不得改变权重、gate utility/mask/ID 或 committed 学习协议。
+- 零 MOD 会消费 wrapper pending commit 元数据，但按既有核心合同保留 committed snapshot valid；非零 MOD 才消费核心 snapshot。黄金模型必须复现该差异。
+- 被剪 lane 的 committed snapshot 在后续显式 SNAPSHOT 中可从旧非零值发布为 0，因为 `STATE_CLEAR` 保留旧 committed 容器且 live eligibility 已被清零；验收要求只允许 nonzero→0，禁止 0→非零，并同时要求权重与 utility 零变化。
+
 ## 2026-08-29 NP4B TODO 复核
 
 - ENeuron 随机网络协同仿真的最小 tracer 已实际通过；长矩阵仍需以正式 20 seeds × 1000 结果签核，不能只凭测试文件存在判定完成。
