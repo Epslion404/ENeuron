@@ -591,3 +591,10 @@
 - ENeuron 20,000 条：零 RTL/Python 差异、零 strict `2:4` 违反、零 INFER 冻结违反、零被剪权重/utility 变化；合法 snapshot nonzero→0 发布 277 次，0→非零为 0。
 - Pulse-L 与 L2 各 20,000 条：各 20 次 commit、133,400 次 exact-two 检查、266,800 次被剪 lane 检查；被剪权重/evidence/utility 变化均为 0。
 - `verify_eneuron_pruned_network_summary.py` 与 `verify_pulse_pruned_network_summaries.py` 均通过；三模型结果继续标记为 `logical_functional_cosim_only`，不外推物理收益。
+
+## 2026-08-29 P4.3 新鲜形式证据
+
+- 从 P4 冻结版本并行重跑 ENeuron wrapper、Pulse-L wrapper、Pulse-L2 wrapper、公共 gate和 N=10 commit barrier 的 proof/reach runner，五个进程退出码均为 0。
+- 五个独立 verifier 分别输出 ENeuron/Pulse-L/Pulse-L2 wrapper contract PASS、公共 gate depth=32 + reach depth=8 PASS、barrier depth=32 participants=10 PASS。
+- 所有成功 witness 非空：ENeuron 24,069 bytes，Pulse-L 15,561 bytes，Pulse-L2 16,787 bytes，gate 11,288 bytes，barrier 12,944 bytes。
+- 原始日志内容在确定性重跑后与仓库版本逐字一致，因此 Git 无日志 diff；五份 witness 由本批次重新生成并产生 tracked 修改。最终 P5 摘要仍需记录本批次命令和退出码。
