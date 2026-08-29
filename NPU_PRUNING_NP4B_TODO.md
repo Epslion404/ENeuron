@@ -493,8 +493,8 @@ P3 状态：`PASS`。7 项负向控制全部先拒绝真实源码 mutation、再
 - [x] P4.1：冻结 RTL、oracle、testbench、runner 与形式脚本；冻结点为 `33e0aed`，seed 固定为 ENeuron `101..120`、Pulse-L `201..220`、Pulse-L2 `301..320`，每个 seed 恰好 1000 条事务。
 - [x] P4.2：新增 ENeuron 正式 runner、独立结果文件和 fail-closed verifier；冻结点后新鲜重跑三模型各自 20,000 条，三个摘要 verifier 全部通过。
 - [x] P4.3：按 runner→verifier 顺序新鲜重跑 ENeuron wrapper、Pulse-L wrapper、Pulse-L2 wrapper、公共 gate、十参与者 barrier 的全部 proof/reach；五个 runner 与五个独立 verifier 均通过。
-- [ ] P4.4：运行 `python -m unittest discover -v`，保存实际 `Ran N tests`，要求 `N >= 318`、零失败、零错误；测试数下降也视为失败。
-- [ ] P4.5：运行 `python -m compileall -q .`；对公共 gate/barrier、三个 wrapper、三个 `4→8→2` 顶层执行 `iverilog -Wall -tnull`；对人工维护文件执行 `git diff --check`。
+- [x] P4.4：证据哈希修复后完整重跑 `python -m unittest discover -v`，实际 `Ran 356 tests in 362.228s`，零失败、零错误。
+- [x] P4.5：`python -m compileall -q .` 通过；公共 gate/barrier、三个 wrapper、三个 `4→8→2` 顶层共 8 个目标通过 `iverilog -Wall -tnull`；人工文件 diff-check 通过。
 - [ ] P4.6：把三份模型结果、全部新鲜形式证据、工具版本、命令、退出码和时间写入待签核证据索引；原始 Yosys 日志只做标记与哈希验证，不清洗工具生成空白。
 
 P4 硬门：三模型必须分别出现 20,000 条通过结论；任一模型、任一 verifier、任一编译或全仓测试失败，立即停在 P4 修复，不生成总签核摘要。

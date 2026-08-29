@@ -604,3 +604,10 @@
 - 全仓实际执行 `Ran 356 tests in 372.990s`，355 项通过，1 项失败；测试数量已超过 318 门槛，但本轮整体判定为失败。
 - 唯一失败是 `local_prune_rtl_results.json` 仍绑定 `formal_local_prune_gate_reach.ys` 的旧 SHA-256；当前脚本哈希为 `00c18c...74aecb`。同一批次 gate proof/reach 与独立 verifier 均已通过，因此根因是机器摘要索引陈旧，不是 RTL 或形式性质失败。
 - 按 fail-closed 规则首次更新 reach 哈希后，定向测试继续捕获 `run_formal_local_prune_gate.ps1` 的旧哈希；随后枚举对比全部 11 个绑定文件，确认仅剩这一项并精确更新。定向测试通过后仍必须完整重跑 356 项，首轮结果不得计入 P4 PASS。
+
+## 2026-08-29 P4.4/P4.5 最终回归
+
+- 证据索引修复提交为 `9f31fcd test: refresh prune controller evidence hashes`；随后从干净 HEAD 完整重跑全仓。
+- 第二轮结果为 `Ran 356 tests in 362.228s / OK`，零失败、零错误，超过 `N >= 318` 硬门；首轮 355/356 不计入通过结论。
+- `python -m compileall -q .` 通过；Icarus 对公共 gate、barrier、ENeuron/Pulse-L/Pulse-L2 wrapper 和三个 `4→8→2` 顶层共 8 个目标执行 `-g2012 -Wall -tnull`，全部通过。
+- P4 全部硬门完成；下一步只做 P4.6/P5 证据索引、fail-closed 总摘要、独立 verifier 和文档签核，不运行 Vivado。
