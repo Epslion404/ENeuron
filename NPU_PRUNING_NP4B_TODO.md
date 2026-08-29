@@ -254,7 +254,7 @@ ERROR_HALT
 
 ### NP4B4：三模型端到端协同仿真
 
-当前状态：`ENEURON_PASS / PULSE_L_PENDING / PULSE_L2_PENDING`。
+当前状态：`ENEURON_PASS / PULSE_L_TRACER_PENDING / PULSE_L2_TRACER_PENDING`。
 
 每个模型独立运行：
 
@@ -320,7 +320,7 @@ Pulse 旧形式 harness 修复：
 - [x] L/L2 分别重跑 depth 20：不变量检查通过，各找到四类成功路径 witness。
 - [x] 修复前的旧 Pulse 形式日志标为失效证据，不再用于签核。
 
-Pulse harness 当前状态：`NP4B5_PULSE_CORE_FORMAL_REPAIRED`。该结果只覆盖两个裸核心的有限深度不变量与可达性；wrapper/network 形式性质仍未完成。
+Pulse harness 当前状态：`NP4B5_PULSE_CORE_FORMAL_REPAIRED / PULSE_L_WRAPPER_FORMAL_PASS`。Pulse-L wrapper 已完成 depth=32 的非零 FEEDBACK→OBSERVE exactly-once 不变量检查，并找到成功非零反馈 witness；该结果尚未覆盖 Pulse-L2、ENeuron wrapper 或十核网络屏障。
 
 wrapper/network 形式性质：
 
@@ -373,3 +373,51 @@ NP4B 完成前禁止运行 NP6。NP4B 通过后：
 - NP6 使用已知 Vivado 2024.1 路径 `G:\Xilinx\Vivado\2024.1\bin\unwrapped\win64.o\vivado.exe`，测量单 gate、三个 wrapper 和 `4→8→2` 顶层的资源/时序增量。
 - NP7 才实现共享 BRAM 格式、真实读请求跳过和共享 lane 周期下降。
 - NP4B 的 `issue_mask` 与逻辑计数只证明门控位置和功能合同，不能冒充 NP7 的 BRAM、周期或功耗实测。
+
+## 8. 当前收口 TODO（2026-08-29）
+
+本节只细化已批准的 NP4B4→NP4B6，不改变第 3 节八项架构决定。执行顺序固定为“短 tracer 校准 → 单模型长事务 → 小范围形式检查 → 全仓签核”；任一步失败先修同一步，不并行扩张证明范围。
+
+### A. 整理当前未提交证据
+
+- [ ] A1：确认 Pulse 随机 oracle/cosim 与 Pulse-L wrapper formal 文件均可独立编译，不依赖层次路径或未记录的临时文件。
+- [ ] A2：先运行 Pulse-L `1 seed × 64 transactions` tracer；逐周期差异必须定位到首个不一致状态，禁止靠放宽比较字段通过。
+- [ ] A3：Pulse-L tracer 通过后再补 Pulse-L2 同规模入口；L/L2 共用驱动，但黄金模型和结果必须按模型分别报告。
+- [ ] A4：提交边界只包含 Pulse 长事务基础设施与对应文档；形式证明文件单独提交，避免把两类证据混成一个不可审计提交。
+
+验收门：L、L2 的 64 事务 tracer 均为零差异；`python -m compileall -q .`、相关定向测试和 `git diff --check` 通过。
+
+### B. 完成 NP4B4 Pulse 长事务
+
+- [ ] B1：Pulse-Mini-L 独立运行 `20 seeds × 1000`，记录事务数、成功 commit 数、十 gate exact-two、分层账本、被剪权重/evidence/utility 变化数、INFER 冻结和背压重放次数。
+- [ ] B2：Pulse-Mini-L2 独立运行 `20 seeds × 1000`，使用同一验收字段，不与 L 合并成一个 40000 事务总数。
+- [ ] B3：两模型都验证无剪枝旁路与对应裸核心 bit-exact；验证 `issue_mask` 在输入核心前形成，不把不应期跳过计入结构节省。
+- [ ] B4：两模型结果分别写入机器可读摘要，并在文档中明确逻辑访问账本不等于 BRAM 跳读、周期下降或功耗收益。
+
+验收门：`PULSE_L_NP4B4_PASS` 与 `PULSE_L2_NP4B4_PASS` 必须分别出现；任一缺失时 NP4B4 保持未完成。
+
+### C. 完成 NP4B5 非空形式检查
+
+- [ ] C1：签入并复验 Pulse-L wrapper depth=32 exactly-once 证明、成功 witness、VCD 非空和 verifier 标记。
+- [ ] C2：以最小差异扩展 Pulse-L2 wrapper 证明，覆盖成功非零 FEEDBACK exactly-once、成功响应前 utility 已更新、失败响应零观察和背压稳定，并提供成功 witness。
+- [ ] C3：为 ENeuron wrapper 建立有限深度 harness，证明合法 MOD 与 OBSERVE 同时接受或同时拒绝，并提供非零 MOD 成功 witness。
+- [ ] C4：用公共 commit barrier 的小状态抽象证明十 gate 全部 exact-two、十核 clear 完成后才公开成功，commit 期间拒绝运行命令，响应背压字段稳定；再用真实三个顶层的编译/结构检查绑定该抽象。
+- [ ] C5：INFER 冻结优先由三模型随机协同仿真逐周期证明；形式检查只补关键控制不变量，避免展开十个完整神经元造成无收益的 SAT 膨胀。
+
+验收门：每类不变量同时具备“无反例”和“成功路径可达”两类证据；空证明不得签核。
+
+### D. 完成 NP4B6 全仓签核
+
+- [ ] D1：重新运行 ENeuron、Pulse-L、Pulse-L2 各 20000 条正式矩阵，生成三个独立结果文件。
+- [ ] D2：运行 `python -m unittest discover -v`，测试数不得低于 318，且零失败、零错误。
+- [ ] D3：运行 `python -m compileall -q .`、相关顶层 `iverilog -Wall` 编译、全部 formal verifier 和 `git diff --check`。
+- [ ] D4：生成 NP4B 机器摘要，绑定 RTL、Python oracle、testbench、形式脚本、日志、witness 与结果文件 SHA-256，并由独立 verifier 校验。
+- [ ] D5：同步 `NPU_PRUNING_NP4B_TODO.md`、`task_plan.md`、`progress.md`、`findings.md` 和项目报告；只在所有硬门通过后写入 `NP4B_INTEGRATION_PASS / NP6_REVIEW_REQUIRED`。
+- [ ] D6：提交 NP4B6 签核 commit 后停止；等待用户再次批准 NP6，不调用 Vivado。
+
+### E. 建议提交边界
+
+1. `test: add Pulse pruning network random cosim`：A、B 的 oracle、driver、tests 和两模型长事务结果。
+2. `test: prove pruning wrapper atomicity`：C1→C3 的 harness、脚本、日志、witness 与 verifier。
+3. `test: prove pruning network commit barrier`：C4 的抽象证明及真实顶层绑定检查。
+4. `docs: sign off NP4B pruning integration`：D 的全仓结果、机器摘要和文档状态。

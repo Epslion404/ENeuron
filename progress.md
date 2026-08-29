@@ -492,3 +492,11 @@
 - 按 `planning-with-files` 执行 session catch-up，并复核 `task_plan.md`、`NPU_PRUNING_TODO.md`、`NPU_PRUNING_NP4B_TODO.md` 与当前工作树。
 - 关键只读验证：ENeuron 最小随机 tracer 1/1 通过；Pulse-Mini-L/L2 网络接口与定向合同 3/3 通过。
 - 当前只规划、不运行 Vivado；待合并并行审计结果后冻结新的可执行 TODO 和验收门。
+
+## 2026-08-29 NP4B 收口 TODO 冻结
+
+- 恢复检查确认当前未提交工作分为两组：Pulse-L/L2 网络随机协同仿真初版，以及 Pulse-L wrapper depth=32 形式证明。
+- Pulse 随机基础设施已落盘，但 Pulse-L `1×64` tracer 尚未运行，Pulse-L2 入口与两模型各 `20×1000` 正式矩阵均未完成，因此 NP4B4 仍为未通过。
+- 主线程已复验 Pulse-L wrapper 形式 session 完成：exactly-once 不变量无反例，成功非零 FEEDBACK witness 可达，verifier 标记通过；该证据不外推到 L2、ENeuron 或十核网络。
+- `NPU_PRUNING_NP4B_TODO.md` 新增 A→D 四段收口顺序和四个建议提交边界；执行过程中继续同步四份规划文档。
+- 本轮只更新规划，不运行新仿真矩阵，不调用 Vivado；下一步从 Pulse-L `1×64` tracer 开始。

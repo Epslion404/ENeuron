@@ -58,9 +58,22 @@
 - [x] NP4B1：ENeuron committed snapshot 端口、量化与原子 MOD/OBSERVE wrapper
 - [x] NP4B2：Pulse-Mini-L/L2 共享 bridge 与两个薄 wrapper
 - [x] NP4B3：公共 `4→8→2` 调度、固定一拍路由、三模型十 wrapper 接线和 10-gate 原子屏障
-- [ ] NP4B4：三模型各 20×1000 端到端协同事务
-- [ ] NP4B5：负向实现、Pulse 形式 harness 修复与 wrapper/network 非空形式检查（裸 L/L2 harness 已修复，wrapper/network 待做）
+- [ ] NP4B4：三模型各 20×1000 端到端协同事务（ENeuron 已通过；Pulse-L/L2 先做各自 1×64 tracer，再独立运行 20×1000）
+- [ ] NP4B5：负向实现、Pulse 形式 harness 修复与 wrapper/network 非空形式检查（四类负向控制、裸 L/L2 和 Pulse-L wrapper 已通过；L2、ENeuron 与网络 barrier 待做）
 - [ ] NP4B6：318 项以上全仓回归、机器摘要、文档签核与 NP6 二次审批
+
+### NP4B 当前细粒度 TODO
+
+- [ ] 校准 Pulse-L `1×64` tracer，不放宽任何公开状态比较
+- [ ] 增加并校准 Pulse-L2 `1×64` tracer
+- [ ] Pulse-L 独立完成 20000 条正式事务并提交
+- [ ] Pulse-L2 独立完成 20000 条正式事务并提交
+- [ ] 提交并复验 Pulse-L wrapper depth=32 非空形式证据
+- [ ] 完成 Pulse-L2 wrapper exactly-once 非空形式证据
+- [ ] 完成 ENeuron MOD/OBSERVE 原子接受非空形式证据
+- [ ] 完成公共十参与者 commit/clear barrier 抽象证明与真实顶层绑定
+- [ ] 三模型各自重跑 20000 条、全仓回归不少于 318 项、编译/lint/formal 全通过
+- [ ] 生成 SHA-256 机器摘要并停在 `NP6_REVIEW_REQUIRED`，不运行 Vivado
 
 ### NP4B 实施错误记录
 
@@ -439,7 +452,7 @@
 - [x] B2.1：三模型三候选均通过；output-2:4 为 120 次读取/发射，按 KISS 选为 V1
 - [x] 原始 Goal 完成审计：NP0 八项、三模型软件实验、文档和分阶段提交均有权威证据
 - [x] NP4A/NP5：公共 `2:4` 控制器、60000 条协同事务、有限检查和负向反例已通过
-- [ ] NP4B：三模型 wrapper、严格 `4→8→2` 网络与端到端签核待八项决定批准后实施；NP6-NP7 未启动
+- [ ] NP4B：八项决定已批准，wrapper 与严格 `4→8→2` 网络已完成；Pulse-L/L2 长事务、剩余形式检查和 NP4B6 签核待完成；NP6-NP7 未启动
 
 ### 本阶段错误记录
 
