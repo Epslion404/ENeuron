@@ -1,6 +1,6 @@
 # NPU 局部剪枝 NP4B 正式集成 TODO
 
-状态：`REVIEW_REQUIRED`
+状态：`IMPLEMENTATION_APPROVED`
 
 日期：2026-08-29
 
@@ -40,9 +40,9 @@ NP4B 不允许声明：
 
 上述声明分别留给 NP6、NP7、NP9 或独立任务能力阶段。
 
-## 3. 待用户审核的八项实现决定
+## 3. 已批准的八项实现决定
 
-以下八项在用户明确批准前保持 `REVIEW_REQUIRED`，不进入 RTL 实施：
+以下八项已于 2026-08-29 获用户明确批准，允许按 NP4B1→NP4B6 测试先行实施：
 
 1. 允许给 `digital_lif_engine.sv` 增加只读 `eligibility_snapshot_flat_state` 端口；只导出已提交 snapshot，不导出 live eligibility 或工作副本，不修改神经元方程和事务优先级。
 2. Pulse-Mini-L/L2 只增加外部 wrapper，不扩展或重定义现有 3-bit 核心 opcode，不修改两个已签核核心。
@@ -143,13 +143,15 @@ CAPTURE 形成 captured direction
 
 ### NP4B0：批准与测试合同
 
-- [ ] 用户批准第 3 节八项实现决定。
-- [ ] 冻结 ENeuron snapshot packed lane 顺序和量化边界向量。
-- [ ] 冻结 Pulse FEEDBACK→OBSERVE 响应可见顺序。
-- [ ] 冻结 network commit、all-done barrier、异常后 sticky error 行为。
-- [ ] 先写失败测试和黄金事务，再写 RTL。
+- [x] 用户批准第 3 节八项实现决定。
+- [x] 冻结 ENeuron snapshot packed lane 顺序和量化边界向量。
+- [x] 冻结 Pulse FEEDBACK→OBSERVE 响应可见顺序。
+- [x] 冻结 network commit、all-done barrier、异常后 sticky error 行为。
+- [x] 冻结先写失败测试和黄金事务、再写 RTL 的纵向 TDD 顺序。
 
 硬门：所有外部可见状态、命令接受条件和逐周期延迟无歧义。
+
+NP4B0 状态：`PASS`。本批准不构成 NP4B 集成、Vivado、共享 lane 或功耗签核。
 
 ### NP4B1：ENeuron 证据旁路与 wrapper
 

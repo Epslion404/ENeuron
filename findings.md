@@ -1,5 +1,11 @@
 # 调研与实验发现
 
+## NPU 局部剪枝 NP4B 实施授权（2026-08-29）
+
+- 八项决定已批准，后续不再为两输入输出兼容、核心 opcode 扩展、共享 gate 或 Host Bridge 集成保留分支。
+- 实施采用纵向 TDD：先证明 committed snapshot 公开接口，再接 ENeuron 原子观察；先证明 Pulse FEEDBACK exactly-once，再组合 commit→clear；最后才接网络屏障。
+- 每个可独立签核阶段及时更新规划、发现和进度文档并提交，避免把多个未验证层堆入同一提交。
+
 ## NPU 局部剪枝 NP4B 接入审计（2026-08-29）
 
 - ENeuron 四输入 SNAPSHOT 在接受后经过四拍扫描和一拍 commit 才原子发布；只读端口必须连接正式 `eligibility_snapshot[]`，不能连接扫描工作副本。

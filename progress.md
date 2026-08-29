@@ -1,5 +1,13 @@
 # 进度记录
 
+## 2026-08-29 NPU 局部剪枝 NP4B 八项决定批准
+
+- 用户批准 NP4B 八项实现决定，状态由 `REVIEW_REQUIRED` 转为 `IMPLEMENTATION_APPROVED`。
+- 允许增加 ENeuron committed snapshot 只读端口、Pulse 外部 wrapper 和独立 `4→8→2` 测试网络；不修改 Pulse 核心 opcode，不替换现有 `4→2→2` 网络。
+- 剪枝保持独立 sideband 通道、每个四输入神经元一个 gate、`STATE_CLEAR` 与 `PRUNE_CLEAR` 分离。
+- network `PRUNE_COMMIT` 只有在全部 gate 完成且自动 `STATE_CLEAR` 成功后才对外完成。
+- 本批准只开放 NP4B1→NP4B6；NP6 Vivado 仍须完成集成签核后再次批准。
+
 ## 2026-08-29 NPU 局部剪枝 NP4B 规划
 
 - 新增 `NPU_PRUNING_NP4B_TODO.md`，状态为 `REVIEW_REQUIRED`；本轮只规划和审计，未修改 RTL，未运行 Vivado。

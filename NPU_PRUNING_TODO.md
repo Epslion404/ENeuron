@@ -348,7 +348,7 @@ NP4 V1 六项决定已于 2026-08-29 获用户批准并冻结：隐藏层和输�
 
 NP4A 公共控制器已于 2026-08-29 通过：四拍扫描、原子双位 mask、固定 gain 适配器、读取前 `issue_mask` 和层级分账均已实现。NP4B 正式接入仍未完成，因为 ENeuron 尚无可综合 snapshot evidence 输出，Pulse 尚需在 FEEDBACK 清除前锁存 evidence，现有 `4→2→2` 输出层也不是四输入组。完整边界见 `LOCAL_PRUNE_RTL_REPORT.md`。
 
-NP4B 已形成独立审核稿 `NPU_PRUNING_NP4B_TODO.md`，状态为 `REVIEW_REQUIRED`。审核稿把工作拆为 ENeuron committed snapshot 只读旁路、Pulse FEEDBACK 接受沿证据锁存、真正四输入的 `4→8→2` 网络、三模型端到端协同仿真、非空形式验证与最终签核六个实施阶段。八项新增实现决定获明确批准前不修改神经元或网络 RTL。
+NP4B 八项实现决定已于 2026-08-29 获用户批准，独立计划 `NPU_PRUNING_NP4B_TODO.md` 状态改为 `IMPLEMENTATION_APPROVED`。实施按 ENeuron committed snapshot 只读旁路、Pulse FEEDBACK 接受沿证据锁存、真正四输入的 `4→8→2` 网络、三模型端到端协同仿真、非空形式验证与最终签核推进；本批准不开放 NP6 Vivado。
 
 ### NP5：协同仿真和形式检查
 

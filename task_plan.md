@@ -50,8 +50,17 @@
 - [x] 只读审计 Pulse-Mini-L/L2 FEEDBACK 接受沿证据清理与响应时序
 - [x] 冻结 `4→8→2` 两层严格 `2:4` 测试拓扑、固定一拍路由和 10-gate all-done barrier
 - [x] 形成 `NPU_PRUNING_NP4B_TODO.md`，列明八项待批准决定、TDD 顺序、负向控制和停止条件
-- [ ] 用户批准 NP4B 八项实现决定
-- [ ] 批准后按 NP4B1→NP4B6 实施；完成前不运行 NP6 Vivado
+- [x] 用户批准 NP4B 八项实现决定
+- [ ] 按 NP4B1→NP4B6 测试先行实施；完成前不运行 NP6 Vivado
+
+### NP4B 当前执行顺序
+
+- [ ] NP4B1：ENeuron committed snapshot 端口、量化与原子 MOD/OBSERVE wrapper
+- [ ] NP4B2：Pulse-Mini-L/L2 共享 bridge 与两个薄 wrapper
+- [ ] NP4B3：公共 `4→8→2` 调度、固定一拍路由和 10-gate 原子屏障
+- [ ] NP4B4：三模型各 20×1000 端到端协同事务
+- [ ] NP4B5：负向实现、Pulse 形式 harness 修复与 wrapper/network 非空形式检查
+- [ ] NP4B6：318 项以上全仓回归、机器摘要、文档签核与 NP6 二次审批
 
 ## Goal 证明审计阶段
 
