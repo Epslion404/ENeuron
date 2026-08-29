@@ -155,6 +155,8 @@ NP4B0 状态：`PASS`。本批准不构成 NP4B 集成、Vivado、共享 lane �
 
 ### NP4B1：ENeuron 证据旁路与 wrapper
 
+状态：`PASS`。单核 wrapper 同时支持默认自动 clear 和网络屏障管理 clear 两种已批准部署方式；尚未计入网络级签核。
+
 预计修改：
 
 - `digital_lif_engine.sv`
@@ -167,13 +169,13 @@ NP4B0 状态：`PASS`。本批准不构成 NP4B 集成、Vivado、共享 lane �
 
 任务：
 
-- [ ] 增加纯组合、参数化 committed snapshot flat 输出，不增加寄存器或读取协议。
-- [ ] 证明 snapshot 扫描期间导出保持旧值，只在 commit 沿原子变化。
-- [ ] wrapper 在合法 MOD 接受边界锁存/量化同一份 snapshot，并与 gate OBSERVE 原子协调。
-- [ ] 把 `issue_mask` 应用于核心输入之前。
-- [ ] 成功剪枝提交后自动清动态学习历史，权重与剪枝 utility/mask 保持。
-- [ ] 在 `mask_valid=0` 的旁路模式与原核心逐事务 bit-exact。
-- [ ] 不依赖层次路径，不复制 eligibility、STDP 或 LIF 方程。
+- [x] 增加纯组合、参数化 committed snapshot flat 输出，不增加寄存器或读取协议。
+- [x] 证明 snapshot 扫描期间导出保持旧值，只在 commit 沿原子变化。
+- [x] wrapper 在合法 MOD 接受边界锁存/量化同一份 snapshot，并与 gate OBSERVE 原子协调。
+- [x] 把 `issue_mask` 应用于核心输入之前。
+- [x] 默认成功剪枝提交后自动清动态学习历史；参数关闭时由网络 barrier 管理 clear，权重与 utility/mask 均保持。
+- [x] 在 `mask_valid=0` 的旁路模式与原核心逐事务 bit-exact。
+- [x] 不依赖层次路径，不复制 eligibility、STDP 或 LIF 方程。
 
 定向门：
 

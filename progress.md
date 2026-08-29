@@ -1,5 +1,15 @@
 # 进度记录
 
+## 2026-08-29 NP4B1 ENeuron 正式接入
+
+- `digital_lif_engine.sv` 新增纯组合参数化 committed snapshot 导出；lane 顺序固定，未增加寄存器、读取握手或修改 snapshot/MOD 状态机。
+- 新增 `eneuron_local_prune_wrapper.sv`：合法非零 MOD 与 gate OBSERVE 同一接受边界启动，gate backpressure 可阻止核心单独更新。
+- snapshot 量化先扩展到 13 位再取绝对值，覆盖 `-2048`；`issue_mask` 在输入送入核心前生效。
+- 零 MOD、错误 commit ID、INFER MOD 和响应背压不污染 utility；未剪枝旁路与裸核心逐事务一致。
+- 默认 `AUTO_CLEAR_ON_COMMIT=1` 在公开 commit 成功前自动清动态历史；网络实例可设为 0，由公共 barrier 在全部 gate 完成后统一 clear。
+- 先后复现缺端口、缺 wrapper、过早响应和缺网络管理参数四类 RED；最终相关 13/13 回归通过，Icarus `-Wall` 无警告。
+- NP4B1 只签核单核接入；10 核 ENeuron 网络和端到端事务仍待 NP4B3/NP4B4。
+
 ## 2026-08-29 NP4B3 固定一拍网络调度
 
 - 新增 `pruned_network_tick_scheduler.sv`，一次合法 TICK 同拍启动 8 个 detector 和 2 个四输入 output。

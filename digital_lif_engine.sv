@@ -46,7 +46,9 @@ module digital_lif_engine #(
     output logic                         spike,
     output logic signed [V_BITS-1:0]     membrane,
     output logic [THRESH_BITS-1:0]       threshold_state,
-    output logic                         snapshot_valid_state
+    output logic                         snapshot_valid_state,
+    // 只读导出已提交的 snapshot；lane i 固定映射到 i*ELIG_BITS +: ELIG_BITS。
+    output logic [N_INPUTS*ELIG_BITS-1:0] eligibility_snapshot_flat_state
 );
 
     localparam integer signed ELIG_MIN = -(1 <<< (ELIG_BITS - 1));
@@ -119,6 +121,17 @@ module digital_lif_engine #(
     assign membrane = membrane_reg;
     assign threshold_state = threshold_reg;
     assign snapshot_valid_state = snapshot_valid;
+
+    generate
+        genvar snapshot_export_index;
+        for (snapshot_export_index = 0;
+             snapshot_export_index < N_INPUTS;
+             snapshot_export_index = snapshot_export_index + 1) begin : gen_snapshot_export
+            assign eligibility_snapshot_flat_state[
+                snapshot_export_index*ELIG_BITS +: ELIG_BITS
+            ] = eligibility_snapshot[snapshot_export_index];
+        end
+    endgenerate
 
     function automatic logic address_valid(input logic [ADDR_BITS-1:0] address);
         logic [ADDR_BITS:0] extended_address;

@@ -55,7 +55,7 @@
 
 ### NP4B 当前执行顺序
 
-- [ ] NP4B1：ENeuron committed snapshot 端口、量化与原子 MOD/OBSERVE wrapper
+- [x] NP4B1：ENeuron committed snapshot 端口、量化与原子 MOD/OBSERVE wrapper
 - [ ] NP4B2：Pulse-Mini-L/L2 共享 bridge 与两个薄 wrapper
 - [ ] NP4B3：公共 `4→8→2` 调度、固定一拍路由和 10-gate 原子屏障（TICK/flush 与 commit→clear 已完成，训练调度和 wrapper 接线待做）
 - [ ] NP4B4：三模型各 20×1000 端到端协同事务

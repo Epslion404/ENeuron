@@ -206,7 +206,8 @@ module digital_snn_tile_4x2x2 #(
         .weight_we(core_weight_we[0]), .weight_addr(weight_addr),
         .weight_wdata(weight_wdata), .weight_rdata(hidden0_weight_rdata),
         .ready(core_ready[0]), .done(core_done[0]), .spike(core_spike[0]),
-        .membrane(), .threshold_state(), .snapshot_valid_state(core_snapshot_valid[0])
+        .membrane(), .threshold_state(), .snapshot_valid_state(core_snapshot_valid[0]),
+        .eligibility_snapshot_flat_state()
     );
 
     digital_lif_engine #(.N_INPUTS(4), .THRESHOLD(4)) hidden1 (
@@ -217,7 +218,8 @@ module digital_snn_tile_4x2x2 #(
         .weight_we(core_weight_we[1]), .weight_addr(weight_addr),
         .weight_wdata(weight_wdata), .weight_rdata(hidden1_weight_rdata),
         .ready(core_ready[1]), .done(core_done[1]), .spike(core_spike[1]),
-        .membrane(), .threshold_state(), .snapshot_valid_state(core_snapshot_valid[1])
+        .membrane(), .threshold_state(), .snapshot_valid_state(core_snapshot_valid[1]),
+        .eligibility_snapshot_flat_state()
     );
 
     // output(2/3) 始终读取本次 TICK 接受前的 pending_hidden，保持一逻辑 tick 延迟。
@@ -229,7 +231,8 @@ module digital_snn_tile_4x2x2 #(
         .weight_we(core_weight_we[2]), .weight_addr(weight_addr[0]),
         .weight_wdata(weight_wdata), .weight_rdata(output0_weight_rdata),
         .ready(core_ready[2]), .done(core_done[2]), .spike(core_spike[2]),
-        .membrane(), .threshold_state(), .snapshot_valid_state(core_snapshot_valid[2])
+        .membrane(), .threshold_state(), .snapshot_valid_state(core_snapshot_valid[2]),
+        .eligibility_snapshot_flat_state()
     );
 
     digital_lif_engine #(.N_INPUTS(2), .THRESHOLD(2)) output1 (
@@ -240,7 +243,8 @@ module digital_snn_tile_4x2x2 #(
         .weight_we(core_weight_we[3]), .weight_addr(weight_addr[0]),
         .weight_wdata(weight_wdata), .weight_rdata(output1_weight_rdata),
         .ready(core_ready[3]), .done(core_done[3]), .spike(core_spike[3]),
-        .membrane(), .threshold_state(), .snapshot_valid_state(core_snapshot_valid[3])
+        .membrane(), .threshold_state(), .snapshot_valid_state(core_snapshot_valid[3]),
+        .eligibility_snapshot_flat_state()
     );
 
     always_ff @(posedge clk) begin

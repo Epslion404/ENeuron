@@ -12,6 +12,8 @@
 - 修复后的 reach 使用 falsify 证明成功路径可达；日志中的 `model found: FAIL!` 在这些专门的 reach 查询中是预期 witness，不是设计失败，verifier 必须按查询类型计数。
 - `4→8→2` 的一拍路由不需要先运行隐藏层、再运行输出层；可以同拍启动 10 个核心，只要输出输入连接的是旧 `pending_hidden`，并在全部响应完成后才替换 pending。这既保留固定一逻辑 tick 延迟，也避免组合穿透。
 - episode 尾部 flush 必须是独立命令语义：只让输出层消费最后一个 pending，隐藏层 response ready 保持 0，完成后清 pending。
+- ENeuron 的 committed snapshot 可以零状态成本导出：纯组合展开正式 snapshot 数组即可，snapshot 无效时保留旧数据并由 valid/commit ID 决定事务意义。
+- 单核和网络的 commit→clear 所有权需要参数化而不是复制 wrapper：默认单核自行 clear；网络实例关闭自动 clear，由全局 barrier 在十个 gate 全部成功后统一广播 clear。
 
 ## NPU 局部剪枝 NP4B 接入审计（2026-08-29）
 

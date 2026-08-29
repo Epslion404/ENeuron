@@ -183,6 +183,7 @@ def make_testbench(transactions: tuple[Transaction, ...], n_inputs: int) -> str:
         "  logic signed [15:0] membrane;",
         "  logic [7:0] threshold_state;",
         "  logic snapshot_valid_state;",
+        "  logic [N_INPUTS*12-1:0] eligibility_snapshot_flat_state;",
         "  logic signed [15:0] saved_current, saved_membrane;",
         "  logic [3:0] saved_refractory;",
         "  logic [7:0] saved_threshold, saved_post;",
