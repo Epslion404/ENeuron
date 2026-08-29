@@ -500,3 +500,11 @@
 - 主线程已复验 Pulse-L wrapper 形式 session 完成：exactly-once 不变量无反例，成功非零 FEEDBACK witness 可达，verifier 标记通过；该证据不外推到 L2、ENeuron 或十核网络。
 - `NPU_PRUNING_NP4B_TODO.md` 新增 A→D 四段收口顺序和四个建议提交边界；执行过程中继续同步四份规划文档。
 - 本轮只更新规划，不运行新仿真矩阵，不调用 Vivado；下一步从 Pulse-L `1×64` tracer 开始。
+
+## 2026-08-29 NP4B4 Pulse 长事务收口
+
+- 新增 Pulse-L/L2 共用但模型状态独立的 `4→8→2` Python oracle、随机 Icarus 驱动、四项 unittest、正式 signoff runner、两个机器摘要和摘要 verifier。
+- 首轮 RED 暴露三类测试基础设施错误：事务号进制误解、INFER flush 遗留训练位且漏检错误响应、新增常量漏导入；均按根因修复，没有放宽任何状态字段或 RTL 合同。
+- Pulse-L seed 201..220、Pulse-L2 seed 301..320 各完成 20×1000；12 项 wrapper/network/random 联合回归在 53.862 秒内通过，摘要 verifier 报告 `models=2 transactions=40000`。
+- 两模型各有 20 次 commit、133,400 次 exact-two 检查、266,800 次被剪 lane 检查；被剪权重、evidence、utility 变化均为 0，INFER 固定学习状态无变化。
+- 机器摘要明确 `logical_functional_cosim_only`，并把 physical speedup、BRAM skip、power reduction 均标记为未证明；本阶段未运行 Vivado。

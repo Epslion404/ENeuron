@@ -39,8 +39,8 @@
 - [x] 实现隐藏层/输出层统一门控接口和互不重叠的结构节省计数
 - [x] 完成三模型共 60000 个混合事务的 Python/Icarus 逐事务协同仿真
 - [x] 完成原子提交、INFER 冻结、非法命令无副作用、有限形式和负向反例检查
-- [ ] 实现 ENeuron snapshot evidence 与 Pulse FEEDBACK evidence 的正式 wrapper
-- [ ] 建立真正四输入的输出 `2:4` 分组并完成端到端集成协同仿真
+- [x] 实现 ENeuron snapshot evidence 与 Pulse FEEDBACK evidence 的正式 wrapper
+- [x] 建立真正四输入的输出 `2:4` 分组并完成三模型端到端集成协同仿真
 - [ ] NP4/NP5 通过后再提请审核是否进入 NP6 Vivado 物理成本
 
 ## NPU 局部剪枝 NP4B 规划阶段（2026-08-29）
@@ -58,16 +58,16 @@
 - [x] NP4B1：ENeuron committed snapshot 端口、量化与原子 MOD/OBSERVE wrapper
 - [x] NP4B2：Pulse-Mini-L/L2 共享 bridge 与两个薄 wrapper
 - [x] NP4B3：公共 `4→8→2` 调度、固定一拍路由、三模型十 wrapper 接线和 10-gate 原子屏障
-- [ ] NP4B4：三模型各 20×1000 端到端协同事务（ENeuron 已通过；Pulse-L/L2 先做各自 1×64 tracer，再独立运行 20×1000）
+- [x] NP4B4：ENeuron、Pulse-L、Pulse-L2 分别完成 20×1000 端到端协同事务
 - [ ] NP4B5：负向实现、Pulse 形式 harness 修复与 wrapper/network 非空形式检查（四类负向控制、裸 L/L2 和 Pulse-L wrapper 已通过；L2、ENeuron 与网络 barrier 待做）
 - [ ] NP4B6：318 项以上全仓回归、机器摘要、文档签核与 NP6 二次审批
 
 ### NP4B 当前细粒度 TODO
 
-- [ ] 校准 Pulse-L `1×64` tracer，不放宽任何公开状态比较
-- [ ] 增加并校准 Pulse-L2 `1×64` tracer
-- [ ] Pulse-L 独立完成 20000 条正式事务并提交
-- [ ] Pulse-L2 独立完成 20000 条正式事务并提交
+- [x] 校准 Pulse-L `1×64` tracer，不放宽任何公开状态比较
+- [x] 增加并校准 Pulse-L2 `1×64` tracer
+- [x] Pulse-L 独立完成 20000 条正式事务并提交
+- [x] Pulse-L2 独立完成 20000 条正式事务并提交
 - [ ] 提交并复验 Pulse-L wrapper depth=32 非空形式证据
 - [ ] 完成 Pulse-L2 wrapper exactly-once 非空形式证据
 - [ ] 完成 ENeuron MOD/OBSERVE 原子接受非空形式证据
@@ -84,6 +84,10 @@
 | Pulse wrapper 自动 clear 定向测试首次在 `PRUNE_COMMIT` ready 上超时 | 1 | 修正 bridge 的 sideband 接受/响应槽次序；L/L2 的自动 clear 与网络管理 clear 共四种实例全部通过 |
 | 把 `pulse_mini_cosim.py`/`pulse_mini_l2_cosim.py` 误写成 unittest 模块名 | 1 | 不重复错误调用；改为直接执行两个脚本，分别通过 20 seeds × 1000 事务 |
 | Pulse audit 端口补丁后旧 `.*` testbench 缺少新信号，且行为 TB 模板替换未匹配新增 audit 代码 | 1 | 保留 5 项 RED；补全所有公开 testbench 声明，并把公共声明模板与 `initial` 行为体拆开，禁止依赖脆弱字符串替换 |
+| Pulse 随机 tracer 第 10 笔仅事务号出现 `actual=16 / expected=10` | 1 | RTL `$display` 的事务号为十进制，解析器误按十六进制读取；只修首字段为十进制，其余状态仍按十六进制比较 |
+| Pulse-L `1×1000` 在首个 INFER flush 出现 output0 leak timer 少推进一拍 | 1 | flush testbench 遗留上一笔 `output_train_post`，使 output0 在 INFER 返回 `BAD_MODE`，且旧 task 漏检状态；flush 现显式清训练输入并检查状态/背压 |
+| 新增 Pulse 长事务不变量检查时报 `NameError: Mode` | 1 | 显式从既有 `pulse_mini_reference` 导入冻结枚举，不复制模式数值 |
+| 同一新增检查继续报 `NameError: N_NEURONS` | 1 | 从独立网络 oracle 导入唯一拓扑常量，避免在 cosim 重复定义十核规模 |
 
 ## Goal 证明审计阶段
 

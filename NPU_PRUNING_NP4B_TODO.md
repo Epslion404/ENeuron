@@ -254,7 +254,7 @@ ERROR_HALT
 
 ### NP4B4：三模型端到端协同仿真
 
-当前状态：`ENEURON_PASS / PULSE_L_TRACER_PENDING / PULSE_L2_TRACER_PENDING`。
+当前状态：`ENEURON_PASS / PULSE_L_PASS / PULSE_L2_PASS`。
 
 每个模型独立运行：
 
@@ -293,6 +293,12 @@ dense warm-up
 - 未启用剪枝时 wrapper/network 不改变原核心行为。
 
 ENeuron 已通过 20 个独立 seed × 1000，共 20,000 个事务。剪枝后被剪权重变化 0 次、utility 变化 0 次；277 次 committed snapshot 变化全部是显式后续 SNAPSHOT 将旧非零容器值覆盖为 0，未出现 0→非零。按第 3 节冻结合同，live eligibility 不对外导出，`STATE_CLEAR` 保留 committed snapshot；因此这类 nonzero→0 容器发布不计作被剪连接继续学习。
+
+Pulse-Mini-L 已通过 seed 201..220 各 1000 条，共 20,000 条；Pulse-Mini-L2 已通过 seed 301..320 各 1000 条，共 20,000 条。两者均逐事务比较十核、十 gate、路由、响应和分层账本，且各完成 20 次原子 commit、133,400 次 strict-exact-two 检查、266,800 次被剪 lane 冻结检查；被剪权重、evidence 和 utility 变化均为 0。
+
+Pulse-Mini-L 逻辑账本汇总：隐藏 dense/issued/saved=`140739/94655/46084`，输出=`27770/20414/7356`，接受沿 issue-mask 检查 125,040 次，响应背压保持 15,005 拍。Pulse-Mini-L2 对应为隐藏 `113667/77786/35881`，输出 `39749/27756/11993`，issue-mask 检查 125,698 次，背压保持 14,954 拍。这些只证明功能门控和逻辑计数，不证明共享 BRAM 真跳读、实际周期下降或功耗收益。
+
+NP4B4 状态：`PASS`。三个模型分别保留独立 20,000 条结果，不以合计 60,000 条替代单模型签核。
 
 ### NP4B5：负向控制与形式检查修复
 
@@ -380,19 +386,19 @@ NP4B 完成前禁止运行 NP6。NP4B 通过后：
 
 ### A. 整理当前未提交证据
 
-- [ ] A1：确认 Pulse 随机 oracle/cosim 与 Pulse-L wrapper formal 文件均可独立编译，不依赖层次路径或未记录的临时文件。
-- [ ] A2：先运行 Pulse-L `1 seed × 64 transactions` tracer；逐周期差异必须定位到首个不一致状态，禁止靠放宽比较字段通过。
-- [ ] A3：Pulse-L tracer 通过后再补 Pulse-L2 同规模入口；L/L2 共用驱动，但黄金模型和结果必须按模型分别报告。
-- [ ] A4：提交边界只包含 Pulse 长事务基础设施与对应文档；形式证明文件单独提交，避免把两类证据混成一个不可审计提交。
+- [x] A1：Pulse 随机 oracle/cosim 已独立编译并使用公开 audit 端口；形式证明文件保持独立提交边界。
+- [x] A2：Pulse-L `1 seed × 64 transactions` tracer 逐事务零差异。
+- [x] A3：Pulse-L2 `1 seed × 64 transactions` tracer 逐事务零差异；L/L2 使用同一驱动但独立黄金状态和结果。
+- [x] A4：本阶段提交只包含 Pulse 长事务基础设施、结果和文档；形式证明文件未混入。
 
 验收门：L、L2 的 64 事务 tracer 均为零差异；`python -m compileall -q .`、相关定向测试和 `git diff --check` 通过。
 
 ### B. 完成 NP4B4 Pulse 长事务
 
-- [ ] B1：Pulse-Mini-L 独立运行 `20 seeds × 1000`，记录事务数、成功 commit 数、十 gate exact-two、分层账本、被剪权重/evidence/utility 变化数、INFER 冻结和背压重放次数。
-- [ ] B2：Pulse-Mini-L2 独立运行 `20 seeds × 1000`，使用同一验收字段，不与 L 合并成一个 40000 事务总数。
-- [ ] B3：两模型都验证无剪枝旁路与对应裸核心 bit-exact；验证 `issue_mask` 在输入核心前形成，不把不应期跳过计入结构节省。
-- [ ] B4：两模型结果分别写入机器可读摘要，并在文档中明确逻辑访问账本不等于 BRAM 跳读、周期下降或功耗收益。
+- [x] B1：Pulse-Mini-L 独立完成 `20 seeds × 1000`，全部指定审计统计已写入摘要。
+- [x] B2：Pulse-Mini-L2 独立完成 `20 seeds × 1000`，未与 L 合并冒充单模型结果。
+- [x] B3：两模型未提交 mask 旁路由既有定向测试保持 bit-exact；随机矩阵在接受沿检查 hidden/output issue mask，并分开统计不应期跳过。
+- [x] B4：两个机器摘要及独立 verifier 已通过，并显式把物理加速、BRAM 跳读和功耗证明置为 0。
 
 验收门：`PULSE_L_NP4B4_PASS` 与 `PULSE_L2_NP4B4_PASS` 必须分别出现；任一缺失时 NP4B4 保持未完成。
 
