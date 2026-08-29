@@ -70,6 +70,7 @@
 | PowerShell 下 `rg ... *.py` 把通配符作为非法 Windows 路径 | 1 | 后续先用 `rg --files -g '*.py'` 或直接指定文件，不重复该写法 |
 | Pulse wrapper 自动 clear 定向测试首次在 `PRUNE_COMMIT` ready 上超时 | 1 | 修正 bridge 的 sideband 接受/响应槽次序；L/L2 的自动 clear 与网络管理 clear 共四种实例全部通过 |
 | 把 `pulse_mini_cosim.py`/`pulse_mini_l2_cosim.py` 误写成 unittest 模块名 | 1 | 不重复错误调用；改为直接执行两个脚本，分别通过 20 seeds × 1000 事务 |
+| Pulse audit 端口补丁后旧 `.*` testbench 缺少新信号，且行为 TB 模板替换未匹配新增 audit 代码 | 1 | 保留 5 项 RED；补全所有公开 testbench 声明，并把公共声明模板与 `initial` 行为体拆开，禁止依赖脆弱字符串替换 |
 
 ## Goal 证明审计阶段
 

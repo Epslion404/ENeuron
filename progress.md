@@ -473,6 +473,13 @@
 - 正式 20,000 事务中，被剪权重变化 0、utility 变化 0；committed snapshot 合法 nonzero→0 发布 277 次、0→非零 0 次。
 - NP4B4 当前只签核 ENeuron；Pulse-L 与 Pulse-L2 各自 20,000 事务仍待完成。
 
+## 2026-08-29 NP4B5 四类负向控制
+
+- 新增四个最小错误实现及对应验收器：事后读 evidence、只掩 TICK 数值路径、逐 gate 公开部分 epoch、两输入 output 伪 `2:4`。
+- 每个验收器均先拒绝错误实现，再接受正确合同模型；结构验收器直接检查当前 `eneuron_pruned_network_4x8x2.sv` 的两组四输入输出接线。
+- 主线程独立复验负向控制与相关正向回归 9/9 通过，Python 编译和 `git diff --check` 通过。
+- 该结果只证明验收器能识别四类指定错误，不代替 wrapper/network 形式验证或长事务协同仿真。
+
 ## 2026-08-29 NP4B TODO 规划复核
 
 - 按 `planning-with-files` 执行 session catch-up，并复核 `task_plan.md`、`NPU_PRUNING_TODO.md`、`NPU_PRUNING_NP4B_TODO.md` 与当前工作树。

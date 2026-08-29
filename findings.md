@@ -557,6 +557,13 @@
 - 零 MOD 会消费 wrapper pending commit 元数据，但按既有核心合同保留 committed snapshot valid；非零 MOD 才消费核心 snapshot。黄金模型必须复现该差异。
 - 被剪 lane 的 committed snapshot 在后续显式 SNAPSHOT 中可从旧非零值发布为 0，因为 `STATE_CLEAR` 保留旧 committed 容器且 live eligibility 已被清零；验收要求只允许 nonzero→0，禁止 0→非零，并同时要求权重与 utility 零变化。
 
+## 2026-08-29 NP4B5 负向控制事实
+
+- 正向测试全部通过不足以证明验收器敏感；四类已知错误必须各自构造反例，并由同一合同检查器明确拒绝。
+- “只掩 TICK”错误的关键不是当拍数值输出，而是被剪 lane 的权重或学习历史仍变化；验收器必须同时检查两者。
+- 网络原子性检查必须把部分 mask 可见与中途 TICK 接受结合起来；只检查最终十 mask 全有效会漏掉部分 epoch。
+- 严格 `2:4` 是每个输出神经元四输入保留两路，不能用总计四条二输入连接替代结构分组。
+
 ## 2026-08-29 NP4B TODO 复核
 
 - ENeuron 随机网络协同仿真的最小 tracer 已实际通过；长矩阵仍需以正式 20 seeds × 1000 结果签核，不能只凭测试文件存在判定完成。
