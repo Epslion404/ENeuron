@@ -70,7 +70,7 @@
 - [x] Pulse-L2 独立完成 20000 条正式事务并提交
 - [x] 提交并复验 Pulse-L wrapper depth=32 非空形式证据
 - [x] 完成 Pulse-L2 wrapper exactly-once 非空形式证据
-- [x] 完成 ENeuron MOD/OBSERVE 原子接受非空形式证据（技术验证通过，仓库提交待完成）
+- [x] 完成 ENeuron MOD/OBSERVE 原子接受非空形式证据并提交为 `c811bcf`
 - [x] 完成公共十参与者 commit/clear barrier 抽象证明与真实顶层绑定
 - [ ] 三模型各自重跑 20000 条、全仓回归不少于 318 项、编译/lint/formal 全通过
 - [ ] 生成 SHA-256 机器摘要并停在 `NP6_REVIEW_REQUIRED`，不运行 Vivado

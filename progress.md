@@ -572,3 +572,9 @@
 - 持久工作流已独立提交为 `df0e7bc docs: add persistent project workflow`，未混入 P1 形式证明文件。
 - P1 独立 verifier 输出 `ENEURON_PRUNE_WRAPPER_FORMAL_CONTRACT_PASS`；wrapper/formal 联合回归 3/3 通过，Python 编译通过。
 - 当前 PowerShell `PATH` 不含 Icarus；改用 `C:\msys64\ucrt64\bin\iverilog.exe` 后，ENeuron wrapper `-g2012 -Wall -tnull` 编译通过。
+
+## 2026-08-29 P1 仓库闭环
+
+- P1 精确暂存集合包含 ENeuron wrapper、formal harness、proof/reach 脚本、runner、verifier、定向测试、正式日志、成功 witness 和同步文档。
+- staged 审计确认 `cex/tmp` 为零，人工维护文件 `git diff --check` 通过。
+- 已提交为 `c811bcf test: prove ENeuron pruning wrapper atomicity`；P1 状态从 `PROOF_PASS / REPOSITORY_CLOSURE_PENDING` 更新为 `PASS`。

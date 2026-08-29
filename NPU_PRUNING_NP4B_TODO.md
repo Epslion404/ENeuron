@@ -457,11 +457,11 @@ P0 状态：`PASS`。Yosys 0.56 新鲜重跑；Pulse-L/L2 正式日志分别为 
 - [x] P1.4：证明在途事务阻止新的运行/剪枝事务；剪枝响应背压期间 status、ID、mask 和相关状态稳定。
 - [x] P1.5：成功 witness 必须从公开命令走完 `TRAIN→非零 snapshot→非零 MOD→utility 非零变化→成功 done`，不得直接假设内部 snapshot 或 utility 非零。
 - [x] P1.6：生成独立 runner、proof/reach 脚本、正式日志、非空 witness 和 fail-closed verifier。
-- [ ] P1.7：精确暂存 P1 文件和四份规划文档，强制加入正式 `.log`/成功 witness，排除 `*_cex.vcd` 与临时产物；复核 staged diff 后独立提交 `test: prove ENeuron pruning wrapper atomicity`。
+- [x] P1.7：精确暂存 P1 文件和四份规划文档，强制加入正式 `.log`/成功 witness，排除 `*_cex.vcd` 与临时产物；复核 staged diff 后独立提交 `test: prove ENeuron pruning wrapper atomicity`。
 
 P1 验收门：同一性质同时具备“不变量无反例”和“真实成功路径可达”；只凭外部最终状态不得宣称已经证明内部同拍接受。
 
-P1 状态：`PROOF_PASS / REPOSITORY_CLOSURE_PENDING`。Yosys 0.56 depth=32 proof 无反例；公开路径 witness 由 TRAIN TICK 产生非零 eligibility，经 SNAPSHOT 后执行非零 MOD，utility 与 observation ID 在成功 done 前更新，pending snapshot 被消费。正式日志 862,510 bytes，witness 24,069 bytes。只有 P1.7 提交完成后，P1 才改为 `PASS`。
+P1 状态：`PASS`，提交 `c811bcf`。Yosys 0.56 depth=32 proof 无反例；公开路径 witness 由 TRAIN TICK 产生非零 eligibility，经 SNAPSHOT 后执行非零 MOD，utility 与 observation ID 在成功 done 前更新，pending snapshot 被消费。正式日志 862,510 bytes，witness 24,069 bytes。
 
 ### P2：十参与者 commit/clear barrier 组合证明
 
@@ -489,7 +489,7 @@ P3 当前状态：`CONTROL_AND_MUTATION_PASS / FULL_RANDOM_FREEZE_PENDING_P4`。
 
 ### P4：冻结源码后重跑正式签核
 
-- [ ] P4.0：先完成 P1.7；记录冻结后的 HEAD 和工作树状态。P1 未入库时禁止启动正式长矩阵。
+- [x] P4.0：先完成 P1.7；记录冻结后的 HEAD 和工作树状态。P1 已提交为 `c811bcf`，允许进入 P4.1。
 - [ ] P4.1：冻结 RTL、oracle、testbench、runner 与形式脚本；固定 seed 为 ENeuron `101..120`、Pulse-L `201..220`、Pulse-L2 `301..320`，每个 seed 恰好 1000 条事务。
 - [ ] P4.2：新增 ENeuron 正式 runner、独立结果文件和 fail-closed verifier；随后新鲜重跑三模型各自 20,000 条，分别检查零差异、完整 INFER 冻结、strict `2:4`、被剪 lane 冻结、epoch、路由、背压和旁路 bit-exact。
 - [ ] P4.3：按 runner→verifier 顺序新鲜重跑 ENeuron wrapper、Pulse-L wrapper、Pulse-L2 wrapper、公共 gate、十参与者 barrier 的全部 proof/reach；禁止 verifier 只读取未由本批次生成的历史日志。
