@@ -652,3 +652,14 @@
 - 最终 discovery 纳入 P5 verifier 测试后为 359/359；总摘要绑定 87 个文件，并拒绝缺失、多余、陈旧哈希和 cex/tmp 证据。
 - NP4B 证明的是结构门控和功能集成：不能把 hidden/output 逻辑读取节省写成共享 BRAM 真跳读、墙钟加速、功耗下降或 XC7Z020 时序通过。
 - 下一阶段唯一合法状态是 `NP6_REVIEW_REQUIRED`；用户未批准前不调用 Vivado。
+
+## 2026-08-29 GitHub 推送准备事实
+
+- 初始状态为 `main`、HEAD=`4b7f146`、工作树干净且无 remote；现已按用户指定配置 `origin=git@github.com:Epslion404/ENeuron.git`。
+- 当前 `.gitignore` 已正确忽略 Python 缓存、Icarus/VCD、通用日志/DCP、`.Xil` 和现有 Vivado 工程工作目录；本地共有 88 条被忽略路径。
+- 12 份被通用规则命中但仍已跟踪的 `.log`/`.vcd` 均属于 NP4B 正式 proof/reach 证据，必须保留在版本库中。
+- 当前 392 个已跟踪文件合计约 12.8 MB；完整历史最大 blob 为 1,908,947 bytes，没有超过 10 MiB 或 GitHub 100 MiB 单文件限制的对象。
+- 当前版本与全部 61 个提交的历史扫描均未命中高置信度 token、私钥、带密码 URL、通用凭证赋值或敏感文件名。
+- 本机当前会话找不到 `gh`，但这不阻塞 Git SSH：用户说明 GitHub/Gitee 共用 `~/.ssh/id_ed25519_gitee` 后，显式测试成功认证为 `Epslion404`。
+- `git ls-remote git@github.com:Epslion404/ENeuron.git HEAD refs/heads/main` 使用共用 key 后退出码为 0 且无 refs，证明目标仓库存在并且目前为空。
+- 现有 `Host github` 别名已指向该共用 key；为保持用户指定的 `github.com` remote 不变，仓库只需设置局部 `core.sshCommand`，无需修改全局 SSH 配置。

@@ -487,3 +487,22 @@
 | 错误 | 尝试 | 处理 |
 |---|---:|---|
 | Git 因仓库所有者为 Administrators 拒绝普通命令 | 1 | 不修改全局配置；后续只用单次 `git -c safe.directory=...` 读取状态 |
+| 首次并行发布审计脚本把顶层 `await` 放入 `eval()`，V8 拒绝执行 | 1 | 不重复该包装；改为直接使用顶层 `Promise.all`，四项只读审计随后通过 |
+| 初次 GitHub SSH 检查只测试默认 key 与 `~/.ssh/github`，均被拒绝 | 1 | 用户说明 GitHub/Gitee 共用 `~/.ssh/id_ed25519_gitee`；显式复验成功认证 `Epslion404`，目标空仓库读取通过 |
+
+## GitHub 首次推送准备（2026-08-29）
+
+- [x] 核对当前 `main`、干净工作树和空 remote 列表
+- [x] 审计 `.gitignore` 与被强制跟踪的正式 log/VCD 证据
+- [x] 审计当前文件和完整历史的大对象上限
+- [x] 扫描已跟踪内容与历史中的明显凭证、私钥和敏感文件名
+- [x] 补齐最小通用 Vivado/编辑器/本地凭证忽略规则，并验证正式证据不受影响
+- [x] 配置 `origin=git@github.com:Epslion404/ENeuron.git`
+- [x] 核对 GitHub SSH 身份与目标仓库；共用 key 成功认证 `Epslion404`，目标仓库存在且当前无 refs
+- [x] 提交发布准备改动并停在执行 `push` 前
+
+### 推送准备约束
+
+- 用户给出的目标已规范化并配置为 `origin=git@github.com:Epslion404/ENeuron.git`；本仓库局部指定已验证的共用 key，正式 push 仍单独执行。
+- 已跟踪的 12 份正式 proof/reach `.log`/`.vcd` 是 fail-closed 签核证据，不因通用忽略规则而移除。
+- 不改写 Git 历史；只有发现真实凭证或 GitHub 禁止的大对象时才另行提请审核。

@@ -3,6 +3,30 @@ __pycache__/
 .pytest_cache/
 *.py[cod]
 
+# Local Python environments and coverage output
+.venv/
+venv/
+.coverage
+coverage.xml
+htmlcov/
+
+# Local credentials and signing material
+.env
+.env.*
+!.env.example
+*.pem
+*.p12
+*.pfx
+*.key
+
+# Editor and operating-system state
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
 # Local simulation outputs
 *.vvp
 *.vcd
@@ -15,6 +39,18 @@ clockInfo.txt
 
 # Vivado working state
 .Xil/
+*.jou
+*.str
+*.pb
+*.xpr
+*.cache/
+*.gen/
+*.hw/
+*.ip_user_files/
+*.runs/
+*.sim/
+*.srcs/
+xsim.dir/
 vivado_xpm_wrapper_sim/project/**
 vivado_pulse_original_sim/
 

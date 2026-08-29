@@ -630,3 +630,15 @@
 - NP4B1→NP4B6 全部功能硬门完成；最终总 verifier、359 项回归、五套形式证据、三模型 60,000 条独立矩阵和 8 个 RTL 编译目标均通过。
 - 项目状态更新为 `NP4B_INTEGRATION_PASS / NP6_REVIEW_REQUIRED`；进入 NP6 的用户审批仍未发生。
 - 本阶段从头到尾未调用 Vivado，未声明物理 BRAM 跳读、真实周期缩短、功耗下降或 XC7Z020 时序收益。
+
+## 2026-08-29 GitHub 首次推送准备启动
+
+- 用户要求检查 `.gitignore` 并准备推送到 `git@github.com:Epslion404/ENeuron.git`；本阶段默认停在 push 前，不产生远端写入。
+- 初始检查：`main` 位于 `4b7f146`，工作树干净，无 remote；仓库当前文件约 12.8 MB，历史最大 blob 约 1.91 MB，无 GitHub 超限对象。
+- `.gitignore` 当前命中 88 条本地产物；12 份已跟踪 ignored 文件是 NP4B 的正式日志与成功 witness，不清理、不取消跟踪。
+- 当前与完整 Git 历史的高置信度凭证扫描均为零命中；`git fsck --full` 无损坏，仅报告不可达旧 blob。
+- 初次 GitHub 发布身份检查只测试了默认 key 和 `~/.ssh/github`，均返回公钥拒绝；没有尝试 push。
+- 用户补充 GitHub/Gitee 共用 `~/.ssh/id_ed25519_gitee` 后，显式 SSH 测试成功认证 `Epslion404`；目标仓库 `ls-remote` 退出码为 0 且无 refs，确认它存在并为空。
+- 已把用户指定地址写为本仓库 `origin`；将使用仓库局部 `core.sshCommand` 选择已验证 key，不修改全局 SSH 配置。push 仍保持未执行。
+- `.gitignore` 已补充虚拟环境、coverage、`.env`/本地密钥、编辑器状态和通用 Vivado 工程产物；固定例外 DCP、XPM transcript 与 12 份已跟踪正式形式证据均未被误排除。
+- 本地发布准备的提交边界固定为 `.gitignore`、`task_plan.md`、`findings.md`、`progress.md`；不混入 RTL、结果或工具证据，提交后停在 `push` 前。
