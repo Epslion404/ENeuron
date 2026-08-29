@@ -330,7 +330,7 @@ B1/B2/NP3 闭环已完成。三模型从同一父 checkpoint 运行一次、软�
 
 ### NP4：局部剪枝 RTL
 
-- [ ] 用户审核并冻结 B2.1 推荐的六项 NP4 V1 接口决定。
+- [x] 用户审核并冻结 B2.1 推荐的六项 NP4 V1 接口决定。
 - [ ] 新建独立 `local_prune_gate_2of4.sv`，暂不侵入已签核核心。
 - [ ] 使用多周期四路扫描生成前两名，明确每条命令的精确延迟。
 - [ ] 接入 ENeuron snapshot/mod commit 旁路或测试适配器，不复制神经元方程。
@@ -341,6 +341,8 @@ B1/B2/NP3 闭环已完成。三模型从同一父 checkpoint 运行一次、软�
 - [ ] 三模型 wrapper 固定 evidence gain=`1/2/1`，输出恢复只使用既有训练事务。
 
 硬门：不修改原 ENeuron 与 Pulse-Mini 的冻结行为；新模块可独立旁路。
+
+NP4 V1 六项决定已于 2026-08-29 获用户批准并冻结：隐藏层和输出层统一严格 `2:4`；三模型 evidence gain 固定为 `1/2/1`；每组只允许一次原子 `PRUNE_COMMIT`；不实现整 detector/channel enable；输出稀疏后的恢复只走既有 TRAIN/FEEDBACK；`issue_mask` 必须在权重读取和计算发射前形成，并分别统计隐藏层与输出层结构节省。批准只开放 NP4/NP5 实现，不代表 RTL、资源、时序或功耗已经通过。
 
 ### NP5：协同仿真和形式检查
 

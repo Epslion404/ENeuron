@@ -1,5 +1,14 @@
 # 进度记录
 
+## 2026-08-29 NPU 局部剪枝 NP4 V1 接口批准
+
+- 用户批准 B2.1 推荐的六项 V1 决定，NP4 从 `REVIEW_REQUIRED` 转为 `IMPLEMENTATION_APPROVED`。
+- 隐藏层与输出层统一严格 `2:4`；三模型 evidence gain 固定为 ENeuron/Pulse-Mini-L/Pulse-Mini-L2=`1/2/1`。
+- 每组只允许一次原子 `PRUNE_COMMIT`，V1 不实现渐进剪枝状态机或整 detector/channel enable。
+- 输出稀疏后的权重恢复只走既有 TRAIN/FEEDBACK 事务，不增加直接恢复写口。
+- `issue_mask` 必须在权重读取和计算发射前形成，隐藏层与输出层结构节省分别计数。
+- 下一步先冻结独立控制器周期合同并测试先行实现 NP4；NP5 通过前不进入 Vivado，也不宣称剪枝硬件成立。
+
 ## 2026-08-28 NPU 局部剪枝原始 Goal 签核
 
 - 按原始范围逐项审计 NP0 八项批准、三模型独立运行、文档记录和分阶段提交，证据全部闭合。

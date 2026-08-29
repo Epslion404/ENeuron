@@ -487,4 +487,5 @@ P0-P8 已完成并签核
 - [x] NP3：三模型一次/渐进剪枝均为 100%，错误符号均为 0%；零 Host mask 写入、被剪状态和 INFER 冻结账本通过，选择一次剪枝。
 - [x] B2.1：三模型三候选均为 BAcc/coverage 100%；output-2:4 与 detector-3:4 为 120，detector-2:4 为 80。按 KISS 选择 output-2:4，允许进入 NP4 设计审核。
 - [x] Pulse-Mini-L 使用固定 `0→0, 1→2` 证据编码恢复 S2 算法门，并已独立通过 NP3/B2.1；没有借用 L2 结果。
-- [ ] NP4：审核并冻结隐藏/输出统一 `2:4`、gain=`1/2/1`、一次提交、无 detector gate 的 V1 RTL 接口；当前尚无 RTL/Vivado 证据。
+- [x] NP4 接口审核：已于 2026-08-29 冻结隐藏/输出统一 `2:4`、gain=`1/2/1`、一次原子提交、无 detector gate、只走既有训练恢复、读取/发射前形成 `issue_mask` 六项 V1 决定。
+- [ ] NP4 实现：独立剪枝控制器、三模型 wrapper 与层级结构节省计数尚无 RTL/Vivado 证据。
