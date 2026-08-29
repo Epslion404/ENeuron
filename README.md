@@ -25,6 +25,16 @@ python verify_goal.py
 .\run_vivado_host_bridge_system_ooc.ps1
 ```
 
+## 持久工作流
+
+长期任务的恢复入口、阶段门和证据规则见 `WORKFLOW.md`，当前唯一活动状态见 `WORKFLOW_STATE.md`。新会话、上下文压缩或长时间中断后，先运行：
+
+```powershell
+.\workflow_resume.ps1 -Mode Resume
+```
+
+该脚本只读检查持久文件、Git 状态、活动 TODO 和最近记录；不会自动修改文件、提交或调用 Vivado。
+
 单神经元结果写入 `simulation_results.json` 和 `sweep_results.json`；两层网络结果写入 `network_results.json` 和 `network_sweep_results.json`。
 
 ## 实验任务
