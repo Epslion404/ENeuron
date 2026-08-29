@@ -537,8 +537,21 @@
 - 当前首个有效 RED 是广播 `MODE_SET` 的 `HOST_READY_TIMEOUT`。根因不是核心模式限制，而是共享网络没有实例化十个 wrapper，也没有目标 ready 汇合和 sticky response barrier。
 - Pulse 网络最小纵向实现顺序冻结为：十 wrapper 与 Host MODE_SET tracer → TICK/flush scheduler → CAPTURE/FEEDBACK → commit/clear barrier → 分层账本与背压。
 
+## 2026-08-29 NP4B3 Pulse 网络事实
+
+- Pulse-L 与 L2 可以复用完全相同的网络控制面；差异只在 wrapper 类型，Host、路由、commit 和账本协议无需复制。
+- 网络 barrier 的原子预检要求每个 wrapper 的 prune `ready` 在 idle 时独立于 `valid`。这是 ready/valid 接口合同修正，不改变 gate 或神经元状态机。
+- Host 错误汇总必须逐 lane 判断完整 3-bit status 是否非零，不能只拼 status bit0；同时广播标志和目标必须在接受沿锁存，避免上游随后改变字段影响未完成事务。
+- 当前通过的是逻辑网络行为和访问账本，不是物理周期缩短、存储跳读或功耗证据。
+
 ## 2026-08-29 ENeuron NP4B4 可观测性补齐
 
 - 网络长事务不能用层次路径核对十 gate epoch，因此 wrapper/顶层需要纯只读导出 observation/commit valid 与 ID；该补丁只连接既有 gate 状态，不改变方程或事务延迟。
 - 既有 `host_weight_rdata` 原先只保存事务完成值，空闲改变地址不会读取权重。复用同一端口增加 H_IDLE 组合寻址读，可在 INFER 前后无副作用比较权重；H_WAIT/H_RSP 仍保持锁存值和背压稳定。
 - 长事务黄金模型独立使用 `RtlReferenceNeuron` 复现十核、固定一拍路由、gate utility/mask/epoch 与分层账本；当前只完成模型和 64 事务 tracer 测试入口，协同驱动模块仍待落盘。
+
+## 2026-08-29 NP4B TODO 复核
+
+- ENeuron 随机网络协同仿真的最小 tracer 已实际通过；长矩阵仍需以正式 20 seeds × 1000 结果签核，不能只凭测试文件存在判定完成。
+- Pulse-Mini-L/L2 的 `4→8→2` 公共接口编译、Host 字段锁存以及路由/训练/commit-clear/账本定向合同当前 3/3 通过；这比旧记录中的“常量端口骨架”更进一步，但仍不等于两模型各 20×1000 长事务通过。
+- NP4B 后续主链应收敛为：ENeuron 长矩阵收口 → Pulse L/L2 独立长事务 → 网络级负向/形式性质 → 全仓回归与机器摘要 → 用户审批 NP6。NP6 前不运行 Vivado。

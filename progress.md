@@ -456,3 +456,17 @@
 - Pulse 网络公开接口编译已通过，但共享控制面仍把 `host_cmd_ready` 常量拉低；综合行为测试稳定 RED 于首次广播 `MODE_SET`，尚未实例化十 wrapper 或接入 scheduler/barrier。
 - ENeuron 网络已有十 gate ID 与核心状态公开测试草稿通过，但 `20 seeds × 1000` 随机协同模块尚未完成；继续按最小 tracer 扩展。
 - 本阶段继续禁止运行 NP6 Vivado。
+
+## 2026-08-29 NP4B3 Pulse-L/L2 网络收口
+
+- 新增一个共享 `pulse_mini_pruned_network_4x8x2` 控制面和 L/L2 两个薄顶层；十个实例均为四输入 wrapper，核心与 3-bit opcode 未修改。
+- Host 支持广播/寻址 MODE、WEIGHT、CAPTURE、FEEDBACK；接受沿锁存目标与字段，sticky barrier 汇合错拍响应，任意非零 3-bit 核心状态都能正确上传。
+- 复用固定一拍 TICK/flush scheduler 与十参与者 commit barrier；commit 先全体预检，再完成十 gate exact-two 和十核 `STATE_CLEAR`，最后统一公开响应。
+- hidden/output dense、issued、saved 分层汇总，响应背压期间字段稳定；bridge sideband ready 改为 idle 时不依赖 valid，以支持 barrier 的 valid 前原子预检。
+- Pulse 网络 3/3、wrapper 5/5、scheduler/barrier 5/5 通过；相关 13 项定向回归与 `git diff --check` 通过。NP4B3 状态更新为 `PASS`。
+
+## 2026-08-29 NP4B TODO 规划复核
+
+- 按 `planning-with-files` 执行 session catch-up，并复核 `task_plan.md`、`NPU_PRUNING_TODO.md`、`NPU_PRUNING_NP4B_TODO.md` 与当前工作树。
+- 关键只读验证：ENeuron 最小随机 tracer 1/1 通过；Pulse-Mini-L/L2 网络接口与定向合同 3/3 通过。
+- 当前只规划、不运行 Vivado；待合并并行审计结果后冻结新的可执行 TODO 和验收门。

@@ -57,7 +57,7 @@
 
 - [x] NP4B1：ENeuron committed snapshot 端口、量化与原子 MOD/OBSERVE wrapper
 - [x] NP4B2：Pulse-Mini-L/L2 共享 bridge 与两个薄 wrapper
-- [ ] NP4B3：公共 `4→8→2` 调度、固定一拍路由和 10-gate 原子屏障（TICK/flush 与 commit→clear 已完成，训练调度和 wrapper 接线待做）
+- [x] NP4B3：公共 `4→8→2` 调度、固定一拍路由、三模型十 wrapper 接线和 10-gate 原子屏障
 - [ ] NP4B4：三模型各 20×1000 端到端协同事务
 - [ ] NP4B5：负向实现、Pulse 形式 harness 修复与 wrapper/network 非空形式检查（裸 L/L2 harness 已修复，wrapper/network 待做）
 - [ ] NP4B6：318 项以上全仓回归、机器摘要、文档签核与 NP6 二次审批

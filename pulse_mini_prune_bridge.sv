@@ -189,14 +189,18 @@ module pulse_mini_prune_bridge #(
         gate_rsp_ready = 1'b0;
 
         if (idle && !sticky_halt && !run_rsp_valid_reg && !prune_rsp_valid_reg) begin
+            // 网络 barrier 必须能在拉高 valid 前预检全部 gate；ready 不依赖 valid。
+            if (prune_cmd_opcode == PRUNE_CLEAR
+                    || prune_cmd_opcode == PRUNE_COMMIT
+                    || prune_cmd_opcode == PRUNE_MASK_READ)
+                prune_cmd_ready = gate_cmd_ready;
+            else
+                prune_cmd_ready = 1'b1;
             if (prune_cmd_valid) begin
                 if (prune_cmd_opcode == PRUNE_CLEAR
                         || prune_cmd_opcode == PRUNE_COMMIT
                         || prune_cmd_opcode == PRUNE_MASK_READ) begin
-                    prune_cmd_ready = gate_cmd_ready;
                     gate_cmd_valid = prune_cmd_valid;
-                end else begin
-                    prune_cmd_ready = 1'b1;
                 end
             end else begin
                 cmd_ready = local_feedback_error ? 1'b1 : core_cmd_ready;
