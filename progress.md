@@ -598,3 +598,9 @@
 - 五个独立 verifier 分别输出 ENeuron/Pulse-L/Pulse-L2 wrapper contract PASS、公共 gate depth=32 + reach depth=8 PASS、barrier depth=32 participants=10 PASS。
 - 所有成功 witness 非空：ENeuron 24,069 bytes，Pulse-L 15,561 bytes，Pulse-L2 16,787 bytes，gate 11,288 bytes，barrier 12,944 bytes。
 - 原始日志内容在确定性重跑后与仓库版本逐字一致，因此 Git 无日志 diff；五份 witness 由本批次重新生成并产生 tracked 修改。最终 P5 摘要仍需记录本批次命令和退出码。
+
+## 2026-08-29 P4.4 首轮全仓回归
+
+- 全仓实际执行 `Ran 356 tests in 372.990s`，355 项通过，1 项失败；测试数量已超过 318 门槛，但本轮整体判定为失败。
+- 唯一失败是 `local_prune_rtl_results.json` 仍绑定 `formal_local_prune_gate_reach.ys` 的旧 SHA-256；当前脚本哈希为 `00c18c...74aecb`。同一批次 gate proof/reach 与独立 verifier 均已通过，因此根因是机器摘要索引陈旧，不是 RTL 或形式性质失败。
+- 按 fail-closed 规则首次更新 reach 哈希后，定向测试继续捕获 `run_formal_local_prune_gate.ps1` 的旧哈希；随后枚举对比全部 11 个绑定文件，确认仅剩这一项并精确更新。定向测试通过后仍必须完整重跑 356 项，首轮结果不得计入 P4 PASS。

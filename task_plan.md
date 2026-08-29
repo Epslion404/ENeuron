@@ -92,6 +92,7 @@
 
 | 错误 | 尝试 | 处理 |
 |---|---:|---|
+| P4.4 首轮全仓 356 项中 `test_source_hashes_are_current` 发现 gate 形式文件哈希索引陈旧 | 2 | 首轮定位 reach 脚本后，定向测试继续捕获 runner 哈希；改为枚举比较全部 11 个绑定文件，确认只剩 runner 一项后统一修正，再重跑精确键集合测试和完整 356 项 |
 | P1.7 复验直接调用 `iverilog` 时当前 PowerShell `PATH` 找不到命令 | 1 | 不重复同一调用；定位并使用 `C:\msys64\ucrt64\bin\iverilog.exe`，`-Wall -tnull` 编译通过 |
 | NP4B 最终 TODO 首次使用跨四文件整包补丁时，`task_plan.md` 上下文不匹配 | 1 | 补丁工具原子拒绝且未产生部分修改；改为逐文件小补丁并按当前精确行更新 |
 | `hardware-design-flow` 按技能清单中的 `.agents` 路径不存在 | 1 | 从同一清单给出的 `.codex/skills/hardware-design-flow` 实际路径完整读取，不跳过技能 |
