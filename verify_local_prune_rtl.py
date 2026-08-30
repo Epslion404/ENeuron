@@ -13,6 +13,7 @@ import json
 import logging
 import os
 import subprocess
+from datetime import date
 import sys
 from pathlib import Path
 
@@ -101,8 +102,11 @@ def _run_formal() -> dict[str, object]:
     if yosys is None:
         raise RuntimeError("需要 Yosys；已检查 PATH 和 C:/msys64")
 
+    # The .ys scripts name their Verilog operands relative to ROOT, which is also used as the
+    # working directory, so that a Yosys build whose sandbox only exposes the current directory
+    # (the official YosysHQ WebAssembly build behaves that way) can run them unchanged.
     proof = subprocess.run(
-        [str(yosys), "-Q", "-s", str(ROOT / "formal_local_prune_gate.ys")],
+        [str(yosys), "-Q", "-s", "formal_local_prune_gate.ys"],
         cwd=ROOT,
         capture_output=True,
         text=True,
@@ -114,7 +118,7 @@ def _run_formal() -> dict[str, object]:
         raise AssertionError("32 拍有限形式检查失败")
 
     reach = subprocess.run(
-        [str(yosys), "-Q", "-s", str(ROOT / "formal_local_prune_gate_reach.ys")],
+        [str(yosys), "-Q", "-s", "formal_local_prune_gate_reach.ys"],
         cwd=ROOT,
         capture_output=True,
         text=True,
@@ -140,6 +144,28 @@ def _run_formal() -> dict[str, object]:
             "infer_mutation_rejected_and_frozen",
         ],
     }
+
+
+def _toolchain_provenance(iverilog: Path | None, yosys: Path | None) -> dict[str, object]:
+    """State which build of each verifier this machine actually resolved."""
+
+    note: dict[str, object] = {}
+    if yosys is not None:
+        version = _tool_version(yosys, "-V")
+        note["yosys_build"] = (
+            "official YosysHQ WebAssembly build (yowasp-yosys), because upstream publishes no"
+            " native Windows Yosys binary"
+            if ("YoWASP" in version or "wasi" in version.lower())
+            else "native build"
+        )
+    if iverilog is not None:
+        note["iverilog_build"] = _tool_version(iverilog, "-V")
+    note["formal_artifacts"] = (
+        "formal_local_prune_gate.log, formal_local_prune_gate_reach.log and"
+        " formal_local_prune_gate_success.vcd are rewritten by every reverify run; the signoff"
+        " restores them to the committed bytes so this pull request carries no regenerated logs"
+    )
+    return note
 
 
 def build_provenance(previous: dict[str, str], current: dict[str, str],
@@ -263,6 +289,9 @@ def build_summary(*, run_checks: bool) -> dict[str, object]:
             "iverilog": _tool_version(iverilog, "-V"),
             "yosys": _tool_version(yosys, "-V"),
         },
+        "tool_availability": tool_availability(),
+        "toolchain_provenance": _toolchain_provenance(iverilog, yosys),
+        "verified_on": date.today().isoformat(),
         "source_sha256": current,
         "source_hash_policy": SOURCE_HASH_POLICY,
         "eol_policy": "text files are pinned to LF by .gitattributes; the binding additionally"
@@ -322,6 +351,9 @@ def refresh_signature() -> dict[str, object]:
     summary["previous_signature"] = previous
     summary["source_changes_since_previous_signature"] = moved
     summary["tool_availability"] = available
+    summary["toolchain_provenance"] = _toolchain_provenance(find_tool("iverilog"),
+                                                             find_tool("yosys"))
+    summary["verified_on"] = date.today().isoformat()
     summary["provenance"] = build_provenance(previous, current, moved, ran_checks=False,
                                            xsim=xsim)
     if missing:
