@@ -1,0 +1,485 @@
+{
+  "checkout": {
+    "commit": "7266e2be15424bd26abe33a7fc265f454f6be368",
+    "worktree": "clean_pr_checkout"
+  },
+  "coverage": {
+    "case_catalogue": [
+      "exact_two: strict two-of-four: six legal masks accepted, 0/1/3/4-bit masks refused, no second commit",
+      "illegal_and_conflict_no_side_effect: bad opcode, bad mode, stale or duplicate ids, unsafe windows and illegal masks",
+      "infer_freeze: INFER rejects OBSERVE and PRUNE_COMMIT but still reads and gates the mask",
+      "reset_and_dense: reset state, dense 1111 before commit, first commit is exact-two",
+      "reviewer_counterexample: mask=1100 with descending scores and a zero-utility commit stay bit-exact",
+      "score_saturation: utility saturates at 15 and the two pruned lanes stay frozen after the commit",
+      "tie_break: equal scores are resolved by the lowest lane index with the fixed 0-1-2-3 scan"
+    ],
+    "directed_cases": [
+      "exact_two",
+      "illegal_and_conflict_no_side_effect",
+      "infer_freeze",
+      "reset_and_dense",
+      "reviewer_counterexample",
+      "score_saturation",
+      "tie_break"
+    ],
+    "models": [
+      "eneuron",
+      "pulse_mini_l",
+      "pulse_mini_l2"
+    ],
+    "seeds": 8,
+    "transactions_per_random_stream": 256
+  },
+  "generated_utc": "2026-08-30T09:23:55Z",
+  "host": {
+    "python": "3.13.15",
+    "release": "11",
+    "system": "Windows"
+  },
+  "negative_controls": [
+    {
+      "caught_by": "PYTHON_RTL_DIVERGENCE",
+      "expected_any_of": [
+        "PYTHON_RTL_DIVERGENCE"
+      ],
+      "mutant": "tie_break_uses_gte",
+      "status": "CAUGHT"
+    },
+    {
+      "caught_by": "ILLEGAL_VISIBLE_MASK",
+      "expected_any_of": [
+        "ILLEGAL_VISIBLE_MASK",
+        "ATOMIC_MASK_VIOLATION"
+      ],
+      "mutant": "commit_drops_second_lane",
+      "status": "CAUGHT"
+    },
+    {
+      "caught_by": "ILLEGAL_VISIBLE_MASK",
+      "expected_any_of": [
+        "ILLEGAL_VISIBLE_MASK",
+        "ATOMIC_MASK_VIOLATION"
+      ],
+      "mutant": "commit_keeps_no_lane",
+      "status": "CAUGHT"
+    },
+    {
+      "caught_by": "ILLEGAL_VISIBLE_MASK",
+      "expected_any_of": [
+        "ILLEGAL_VISIBLE_MASK",
+        "ATOMIC_MASK_VIOLATION"
+      ],
+      "mutant": "commit_keeps_all_four_lanes",
+      "status": "CAUGHT"
+    },
+    {
+      "caught_by": "ATOMIC_MASK_VIOLATION",
+      "expected_any_of": [
+        "ATOMIC_MASK_VIOLATION",
+        "ILLEGAL_VISIBLE_MASK"
+      ],
+      "mutant": "commit_is_not_atomic",
+      "status": "CAUGHT"
+    }
+  ],
+  "pass": true,
+  "results": [
+    {
+      "case": "reset_and_dense",
+      "coverage": "reset state, dense 1111 before commit, first commit is exact-two",
+      "kind": "directed",
+      "model": "eneuron",
+      "status": "PASS",
+      "transactions": 4
+    },
+    {
+      "case": "reset_and_dense",
+      "coverage": "reset state, dense 1111 before commit, first commit is exact-two",
+      "kind": "directed",
+      "model": "pulse_mini_l",
+      "status": "PASS",
+      "transactions": 4
+    },
+    {
+      "case": "reset_and_dense",
+      "coverage": "reset state, dense 1111 before commit, first commit is exact-two",
+      "kind": "directed",
+      "model": "pulse_mini_l2",
+      "status": "PASS",
+      "transactions": 4
+    },
+    {
+      "case": "exact_two",
+      "coverage": "strict two-of-four: six legal masks accepted, 0/1/3/4-bit masks refused, no second commit",
+      "kind": "directed",
+      "model": "eneuron",
+      "status": "PASS",
+      "transactions": 18
+    },
+    {
+      "case": "exact_two",
+      "coverage": "strict two-of-four: six legal masks accepted, 0/1/3/4-bit masks refused, no second commit",
+      "kind": "directed",
+      "model": "pulse_mini_l",
+      "status": "PASS",
+      "transactions": 18
+    },
+    {
+      "case": "exact_two",
+      "coverage": "strict two-of-four: six legal masks accepted, 0/1/3/4-bit masks refused, no second commit",
+      "kind": "directed",
+      "model": "pulse_mini_l2",
+      "status": "PASS",
+      "transactions": 18
+    },
+    {
+      "case": "tie_break",
+      "coverage": "equal scores are resolved by the lowest lane index with the fixed 0-1-2-3 scan",
+      "kind": "directed",
+      "model": "eneuron",
+      "status": "PASS",
+      "transactions": 27
+    },
+    {
+      "case": "tie_break",
+      "coverage": "equal scores are resolved by the lowest lane index with the fixed 0-1-2-3 scan",
+      "kind": "directed",
+      "model": "pulse_mini_l",
+      "status": "PASS",
+      "transactions": 27
+    },
+    {
+      "case": "tie_break",
+      "coverage": "equal scores are resolved by the lowest lane index with the fixed 0-1-2-3 scan",
+      "kind": "directed",
+      "model": "pulse_mini_l2",
+      "status": "PASS",
+      "transactions": 27
+    },
+    {
+      "case": "score_saturation",
+      "coverage": "utility saturates at 15 and the two pruned lanes stay frozen after the commit",
+      "kind": "directed",
+      "model": "eneuron",
+      "status": "PASS",
+      "transactions": 15
+    },
+    {
+      "case": "score_saturation",
+      "coverage": "utility saturates at 15 and the two pruned lanes stay frozen after the commit",
+      "kind": "directed",
+      "model": "pulse_mini_l",
+      "status": "PASS",
+      "transactions": 15
+    },
+    {
+      "case": "score_saturation",
+      "coverage": "utility saturates at 15 and the two pruned lanes stay frozen after the commit",
+      "kind": "directed",
+      "model": "pulse_mini_l2",
+      "status": "PASS",
+      "transactions": 15
+    },
+    {
+      "case": "infer_freeze",
+      "coverage": "INFER rejects OBSERVE and PRUNE_COMMIT but still reads and gates the mask",
+      "kind": "directed",
+      "model": "eneuron",
+      "status": "PASS",
+      "transactions": 9
+    },
+    {
+      "case": "infer_freeze",
+      "coverage": "INFER rejects OBSERVE and PRUNE_COMMIT but still reads and gates the mask",
+      "kind": "directed",
+      "model": "pulse_mini_l",
+      "status": "PASS",
+      "transactions": 9
+    },
+    {
+      "case": "infer_freeze",
+      "coverage": "INFER rejects OBSERVE and PRUNE_COMMIT but still reads and gates the mask",
+      "kind": "directed",
+      "model": "pulse_mini_l2",
+      "status": "PASS",
+      "transactions": 9
+    },
+    {
+      "case": "illegal_and_conflict_no_side_effect",
+      "coverage": "bad opcode, bad mode, stale or duplicate ids, unsafe windows and illegal masks",
+      "kind": "directed",
+      "model": "eneuron",
+      "status": "PASS",
+      "transactions": 17
+    },
+    {
+      "case": "illegal_and_conflict_no_side_effect",
+      "coverage": "bad opcode, bad mode, stale or duplicate ids, unsafe windows and illegal masks",
+      "kind": "directed",
+      "model": "pulse_mini_l",
+      "status": "PASS",
+      "transactions": 17
+    },
+    {
+      "case": "illegal_and_conflict_no_side_effect",
+      "coverage": "bad opcode, bad mode, stale or duplicate ids, unsafe windows and illegal masks",
+      "kind": "directed",
+      "model": "pulse_mini_l2",
+      "status": "PASS",
+      "transactions": 17
+    },
+    {
+      "case": "reviewer_counterexample",
+      "coverage": "mask=1100 with descending scores and a zero-utility commit stay bit-exact",
+      "kind": "directed",
+      "model": "eneuron",
+      "status": "PASS",
+      "transactions": 11
+    },
+    {
+      "case": "reviewer_counterexample",
+      "coverage": "mask=1100 with descending scores and a zero-utility commit stay bit-exact",
+      "kind": "directed",
+      "model": "pulse_mini_l",
+      "status": "PASS",
+      "transactions": 11
+    },
+    {
+      "case": "reviewer_counterexample",
+      "coverage": "mask=1100 with descending scores and a zero-utility commit stay bit-exact",
+      "kind": "directed",
+      "model": "pulse_mini_l2",
+      "status": "PASS",
+      "transactions": 11
+    },
+    {
+      "case": "mixed_seed_0",
+      "coverage": "randomised command/config/issue mix replayed transaction by transaction",
+      "kind": "random",
+      "model": "eneuron",
+      "status": "PASS",
+      "transactions": 256
+    },
+    {
+      "case": "mixed_seed_0",
+      "coverage": "randomised command/config/issue mix replayed transaction by transaction",
+      "kind": "random",
+      "model": "pulse_mini_l",
+      "status": "PASS",
+      "transactions": 256
+    },
+    {
+      "case": "mixed_seed_0",
+      "coverage": "randomised command/config/issue mix replayed transaction by transaction",
+      "kind": "random",
+      "model": "pulse_mini_l2",
+      "status": "PASS",
+      "transactions": 256
+    },
+    {
+      "case": "mixed_seed_1",
+      "coverage": "randomised command/config/issue mix replayed transaction by transaction",
+      "kind": "random",
+      "model": "eneuron",
+      "status": "PASS",
+      "transactions": 256
+    },
+    {
+      "case": "mixed_seed_1",
+      "coverage": "randomised command/config/issue mix replayed transaction by transaction",
+      "kind": "random",
+      "model": "pulse_mini_l",
+      "status": "PASS",
+      "transactions": 256
+    },
+    {
+      "case": "mixed_seed_1",
+      "coverage": "randomised command/config/issue mix replayed transaction by transaction",
+      "kind": "random",
+      "model": "pulse_mini_l2",
+      "status": "PASS",
+      "transactions": 256
+    },
+    {
+      "case": "mixed_seed_2",
+      "coverage": "randomised command/config/issue mix replayed transaction by transaction",
+      "kind": "random",
+      "model": "eneuron",
+      "status": "PASS",
+      "transactions": 256
+    },
+    {
+      "case": "mixed_seed_2",
+      "coverage": "randomised command/config/issue mix replayed transaction by transaction",
+      "kind": "random",
+      "model": "pulse_mini_l",
+      "status": "PASS",
+      "transactions": 256
+    },
+    {
+      "case": "mixed_seed_2",
+      "coverage": "randomised command/config/issue mix replayed transaction by transaction",
+      "kind": "random",
+      "model": "pulse_mini_l2",
+      "status": "PASS",
+      "transactions": 256
+    },
+    {
+      "case": "mixed_seed_3",
+      "coverage": "randomised command/config/issue mix replayed transaction by transaction",
+      "kind": "random",
+      "model": "eneuron",
+      "status": "PASS",
+      "transactions": 256
+    },
+    {
+      "case": "mixed_seed_3",
+      "coverage": "randomised command/config/issue mix replayed transaction by transaction",
+      "kind": "random",
+      "model": "pulse_mini_l",
+      "status": "PASS",
+      "transactions": 256
+    },
+    {
+      "case": "mixed_seed_3",
+      "coverage": "randomised command/config/issue mix replayed transaction by transaction",
+      "kind": "random",
+      "model": "pulse_mini_l2",
+      "status": "PASS",
+      "transactions": 256
+    },
+    {
+      "case": "mixed_seed_4",
+      "coverage": "randomised command/config/issue mix replayed transaction by transaction",
+      "kind": "random",
+      "model": "eneuron",
+      "status": "PASS",
+      "transactions": 256
+    },
+    {
+      "case": "mixed_seed_4",
+      "coverage": "randomised command/config/issue mix replayed transaction by transaction",
+      "kind": "random",
+      "model": "pulse_mini_l",
+      "status": "PASS",
+      "transactions": 256
+    },
+    {
+      "case": "mixed_seed_4",
+      "coverage": "randomised command/config/issue mix replayed transaction by transaction",
+      "kind": "random",
+      "model": "pulse_mini_l2",
+      "status": "PASS",
+      "transactions": 256
+    },
+    {
+      "case": "mixed_seed_5",
+      "coverage": "randomised command/config/issue mix replayed transaction by transaction",
+      "kind": "random",
+      "model": "eneuron",
+      "status": "PASS",
+      "transactions": 256
+    },
+    {
+      "case": "mixed_seed_5",
+      "coverage": "randomised command/config/issue mix replayed transaction by transaction",
+      "kind": "random",
+      "model": "pulse_mini_l",
+      "status": "PASS",
+      "transactions": 256
+    },
+    {
+      "case": "mixed_seed_5",
+      "coverage": "randomised command/config/issue mix replayed transaction by transaction",
+      "kind": "random",
+      "model": "pulse_mini_l2",
+      "status": "PASS",
+      "transactions": 256
+    },
+    {
+      "case": "mixed_seed_6",
+      "coverage": "randomised command/config/issue mix replayed transaction by transaction",
+      "kind": "random",
+      "model": "eneuron",
+      "status": "PASS",
+      "transactions": 256
+    },
+    {
+      "case": "mixed_seed_6",
+      "coverage": "randomised command/config/issue mix replayed transaction by transaction",
+      "kind": "random",
+      "model": "pulse_mini_l",
+      "status": "PASS",
+      "transactions": 256
+    },
+    {
+      "case": "mixed_seed_6",
+      "coverage": "randomised command/config/issue mix replayed transaction by transaction",
+      "kind": "random",
+      "model": "pulse_mini_l2",
+      "status": "PASS",
+      "transactions": 256
+    },
+    {
+      "case": "mixed_seed_7",
+      "coverage": "randomised command/config/issue mix replayed transaction by transaction",
+      "kind": "random",
+      "model": "eneuron",
+      "status": "PASS",
+      "transactions": 256
+    },
+    {
+      "case": "mixed_seed_7",
+      "coverage": "randomised command/config/issue mix replayed transaction by transaction",
+      "kind": "random",
+      "model": "pulse_mini_l",
+      "status": "PASS",
+      "transactions": 256
+    },
+    {
+      "case": "mixed_seed_7",
+      "coverage": "randomised command/config/issue mix replayed transaction by transaction",
+      "kind": "random",
+      "model": "pulse_mini_l2",
+      "status": "PASS",
+      "transactions": 256
+    }
+  ],
+  "schema": "neurongate.vivado_local_prune_gate.v1",
+  "source_sha256": {
+    "local_prune_evidence_gain.sv": "ba0ce8f56193bb8aa9ab607530d35f4dd76c72c3db6ca780202ca29fff281d6e",
+    "local_prune_gate_2of4.sv": "01fda4fa848074a01aacb0a73f2da2ebc4a9154b210b6b45489ed8e1c7c323fd",
+    "local_prune_gate_cosim.py": "1a739a8d43e2c048c5266878c74220ebd8fbad4792d65f738e0f7e9e78114f5b",
+    "local_prune_rtl_reference.py": "d5c287cf188dba1a51f1844cdb5a62c0571782a0a1783b49698448e7358522b1",
+    "run_local_prune_gate_vivado.py": "69374024c5504e15f2cd910a604e1ec66da451c3fcc9b51f2547d94231376227"
+  },
+  "steps": {
+    "count_by_step": {
+      "xelab": 51,
+      "xsim": 51,
+      "xvlog": 51,
+      "xvlog-version": 1
+    },
+    "exit_codes": {
+      "0": 154
+    },
+    "first_command_per_step": {
+      "xelab": "C:/Users/MGL/Documents/Codex/Vivado2024_2/bin/xelab.bat --relax --debug typical --mt 2 --snapshot gate_tb work.tb",
+      "xsim": "C:/Users/MGL/Documents/Codex/Vivado2024_2/bin/xsim.bat gate_tb --tclbatch C:/Users/MGL/AppData/Local/Temp/lpgv_sim_hkg1uyd4/run.tcl",
+      "xvlog": "C:/Users/MGL/Documents/Codex/Vivado2024_2/bin/xvlog.bat -sv C:/Users/MGL/Documents/Codex/2026-08-29/vivado/clean_pr_checkout/local_prune_gate_2of4.sv C:/Users/MGL/Documents/Codex/2026-08-29/vivado/clean_pr_checkout/local_prune_evidence_gain.sv C:/Users/MGL/AppData/Local/Temp/lpgv_sim_hkg1uyd4/tb.sv",
+      "xvlog-version": "C:/Users/MGL/Documents/Codex/Vivado2024_2/bin/xvlog.bat -version"
+    }
+  },
+  "tool": {
+    "name": "run_local_prune_gate_vivado.py",
+    "version": "Vivado Simulator v2024.2.0",
+    "vivado_root_supplied_by": "--vivado-root or VIVADO_ROOT",
+    "vivado_root_value": "C:/Users/MGL/Documents/Codex/Vivado2024_2"
+  },
+  "totals": {
+    "cases": 45,
+    "mutants": 5,
+    "python_rtl_row_fields_compared": 154728,
+    "transactions_compared": 6447
+  }
+}
