@@ -1,7 +1,7 @@
 {
   "checkout": {
-    "commit": "7266e2be15424bd26abe33a7fc265f454f6be368",
-    "worktree": "clean_pr_checkout"
+    "commit": "ee4b9ff67c08adb538f81cc5a5b48c49d13f34ca",
+    "worktree": "wt_ac_true"
   },
   "coverage": {
     "case_catalogue": [
@@ -9,18 +9,18 @@
       "illegal_and_conflict_no_side_effect: bad opcode, bad mode, stale or duplicate ids, unsafe windows and illegal masks",
       "infer_freeze: INFER rejects OBSERVE and PRUNE_COMMIT but still reads and gates the mask",
       "reset_and_dense: reset state, dense 1111 before commit, first commit is exact-two",
-      "reviewer_counterexample: mask=1100 with descending scores and a zero-utility commit stay bit-exact",
       "score_saturation: utility saturates at 15 and the two pruned lanes stay frozen after the commit",
-      "tie_break: equal scores are resolved by the lowest lane index with the fixed 0-1-2-3 scan"
+      "tie_break: equal scores are resolved by the lowest lane index with the fixed 0-1-2-3 scan",
+      "two_lane_mask_and_low_score_exact_two: CONFIG 1100 passes through un-re-ranked; uneven and all-zero utility vectors still commit exactly two of four"
     ],
     "directed_cases": [
       "exact_two",
       "illegal_and_conflict_no_side_effect",
       "infer_freeze",
       "reset_and_dense",
-      "reviewer_counterexample",
       "score_saturation",
-      "tie_break"
+      "tie_break",
+      "two_lane_mask_and_low_score_exact_two"
     ],
     "models": [
       "eneuron",
@@ -30,7 +30,7 @@
     "seeds": 8,
     "transactions_per_random_stream": 256
   },
-  "generated_utc": "2026-08-30T09:23:55Z",
+  "generated_utc": "2026-08-30T13:35:57Z",
   "host": {
     "python": "3.13.15",
     "release": "11",
@@ -229,24 +229,24 @@
       "transactions": 17
     },
     {
-      "case": "reviewer_counterexample",
-      "coverage": "mask=1100 with descending scores and a zero-utility commit stay bit-exact",
+      "case": "two_lane_mask_and_low_score_exact_two",
+      "coverage": "CONFIG 1100 passes through un-re-ranked; uneven and all-zero utility vectors still commit exactly two of four",
       "kind": "directed",
       "model": "eneuron",
       "status": "PASS",
       "transactions": 11
     },
     {
-      "case": "reviewer_counterexample",
-      "coverage": "mask=1100 with descending scores and a zero-utility commit stay bit-exact",
+      "case": "two_lane_mask_and_low_score_exact_two",
+      "coverage": "CONFIG 1100 passes through un-re-ranked; uneven and all-zero utility vectors still commit exactly two of four",
       "kind": "directed",
       "model": "pulse_mini_l",
       "status": "PASS",
       "transactions": 11
     },
     {
-      "case": "reviewer_counterexample",
-      "coverage": "mask=1100 with descending scores and a zero-utility commit stay bit-exact",
+      "case": "two_lane_mask_and_low_score_exact_two",
+      "coverage": "CONFIG 1100 passes through un-re-ranked; uneven and all-zero utility vectors still commit exactly two of four",
       "kind": "directed",
       "model": "pulse_mini_l2",
       "status": "PASS",
@@ -447,11 +447,11 @@
   ],
   "schema": "neurongate.vivado_local_prune_gate.v1",
   "source_sha256": {
-    "local_prune_evidence_gain.sv": "ba0ce8f56193bb8aa9ab607530d35f4dd76c72c3db6ca780202ca29fff281d6e",
-    "local_prune_gate_2of4.sv": "01fda4fa848074a01aacb0a73f2da2ebc4a9154b210b6b45489ed8e1c7c323fd",
-    "local_prune_gate_cosim.py": "1a739a8d43e2c048c5266878c74220ebd8fbad4792d65f738e0f7e9e78114f5b",
-    "local_prune_rtl_reference.py": "d5c287cf188dba1a51f1844cdb5a62c0571782a0a1783b49698448e7358522b1",
-    "run_local_prune_gate_vivado.py": "69374024c5504e15f2cd910a604e1ec66da451c3fcc9b51f2547d94231376227"
+    "local_prune_evidence_gain.sv": "4b2bb7c3d45808a0907ac60f547fe0ab0a607e3e8b4340410ea4467705b8301c",
+    "local_prune_gate_2of4.sv": "d52a1fd3bcdaba8d6e2823ddfda11adb72a1e5789528b4ce6f890929c939c321",
+    "local_prune_gate_cosim.py": "c31322006295c67df092cd0073031755f344e480f0c3efb39ee3ceb867809750",
+    "local_prune_rtl_reference.py": "16400290cc615eb905bdd9ae4f9be9ee82a64f0cb7956d6e310e4a5bc418b1fb",
+    "run_local_prune_gate_vivado.py": "61074e9f794bd24140e8572a9f5f338a41c802124f8837de1d2d86ac56da8cae"
   },
   "steps": {
     "count_by_step": {
@@ -465,8 +465,8 @@
     },
     "first_command_per_step": {
       "xelab": "C:/Users/MGL/Documents/Codex/Vivado2024_2/bin/xelab.bat --relax --debug typical --mt 2 --snapshot gate_tb work.tb",
-      "xsim": "C:/Users/MGL/Documents/Codex/Vivado2024_2/bin/xsim.bat gate_tb --tclbatch C:/Users/MGL/AppData/Local/Temp/lpgv_sim_hkg1uyd4/run.tcl",
-      "xvlog": "C:/Users/MGL/Documents/Codex/Vivado2024_2/bin/xvlog.bat -sv C:/Users/MGL/Documents/Codex/2026-08-29/vivado/clean_pr_checkout/local_prune_gate_2of4.sv C:/Users/MGL/Documents/Codex/2026-08-29/vivado/clean_pr_checkout/local_prune_evidence_gain.sv C:/Users/MGL/AppData/Local/Temp/lpgv_sim_hkg1uyd4/tb.sv",
+      "xsim": "C:/Users/MGL/Documents/Codex/Vivado2024_2/bin/xsim.bat gate_tb --tclbatch C:/Users/MGL/AppData/Local/Temp/lpgv_sim_wb3751j8/run.tcl",
+      "xvlog": "C:/Users/MGL/Documents/Codex/Vivado2024_2/bin/xvlog.bat -sv C:/Users/MGL/Documents/Codex/2026-08-29/vivado/wt_ac_true/local_prune_gate_2of4.sv C:/Users/MGL/Documents/Codex/2026-08-29/vivado/wt_ac_true/local_prune_evidence_gain.sv C:/Users/MGL/AppData/Local/Temp/lpgv_sim_wb3751j8/tb.sv",
       "xvlog-version": "C:/Users/MGL/Documents/Codex/Vivado2024_2/bin/xvlog.bat -version"
     }
   },

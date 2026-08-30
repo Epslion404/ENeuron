@@ -66,7 +66,7 @@
     "cosim": {
       "cross_checked_on_xsim": {
         "cases": 45,
-        "commit": "7266e2be15424bd26abe33a7fc265f454f6be368",
+        "commit": "ee4b9ff67c08adb538f81cc5a5b48c49d13f34ca",
         "field_comparisons": 154728,
         "mutants_caught": 5,
         "result": "PASS",
