@@ -65,6 +65,21 @@ kept           = top2(candidate_mask, score, tie = 小序号优先)   # 只在 c
 7. **新增**：`popcount(candidate) < 2` 的注入必须被拒绝且零副作用；
 8. **新增**：失败敏感变异（去掉 exact-two、破坏原子性、把同分规则反过来）必须全部被捕获。
 
+## 6. V1 用例与本提案反例的映射边界
+
+第二轮评审指出：仿真侧那个名为“评审反例”的用例并不等价于原反例。接受该意见，处置如下。
+
+- 该用例已改名为 `two_lane_mask_and_low_score_exact_two`，只声明它真正证明的三件事：
+  CONFIG 写入 `1100` 后直通数据路径（不得被重排为 `0011`/`0110`）、两路有效时 `issued=2 且 saved=0`、
+  以及 utility 不均（`3,0,0,0`）与全零时提交仍恰好两条。
+- 原反例含 `lane0 cooldown=1` 与 8 位 score，这两个概念**不存在于**已冻结的 V1 合同，
+  因此 V1 里不存在能等价复现该反例的事务；把 V1 用例包装成“等价回归”会是误导。
+- 本提案被批准后，原反例的等价回归按第 3 节定义实现并作为必过验收门：
+  `candidate = raw_mask & ~cooldown_mask`，`kept = top2(candidate, score, tie=小序号优先)`，
+  `popcount(candidate) < 2` 时拒绝且零副作用；反例事务为
+  `raw_mask=1100, score=[250,200,150,100], cooldown={lane0}`，期望 `kept=1100` 的唯一候选集合语义
+  （Python 与 RTL 必须共用同一次排序，禁止先过滤再对全部四条排序）。
+
 ## 6. 请评审裁决的问题
 
 1. 恢复窗口是每 epoch 一次还是每 `REGROW_WINDOW` 个 observation 一次？

@@ -546,7 +546,15 @@ def case_no_side_effect() -> tuple[tuple[str, str, list[GateTransaction]], objec
             transactions), verify
 
 
-def case_reviewer_counterexample() -> tuple[tuple[str, str, list[GateTransaction]], object]:
+def case_two_lane_and_low_score_exact_two() -> tuple[tuple[str, str, list[GateTransaction]], object]:
+    """What this case proves, stated exactly.
+
+    It does NOT claim to replay the counterexample of the withdrawn design: that stream needs a
+    lane cooldown, which the frozen V1 contract does not have.  Here a CONFIG two-lane mask is
+    passed straight to the datapath without re-ranking, and commits from an uneven and from an
+    all-zero utility vector still produce exactly two lanes.  The equivalent regression for the
+    withdrawn design is specified in DESIGN_PROPOSAL_DYNAMIC_PRUNE_RECOVERY.md section 3.
+    """
     transactions = [
         clear_command(),
         config_write(0b1100),
@@ -564,16 +572,17 @@ def case_reviewer_counterexample() -> tuple[tuple[str, str, list[GateTransaction
     def verify(rows: list[tuple[int, ...]], model_name: str) -> None:
         if rows[1][RESPONSE_MASK] != 0b1100:
             raise StepFailure(
-                "reviewer_counterexample: a two-lane candidate set must stay 1100, RTL said "
-                + bin(rows[1][RESPONSE_MASK])
+                "two_lane_exact_two: a CONFIG two-lane mask must reach the datapath as 1100, "
+                "RTL said " + bin(rows[1][RESPONSE_MASK])
             )
         if rows[2][HIDDEN_ISSUED] - rows[1][HIDDEN_ISSUED] != 2 or rows[2][HIDDEN_SAVED] != rows[1][HIDDEN_SAVED]:
-            raise StepFailure("reviewer_counterexample: both remaining lanes must be issued and none saved")
+            raise StepFailure("two_lane_exact_two: both configured lanes must be issued and none saved")
         if rows[7][STRUCTURAL_MASK] != 0b0011 or rows[9][STRUCTURAL_MASK] != 0b0011:
-            raise StepFailure("reviewer_counterexample: a low-score commit must still be exact-two")
+            raise StepFailure("two_lane_exact_two: a low or zero score commit must still be exact-two")
 
-    return ("reviewer_counterexample",
-            "mask=1100 with descending scores and a zero-utility commit stay bit-exact",
+    return ("two_lane_mask_and_low_score_exact_two",
+            "CONFIG 1100 passes through un-re-ranked; uneven and all-zero utility vectors still"
+            " commit exactly two of four",
             transactions), verify
 
 
@@ -584,7 +593,7 @@ DIRECTED_CASES = (
     case_saturation,
     case_infer_freeze,
     case_no_side_effect,
-    case_reviewer_counterexample,
+    case_two_lane_and_low_score_exact_two,
 )
 ANCHOR_COMMIT_MASK = (
     "completed_commit_mask = (4'b0001 << next_best1_index)\n"

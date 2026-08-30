@@ -1,4 +1,10 @@
-"""运行并绑定 NP4/NP5 公共剪枝控制器证据。"""
+"""Run and bind the NP4/NP5 common pruning-controller evidence.
+
+The signature binds every source file with a *canonical* digest: the working-tree bytes with
+CRLF and CR folded to LF.  That keeps the binding independent of core.autocrlf and of the
+platform that checks the repository out, and it means a stale summary can never be "fixed" by
+recording one Windows machine's CRLF hashes.
+"""
 
 from __future__ import annotations
 
@@ -7,6 +13,7 @@ import json
 import logging
 import os
 import subprocess
+import sys
 from pathlib import Path
 
 from local_prune_gate_cosim import run_full_regression
@@ -32,8 +39,48 @@ SOURCE_FILES = (
 LOGGER = logging.getLogger("verify_local_prune_rtl")
 
 
+EVIDENCE_INPUTS = {
+    "cosim": (
+        "local_prune_gate_2of4.sv",
+        "local_prune_evidence_gain.sv",
+        "local_prune_rtl_reference.py",
+        "local_prune_gate_cosim.py",
+        "test_local_prune_gate_rtl.py",
+        "verify_local_prune_rtl.py",
+    ),
+    "formal": (
+        "local_prune_gate_2of4.sv",
+        "local_prune_evidence_gain.sv",
+        "formal_local_prune_gate.sv",
+        "formal_local_prune_gate.ys",
+        "formal_local_prune_gate_reach.ys",
+        "run_formal_local_prune_gate.ps1",
+    ),
+}
+SOURCE_HASH_POLICY = (
+    "sha256 over the working-tree bytes with CRLF and CR normalised to LF "
+    "(platform and core.autocrlf independent)"
+)
+
+
+def canonical_bytes(path: Path) -> bytes:
+    """Return the file with every line ending folded to LF."""
+
+    return path.read_bytes().replace(b"\r\n", b"\n").replace(b"\r", b"\n")
+
+
+def canonical_sha256(path: Path) -> str:
+    return hashlib.sha256(canonical_bytes(path)).hexdigest()
+
+
+def canonical_sha256_bytes(data: bytes) -> str:
+    """Digest of arbitrary bytes after folding their line endings to LF."""
+
+    return hashlib.sha256(data.replace(b"\r\n", b"\n").replace(b"\r", b"\n")).hexdigest()
+
+
 def _sha256(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    return canonical_sha256(path)
 
 
 def _tool_version(executable: Path, *args: str) -> str:
@@ -95,6 +142,31 @@ def _run_formal() -> dict[str, object]:
     }
 
 
+def build_provenance(previous: dict[str, str], current: dict[str, str],
+                     moved: list[str], *, ran_checks: bool,
+                     xsim: dict[str, object]) -> dict[str, object]:
+    """Describe, per evidence block, which inputs moved and whether the block was re-run."""
+
+    out: dict[str, object] = {}
+    for block, inputs in EVIDENCE_INPUTS.items():
+        moved_inputs = [name for name in inputs if name in moved]
+        entry: dict[str, object] = {
+            "signed_inputs": list(inputs),
+            "inputs_unchanged_since_previous_signature": not moved_inputs,
+            "inputs_moved_since_previous_signature": moved_inputs,
+            "reverified_in_this_run": ran_checks,
+        }
+        if not ran_checks:
+            entry["reason"] = ("the evidence blocks were not re-executed while refreshing the "
+                               "signature; reverify with the command below")
+            entry["reverify_command"] = ("python verify_local_prune_rtl.py" if block == "cosim"
+                                         else "powershell -File run_formal_local_prune_gate.ps1")
+        if block == "cosim" and xsim:
+            entry["cross_checked_on_xsim"] = xsim
+        out[block] = entry
+    return out
+
+
 def build_summary(*, run_checks: bool) -> dict[str, object]:
     if run_checks:
         run_full_regression()
@@ -120,8 +192,37 @@ def build_summary(*, run_checks: bool) -> dict[str, object]:
     yosys = find_tool("yosys")
     if iverilog is None or yosys is None:
         raise RuntimeError("验证工具缺失")
+    previous = {}
+    if RESULT_PATH.exists():
+        try:
+            previous = json.loads(RESULT_PATH.read_text(encoding="utf-8")).get(
+                "source_sha256", {}
+            )
+        except json.JSONDecodeError:
+            previous = {}
+    current = {name: _sha256(ROOT / name) for name in SOURCE_FILES}
+    moved = sorted(name for name, digest in current.items() if previous.get(name) != digest)
+    xsim = {}
+    xsim_path = ROOT / "VIVADO_LOCAL_PRUNE_GATE_SUMMARY.json"
+    if xsim_path.exists():
+        try:
+            data = json.loads(xsim_path.read_text(encoding="utf-8"))
+            xsim = {
+                "tool": data["tool"]["version"],
+                "commit": data["checkout"]["commit"],
+                "transactions": data["totals"]["transactions_compared"],
+                "field_comparisons": data["totals"]["python_rtl_row_fields_compared"],
+                "cases": data["totals"]["cases"],
+                "mutants_caught": data["totals"]["mutants"],
+                "result": "PASS" if data.get("pass") else "FAIL",
+                "summary": xsim_path.name,
+            }
+        except (json.JSONDecodeError, KeyError):
+            xsim = {}
+    provenance = build_provenance(previous, current, moved, ran_checks=run_checks,
+                                  xsim=xsim)
     return {
-        "schema": "eneuron.local_prune_rtl.v1",
+        "schema": "eneuron.local_prune_rtl.v2",
         "date": "2026-08-29",
         "status": "COMMON_CONTROLLER_NP4_NP5_PASS_INTEGRATION_PENDING",
         "score_method": "S2_ONLY",
@@ -162,12 +263,85 @@ def build_summary(*, run_checks: bool) -> dict[str, object]:
             "iverilog": _tool_version(iverilog, "-V"),
             "yosys": _tool_version(yosys, "-V"),
         },
-        "source_sha256": {name: _sha256(ROOT / name) for name in SOURCE_FILES},
+        "source_sha256": current,
+        "source_hash_policy": SOURCE_HASH_POLICY,
+        "eol_policy": "text files are pinned to LF by .gitattributes; the binding additionally"
+                      " normalises line endings, so a CRLF checkout verifies identically",
+        "previous_signature": previous,
+        "source_changes_since_previous_signature": moved,
+        "provenance": provenance,
     }
+
+
+def tool_availability() -> dict[str, bool]:
+    return {name: find_tool(name) is not None for name in ("iverilog", "vvp", "yosys")}
+
+
+def refresh_signature() -> dict[str, object]:
+    """Rewrite the source binding of an existing summary without re-running any gate.
+
+    Every evidence block is copied verbatim and the provenance section records which of its
+    inputs moved since the previous signature, so a reader can see immediately that a block
+    was inherited here rather than re-executed.
+    """
+
+    if not RESULT_PATH.exists():
+        raise RuntimeError("no summary to refresh: " + RESULT_PATH.name)
+    previous_result = json.loads(RESULT_PATH.read_text(encoding="utf-8"))
+    if previous_result.get("schema") == "eneuron.local_prune_rtl.v1":
+        previous = dict(previous_result["source_sha256"])
+    else:
+        previous = dict(previous_result.get("previous_signature",
+                              previous_result["source_sha256"]))
+    current = {name: canonical_sha256(ROOT / name) for name in SOURCE_FILES}
+    moved = sorted(name for name in SOURCE_FILES if previous.get(name) != current[name])
+    available = tool_availability()
+    missing = [name for name, present in available.items() if not present]
+    xsim_path = ROOT / "VIVADO_LOCAL_PRUNE_GATE_SUMMARY.json"
+    xsim = {}
+    if xsim_path.exists():
+        data = json.loads(xsim_path.read_text(encoding="utf-8"))
+        xsim = {
+            "tool": data["tool"]["version"],
+            "commit": data["checkout"]["commit"],
+            "transactions": data["totals"]["transactions_compared"],
+            "field_comparisons": data["totals"]["python_rtl_row_fields_compared"],
+            "cases": data["totals"]["cases"],
+            "mutants_caught": data["totals"]["mutants"],
+            "result": "PASS" if data.get("pass") else "FAIL",
+            "summary": xsim_path.name,
+        }
+    summary = dict(previous_result)
+    summary["schema"] = "eneuron.local_prune_rtl.v2"
+    summary["source_sha256"] = current
+    summary["source_hash_policy"] = SOURCE_HASH_POLICY
+    summary["eol_policy"] = (
+        "text files are pinned to LF by .gitattributes; the binding additionally"
+        " normalises line endings, so a CRLF checkout verifies identically"
+    )
+    summary["previous_signature"] = previous
+    summary["source_changes_since_previous_signature"] = moved
+    summary["tool_availability"] = available
+    summary["provenance"] = build_provenance(previous, current, moved, ran_checks=False,
+                                           xsim=xsim)
+    if missing:
+        for entry in summary["provenance"].values():
+            entry["reason"] = ("signature-only refresh; these tools are absent on this machine: "
+                               + ", ".join(missing))
+    return summary
 
 
 def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
+    if "--refresh-signature" in sys.argv:
+        refreshed = refresh_signature()
+        RESULT_PATH.write_text(json.dumps(refreshed, indent=2, sort_keys=True) + "\n",
+                               encoding="utf-8", newline="\n")
+        print("LOCAL_PRUNE_RTL_SIGNATURE_REFRESHED"
+              " moved=" + str(len(refreshed["source_changes_since_previous_signature"]))
+              + " signed_sources=" + str(len(refreshed["source_sha256"]))
+              + " tools=" + json.dumps(refreshed["tool_availability"], sort_keys=True))
+        return
     summary = build_summary(run_checks=True)
     RESULT_PATH.write_text(
         json.dumps(summary, indent=2, sort_keys=True) + "\n",

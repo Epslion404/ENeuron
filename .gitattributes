@@ -1,0 +1,16 @@
+# Pin the line endings of every signed text file, so that a fresh checkout on any platform
+# (core.autocrlf=true or false) produces the same bytes.  verify_local_prune_rtl.py additionally
+# hashes the canonical LF form, so the signature is verifiable even in a foreign working tree.
+* text=auto eol=lf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+*.vcd text eol=lf
+*.wdb binary
+*.dcp binary
+*.png binary
+*.jpg binary
+*.zip binary
+*.gz binary
+*.pdf binary
+*.xcf binary

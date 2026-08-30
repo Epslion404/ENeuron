@@ -98,8 +98,8 @@ class ReviewerCounterexampleTest(unittest.TestCase):
         self.assertEqual(rows[7][runner.STRUCTURAL_MASK], 0b0011)
         self.assertEqual(rows[7][runner.COMMITS], 2)
 
-    def test_directed_reviewer_case_matches_the_independent_ranking(self) -> None:
-        descriptor, verify = runner.case_reviewer_counterexample()
+    def test_directed_two_lane_case_matches_the_independent_ranking(self) -> None:
+        descriptor, verify = runner.case_two_lane_and_low_score_exact_two()
         _, _, transactions = descriptor
         rows = expected_rows(model_name="eneuron", transactions=transactions)
         verify(rows, "eneuron")
@@ -151,8 +151,8 @@ class RunnerPlumbingTest(unittest.TestCase):
 
     def test_resolve_vivado_root_reports_a_clear_error(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
-            os.environ.pop("VIVADO_ROOT", None)
-            os.environ.pop("XILINX_VIVADO", None)
+            root_backup = os.environ.pop("VIVADO_ROOT", None)
+            xilinx_backup = os.environ.pop("XILINX_VIVADO", None)
             path_backup = os.environ.get("PATH", "")
             os.environ["PATH"] = ""
             try:
@@ -162,17 +162,25 @@ class RunnerPlumbingTest(unittest.TestCase):
                     runner.resolve_vivado_root(None)
             finally:
                 os.environ["PATH"] = path_backup
+                if root_backup is not None:
+                    os.environ["VIVADO_ROOT"] = root_backup
+                if xilinx_backup is not None:
+                    os.environ["XILINX_VIVADO"] = xilinx_backup
 
     def test_environment_variable_is_honoured_without_a_cli_argument(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp) / "V"
             (root / "bin").mkdir(parents=True)
             (root / "bin" / "xvlog.bat").write_text("@echo off\n", encoding="ascii")
+            backup = os.environ.get("VIVADO_ROOT")
             os.environ["VIVADO_ROOT"] = str(root)
             try:
                 self.assertEqual(runner.resolve_vivado_root(None), root)
             finally:
-                os.environ.pop("VIVADO_ROOT", None)
+                if backup is None:
+                    os.environ.pop("VIVADO_ROOT", None)
+                else:
+                    os.environ["VIVADO_ROOT"] = backup
 
     def test_every_tool_argument_uses_forward_slashes(self) -> None:
         class RecordingFlow(runner.VivadoFlow):
@@ -225,6 +233,12 @@ class RunnerPlumbingTest(unittest.TestCase):
 
 
 def _cli_vivado_root() -> str | None:
+    """Return the Vivado location chosen at import time.
+
+    It is captured once into VIVADO_ROOT_AT_IMPORT: the plumbing tests deliberately rewrite
+    VIVADO_ROOT / PATH, and a later test must not be blinded by that.
+    """
+
     for index, argument in enumerate(sys.argv):
         if argument == "--vivado-root" and index + 1 < len(sys.argv):
             return sys.argv[index + 1]
@@ -233,13 +247,16 @@ def _cli_vivado_root() -> str | None:
     return os.environ.get("VIVADO_ROOT") or os.environ.get("XILINX_VIVADO")
 
 
-@unittest.skipUnless(_cli_vivado_root(), "set VIVADO_ROOT (or --vivado-root) to run the real xsim test")
+VIVADO_ROOT_AT_IMPORT = _cli_vivado_root()
+
+
+@unittest.skipUnless(VIVADO_ROOT_AT_IMPORT, "set VIVADO_ROOT (or --vivado-root) to run the real xsim test")
 class VivadoRegressionTest(unittest.TestCase):
     def test_short_real_vivado_regression_passes(self) -> None:
         code = runner.main(
             [
                 "--vivado-root",
-                str(_cli_vivado_root()),
+                str(VIVADO_ROOT_AT_IMPORT),
                 "--seeds",
                 "1",
                 "--transactions",
