@@ -76,3 +76,6 @@ lpgv_mutants_*/
 Users*known_hosts
 *known_hosts
 glbl.v
+
+# throwaway checkouts created by run_test_matrix.py
+.test_matrix/
