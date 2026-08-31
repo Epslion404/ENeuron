@@ -757,3 +757,5 @@
 - 首次报告一致性命令因包含临时文件删除而被进程策略拒绝，未执行；已切换为不删除的系统唯一临时文件方案。
 - 报告生成器成功写入系统临时文件；与正式报告的差异来自缺少评审期控制台日志、当前未提交树无法重建旧分支清单及最新签名基线。正式报告未被降级输出覆盖。
 - 提交前验证完成：工作流 Check PASS；41/41 定向测试 PASS；NP4B 独立 verifier PASS；Python compileall PASS；37 个 Markdown 零断链；`git diff --check` PASS；未运行 Vivado。
+- 已创建并推送实质归档提交 `ebd6c0d docs: archive project markdown files`，远端 `main` 从 `e5bbbc5` 前进到 `ebd6c0d`；推送退出码 0。
+- 本条与任务完成勾选将作为纯工作流记录提交，不修改归档结构、验证结论或功能代码。

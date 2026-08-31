@@ -23,6 +23,7 @@ NP4B 功能集成证据闭环已经完成；当前等待用户决定是否批准
 - P5 已提交：`e3708af test: add NP4B fail-closed signoff`；总摘要绑定 87 个文件并通过独立 verifier。
 - 当前正式状态为 `NP4B_INTEGRATION_PASS / NP6_REVIEW_REQUIRED`。
 - NP6 尚未获再次批准，禁止运行 Vivado。
+- 根目录 Markdown 已整理归档并推送：`ebd6c0d docs: archive project markdown files`；文档入口为 `docs/README.md`。
 
 ## 允许动作
 
