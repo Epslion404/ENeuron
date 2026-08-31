@@ -114,7 +114,11 @@ def build_results() -> dict[str, object]:
 def main() -> None:
     """命令行入口。"""
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output", type=Path, default=ROOT / "local_prune_np3_results.json")
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=ROOT / "artifacts/results/local_prune_np3_results.json",
+    )
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     result = build_results()

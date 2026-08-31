@@ -26,7 +26,10 @@ def main() -> None:
         "complexity": network.complexity(),
         "train_protocol": "host_label_to_signed_local_modulator",
     }
-    Path("network_results.json").write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+    Path("artifacts/results/network_results.json").write_text(
+        json.dumps(result, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
     print("两层数字 SNN + 片外调制实验")
     print(f"训练最后一轮准确率: {result['last_epoch_accuracy']:.1%}")
     print(f"干净数据推理准确率: {result['clean_accuracy']:.1%}")
@@ -34,7 +37,7 @@ def main() -> None:
     print(f"隐藏层权重: {result['hidden_weights']}")
     print(f"输出层权重: {result['output_weights']}")
     print(f"复杂度代理: {result['complexity']}")
-    print("结果已写入 network_results.json")
+    print("结果已写入 artifacts/results/network_results.json")
 
 
 if __name__ == "__main__":

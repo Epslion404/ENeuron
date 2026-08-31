@@ -344,7 +344,7 @@
 - 固定 `4->2->2` 共同任务：三者训练后均满分；两个 Pulse 版本训练权重逐位一致。
 - RTL 协同仿真旁证：ENeuron 单核 20000 事务、ENeuron Tile 10000 事务、默认 `LEAK_PERIOD=8` 的 Pulse-Mini-L 单核 20000 事务和网络 272 命令均与黄金模型一致。
 - `python -m unittest discover -v`：200 项通过；`python -m compileall -q .` 通过；Pulse-Mini 有限形式验证 depth 20 无反例。
-- 完整报告为 `docs/reports/SIMULATION_COMPARISON_REPORT.md`，原始数据为 `comparison_simulation_results.json`。
+- 完整报告为 `docs/reports/SIMULATION_COMPARISON_REPORT.md`，原始数据为 `artifacts/results/comparison_simulation_results.json`。
 
 ### 本阶段错误记录
 
@@ -420,7 +420,7 @@
 ### D2 结果
 
 - D2 协议/账本合同测试 14 项通过；训练期自然输出为 0，直接权重写入为 0，固定特征指纹不变，推理并列严格 abstain。
-- 10 个固定 seed、每个 3 epochs 的正式实验已落盘 `digit8x8_d2_results.json`；validation BAcc 均值 4.61%、最小 1.11%，coverage 均值 56.04%、最小 39.26%，达到 `BAcc≥70% 且 coverage≥90%` 的 seed 为 0/10。
+- 10 个固定 seed、每个 3 epochs 的正式实验已落盘 `artifacts/results/digit8x8_d2_results.json`；validation BAcc 均值 4.61%、最小 1.11%，coverage 均值 56.04%、最小 39.26%，达到 `BAcc≥70% 且 coverage≥90%` 的 seed 为 0/10。
 - test BAcc 均值 4.74%、coverage 均值 52.18%；固定权重与标签打乱对照均未达到主门槛。
 - 结论为 `D2_FAIL_GENERALIZATION`，部分 seed 同时属于 `D2_FAIL_ACTIVITY`；在批准输出层信用修正并重新通过 D2 前，不进入 D3 解冻隐藏层。
 
@@ -640,3 +640,82 @@
 | 报告一致性检查命令包含删除系统临时文件，被进程策略在启动前拒绝 | 1 | 仓库未改；改用 `New-TemporaryFile` 取得唯一目标且不执行删除，由系统临时目录管理该文件 |
 | 报告生成器成功输出归档路径，但临时重渲染与正式报告不完全一致 | 1 | 差异只来自主工作区缺少 PR 评审时的 `vivado_regression_console.log`、当前未提交树无法重建当时分支清单，以及最新签名基线；保留正式报告中的原始真实证据，不用缺输入的降级输出覆盖 |
 | 首轮合并运行局部剪枝测试时，签名刷新态不满足“可用工具均已正式重验证”的已提交摘要合同 | 1 | 不降低断言；运行项目正式 `verify_local_prune_rtl.py` 重验证路径，使行为/形式证据与迁移后的 verifier 哈希一起刷新，再重跑定向套件 |
+## 2026-09-01 根目录非 Markdown 文件归档调研
+
+### 目标
+
+在不破坏 RTL/仿真/形式验证/机器摘要可复现性的前提下，继续减少项目根目录噪声；先形成可审核的最小归档方案，用户批准后再分解并实施。
+
+### 调研阶段
+
+- [x] 读取默认技能并冻结“先调研、后审核、再实施”的流程
+- [x] 盘点根目录文件、目录、Git 状态和忽略规则
+- [x] 审计脚本、RTL、Tcl、JSON 与工具对根路径及当前工作目录的依赖
+- [x] 形成 V1 归档方案、保留集合、风险和验收标准
+- [x] 提请用户审核 V1 方案
+- [x] 审核通过后分解迁移、引用修复、验证、提交与推送任务
+
+### 当前约束
+
+- 调研阶段只读，不移动、删除或改写功能文件
+- 不把正式机器摘要、日志或 witness 当作普通缓存清理
+- 不运行 Vivado；NP6 仍为 `REVIEW_REQUIRED`
+- 优先小步整理基础设施/结果目录，不以“根目录零文件”为目标强搬高耦合 RTL 与测试
+
+### V1 审核稿（待用户批准）
+
+1. 根目录继续保留源码、RTL、测试、runner、Tcl/Yosys 脚本、配置、版本、data/manifest、签核摘要、正式形式证据和持久工作流文件。
+2. 新建 `artifacts/results/`，只迁移 15 个不进入当前签核哈希集合的历史/实验结果 JSON；同步生成器默认输出、读取者、测试和文档引用。
+3. 新建 `artifacts/README.md`，说明结果文件职责、生成入口和“非最终签核摘要”边界。
+4. 可选本地清理：删除 47 个已被 `.gitignore` 排除的根目录 VVP、失败/覆盖 VCD、临时日志和 `clockInfo.txt`，以及 `__pycache__`、`.pytest_cache`、`.Xil`、`vivado_pulse_original_sim` 和空 physopt 目录；它们不入 Git，可由现有工具重新生成。
+5. 不迁移另外 4 个 data/manifest JSON、11 个签核 JSON/TXT、12 个正式形式 `.log`/成功 `.vcd` 或任何 Vivado 证据目录，避免触碰哈希链和物理报告新鲜度。
+6. 验收：路径残留扫描、完整 unittest discovery、官方 NP4B verifier、`verify_goal.py` 现存证据审计、Python compileall、工作流 Check、`git diff --check` 全通过；不调用 Vivado。
+7. 通过后再提交并推送；用户批准前不执行移动、清理、提交或推送。
+
+### V1 精确迁移集合
+
+- `artifacts/results/comparison_simulation_results.json`
+- `artifacts/results/digit8x8_d1_results.json`、`artifacts/results/digit8x8_d2_results.json`
+- `artifacts/results/local_prune_b0_results.json`、`artifacts/results/local_prune_b1_results.json`、`artifacts/results/local_prune_b2_results.json`、`artifacts/results/local_prune_b21_results.json`、`artifacts/results/local_prune_np2_results.json`、`artifacts/results/local_prune_np3_results.json`
+- `artifacts/results/network_results.json`、`artifacts/results/network_sweep_results.json`
+- `artifacts/results/pulse_mini_protocol_experiments.json`
+- `artifacts/results/rtl_smoke_results.json`
+- `artifacts/results/simulation_results.json`、`artifacts/results/sweep_results.json`
+
+### V1 执行任务（2026-09-01 已批准）
+
+- [x] T1：冻结当前状态、15 文件清单、引用清单与 ignored 清理白名单
+- [x] T2：先增加结果默认路径合同测试，确认旧路径实现出现 RED
+- [x] T3：创建 `artifacts/results/` 和索引，使用 Git rename 迁移 15 个 JSON
+- [x] T4：同步 writer、reader、测试、报告与历史文档路径，定向测试转为 GREEN
+- [x] T5：精确清理 47 个 ignored 根文件及批准的纯缓存/空目录，不触碰 tracked formal/Vivado 证据
+- [x] T6：完整回归、NP4B verifier、严格 Goal 验收、compileall、工作流和 Git 检查
+- [x] T7：提交、推送并核对本地 `main` 与 `origin/main`
+
+### V1 严格证据追加授权（2026-09-01）
+
+- 用户在得知 Tile RTL 晚于现有 Vivado 报告后明确选择方案 1，授权使用 Vivado 2024.1 重建严格证据闭环。
+- 执行顺序冻结为 Tile OOC → 真实 XPM xsim/综合 → 双时钟 System OOC；任一步退出非零立即停止，不运行 NP6 新设计探索。
+- 本授权覆盖下方原“不得调用 Vivado”的限制；其它 V1 边界保持不变。重建产生的正式 Vivado 报告属于当前 RTL 的更新证据，允许随 V1 一并提交。
+- [x] Tile OOC：100 MHz 实现与全部硬门通过
+- [x] 真实 XPM xsim/综合
+- [x] 双时钟 System OOC
+
+### V1 验收合同
+
+- 15 个结果文件只存在于 `artifacts/results/`，旧根路径不再生成或读取
+- `artifacts/README.md` 列出全部结果及生成入口，明确它们不是最终签核摘要
+- 根目录不再存在已批准清理的 ignored 单文件和纯缓存目录
+- 12 个 tracked formal log/VCD、15 个 data/signoff JSON/TXT 和所有 Vivado 证据目录的路径及 Git 内容保持不变
+- 除上述 2026-09-01 严格证据追加授权外不调用 Vivado；任一证据 verifier 失败则停止提交
+
+### V1 错误记录
+
+| 错误 | 尝试 | 处理 |
+|---|---:|---|
+| 无 | 0 | T1 只读冻结通过 |
+| `test_artifact_layout` 在迁移前失败：缺少 `artifacts/results` | 1 | 预期 RED，失败点与冻结合同一致；进入最小迁移实现 |
+| B0 与 B2.1 定向测试在路径迁移后报告源码哈希陈旧 | 1 | 使用正式生成器重建 B0、NP2、NP3、B2.1；定向测试恢复通过，未手工伪造哈希 |
+| `verify_goal.py` 拒绝 Tile Vivado 报告：报告早于 2026-08-29 的 Tile RTL | 1 | V1 禁止运行 Vivado，且验收合同规定 verifier 失败即停止提交；T6/T7 暂停，等待用户决定是否另行批准重建证据或调整 V1 gate |
+| 用户选择严格闭环方案 1 | 1 | 已授权按 verifier 冻结顺序重建 Tile、XPM、System 证据；不扩大到 NP6 |
+| 完整 Goal 验收 | 1 | `verify_goal.py` 退出码 0，输出 `GOAL_AUDIT_PASS`；387 项回归通过（1 项无环境变量时跳过），Tile/Host Bridge 形式证明、Tile 10000 事务和 System 957 命令协同仿真全部通过 |

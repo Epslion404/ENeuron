@@ -19,7 +19,7 @@
 
 - `make_dataset()` 只有两个固定样本；当前 `clean_accuracy` 不是留出集。
 - `make_noisy_dataset()` 与训练模板同源，扰动空间很小。
-- 历史 teacher sweep 没有使用独立模型初始化；`network_sweep_results.json` 还早于当前 `network_sim.py`。
+- 历史 teacher sweep 没有使用独立模型初始化；`artifacts/results/network_sweep_results.json` 还早于当前 `network_sim.py`。
 - 当前 reward-only 历史结果约为 22.5%，不能支持隐藏层信用分配已经解决。
 - 现有 Tile RTL 没有层级 WTA；Python reward/hybrid 历史 sweep 开启了 WTA，不能直接映射为当前 RTL 能力。
 - Host Bridge 的协议和传输已 bit-exact，但还没有让真实 RTL 执行完整的“数据集训练 -> 延迟 MOD_COMMIT -> 留出推理 -> 任务准确率”闭环。

@@ -79,7 +79,10 @@ def main() -> None:
         "positive_nonzero_rate": sum(value > 0 for value in noisy_positive) / len(noisy_positive),
         "negative_zero_rate": sum(value == 0 for value in noisy_negative) / len(noisy_negative),
     }
-    Path("sweep_results.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
+    Path("artifacts/results/sweep_results.json").write_text(
+        json.dumps(summary, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
 
     print("多次训练顺序实验")
     print("候选                 区分成功率  平均间隔  状态位")

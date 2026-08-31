@@ -1265,7 +1265,7 @@ def render_report(result: dict[str, Any]) -> str:
         "python -m unittest -v test_compare_simulation.py",
         "```",
         "",
-        "完整逐点结果见 `comparison_simulation_results.json`。",
+        "完整逐点结果见 `artifacts/results/comparison_simulation_results.json`。",
     ])
     return "\n".join(lines) + "\n"
 
@@ -1291,7 +1291,7 @@ def main() -> None:
     parser.add_argument(
         "--output-json",
         type=Path,
-        default=Path("comparison_simulation_results.json"),
+        default=Path("artifacts/results/comparison_simulation_results.json"),
     )
     parser.add_argument(
         "--output-report",

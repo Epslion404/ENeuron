@@ -470,7 +470,11 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="比较硬件友好的单神经元候选")
     parser.add_argument("--seed", type=int, default=7)
     parser.add_argument("--epochs", type=int, default=30)
-    parser.add_argument("--output", type=Path, default=Path("simulation_results.json"))
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=Path("artifacts/results/simulation_results.json"),
+    )
     parser.add_argument("--verbose", action="store_true")
     args = parser.parse_args()
 

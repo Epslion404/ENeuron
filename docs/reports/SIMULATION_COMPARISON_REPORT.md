@@ -284,4 +284,4 @@ python compare_simulation.py --seeds 20 --rtl-cosim
 python -m unittest -v test_compare_simulation.py
 ```
 
-完整逐点结果见 `comparison_simulation_results.json`。
+完整逐点结果见 `artifacts/results/comparison_simulation_results.json`。

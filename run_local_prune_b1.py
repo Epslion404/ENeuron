@@ -131,7 +131,11 @@ def build_results(
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output", type=Path, default=ROOT / "local_prune_b1_results.json")
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=ROOT / "artifacts/results/local_prune_b1_results.json",
+    )
     parser.add_argument("--seed", type=int, default=7)
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")

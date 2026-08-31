@@ -207,7 +207,10 @@ def run_d1(
 def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     result = run_d1("digit8x8_fixture.json", "digit8x8_manifest.json")
-    Path("digit8x8_d1_results.json").write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    Path("artifacts/results/digit8x8_d1_results.json").write_text(
+        json.dumps(result, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
     test = result["models"]["nearest_centroid_latency"]["test"]
     print(f"DIGIT8X8_D1_PASS test_balanced_accuracy={test['balanced_accuracy']:.4f} coverage={test['coverage']:.4f}")
 

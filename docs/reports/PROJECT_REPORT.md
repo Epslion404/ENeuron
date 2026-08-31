@@ -333,5 +333,5 @@ python verify_np4b_signoff.py
 - Pulse-Mini：`pulse_mini_signoff_summary.json`、`pulse_mini_p7_signoff_summary.json`
 - L2：`docs/reports/PULSE_MINI_L2_PROTOCOL_REPORT.md`、`vivado_pulse_mini_l2_reports/signoff_summary.txt`
 - 数字识别：`docs/reports/DIGIT_RECOGNITION_D0.md`、`docs/reports/DIGIT_RECOGNITION_D1.md`、`docs/reports/DIGIT_RECOGNITION_D2.md`
-- D2 原始结果：`digit8x8_d2_results.json`
+- D2 原始结果：`artifacts/results/digit8x8_d2_results.json`
 - NP4B 局部剪枝：`np4b_signoff_summary.json`、`verify_np4b_signoff.py`、`docs/planning/NPU_PRUNING_NP4B_TODO.md`

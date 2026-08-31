@@ -120,7 +120,11 @@ def build_results(*, seeds: Sequence[int] = tuple(range(10))) -> dict[str, objec
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output", type=Path, default=ROOT / "local_prune_b2_results.json")
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=ROOT / "artifacts/results/local_prune_b2_results.json",
+    )
     parser.add_argument("--seeds", type=int, default=10)
     args = parser.parse_args()
     if args.seeds < 10:

@@ -35,7 +35,10 @@ def main() -> None:
             "clean_scores": clean_scores,
         }
 
-    Path("network_sweep_results.json").write_text(json.dumps(results, ensure_ascii=False, indent=2), encoding="utf-8")
+    Path("artifacts/results/network_sweep_results.json").write_text(
+        json.dumps(results, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
     print("两层网络 20 seeds sweep")
     for mode, result in results.items():
         assert isinstance(result, dict)
@@ -44,7 +47,7 @@ def main() -> None:
             f"clean_mean={result['clean_mean_accuracy']:.1%} "
             f"noisy_mean={result['noisy_mean_accuracy']:.1%}"
         )
-    print("结果已写入 network_sweep_results.json")
+    print("结果已写入 artifacts/results/network_sweep_results.json")
 
 
 if __name__ == "__main__":

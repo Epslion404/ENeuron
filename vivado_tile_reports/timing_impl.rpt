@@ -1,7 +1,7 @@
 Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
 ---------------------------------------------------------------------------------------------------------------------------------------------
 | Tool Version : Vivado v.2024.1 (win64) Build 5076996 Wed May 22 18:37:14 MDT 2024
-| Date         : Thu Aug 13 23:56:12 2026
+| Date         : Tue Sep  1 01:33:50 2026
 | Host         : LAPTOP-AJQHFMKI running 64-bit major release  (build 9200)
 | Command      : report_timing_summary -delay_type min_max -max_paths 10 -file D:/Documents/Code/ENeuron/vivado_tile_reports/timing_impl.rpt
 | Design       : digital_snn_tile_4x2x2
@@ -1190,7 +1190,7 @@ Slack (MET) :             0.051ns  (arrival time - required time)
     SLICE_X39Y102        FDRE                                         r  hidden0/weights_work_reg[3][0]/C
   -------------------------------------------------------------------    -------------------
     SLICE_X39Y102        FDRE (Prop_fdre_C_Q)         0.141     0.782 r  hidden0/weights_work_reg[3][0]/Q
-                         net (fo=1, routed)           0.220     1.002    hidden0/weights_work_reg[3]_20[0]
+                         net (fo=1, routed)           0.220     1.002    hidden0/weights_work_reg[3]_16[0]
     SLICE_X35Y104        LUT5 (Prop_lut5_I3_O)        0.045     1.047 r  hidden0/weights[3][0]_i_1__0/O
                          net (fo=1, routed)           0.000     1.047    hidden0/weights[3][0]_i_1__0_n_0
     SLICE_X35Y104        FDRE                                         r  hidden0/weights_reg[3][0]/D

@@ -99,6 +99,6 @@
     "local_prune_b0_signoff.py": "74b611b5a56e7d4f5817745c4b3682feaccd4eae2d9a4e20d3921a223e9f1c10",
     "local_prune_b0_vectors.json": "12a24a4ca8bc2d96c70a6f797cf379ce738e6ef10225f9ec4c24fde4856eac6e",
     "local_prune_reference.py": "04ee276c3d028ef0557bd01bdc2820b9a792ad98153c3ed6c3a548642bc7fec3",
-    "test_local_prune_reference.py": "1e87f50326264a5a707900749b95854ea4ee63c13fd5b16ef924cf3feea6c4c7"
+    "test_local_prune_reference.py": "90bd14dea6d366e9bf5043301c8e31ab9c68ed5a34e350c997208a66ab4bb2ca"
   }
 }

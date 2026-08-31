@@ -1,7 +1,7 @@
 Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 | Tool Version : Vivado v.2024.1 (win64) Build 5076996 Wed May 22 18:37:14 MDT 2024
-| Date         : Thu Aug 13 19:02:17 2026
+| Date         : Tue Sep  1 01:38:57 2026
 | Host         : LAPTOP-AJQHFMKI running 64-bit major release  (build 9200)
 | Command      : report_timing_summary -delay_type min_max -max_paths 20 -file D:/Documents/Code/ENeuron/vivado_host_bridge_reports/timing_summary_impl.rpt
 | Design       : digital_snn_host_bridge_system
@@ -3917,7 +3917,7 @@ Slack (MET) :             0.065ns  (arrival time - required time)
     SLICE_X35Y6          FDRE                                         r  tile/hidden1/weights_reg[3][7]/C
   -------------------------------------------------------------------    -------------------
     SLICE_X35Y6          FDRE (Prop_fdre_C_Q)         0.128     0.691 r  tile/hidden1/weights_reg[3][7]/Q
-                         net (fo=3, routed)           0.195     0.886    tile/hidden1/weights_reg[3]_49[7]
+                         net (fo=3, routed)           0.195     0.886    tile/hidden1/weights_reg[3]_41[7]
     SLICE_X36Y7          LUT6 (Prop_lut6_I0_O)        0.098     0.984 r  tile/hidden1/weight_item[7]_i_2__0/O
                          net (fo=1, routed)           0.000     0.984    tile/hidden1/weights[7]
     SLICE_X36Y7          FDRE                                         r  tile/hidden1/weight_item_reg[7]/D

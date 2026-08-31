@@ -1,7 +1,7 @@
 Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
 -------------------------------------------------------------------------------------------------------------------------------------------------------------
 | Tool Version : Vivado v.2024.1 (win64) Build 5076996 Wed May 22 18:37:14 MDT 2024
-| Date         : Thu Aug 13 19:01:23 2026
+| Date         : Tue Sep  1 01:37:49 2026
 | Host         : LAPTOP-AJQHFMKI running 64-bit major release  (build 9200)
 | Command      : report_timing_summary -delay_type min_max -max_paths 20 -file D:/Documents/Code/ENeuron/vivado_host_bridge_reports/timing_summary_synth.rpt
 | Design       : digital_snn_host_bridge_system
@@ -2289,7 +2289,7 @@ Slack (MET) :             0.850ns  (required time - arrival time)
                          FDRE                                         r  tile/hidden1/eligibility_reg[0][1]/C
   -------------------------------------------------------------------    -------------------
                          FDRE (Prop_fdre_C_Q)         0.340     1.313 f  tile/hidden1/eligibility_reg[0][1]/Q
-                         net (fo=3, unplaced)         0.983     2.296    tile/hidden1/eligibility_reg[0]_43[1]
+                         net (fo=3, unplaced)         0.983     2.296    tile/hidden1/eligibility_reg[0]_39[1]
                          LUT6 (Prop_lut6_I0_O)        0.295     2.591 r  tile/hidden1/B[0]_i_23__0/O
                          net (fo=1, unplaced)         0.665     3.256    tile/hidden1/B[0]_i_23__0_n_0
                          CARRY4 (Prop_carry4_S[0]_CO[3])
@@ -2440,7 +2440,7 @@ Slack (MET) :             0.854ns  (required time - arrival time)
                          FDRE                                         r  tile/hidden1/eligibility_reg[0][1]/C
   -------------------------------------------------------------------    -------------------
                          FDRE (Prop_fdre_C_Q)         0.340     1.313 f  tile/hidden1/eligibility_reg[0][1]/Q
-                         net (fo=3, unplaced)         0.983     2.296    tile/hidden1/eligibility_reg[0]_43[1]
+                         net (fo=3, unplaced)         0.983     2.296    tile/hidden1/eligibility_reg[0]_39[1]
                          LUT6 (Prop_lut6_I0_O)        0.295     2.591 r  tile/hidden1/B[0]_i_23__0/O
                          net (fo=1, unplaced)         0.665     3.256    tile/hidden1/B[0]_i_23__0_n_0
                          CARRY4 (Prop_carry4_S[0]_CO[3])
@@ -2591,7 +2591,7 @@ Slack (MET) :             0.893ns  (required time - arrival time)
                          FDRE                                         r  tile/hidden1/eligibility_reg[0][1]/C
   -------------------------------------------------------------------    -------------------
                          FDRE (Prop_fdre_C_Q)         0.340     1.313 f  tile/hidden1/eligibility_reg[0][1]/Q
-                         net (fo=3, unplaced)         0.983     2.296    tile/hidden1/eligibility_reg[0]_43[1]
+                         net (fo=3, unplaced)         0.983     2.296    tile/hidden1/eligibility_reg[0]_39[1]
                          LUT6 (Prop_lut6_I0_O)        0.295     2.591 r  tile/hidden1/B[0]_i_23__0/O
                          net (fo=1, unplaced)         0.665     3.256    tile/hidden1/B[0]_i_23__0_n_0
                          CARRY4 (Prop_carry4_S[0]_CO[3])
@@ -2745,7 +2745,7 @@ Slack (MET) :             1.012ns  (required time - arrival time)
                          FDRE                                         r  tile/hidden1/eligibility_reg[0][1]/C
   -------------------------------------------------------------------    -------------------
                          FDRE (Prop_fdre_C_Q)         0.340     1.313 f  tile/hidden1/eligibility_reg[0][1]/Q
-                         net (fo=3, unplaced)         0.983     2.296    tile/hidden1/eligibility_reg[0]_43[1]
+                         net (fo=3, unplaced)         0.983     2.296    tile/hidden1/eligibility_reg[0]_39[1]
                          LUT6 (Prop_lut6_I0_O)        0.295     2.591 r  tile/hidden1/B[0]_i_23__0/O
                          net (fo=1, unplaced)         0.665     3.256    tile/hidden1/B[0]_i_23__0_n_0
                          CARRY4 (Prop_carry4_S[0]_CO[3])

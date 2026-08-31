@@ -380,7 +380,10 @@ def run_d2_experiment(
 def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     result = run_d2_experiment("digit8x8_fixture.json", "digit8x8_manifest.json")
-    Path("digit8x8_d2_results.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    Path("artifacts/results/digit8x8_d2_results.json").write_text(
+        json.dumps(result, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
     test = result["models"]["d2_teacher"]["test"]
     print(f"DIGIT8X8_D2_PASS test_balanced_accuracy={test['balanced_accuracy']:.4f} coverage={test['coverage']:.4f}")
 

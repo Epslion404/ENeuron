@@ -56,7 +56,7 @@ HOST: spike count / first-spike decoder
 
 - `DigitalSNN2Layer` 对应片上两层事件网络；
 - `HostTrainingController` 对应片外目标/调制生成器；
-- `network_results.json` 对应一次训练与推理验收记录。
+- `artifacts/results/network_results.json` 对应一次训练与推理验收记录。
 
 ## 两种调制协议
 

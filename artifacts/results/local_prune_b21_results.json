@@ -52,7 +52,7 @@
     }
   },
   "generated_date": "2026-08-28",
-  "git_commit": "d03cc6ba330870bd7583b46f397693d824248b02",
+  "git_commit": "cad8b2b5aba396c82116cf93906929b3b58a96be",
   "models": {
     "eneuron": {
       "baseline": {
@@ -14464,8 +14464,8 @@
     "rtl_proven": false
   },
   "prerequisite_sha256": {
-    "local_prune_np2_results.json": "90927582ff6822cdcd0ad896b015bb70c1218dc90948a8c6ac8bdc81bf10551f",
-    "local_prune_np3_results.json": "97e05f2ab053230228887f28b6c073a0103117f71c06e776dc988794c4b01010"
+    "artifacts/results/local_prune_np2_results.json": "60662735c28d68a4ec47b4cd68a7ec2b4ef0defcc5c4e5170299effc6cf54219",
+    "artifacts/results/local_prune_np3_results.json": "653fd58f0a20ee5955c30dde604e82b47f92be38e3084707e1d26392ec187173"
   },
   "schema": "eneuron.local_prune_b21.v1",
   "seeds": [
@@ -14486,9 +14486,9 @@
     "local_prune_b21.py": "f1450d4637f380d4b6d919be766e736cdef4470982a14218aa82b1501e373dd3",
     "local_prune_np2.py": "1f8e398c48f26a14b04ad4fef95f55a9285fb8b3b453d9c55e2868db64af474c",
     "local_prune_reference.py": "04ee276c3d028ef0557bd01bdc2820b9a792ad98153c3ed6c3a548642bc7fec3",
-    "neuron_sim.py": "1b31c6a84a77b4b47669d02eb2a7fc46c6bdd70051799dcf059e75d51002e3a2",
+    "neuron_sim.py": "194a399ddcf6c38ecb05e71c70afb2e5c3dff7b7a25b4c0fd26accdc30ebb802",
     "pulse_mini_l2_reference.py": "6a964d1ffa0e895dce77a1efd908540f9c1d5a2c52b561a7a9774099c12dedcd",
     "pulse_mini_reference.py": "6fe1c969ac2dee3c050ec939b9735d28b7ae534f3008537fbc81b3b98311cb28",
-    "run_local_prune_b21.py": "a8c698433ab1ca856586e43098aaa158303f2365eafae13fb6b34a1de8073e54"
+    "run_local_prune_b21.py": "fbf68ee27882749d1175ab66b447222b926c8e7a73654e41f12fe8b4167a409b"
   }
 }

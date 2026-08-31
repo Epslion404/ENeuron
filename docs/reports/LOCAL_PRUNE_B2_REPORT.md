@@ -40,7 +40,7 @@ Pulse-Mini-L 的证据只有 0/1。稳定强证据和最后一次弱证据在每
 | Pulse-Mini-L | 100% | 25% | 50% | 0% | 0% | 0% | 3/10 |
 | Pulse-Mini-L2 | 100% | 25% | 50% | 0% | 100% | 100% | 10/10 |
 
-逐 seed 随机结果保存在 `local_prune_b2_results.json`。随机掩码对三模型相同，但三个核心的推理动力学不同，所以随机 BAcc 分布不必相同。
+逐 seed 随机结果保存在 `artifacts/results/local_prune_b2_results.json`。随机掩码对三模型相同，但三个核心的推理动力学不同，所以随机 BAcc 分布不必相同。
 
 coverage 门也已独立检查：ENeuron/L2 的 dense 与 S2 median coverage 均为 100%；Pulse-Mini-L 从 dense 100% 降到 S2 0%，因此即使忽略 BAcc 也不能通过算法门。
 
@@ -89,7 +89,7 @@ S2 算法候选成立，且这是 L2 相对 L 的第一个明确功能收益。�
 
 ## 8. 证据
 
-- `local_prune_b2_results.json`：10 seed 全量结果、逐模型决定和源码 SHA-256。
+- `artifacts/results/local_prune_b2_results.json`：10 seed 全量结果、逐模型决定和源码 SHA-256。
 - `local_prune_b2.py`：三种真实神经元核心构成的压力任务与评分实验。
 - `run_local_prune_b2.py`：固定结果生成器和联合门判定。
 - `test_local_prune_b2.py`、`test_run_local_prune_b2.py`：任务、模型证据和决定逻辑测试。

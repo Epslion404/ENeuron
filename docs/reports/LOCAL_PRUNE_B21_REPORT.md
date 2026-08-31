@@ -61,7 +61,7 @@ B2 的四个 detector 被故意设计为等价冗余路径，因此 learned util
 - `local_prune_b21.py`：三候选、真实输出微调、不重叠工作量计数。
 - `test_local_prune_b21.py`：6 项候选与计数合同测试。
 - `run_local_prune_b21.py`、`test_run_local_prune_b21.py`：联合 NP2/NP3 的 NP4 放行判定。
-- `local_prune_b21_results.json`：三模型 × 三候选 × 10 seed 全量结果。
+- `artifacts/results/local_prune_b21_results.json`：三模型 × 三候选 × 10 seed 全量结果。
 - 结果绑定代码提交：`d03cc6ba330870bd7583b46f397693d824248b02`。
 
 本报告不证明 RTL、100 MHz 时序、周期下降、功耗或图像剪枝。

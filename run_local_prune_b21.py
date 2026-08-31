@@ -15,6 +15,7 @@ from local_prune_b21 import run_b21_experiment
 
 LOGGER = logging.getLogger("run_local_prune_b21")
 ROOT = Path(__file__).resolve().parent
+RESULTS_DIR = ROOT / "artifacts" / "results"
 SOURCE_FILES = (
     "local_prune_reference.py",
     "local_prune_b1.py",
@@ -27,8 +28,8 @@ SOURCE_FILES = (
     "pulse_mini_l2_reference.py",
 )
 PREREQUISITE_FILES = (
-    "local_prune_np2_results.json",
-    "local_prune_np3_results.json",
+    "artifacts/results/local_prune_np2_results.json",
+    "artifacts/results/local_prune_np3_results.json",
 )
 
 
@@ -62,8 +63,8 @@ def _load_result(name: str) -> dict[str, Any]:
 def build_results(*, seeds: Sequence[int] = tuple(range(10))) -> dict[str, object]:
     """联合三道软件门，但只放行 NP4 实现，不宣称 RTL 已证明。"""
     b21 = run_b21_experiment(seeds=seeds)
-    np2 = _load_result("local_prune_np2_results.json")
-    np3 = _load_result("local_prune_np3_results.json")
+    np2 = _load_result("artifacts/results/local_prune_np2_results.json")
+    np3 = _load_result("artifacts/results/local_prune_np3_results.json")
     decisions: dict[str, object] = {}
     for model_id, model in b21["models"].items():
         recommended = model["recommended_candidate"]
@@ -111,7 +112,11 @@ def build_results(*, seeds: Sequence[int] = tuple(range(10))) -> dict[str, objec
 def main() -> None:
     """命令行入口。"""
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output", type=Path, default=ROOT / "local_prune_b21_results.json")
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=RESULTS_DIR / "local_prune_b21_results.json",
+    )
     parser.add_argument("--seeds", type=int, default=10)
     args = parser.parse_args()
     if args.seeds < 10:

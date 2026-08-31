@@ -28,11 +28,11 @@ NP4-NP9 的 RTL、协同仿真、Vivado、共享 lane、功耗和系统签核不
 
 | 阶段 | ENeuron | Pulse-Mini-L | Pulse-Mini-L2 | 证据 |
 |---|---|---|---|---|
-| NP1/B1 | 已运行 | 已运行 | 已运行 | `local_prune_b1_results.json` |
-| B2 | 已运行 | 已运行 | 已运行 | `local_prune_b2_results.json` |
-| NP2 | gain 1，通过 | gain 2，通过 | gain 1，通过 | `local_prune_np2_results.json` |
-| NP3 | 一次剪枝通过 | 一次剪枝通过 | 一次剪枝通过 | `local_prune_np3_results.json` |
-| B2.1 | output-2:4 通过 | output-2:4 通过 | output-2:4 通过 | `local_prune_b21_results.json` |
+| NP1/B1 | 已运行 | 已运行 | 已运行 | `artifacts/results/local_prune_b1_results.json` |
+| B2 | 已运行 | 已运行 | 已运行 | `artifacts/results/local_prune_b2_results.json` |
+| NP2 | gain 1，通过 | gain 2，通过 | gain 1，通过 | `artifacts/results/local_prune_np2_results.json` |
+| NP3 | 一次剪枝通过 | 一次剪枝通过 | 一次剪枝通过 | `artifacts/results/local_prune_np3_results.json` |
+| B2.1 | output-2:4 通过 | output-2:4 通过 | output-2:4 通过 | `artifacts/results/local_prune_b21_results.json` |
 
 最终三模型均为 BAcc/coverage 100%，推荐 output-2:4 后全网络 Python 读取/发射计数均为 120，相对稠密 240 减少 50%。
 

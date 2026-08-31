@@ -175,7 +175,7 @@ Host 可以决定“何时请求评估”，但不能在 TRAIN 中提供掩码�
 
 B1 只能证明协议和局部任务可行，不能证明复杂 NPU 模型剪枝有效。
 
-B1 已完成（2026-08-28）：三种神经元均从各自同一稠密 checkpoint 分支 dense/random/S0-S3；S0-S3 都保持 20/20，随机相同掩码均为 10/20。四种评分全部选择 `0011/0011`，因此 B1 通过协议闭环，但不具备评分辨识力。完整结果见 `docs/reports/LOCAL_PRUNE_B1_REPORT.md` 和 `local_prune_b1_results.json`。
+B1 已完成（2026-08-28）：三种神经元均从各自同一稠密 checkpoint 分支 dense/random/S0-S3；S0-S3 都保持 20/20，随机相同掩码均为 10/20。四种评分全部选择 `0011/0011`，因此 B1 通过协议闭环，但不具备评分辨识力。完整结果见 `docs/reports/LOCAL_PRUNE_B1_REPORT.md` 和 `artifacts/results/local_prune_b1_results.json`。
 
 B1 的全网络发射计数减少仅为 ENeuron 18.21%、Pulse-Mini-L/L2 19.78%，未达到 NP7 的 45% 系统收益门；这是只剪隐藏层且输出层保持稠密时的真实结果，不按理论 50% 稀疏率虚报。
 
@@ -194,7 +194,7 @@ ENeuron/L2 的 S2 分别比随机 median 高 25/75 个百分点，且 10/10 seed
 
 保持精度的 ENeuron/L2 全网络读取只减少 33.33%，未达到 45% 门；L 的 66.67% 伴随 BAcc 0%，不计为有效收益。三线当前均为 `RTL_NO_GO`。
 
-NP2 后续量化扫描已修正 Pulse-Mini-L 的结论：固定把二值非零证据映射到等级 2 后，L 的 S2 BAcc/coverage 恢复到 100%，10/10 seed 不低于随机。三模型最小合格 gain 分别为 ENeuron/L/L2=`1/2/1`，完整证据见 `docs/reports/LOCAL_PRUNE_NP2_REPORT.md` 和 `local_prune_np2_results.json`。三线仍因全网读取只减少 33.33% 而保持 `RTL_NO_GO`。
+NP2 后续量化扫描已修正 Pulse-Mini-L 的结论：固定把二值非零证据映射到等级 2 后，L 的 S2 BAcc/coverage 恢复到 100%，10/10 seed 不低于随机。三模型最小合格 gain 分别为 ENeuron/L/L2=`1/2/1`，完整证据见 `docs/reports/LOCAL_PRUNE_NP2_REPORT.md` 和 `artifacts/results/local_prune_np2_results.json`。三线仍因全网读取只减少 33.33% 而保持 `RTL_NO_GO`。
 
 ### B2.1：输出侧结构剪枝与通道门控
 
@@ -227,7 +227,7 @@ B2.1 通过门：
 
 B2.1、NP2 剩余统计和 NP3 负对照未同时通过前，禁止启动 NP4-NP7。
 
-B2.1 已完成（2026-08-28）：三模型的 output-2:4、detector-3:4、detector-2:4 均保持 BAcc/coverage 100%；全网读取/发射分别为 120/120/80，10/10 seed 不低于共享随机 mask。按 KISS 冻结 output-2:4，因为它复用既有控制器且不新增跨层 channel enable。软件联合门允许启动 NP4，但不代表 RTL 已证明。完整证据见 `docs/reports/LOCAL_PRUNE_B21_REPORT.md` 和 `local_prune_b21_results.json`。
+B2.1 已完成（2026-08-28）：三模型的 output-2:4、detector-3:4、detector-2:4 均保持 BAcc/coverage 100%；全网读取/发射分别为 120/120/80，10/10 seed 不低于共享随机 mask。按 KISS 冻结 output-2:4，因为它复用既有控制器且不新增跨层 channel enable。软件联合门允许启动 NP4，但不代表 RTL 已证明。完整证据见 `docs/reports/LOCAL_PRUNE_B21_REPORT.md` 和 `artifacts/results/local_prune_b21_results.json`。
 
 ### B3：图像任务
 
@@ -298,7 +298,7 @@ B2.1 已完成（2026-08-28）：三模型的 output-2:4、detector-3:4、detect
 - [x] 明确“逻辑上乘零”和“没有发出读取/计算”是不同计数。
 - [x] 固定黄金向量和源文件 SHA-256。
 
-NP1 签核证据（2026-08-28）：19 项测试通过；固定摘要见 `local_prune_b0_results.json`。工作量账本同时记录稠密请求、实际读取、结构节省、全零不活动组和被结构完全跳过组，避免把输入本来为零误算成剪枝收益。
+NP1 签核证据（2026-08-28）：19 项测试通过；固定摘要见 `artifacts/results/local_prune_b0_results.json`。工作量账本同时记录稠密请求、实际读取、结构节省、全零不活动组和被结构完全跳过组，避免把输入本来为零误算成剪枝收益。
 
 硬门：所有 B0 手算向量通过；非法路径不改变任何架构状态。
 

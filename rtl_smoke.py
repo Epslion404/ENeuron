@@ -62,13 +62,16 @@ def main() -> None:
         "vvp": str(vvp) if vvp else None,
         "cosim_passed": cosim_passed,
     }
-    Path("rtl_smoke_results.json").write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+    Path("artifacts/results/rtl_smoke_results.json").write_text(
+        json.dumps(result, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
     print("RTL interface smoke check passed")
     if cosim_passed:
         print("Icarus HDL 编译/仿真和 Python 逐周期 cosim 已通过")
     else:
         print("外部 HDL 工具不可用，未执行 RTL 编译/仿真")
-    print("黄金向量已写入 rtl_smoke_results.json")
+    print("黄金向量已写入 artifacts/results/rtl_smoke_results.json")
 
 
 if __name__ == "__main__":

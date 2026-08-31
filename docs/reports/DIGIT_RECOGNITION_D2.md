@@ -4,9 +4,9 @@
 
 `D2_FAIL_GENERALIZATION`：协议与账本合同通过，但十个固定种子均未达到学习性能门槛。
 
-本次正式运行日期为 **2026-08-19**，命令为 `python run_digit8x8_d2.py --seeds 0 1 2 3 4 5 6 7 8 9 --epochs 3`。结果文件为 `digit8x8_d2_results.json`。
+本次正式运行日期为 **2026-08-19**，命令为 `python run_digit8x8_d2.py --seeds 0 1 2 3 4 5 6 7 8 9 --epochs 3`。结果文件为 `artifacts/results/digit8x8_d2_results.json`。
 
-本文件是执行报告，不宣称 D2 已通过。逐种子混淆矩阵、最终权重和账本摘要保存在 `digit8x8_d2_results.json`，并绑定数据、代码、随机种子和训练账本哈希。
+本文件是执行报告，不宣称 D2 已通过。逐种子混淆矩阵、最终权重和账本摘要保存在 `artifacts/results/digit8x8_d2_results.json`，并绑定数据、代码、随机种子和训练账本哈希。
 
 ## 1. D2 目的与边界
 

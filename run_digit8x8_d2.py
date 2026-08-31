@@ -103,7 +103,11 @@ def main() -> None:
     parser.add_argument("--manifest", type=Path, default=Path("digit8x8_manifest.json"))
     parser.add_argument("--epochs", type=int, default=3)
     parser.add_argument("--seeds", type=int, nargs="+", default=list(range(10)))
-    parser.add_argument("--output", type=Path, default=Path("digit8x8_d2_results.json"))
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=Path("artifacts/results/digit8x8_d2_results.json"),
+    )
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     result = run_report(args.fixture, args.manifest, args.seeds, args.epochs)

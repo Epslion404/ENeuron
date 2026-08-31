@@ -32,4 +32,4 @@ D1 尚未证明：
 - L2、STDP、全局 reward 的相对表现；
 - RTL、资源、时序或 30 核实现。
 
-原始结果保存在 `digit8x8_d1_results.json`，生成脚本为 `digit8x8_experiment.py`。
+原始结果保存在 `artifacts/results/digit8x8_d1_results.json`，生成脚本为 `digit8x8_experiment.py`。

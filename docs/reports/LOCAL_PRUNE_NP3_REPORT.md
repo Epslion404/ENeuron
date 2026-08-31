@@ -64,7 +64,7 @@ ENeuron、Pulse-Mini-L、Pulse-Mini-L2 已分别使用 NP2 冻结的 evidence ga
 - `local_prune_np3.py`：真实微调事务、软件渐进 mask、错误符号和同分支 INFER 冻结。
 - `test_local_prune_np3.py`：5 项闭环合同测试。
 - `run_local_prune_np3.py`、`test_run_local_prune_np3.py`：机器决定和八个源码依赖哈希。
-- `local_prune_np3_results.json`：逐 detector TRAIN 账本和三模型分支结果。
+- `artifacts/results/local_prune_np3_results.json`：逐 detector TRAIN 账本和三模型分支结果。
 - 结果绑定代码提交：`56525761693c1950cb7d7e2337aee64bfbaa55c6`。
 
 本报告证明的是合成 B2 任务的软件剪枝—微调闭环，不证明输出侧 45% 工作量门、RTL、时序、功耗或图像任务。

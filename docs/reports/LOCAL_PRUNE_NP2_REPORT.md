@@ -52,7 +52,7 @@ Pulse-Mini-L 的 `0→0, 1→2` 可以在适配器中直接形成二位编码；
 - `local_prune_np2.py`：三模型 gain 扫描、真实 clip 统计、边界同分和前缀稳定性。
 - `test_local_prune_np2.py`：5 项扫描合同测试。
 - `run_local_prune_np2.py`、`test_run_local_prune_np2.py`：机器结果与八个源码依赖哈希。
-- `local_prune_np2_results.json`：10 seed 全量结果。
+- `artifacts/results/local_prune_np2_results.json`：10 seed 全量结果。
 - 结果绑定代码提交：`bb152963a6cf270eb560afc05e881df90ac4cf1f`。
 
 本报告只证明合成 B2 任务上的适配器量化和局部 mask 质量；不证明图像剪枝、RTL、100 MHz 时序、吞吐或功耗收益。

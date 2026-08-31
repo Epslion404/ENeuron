@@ -343,7 +343,7 @@ class LocalPruneReferenceTests(unittest.TestCase):
         self.assertEqual(controller.event_log, [{"event": "hard_reset", "accepted": True}])
 
     def test_machine_signoff_summary_matches_committed_result(self) -> None:
-        result_path = Path(__file__).with_name("local_prune_b0_results.json")
+        result_path = Path(__file__).resolve().parent / "artifacts/results/local_prune_b0_results.json"
         expected = json.loads(result_path.read_text(encoding="utf-8"))
         self.assertEqual(build_signoff_summary(), expected)
 

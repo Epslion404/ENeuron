@@ -62,7 +62,7 @@ B2 必须专门制造“简单幅度、单次证据、累计证据和随机掩�
 
 ## 7. 证据文件
 
-- `local_prune_b1_results.json`：完整机器结果、阶段计数、checkpoint 和源码 SHA-256。
+- `artifacts/results/local_prune_b1_results.json`：完整机器结果、阶段计数、checkpoint 和源码 SHA-256。
 - `run_local_prune_b1.py`：固定结果生成器。
 - `test_local_prune_b1.py`、`test_run_local_prune_b1.py`：公平分支、严格解码和结果矩阵测试。
 - 结果绑定代码提交：`2b8bd558ee911e38bbf606990ae3767228b079b9`。

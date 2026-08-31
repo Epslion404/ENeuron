@@ -289,7 +289,7 @@
 
 - `make_dataset()` 只有两个固定训练模板；`clean_accuracy` 复用训练样本，`make_noisy_dataset()` 也只从相同模板做至多一次删除和一次同类插入，当前没有真正的 train/validation/test 隔离。
 - `run_network_sweep.py` 的 teacher 模式没有传入 `init_seed`，20 个 seed 只改变训练顺序和扰动集；不能据此声称完成 20 个独立模型初始化。
-- `network_sweep_results.json` 早于当前 `network_sim.py`，且 `verify_goal.py` 不执行网络 sweep 或检查结果新鲜度，因此其中 teacher/hybrid 100%、reward-only 22.5% 只能作为历史结果，不能作为当前一键验收证据。
+- `artifacts/results/network_sweep_results.json` 早于当前 `network_sim.py`，且 `verify_goal.py` 不执行网络 sweep 或检查结果新鲜度，因此其中 teacher/hybrid 100%、reward-only 22.5% 只能作为历史结果，不能作为当前一键验收证据。
 - 当前网络和 Host 协议硬编码二分类 4->2->2；`teacher_modulator()` 直接按标签向隐藏层和输出层发放 neuron-specific signed modulator，而 reward-only 只用全局正确/错误信号按活动路径门控，两者验证的是不同信用信息条件。
 - G4 前置验证必须至少包含独立任务族、严格 split 哈希隔离、独立初始化/训练顺序/数据 seed、推理前后全部学习状态逐字段冻结检查，以及 majority、未训练网络和 label-shuffle 负对照。
 - 主会话使用无落盘脚本独立复跑三任务探测，Python 3.14.2；`network_sim.py` SHA-256 为 `9AF92DC0C8FA5447EF5986E35392AB240999F7B2BDDA192CEC30B26CADD3F798`，`neuron_sim.py` 为 `1B31C6A84A77B4B47669D02EB2A7FC46C6BDD70051799DCF059E75D51002E3A2`。
@@ -774,3 +774,39 @@
 - 最终结构为根目录 6 个 Markdown，`docs/design=9`、`docs/planning=3`、`docs/reports=15`、`docs/verification=2`，另有 `docs/README.md`；37 个 Markdown 的显式相对链接检查为零断链。
 - NP4B 总摘要不直接绑定 `docs/design/LOCAL_PRUNE_RTL_CONTRACT.md`，但绑定了 `local_prune_rtl_results.json`；迁移合同会先改变该结果文件，再通过总摘要形成二级哈希级联。
 - `verify_local_prune_rtl.py` 已有“正式重验证后刷新 NP4B 总摘要”的机制，说明级联可以由项目既有入口处理；真实刷新函数/脚本名仍需定位。
+## 2026-09-01 根目录非 Markdown 文件归档调研
+
+- 当前 `main` 与 `origin/main` 一致；调研开始后只有 `task_plan.md`、`progress.md` 两个规划文件有本轮未提交修改。
+- 根目录有 287 个已跟踪文件：151 个 Python、41 个 SystemVerilog、28 个 JSON、19 个 PowerShell、15 个 Yosys 脚本、10 个 Tcl、7 个正式日志、5 个正式 VCD、2 个 TXT，以及入口/配置文件。
+- 根目录另有大量被 `.gitignore` 排除的本地生成物：`*.vvp`、失败 `*_cex.vcd`、`*.tmp.log`、`clockInfo.txt`、缓存和 Vivado 工作目录。这些不属于“归档”，更适合清理或保持忽略。
+- 已跟踪的 Vivado 证据分布在 12 个根目录报告目录中；其中 DCP、日志、报告和 XSim transcript 被 `verify_goal.py` 或 `.gitignore` 例外明确绑定，不能按普通缓存移动。
+- 直接把 151 个 Python 文件拆进 `src/`/`tests/` 会改变模块导入、`unittest discover`、脚本相对路径和 subprocess 工作目录，属于架构重排，不符合本次“干净一点”的 KISS 范围。
+- 最值得优先评估的 V1 是：清理未跟踪生成物，并将已跟踪的机器结果/正式证据与 Vivado 报告统一到少数 `artifacts/` 子目录；RTL/Python/测试代码暂留根目录，避免一次性包结构改造。
+- 根目录当前有 47 个明确被忽略的单文件生成物：VVP、Host/Formal 失败或覆盖波形、临时日志和 `clockInfo.txt`。它们都不是已跟踪正式证据；清理不会改变 Git 历史，但同一工具按旧默认路径运行时会重新生成。
+- 28 个已跟踪 JSON、2 个 TXT 的外部引用通常为 2–13 处；多数由生成器/测试/报告固定文件名读取，机械迁移必须同步 runner、verifier、报告和 JSON 内嵌路径。
+- 12 个根目录 Vivado/仿真证据目录中，11 个含已跟踪文件。多个目录被 `.gitignore` 例外、`verify_goal.py`、验证脚本和报告绑定；整体迁入 `artifacts/vivado/` 可行，但需要统一调整 Tcl/PowerShell 输出目录和验证器常量。
+- 7 个已跟踪正式 `.log` 与 5 个正式 `.vcd` 是 NP4B 哈希/字节数签名的一部分，且 runner 会按根路径重写。V1 若同时移动它们，会把单纯整理扩大为形式证据流水线重构；建议暂留根目录。
+- 因此更小的 V1 候选是：清理 47 个 ignored 根生成物；迁移 JSON/TXT 到 `artifacts/data|results|signoff`；迁移 Vivado 报告目录到 `artifacts/vivado`；正式形式日志/VCD、源码和测试暂留根目录。
+- 30 个 JSON/TXT 可以完整分为：`artifacts/data` 4 个输入/manifest（约 505 KiB）、`artifacts/results` 15 个实验结果（约 1.38 MiB）、`artifacts/signoff` 11 个签核摘要（约 51 KiB），没有遗漏根目录已跟踪 JSON/TXT。
+- Vivado 目录迁移需修改约 9 个 PowerShell runner、9 个 Tcl 输出目录、`verify_goal.py`、Pulse verifier、Goal 测试、`.gitignore` 例外和 4 份报告/设计文档。目录整体移动可保持目录内相对结构，但仍是独立的大验证切片。
+- 将机器数据与 Vivado 目录放进同一提交会扩大审查面。更符合 KISS 的顺序是：V1A 清理 ignored 生成物；V1B 迁移 30 个 data/results/signoff；V1C 单独迁移 Vivado 证据目录。每一切片分别验证并提交。
+- 并行反证进一步确认：15 个历史/实验结果 JSON 不进入当前 NP4B/local-prune/Pulse/T0/M3 签核哈希集合；另外 4 个 data/manifest 与 11 个 signoff JSON/TXT 仍是合同或证据入口，不应在 V1 迁移。
+- 54 个 Python 文件以脚本目录作为 `ROOT`，31 处 subprocess 以根目录为 cwd；14 个 PowerShell、10 个 Tcl、15 个 Yosys 脚本也依赖扁平根布局。源码/测试/工具全量归档必须作为单独架构迁移，而非本轮清噪。
+- 最终推荐 V1 收缩为：迁移 15 个结果 JSON 到 `artifacts/results/`；可选清理 47 个 ignored 根文件及纯缓存目录；其它文件和证据目录全部不动。
+
+### V1 执行冻结事实
+
+- 15 个目标文件全部为已跟踪根文件，缺失为 0；在 NP4B、local-prune、Pulse、M3、T0 六类当前签核摘要中的文件名命中均为 0。
+- 当前工作树除本轮 `task_plan.md`、`findings.md`、`progress.md` 外无其它修改。
+- ignored 根单文件白名单稳定为 47 项；它们均由 `git status --ignored` 标记 `!!`，不在 `git ls-files` 中。
+- 两个结果文件的短名称存在后缀包含关系；实施时必须使用精确完整路径，避免重复替换。
+- 隐式读取点包括 `test_local_prune_reference.py` 对 B0 摘要的固定读取；`run_local_prune_b21.py` 同时加载 `artifacts/results/local_prune_np2_results.json` 和 `artifacts/results/local_prune_np3_results.json` 并绑定其哈希。二者都必须随迁移更新。
+- 结果路径引用主要分为四类：CLI 默认输出、脚本内固定写出、测试固定读取、文档/历史记录。V1 不改变显式 `--output` 自定义能力，只改变默认路径。
+- `digit8x8_d2.py` 直接入口和 `run_digit8x8_d2.py` 多种子入口都能写 D2 结果，二者必须统一到归档目录。
+- `run_local_prune_b21.py` 的 `prerequisite_sha256` 键将随路径变为 `artifacts/results/...`；这是机器结果对真实前置文件位置的诚实记录，需要重新生成 B2.1 结果才能保持内容自洽，不能只手改旧 JSON。
+- V1 实施后完整 `unittest discover` 为 387/387 通过，真实 Vivado 用例因未设置 `VIVADO_ROOT` 跳过 1 项；NP4B 独立 verifier、compileall 和持久工作流 Check 均通过。
+- `verify_goal.py` 的软件与 M3 阶段通过，但报告审计拒绝现有 Tile Vivado 证据：`digital_lif_engine.sv` 与 `digital_snn_tile_4x2x2.sv` 最后变更于 2026-08-29，`vivado_tile_reports/` 仍是 2026-08-19 的报告。该陈旧关系早于 V1 且与结果路径迁移无关，但按冻结验收合同仍是提交阻断项。
+- 不得通过修改时间戳、放宽 verifier 或把旧报告解释成当前 RTL 证据来绕过该门；V1 又明确禁止调用 Vivado，因此需要用户决定是否把 Vivado 重建作为独立获批动作，或明确调整本次归档验收范围。
+- 用户选择严格重建后，Vivado 2024.1 三关均真实通过：Tile OOC 为 3152 LUT/1972 FF、100 MHz WNS +0.213 ns；XPM 双向 FIFO 容量/排空/回绕仿真与综合通过；完整 System 在 Host 50 MHz / Tile 100 MHz 下分别获得 WNS +14.306/+0.081 ns，CDC 分类无 external unsafe/critical 或 XPM unknown/critical。
+- `verify_goal.py` 已在 Vivado 证据重建后完整退出 0，并输出 `GOAL_AUDIT_PASS`。除 387 项软件回归外，Tile 协议形式证明成功，Host Bridge 控制器 20 拍安全证明及 6 类可达性见证成功，Tile 20 seeds × 500 事务和 System 957 条命令协同仿真成功。
+- 严格闭环仍不等价于“所有未来行为均已证明”：当前没有证明无限时域/全状态等价、任意 RAM 容量、完整板级 bitstream、真实活动功耗或通用 AI 自训练。Vivado 的 0.103 W/0.112 W 仅为 vector-less OOC 估算，置信度 Medium。

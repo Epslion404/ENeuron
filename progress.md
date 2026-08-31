@@ -135,7 +135,7 @@
 - 完成独立 `LocalPrune2of4` 黄金模型：S0-S3、严格 `2:4`、TRAIN/CONFIG/INFER 模式、16 位 commit/observation ID、V1 禁止自动长回和确定性事务日志。
 - 动态门控在发射前执行 `structural_mask & activity_mask`；账本分开记录稠密请求、真实权重读取、突触操作、结构节省、全零不活动组和结构完全跳过组。
 - B0 扩展为 19 项测试，覆盖 16 种活动输入、16 种配置掩码、6 种合法输出、S0-S3 区分、饱和/衰减、exactly-once、原子拒绝和 INFER 冻结。
-- 固定 `local_prune_b0_vectors.json` 与 `local_prune_b0_results.json`，摘要绑定四个源文件 SHA-256；NP1 已达到软件黄金模型硬门。
+- 固定 `local_prune_b0_vectors.json` 与 `artifacts/results/local_prune_b0_results.json`，摘要绑定四个源文件 SHA-256；NP1 已达到软件黄金模型硬门。
 - 下一步进入 NP2/NP3：三种神经元从同一稠密 checkpoint 分支 dense/random/S0-S3，先跑 B1 协议闭环，再设计有辨识力的多 seed B2。
 
 ## 2026-08-28 NPU 局部自动剪枝规划
@@ -167,7 +167,7 @@
 - 已实现共享膜电位泄放计时器：只随成功 `TICK` 推进，先泄放、后输入、再阈值判断；`STATE_CLEAR`、自然发放和硬复位清零。
 - Python 黄金模型 17 项定向测试、单核 20000 事务、固定网络 272 命令和 32/64/128 阵列指标均通过。
 - 预注册扫描 `{0,1,2,4,8,12}`：周期 8 是满足当前密集命中、稀疏误发放、训练权重一致和网络合同的最小候选；周期 4 会损失弱连接 `+1` 的密集命中。
-- 已生成 `docs/reports/SIMULATION_COMPARISON_REPORT.md` 与 `comparison_simulation_results.json`，并完成 200 项 Python 回归、Pulse-Mini 单核 20000 事务、固定网络 272 命令、形式深度20证明。
+- 已生成 `docs/reports/SIMULATION_COMPARISON_REPORT.md` 与 `artifacts/results/comparison_simulation_results.json`，并完成 200 项 Python 回归、Pulse-Mini 单核 20000 事务、固定网络 272 命令、形式深度20证明。
 - 统一比较已补齐第三方键名：`eneuron`、`pulse_mini` 和 `pulse_mini_l`；收敛、负对照、噪声、稀疏度、共同网络与原生网络协议均同时输出三者。
 - 正式执行 `python compare_simulation.py --seeds 20 --rtl-cosim` 通过；报告明确区分黄金模型三方消融与默认 Pulse-Mini-L RTL 旁证，没有把局部教师训练写成纯全局 reward 能力。
 - 报告新增“网络层优缺点”表，分别列出 ENeuron、Pulse-Mini 与 Pulse-Mini-L 在状态表达、复制/路由、稀疏事件和全局 reward 方面的取舍。
@@ -176,7 +176,7 @@
 
 - 启动 G4 能力边界调研；当前只形成可审核实验方案，不修改核心训练模型或 RTL。
 - 审计确认现有训练仅有两个固定模板，所谓 noisy test 与训练模板同源；teacher sweep 也没有 20 个独立初始化。
-- 确认历史 `network_sweep_results.json` 早于当前 `network_sim.py`，且未被 `verify_goal.py` 纳入门槛，不能作为当前签核结果。
+- 确认历史 `artifacts/results/network_sweep_results.json` 早于当前 `network_sim.py`，且未被 `verify_goal.py` 纳入门槛，不能作为当前签核结果。
 - 冻结下一步为三任务只读探测、原始资料核对、统计门槛和硬件映射方案；用户审核后才进入正式实现。
 - 主会话独立复跑 3 任务 x 3 模式 x 10 seeds，与子任务结果和数据集抽样 SHA-256 完全一致；未创建临时实验文件。
 - 探测确认 Spatial teacher/hybrid 为 100%，Spatial reward 为 15%；Temporal 全部为 0%，XOR 仅 hybrid seed 9 命中 8/256，且失败主要表现为无输出 spike。
@@ -221,7 +221,7 @@
 - 修正不应期输入门控，使原型与推荐规格一致；回归测试和 sweep 结果保持不变。
 - 增加 `cycle_transport.py` 有界 FIFO/背压周期模型和 `docs/design/rtl_contract.md`。
 - 周期协议测试覆盖同 tick 原子提交、一拍输出路由、输出时间戳、未排空 FIFO 拒绝新 episode、延迟 commit 快照；总测试数 22 项。
-- 增加 `digital_lif_core.sv` 单神经元 RTL 参考核、`rtl_smoke.py` 和 `rtl_smoke_results.json`；静态接口检查通过，但本机无 HDL 编译/综合工具。
+- 增加 `digital_lif_core.sv` 单神经元 RTL 参考核、`rtl_smoke.py` 和 `artifacts/results/rtl_smoke_results.json`；静态接口检查通过，但本机无 HDL 编译/综合工具。
 - 开始 Goal 证明审计；当前回归为 27 项中 25 通过、1 失败、1 错误，失败均位于新增 RTL 参考验证层。
 - 确认当前 Python RTL 参考与 SystemVerilog 核存在多处状态更新语义差异，尚不能建立 bit-exact 证据。
 - 尝试执行 `git diff --stat` 失败：当前目录不是 Git 仓库；后续以工作区文件、测试日志和工具报告作为审计证据。
@@ -375,7 +375,7 @@
 - 固定共同网络上，ENeuron 20/20 seeds训练后均为100%，Pulse-Mini为20/20；两版推理权重均冻结。
 - 原生网络上，ENeuron教师与混合协议均为100%，纯全局reward均值22.5%；Pulse-Mini局部教师为20/20，纯全局reward保持未测试。
 - Icarus/Python 旁证通过：ENeuron/Pulse-Mini 单核各20000事务、ENeuron Tile 10000事务、Pulse-Mini网络272命令。
-- 生成 `comparison_simulation_results.json` 与 `docs/reports/SIMULATION_COMPARISON_REPORT.md`；完整196项回归、`compileall` 和 `git diff --check` 通过。
+- 生成 `artifacts/results/comparison_simulation_results.json` 与 `docs/reports/SIMULATION_COMPARISON_REPORT.md`；完整196项回归、`compileall` 和 `git diff --check` 通过。
 
 ## 2026-08-19 Pulse-Mini-L2 实现与协议实验
 
@@ -383,7 +383,7 @@
 - 新增 `pulse_mini_l2_reference.py`：PN2 正/负证据计数、-2..+2 捕获幅度、现有 cmd/rsp 与泄放合同保持不变。
 - 新增 `pulse_mini_l2_core.sv`、`tb_pulse_mini_l2*.sv`、`pulse_mini_l2_cosim.py`；L2 20 seeds x 1000 事务 bit-exact 通过。
 - 新增 `formal_pulse_mini_l2.sv/.ys` 和 runner；Yosys 0.56 depth=20 SAT 无反例，修复了首版 harness 对内部数组层次引用的隐式线网警告。
-- 新增 `pulse_mini_protocol_experiments.py`，冻结 local_teacher / global_scalar_reward 两类协议，覆盖三类通道、四类组合、三类时间顺序和四位多标签；生成 `pulse_mini_protocol_experiments.json` 与 `docs/reports/PULSE_MINI_L2_PROTOCOL_REPORT.md`。
+- 新增 `pulse_mini_protocol_experiments.py`，冻结 local_teacher / global_scalar_reward 两类协议，覆盖三类通道、四类组合、三类时间顺序和四位多标签；生成 `artifacts/results/pulse_mini_protocol_experiments.json` 与 `docs/reports/PULSE_MINI_L2_PROTOCOL_REPORT.md`。
 - 实验结果：三类通道两版 local teacher 100%；四类组合 L 覆盖 0%，L2 覆盖约 66.9% 且覆盖样本准确率 100%；时间顺序两版均失败；多标签 L2 略优于 L1；全局标量奖励没有形成有效覆盖。
 - 使用 Vivado 2024.1 XC7Z020 完成 L2 OOC routed：366 LUT / 91 FF / 0 BRAM / 0 DSP，WNS -4.690 ns、WHS +0.152 ns；相对 L1 增加 184 LUT、15 FF，真实 setup 失败，不能宣称 L2 100 MHz 通过。
 
@@ -397,7 +397,7 @@
 
 ## 2026-08-19 ENeuron 图像识别 D1
 
-- 新增 `digit8x8_experiment.py`、`digit8x8_d1_results.json`、`test_digit8x8_experiment.py` 和 `docs/reports/DIGIT_RECOGNITION_D1.md`。
+- 新增 `digit8x8_experiment.py`、`artifacts/results/digit8x8_d1_results.json`、`test_digit8x8_experiment.py` 和 `docs/reports/DIGIT_RECOGNITION_D1.md`。
 - 最近质心 + rank-order 发放 tick 在测试集达到 balanced accuracy 79.80%、accuracy 80.00%、macro-F1 79.46%、coverage 100%。
 - 总事件数、首 tick、末 tick 对照没有有效覆盖；标签打乱后的 balanced accuracy 为 8.69%，接近十分类机会水平。
 - D1 通过，说明固定输入编码具有可学习信息且没有明显总脉冲量/标签泄漏；尚未证明 ENeuron 网络训练能力。
@@ -415,7 +415,7 @@
 - 新增 `digit8x8_d2.py`：固定 `64→16→4` 特征层，仅训练 10 个输出单元；显式 `teacher-post` 采用“输入→下一 tick 教师→3 个空 tick”微窗口。
 - 新增 `digit8x8_d2_acceptance.py`、`test_digit8x8_d2_acceptance.py`、`test_digit8x8_d2_contract.py`、`run_digit8x8_d2.py` 和 `test_run_digit8x8_d2.py`。
 - 协议/账本相关 14 项测试通过；训练自然 spike=0、训练期直接写权重=0、账本可按 `old + delta = new` 重算、推理权重冻结。
-- 正式 10 seed × 3 epoch 结果写入 `digit8x8_d2_results.json`；validation BAcc 均值 4.61%、coverage 均值 56.04%，0/10 seed 达到基础门；test BAcc 均值 4.74%、coverage 均值 52.18%。
+- 正式 10 seed × 3 epoch 结果写入 `artifacts/results/digit8x8_d2_results.json`；validation BAcc 均值 4.61%、coverage 均值 56.04%，0/10 seed 达到基础门；test BAcc 均值 4.74%、coverage 均值 52.18%。
 - D2 结论：`D2_FAIL_GENERALIZATION`，部分 seed 为 `D2_FAIL_ACTIVITY`。失败原因是固定特征与当前十分类局部调制使输出权重趋同，严格 abstain 合同因此拒绝伪造分类结果。
 - `docs/reports/DIGIT_RECOGNITION_D2.md` 已更新为完整失败报告；D3 暂停，下一步需单独批准最小的输出层信用分配修正。
 
@@ -759,3 +759,37 @@
 - 提交前验证完成：工作流 Check PASS；41/41 定向测试 PASS；NP4B 独立 verifier PASS；Python compileall PASS；37 个 Markdown 零断链；`git diff --check` PASS；未运行 Vivado。
 - 已创建并推送实质归档提交 `ebd6c0d docs: archive project markdown files`，远端 `main` 从 `e5bbbc5` 前进到 `ebd6c0d`；推送退出码 0。
 - 本条与任务完成勾选将作为纯工作流记录提交，不修改归档结构、验证结论或功能代码。
+## 2026-09-01 根目录非 Markdown 文件归档调研启动
+
+- 用户要求继续归档其它文件，让根目录更干净。
+- 已读取 `planning-with-files` 与 `karpathy-guidelines`；本轮先做只读盘点和固定路径审计，形成 V1 方案后提请审核，批准前不移动文件。
+- 已启动一项并行只读审计，重点区分必须留根、可安全迁移、应忽略生成物和机器证据绑定文件。
+- 初步盘点：根目录 287 个已跟踪文件，以 Python 151、SystemVerilog 41、JSON 28 为主；另有大量已忽略的 VVP、失败 VCD、临时日志和工具缓存。
+- 初步方向收敛为“小步清噪 + 证据归档”，暂不把 Python/RTL 全量拆包；下一步统计候选结果和 Vivado 目录的固定路径依赖。
+- 已统计候选引用：47 个 ignored 根生成物可清理；30 个 JSON/TXT 和 11 个已跟踪 Vivado 证据目录均存在固定路径依赖；12 个正式形式日志/VCD还受 NP4B 签名和 runner 重写路径约束。
+- 当前 V1 倾向排除形式日志/VCD和源码拆包，只处理 ignored 噪声、JSON/TXT 与 Vivado 证据目录。
+- 已形成 30 个 JSON/TXT 的无遗漏分类：data 4、results 15、signoff 11；Vivado 目录迁移涉及 runner、Tcl、verifier、测试、忽略例外和文档，适合拆为独立切片。
+- 已形成 V1 审核稿：只迁移 30 个 JSON/TXT、增加 artifacts 索引并清理 ignored 根噪声；正式形式证据和 Vivado 目录延期。批准前不实施。
+- 并行只读审计完成并将方案继续收缩：只有 15 个结果 JSON 适合 V1；data/manifest、signoff 摘要、正式形式证据和 Vivado 目录全部延期。
+- V1 审核稿已更新并提请用户批准；当前未移动、清理、提交或推送任何非规划文件。
+
+## 2026-09-01 根目录归档 V1 获批
+
+- 用户明确回复“批准 V1”。
+- 冻结执行范围：迁移 15 个普通结果 JSON、增加 artifacts 索引、清理 47 个 ignored 根文件和纯缓存目录；不移动签核、形式或 Vivado 证据，不运行 Vivado。
+- 已按 TDD 分解 T1→T7；先锁定新默认路径合同，再实施迁移。
+- T1 完成：15/15 文件已跟踪且不进入六类当前签核摘要；47 个 ignored 根文件白名单已冻结；工作树无来源不明修改。
+- T2 RED 完成：`python -m unittest -v test_artifact_layout` 运行 1 项、失败 1 项，唯一失败为 `artifacts/results` 尚不存在，符合预期。
+- 已 Git rename 15 个结果到 `artifacts/results/` 并新增 `artifacts/README.md`；正在同步四类路径引用。
+- T3/T4 完成：15 个结果已唯一归档，writer、reader、测试和文档路径已同步；布局测试转为 GREEN。
+- 路径改动使 B0、NP2、NP3、B2.1 的源码哈希链按设计失效；已使用正式生成器依次重建，相关定向测试全部通过。
+- T5 完成：精确清理 47 个 ignored 根文件和 5 个批准目录；全量回归产生的 ignored 文件也已再次清理。12 个 tracked formal log/VCD 未改动。
+- 全量 `python -m unittest discover -v`：387 项通过、1 项真实 Vivado 用例按未设置环境变量跳过；`verify_np4b_signoff.py`、compileall、工作流 Check 均通过。
+- `verify_goal.py` 的软件/M3 阶段通过，但最终报告审计失败：2026-08-29 更新的 Tile RTL 晚于 2026-08-19 的 Vivado Tile 报告。该历史陈旧关系与 V1 无关，但冻结合同要求 verifier 失败即停止提交；且 V1 禁止运行 Vivado，因此 T6/T7 暂停等待用户决策。
+- 用户选择严格闭环方案 1，明确批准使用 Vivado 2024.1 重建当前 RTL 的 Tile、XPM、System 证据；执行仅限 `verify_goal.py` 冻结的三个 runner，不启动 NP6。
+- Vivado Tile OOC 重建通过：Vivado 2024.1、xc7a35tcpg236-1、100 MHz，WNS +0.213 ns、WHS +0.026 ns、TNS/THS 0、setup/hold 0 失败、route error 0；3152 LUT、1972 FF、0 BRAM、0 DSP，功耗为 vector-less 0.103 W（Medium），不解释为真实活动功耗。
+- 真实 XPM xsim/综合通过：命令与响应 FIFO 均完成容量 17、排空和回绕验证；`digital_snn_host_bridge` 综合成功，使用 4 个 RAMB36E1，网表中仿真专用 reset-reentry assertion 计数为 0。
+- 双时钟 System OOC 重建通过：Host 50 MHz / Tile 100 MHz，Host WNS +14.306 ns、WHS +0.105 ns，Tile WNS +0.081 ns、WHS +0.058 ns，TNS/THS 0、setup/hold 0 失败、route error 0、DRC error 0；外部 CDC critical/unsafe/warning 均 0，XPM CDC critical/unknown 均 0。
+- 完整 `python verify_goal.py` 已退出 0：387 项 unittest 全部通过、1 项按未设置 `VIVADO_ROOT` 跳过；Tile 协议形式证明通过；Host Bridge 控制器 20 拍安全证明和 6 类可达性见证通过；Tile 10000 事务、System 957 命令协同仿真通过；最终输出 `GOAL_AUDIT_PASS`。
+- 全量验收对 `local_prune_rtl_results.json` 和 `np4b_signoff_summary.json` 产生的日期/基线刷新属于验证副作用，提交前精确恢复，不混入 V1 归档；当前 RTL 对应的 Tile/XPM/System Vivado 正式报告和 `t0_signoff_summary.txt` 保留为严格重建证据。
+- 提交前轻量门全部通过：`verify_np4b_signoff.py`、Python compileall、持久工作流 Check、`git diff --check` 均退出 0；随后按 dry-run 白名单精确清理本轮重新生成的 ignored 缓存、形式临时文件和 Vivado 工作产物，受跟踪的 XPM `simulate.log` 保持存在。
