@@ -262,7 +262,7 @@ class VivadoRegressionTest(unittest.TestCase):
                 "--transactions",
                 "140",
                 "--models",
-                "eneuron,pulse_mini_l2",
+                "eneuron,pulse_mini_l,pulse_mini_l2",
                 "--skip-mutants",
             ]
         )
