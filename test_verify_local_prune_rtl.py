@@ -4,12 +4,15 @@ from __future__ import annotations
 
 import hashlib
 import json
+import subprocess
+import sys
 import unittest
 from pathlib import Path
 from unittest import mock
 
 from verify_local_prune_rtl import (
     EVIDENCE_INPUTS,
+    FROZEN_FORMAL_EVIDENCE,
     RESULT_PATH,
     ROOT,
     SOURCE_FILES,
@@ -17,6 +20,7 @@ from verify_local_prune_rtl import (
     build_summary,
     canonical_sha256,
     canonical_sha256_bytes,
+    tool_availability,
 )
 
 
@@ -159,6 +163,52 @@ class VerifyLocalPruneRtlTest(unittest.TestCase):
             for block, entry in self.result["provenance"].items():
                 self.assertTrue(entry["reverified_in_this_run"], block)
                 self.assertNotIn("reason", entry, block)
+
+
+    def test_official_reverify_keeps_np4b_signoff_verifiable(self) -> None:
+        """verify_np4b_signoff -> verify_local_prune_rtl -> verify_np4b_signoff must stay green.
+
+        The official reverify rewrites local_prune_rtl_results.json and the three formal
+        artifacts.  After the run the frozen artifacts must be restored byte-for-byte and the
+        NP4B master summary must be rebound, so the master signoff verifies immediately.
+        """
+
+        available = tool_availability()
+        missing = sorted(name for name, present in available.items() if not present)
+        if missing:
+            self.skipTest(
+                "requires iverilog, vvp and yosys; missing: " + ", ".join(missing) + " (TOOL_SKIP)"
+            )
+
+        def run_script(name: str) -> subprocess.CompletedProcess:
+            return subprocess.run(
+                [sys.executable, name],
+                cwd=ROOT,
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                timeout=1800,
+            )
+
+        before = run_script("verify_np4b_signoff.py")
+        self.assertEqual(before.returncode, 0, before.stdout + before.stderr)
+
+        frozen = {name: (ROOT / name).read_bytes() for name in FROZEN_FORMAL_EVIDENCE}
+
+        reverify = run_script("verify_local_prune_rtl.py")
+        self.assertEqual(reverify.returncode, 0, reverify.stdout + reverify.stderr)
+        self.assertIn("LOCAL_PRUNE_RTL_VERIFY_PASS", reverify.stdout)
+
+        after = run_script("verify_np4b_signoff.py")
+        self.assertEqual(after.returncode, 0, after.stdout + after.stderr)
+
+        for name, data in frozen.items():
+            with self.subTest(artifact=name):
+                self.assertEqual(
+                    (ROOT / name).read_bytes(), data,
+                    "the frozen evidence must be restored byte-for-byte",
+                )
 
 
 if __name__ == "__main__":
