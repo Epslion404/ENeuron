@@ -208,7 +208,7 @@ VIVADO_LOCAL_PRUNE_GATE_PASS version=Vivado Simulator v2024.2.0 models=3 seeds=8
 - XSim 交叉验证绑定：`VIVADO_LOCAL_PRUNE_GATE_SUMMARY.json`，Vivado `Vivado Simulator v2024.2.0`，提交 `c30ecc5dd43f`，6447 事务 / 45 用例 / 5 变异，结果 PASS。
 - NP4B 总摘要（`np4b_signoff_summary.json`）：`file_sha256` 与 `formal.witness_bytes` 为 sha256 over the bytes with CRLF and CR normalised to LF (platform, core.autocrlf and checkout-state independent; the identical canonical policy used by verify_local_prune_rtl.canonical_sha256)；witness 长度为 byte length after normalising CRLF and CR to LF, matching file_hash_policy。
 - `.gitattributes` 已把 `*.vcd` 固定为 `-text -eol`：证据字节在任何检出下都不被 git 改写。
-- NP4B 摘要的 `date` / `regression` / `tools` 是 **2026-08-29 冻结时代那次签核运行的原始记录**（359 项全绿，Python/Icarus/Yosys 版本见摘要 `tools`），本次刷新不重测、不篡改；刷新本身的事实记录在 `binding_refresh` 块：日期 `2026-08-31`，基线提交 `073969d`。
+- NP4B 摘要的 `date` / `regression` / `tools` 是 **2026-08-29 冻结时代那次签核运行的原始记录**（359 项全绿，Python/Icarus/Yosys 版本见摘要 `tools`），本次刷新不重测、不篡改；刷新本身的事实记录在 `binding_refresh` 块：日期 `2026-08-31`，基线提交 `2ccb394`。
 - 跨 EOL 验证：`test_binding_is_independent_of_line_endings`（local_prune）与 `test_witness_binding_is_independent_of_line_endings`（NP4B）都同时断言 fold(LF)==fold(CRLF)==摘要值，且 naive raw 摘要必须对 EOL 敏感。
 
 ## 13. 文件清单与自证
@@ -220,6 +220,7 @@ A	.gitattributes
 M	.gitignore
 A	DESIGN_PROPOSAL_DYNAMIC_PRUNE_RECOVERY.md
 A	SIMULATION_REPORT.md
+A	TEST_MATRIX.json
 A	VIVADO_LOCAL_PRUNE_GATE_SUMMARY.json
 M	generate_np4b_signoff.py
 M	local_prune_gate_cosim.py
@@ -243,14 +244,14 @@ M	verify_np4b_signoff.py
 
 定向套件命令：`python -m unittest test_local_prune_gate_rtl test_verify_local_prune_rtl test_local_prune_gate_vivado`，由 `run_test_matrix.py` 在四个全新一次性检出里分别执行（矩阵原始数据：`TEST_MATRIX.json`）。
 
-矩阵提交 `57106d6f0d36`，生成于 `2026-08-31T08:42:35Z`，Python `3.13.15`，整体 `pass=True`。
+矩阵提交 `147d5826490d`，生成于 `2026-08-31T10:33:50Z`，Python `3.13.15`，整体 `pass=True`。
 
 | 检出/工作树状态 | 用例总数 | 失败 | 错误 | 跳过 | 退出码 | 用时 (s) |
 |---|---:|---:|---:|---:|---:|---:|
-| `autocrlf_true`：`git -c core.autocrlf=true clone` 新鲜克隆，`.gitattributes` 生效（受签核文本 = LF） | 31 | 0 | 0 | 1 | 0 | 2.6 |
-| `autocrlf_false`：`git -c core.autocrlf=false clone` 新鲜克隆 | 31 | 0 | 0 | 1 | 0 | 1.6 |
-| `working_tree_crlf`：新鲜克隆后把全部受签核文本在工作树里改写成 CRLF（敌对状态） | 31 | 0 | 0 | 1 | 0 | 1.6 |
-| `autocrlf_true_with_vivado`：`autocrlf_true` 外加导出 `VIVADO_ROOT`，真实 XSim 集成测试参与运行 | 31 | 0 | 0 | 0 | 0 | 92.2 |
+| `autocrlf_true`：`git -c core.autocrlf=true clone` 新鲜克隆，`.gitattributes` 生效（受签核文本 = LF） | 32 | 0 | 0 | 0 | 0 | 164.3 |
+| `autocrlf_false`：`git -c core.autocrlf=false clone` 新鲜克隆 | 32 | 0 | 0 | 0 | 0 | 161.1 |
+| `working_tree_crlf`：新鲜克隆后把全部受签核文本在工作树里改写成 CRLF（敌对状态） | 32 | 0 | 0 | 0 | 0 | 161.6 |
+| `autocrlf_true_with_vivado`：`autocrlf_true` 外加导出 `VIVADO_ROOT`，真实 XSim 集成测试参与运行 | 32 | 0 | 0 | 0 | 0 | 160.8 |
 
 跳过项读法：未导出 `VIVADO_ROOT` 的三个状态里，跳过的是 1 个 XSim 集成测试（测试内写明跳过原因）；导出 `VIVADO_ROOT` 的第四态 0 跳过，XSim 集成测试真实参与运行。本机装有 iverilog / vvp / yosys（见第 8 节），Icarus/Yosys 门不跳过。
 
