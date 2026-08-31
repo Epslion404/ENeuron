@@ -6,6 +6,7 @@ import hashlib
 import json
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from verify_local_prune_rtl import (
     EVIDENCE_INPUTS,
@@ -13,6 +14,7 @@ from verify_local_prune_rtl import (
     ROOT,
     SOURCE_FILES,
     SOURCE_HASH_POLICY,
+    build_summary,
     canonical_sha256,
     canonical_sha256_bytes,
 )
@@ -101,6 +103,62 @@ class VerifyLocalPruneRtlTest(unittest.TestCase):
         self.assertFalse(scope["existing_4x2x2_output_2of4_integrated"])
         self.assertFalse(scope["shared_lane_skip_cycles_proven"])
         self.assertFalse(scope["vivado_resource_timing_proven"])
+
+
+    V2_METADATA_KEYS = (
+        "tool_availability",
+        "source_hash_policy",
+        "eol_policy",
+        "previous_signature",
+        "source_changes_since_previous_signature",
+        "provenance",
+        "toolchain_provenance",
+        "verified_on",
+        "tools",
+    )
+
+    def test_normal_reverify_preserves_v2_metadata(self) -> None:
+        """build_summary must keep every v2 metadata field on the normal (non-refresh) path."""
+
+        summary = build_summary(run_checks=False)
+        for key in self.V2_METADATA_KEYS:
+            self.assertIn(key, summary)
+        self.assertEqual(summary["source_hash_policy"], SOURCE_HASH_POLICY)
+        for block, entry in summary["provenance"].items():
+            self.assertIn("reverified_in_this_run", entry, block)
+        for name, present in summary["tool_availability"].items():
+            if name in summary["tools"]:
+                if present:
+                    self.assertNotEqual(summary["tools"][name], "not_found", name)
+                else:
+                    self.assertEqual(summary["tools"][name], "not_found", name)
+
+    def test_build_summary_without_tools_records_honest_availability(self) -> None:
+        """A machine without Icarus/Yosys must not crash the metadata path nor fake tools."""
+
+        with mock.patch("verify_local_prune_rtl.find_tool", return_value=None):
+            summary = build_summary(run_checks=False)
+        self.assertEqual(
+            summary["tool_availability"],
+            {"iverilog": False, "vvp": False, "yosys": False},
+        )
+        self.assertEqual(summary["tools"], {"iverilog": "not_found", "yosys": "not_found"})
+        for key in self.V2_METADATA_KEYS:
+            self.assertIn(key, summary)
+
+    def test_committed_result_keeps_v2_metadata_after_normal_reverify(self) -> None:
+        """The checked-in summary must carry the v2 metadata written by a normal reverify."""
+
+        for key in self.V2_METADATA_KEYS:
+            self.assertIn(key, self.result)
+        availability = self.result["tool_availability"]
+        for name, present in availability.items():
+            if name in self.result["tools"] and present:
+                self.assertNotEqual(self.result["tools"][name], "not_found", name)
+        if all(availability.values()):
+            for block, entry in self.result["provenance"].items():
+                self.assertTrue(entry["reverified_in_this_run"], block)
+                self.assertNotIn("reason", entry, block)
 
 
 if __name__ == "__main__":

@@ -3,10 +3,16 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
 import unittest
 
-from generate_np4b_signoff import SUMMARY_PATH
+from generate_np4b_signoff import (
+    ROOT,
+    SUMMARY_PATH,
+    WITNESS_FILES,
+    canonical_sha256_bytes,
+)
 from verify_np4b_signoff import verify_summary
 
 
@@ -29,6 +35,26 @@ class VerifyNp4bSignoffTests(unittest.TestCase):
         mutated["file_sha256"]["unexpected.tmp.log"] = "0" * 64
         with self.assertRaisesRegex(AssertionError, "file_sha256.keys"):
             verify_summary(mutated, check_files=False)
+
+
+    def test_witness_binding_is_independent_of_line_endings(self) -> None:
+        """Every signed witness must hash and measure identically in LF and CRLF trees."""
+
+        hashes = self.summary["file_sha256"]
+        witness_bytes = self.summary["formal"]["witness_bytes"]
+        for key, name in WITNESS_FILES.items():
+            with self.subTest(witness=name):
+                lf = (ROOT / name).read_bytes().replace(b"\r\n", b"\n")
+                crlf = lf.replace(b"\n", b"\r\n")
+                self.assertEqual(canonical_sha256_bytes(lf), canonical_sha256_bytes(crlf))
+                self.assertEqual(canonical_sha256_bytes(lf), hashes[name])
+                self.assertEqual(len(lf), witness_bytes[key])
+                if b"\n" in lf:
+                    self.assertNotEqual(
+                        hashlib.sha256(lf).hexdigest(),
+                        hashlib.sha256(crlf).hexdigest(),
+                        "the naive raw digest must stay EOL sensitive, otherwise this test is vacuous",
+                    )
 
 
 if __name__ == "__main__":

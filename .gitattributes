@@ -5,7 +5,10 @@
 *.bat text eol=crlf
 *.cmd text eol=crlf
 *.ps1 text eol=crlf
-*.vcd text eol=lf
+# Formal VCD witnesses are frozen evidence: git must never rewrite their bytes
+# (no EOL normalisation).  The NP4B binding additionally folds CRLF/CR to LF, so
+# even a historically rewritten tree verifies identically.
+*.vcd -text -eol
 *.wdb binary
 *.dcp binary
 *.png binary

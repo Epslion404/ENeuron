@@ -216,7 +216,7 @@ def build_summary(*, run_checks: bool) -> dict[str, object]:
 
     iverilog = find_tool("iverilog")
     yosys = find_tool("yosys")
-    if iverilog is None or yosys is None:
+    if run_checks and (iverilog is None or yosys is None):
         raise RuntimeError("验证工具缺失")
     previous = {}
     if RESULT_PATH.exists():
@@ -286,8 +286,8 @@ def build_summary(*, run_checks: bool) -> dict[str, object]:
             "输出四路拓扑、共享 lane 和 Vivado NP6/NP7 尚未完成"
         ),
         "tools": {
-            "iverilog": _tool_version(iverilog, "-V"),
-            "yosys": _tool_version(yosys, "-V"),
+            "iverilog": _tool_version(iverilog, "-V") if iverilog is not None else "not_found",
+            "yosys": _tool_version(yosys, "-V") if yosys is not None else "not_found",
         },
         "tool_availability": tool_availability(),
         "toolchain_provenance": _toolchain_provenance(iverilog, yosys),
