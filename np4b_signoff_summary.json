@@ -1,10 +1,10 @@
 {
   "binding_refresh": {
     "date": "2026-08-31",
-    "generated_on_top_of_commit": "073969d",
+    "generated_on_top_of_commit": "6f03609",
     "reason": "recomputed file_sha256 and formal.witness_bytes with the EOL-independent canonical policy (CRLF/CR folded to LF, identical to verify_local_prune_rtl.canonical_sha256) after pinning *.vcd bytes with '.gitattributes: *.vcd -text -eol'; the date/regression/tools blocks above are the inherited frozen record of the original 2026-08-29 sign-off run, not results re-measured by this refresh",
     "tools": {
-      "iverilog": "Icarus Verilog version 12.0 (stable) ()",
+      "iverilog": "Icarus Verilog version 12.0 (devel) (s20150603-1539-g2693dd32b)",
       "python": "Python 3.13.15",
       "yosys": "Yosys 0.68 (git sha1 38e001a6f, Release, Clang /workspace/YoWASP/yosys/wasi-sdk-33.0-x86_64-linux/share/cmake/../..//bin/clang++ 22.1.0)"
     }
@@ -31,7 +31,7 @@
     "warnings_as_reported": "-Wall"
   },
   "date": "2026-08-29",
-  "evidence_base_commit": "073969d",
+  "evidence_base_commit": "6f03609",
   "file_groups": {
     "formal": [
       "formal_eneuron_prune_wrapper.sv",
@@ -175,7 +175,7 @@
     "local_prune_evidence_gain.sv": "4b2bb7c3d45808a0907ac60f547fe0ab0a607e3e8b4340410ea4467705b8301c",
     "local_prune_gate_2of4.sv": "d52a1fd3bcdaba8d6e2823ddfda11adb72a1e5789528b4ce6f890929c939c321",
     "local_prune_rtl_reference.py": "16400290cc615eb905bdd9ae4f9be9ee82a64f0cb7956d6e310e4a5bc418b1fb",
-    "local_prune_rtl_results.json": "fc418e7368d02edb67fac697d6c2d27bcfffe341a5ac298876fa362c8dff7be6",
+    "local_prune_rtl_results.json": "0c23ff3366e44e2c47a73214ab213fb45135e5c2efcf199a92b1dacbbc085da7",
     "np4b5_negative_controls.py": "2eecd1e305b7df3c70398301131ceb519ab1a7ddfbde266e8d6f74b58d343953",
     "pruned_network_tick_scheduler.sv": "94256ebcc8f3fe5d96e31854b3968006d82ec26e51dd4b8f425875465cef7f86",
     "pulse_mini_core.sv": "69361fc4f470a933890dd9d5e4210801fc1529716a860823d4526756d083c38b",
