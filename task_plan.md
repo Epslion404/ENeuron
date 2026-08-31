@@ -553,3 +553,23 @@
 | 正式 `verify_local_prune_rtl.py` 通过后改写三份已签名 formal 产物，使 `verify_np4b_signoff.py` 立即哈希失败 | 1 | 保留隔离现场作为复现证据；另建干净 worktree 运行提交态完整回归，区分提交态与复验流程问题 |
 | `gh api` 的 REST/GraphQL HTTPS 连接均被远端重置 | 2 | 不重复同一网络栈；改用已登录 `gh` token 配合 PowerShell `Invoke-RestMethod`，review 提交与回读成功 |
 | 最新 HEAD 全仓启用 Vivado 的首轮短 XSim 出现退出码 3221225477 | 1 | 单独重跑同一 `test_short_real_vivado_regression_passes` 通过；无 Vivado 的全仓 386/386 通过，记录为工具进程稳定性而非代码失败 |
+
+## PR #2 三模型 Vivado 短测复审（2026-08-31）
+
+- [x] 读取 PR #2 元数据、分支、HEAD 和文件差异
+- [x] 在隔离 worktree 运行本机 Vivado 2024.1 针对性回归
+- [x] 审查 `SIMULATION_REPORT.md`、`TEST_MATRIX.json` 和 `test_local_prune_gate_vivado.py`
+- [x] 修复报告中的 PR #1 复现命令残留并推送到 PR 分支
+- [ ] 通过 GitHub 页面提交中文 review/comment
+
+### 本轮错误记录
+
+| 错误 | 尝试 | 处理 |
+|---|---:|---|
+| GitHub REST review 提交 TLS EOF | 2 | 改用 `gh pr review` 与 curl REST comment 尝试 |
+| `gh pr review` GraphQL 被远端重置 | 1 | 改用 REST issue comment endpoint |
+| curl REST issue comment 连接被重置 | 1 | 停止重复 HTTPS API 路径；保留本机审查意见供人工或后续网络恢复后提交 |
+
+### 当前剩余事项
+
+- PR 描述中 `386 tests / 0 failures / 2 errors / exit 1` 与“386/386 OK”并列，需更正为环境性失败对照；仓库文件和测试代码已由提交 `f975cd7` 修复。

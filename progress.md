@@ -713,3 +713,12 @@
 
 - 协作者声称已解决摘要陈旧、跨 EOL 哈希和反例命名问题，最新证据提交为 `fd5aa96`。
 - 本轮将以最新 HEAD 为唯一对象，先做 v2 摘要/验证器静态审查，再执行本机 Vivado 2024.1 真实复跑；不因其 2024.2 或未重跑 Icarus/Yosys 的声明而自动批准。
+
+## 2026-08-31 PR #2 处理记录
+
+- 已读取 PR #2 元数据：open、mergeable clean，初始 HEAD `d9902ad`，base 为 `0eb2efe`，目标是让 Vivado 短回归覆盖 `eneuron/pulse_mini_l/pulse_mini_l2` 三模型。
+- 已在隔离 worktree `D:\Documents\Code\ENeuron_pr2_review` 运行本机 Vivado 2024.1 针对性测试：32 项全部通过，真实 XSim 三模型短回归通过。
+- 测试副作用改写了 `local_prune_rtl_results.json` 与 `np4b_signoff_summary.json`，已在隔离 worktree 恢复，未混入修复提交。
+- 已将 PR 分支复现命令从 `pull/1/head:pr-1` 修为 `pull/2/head:pr-2`，并推送提交 `f975cd7` 到 `feature/vivado-full-models-20260831`。
+- 尝试通过 GitHub REST review、`gh pr review` GraphQL 和 REST issue comment 提交中文审查意见，三次均因 `api.github.com` 连接重置失败；不再重复同一路径。
+- 当前状态：代码与仓库报告文件已修复且本机验证通过；PR 页面评论/审批尚未能通过工具完成，剩余人工口径问题是 PR 描述里的全量 discover 表述。

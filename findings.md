@@ -735,3 +735,12 @@
 - Pulse-Mini-L 逻辑工作量减少 53,440 / 168,509 = 31.71%；Pulse-Mini-L2 减少 47,874 / 153,416 = 31.21%。这些是模型计数的 issue/read 工作节省，不是实测 FPGA 墙钟加速。
 - ENeuron 报告记录 277 次 pruned snapshot 由非零变为零，但 pruned weight/utility 仍为 0 次变化；这说明冻结门控成立，不等于已证明物理读端口跳过。
 - 当前摘要明确未证明：BRAM 真跳读、墙钟 speedup、功耗降低、XC7Z020 时序/资源；下一步若要声明硬件收益，必须进入 Vivado 综合/实现和板级吞吐测量。
+
+## 2026-08-31 PR #2 复审与最小修复事实
+
+- PR #2 标题为 `test(vivado): run the short xsim regression on all three gain models`，分支 `feature/vivado-full-models-20260831`，初始 HEAD 为 `d9902ade4ecb4fda8a50060c60d3d14787410ab4`。
+- 差异范围很小：`test_local_prune_gate_vivado.py` 将短 XSim 测试模型从 `eneuron,pulse_mini_l2` 扩展为 `eneuron,pulse_mini_l,pulse_mini_l2`，并刷新 `SIMULATION_REPORT.md` 与 `TEST_MATRIX.json`。
+- 本机隔离 worktree 使用 `G:/Xilinx/Vivado/2024.1` 执行 `python -m unittest test_local_prune_gate_rtl test_verify_local_prune_rtl test_local_prune_gate_vivado`，结果为 32 tests / 0 failures / 0 errors / exit 0；真实 XSim 输出 `VIVADO_LOCAL_PRUNE_GATE_PASS version=Vivado Simulator v2024.1 models=3 seeds=1 transactions_compared=723 cases=24 mutants=0`。
+- 初审发现 `SIMULATION_REPORT.md` 复现命令仍写 `pull/1/head:pr-1`，与 PR #2 不匹配；已在 PR 分支推送最小修复提交 `f975cd7 docs: fix PR2 reproduction command`，改为 `pull/2/head:pr-2`。
+- GitHub `gh`/REST/curl 三种 HTTPS API 提交 review/comment 均在 `api.github.com` TLS/连接层被重置；Git SSH push 正常。当前无法通过工具把中文审查意见写入 PR 页面。
+- PR 描述仍存在口径瑕疵：把 `386 tests / 0 failures / 2 errors / exit 1` 与“386/386 OK”并列。该问题属于 PR 描述文字，不影响已推送的仓库文件和本机测试结论，但合并前最好由 PR 作者更正。
