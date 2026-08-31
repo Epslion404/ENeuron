@@ -1,7 +1,7 @@
 {
   "binding_refresh": {
     "date": "2026-08-31",
-    "generated_on_top_of_commit": "6f03609",
+    "generated_on_top_of_commit": "2ccb394",
     "reason": "recomputed file_sha256 and formal.witness_bytes with the EOL-independent canonical policy (CRLF/CR folded to LF, identical to verify_local_prune_rtl.canonical_sha256) after pinning *.vcd bytes with '.gitattributes: *.vcd -text -eol'; the date/regression/tools blocks above are the inherited frozen record of the original 2026-08-29 sign-off run, not results re-measured by this refresh",
     "tools": {
       "iverilog": "Icarus Verilog version 12.0 (devel) (s20150603-1539-g2693dd32b)",
@@ -31,7 +31,7 @@
     "warnings_as_reported": "-Wall"
   },
   "date": "2026-08-29",
-  "evidence_base_commit": "6f03609",
+  "evidence_base_commit": "2ccb394",
   "file_groups": {
     "formal": [
       "formal_eneuron_prune_wrapper.sv",
@@ -175,7 +175,7 @@
     "local_prune_evidence_gain.sv": "4b2bb7c3d45808a0907ac60f547fe0ab0a607e3e8b4340410ea4467705b8301c",
     "local_prune_gate_2of4.sv": "d52a1fd3bcdaba8d6e2823ddfda11adb72a1e5789528b4ce6f890929c939c321",
     "local_prune_rtl_reference.py": "16400290cc615eb905bdd9ae4f9be9ee82a64f0cb7956d6e310e4a5bc418b1fb",
-    "local_prune_rtl_results.json": "0c23ff3366e44e2c47a73214ab213fb45135e5c2efcf199a92b1dacbbc085da7",
+    "local_prune_rtl_results.json": "85c6452576bf82fb4f88f5c2783666d741053df24bfc1ed79f59d63bb81d59c7",
     "np4b5_negative_controls.py": "2eecd1e305b7df3c70398301131ceb519ab1a7ddfbde266e8d6f74b58d343953",
     "pruned_network_tick_scheduler.sv": "94256ebcc8f3fe5d96e31854b3968006d82ec26e51dd4b8f425875465cef7f86",
     "pulse_mini_core.sv": "69361fc4f470a933890dd9d5e4210801fc1529716a860823d4526756d083c38b",
@@ -219,7 +219,7 @@
     "verify_formal_local_prune_gate.py": "64e33950af99024b869cc20273c8eb53e0f434811d89020793506a5ea505b80d",
     "verify_formal_pulse_mini_l2_prune_wrapper.py": "4b43af4f9d675291c6fbecb7113c3dcefadf71b1d412a1b3b64dab1cf91d4b6a",
     "verify_formal_pulse_mini_prune_wrapper.py": "5b7814464ec2b092e8af7e05bb0ec3e50a7de200a739f4873dfc89ef30997854",
-    "verify_local_prune_rtl.py": "9aa980a419f3064f87d7a3d1ecbbee2722520db9e6cd1caf939ebd679f472691",
+    "verify_local_prune_rtl.py": "6df8e72b1b9d21f458c5052ba7ae8f6c9fe5936309ee811aa5e18e814c6552cd",
     "verify_np4b_signoff.py": "6ef368ada3133d35dd68227cbcf02a89d67dc20c62581e2867e717aad835fe04",
     "verify_pulse_pruned_network_summaries.py": "73e9b9c724dbfaec9b58c5b0e224b4ea057d3012b585377e493b77a1c3468388"
   },

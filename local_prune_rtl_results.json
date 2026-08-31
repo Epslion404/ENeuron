@@ -60,7 +60,7 @@
     "local_prune_rtl_reference.py": "16400290cc615eb905bdd9ae4f9be9ee82a64f0cb7956d6e310e4a5bc418b1fb",
     "run_formal_local_prune_gate.ps1": "7964b0b13245144f7946f6229ea51a91553721560d00c28854eea7d50d39d240",
     "test_local_prune_gate_rtl.py": "3b00a43c28fdb7d62913ca222a32696ddeff887599880dc1b59fd557da86d390",
-    "verify_local_prune_rtl.py": "697e04b9223182b21fc04e6ccccd2b00929754ace36017f88ba1518085873fb8"
+    "verify_local_prune_rtl.py": "9aa980a419f3064f87d7a3d1ecbbee2722520db9e6cd1caf939ebd679f472691"
   },
   "provenance": {
     "cosim": {
@@ -119,7 +119,7 @@
     "local_prune_rtl_reference.py": "16400290cc615eb905bdd9ae4f9be9ee82a64f0cb7956d6e310e4a5bc418b1fb",
     "run_formal_local_prune_gate.ps1": "7964b0b13245144f7946f6229ea51a91553721560d00c28854eea7d50d39d240",
     "test_local_prune_gate_rtl.py": "3b00a43c28fdb7d62913ca222a32696ddeff887599880dc1b59fd557da86d390",
-    "verify_local_prune_rtl.py": "9aa980a419f3064f87d7a3d1ecbbee2722520db9e6cd1caf939ebd679f472691"
+    "verify_local_prune_rtl.py": "6df8e72b1b9d21f458c5052ba7ae8f6c9fe5936309ee811aa5e18e814c6552cd"
   },
   "status": "COMMON_CONTROLLER_NP4_NP5_PASS_INTEGRATION_PENDING",
   "tool_availability": {
@@ -128,7 +128,7 @@
     "yosys": true
   },
   "toolchain_provenance": {
-    "formal_artifacts": "formal_local_prune_gate.log, formal_local_prune_gate_reach.log and formal_local_prune_gate_success.vcd are rewritten by every reverify run; the signoff restores them to the committed bytes so this pull request carries no regenerated logs",
+    "formal_artifacts": "formal_local_prune_gate.log, formal_local_prune_gate_reach.log and formal_local_prune_gate_success.vcd are rewritten by every reverify run; main() restores them to the committed bytes in a finally block and then refreshes the NP4B master summary to cover the rewritten local_prune_rtl_results.json, so verify_np4b_signoff.py passes immediately after an official reverify",
     "iverilog_build": "Icarus Verilog version 12.0 (devel) (s20150603-1539-g2693dd32b)",
     "yosys_build": "official YosysHQ WebAssembly build (yowasp-yosys), because upstream publishes no native Windows Yosys binary"
   },
