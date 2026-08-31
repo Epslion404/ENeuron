@@ -1,7 +1,7 @@
 {
   "checkout": {
-    "commit": "ee4b9ff67c08adb538f81cc5a5b48c49d13f34ca",
-    "worktree": "wt_ac_true"
+    "commit": "c30ecc5dd43f0f337d68b0268e90f28d5c569e16",
+    "worktree": "wt_r4"
   },
   "coverage": {
     "case_catalogue": [
@@ -30,7 +30,7 @@
     "seeds": 8,
     "transactions_per_random_stream": 256
   },
-  "generated_utc": "2026-08-30T13:35:57Z",
+  "generated_utc": "2026-08-31T08:24:50Z",
   "host": {
     "python": "3.13.15",
     "release": "11",
@@ -465,8 +465,8 @@
     },
     "first_command_per_step": {
       "xelab": "C:/Users/MGL/Documents/Codex/Vivado2024_2/bin/xelab.bat --relax --debug typical --mt 2 --snapshot gate_tb work.tb",
-      "xsim": "C:/Users/MGL/Documents/Codex/Vivado2024_2/bin/xsim.bat gate_tb --tclbatch C:/Users/MGL/AppData/Local/Temp/lpgv_sim_wb3751j8/run.tcl",
-      "xvlog": "C:/Users/MGL/Documents/Codex/Vivado2024_2/bin/xvlog.bat -sv C:/Users/MGL/Documents/Codex/2026-08-29/vivado/wt_ac_true/local_prune_gate_2of4.sv C:/Users/MGL/Documents/Codex/2026-08-29/vivado/wt_ac_true/local_prune_evidence_gain.sv C:/Users/MGL/AppData/Local/Temp/lpgv_sim_wb3751j8/tb.sv",
+      "xsim": "C:/Users/MGL/Documents/Codex/Vivado2024_2/bin/xsim.bat gate_tb --tclbatch C:/Users/MGL/AppData/Local/Temp/lpgv_sim_nor8ux4g/run.tcl",
+      "xvlog": "C:/Users/MGL/Documents/Codex/Vivado2024_2/bin/xvlog.bat -sv C:/Users/MGL/Documents/Codex/2026-08-29/vivado/wt_r4/local_prune_gate_2of4.sv C:/Users/MGL/Documents/Codex/2026-08-29/vivado/wt_r4/local_prune_evidence_gain.sv C:/Users/MGL/AppData/Local/Temp/lpgv_sim_nor8ux4g/tb.sv",
       "xvlog-version": "C:/Users/MGL/Documents/Codex/Vivado2024_2/bin/xvlog.bat -version"
     }
   },

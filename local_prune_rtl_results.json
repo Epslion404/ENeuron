@@ -58,15 +58,15 @@
     "local_prune_gate_2of4.sv": "d52a1fd3bcdaba8d6e2823ddfda11adb72a1e5789528b4ce6f890929c939c321",
     "local_prune_gate_cosim.py": "c31322006295c67df092cd0073031755f344e480f0c3efb39ee3ceb867809750",
     "local_prune_rtl_reference.py": "16400290cc615eb905bdd9ae4f9be9ee82a64f0cb7956d6e310e4a5bc418b1fb",
-    "run_formal_local_prune_gate.ps1": "55733d77c1593f5906690bce2a9427e179590ad7bc35110b8b58347acdd1b2d0",
+    "run_formal_local_prune_gate.ps1": "7964b0b13245144f7946f6229ea51a91553721560d00c28854eea7d50d39d240",
     "test_local_prune_gate_rtl.py": "3b00a43c28fdb7d62913ca222a32696ddeff887599880dc1b59fd557da86d390",
-    "verify_local_prune_rtl.py": "b29ed22cb51dccbcb60d360ad3da3b087d93cb5156f9cfb567cc1d50698d6fe5"
+    "verify_local_prune_rtl.py": "697e04b9223182b21fc04e6ccccd2b00929754ace36017f88ba1518085873fb8"
   },
   "provenance": {
     "cosim": {
       "cross_checked_on_xsim": {
         "cases": 45,
-        "commit": "ee4b9ff67c08adb538f81cc5a5b48c49d13f34ca",
+        "commit": "c30ecc5dd43f0f337d68b0268e90f28d5c569e16",
         "field_comparisons": 154728,
         "mutants_caught": 5,
         "result": "PASS",
@@ -89,10 +89,8 @@
       ]
     },
     "formal": {
-      "inputs_moved_since_previous_signature": [
-        "run_formal_local_prune_gate.ps1"
-      ],
-      "inputs_unchanged_since_previous_signature": false,
+      "inputs_moved_since_previous_signature": [],
+      "inputs_unchanged_since_previous_signature": true,
       "reverified_in_this_run": true,
       "signed_inputs": [
         "local_prune_gate_2of4.sv",
@@ -107,7 +105,6 @@
   "schema": "eneuron.local_prune_rtl.v2",
   "score_method": "S2_ONLY",
   "source_changes_since_previous_signature": [
-    "run_formal_local_prune_gate.ps1",
     "verify_local_prune_rtl.py"
   ],
   "source_hash_policy": "sha256 over the working-tree bytes with CRLF and CR normalised to LF (platform and core.autocrlf independent)",
@@ -122,7 +119,7 @@
     "local_prune_rtl_reference.py": "16400290cc615eb905bdd9ae4f9be9ee82a64f0cb7956d6e310e4a5bc418b1fb",
     "run_formal_local_prune_gate.ps1": "7964b0b13245144f7946f6229ea51a91553721560d00c28854eea7d50d39d240",
     "test_local_prune_gate_rtl.py": "3b00a43c28fdb7d62913ca222a32696ddeff887599880dc1b59fd557da86d390",
-    "verify_local_prune_rtl.py": "697e04b9223182b21fc04e6ccccd2b00929754ace36017f88ba1518085873fb8"
+    "verify_local_prune_rtl.py": "9aa980a419f3064f87d7a3d1ecbbee2722520db9e6cd1caf939ebd679f472691"
   },
   "status": "COMMON_CONTROLLER_NP4_NP5_PASS_INTEGRATION_PENDING",
   "tool_availability": {
@@ -132,12 +129,12 @@
   },
   "toolchain_provenance": {
     "formal_artifacts": "formal_local_prune_gate.log, formal_local_prune_gate_reach.log and formal_local_prune_gate_success.vcd are rewritten by every reverify run; the signoff restores them to the committed bytes so this pull request carries no regenerated logs",
-    "iverilog_build": "Icarus Verilog version 14.0 (devel) ()",
+    "iverilog_build": "Icarus Verilog version 12.0 (devel) (s20150603-1539-g2693dd32b)",
     "yosys_build": "official YosysHQ WebAssembly build (yowasp-yosys), because upstream publishes no native Windows Yosys binary"
   },
   "tools": {
-    "iverilog": "Icarus Verilog version 14.0 (devel) ()",
+    "iverilog": "Icarus Verilog version 12.0 (devel) (s20150603-1539-g2693dd32b)",
     "yosys": "Yosys 0.68 (git sha1 38e001a6f, Release, Clang /workspace/YoWASP/yosys/wasi-sdk-33.0-x86_64-linux/share/cmake/../..//bin/clang++ 22.1.0)"
   },
-  "verified_on": "2026-08-30"
+  "verified_on": "2026-08-31"
 }
