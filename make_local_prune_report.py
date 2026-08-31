@@ -1,4 +1,4 @@
-"""Render SIMULATION_REPORT.md from the machine summaries; no number is copied by hand.
+"""Render docs/reports/SIMULATION_REPORT.md from the machine summaries; no number is copied by hand.
 
 Every figure in the report comes from the files produced by the suites themselves:
 
@@ -10,7 +10,7 @@ Every figure in the report comes from the files produced by the suites themselve
 
 Reproduce with (repository root, after the suites were run in a clean checkout):
 
-    python make_local_prune_report.py --checkout ../wt_r4 --out SIMULATION_REPORT.md
+    python make_local_prune_report.py --checkout ../wt_r4 --out docs/reports/SIMULATION_REPORT.md
 """
 
 from __future__ import annotations
@@ -24,7 +24,7 @@ SUMMARY_NAME = "VIVADO_LOCAL_PRUNE_GATE_SUMMARY.json"
 SIGNOFF_NAME = "local_prune_rtl_results.json"
 NP4B_NAME = "np4b_signoff_summary.json"
 MATRIX_NAME = "TEST_MATRIX.json"
-REPORT_NAME = "SIMULATION_REPORT.md"
+REPORT_NAME = "docs/reports/SIMULATION_REPORT.md"
 CONSOLE_NAME = "vivado_regression_console.log"
 SUITE = ("python -m unittest test_local_prune_gate_rtl "
          "test_verify_local_prune_rtl test_local_prune_gate_vivado")
@@ -135,7 +135,7 @@ def s2_reproduce() -> list[str]:
         "python run_local_prune_gate_vivado.py --seeds 8 --transactions 256 --json-out VIVADO_LOCAL_PRUNE_GATE_SUMMARY.json",
         "python run_test_matrix.py --vivado-root $env:VIVADO_ROOT --json-out TEST_MATRIX.json",
         "python verify_local_prune_rtl.py",
-        "python make_local_prune_report.py --checkout . --out SIMULATION_REPORT.md",
+        "python make_local_prune_report.py --checkout . --out docs/reports/SIMULATION_REPORT.md",
         'Write-Output "exit=$LASTEXITCODE"',
         "```",
         "",
@@ -231,14 +231,14 @@ def s7_review() -> list[str]:
         "",
         "1. **Python 黄金模型与 RTL 不一致**：产生分歧的 `neuron_gate_core.sv` / `neuron_gate_reference.py` "
         "已整体撤出 PR（它同时引入 8 位 score、cooldown、自动 regrow、image_end/epoch_end，属第二套未批准设计）。"
-        "其候选集合语义与反例已写入 `DESIGN_PROPOSAL_DYNAMIC_PRUNE_RECOVERY.md` 第 3 节，等待评审裁决后再实现。"
+        "其候选集合语义与反例已写入 `docs/design/DESIGN_PROPOSAL_DYNAMIC_PRUNE_RECOVERY.md` 第 3 节，等待评审裁决后再实现。"
         "本 PR 现在只验证唯一真源 `local_prune_gate_2of4.sv`；与该反例形状相关的定向用例已按实际口径改名为 "
         "`two_lane_mask_and_low_score_exact_two`（见第 11 节）。",
         "2. **不是严格 2:4**：exact-two 有三层保证——RTL 扫描只可能产出六种双位掩码、testbench 内 `$fatal` "
         "监视任何时刻的可见掩码、runner 独立断言；CONFIG 写入口拒绝 0/1/3/4 置位；"
         "`commit_keeps_no_lane` / `commit_drops_second_lane` / `commit_keeps_all_four_lanes` 三个变异被捕获。",
         "3. **偏离冻结架构**：不再复制第二套门控，全部仿真交付物直接针对 `local_prune_gate_2of4.sv` 与 "
-        "`LOCAL_PRUNE_RTL_CONTRACT.md`。",
+        "`docs/design/LOCAL_PRUNE_RTL_CONTRACT.md`。",
         "",
         "第 3 轮：",
         "",
@@ -324,7 +324,7 @@ def s11_scope() -> list[str]:
         "- `two_lane_mask_and_low_score_exact_two`：CONFIG 写入 `1100` 后直通数据路径，不得被重排成 "
         "`0011`/`0110`；两路有效时两条都发、`saved=0`；utility 不均（3,0,0,0）与全零时提交仍恰好两条。",
         "- 原反例的等价回归（`candidate = raw_mask & ~cooldown_mask`、top-2 只在 candidate 内排名、"
-        "candidate 不足两条则拒绝且零副作用）写在 `DESIGN_PROPOSAL_DYNAMIC_PRUNE_RECOVERY.md` 第 3 节，"
+        "candidate 不足两条则拒绝且零副作用）写在 `docs/design/DESIGN_PROPOSAL_DYNAMIC_PRUNE_RECOVERY.md` 第 3 节，"
         "作为该提案被批准后的必过验收门。",
         "",
     ]

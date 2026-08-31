@@ -1,6 +1,6 @@
 # 可塑单神经元硬件基石模拟
 
-当前稳定版本为 **ENeuron 1.0**，版本号见 `VERSION`，冻结范围和证据见 `RELEASE_1.0.md`。该版本已完成原始 Goal M1-M4：片外提供神经元级训练信号，片上执行局部权重更新，并在固定 `4 -> 2 -> 2` 双时钟 RTL 网络中完成训练和冻结推理；共享 RAM 扩展、板级闭环和通用 AI 不属于 1.0 声明。
+当前稳定版本为 **ENeuron 1.0**，版本号见 `VERSION`，冻结范围和证据见 [ENeuron 1.0 发布说明](docs/reports/RELEASE_1.0.md)，其余设计、计划、报告与签核见 [文档索引](docs/README.md)。该版本已完成原始 Goal M1-M4：片外提供神经元级训练信号，片上执行局部权重更新，并在固定 `4 -> 2 -> 2` 双时钟 RTL 网络中完成训练和冻结推理；共享 RAM 扩展、板级闭环和通用 AI 不属于 1.0 声明。
 
 本目录用本机 Python 比较三种适合数字硬件的单神经元候选：
 
@@ -102,7 +102,7 @@ Vivado 2024.1 对 `xc7a35tcpg236-1` 的最终 OOC post-route 结果：
 
 `python verify_goal.py` 会重跑完整回归、M3 的 957 命令真实双时钟训练闭环、Tile 24 拍 BMC、Controller 20 拍 BMC、20 seeds x 500 个 Tile 事务，并独立解析 Tile、真实 XPM 与完整系统 routed 报告。M3 会生成 `m3_signoff_summary.txt`，绑定命令和响应账本哈希。独立 Tile 当前冻结资源预算为 `LUT <= 3200`、`FF <= 2000`、`BRAM/DSP = 0`。脚本成功表示原始 Goal M1-M4 最小硬件基石门槛通过；共享 RAM 扩展、板级闭环和通用 AI 仍不在该结论内。
 
-Pulse-Mini 的完整执行清单见 `TODO.md`，当前状态为 `APPROVED` / `P7_CAPACITY_BOUNDARY_DOCUMENTED`。单核已完成黄金模型、RTL、形式、任务和 XC7Z020 routed 闭环；固定 `4 -> 2 -> 2` 网络已完成 Python 与 RTL 协同仿真。P7 还提供 `python pulse_mini_array_metrics.py`、`python pulse_mini_lane_model.py` 和 `python verify_pulse_mini_p7.py`：广播阵列的单条逻辑 TICK 响应延迟为 1 个周期，但单槽协议持续接受率为 0.5 命令/周期；32 核是当前 100 MHz routed 已证明的最大并行规模，64/128 核的简单广播阵列 setup 未通过。共享 lane 数字结果是周期模型，不是物理容量声明。
+Pulse-Mini 的完整执行清单见 `docs/planning/TODO.md`，当前状态为 `APPROVED` / `P7_CAPACITY_BOUNDARY_DOCUMENTED`。单核已完成黄金模型、RTL、形式、任务和 XC7Z020 routed 闭环；固定 `4 -> 2 -> 2` 网络已完成 Python 与 RTL 协同仿真。P7 还提供 `python pulse_mini_array_metrics.py`、`python pulse_mini_lane_model.py` 和 `python verify_pulse_mini_p7.py`：广播阵列的单条逻辑 TICK 响应延迟为 1 个周期，但单槽协议持续接受率为 0.5 命令/周期；32 核是当前 100 MHz routed 已证明的最大并行规模，64/128 核的简单广播阵列 setup 未通过。共享 lane 数字结果是周期模型，不是物理容量声明。
 
 Git 不保存报告文件的修改时间。全新检出第一次复验应使用 `python verify_goal.py --rerun-vivado` 重建 Vivado 证据；已有同一工作区可直接运行默认命令审计现存报告。
 
@@ -110,4 +110,4 @@ V3 Temporal development cohort 已实现 5 个固定 split、1312 个唯一语�
 
 ## 设计边界
 
-当前证据已支持用户批准的原始 Goal M1-M4：片外 Host 提供神经元级训练信号，片上局部 eligibility 完成权重更新，并在固定 4->2->2 双时钟 RTL 网络中完成训练和冻结推理。它不支持“通用 AI 自训练已经解决”。尚缺无限时域/全状态形式等价、共享 RAM 大规模扩展、真实板级 I/O/bitstream 闭环、活动率功耗和多任务信用分配验证，详见 `goal_audit.md`。
+当前证据已支持用户批准的原始 Goal M1-M4：片外 Host 提供神经元级训练信号，片上局部 eligibility 完成权重更新，并在固定 4->2->2 双时钟 RTL 网络中完成训练和冻结推理。它不支持“通用 AI 自训练已经解决”。尚缺无限时域/全状态形式等价、共享 RAM 大规模扩展、真实板级 I/O/bitstream 闭环、活动率功耗和多任务信用分配验证，详见 `docs/verification/goal_audit.md`。

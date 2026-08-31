@@ -25,7 +25,7 @@ from rtl_tile_cosim import find_tool
 ROOT = Path(__file__).resolve().parent
 RESULT_PATH = ROOT / "local_prune_rtl_results.json"
 SOURCE_FILES = (
-    "LOCAL_PRUNE_RTL_CONTRACT.md",
+    "docs/design/LOCAL_PRUNE_RTL_CONTRACT.md",
     "local_prune_gate_2of4.sv",
     "local_prune_evidence_gain.sv",
     "local_prune_rtl_reference.py",

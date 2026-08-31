@@ -543,11 +543,13 @@ class T0HandoffSummaryTests(unittest.TestCase):
             "run_vivado_tile_synth.ps1": "runner\n",
             "verify_goal.py": "verifier\n",
             "README.md": "| 4->2->2 Tile | 3152 | 1972 | 0 | 0 | +0.213 ns | +0.026 ns |\n",
-            "goal_audit.md": "`3152 LUT / 1972 FF / 0 BRAM / 0 DSP` WNS `+0.213 ns`\n",
-            "recommended_design.md": "`3152 LUT / 1972 FF` WNS `+0.213 ns`\n",
+            "docs/verification/goal_audit.md": "`3152 LUT / 1972 FF / 0 BRAM / 0 DSP` WNS `+0.213 ns`\n",
+            "docs/design/recommended_design.md": "`3152 LUT / 1972 FF` WNS `+0.213 ns`\n",
         }
         for name, content in files.items():
-            (root / name).write_text(content, encoding="utf-8")
+            path = root / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(content, encoding="utf-8")
         tile_summary = tile_reports / "signoff_summary.txt"
         tile_summary.write_text(GOOD_SUMMARY, encoding="utf-8")
 
@@ -581,8 +583,10 @@ class T0HandoffSummaryTests(unittest.TestCase):
             "verify_goal.py",
         ):
             (root / name).write_text(name, encoding="utf-8")
-        for name in ("README.md", "goal_audit.md", "recommended_design.md"):
-            (root / name).write_text("old Tile values\n", encoding="utf-8")
+        for name in ("README.md", "docs/verification/goal_audit.md", "docs/design/recommended_design.md"):
+            path = root / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text("old Tile values\n", encoding="utf-8")
 
         with mock.patch.object(verify_goal, "ROOT", root), mock.patch.object(
             verify_goal, "TILE_REPORTS", tile_reports

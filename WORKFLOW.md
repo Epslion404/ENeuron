@@ -34,7 +34,7 @@
 |---|---|---|
 | `WORKFLOW_STATE.md` | 当前唯一活动目标、状态、权限边界和下一动作 | 每次阶段切换、提交、阻塞或用户批准后 |
 | `task_plan.md` | 全项目阶段历史、任务状态和错误表 | 每个阶段开始与结束 |
-| 活动 `*_TODO.md` | 当前目标的冻结合同、任务和验收门 | 设计审核、合同变化或验收状态变化时 |
+| 活动 `docs/planning/*_TODO.md` | 当前目标的冻结合同、任务和验收门 | 设计审核、合同变化或验收状态变化时 |
 | `progress.md` | 按时间记录实际执行、命令、结果和文件 | 每个可验证动作后 |
 | `findings.md` | 可复用的事实、失败根因和声明边界 | 发现新事实后立即更新 |
 | 机器摘要与 verifier | 可重放的最终证据索引 | 阶段签核时生成 |
@@ -150,7 +150,7 @@ RESEARCH
 
 ## 11. 当前 NP4B 映射
 
-当前活动状态只以 `WORKFLOW_STATE.md` 为准，详细合同见 `NPU_PRUNING_NP4B_TODO.md`。NP4B 结束后只能停在：
+当前活动状态只以 `WORKFLOW_STATE.md` 为准，详细合同见 `docs/planning/NPU_PRUNING_NP4B_TODO.md`。NP4B 结束后只能停在：
 
 ```text
 NP4B_INTEGRATION_PASS

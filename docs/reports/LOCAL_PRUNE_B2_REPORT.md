@@ -3,7 +3,7 @@
 日期：2026-08-28
 状态：`B2_ALGORITHM_SPLIT_RTL_NO_GO`
 
-后续修订：NP2 固定量化扫描已证明 Pulse-Mini-L 使用 `0→0, 1→2` 编码后可达到 BAcc/coverage 100%。本报告以下 L=0% 结论只描述原始 gain 1 的 B2 结果；当前路线以 `LOCAL_PRUNE_NP2_REPORT.md` 为准。
+后续修订：NP2 固定量化扫描已证明 Pulse-Mini-L 使用 `0→0, 1→2` 编码后可达到 BAcc/coverage 100%。本报告以下 L=0% 结论只描述原始 gain 1 的 B2 结果；当前路线以 `docs/reports/LOCAL_PRUNE_NP2_REPORT.md` 为准。
 
 ## 1. 结论
 

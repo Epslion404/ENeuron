@@ -18,7 +18,7 @@ NP4-NP9 的 RTL、协同仿真、Vivado、共享 lane、功耗和系统签核不
 
 ### 2.1 NP0 八项批准
 
-`NPU_PRUNING_TODO.md` 的 NP0 八项均已勾选，覆盖严格 `2:4`、TRAIN 安全边界、读取前动态门控、S0-S3 对照、状态预算、V1 禁止自动恢复、B0/B1/B2 顺序及四类证据边界。
+`docs/planning/NPU_PRUNING_TODO.md` 的 NP0 八项均已勾选，覆盖严格 `2:4`、TRAIN 安全边界、读取前动态门控、S0-S3 对照、状态预算、V1 禁止自动恢复、B0/B1/B2 顺序及四类证据边界。
 
 批准记录提交：
 
@@ -40,13 +40,13 @@ NP4-NP9 的 RTL、协同仿真、Vivado、共享 lane、功耗和系统签核不
 
 阶段报告已经独立保存：
 
-- `LOCAL_PRUNE_B1_REPORT.md`
-- `LOCAL_PRUNE_B2_REPORT.md`
-- `LOCAL_PRUNE_NP2_REPORT.md`
-- `LOCAL_PRUNE_NP3_REPORT.md`
-- `LOCAL_PRUNE_B21_REPORT.md`
-- `NPU_PRUNING_TODO.md`
-- 根 `TODO.md`、`findings.md`、`progress.md`、`task_plan.md`
+- `docs/reports/LOCAL_PRUNE_B1_REPORT.md`
+- `docs/reports/LOCAL_PRUNE_B2_REPORT.md`
+- `docs/reports/LOCAL_PRUNE_NP2_REPORT.md`
+- `docs/reports/LOCAL_PRUNE_NP3_REPORT.md`
+- `docs/reports/LOCAL_PRUNE_B21_REPORT.md`
+- `docs/planning/NPU_PRUNING_TODO.md`
+- `docs/planning/TODO.md` 以及根目录的 `findings.md`、`progress.md`、`task_plan.md`
 
 报告明确保留以下边界：B2.1 是人为冗余任务，learned 与随机 mask 都可达到 100%；当前只证明软件冗余消除与 Python 发射计数，不证明评分优于随机、RTL、周期、Vivado 或功耗。
 

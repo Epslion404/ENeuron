@@ -36,7 +36,7 @@ $env:PATH = "C:\msys64\ucrt64\bin;" + $env:PATH  # 可选：让 Icarus/Yosys 门
 python run_local_prune_gate_vivado.py --seeds 8 --transactions 256 --json-out VIVADO_LOCAL_PRUNE_GATE_SUMMARY.json
 python run_test_matrix.py --vivado-root $env:VIVADO_ROOT --json-out TEST_MATRIX.json
 python verify_local_prune_rtl.py
-python make_local_prune_report.py --checkout . --out SIMULATION_REPORT.md
+python make_local_prune_report.py --checkout . --out docs/reports/SIMULATION_REPORT.md
 Write-Output "exit=$LASTEXITCODE"
 ```
 
@@ -99,9 +99,9 @@ Write-Output "exit=$LASTEXITCODE"
 
 第 1 轮：
 
-1. **Python 黄金模型与 RTL 不一致**：产生分歧的 `neuron_gate_core.sv` / `neuron_gate_reference.py` 已整体撤出 PR（它同时引入 8 位 score、cooldown、自动 regrow、image_end/epoch_end，属第二套未批准设计）。其候选集合语义与反例已写入 `DESIGN_PROPOSAL_DYNAMIC_PRUNE_RECOVERY.md` 第 3 节，等待评审裁决后再实现。本 PR 现在只验证唯一真源 `local_prune_gate_2of4.sv`；与该反例形状相关的定向用例已按实际口径改名为 `two_lane_mask_and_low_score_exact_two`（见第 11 节）。
+1. **Python 黄金模型与 RTL 不一致**：产生分歧的 `neuron_gate_core.sv` / `neuron_gate_reference.py` 已整体撤出 PR（它同时引入 8 位 score、cooldown、自动 regrow、image_end/epoch_end，属第二套未批准设计）。其候选集合语义与反例已写入 `docs/design/DESIGN_PROPOSAL_DYNAMIC_PRUNE_RECOVERY.md` 第 3 节，等待评审裁决后再实现。本 PR 现在只验证唯一真源 `local_prune_gate_2of4.sv`；与该反例形状相关的定向用例已按实际口径改名为 `two_lane_mask_and_low_score_exact_two`（见第 11 节）。
 2. **不是严格 2:4**：exact-two 有三层保证——RTL 扫描只可能产出六种双位掩码、testbench 内 `$fatal` 监视任何时刻的可见掩码、runner 独立断言；CONFIG 写入口拒绝 0/1/3/4 置位；`commit_keeps_no_lane` / `commit_drops_second_lane` / `commit_keeps_all_four_lanes` 三个变异被捕获。
-3. **偏离冻结架构**：不再复制第二套门控，全部仿真交付物直接针对 `local_prune_gate_2of4.sv` 与 `LOCAL_PRUNE_RTL_CONTRACT.md`。
+3. **偏离冻结架构**：不再复制第二套门控，全部仿真交付物直接针对 `local_prune_gate_2of4.sv` 与 `docs/design/LOCAL_PRUNE_RTL_CONTRACT.md`。
 
 第 3 轮：
 
@@ -199,7 +199,7 @@ VIVADO_LOCAL_PRUNE_GATE_PASS version=Vivado Simulator v2024.2.0 models=3 seeds=8
 原反例（`mask=1100`、`scores=[250,200,150,100]`、`lane0 cooldown=1`）里的 lane cooldown 与 8 位 score 属于被撤销的第二套设计，冻结的 V1 合同里根本没有这两个概念，所以把它们硬拼成“等价回归”会是误导。本 PR 按评审给出的第一个选项，把用例改名为它实际证明的内容：
 
 - `two_lane_mask_and_low_score_exact_two`：CONFIG 写入 `1100` 后直通数据路径，不得被重排成 `0011`/`0110`；两路有效时两条都发、`saved=0`；utility 不均（3,0,0,0）与全零时提交仍恰好两条。
-- 原反例的等价回归（`candidate = raw_mask & ~cooldown_mask`、top-2 只在 candidate 内排名、candidate 不足两条则拒绝且零副作用）写在 `DESIGN_PROPOSAL_DYNAMIC_PRUNE_RECOVERY.md` 第 3 节，作为该提案被批准后的必过验收门。
+- 原反例的等价回归（`candidate = raw_mask & ~cooldown_mask`、top-2 只在 candidate 内排名、candidate 不足两条则拒绝且零副作用）写在 `docs/design/DESIGN_PROPOSAL_DYNAMIC_PRUNE_RECOVERY.md` 第 3 节，作为该提案被批准后的必过验收门。
 
 ## 12. 签核链：摘要刷新与 EOL 稳定性
 
@@ -216,7 +216,7 @@ VIVADO_LOCAL_PRUNE_GATE_PASS version=Vivado Simulator v2024.2.0 models=3 seeds=8
 本分支相对 `origin/main` 的全部文件变更（`git diff --name-status <merge-base> HEAD` 实时输出）：
 
 ```text
-M	SIMULATION_REPORT.md
+M	docs/reports/SIMULATION_REPORT.md
 M	TEST_MATRIX.json
 M	make_local_prune_report.py
 M	test_local_prune_gate_vivado.py

@@ -49,7 +49,7 @@
 - [x] 只读审计 ENeuron committed snapshot 与 MOD 消费时序
 - [x] 只读审计 Pulse-Mini-L/L2 FEEDBACK 接受沿证据清理与响应时序
 - [x] 冻结 `4→8→2` 两层严格 `2:4` 测试拓扑、固定一拍路由和 10-gate all-done barrier
-- [x] 形成 `NPU_PRUNING_NP4B_TODO.md`，列明八项待批准决定、TDD 顺序、负向控制和停止条件
+- [x] 形成 `docs/planning/NPU_PRUNING_NP4B_TODO.md`，列明八项待批准决定、TDD 顺序、负向控制和停止条件
 - [x] 用户批准 NP4B 八项实现决定
 - [x] 按 NP4B1→NP4B6 测试先行实施并完成；未运行 NP6 Vivado
 
@@ -128,7 +128,7 @@
 - [x] 复现空间、时间顺序和 XOR 三类任务的只读能力探测
 - [x] 形成数据拆分、负对照、统计门槛、持续学习指标和硬件映射 V1 审核稿
 - [x] 完成 burst calibration 探测和任务/统计/Host Bridge 反例审查
-- [x] 将 `g4_capability_validation_proposal.md` 修订为 V2 审核稿
+- [x] 将 `docs/design/g4_capability_validation_proposal.md` 修订为 V2 审核稿
 - [x] 对 V2 做独立 Temporal、Host 权限、P5 和 Goal 扩展性反证审计
 - [x] 将审核稿修订为 V3：四阶 Temporal motif、no-replay P4、双层 P5、P6 扩展性
 - [x] 用户审核 V3 的六项冻结决策
@@ -140,7 +140,7 @@
 - [x] T1：冻结 G4 seed、hash、decoder、Temporal、split 和推理状态测试合同
 - [x] T2：实现 `g4_benchmark.py` 与可复现 manifest
 - [x] 重跑 T0、G4 新测试、`compileall` 和既有完整回归
-- [x] T3 前置：完成 Tile/Host/容量只读审计并形成 `g4_t3_execution_spec.md` 审核稿
+- [x] T3 前置：完成 Tile/Host/容量只读审计并形成 `docs/design/g4_t3_execution_spec.md` 审核稿
 - [x] 收齐三路独立反证并修订 T3 审核稿：公共置换、RandomPlan、80-tick 计分、no-replay、canonical 数据、确定性搜索、checkpoint 与 commit fresh-run
 - [ ] 用户审核 T3 的 12 项二级冻结决策
 - [ ] T3：在冻结 benchmark 上实现训练策略与 P0-P4 能力门槛
@@ -151,7 +151,7 @@
 
 - [x] 从当前 RTL、Host 协议和验证产物重建“数字神经元/神经网络硬件基石”的实际证据
 - [x] 区分固定 4->2->2 原型、训练真实性、可扩展架构和板级闭环，不沿用宽泛总称
-- [x] 形成并反审计 `original_goal_alignment_review.md`，把板级部署、共享 RAM 大规模化和 G4 研究从最小基石必要条件中移出
+- [x] 形成并反审计 `docs/design/original_goal_alignment_review.md`，把板级部署、共享 RAM 大规模化和 G4 研究从最小基石必要条件中移出
 - [x] 用户批准原始 Goal M1-M4 四项决策
 - [x] C1：冻结最小任务、初态、训练顺序、严格解码和命令账本合同
 - [x] C2：真实 Host Bridge + Tile 双时钟 RTL 完成训练、权重提交、读回和冻结推理
@@ -187,7 +187,7 @@
 - Host Bridge V1 地址和四路 modulator 均为固定 4->2->2；P6 必须先冻结可寻址流式协议 V2
 - 所有能力结论按训练模式和 P0-P6 门槛绑定；禁止 Teacher、Hybrid、reward、Python 和 RTL 证据互相代偿
 - V3 Temporal 已完成活动正对照与有限容量预判；正式实现仍须重跑 manifest 化 P0b 和预注册 direct-weight 对照
-- T3 正式编码前必须批准 `g4_t3_execution_spec.md`；当前全调用逐字段等价已被定向探针判定为 FAIL，待以 EP_START 白名单复位 + 推理区间冻结的精确合同验收
+- T3 正式编码前必须批准 `docs/design/g4_t3_execution_spec.md`；当前全调用逐字段等价已被定向探针判定为 FAIL，待以 EP_START 白名单复位 + 推理区间冻结的精确合同验收
 - V3 六项决策已经批准；T3 十二项二级决策仍为 `REVIEW_REQUIRED`，两级批准状态不得混淆
 
 ## 多周期 RTL 阶段（2026-08-12）
@@ -222,7 +222,7 @@
 - [x] 完成第二轮反例审查并修订响应、EP_END、reset、ABORT、计数边界和 XPM 握手合同
 - [x] 完成第三轮终审，收敛 STATUS、response_accept、错误优先级、flush spike、modulator 和 sticky fatal 语义
 - [x] 形成七类实现任务依赖图与逐项权威验收证据表
-- [x] `host_bridge_v1_proposal.md` 的冻结决策已落实到 RTL、oracle、测试和报告
+- [x] `docs/design/host_bridge_v1_proposal.md` 的冻结决策已落实到 RTL、oracle、测试和报告
 - [x] RTL、参考模型、协同仿真、formal/CDC 和 Vivado 任务已完成
 - [x] 实现并签核固定 4->2->2 Host Bridge 数字前端；具体板卡适配仍需目标板和物理链路信息
 
@@ -235,7 +235,7 @@
 - [x] T5：完成非整数双时钟、随机相位、producer/consumer 背压端到端仿真；20 seeds x 2000 flit 通过
 - [x] T6：完成 controller 抽象 formal 与系统 Vivado `report_cdc`；所有 XPM 外部 CDC 硬门槛通过
 - [x] T7：完成 Bridge + XPM 双时钟 Vivado OOC 资源、时序、route 与 DRC 签核
-- [x] 汇总 G3a 数字前端证据并更新 `verify_goal.py`、`goal_audit.md` 和项目文档
+- [x] 汇总 G3a 数字前端证据并更新 `verify_goal.py`、`docs/verification/goal_audit.md` 和项目文档
 
 ### 本阶段错误记录
 
@@ -288,13 +288,13 @@
 - [x] 创建 1.0 版本文件和可审计的生成物忽略规则
 - [x] 运行 `python verify_goal.py`，以当前源码重建最终签核摘要
 - [x] 初始化 `main` 分支并提交 `ENeuron 1.0`，创建 annotated tag `v1.0`
-- [x] 标签完成后评估原始计数/分频方案，形成独立 `TODO.md`
+- [x] 标签完成后评估原始计数/分频方案，形成独立 `docs/planning/TODO.md`
 - [x] 复核 Pulse-Mini 资源预算、阶段门槛和非目标，单独提交规划
 
 ### 本阶段顺序约束
 
 - `v1.0` 只包含已经通过 M1-M4 的当前实现、验证资产和签核证据。
-- `TODO.md` 必须在 `v1.0` 标签之后创建，作为后续开发规划单独提交。
+- `docs/planning/TODO.md` 必须在 `v1.0` 标签之后创建，作为后续开发规划单独提交。
 - 1.0 不宣称共享 RAM 扩展、板级闭环、G4 或通用 AI 已完成。
 - Git 忽略规则只排除缓存、临时仿真产物和可重建的大型工程文件；`verify_goal.py` 实际读取的文本报告、摘要、Tile DCP 和真实 XPM 仿真日志必须保留。
 
@@ -324,7 +324,7 @@
 
 - [x] 核对当前工作树、`v1.0` 标签和 Pulse-Mini 实施基线
 - [x] 复核原始计数/分频方案的真实 Vivado 资源与时序边界
-- [x] 将 Pulse-Mini-L、L2、阵列和数字识别规模约束写入 `TODO.md`
+- [x] 将 Pulse-Mini-L、L2、阵列和数字识别规模约束写入 `docs/planning/TODO.md`
 - [x] 新增 P9-P13 的可执行路线与硬门
 - [x] 完成 208 项回归和 `git diff --check`
 - [x] 提交本次规划更新
@@ -344,7 +344,7 @@
 - 固定 `4->2->2` 共同任务：三者训练后均满分；两个 Pulse 版本训练权重逐位一致。
 - RTL 协同仿真旁证：ENeuron 单核 20000 事务、ENeuron Tile 10000 事务、默认 `LEAK_PERIOD=8` 的 Pulse-Mini-L 单核 20000 事务和网络 272 命令均与黄金模型一致。
 - `python -m unittest discover -v`：200 项通过；`python -m compileall -q .` 通过；Pulse-Mini 有限形式验证 depth 20 无反例。
-- 完整报告为 `SIMULATION_COMPARISON_REPORT.md`，原始数据为 `comparison_simulation_results.json`。
+- 完整报告为 `docs/reports/SIMULATION_COMPARISON_REPORT.md`，原始数据为 `comparison_simulation_results.json`。
 
 ### 本阶段错误记录
 
@@ -436,7 +436,7 @@
 
 - [x] 冻结报告范围：目标、架构、三个神经元版本、验证、资源、数字识别、边界与路线
 - [x] 复核仓库 HEAD、签核摘要和机器结果
-- [x] 生成 `PROJECT_REPORT.md`
+- [x] 生成 `docs/reports/PROJECT_REPORT.md`
 - [x] 校验报告中的实测/估算/未证明口径与仓库链接
 
 ### 报告口径
@@ -472,7 +472,7 @@
 - [x] 审计 ENeuron/Pulse-Mini 可复用状态和真实跳算位置
 - [x] 比较逐权重、固定 N:M、整神经元三种门控粒度
 - [x] 冻结最小实验合同、负对照、精度与硬件收益门槛
-- [x] 形成 `NPU_PRUNING_TODO.md`，并在根 `TODO.md` 增加待审核入口
+- [x] 形成 `docs/planning/NPU_PRUNING_TODO.md`，并在 `docs/planning/TODO.md` 增加待审核入口
 - [x] 用户批准 NP0 八项决策，并要求 ENeuron、Pulse-Mini-L、Pulse-Mini-L2 三种神经元全部运行
 - [x] NP1：统一黄金模型与不可作弊工作量计数（19 项 B0 测试、固定向量和 SHA-256 摘要通过）
 - [x] NP2：三种神经元完成 S0-S3、gain 1/2/3 扫描及同分/clip/稳定性统计；选择 `1/2/1`
@@ -558,7 +558,7 @@
 
 - [x] 读取 PR #2 元数据、分支、HEAD 和文件差异
 - [x] 在隔离 worktree 运行本机 Vivado 2024.1 针对性回归
-- [x] 审查 `SIMULATION_REPORT.md`、`TEST_MATRIX.json` 和 `test_local_prune_gate_vivado.py`
+- [x] 审查 `docs/reports/SIMULATION_REPORT.md`、`TEST_MATRIX.json` 和 `test_local_prune_gate_vivado.py`
 - [x] 修复报告中的 PR #1 复现命令残留并推送到 PR 分支
 - [x] 通过 GitHub 页面提交中文 review/comment
 
@@ -586,3 +586,57 @@
 |---|---:|---|
 | PowerShell 使用 `< $tmp` 输入重定向失败 | 1 | 改用 `gh api -f body=...` PATCH PR 描述 |
 | `APPROVE` 后回读 GraphQL/REST 多次 EOF | 3 | 只记录 approve 命令退出码 0，不伪造回读确认 |
+## 2026-08-31 根目录 Markdown 整理归档
+
+### 目标
+
+将根目录中的阶段报告、设计规格、验证记录和历史规划迁入 `docs/` 的稳定分类目录；根目录只保留项目入口与持久工作文件，并修复全部仓库内 Markdown 引用后提交、推送到 `origin/main`。
+
+### 执行阶段
+
+- [x] 恢复现有计划并盘点根目录 Markdown 与 Git 状态
+- [x] 冻结归档分类和保留在根目录的文件集合
+- [x] 使用 Git 可追踪移动完成归档，并修复文档引用
+- [x] 检查 Markdown 链接、工作树差异和仓库状态
+- [ ] 提交归档改动并推送 `origin/main`
+
+### 验收标准
+
+- 根目录只保留 `README.md`、持久工作流/计划文件及必要入口文档
+- 所有迁移文件按用途进入 `docs/design/`、`docs/reports/`、`docs/verification/` 或 `docs/planning/`
+- 仓库内相对 Markdown 链接不存在因迁移导致的断链
+- 不覆盖现有 `docs/reports/STAGE_REPORT_2026-08-31.md`、`progress.md` 未提交内容，二者随本次文档归档一起审计提交
+- `git diff --check` 通过；提交成功且本地 `main` 与 `origin/main` 一致
+
+### 约束
+
+- 只整理 Markdown 及其路径引用；Python/PowerShell/JSON 只允许修改文档路径常量或刷新既有签名，不改功能逻辑、RTL、测试语义或生成证据内容
+- 保留 Git 历史，不删除项目事实记录
+- 不运行 NP6 Vivado，不扩大既有验证结论
+
+### 冻结归档结构
+
+- 根目录保留：`README.md`、`WORKFLOW.md`、`WORKFLOW_STATE.md`、`task_plan.md`、`findings.md`、`progress.md`
+- `docs/design/`：设计提案、协议、执行规格、推荐设计和 RTL 合同
+- `docs/planning/`：Pulse-Mini、NPU 剪枝与 NP4B 专项 TODO
+- `docs/reports/`：数字识别、仿真、局部剪枝、项目阶段与 1.0 发布报告
+- `docs/verification/`：Goal 审计和 NPU 剪枝签核
+- `docs/README.md`：按上述四类提供可点击索引，并说明根目录保留规则
+
+### 错误记录
+
+| 错误 | 尝试 | 处理 |
+|---|---:|---|
+| 审计命令假定总摘要生成器名为 `make_np4b_signoff_summary.py`，该文件不存在 | 1 | 未产生文件修改；改用 `rg --files` 查找真实生成/刷新入口，不重复调用不存在路径 |
+| 首轮全局路径替换把后缀键 `TODO.md` 再次应用到两个已替换的 NPU TODO 路径 | 1 | `rg` 稳定复现 16 处重复 `docs/planning`，后缀关系审计确认仅影响两个 NPU TODO 名；使用两个完整错误串做一次精确替换，并以同一 `rg` 断言归零 |
+| 记录上述替换错误时，多文件补丁仍使用迁移前路径文本作上下文，补丁被原子拒绝 | 1 | 未产生部分修改；先读取当前精确行，再按现状补丁，不重复使用旧上下文 |
+| Goal 定向测试迁移到嵌套文档路径后，临时目录未创建父目录而出现 2 个 `FileNotFoundError` | 1 | RED 已由 `T0HandoffSummaryTests` 两项稳定复现；测试夹具在写文件前创建目标父目录，不改变被测接口或断言 |
+| Windows PowerShell 5.1 运行无 BOM UTF-8 的恢复脚本时，中文注释行后的 `$repoRoot` 赋值未生效 | 1 | `Mode Check` 稳定 RED；当前文件与 HEAD 均无 BOM，变量只在该注释后赋值一次。将紧邻赋值的注释改为 ASCII，保持脚本逻辑不变后复验同一命令 |
+| 仅改首条中文注释后，Windows PowerShell 5.1 在后续中文字符串处仍发生跨行误解析 | 2 | 证明问题是整个无 BOM UTF-8 文件的解码，不是单一注释；为脚本增加 UTF-8 BOM，保留中文日志与逻辑，再以同一 `powershell -File ... -Mode Check` 复验 |
+| 增加脚本 BOM 后已能执行，但默认代码页读取无 BOM Markdown 导致“最后更新”字段误判缺失 | 3 | 解析层问题已消失；在全部 Markdown `Get-Content`/`Select-String` 读取点显式指定 UTF-8，再复验同一 Check。该修复保留原字段与状态合同 |
+| 旧根路径审计的一次性 PowerShell 命令把 `$n:` 解析成带冒号的变量引用 | 1 | 命令在解析期失败、未读写仓库；改用格式化运算符构造诊断字符串，不重复含歧义的插值写法 |
+| 修正语法后的旧路径审计把 NPU 文件名中的合法 `TODO.md` 后缀误报为 23 个旧根引用 | 2 | 所有报项都位于已验证的新路径；改为先从每行移除全部合法完整/相对归档路径，再搜索残留旧文件名，消除后缀歧义 |
+| “剥离合法路径”审计仍把同一行中的合法链接/说明文字误报为 58 项 | 3 | 停止继续扩展该一次性算法；改用负向路径字符边界，只检查未被 `/`、`\`、`_` 或文件名字符前缀限定的裸旧文件名，并保留独立零断链检查 |
+| 报告一致性检查命令包含删除系统临时文件，被进程策略在启动前拒绝 | 1 | 仓库未改；改用 `New-TemporaryFile` 取得唯一目标且不执行删除，由系统临时目录管理该文件 |
+| 报告生成器成功输出归档路径，但临时重渲染与正式报告不完全一致 | 1 | 差异只来自主工作区缺少 PR 评审时的 `vivado_regression_console.log`、当前未提交树无法重建当时分支清单，以及最新签名基线；保留正式报告中的原始真实证据，不用缺输入的降级输出覆盖 |
+| 首轮合并运行局部剪枝测试时，签名刷新态不满足“可用工具均已正式重验证”的已提交摘要合同 | 1 | 不降低断言；运行项目正式 `verify_local_prune_rtl.py` 重验证路径，使行为/形式证据与迁移后的 verifier 哈希一起刷新，再重跑定向套件 |

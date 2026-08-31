@@ -5,7 +5,7 @@
 ## 1. 为什么要单独提案
 
 原提交里那套 `neuron_gate_core.sv`（8 位 score、lane cooldown、自动 regrow、`image_end`/`epoch_end`
-协议）与已经冻结的 V1 合同 `LOCAL_PRUNE_RTL_CONTRACT.md` 是两套互不兼容的设计：
+协议）与已经冻结的 V1 合同 `docs/design/LOCAL_PRUNE_RTL_CONTRACT.md` 是两套互不兼容的设计：
 
 | 维度 | V1 冻结合同（已签核） | 原提交里的设计（未批准） |
 |---|---|---|
@@ -16,7 +16,7 @@
 | 审计 | 原子 `PRUNE_COMMIT`、非法命令计数、分层工作量 | 无 ID/exactly-once 语义 |
 
 因此按评审意见：**该设计从本 PR 移除**，只以提案形式进入评审；本 PR 的仿真交付物改为直接验证
-`local_prune_gate_2of4.sv`（见 `SIMULATION_REPORT.md`）。
+`local_prune_gate_2of4.sv`（见 `docs/reports/SIMULATION_REPORT.md`）。
 
 ## 2. 提案要解决的问题
 

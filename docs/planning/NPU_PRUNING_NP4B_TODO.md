@@ -505,7 +505,7 @@ P4 硬门：三模型必须分别出现 20,000 条通过结论；任一模型、
 - [x] P5.2：摘要记录 Python/Icarus/Yosys 版本、形式深度、完整 runner 命令与退出码、执行时间、实际 unittest 数量、正式 witness 数量和字节数。
 - [x] P5.3：SHA-256 精确绑定 87 个 RTL、oracle、testbench、runner、tests、formal harness/脚本、正式日志、成功 witness、结果文件和总 verifier 自身；键集合缺失、多余、文件陈旧或出现 cex/tmp 证据均失败。
 - [x] P5.4：总 verifier 重算逻辑账本恒等式；这些计数只代表功能级访问/发射门控，不代表物理 BRAM 跳读、墙钟周期、功耗或 Vivado 时序。
-- [x] P5.5：同步 `NPU_PRUNING_NP4B_TODO.md`、`task_plan.md`、`progress.md`、`findings.md` 与 `PROJECT_REPORT.md`，只引用证据索引，不复制整份日志。
+- [x] P5.5：同步 `docs/planning/NPU_PRUNING_NP4B_TODO.md`、`task_plan.md`、`progress.md`、`findings.md` 与 `docs/reports/PROJECT_REPORT.md`，只引用证据索引，不复制整份日志。
 - [x] P5.6：所有硬门通过后提交 `docs: sign off NP4B pruning integration`，最终状态只写入：
 
 ```text

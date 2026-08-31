@@ -553,7 +553,7 @@ def case_two_lane_and_low_score_exact_two() -> tuple[tuple[str, str, list[GateTr
     lane cooldown, which the frozen V1 contract does not have.  Here a CONFIG two-lane mask is
     passed straight to the datapath without re-ranking, and commits from an uneven and from an
     all-zero utility vector still produce exactly two lanes.  The equivalent regression for the
-    withdrawn design is specified in DESIGN_PROPOSAL_DYNAMIC_PRUNE_RECOVERY.md section 3.
+    withdrawn design is specified in docs/design/DESIGN_PROPOSAL_DYNAMIC_PRUNE_RECOVERY.md section 3.
     """
     transactions = [
         clear_command(),

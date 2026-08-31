@@ -50,7 +50,7 @@
     "vivado_resource_timing_proven": false
   },
   "previous_signature": {
-    "LOCAL_PRUNE_RTL_CONTRACT.md": "32aff8419dde12b7047e84d09e4cb5b1eb04f8175beb17b31dffe203e92a42be",
+    "docs/design/LOCAL_PRUNE_RTL_CONTRACT.md": "32aff8419dde12b7047e84d09e4cb5b1eb04f8175beb17b31dffe203e92a42be",
     "formal_local_prune_gate.sv": "dadab30b991ab907b9024b892203b37a05c59c3b4bb5e3ebc7e5b7ce896b7e6b",
     "formal_local_prune_gate.ys": "306db803c4b9295214d2f907fd4436d2f63d49174ba188c9375492bd35e0d6a4",
     "formal_local_prune_gate_reach.ys": "00c18c551261dd7fe926d858f812c2174ba47e1728f147e051e8d27d8574aecb",
@@ -60,7 +60,7 @@
     "local_prune_rtl_reference.py": "16400290cc615eb905bdd9ae4f9be9ee82a64f0cb7956d6e310e4a5bc418b1fb",
     "run_formal_local_prune_gate.ps1": "7964b0b13245144f7946f6229ea51a91553721560d00c28854eea7d50d39d240",
     "test_local_prune_gate_rtl.py": "3b00a43c28fdb7d62913ca222a32696ddeff887599880dc1b59fd557da86d390",
-    "verify_local_prune_rtl.py": "9aa980a419f3064f87d7a3d1ecbbee2722520db9e6cd1caf939ebd679f472691"
+    "verify_local_prune_rtl.py": "fbede78e456781d6cef6f92e6e882b7bfc6888b846e157732167aef92cdfc3fd"
   },
   "provenance": {
     "cosim": {
@@ -74,10 +74,8 @@
         "tool": "Vivado Simulator v2024.2.0",
         "transactions": 6447
       },
-      "inputs_moved_since_previous_signature": [
-        "verify_local_prune_rtl.py"
-      ],
-      "inputs_unchanged_since_previous_signature": false,
+      "inputs_moved_since_previous_signature": [],
+      "inputs_unchanged_since_previous_signature": true,
       "reverified_in_this_run": true,
       "signed_inputs": [
         "local_prune_gate_2of4.sv",
@@ -104,12 +102,10 @@
   },
   "schema": "eneuron.local_prune_rtl.v2",
   "score_method": "S2_ONLY",
-  "source_changes_since_previous_signature": [
-    "verify_local_prune_rtl.py"
-  ],
+  "source_changes_since_previous_signature": [],
   "source_hash_policy": "sha256 over the working-tree bytes with CRLF and CR normalised to LF (platform and core.autocrlf independent)",
   "source_sha256": {
-    "LOCAL_PRUNE_RTL_CONTRACT.md": "32aff8419dde12b7047e84d09e4cb5b1eb04f8175beb17b31dffe203e92a42be",
+    "docs/design/LOCAL_PRUNE_RTL_CONTRACT.md": "32aff8419dde12b7047e84d09e4cb5b1eb04f8175beb17b31dffe203e92a42be",
     "formal_local_prune_gate.sv": "dadab30b991ab907b9024b892203b37a05c59c3b4bb5e3ebc7e5b7ce896b7e6b",
     "formal_local_prune_gate.ys": "306db803c4b9295214d2f907fd4436d2f63d49174ba188c9375492bd35e0d6a4",
     "formal_local_prune_gate_reach.ys": "00c18c551261dd7fe926d858f812c2174ba47e1728f147e051e8d27d8574aecb",
@@ -119,7 +115,7 @@
     "local_prune_rtl_reference.py": "16400290cc615eb905bdd9ae4f9be9ee82a64f0cb7956d6e310e4a5bc418b1fb",
     "run_formal_local_prune_gate.ps1": "7964b0b13245144f7946f6229ea51a91553721560d00c28854eea7d50d39d240",
     "test_local_prune_gate_rtl.py": "3b00a43c28fdb7d62913ca222a32696ddeff887599880dc1b59fd557da86d390",
-    "verify_local_prune_rtl.py": "6df8e72b1b9d21f458c5052ba7ae8f6c9fe5936309ee811aa5e18e814c6552cd"
+    "verify_local_prune_rtl.py": "fbede78e456781d6cef6f92e6e882b7bfc6888b846e157732167aef92cdfc3fd"
   },
   "status": "COMMON_CONTROLLER_NP4_NP5_PASS_INTEGRATION_PENDING",
   "tool_availability": {
@@ -129,12 +125,12 @@
   },
   "toolchain_provenance": {
     "formal_artifacts": "formal_local_prune_gate.log, formal_local_prune_gate_reach.log and formal_local_prune_gate_success.vcd are rewritten by every reverify run; main() restores them to the committed bytes in a finally block and then refreshes the NP4B master summary to cover the rewritten local_prune_rtl_results.json, so verify_np4b_signoff.py passes immediately after an official reverify",
-    "iverilog_build": "Icarus Verilog version 12.0 (devel) (s20150603-1539-g2693dd32b)",
-    "yosys_build": "official YosysHQ WebAssembly build (yowasp-yosys), because upstream publishes no native Windows Yosys binary"
+    "iverilog_build": "Icarus Verilog version 12.0 (stable) ()",
+    "yosys_build": "native build"
   },
   "tools": {
-    "iverilog": "Icarus Verilog version 12.0 (devel) (s20150603-1539-g2693dd32b)",
-    "yosys": "Yosys 0.68 (git sha1 38e001a6f, Release, Clang /workspace/YoWASP/yosys/wasi-sdk-33.0-x86_64-linux/share/cmake/../..//bin/clang++ 22.1.0)"
+    "iverilog": "Icarus Verilog version 12.0 (stable) ()",
+    "yosys": "Yosys 0.56 (git sha1 9c447ad9d4b1ea589369364eea38b4d70da2c599, x86_64-w64-mingw32-g++ 15.2.0 -march=nocona -msahf -mtune=generic -O2 -fstack-protector-strong -O3)"
   },
   "verified_on": "2026-08-31"
 }

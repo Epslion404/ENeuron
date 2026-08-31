@@ -2,7 +2,7 @@
 
 模式：`PERSISTENT_WORKFLOW_V1`
 
-最后更新：2026-08-29
+最后更新：2026-08-31
 
 状态：`ACTIVE / NEXT_REVIEW_REQUIRED`
 
@@ -10,7 +10,7 @@
 
 NP4B 功能集成证据闭环已经完成；当前等待用户决定是否批准 NP6 Vivado 物理成本阶段。
 
-活动合同：`NPU_PRUNING_NP4B_TODO.md` 第 9 节。
+活动合同：`docs/planning/NPU_PRUNING_NP4B_TODO.md` 第 9 节。
 
 ## 当前事实
 

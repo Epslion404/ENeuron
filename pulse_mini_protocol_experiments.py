@@ -380,6 +380,6 @@ if __name__ == "__main__":
     write_outputs(
         result,
         json_path=root / "pulse_mini_protocol_experiments.json",
-        report_path=root / "PULSE_MINI_L2_PROTOCOL_REPORT.md",
+        report_path=root / "docs/reports/PULSE_MINI_L2_PROTOCOL_REPORT.md",
     )
     print("PULSE_MINI_PROTOCOL_EXPERIMENTS_PASS")

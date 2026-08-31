@@ -1,4 +1,4 @@
-param(
+﻿param(
     [ValidateSet("Check", "Resume")]
     [string]$Mode = "Resume"
 )
@@ -6,7 +6,7 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-# 本脚本只读取状态，不修改文件、不执行验证、不提交，也不调用 Vivado。
+# Read-only: no file changes, validation runs, commits, or Vivado calls.
 $repoRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $safeRepo = $repoRoot.Replace("\", "/")
 $requiredFiles = @(
@@ -15,7 +15,7 @@ $requiredFiles = @(
     "task_plan.md",
     "progress.md",
     "findings.md",
-    "NPU_PRUNING_NP4B_TODO.md"
+    "docs/planning/NPU_PRUNING_NP4B_TODO.md"
 )
 
 function Write-WorkflowLog {
@@ -57,7 +57,7 @@ function Test-WorkflowFiles {
         throw "缺少持久工作流文件：$($missing -join ', ')"
     }
 
-    $stateText = Get-Content -Raw -LiteralPath (Join-Path $repoRoot "WORKFLOW_STATE.md")
+    $stateText = Get-Content -Raw -Encoding UTF8 -LiteralPath (Join-Path $repoRoot "WORKFLOW_STATE.md")
     $requiredStateFields = @(
         "最后更新：",
         "状态：",
@@ -79,8 +79,8 @@ function Test-WorkflowFiles {
 function Show-WorkflowSummary {
     $head = (Invoke-WorkflowGit -Arguments @("rev-parse", "--short", "HEAD")) -join ""
     $statusLines = @(Invoke-WorkflowGit -Arguments @("status", "--short"))
-    $todoPath = Join-Path $repoRoot "NPU_PRUNING_NP4B_TODO.md"
-    $openItems = @(Select-String -LiteralPath $todoPath -Pattern "^- \[ \]").Count
+    $todoPath = Join-Path $repoRoot "docs/planning/NPU_PRUNING_NP4B_TODO.md"
+    $openItems = @(Select-String -Encoding UTF8 -LiteralPath $todoPath -Pattern "^- \[ \]").Count
 
     Write-WorkflowLog -Level "INFO" -Message "仓库：$repoRoot"
     Write-WorkflowLog -Level "INFO" -Message "HEAD：$head"
@@ -88,7 +88,7 @@ function Show-WorkflowSummary {
     Write-WorkflowLog -Level "INFO" -Message "活动 TODO 未完成项：$openItems"
 
     Write-Host "`n=== WORKFLOW_STATE.md ==="
-    Get-Content -LiteralPath (Join-Path $repoRoot "WORKFLOW_STATE.md")
+    Get-Content -Encoding UTF8 -LiteralPath (Join-Path $repoRoot "WORKFLOW_STATE.md")
 
     Write-Host "`n=== git status --short ==="
     if ($statusLines.Count -eq 0) {
@@ -104,10 +104,10 @@ function Show-ResumeContext {
     Invoke-WorkflowGit -Arguments @("log", "-5", "--oneline") | ForEach-Object { Write-Host $_ }
 
     Write-Host "`n=== progress.md 尾部 ==="
-    Get-Content -LiteralPath (Join-Path $repoRoot "progress.md") -Tail 35
+    Get-Content -Encoding UTF8 -LiteralPath (Join-Path $repoRoot "progress.md") -Tail 35
 
     Write-Host "`n=== findings.md 尾部 ==="
-    Get-Content -LiteralPath (Join-Path $repoRoot "findings.md") -Tail 25
+    Get-Content -Encoding UTF8 -LiteralPath (Join-Path $repoRoot "findings.md") -Tail 25
 
     Write-Host "`n=== 恢复完成 ==="
     Write-Host "下一步必须读取活动 TODO 的当前阶段完整合同，再判断是否已有用户批准。"

@@ -480,7 +480,7 @@ P0-P8 已完成并签核
 
 ## 10. NPU 局部自动剪枝支线
 
-局部结构化剪枝与动态门控已经独立规划到 `NPU_PRUNING_TODO.md`。NP0 八项决策已批准，ENeuron、Pulse-Mini-L、Pulse-Mini-L2 三种神经元必须分别运行；主线采用每四条连接保留两条、结构掩码与输入活动相交、共享 lane 在权重读取和计算发射前跳过无效连接。
+局部结构化剪枝与动态门控已经独立规划到 `docs/planning/NPU_PRUNING_TODO.md`。NP0 八项决策已批准，ENeuron、Pulse-Mini-L、Pulse-Mini-L2 三种神经元必须分别运行；主线采用每四条连接保留两条、结构掩码与输入活动相交、共享 lane 在权重读取和计算发射前跳过无效连接。
 
 - [x] NP1：公共 `2:4` 黄金模型、不可作弊工作量计数、B0 固定向量和 SHA-256 摘要。
 - [x] NP2：三种神经元完成 dense/random/S0-S3、gain 1/2/3 扫描及同分/clip/稳定性统计；最小合格 gain 为 `1/2/1`。
@@ -490,6 +490,6 @@ P0-P8 已完成并签核
 - [x] NP4 接口审核：已于 2026-08-29 冻结隐藏/输出统一 `2:4`、gain=`1/2/1`、一次原子提交、无 detector gate、只走既有训练恢复、读取/发射前形成 `issue_mask` 六项 V1 决定。
 - [x] NP4A 公共控制器：独立 `2:4` RTL、固定 gain 适配器、四拍原子提交、读取前门控和层级结构节省计数已通过。
 - [x] NP5 公共控制器验证：三模型共 60000 条逐事务协同仿真、两个负向反例、depth=32 有限形式与成功提交可达性通过。
-- [x] NP4B 规划：形成 `NPU_PRUNING_NP4B_TODO.md` 审核稿，冻结接入边界、测试矩阵、停止条件和进入 NP6 的签核门。
+- [x] NP4B 规划：形成 `docs/planning/NPU_PRUNING_NP4B_TODO.md` 审核稿，冻结接入边界、测试矩阵、停止条件和进入 NP6 的签核门。
 - [x] NP4B0 用户审核：已批准 committed snapshot 只读端口、Pulse 外部 wrapper、独立 `4→8→2` 网络、sideband 剪枝通道、一核一 gate、CLEAR 分离、commit 后自动清历史、NP6 二次审批八项决定。
 - [x] NP4B 正式集成：ENeuron snapshot evidence 旁路、Pulse FEEDBACK evidence 锁存、真正四输入输出组、三模型各 20,000 条、五套形式证据和 359 项回归通过；当前为 `NP6_REVIEW_REQUIRED`，无 Vivado NP6 证据。

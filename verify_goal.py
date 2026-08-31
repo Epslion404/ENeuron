@@ -218,8 +218,8 @@ def write_t0_signoff_summary() -> None:
     whs = require_key(tile_summary, "WHS_NS")
     document_checks = {
         "README.md": (lut, ff, wns, whs),
-        "goal_audit.md": (lut, ff, wns),
-        "recommended_design.md": (lut, ff, wns),
+        "docs/verification/goal_audit.md": (lut, ff, wns),
+        "docs/design/recommended_design.md": (lut, ff, wns),
     }
     for name, required_values in document_checks.items():
         path = ROOT / name

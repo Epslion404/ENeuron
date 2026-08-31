@@ -33,7 +33,7 @@ Yosys 0.56 完成 depth=32 有限形式检查，并用独立 SAT 可达性约束
 
 ## 证据
 
-- `LOCAL_PRUNE_RTL_CONTRACT.md`：接口、拒绝、周期和声明边界；
+- `docs/design/LOCAL_PRUNE_RTL_CONTRACT.md`：接口、拒绝、周期和声明边界；
 - `local_prune_rtl_reference.py`：逐事务黄金模型；
 - `local_prune_gate_cosim.py`：60000 条协同仿真和两个负向变体；
 - `formal_local_prune_gate.sv`：有限形式断言；

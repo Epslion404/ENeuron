@@ -327,11 +327,11 @@ python verify_np4b_signoff.py
 
 ## 14. 权威证据索引
 
-- 版本与边界：`RELEASE_1.0.md`、`goal_audit.md`、`original_goal_alignment_review.md`
+- 版本与边界：`docs/reports/RELEASE_1.0.md`、`docs/verification/goal_audit.md`、`docs/design/original_goal_alignment_review.md`
 - M3 任务闭环：`m3_signoff_summary.txt`、`m3_task.py`、`m3_acceptance.py`
 - Tile/Host 硬件：`vivado_tile_reports/signoff_summary.txt`、`vivado_host_bridge_reports/signoff_summary.txt`
 - Pulse-Mini：`pulse_mini_signoff_summary.json`、`pulse_mini_p7_signoff_summary.json`
-- L2：`PULSE_MINI_L2_PROTOCOL_REPORT.md`、`vivado_pulse_mini_l2_reports/signoff_summary.txt`
-- 数字识别：`DIGIT_RECOGNITION_D0.md`、`DIGIT_RECOGNITION_D1.md`、`DIGIT_RECOGNITION_D2.md`
+- L2：`docs/reports/PULSE_MINI_L2_PROTOCOL_REPORT.md`、`vivado_pulse_mini_l2_reports/signoff_summary.txt`
+- 数字识别：`docs/reports/DIGIT_RECOGNITION_D0.md`、`docs/reports/DIGIT_RECOGNITION_D1.md`、`docs/reports/DIGIT_RECOGNITION_D2.md`
 - D2 原始结果：`digit8x8_d2_results.json`
-- NP4B 局部剪枝：`np4b_signoff_summary.json`、`verify_np4b_signoff.py`、`NPU_PRUNING_NP4B_TODO.md`
+- NP4B 局部剪枝：`np4b_signoff_summary.json`、`verify_np4b_signoff.py`、`docs/planning/NPU_PRUNING_NP4B_TODO.md`

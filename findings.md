@@ -162,7 +162,7 @@
 
 ## V1 语义冻结发现（2026-08-11）
 
-- `recommended_design.md` 的单时间步顺序先执行输入积分，后写“不应期屏蔽输入”，无法唯一确定不应期内 `I` 是否吸收事件；RTL 前必须改成唯一 next-state 方程。
+- `docs/design/recommended_design.md` 的单时间步顺序先执行输入积分，后写“不应期屏蔽输入”，无法唯一确定不应期内 `I` 是否吸收事件；RTL 前必须改成唯一 next-state 方程。
 - 当前规格没有定义 pre/post 同 tick 时 eligibility 的合并方式，也没有定义 `tick_valid`、`mod_valid`、`weight_we` 同周期的优先级。
 - V1 应避免对同一寄存器在一个 `always_ff` 周期中多次非阻塞赋值；先在组合逻辑中累计唯一 next value，再在时钟边沿提交。
 - 高层 `ThreeFactorNeuron` 当前实际使用趋零衰减、更新后的 `pre_trace` 参与 eligibility、`post_trace` 累加以及自适应阈值；`digital_lif_core.sv` 当前分别使用算术右移、旧 `pre_trace`、post trace 直接覆盖且没有阈值寄存器，不能直接声称与算法模型等价。
@@ -312,7 +312,7 @@
 - P4 带 task context 时只能称 task-aware/task-incremental continual learning。每个 model seed 内的 6 个任务排列是重复测量，统计与 bootstrap 单位必须是 seed，并要求至少 8/10 seeds 按排列聚合后通过。
 - P5 必须用 `RtlReferenceNeuron + HostBridgeOracle`，不能直接用语义不同的 `network_sim.py`。每个 RTL seed 先 hard reset、12 写、12 读回并检查元数据；训练遵守单槽 snapshot，commit ID 在 16-bit 不回绕范围严格单调。
 - P5 spike count 只在 `host_rsp_valid && host_rsp_ready` 握手时累计，并分别读取 `TICK_COMMIT.arg0[3:2]` 与 `EP_END.arg0[3:2]`。Host 黑盒只验响应、计数、权重和元数据；eligibility/trace/threshold/membrane 等只作为 testbench 白盒证据。
-- 最新独立 Tile 原始报告为 3152 LUT / 1972 FF、WNS +0.213 ns、WHS +0.026 ns；README/`goal_audit.md` 仍是旧数字，且 `verify_goal.py` 尚未独立审计 Tile 报告。V2 将其冻结为正式实现的 T0。
+- 最新独立 Tile 原始报告为 3152 LUT / 1972 FF、WNS +0.213 ns、WHS +0.026 ns；README/`docs/verification/goal_audit.md` 仍是旧数字，且 `verify_goal.py` 尚未独立审计 Tile 报告。V2 将其冻结为正式实现的 T0。
 
 ## G4 V3 反证审计（2026-08-13）
 
@@ -336,7 +336,7 @@
 - 正式计分和动作选择必须从 output spike count 调用 `strict_decode()`；禁止使用非零平局偏向 class 0 的 `NetworkEpisode.prediction`。
 - Temporal 只有 8 个有效离散权重；既有 Train 最优 78.125% 是固定 2-hidden 的容量硬风险。正式 direct-weight 将对 Temporal 做结构化覆盖，对 Spatial/XOR 各做 100000 个唯一候选。
 - 本机测得 64-tick inference 约 0.622 ms/episode、训练提交约 0.894 ms/episode、朴素 direct search 约 49 candidates/s。T3 的 final P1-P3 预计 30-45 分钟，全部 P4 模式预计 1.5-2 小时。
-- `g4_t3_execution_spec.md` 已将 P0a 拆分、permutation 数值门、P4 聚合/context/no-replay、负对照配对、direct-search、统计边界、Spatial/XOR、训练预算和 joint budget 写成 12 项待审核合同。
+- `docs/design/g4_t3_execution_spec.md` 已将 P0a 拆分、permutation 数值门、P4 聚合/context/no-replay、负对照配对、direct-search、统计边界、Spatial/XOR、训练预算和 joint budget 写成 12 项待审核合同。
 - D1 独立反证确认 inference 的正确合同不是“整次调用全部学习字段不变”，而是 EP_START 白名单基线转换、其后的推理区间逐字段冻结、整笔调用持久训练状态不变；适配器还需显式拒绝在未 capture/未 commit 的信用状态进入 INFER。
 - D2 独立反证确认共享数据的 20 model seeds 必须共用同一 evaluation-label permutation；若 permutation seed 含 model seed，会错误压低零分布方差。正式零分布改为每 `(task, split, permutation_index)` 一份公共平衡置换。
 - D4 独立反证确认 context 在 tick 0..15，但一拍路由会把 context 来源活动延伸到 tick 16；正式分类只统计 tick 17..79 和 EP_END flush，并同时审计 context hash 与原 payload hash。
@@ -385,7 +385,7 @@
 - `verify_goal.py` 默认审计既有 Tile、XPM 和系统 Vivado 产物，并检查报告时间不早于源码。若整个报告目录被忽略，干净克隆无法复验默认路径。
 - 1.0 应保留验证器读取的文本报告、机器摘要、Tile 实现 DCP、Tile Vivado 日志和真实 XPM `simulate.log`；其余综合 DCP、Vivado 工程缓存、波形、VVP、Python 缓存和大体量 formal 日志可忽略。
 - Pulse-Mini 的规划必须与 1.0 分开：1.0 是已验证的完整三因子硬件基线，Pulse-Mini 是重新审视原始计数/分频构想后的低成本候选，不能用估算资源冒充综合实测。
-- 发布交叉审查发现 `rtl_contract.md` 仍保留早期 Tile 数值 `3144/1971/+0.053 ns`；已按冻结摘要统一为 `3152/1972/+0.213 ns`。
+- 发布交叉审查发现 `docs/design/rtl_contract.md` 仍保留早期 Tile 数值 `3144/1971/+0.053 ns`；已按冻结摘要统一为 `3152/1972/+0.213 ns`。
 - Git 检出不保留原始 mtime，而 `verify_goal.py` 会检查报告晚于源码；因此全新检出的权威复验入口是 `python verify_goal.py --rerun-vivado`，默认命令只适用于已保存同一工作区时间关系的审计。
 
 ## Pulse-Mini 方案结论（2026-08-19）
@@ -440,7 +440,7 @@
 
 ## Pulse-Mini TODO 收口（2026-08-19）
 
-- P0 十项行为合同已由实现证据冻结并标记批准，`TODO.md` 不再保留未完成 checkbox。
+- P0 十项行为合同已由实现证据冻结并标记批准，`docs/planning/TODO.md` 不再保留未完成 checkbox。
 - P7 广播阵列协议测量：32、64、128 核的单条 TICK/FEEDBACK 响应均为 1 个逻辑周期；由于一槽响应不能同拍替换，持续接受率为 0.5 命令/周期。32/64/128 核分别可在一次广播 TICK 中观察到 32/64/128 个输出脉冲，说明输出拥塞边界是 N 位向量和 Host 消费带宽，而不是核内发放缺失。
 - P7 共享 lane 对比使用 `pulse_mini_lane_model.py` 的可复现周期模型：128 核使用 1/2/4/8/128 条 lane 时，每个全阵列 tick 分别需要 128/64/32/16/1 个 lane 周期。该模型没有被写成 LUT、FF 或 routed 容量证据。
 - P7 资源硬门审计由 `verify_pulse_mini_p7.py` 收口：简单广播阵列的最大 100 MHz routed 并行规模为 32 核；64 核 `WNS=-0.131 ns`，128 核 `WNS=-0.466 ns`，故 `capacity_claim=NOT_PROVEN` 保持不变。
@@ -739,13 +739,38 @@
 ## 2026-08-31 PR #2 复审与最小修复事实
 
 - PR #2 标题为 `test(vivado): run the short xsim regression on all three gain models`，分支 `feature/vivado-full-models-20260831`，初始 HEAD 为 `d9902ade4ecb4fda8a50060c60d3d14787410ab4`。
-- 差异范围很小：`test_local_prune_gate_vivado.py` 将短 XSim 测试模型从 `eneuron,pulse_mini_l2` 扩展为 `eneuron,pulse_mini_l,pulse_mini_l2`，并刷新 `SIMULATION_REPORT.md` 与 `TEST_MATRIX.json`。
+- 差异范围很小：`test_local_prune_gate_vivado.py` 将短 XSim 测试模型从 `eneuron,pulse_mini_l2` 扩展为 `eneuron,pulse_mini_l,pulse_mini_l2`，并刷新 `docs/reports/SIMULATION_REPORT.md` 与 `TEST_MATRIX.json`。
 - 本机隔离 worktree 使用 `G:/Xilinx/Vivado/2024.1` 执行 `python -m unittest test_local_prune_gate_rtl test_verify_local_prune_rtl test_local_prune_gate_vivado`，结果为 32 tests / 0 failures / 0 errors / exit 0；真实 XSim 输出 `VIVADO_LOCAL_PRUNE_GATE_PASS version=Vivado Simulator v2024.1 models=3 seeds=1 transactions_compared=723 cases=24 mutants=0`。
-- 初审发现 `SIMULATION_REPORT.md` 复现命令仍写 `pull/1/head:pr-1`，与 PR #2 不匹配；已在 PR 分支推送最小修复提交 `f975cd7 docs: fix PR2 reproduction command`，改为 `pull/2/head:pr-2`。
+- 初审发现 `docs/reports/SIMULATION_REPORT.md` 复现命令仍写 `pull/1/head:pr-1`，与 PR #2 不匹配；已在 PR 分支推送最小修复提交 `f975cd7 docs: fix PR2 reproduction command`，改为 `pull/2/head:pr-2`。
 - 直连 GitHub `gh`/REST/curl 三种 HTTPS API 提交 review/comment 均在 `api.github.com` TLS/连接层被重置；Git SSH push 正常。本机发现 `127.0.0.1:7897` 代理可用于 GitHub REST GET/POST。
 - 已通过代理和 `gh api --method POST repos/Epslion404/ENeuron/issues/2/comments` 成功向 PR 页面提交中文评论 `5479989535`。
 - PR 描述仍存在口径瑕疵：把 `386 tests / 0 failures / 2 errors / exit 1` 与“386/386 OK”并列。该问题属于 PR 描述文字，不影响已推送的仓库文件和本机测试结论，但合并前最好由 PR 作者更正。
-- PR 后续 HEAD 更新到 `699acae92e5412b9e1fb83d0a855116607d545d1`：新增 `858d79e` 将 PR #2 复现命令修复落到 `make_local_prune_report.py`，新增 `699acae` 重新渲染 `SIMULATION_REPORT.md`。最新生成器和报告均已固定为 `pull/2/head:pr-2`。
+- PR 后续 HEAD 更新到 `699acae92e5412b9e1fb83d0a855116607d545d1`：新增 `858d79e` 将 PR #2 复现命令修复落到 `make_local_prune_report.py`，新增 `699acae` 重新渲染 `docs/reports/SIMULATION_REPORT.md`。最新生成器和报告均已固定为 `pull/2/head:pr-2`。
 - 本机轻量复核最新 HEAD：`python -m compileall -q make_local_prune_report.py test_local_prune_gate_vivado.py` 通过；重新运行 `make_local_prune_report.py` 可渲染出 PR #2 复现命令；`git diff --check` 通过。
 - 已通过代理 PATCH PR body，将“你的机器预期 386/386 OK”改为“复核机器以实际输出为准”，消除 `errors=2 / exit=1` 与全绿并列的误导。
 - 代理下 `gh pr review 2 --approve` 返回退出码 0；随后 GraphQL/REST 回读 reviews 多次 EOF，因此只记录“approve 命令成功提交”，不记录“已回读确认”。
+## 2026-08-31 根目录 Markdown 归档审计
+
+- 根目录归档前共有 35 个已跟踪 Markdown 文件，当时尚无 `docs/` 目录。
+- 根目录已有未提交内容仅为 `docs/reports/STAGE_REPORT_2026-08-31.md` 与 `progress.md`；本次必须保留并纳入归档审计，不能回退。
+- `README.md` 是项目入口；`task_plan.md`、`findings.md`、`progress.md` 是默认持久规划文件，按 skill 合同必须留在项目根目录。
+- `WORKFLOW.md`、`WORKFLOW_STATE.md` 与根目录 `workflow_resume.ps1` 共同构成恢复入口，保留在根目录可避免破坏操作路径和恢复语义。
+- 其余 Markdown 可按设计、规划、报告、验证四类迁入 `docs/`，但最终映射必须先审计源码、脚本、摘要和 Markdown 中的固定路径引用。
+- 本任务只做文档移动与引用修复，不重跑算法、RTL、形式验证或 Vivado；历史验证结论及边界保持不变。
+- 非 Markdown 固定路径依赖集中在 7 组：Goal 文档解析、局部剪枝合同哈希、阶段报告生成器、Pulse-L2 协议报告生成器、仿真比较报告默认输出、持久工作流活动 TODO，以及少量报告正文生成文本。
+- `docs/design/LOCAL_PRUNE_RTL_CONTRACT.md` 不只是说明文件：它的文件名和内容哈希被 `local_prune_rtl_results.json` 与 `verify_local_prune_rtl.py` 绑定。迁移它会级联改变正式签核摘要；应先审计 NP4B 总摘要生成链，再决定迁移或作为机器绑定例外保留。
+- `docs/verification/goal_audit.md` 与 `docs/design/recommended_design.md` 被 `verify_goal.py`/测试按文件名解析；可迁移，但必须同步代码与测试中的仓库相对路径。
+- `docs/reports/SIMULATION_REPORT.md`、`docs/reports/SIMULATION_COMPARISON_REPORT.md`、`docs/reports/PULSE_MINI_L2_PROTOCOL_REPORT.md` 是工具默认输出目标；迁移时必须同步生成器默认路径，避免下一次生成重新污染根目录。
+- `docs/planning/NPU_PRUNING_NP4B_TODO.md` 是 `workflow_resume.ps1` 的活动合同路径；迁移时必须同步恢复脚本、工作流状态与说明文档，并执行恢复检查。
+- 首轮机械替换的唯一键包含关系是 `TODO.md` 同时为两个 NPU TODO 文件名的后缀；按“长键后替换短键”执行会产生重复目录。根因是替换操作非幂等，不是原文或 Git 移动损坏。
+- 最终迁移采用完整归档方案：29 个 Markdown 进入 `docs/`，根目录只保留 README、两个持久工作流文件和三个规划记忆文件；`docs/README.md` 提供四类可点击索引。
+- 所有显式 `docs/design|planning|reports|verification/*.md` 引用均指向现存文件；Markdown 链接检查为零断链。
+- T0 Goal 测试的临时目录夹具原先只支持根文件，迁移后需创建嵌套父目录；两项测试先稳定 RED，再以两处最小 `mkdir(parents=True, exist_ok=True)` 修复并 GREEN。
+- `workflow_resume.ps1` 与 HEAD 都是无 BOM UTF-8；Windows PowerShell 5.1 在中文注释紧邻 `$repoRoot` 赋值时可把赋值吞入错误解析路径，表现为下一行读取未定义变量。把这一条非功能注释改为 ASCII 是最小跨版本修复。
+- 单行 ASCII 修复后解析继续在后续中文字符串处失败，排除了“仅首条注释异常”的假设；根因是 Windows PowerShell 5.1 对整份无 BOM UTF-8 中文脚本的解码。UTF-8 BOM 是保留中文日志且兼容该解释器的文件级修复。
+- `--refresh-signature` 只诚实记录签名迁移，不能冒充行为/形式证据已重跑；当本机 Icarus/VVP/Yosys 齐全时，现有测试要求正式重验证。文档合同路径进入签名集合后，应运行官方非 Vivado 重验证而不是放宽测试。
+- 正式非 Vivado 重验证后，41 项 Goal/局部剪枝/NP4B 定向测试全部通过，独立 NP4B verifier 继续输出 `NP4B_SIGNOFF_VERIFY_PASS`；迁移没有改变原有功能边界。
+- 报告生成器能向归档路径写入，但精确重渲染依赖评审工作区的 `vivado_regression_console.log` 和对应 Git 分支状态。当前主工作区缺少这些输入，生成结果会明确降级；不能用它覆盖包含原始真实控制台证据的正式报告。
+- 最终结构为根目录 6 个 Markdown，`docs/design=9`、`docs/planning=3`、`docs/reports=15`、`docs/verification=2`，另有 `docs/README.md`；37 个 Markdown 的显式相对链接检查为零断链。
+- NP4B 总摘要不直接绑定 `docs/design/LOCAL_PRUNE_RTL_CONTRACT.md`，但绑定了 `local_prune_rtl_results.json`；迁移合同会先改变该结果文件，再通过总摘要形成二级哈希级联。
+- `verify_local_prune_rtl.py` 已有“正式重验证后刷新 NP4B 总摘要”的机制，说明级联可以由项目既有入口处理；真实刷新函数/脚本名仍需定位。

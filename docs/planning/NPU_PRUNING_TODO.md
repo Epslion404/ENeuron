@@ -175,7 +175,7 @@ Host 可以决定“何时请求评估”，但不能在 TRAIN 中提供掩码�
 
 B1 只能证明协议和局部任务可行，不能证明复杂 NPU 模型剪枝有效。
 
-B1 已完成（2026-08-28）：三种神经元均从各自同一稠密 checkpoint 分支 dense/random/S0-S3；S0-S3 都保持 20/20，随机相同掩码均为 10/20。四种评分全部选择 `0011/0011`，因此 B1 通过协议闭环，但不具备评分辨识力。完整结果见 `LOCAL_PRUNE_B1_REPORT.md` 和 `local_prune_b1_results.json`。
+B1 已完成（2026-08-28）：三种神经元均从各自同一稠密 checkpoint 分支 dense/random/S0-S3；S0-S3 都保持 20/20，随机相同掩码均为 10/20。四种评分全部选择 `0011/0011`，因此 B1 通过协议闭环，但不具备评分辨识力。完整结果见 `docs/reports/LOCAL_PRUNE_B1_REPORT.md` 和 `local_prune_b1_results.json`。
 
 B1 的全网络发射计数减少仅为 ENeuron 18.21%、Pulse-Mini-L/L2 19.78%，未达到 NP7 的 45% 系统收益门；这是只剪隐藏层且输出层保持稠密时的真实结果，不按理论 50% 稀疏率虚报。
 
@@ -188,13 +188,13 @@ B1 的全网络发射计数减少仅为 ENeuron 18.21%、Pulse-Mini-L/L2 19.78%�
 - 至少存在两种等价或近等价局部路径，避免任务只能由唯一连接完成；
 - 掩码不能从标签或样本 ID 直接推导。
 
-B2 已完成首轮 10-seed 压力实验（2026-08-28）：冻结为 `4→8→2`，每类四个四输入 detector，输出至少需要 3/4 detector 响应。ENeuron/L2 的 S2/S3 均为 median BAcc 100%，Pulse-Mini-L 为 0%；完整报告见 `LOCAL_PRUNE_B2_REPORT.md`。
+B2 已完成首轮 10-seed 压力实验（2026-08-28）：冻结为 `4→8→2`，每类四个四输入 detector，输出至少需要 3/4 detector 响应。ENeuron/L2 的 S2/S3 均为 median BAcc 100%，Pulse-Mini-L 为 0%；完整报告见 `docs/reports/LOCAL_PRUNE_B2_REPORT.md`。
 
 ENeuron/L2 的 S2 分别比随机 median 高 25/75 个百分点，且 10/10 seed 不低于随机；L 比随机低 25 个百分点，仅 3/10 seed 不低于随机。S3 相对 S2 为 0 个百分点，因此候选降级为更简单的 S2。
 
 保持精度的 ENeuron/L2 全网络读取只减少 33.33%，未达到 45% 门；L 的 66.67% 伴随 BAcc 0%，不计为有效收益。三线当前均为 `RTL_NO_GO`。
 
-NP2 后续量化扫描已修正 Pulse-Mini-L 的结论：固定把二值非零证据映射到等级 2 后，L 的 S2 BAcc/coverage 恢复到 100%，10/10 seed 不低于随机。三模型最小合格 gain 分别为 ENeuron/L/L2=`1/2/1`，完整证据见 `LOCAL_PRUNE_NP2_REPORT.md` 和 `local_prune_np2_results.json`。三线仍因全网读取只减少 33.33% 而保持 `RTL_NO_GO`。
+NP2 后续量化扫描已修正 Pulse-Mini-L 的结论：固定把二值非零证据映射到等级 2 后，L 的 S2 BAcc/coverage 恢复到 100%，10/10 seed 不低于随机。三模型最小合格 gain 分别为 ENeuron/L/L2=`1/2/1`，完整证据见 `docs/reports/LOCAL_PRUNE_NP2_REPORT.md` 和 `local_prune_np2_results.json`。三线仍因全网读取只减少 33.33% 而保持 `RTL_NO_GO`。
 
 ### B2.1：输出侧结构剪枝与通道门控
 
@@ -227,7 +227,7 @@ B2.1 通过门：
 
 B2.1、NP2 剩余统计和 NP3 负对照未同时通过前，禁止启动 NP4-NP7。
 
-B2.1 已完成（2026-08-28）：三模型的 output-2:4、detector-3:4、detector-2:4 均保持 BAcc/coverage 100%；全网读取/发射分别为 120/120/80，10/10 seed 不低于共享随机 mask。按 KISS 冻结 output-2:4，因为它复用既有控制器且不新增跨层 channel enable。软件联合门允许启动 NP4，但不代表 RTL 已证明。完整证据见 `LOCAL_PRUNE_B21_REPORT.md` 和 `local_prune_b21_results.json`。
+B2.1 已完成（2026-08-28）：三模型的 output-2:4、detector-3:4、detector-2:4 均保持 BAcc/coverage 100%；全网读取/发射分别为 120/120/80，10/10 seed 不低于共享随机 mask。按 KISS 冻结 output-2:4，因为它复用既有控制器且不新增跨层 channel enable。软件联合门允许启动 NP4，但不代表 RTL 已证明。完整证据见 `docs/reports/LOCAL_PRUNE_B21_REPORT.md` 和 `local_prune_b21_results.json`。
 
 ### B3：图像任务
 
@@ -324,7 +324,7 @@ B1/B2 和最小量化扫描已完成。三模型分别选择 S2 gain=`1/2/1`，B
 
 硬门：B1/B2 满足 7.2，且稀疏微调期间结构掩码不被意外覆盖。
 
-B1/B2/NP3 闭环已完成。三模型从同一父 checkpoint 运行一次、软件渐进和错误符号分支；一次与渐进均为 100%，错误符号均为 0%，因此选择一次剪枝。账本证明零 Host mask 写入、每 detector 一次 commit、两次公平微调、被剪权重/历史冻结和同分支 INFER 指纹不变。完整证据见 `LOCAL_PRUNE_NP3_REPORT.md`。
+B1/B2/NP3 闭环已完成。三模型从同一父 checkpoint 运行一次、软件渐进和错误符号分支；一次与渐进均为 100%，错误符号均为 0%，因此选择一次剪枝。账本证明零 Host mask 写入、每 detector 一次 commit、两次公平微调、被剪权重/历史冻结和同分支 INFER 指纹不变。完整证据见 `docs/reports/LOCAL_PRUNE_NP3_REPORT.md`。
 
 当前硬门结论：三模型已通过 NP2/NP3；B2.1 output-2:4 也已将全网读取/发射降到 120，减少 50%，因此 NP4 实现门已打开。NP4-NP7 本身仍全部未完成，禁止把软件结果写成 RTL 或功耗结论。
 
@@ -346,7 +346,7 @@ B1/B2/NP3 闭环已完成。三模型从同一父 checkpoint 运行一次、软�
 
 NP4 V1 六项决定已于 2026-08-29 获用户批准并冻结：隐藏层和输出层统一严格 `2:4`；三模型 evidence gain 固定为 `1/2/1`；每组只允许一次原子 `PRUNE_COMMIT`；不实现整 detector/channel enable；输出稀疏后的恢复只走既有 TRAIN/FEEDBACK；`issue_mask` 必须在权重读取和计算发射前形成，并分别统计隐藏层与输出层结构节省。批准只开放 NP4/NP5 实现，不代表 RTL、资源、时序或功耗已经通过。
 
-NP4A 公共控制器已于 2026-08-29 通过：四拍扫描、原子双位 mask、固定 gain 适配器、读取前 `issue_mask` 和层级分账均已实现。NP4B 正式接入仍未完成，因为 ENeuron 尚无可综合 snapshot evidence 输出，Pulse 尚需在 FEEDBACK 清除前锁存 evidence，现有 `4→2→2` 输出层也不是四输入组。完整边界见 `LOCAL_PRUNE_RTL_REPORT.md`。
+NP4A 公共控制器已于 2026-08-29 通过：四拍扫描、原子双位 mask、固定 gain 适配器、读取前 `issue_mask` 和层级分账均已实现。NP4B 正式接入仍未完成，因为 ENeuron 尚无可综合 snapshot evidence 输出，Pulse 尚需在 FEEDBACK 清除前锁存 evidence，现有 `4→2→2` 输出层也不是四输入组。完整边界见 `docs/reports/LOCAL_PRUNE_RTL_REPORT.md`。
 
 NP4B 八项实现决定已于 2026-08-29 获用户批准并完成实施。ENeuron committed snapshot 只读旁路、Pulse FEEDBACK 接受沿证据锁存、真正四输入的 `4→8→2` 网络、三模型端到端协同仿真、非空形式验证与最终签核全部通过；当前为 `NP4B_INTEGRATION_PASS / NP6_REVIEW_REQUIRED`，仍未开放 NP6 Vivado。
 
