@@ -216,6 +216,9 @@ VIVADO_LOCAL_PRUNE_GATE_PASS version=Vivado Simulator v2024.2.0 models=3 seeds=8
 本分支相对 `origin/main` 的全部文件变更（`git diff --name-status <merge-base> HEAD` 实时输出）：
 
 ```text
+M	SIMULATION_REPORT.md
+M	TEST_MATRIX.json
+M	make_local_prune_report.py
 M	test_local_prune_gate_vivado.py
 ```
 
