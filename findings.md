@@ -663,3 +663,75 @@
 - 本机当前会话找不到 `gh`，但这不阻塞 Git SSH：用户说明 GitHub/Gitee 共用 `~/.ssh/id_ed25519_gitee` 后，显式测试成功认证为 `Epslion404`。
 - `git ls-remote git@github.com:Epslion404/ENeuron.git HEAD refs/heads/main` 使用共用 key 后退出码为 0 且无 refs，证明目标仓库存在并且目前为空。
 - 现有 `Host github` 别名已指向该共用 key；为保持用户指定的 `github.com` remote 不变，仓库只需设置局部 `core.sshCommand`，无需修改全局 SSH 配置。
+
+## 2026-08-30 PR #1 第二轮复审初始事实
+
+- PR HEAD 已从首轮审查的 `4277395` 更新为 `169003684b260aaabf98fb3b6e70866cb0c24bed`，新增两个提交；PR 仍为 OPEN、MERGEABLE，且没有 CI checks。
+- 原先不兼容的 `neuron_gate_core.sv`、8 位 score/cooldown/自动 regrow 实现及生成物已撤出差异；当前 7 个文件主要围绕既有 `local_prune_gate_2of4.sv` 的 Vivado runner、测试、报告与动态恢复设计提案。
+- 协作者报告的是干净检出 `7266e2b` 上的 Vivado Simulator 2024.2.0，共 51 次仿真、6447 条事务；他明确承认未在 Vivado 2024.1 上运行。
+- 本机已有项目指定 Vivado 2024.1，可对 PR 当前 SHA 独立复现；是否满足验收仍取决于 runner/对拍真实性和 2024.1 实跑结果。
+
+## 2026-08-30 PR #1 第二轮复审结果
+
+- 在 PR HEAD `169003684b260aaabf98fb3b6e70866cb0c24bed` 上使用 `G:/Xilinx/Vivado/2024.1` 完整运行真实 XSim：51 次 `xvlog`、51 次 `xelab`、51 次 `xsim` 和 1 次版本探针均退出 0。
+- Vivado 2024.1 复现覆盖 45 个正常用例、5 个失败敏感变异、6447 条事务和 154728 个字段比较；最终输出 `VIVADO_LOCAL_PRUNE_GATE_PASS`，五个源码 SHA-256 与 PR 当前文件一致。
+- 相关 Icarus/签核回归 24 项中 23 项通过、1 项失败：`test_verify_local_prune_rtl.test_source_hashes_are_current` 在新鲜 Windows worktree 失败。
+- 第一层根因是仓库未固定文本 EOL，而系统 Git `core.autocrlf=true`；旧摘要记录的是 LF git blob 哈希，验证器却哈希 CRLF 工作树字节，因此干净 Windows 检出会让所有文本源误报陈旧。
+- 第二层且直接由 PR 引入的根因是 `local_prune_gate_cosim.py` 已修改，但 `local_prune_rtl_results.json` 仍保留旧哈希 `b4d424...`；当前 PR git blob 哈希为 `c313220...`，即使消除 EOL 差异仍会真实失败。
+- `reviewer_counterexample` 用例先测试 CONFIG mask `1100`，随后 `PRUNE_CLEAR`，再用 `(3,0,0,0)` 和零 utility 分别提交；它没有让 `1100` 与下降分数同时参与同一选择，也不存在已撤出架构的 cooldown，因此报告中的“原反例已固化”表述不精确。
+
+## 2026-08-30 PR #1 第三轮复审初始事实
+
+- 协作者新增 `ee4b9ff`（代码）和 `fd5aa96`（证据）两次提交；PR 最新 HEAD 为 `fd5aa9622bcb8b3c5e1bedbfc0639199a23026a9`。
+- 新增 `.gitattributes`、`eneuron.local_prune_rtl.v2` 摘要和 canonical LF 哈希逻辑；`local_prune_gate_cosim.py` 仍是被修改的关键输入。
+- 协作者明确报告本机没有 `iverilog/vvp/yosys`，因此 cosim/formal 块未在本轮本机重跑，并将其标记为继承或未复验；该口径需要检查摘要和验证器是否真正 fail-closed。
+
+## 2026-08-30 PR #1 第三轮复审结果
+
+- 最新 HEAD `fd5aa9622bcb8b3c5e1bedbfc0639199a23026a9` 的 28 项针对性回归通过；设置 `VIVADO_ROOT=G:/Xilinx/Vivado/2024.1` 后真实 XSim 集成测试也通过。
+- 本机独立运行 `python verify_local_prune_rtl.py`：三模型 60,000 条 Icarus cosim、32 拍 Yosys 形式验证均退出 0。
+- 本机独立运行最新 HEAD 的完整 Vivado 2024.1 runner：45 个正常用例、5 个 mutants、6447 条事务、154728 个字段，154 次工具调用全为退出码 0。
+- 最新 HEAD 的全仓 `python -m unittest discover -v` 为 `Ran 381 tests in 906.922s`，失败 2 项，均为 `test_verify_np4b_signoff` 的 formal ENeuron witness 字节数不一致（24069/22922）。
+- 根因与 PR 新增 `.gitattributes` 直接相关：`*.vcd text eol=lf` 改变已跟踪 VCD 工作树字节，而 `verify_np4b_signoff.py` 仍按原始 `stat().st_size` 和原始 SHA-256 校验 `np4b_signoff_summary.json`，造成完整签核链失效。
+- 另发现 `verify_local_prune_rtl.py` 的正常 `build_summary(run_checks=True)` 路径不输出 `tool_availability`，执行正式重验证后会删除该 v2 字段；现有测试未覆盖此回归。
+- 已向 PR 提交新的中文 `CHANGES_REQUESTED`，要求固定正式证据字节或统一 NP4B canonical 策略、刷新总摘要、补充完整 discover 复跑，并保持 v2 元数据字段完整。
+
+## 2026-08-30 PR #1 审查口径调整
+
+- 用户批准不同 Vivado 版本结果互认；2024.1 与 2024.2 不再构成阻断条件。
+- 审查反馈已精简为两个硬问题：NP4B VCD 原始哈希/长度回归，以及正常 `verify_local_prune_rtl.py` 丢失 `tool_availability`。
+
+## 2026-08-31 PR #1 第四轮精简复审中间事实
+
+- 最新 HEAD `46fc59edae7ec0ae4ae56afed4de2d9a8e1d2049` 的 35 项关键回归通过，包含本机 Vivado 2024.1 真实 XSim 短回归；上一轮的 canonical witness 和 v2 元数据定向测试均通过。
+- 正式执行 `python verify_local_prune_rtl.py` 完成三模型 60,000 条 cosim 与 32 拍形式验证，生成的 `local_prune_rtl_results.json` 保留 `tool_availability`、`source_hash_policy`、`provenance`、`toolchain_provenance` 和 `verified_on`。
+- 同一次正式重验证会改写 `formal_local_prune_gate.log`、`formal_local_prune_gate_reach.log`、`formal_local_prune_gate_success.vcd`；紧接着运行 `python verify_np4b_signoff.py` 因 `formal_local_prune_gate.log` canonical SHA-256 不一致失败。
+- `_toolchain_provenance()` 声称重验证后会恢复这些产物为提交字节，但当前实现没有兑现；需以干净 worktree 完整回归进一步确认提交态是否仍通过。
+
+## 2026-08-31 PR #1 第四轮精简复审结论
+
+- 干净 HEAD `46fc59e` 完整 `python -m unittest discover -v` 为 `Ran 385 tests in 453.104s / OK`，本机 Vivado 2024.1 XSim 集成通过；提交态本身完整回归为绿。
+- 上一轮的 canonical witness 绑定与 v2 元数据保留均已闭合；Vivado 2024.1/2024.2 版本差异未作为阻断。
+- 唯一阻断是正式重验证链不闭合：`verify_np4b_signoff.py` PASS → `verify_local_prune_rtl.py` PASS → `verify_np4b_signoff.py` FAIL，且报告的 `binding_refresh` 基线仍停在 `073969d`，机器摘要已为 `6f03609`。
+- 已向 PR 最新 HEAD 提交 review `5065226301`，状态 `CHANGES_REQUESTED`；GitHub 回读确认正文完整、PR 仍为 open，未合并、未关闭、未修改协作者分支。
+
+## 2026-08-31 PR #1 第五轮复审结论
+
+- 最新 HEAD `4fec2aa6dd364cbb8ebba83fe852efd0f7db3ecc` 已实现 formal 证据 `finally` 恢复和 NP4B 摘要重绑定；三步顺序 `verify_np4b_signoff.py → verify_local_prune_rtl.py → verify_np4b_signoff.py` 在本机全部退出 0。
+- 无 Vivado 环境的干净提交态完整回归：`Ran 386 tests in 445.206s / OK (skipped=1)`；本机 Vivado 2024.1 的短 XSim 单测单独重跑通过，输出 `VIVADO_LOCAL_PRUNE_GATE_PASS`。
+- 启用 Vivado 的全量 discover 首轮曾出现一次 `xsim exited 3221225477`，但同一短测试随后独立重跑通过；不构成 RTL 或签核阻断。
+- 协作者最新评论中的全量表把 `386 tests / 0 failures / 2 errors / exit 1` 同时称为“全绿”，数字和语义矛盾；这是报告口径问题，需在评论中更正为实际可复现结果，不影响代码批准。
+
+## 2026-08-31 PR #1 第五轮回复复核
+
+- 协作者追加评论 `5477928602`，明确无代码与签核链改动，PR HEAD 仍为 `4fec2aa`。
+- 已将两组环境结果拆开：权威复审为 `386/386 OK (skipped=1, exit=0)`；其本机 discover 的 2 个 XPM 编译 errors 与 `origin/main` 同样存在，单列为环境对照；四态矩阵保持 32/态、全绿。
+- 文字更正与本机复验结果一致，没有新增阻断；PR 继续保持 `APPROVED`。
+
+## 2026-08-31 PR #1 合并后仿真结果解读
+
+- `origin/main` 已合并为 `92b70f9`。Vivado/XSim 报告（原始证据生成于 2026-08-31）覆盖 3 个模型、45 个用例、6,447 条事务、154,728 个可见字段和 5 个故意变异，全部通过。
+- 三模型 4→8→2 局部剪枝协同证据各 20,000 条事务，总计 60,000 条；无 Python/RTL 差异、无 strict 2:4 违规、INFER 学习状态冻结、被剪权重/utility/evidence 无变化。
+- Pulse-Mini-L 逻辑工作量减少 53,440 / 168,509 = 31.71%；Pulse-Mini-L2 减少 47,874 / 153,416 = 31.21%。这些是模型计数的 issue/read 工作节省，不是实测 FPGA 墙钟加速。
+- ENeuron 报告记录 277 次 pruned snapshot 由非零变为零，但 pruned weight/utility 仍为 0 次变化；这说明冻结门控成立，不等于已证明物理读端口跳过。
+- 当前摘要明确未证明：BRAM 真跳读、墙钟 speedup、功耗降低、XC7Z020 时序/资源；下一步若要声明硬件收益，必须进入 Vivado 综合/实现和板级吞吐测量。

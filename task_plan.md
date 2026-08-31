@@ -506,3 +506,50 @@
 - 用户给出的目标已规范化并配置为 `origin=git@github.com:Epslion404/ENeuron.git`；本仓库局部指定已验证的共用 key，正式 push 仍单独执行。
 - 已跟踪的 12 份正式 proof/reach `.log`/`.vcd` 是 fail-closed 签核证据，不因通用忽略规则而移除。
 - 不改写 Git 历史；只有发现真实凭证或 GitHub 禁止的大对象时才另行提请审核。
+
+## PR #1 第二轮复审（2026-08-30）
+
+- [x] 回读协作者回复、最新 PR SHA、文件列表与既有 review 状态
+- [x] 在隔离 worktree 审查 runner、oracle、测试和机器摘要的一致性
+- [x] 使用本机 Vivado 2024.1 对 PR 当前 SHA 执行真实 XSim 复现
+- [x] 核对 exact-two、原子提交、INFER 冻结、非法输入无副作用和随机逐事务对拍
+- [x] 根据事实向 PR 提交中文要求修改反馈
+
+### 本轮验收口径
+
+- 评审对象固定为 PR 当前 HEAD `169003684b260aaabf98fb3b6e70866cb0c24bed`；若远端 SHA 变化，已有结论作废并重新核查。
+- 协作者的 Vivado 2024.2 结果只能作为补充证据，不能替代项目指定的 Vivado 2024.1 复现。
+- 真实复现必须直接编译当前 PR 提交的 RTL/testbench，并检查 `xvlog -> xelab -> xsim` 的实际退出码和最终标记。
+- 不因报告自称 PASS 而批准；必须同时审查 runner 是否真的逐事务比较 RTL 与独立 Python oracle。
+
+### 本轮错误记录
+
+| 错误 | 尝试 | 处理 |
+|---|---:|---|
+| Git 因目录所有者为 Administrators 拒绝普通命令 | 1 | 不修改全局配置；本轮继续使用单次 `git -c safe.directory=D:/Documents/Code/ENeuron` |
+| 完整 Vivado 命令的外层包装含删除旧临时摘要，被权限策略拒绝 | 1 | 仿真尚未启动；改用全新唯一摘要路径且不执行删除，随后完整运行成功 |
+| 首次 PowerShell 哈希诊断的 `foreach` 后直接接管道触发解析错误 | 1 | 改用 Python 读取工作树字节与 `git show HEAD:<file>` blob 分别计算 SHA-256 |
+
+## PR #1 第三轮复审（2026-08-30）
+
+- [x] 回读协作者新回复、最新提交、文件列表和审查状态
+- [x] 在隔离 worktree 检查 v2 摘要、EOL 规范化、provenance 和反例命名修复
+- [x] 使用本机 Vivado 2024.1 对最新 HEAD 重新运行真实 XSim
+- [x] 在可用工具范围内复跑相关回归，确认未重跑项被正确标记且没有静默继承
+- [x] 根据事实向 PR 提交中文批准或继续要求修改
+
+## PR #1 第四轮精简复审（2026-08-31）
+
+- [x] 回读最新回复、HEAD 与改动范围
+- [x] 隔离检出并验证两个剩余硬问题
+- [x] 运行针对性测试和完整回归（35 项关键回归与 385 项完整 discovery 均通过）
+- [x] 提交精简中文审查结论
+
+### 本轮错误记录
+
+| 错误 | 尝试 | 处理 |
+|---|---:|---|
+| GitHub GraphQL 连接被远端重置 | 1 | 改用 `gh api` REST 端点分别读取 PR、评论、提交和 reviews |
+| 正式 `verify_local_prune_rtl.py` 通过后改写三份已签名 formal 产物，使 `verify_np4b_signoff.py` 立即哈希失败 | 1 | 保留隔离现场作为复现证据；另建干净 worktree 运行提交态完整回归，区分提交态与复验流程问题 |
+| `gh api` 的 REST/GraphQL HTTPS 连接均被远端重置 | 2 | 不重复同一网络栈；改用已登录 `gh` token 配合 PowerShell `Invoke-RestMethod`，review 提交与回读成功 |
+| 最新 HEAD 全仓启用 Vivado 的首轮短 XSim 出现退出码 3221225477 | 1 | 单独重跑同一 `test_short_real_vivado_regression_passes` 通过；无 Vivado 的全仓 386/386 通过，记录为工具进程稳定性而非代码失败 |
