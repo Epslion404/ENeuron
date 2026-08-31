@@ -216,26 +216,7 @@ VIVADO_LOCAL_PRUNE_GATE_PASS version=Vivado Simulator v2024.2.0 models=3 seeds=8
 本分支相对 `origin/main` 的全部文件变更（`git diff --name-status <merge-base> HEAD` 实时输出）：
 
 ```text
-A	.gitattributes
-M	.gitignore
-A	DESIGN_PROPOSAL_DYNAMIC_PRUNE_RECOVERY.md
-A	SIMULATION_REPORT.md
-A	TEST_MATRIX.json
-A	VIVADO_LOCAL_PRUNE_GATE_SUMMARY.json
-M	generate_np4b_signoff.py
-M	local_prune_gate_cosim.py
-M	local_prune_rtl_results.json
-A	make_local_prune_report.py
-M	np4b_signoff_summary.json
-M	run_formal_local_prune_gate.ps1
-A	run_local_prune_gate_vivado.py
-A	run_test_matrix.py
-M	test_local_prune_gate_rtl.py
-A	test_local_prune_gate_vivado.py
-M	test_verify_local_prune_rtl.py
-M	test_verify_np4b_signoff.py
-M	verify_local_prune_rtl.py
-M	verify_np4b_signoff.py
+M	test_local_prune_gate_vivado.py
 ```
 
 被仿真的提交是 `c30ecc5dd43f0f337d68b0268e90f28d5c569e16`；该提交与本报告之间只相差文档与证据文件（报告、机器摘要、测试矩阵），被仿真的 RTL / oracle / runner 的 SHA-256 与第 1 节表格一致，可用 `git diff --name-only c30ecc5dd43f HEAD` 自证。
@@ -244,14 +225,14 @@ M	verify_np4b_signoff.py
 
 定向套件命令：`python -m unittest test_local_prune_gate_rtl test_verify_local_prune_rtl test_local_prune_gate_vivado`，由 `run_test_matrix.py` 在四个全新一次性检出里分别执行（矩阵原始数据：`TEST_MATRIX.json`）。
 
-矩阵提交 `147d5826490d`，生成于 `2026-08-31T10:33:50Z`，Python `3.13.15`，整体 `pass=True`。
+矩阵提交 `a75740cac21d`，生成于 `2026-08-31T12:50:05Z`，Python `3.13.15`，整体 `pass=True`。
 
 | 检出/工作树状态 | 用例总数 | 失败 | 错误 | 跳过 | 退出码 | 用时 (s) |
 |---|---:|---:|---:|---:|---:|---:|
-| `autocrlf_true`：`git -c core.autocrlf=true clone` 新鲜克隆，`.gitattributes` 生效（受签核文本 = LF） | 32 | 0 | 0 | 0 | 0 | 164.3 |
-| `autocrlf_false`：`git -c core.autocrlf=false clone` 新鲜克隆 | 32 | 0 | 0 | 0 | 0 | 161.1 |
-| `working_tree_crlf`：新鲜克隆后把全部受签核文本在工作树里改写成 CRLF（敌对状态） | 32 | 0 | 0 | 0 | 0 | 161.6 |
-| `autocrlf_true_with_vivado`：`autocrlf_true` 外加导出 `VIVADO_ROOT`，真实 XSim 集成测试参与运行 | 32 | 0 | 0 | 0 | 0 | 160.8 |
+| `autocrlf_true`：`git -c core.autocrlf=true clone` 新鲜克隆，`.gitattributes` 生效（受签核文本 = LF） | 32 | 0 | 0 | 0 | 0 | 225.5 |
+| `autocrlf_false`：`git -c core.autocrlf=false clone` 新鲜克隆 | 32 | 0 | 0 | 0 | 0 | 221.6 |
+| `working_tree_crlf`：新鲜克隆后把全部受签核文本在工作树里改写成 CRLF（敌对状态） | 32 | 0 | 0 | 0 | 0 | 213.6 |
+| `autocrlf_true_with_vivado`：`autocrlf_true` 外加导出 `VIVADO_ROOT`，真实 XSim 集成测试参与运行 | 32 | 0 | 0 | 0 | 0 | 203.3 |
 
 跳过项读法：未导出 `VIVADO_ROOT` 的三个状态里，跳过的是 1 个 XSim 集成测试（测试内写明跳过原因）；导出 `VIVADO_ROOT` 的第四态 0 跳过，XSim 集成测试真实参与运行。本机装有 iverilog / vvp / yosys（见第 8 节），Icarus/Yosys 门不跳过。
 
