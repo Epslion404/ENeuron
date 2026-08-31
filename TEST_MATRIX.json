@@ -1,0 +1,84 @@
+{
+  "command": "python -m unittest test_local_prune_gate_rtl test_verify_local_prune_rtl test_local_prune_gate_vivado",
+  "commit": "57106d6f0d36bf2a1731a01e5941bf388e6ac116",
+  "generated_utc": "2026-08-31T08:42:35Z",
+  "pass": true,
+  "python": "3.13.15",
+  "requested_ref": "57106d6",
+  "rows": [
+    {
+      "commit": "57106d6f0d36bf2a1731a01e5941bf388e6ac116",
+      "core_autocrlf": "true",
+      "eol_scan": {
+        "crlf": 1,
+        "lf_only": 13
+      },
+      "errors": 0,
+      "exit_code": 0,
+      "failures": 0,
+      "forced_crlf_files": 0,
+      "skipped": 1,
+      "state": "autocrlf_true",
+      "tests_ran": 31,
+      "unittest_seconds": 1.412,
+      "verdict_line": "OK",
+      "wall_seconds": 2.57
+    },
+    {
+      "commit": "57106d6f0d36bf2a1731a01e5941bf388e6ac116",
+      "core_autocrlf": "false",
+      "eol_scan": {
+        "crlf": 1,
+        "lf_only": 13
+      },
+      "errors": 0,
+      "exit_code": 0,
+      "failures": 0,
+      "forced_crlf_files": 0,
+      "skipped": 1,
+      "state": "autocrlf_false",
+      "tests_ran": 31,
+      "unittest_seconds": 1.462,
+      "verdict_line": "OK",
+      "wall_seconds": 1.619
+    },
+    {
+      "commit": "57106d6f0d36bf2a1731a01e5941bf388e6ac116",
+      "core_autocrlf": "true",
+      "eol_scan": {
+        "crlf": 14,
+        "lf_only": 0
+      },
+      "errors": 0,
+      "exit_code": 0,
+      "failures": 0,
+      "forced_crlf_files": 13,
+      "skipped": 1,
+      "state": "working_tree_crlf",
+      "tests_ran": 31,
+      "unittest_seconds": 1.448,
+      "verdict_line": "OK",
+      "wall_seconds": 1.607
+    },
+    {
+      "commit": "57106d6f0d36bf2a1731a01e5941bf388e6ac116",
+      "core_autocrlf": "true",
+      "eol_scan": {
+        "crlf": 1,
+        "lf_only": 13
+      },
+      "errors": 0,
+      "exit_code": 0,
+      "failures": 0,
+      "forced_crlf_files": 0,
+      "skipped": 0,
+      "state": "autocrlf_true_with_vivado",
+      "tests_ran": 31,
+      "unittest_seconds": 92.006,
+      "verdict_line": "OK",
+      "wall_seconds": 92.19
+    }
+  ],
+  "schema": "eneuron.local_prune_test_matrix.v1",
+  "source": "C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr"
+}
