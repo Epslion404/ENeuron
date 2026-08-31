@@ -30,7 +30,7 @@ c31322006295c67df092cd0073031755f344e480f0c3efb39ee3ceb867809750  local_prune_ga
 
 ```powershell
 git clone https://github.com/Epslion404/ENeuron.git ; cd ENeuron
-git fetch origin pull/1/head:pr-1 ; git checkout pr-1
+git fetch origin pull/2/head:pr-2 ; git checkout pr-2
 $env:VIVADO_ROOT = "C:/Xilinx/Vivado/2024.1"   # 唯一需要改的一行；2024.2 亦可
 $env:PATH = "C:\msys64\ucrt64\bin;" + $env:PATH  # 可选：让 Icarus/Yosys 门参与
 python run_local_prune_gate_vivado.py --seeds 8 --transactions 256 --json-out VIVADO_LOCAL_PRUNE_GATE_SUMMARY.json
