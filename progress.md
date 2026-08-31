@@ -720,5 +720,6 @@
 - 已在隔离 worktree `D:\Documents\Code\ENeuron_pr2_review` 运行本机 Vivado 2024.1 针对性测试：32 项全部通过，真实 XSim 三模型短回归通过。
 - 测试副作用改写了 `local_prune_rtl_results.json` 与 `np4b_signoff_summary.json`，已在隔离 worktree 恢复，未混入修复提交。
 - 已将 PR 分支复现命令从 `pull/1/head:pr-1` 修为 `pull/2/head:pr-2`，并推送提交 `f975cd7` 到 `feature/vivado-full-models-20260831`。
-- 尝试通过 GitHub REST review、`gh pr review` GraphQL 和 REST issue comment 提交中文审查意见，三次均因 `api.github.com` 连接重置失败；不再重复同一路径。
-- 当前状态：代码与仓库报告文件已修复且本机验证通过；PR 页面评论/审批尚未能通过工具完成，剩余人工口径问题是 PR 描述里的全量 discover 表述。
+- 尝试直连 GitHub REST review、`gh pr review` GraphQL 和 REST issue comment 均因 `api.github.com` 连接重置失败；随后发现本机 `127.0.0.1:7897` 代理可读 PR 元数据。
+- 代理下 `gh pr review` 的 GraphQL 仍 EOF，curl REST comment 仍 TLS 失败；改用代理下 `gh api --method POST repos/Epslion404/ENeuron/issues/2/comments` 成功提交评论 `5479989535`。
+- 当前状态：代码与仓库报告文件已修复且本机验证通过；PR 页面已有中文评论，剩余人工口径问题是 PR 描述里的全量 discover 表述。

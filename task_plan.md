@@ -560,7 +560,7 @@
 - [x] 在隔离 worktree 运行本机 Vivado 2024.1 针对性回归
 - [x] 审查 `SIMULATION_REPORT.md`、`TEST_MATRIX.json` 和 `test_local_prune_gate_vivado.py`
 - [x] 修复报告中的 PR #1 复现命令残留并推送到 PR 分支
-- [ ] 通过 GitHub 页面提交中文 review/comment
+- [x] 通过 GitHub 页面提交中文 review/comment
 
 ### 本轮错误记录
 
@@ -568,7 +568,7 @@
 |---|---:|---|
 | GitHub REST review 提交 TLS EOF | 2 | 改用 `gh pr review` 与 curl REST comment 尝试 |
 | `gh pr review` GraphQL 被远端重置 | 1 | 改用 REST issue comment endpoint |
-| curl REST issue comment 连接被重置 | 1 | 停止重复 HTTPS API 路径；保留本机审查意见供人工或后续网络恢复后提交 |
+| curl REST issue comment 连接被重置 | 1 | 发现 `127.0.0.1:7897` 代理后改用 `gh api --method POST`，评论 `5479989535` 提交成功 |
 
 ### 当前剩余事项
 
