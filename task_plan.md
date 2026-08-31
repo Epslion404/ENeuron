@@ -573,3 +573,16 @@
 ### 当前剩余事项
 
 - PR 描述中 `386 tests / 0 failures / 2 errors / exit 1` 与“386/386 OK”并列，需更正为环境性失败对照；仓库文件和测试代码已由提交 `f975cd7` 修复。
+
+### 后续复核
+
+- [x] 确认 PR 分支新增生成器修复，`make_local_prune_report.py` 不会再渲染回 PR #1 命令
+- [x] 轻量复核最新 HEAD：Python 编译、报告重渲染和空白检查
+- [x] 通过代理 PATCH PR 描述，修正全量 discover 口径
+- [x] 通过代理提交 `APPROVE` review 命令
+- [ ] 回读确认 GitHub review 状态
+
+| 错误 | 尝试 | 处理 |
+|---|---:|---|
+| PowerShell 使用 `< $tmp` 输入重定向失败 | 1 | 改用 `gh api -f body=...` PATCH PR 描述 |
+| `APPROVE` 后回读 GraphQL/REST 多次 EOF | 3 | 只记录 approve 命令退出码 0，不伪造回读确认 |

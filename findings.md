@@ -745,3 +745,7 @@
 - 直连 GitHub `gh`/REST/curl 三种 HTTPS API 提交 review/comment 均在 `api.github.com` TLS/连接层被重置；Git SSH push 正常。本机发现 `127.0.0.1:7897` 代理可用于 GitHub REST GET/POST。
 - 已通过代理和 `gh api --method POST repos/Epslion404/ENeuron/issues/2/comments` 成功向 PR 页面提交中文评论 `5479989535`。
 - PR 描述仍存在口径瑕疵：把 `386 tests / 0 failures / 2 errors / exit 1` 与“386/386 OK”并列。该问题属于 PR 描述文字，不影响已推送的仓库文件和本机测试结论，但合并前最好由 PR 作者更正。
+- PR 后续 HEAD 更新到 `699acae92e5412b9e1fb83d0a855116607d545d1`：新增 `858d79e` 将 PR #2 复现命令修复落到 `make_local_prune_report.py`，新增 `699acae` 重新渲染 `SIMULATION_REPORT.md`。最新生成器和报告均已固定为 `pull/2/head:pr-2`。
+- 本机轻量复核最新 HEAD：`python -m compileall -q make_local_prune_report.py test_local_prune_gate_vivado.py` 通过；重新运行 `make_local_prune_report.py` 可渲染出 PR #2 复现命令；`git diff --check` 通过。
+- 已通过代理 PATCH PR body，将“你的机器预期 386/386 OK”改为“复核机器以实际输出为准”，消除 `errors=2 / exit=1` 与全绿并列的误导。
+- 代理下 `gh pr review 2 --approve` 返回退出码 0；随后 GraphQL/REST 回读 reviews 多次 EOF，因此只记录“approve 命令成功提交”，不记录“已回读确认”。

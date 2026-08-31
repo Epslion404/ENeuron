@@ -723,3 +723,10 @@
 - 尝试直连 GitHub REST review、`gh pr review` GraphQL 和 REST issue comment 均因 `api.github.com` 连接重置失败；随后发现本机 `127.0.0.1:7897` 代理可读 PR 元数据。
 - 代理下 `gh pr review` 的 GraphQL 仍 EOF，curl REST comment 仍 TLS 失败；改用代理下 `gh api --method POST repos/Epslion404/ENeuron/issues/2/comments` 成功提交评论 `5479989535`。
 - 当前状态：代码与仓库报告文件已修复且本机验证通过；PR 页面已有中文评论，剩余人工口径问题是 PR 描述里的全量 discover 表述。
+
+## 2026-08-31 PR #2 后续复核
+
+- 远端 PR 分支更新到 `699acae`，新增生成器修复 `858d79e` 和报告重渲染 `699acae`；复现命令修复不再只是手工改报告。
+- 已在最新 HEAD 的隔离 worktree 轻量验证：Python 编译通过、报告重新渲染后仍输出 `pull/2/head:pr-2`、`git diff --check` 通过。
+- 已使用代理下 `gh api --method PATCH repos/Epslion404/ENeuron/pulls/2` 修正 PR 描述，去掉“386/386 OK”对全量 discover 的不实预期。
+- 已使用代理下 `gh pr review 2 --approve` 提交批准，命令退出码 0；随后 reviews/body 回读 API 反复 EOF，未能二次确认 review 页面状态。
