@@ -1,0 +1,19 @@
+# Pin the line endings of every signed text file, so that a fresh checkout on any platform
+# (core.autocrlf=true or false) produces the same bytes.  verify_local_prune_rtl.py additionally
+# hashes the canonical LF form, so the signature is verifiable even in a foreign working tree.
+* text=auto eol=lf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+# Formal VCD witnesses are frozen evidence: git must never rewrite their bytes
+# (no EOL normalisation).  The NP4B binding additionally folds CRLF/CR to LF, so
+# even a historically rewritten tree verifies identically.
+*.vcd -text -eol
+*.wdb binary
+*.dcp binary
+*.png binary
+*.jpg binary
+*.zip binary
+*.gz binary
+*.pdf binary
+*.xcf binary

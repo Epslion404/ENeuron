@@ -64,3 +64,18 @@ vivado_pulse_original_sim/
 !vivado_xpm_wrapper_sim/project/ene_xpm_wrapper.sim/sim_1/behav/
 !vivado_xpm_wrapper_sim/project/ene_xpm_wrapper.sim/sim_1/behav/xsim/
 !vivado_xpm_wrapper_sim/project/ene_xpm_wrapper.sim/sim_1/behav/xsim/simulate.log
+
+# Scratch directories created by run_local_prune_gate_vivado.py.
+lpgv_probe_*/
+lpgv_sim_*/
+lpgv_mutants_*/
+
+# Windows paths that lost their backslashes: xvlog/xelab/xsim hand arguments to Tcl, and any
+# path built by naive string concatenation used to land in the repository root as a file named
+# UsersMGLDocumentsCodex...known_hosts.  Never commit those again.
+Users*known_hosts
+*known_hosts
+glbl.v
+
+# throwaway checkouts created by run_test_matrix.py
+.test_matrix/

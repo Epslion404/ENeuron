@@ -223,12 +223,14 @@ module tb;
   integer mod_i, idle_i, snap_i, mod_pending_i, issue_i, activity_i;
   integer layer_i, cfg_i, hold_i, inject_i, wait_cycles, response_status_i;
   integer legal_commit_i;
+  integer row_count = 0;
   reg [1023:0] command_file;
 
   task automatic print_row(input integer row_kind, input integer row_status,
                            input integer response_id_i, input integer response_mask_i,
                            input integer cfg_error_i);
     begin
+      row_count = row_count + 1;
       $display("ROW %0d %0d %0d %0d %0d %0d %0d %0d %0d %0d %0d %0d %0d %0d %0d %0d %0d %0d %0d %0d %0d %0d %0d %0d",
         row_kind, row_status, response_id_i, response_mask_i, cfg_error_i,
         utility_flat, structural_mask_state, mask_valid_state,
@@ -254,7 +256,7 @@ module tb;
   end
 
   initial begin
-    if (!$value$plusargs("CMDFILE=%s", command_file)) $fatal(1, "missing CMDFILE");
+    if (!$value$plusargs("CMDFILE=%s", command_file)) command_file = "commands.txt";
     fd = $fopen(command_file, "r");
     if (!fd) $fatal(1, "cannot open command file");
     rst = 1'b1; mode_state = 0; cmd_valid = 0; cmd_opcode = 0; cmd_id = 0;
@@ -333,6 +335,7 @@ module tb;
         end
       end
     end
+    $display("TB_COMPLETE transactions=%0d", row_count);
     $fclose(fd);
     $finish;
   end

@@ -9,6 +9,16 @@ from local_prune_gate_cosim import (
     run_mixed_cosim,
     run_negative_controls,
 )
+from rtl_tile_cosim import find_tool
+
+MISSING_TOOLS = [name for name in ("iverilog", "vvp") if find_tool(name) is None]
+TOOL_SKIP = (
+    "Icarus Verilog (iverilog/vvp) is not installed on this machine (PATH and C:/msys64 were "
+    "searched); run `python verify_local_prune_rtl.py` where it is installed"
+)
+
+
+@unittest.skipIf(MISSING_TOOLS, TOOL_SKIP)
 
 
 class LocalPruneGateRtlTest(unittest.TestCase):

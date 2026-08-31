@@ -16,11 +16,14 @@ import verify_formal_pulse_mini_prune_wrapper
 import verify_pulse_pruned_network_summaries
 from generate_np4b_signoff import (
     FILE_GROUPS,
+    FILE_HASH_POLICY,
     FREEZE_COMMIT,
     ROOT,
     SUMMARY_PATH,
+    WITNESS_BYTES_POLICY,
     WITNESS_FILES,
-    sha256,
+    canonical_sha256,
+    canonical_size,
 )
 
 
@@ -60,6 +63,11 @@ def verify_summary(data: dict[str, object], *, check_files: bool = True) -> None
         "not_proven",
     )
 
+    require_equal(data.get("file_hash_policy"), FILE_HASH_POLICY, "file_hash_policy")
+    require_equal(
+        data.get("witness_bytes_policy"), WITNESS_BYTES_POLICY, "witness_bytes_policy"
+    )
+
     models = cast(dict[str, dict[str, object]], data.get("models"))
     expected_models = {
         "eneuron": (list(range(101, 121)), "ENEURON_NP4B4_PASS"),
@@ -95,7 +103,7 @@ def verify_summary(data: dict[str, object], *, check_files: bool = True) -> None
     witness_bytes = cast(dict[str, int], formal.get("witness_bytes"))
     require_equal(set(witness_bytes), set(WITNESS_FILES), "formal.witness_bytes.keys")
     for key, name in WITNESS_FILES.items():
-        size = (ROOT / name).stat().st_size
+        size = canonical_size(ROOT / name)
         if size <= 0:
             raise AssertionError(f"成功 witness 为空: {name}")
         require_equal(witness_bytes[key], size, f"formal.witness_bytes.{key}")
@@ -109,7 +117,15 @@ def verify_summary(data: dict[str, object], *, check_files: bool = True) -> None
         raise AssertionError("正式哈希集合包含 cex/tmp 证据")
     if check_files:
         for name in sorted(expected_names):
-            require_equal(hashes[name], sha256(ROOT / name), f"file_sha256.{name}")
+            require_equal(hashes[name], canonical_sha256(ROOT / name), f"file_sha256.{name}")
+
+
+    refresh = data.get("binding_refresh")
+    if not isinstance(refresh, dict):
+        raise AssertionError("summary lacks the binding_refresh block")
+    for key in ("date", "generated_on_top_of_commit", "reason", "tools"):
+        if not refresh.get(key):
+            raise AssertionError(f"binding_refresh.{key} missing or empty")
 
 
 def verify_external_evidence() -> None:
