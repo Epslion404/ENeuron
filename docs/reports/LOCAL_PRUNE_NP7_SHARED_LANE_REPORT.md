@@ -135,6 +135,21 @@ NP7.6 不再信任这些自报字符串：`check_xsim_evidence()` 要求每条 g
   **只在旧恒等式下闭合的账本**、**篡改逐拍覆盖统计**、**删掉裁定强制的 RTL mutation**。
 - 干净克隆基线：`git clone` 后 `python -X utf8 verify_np7_software_cost.py <clone-head>` 输出
   `rejects=0 overall=PASS`（变异套件的第 0 步就是在验证这一点）。
+- NP7.7 的物理侧独立绑定链（与软件链互不复用）：`artifacts/results/np7_vivado_ooc_summary.json`
+  由 `run_np7_vivado_ooc.py` 在综合时点一次写入，8 个 `vivado_np7_ooc_<fmt>_L<n>_reports/` 里
+  的 Vivado 原始报告全部提交；`verify_np7_physical_cost.py` **只读**，逐配置把
+  `signoff_summary.txt`、汇总 JSON 自报值、以及从 `.rpt` 重算的
+  LUT/FF/BRAM36/BRAM18/DSP/WNS/TNS/WHS/THS/失败端点/DRC/route-error 做三方比对，
+  并重算自动生成的 OOC 顶层封装 sha256（改端口表就必然暴露）。
+  不绑定任何 `.dcp/.jou/.pb/.str`（被 `.gitignore` 排除，未提交即不算证据）。
+- `test_np7_physical_mutations.py` **12 个变异**全部被拒且没有一个让验证器退出码变 0：
+  只改汇总数字、改 signoff 并同步 sha256、把未收敛配置的 WNS 改成正数、删原始报告、
+  报告留在工作树但不进提交、删配置、伪造 `code_git_head`、清空执行机字段、
+  冻结后偷改 RTL 并同步哈希、偷换 OOC 封装（把 `clk` 悬空以规避时序）、
+  制造 L2 比 L1 还省的"自洽"面积回退、把已收敛的 dense 全标成 FAIL。
+  两套变异（NP7.6 的 19 项 + NP7.7 的 12 项）都在 UTF-8 与 Windows 默认代码页 936
+  下各跑一遍，日志 `np76_mutations.txt` / `np76_mutations_defaultcp.txt` /
+  `np77_mutations.txt` / `np77_mutations_defaultcp.txt`，四份结论一致。
 
 ## 7. 限制与不主张的内容
 
@@ -168,6 +183,8 @@ python -X utf8 verify_np7_software_cost.py <HEAD>           # 只读；本轮 re
 python -X utf8 test_np7_verifier_mutations.py               # 19 mutations 全部被拒
 python -X utf8 run_np7_vivado_ooc.py --vivado-root <Vivado2024.2 根> --jobs 4
 python -X utf8 verify_np7_physical_cost.py <HEAD>           # 只读；NP7.7 rejects=0 overall=PASS
+python -X utf8 test_np7_physical_mutations.py              # NP7.7 12 mutations 全部被拒
+python test_np7_physical_mutations.py                      # 默认代码页(936)再跑一遍，结论一致
 ```
 
 ## 9. NP7.7 八配置 OOC 综合（Vivado 2024.2，本轮新增）
