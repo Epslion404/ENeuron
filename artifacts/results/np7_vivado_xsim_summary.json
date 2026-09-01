@@ -13,7 +13,7 @@
       "kind": "cfgneg",
       "lanes": 1,
       "logs": {
-        "cfgneg_dense_L1.log": "bd24a9ac7d1bdf8348735115a79096b42316aa0945de5777e59fe3e03280c544"
+        "cfgneg_dense_L1.log": "835471156098ff9521d8d349ac262cafe67f1d77311bc0a8d4aa2b1a177dd585"
       },
       "metrics": {
         "cyc_rows": 0,
@@ -49,7 +49,7 @@
       "kind": "cfgneg",
       "lanes": 4,
       "logs": {
-        "cfgneg_dense_L4.log": "7657411c26ce0388b2813c3643496944eb831441fa184958475f2fd26249d9b2"
+        "cfgneg_dense_L4.log": "785c455209412af6fa409db5eacde730ebd7e0eff746f51472f79cc10bfd52d6"
       },
       "metrics": {
         "cyc_rows": 0,
@@ -85,7 +85,7 @@
       "kind": "cfgneg",
       "lanes": 1,
       "logs": {
-        "cfgneg_sparse_L1.log": "d89ff972549be7dc4f474cceffe54e2a8e543022afbcc95da964d2a33286003a"
+        "cfgneg_sparse_L1.log": "c49c93e27fabcfe2d872e3cad3292cf082e968c510bd8d6a767f6018c57d3e49"
       },
       "metrics": {
         "cyc_rows": 0,
@@ -121,7 +121,7 @@
       "kind": "cfgneg",
       "lanes": 4,
       "logs": {
-        "cfgneg_sparse_L4.log": "14c45b072f2b8663cc116186cd1f91679ffe95d4a495e96934256f47ff50d6eb"
+        "cfgneg_sparse_L4.log": "416cae722e73f33a98e7d0e1765714ada917d7a5700d8328b27981603b625973"
       },
       "metrics": {
         "cyc_rows": 0,
@@ -157,7 +157,7 @@
       "kind": "golden",
       "lanes": 1,
       "logs": {
-        "golden_dense_L1.log": "7d77da2137a308e624f13d3892c4c09818de29b4be5a5dcf4920c3e61da4bd38"
+        "golden_dense_L1.log": "7520e5ed00fde4308dfae1b363e3f8f4886e61a4df23d9ff0865522dd877e30c"
       },
       "metrics": {
         "cyc_rows": 913,
@@ -201,7 +201,7 @@
       "kind": "golden",
       "lanes": 2,
       "logs": {
-        "golden_dense_L2.log": "367bbf1f223d7c545201bd60e4de71586ad53e01d76b7a6475feb291b3efbd5e"
+        "golden_dense_L2.log": "962ad6e0062b97c783385073871fbbc7c73e6970f28c6597acede7e90f5c74e7"
       },
       "metrics": {
         "cyc_rows": 808,
@@ -245,7 +245,7 @@
       "kind": "golden",
       "lanes": 4,
       "logs": {
-        "golden_dense_L4.log": "1ca61787dfcac2c2efe06ca8ed4c4fe5e2296dea6f380954283c4d1088fcd5a4"
+        "golden_dense_L4.log": "5dcfee1d87f7d72f1e4801cde9a9cbdb90ee57b9473a9581ff861cfaac634100"
       },
       "metrics": {
         "cyc_rows": 759,
@@ -289,7 +289,7 @@
       "kind": "golden",
       "lanes": 8,
       "logs": {
-        "golden_dense_L8.log": "d0a9ed1e020bd6a5c896ad3ae0f98300fe599fe05112d2554925bc45c7043977"
+        "golden_dense_L8.log": "1f7e55d411489ab47098fafe1772eb619cb86623d9d536546d90b36fdab23222"
       },
       "metrics": {
         "cyc_rows": 776,
@@ -333,7 +333,7 @@
       "kind": "golden",
       "lanes": 1,
       "logs": {
-        "golden_sparse_L1.log": "34b10364784370d62157e6b4a85e1b5a7abb5a9032094c0250f542da8b7dc765"
+        "golden_sparse_L1.log": "78fe02bace1d80be44e728bea7e8901705728f56d69e4a5c1b30319759b8768e"
       },
       "metrics": {
         "cyc_rows": 623,
@@ -377,7 +377,7 @@
       "kind": "golden",
       "lanes": 2,
       "logs": {
-        "golden_sparse_L2.log": "11b4b2ff1f4b3102ec03658dfeb9ce5e0aaeffe17249bdf61690b78a81cf9b1b"
+        "golden_sparse_L2.log": "86c0f8f125530b89bb5ec36581fed405f9e3737f8301788c8a121f222bf86a31"
       },
       "metrics": {
         "cyc_rows": 594,
@@ -421,7 +421,7 @@
       "kind": "golden",
       "lanes": 4,
       "logs": {
-        "golden_sparse_L4.log": "12472f6883ecab354d128d54cd4727627434314f6176f908b80fb2a0f615fd8a"
+        "golden_sparse_L4.log": "88565e055e991cc4ce5e1e6b7cb97f2515be155e301750b6a9845bc058b57901"
       },
       "metrics": {
         "cyc_rows": 545,
@@ -465,7 +465,7 @@
       "kind": "golden",
       "lanes": 8,
       "logs": {
-        "golden_sparse_L8.log": "63adade3e8cd73287d499e0b13b02b3fc20130122a89c66b6c7eb1c12dc8c13a"
+        "golden_sparse_L8.log": "75ef4c2746ec6429e64d11ab3ef7de40537fd973234c3c4b86f1a4b7c5759e93"
       },
       "metrics": {
         "cyc_rows": 584,
@@ -510,7 +510,7 @@
       "kind": "negative",
       "lanes": 1,
       "logs": {
-        "neg0_L1.log": "04a406bad74313689e8b84fb68573e006195fd76ca0900e10e242e00573c9b0e"
+        "neg0_L1.log": "a245ce5c85fd4510fc2ed39ce59e1b1ef7ca6e8dc5420cb2cafd0ca784f850a2"
       },
       "metrics": {
         "cyc_rows": 800,
@@ -555,7 +555,7 @@
       "kind": "negative",
       "lanes": 4,
       "logs": {
-        "neg0_L4.log": "d43a07c197b3475f12b514204cfd28e50c729f799447ed627cd54aadff69d175"
+        "neg0_L4.log": "41e33b8e32a179964deb07c90ad869c75bde037d458aeb056cdcd3d16f0a1d32"
       },
       "metrics": {
         "cyc_rows": 753,
@@ -600,7 +600,7 @@
       "kind": "negative",
       "lanes": 1,
       "logs": {
-        "neg1_L1.log": "e767b7066c598153a2ff481ce0549789b2681ab5295ba166a2f1e002be743678"
+        "neg1_L1.log": "d09b0e01799da3936e3e98b230ba44411cc723ef9d5cf6a23aa362b7e7e08bf8"
       },
       "metrics": {
         "cyc_rows": 925,
@@ -645,7 +645,7 @@
       "kind": "negative",
       "lanes": 4,
       "logs": {
-        "neg1_L4.log": "55e7be15ab0c8a3a2f2cb32f030f2c7db58c788ea4e089b96b5c795ab0beba26"
+        "neg1_L4.log": "19ee174b20c1e1c2d8e7ca1f314df2c9ed379e339942a5e492e92198056016f2"
       },
       "metrics": {
         "cyc_rows": 545,
@@ -677,8 +677,8 @@
       "work_dir": "work/neg1_L4"
     }
   },
-  "code_git_head": "17bc8165f472c308eafa20eafbcf8ef1f2b88cea",
-  "commands_log_sha256": "c025ca0639b15d3d1e1eabd1d1a8f76a97745b8c1ad52bcbebe50313d4b4f5df",
+  "code_git_head": "a10e001a17b8cf85dec5ca07aa54617c9d96fb77",
+  "commands_log_sha256": "8aab2035b95cbb03b442efe56163ca6881165d64fceada1de8ab40d1864d07de",
   "groups": [
     "golden",
     "negative",
@@ -710,7 +710,5 @@
     "version": "Vivado Simulator v2024.2.0",
     "version_note": "证据只绑定本机 Vivado 版本，不外推到评审者使用的 2024.1（NP6 决策 9 同口径）"
   },
-  "worktree_dirty": [
-    "?? run_evidence.py"
-  ]
+  "worktree_dirty": []
 }
