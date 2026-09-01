@@ -810,3 +810,17 @@
 - 用户选择严格重建后，Vivado 2024.1 三关均真实通过：Tile OOC 为 3152 LUT/1972 FF、100 MHz WNS +0.213 ns；XPM 双向 FIFO 容量/排空/回绕仿真与综合通过；完整 System 在 Host 50 MHz / Tile 100 MHz 下分别获得 WNS +14.306/+0.081 ns，CDC 分类无 external unsafe/critical 或 XPM unknown/critical。
 - `verify_goal.py` 已在 Vivado 证据重建后完整退出 0，并输出 `GOAL_AUDIT_PASS`。除 387 项软件回归外，Tile 协议形式证明成功，Host Bridge 控制器 20 拍安全证明及 6 类可达性见证成功，Tile 20 seeds × 500 事务和 System 957 条命令协同仿真成功。
 - 严格闭环仍不等价于“所有未来行为均已证明”：当前没有证明无限时域/全状态等价、任意 RAM 容量、完整板级 bitstream、真实活动功耗或通用 AI 自训练。Vivado 的 0.103 W/0.112 W 仅为 vector-less OOC 估算，置信度 Medium。
+
+## 2026-09-01 PR #5 回复复核
+
+- GitHub 仓库中不存在编号 #4 的 PR 或 Issue；全部 PR 为 #1、#2、#3、#5。用户所述“PR4 新回复”按唯一匹配的新活动解释为 PR #5。
+- PR #5 最新 HEAD 仍为 `a7e8b09a050df5f2d39e5070e9f42ee12004fa62`，没有新代码提交；新增的是协作者评论 `5492861157`。
+- 协作者承认此前批准记录仅为仓库外指令自述，并请求仓库所有者确认九项决策。用户本轮已经直接确认九项全部同意，因此原审查第 3 项授权溯源问题可以关闭。
+- 验证器非 fail-closed、ENeuron 配对微架构不一致、孤立诊断文件三项尚无代码修复，PR 仍不具备批准条件。
+- 仓库所有者确认评论已提交并回读成功：`https://github.com/Epslion404/ENeuron/pull/5#issuecomment-5492928792`；PR 状态保持 `CHANGES_REQUESTED`。
+- PR #5 HEAD `61988e2` 的只读 verifier 正向退出 0，manifest SHA 前后不变，工作树干净；mutation suite 10/10 通过。
+- `verify_np6_physical_cost.py` 对冻结来源只调用 `git log` 取提交时间，再比较 checkout 后的 `signoff_summary.txt` mtime；它没有把 manifest 所绑定的 RTL/runner 字节与 `git show <frozen_git_head>:<path>` 比较。后续提交若同步修改源码和 manifest，旧报告仍可能被接受，冻结来源合同尚非 fail-closed。
+- 阶段报告仍声明冻结 HEAD `67a70f3`，但 manifest 与七份摘要绑定 `7023b15`；冻结决策文档和报告仍写“确认前/授权待确认”并只引用协作者评论 `5492861157`，没有引用仓库所有者确认 `5492928792`。
+- PR #5 HEAD `550ec26` 已要求 manifest binding、`git show 7023b15:<path>` 和当前磁盘文件三者哈希完全一致，并移除 mtime 新鲜度判定。
+- 本机复验：compileall 通过；只读 verifier 正向 PASS；manifest 不变、工作树干净；mutation suite 12/12 PASS，T8/T9 均拒绝冻结后源码/runner 与 manifest 联合篡改；测试后 HEAD 仍为 `550ec26`。
+- 阶段报告已统一为冻结 HEAD `7023b15`，批准链已引用仓库所有者评论 `5492928792` 并删除待确认状态。当前没有新的合并阻断；结论仍只允许记为 `NP6_PHYSICAL_COST_PARTIAL`。

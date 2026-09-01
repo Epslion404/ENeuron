@@ -727,3 +727,13 @@
 | `verify_goal.py` 拒绝 Tile Vivado 报告：报告早于 2026-08-29 的 Tile RTL | 1 | V1 禁止运行 Vivado，且验收合同规定 verifier 失败即停止提交；T6/T7 暂停，等待用户决定是否另行批准重建证据或调整 V1 gate |
 | 用户选择严格闭环方案 1 | 1 | 已授权按 verifier 冻结顺序重建 Tile、XPM、System 证据；不扩大到 NP6 |
 | 完整 Goal 验收 | 1 | `verify_goal.py` 退出码 0，输出 `GOAL_AUDIT_PASS`；387 项回归通过（1 项无环境变量时跳过），Tile/Host Bridge 形式证明、Tile 10000 事务和 System 957 命令协同仿真全部通过 |
+
+## 2026-09-01 PR #5 NP6 物理成本复审
+
+- [x] 用户明确确认 `NPU_PRUNING_NP6_FREEZE_DECISIONS.md` 中九项决策全部同意，解除授权溯源阻断。
+- [x] 核对 GitHub 编号：仓库不存在 PR/Issue #4；当前唯一开放项是 PR #5，且出现协作者最新回复。
+- [x] 在 PR #5 留下仓库所有者的九项批准确认，明确技术阻断仍需修复。
+- [ ] 等待新 HEAD 后复验只读 manifest、负向 mutation 和 ENeuron 配对口径。
+- [x] 复验 HEAD `61988e2`：正向验证、manifest 不变性、工作树洁净和 10 项 mutation 均通过；配对 2 已改为 `NOT_COMPARABLE`，孤立文件已删除。
+- [ ] 修复冻结源码字节未与 `frozen_git_head` 比对，以及报告/授权文档仍引用旧状态的问题。
+- [x] HEAD `550ec26` 已完成冻结字节三方比对、T8/T9 committed-tamper 负向测试和文档状态修正；复验无剩余阻断。

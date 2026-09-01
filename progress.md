@@ -802,3 +802,14 @@
 - [x] 通过 GitHub issue comment `5491242843` 提交中文阻断反馈；修正后再重新审查，不建议当前合并。
 - [x] 协作者提交 `34e7c9c` 修正两处口径；复核确认最新 HEAD `e979675`，通过 GitHub review `APPROVED`，PR 保持 open，未合并。
 - [x] 协作者后续回复确认 PR 仍严格限定为 NP6.1 静态审计/NP6.0 冻结草案；最新 HEAD `734faf9` 仅同步 main，无新增代码或证据。复核维持 `APPROVED`，PR 仍 open、未合并。
+
+## 2026-09-01 PR #5 首轮回复复核
+
+- 用户明确确认 NP6 九项冻结决策全部同意；此前审查中的授权溯源阻断随之解除。
+- GitHub 实时核对确认不存在 PR/Issue #4；唯一开放 PR #5 出现协作者评论，但 HEAD 仍为 `a7e8b09`，没有技术修复提交。
+- 下一步仅在 PR #5 记录批准确认；保持 `CHANGES_REQUESTED`，等待其余三项修复形成新 HEAD 后再复验。
+- 已通过评论 `5492928792` 逐项确认九项冻结决策，并要求冻结文件引用该仓库内批准记录；GitHub 回读确认正文完整。
+- 新 HEAD `61988e2` 已完成隔离复验：compileall 通过；只读 verifier 正向 PASS；manifest 不变且工作树干净；mutation suite 10/10 PASS。
+- 复验仍发现冻结字节绑定漏洞和两处文档状态陈旧，准备提交新的精简 `CHANGES_REQUESTED`；未运行 Vivado、未修改协作者分支。
+- 最新 HEAD `550ec26` 已完成隔离复验：正向 verifier PASS、manifest/工作树不变、12 项 mutation 全通过，冻结后 RTL/runner 联合篡改被拒绝，权威文档状态一致。
+- 本轮无需重跑 Vivado；准备对 PR #5 提交 `APPROVE`，但批准仅表示证据链和报告口径可合并，不改变 100 MHz 时序仅部分通过的事实。
