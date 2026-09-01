@@ -1,5 +1,7 @@
 # Pulse-Mini XC7Z020 OOC 综合/布局布线与机器可读摘要。
 set root [file normalize [pwd]]
+set git_head [lindex $argv 0]
+if {$git_head eq {}} { set git_head UNKNOWN }
 set out_dir [file join $root vivado_pulse_mini_reports]
 file mkdir $out_dir
 set part xc7z020clg400-1
@@ -47,6 +49,8 @@ puts $fh "VIVADO_VERSION=[version -short]"
 puts $fh "PART=$part"
 puts $fh "TOP=$top"
 puts $fh "CLOCK_MHZ=100.000"
+puts $fh "GIT_HEAD=$git_head"
+puts $fh "RUNNER=vivado_pulse_mini_synth.tcl"
 puts $fh "LUT=$lut"
 puts $fh "FF=$ff"
 puts $fh "BRAM36=$bram36"
