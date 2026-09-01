@@ -345,6 +345,18 @@ def check_rtl_evidence(cosim, integrity, rtl_reductions, coverage):
         }
 
 
+def check_manifest_environment(manifest, integrity):
+    # 决定 8：证据必须能追溯到执行机与真实存在的工具链。探不到版本的工具
+    # 记录成 "missing: ..." 说明那次运行根本没有该工具，不允许当证据用。
+    environment = manifest.get("environment", {})
+    for field in ("host", "os", "python"):
+        if not str(environment.get(field, "")).strip():
+            integrity.append("清单未绑定执行机信息 %s" % field)
+    for name, banner in sorted(manifest.get("tool_versions", {}).items()):
+        if str(banner).startswith("missing"):
+            integrity.append("清单工具 %s 在该次运行中不存在：%s" % (name, banner))
+
+
 def check_formal_evidence(formal, integrity):
     if formal.get("schema") != "np7-formal-mutations-v1":
         integrity.append("NP7.5 evidence schema mismatch")
@@ -424,8 +436,15 @@ def check_xsim_evidence(xsim, frozen_head, integrity):
         integrity.append("xsim 证据 overall_status=%s" % xsim.get("overall_status"))
     if xsim.get("problems"):
         integrity.append("xsim 证据自带问题单: %s" % xsim["problems"][0])
-    if not str(xsim.get("vivado", {}).get("version", "")).startswith("Vivado Simulator"):
+    vivado = xsim.get("vivado", {})
+    if not str(vivado.get("version", "")).startswith("Vivado Simulator"):
         integrity.append("xsim 证据未记录 Vivado 版本")
+    # 决定 8（评论 5498372499）：每份证据必须绑定准确 version/build/执行机。
+    if not str(vivado.get("sw_build", "")).startswith("SW Build"):
+        integrity.append("xsim 证据未绑定 Vivado SW Build（sw_build=%s）"
+                         % vivado.get("sw_build"))
+    if not vivado.get("host"):
+        integrity.append("xsim 证据未绑定执行机（host 为空）")
     if xsim.get("worktree_dirty"):
         integrity.append("xsim 证据运行时代码工作树不干净：%s"
                          % ",".join(xsim["worktree_dirty"])[:120])
@@ -637,7 +656,7 @@ GATE_LABELS = {
 }
 
 
-def compute_all(frozen_head="HEAD"):
+def compute_all(frozen_head="HEAD", manifest=None):
     cosim = load_json("artifacts/results/np7_cosim_ledgers.json")
     integration = load_json("artifacts/results/np7_three_model_integration.json")
     formal = load_json("artifacts/results/np7_formal_and_mutations.json")
@@ -648,6 +667,9 @@ def compute_all(frozen_head="HEAD"):
     check_rtl_evidence(cosim, integrity, rtl_reductions, coverage)
     check_formal_evidence(formal, integrity)
     check_xsim_evidence(load_json(XSIM_REL), frozen_head, integrity)
+    # 清单自身不参与生成时点的自检（自引用），所以只有验证时点才检查执行机绑定。
+    if manifest is not None:
+        check_manifest_environment(manifest, integrity)
     values, fails = gates_from_b21(integration, frozen, integrity)
     gates = {}
     for gate in ("G1", "G2", "G3", "G4", "G5", "G6"):
@@ -714,7 +736,7 @@ def main(argv=None):
     if manifest.get("integrity"):
         rejects.append("清单生成时证据自检已报错：%s" % manifest["integrity"][0])
     try:
-        recomputed = compute_all(frozen_head or "HEAD")
+        recomputed = compute_all(frozen_head or "HEAD", manifest)
     except (IOError, KeyError, ValueError, TypeError) as error:
         print("NP7_VERIFY_REJECT: 证据不可重算 %s" % error)
         return 1

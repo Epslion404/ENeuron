@@ -24,6 +24,8 @@ import hashlib
 import json
 import os
 import pathlib
+import platform
+import re
 import shutil
 import subprocess
 import sys
@@ -145,6 +147,25 @@ class Flow:
         for line in output.splitlines():
             if line.startswith("Vivado Simulator"):
                 return line.strip()
+        return "unknown"
+
+    def sw_build(self):
+        # 决定 8（PR #6 评论 5498372499）要求绑定准确 version/build/执行机。
+        # xvlog/xelab 的 -version 只给版本串，SW Build 只有 vivado -version 才给。
+        for name in ("vivado.bat", "vivado"):
+            candidate = self.root / "bin" / name
+            if not candidate.exists():
+                continue
+            try:
+                done = subprocess.run([str(candidate), "-version"],
+                                      capture_output=True, text=True,
+                                      encoding="utf-8", errors="replace",
+                                      check=False, timeout=600)
+            except (OSError, subprocess.SubprocessError):
+                continue
+            found = re.search(r"SW Build (\d+)", (done.stdout or "") + (done.stderr or ""))
+            if found:
+                return "SW Build " + found.group(1)
         return "unknown"
 def write_stimulus(case_dir, words, txns, bp):
     (case_dir / "np7_cfg.hex").write_text(
@@ -407,6 +428,8 @@ def write_outputs(out_root, flow, report, started):
     lines = ["NP7_VIVADO_XSIM_SIGNOFF schema=" + SCHEMA,
              "RESULT=" + report["overall_status"],
              "VIVADO_VERSION=" + report["vivado"]["version"],
+             "VIVADO_SW_BUILD=" + report["vivado"].get("sw_build", "unknown"),
+             "EXECUTION_HOST=" + report["vivado"].get("host", "unknown"),
              "VIVADO_ROOT=" + report["vivado"]["root"],
              "VERSION_NOTE=" + report["vivado"]["version_note"],
              "CODE_GIT_HEAD=" + report["code_git_head"],
@@ -472,6 +495,7 @@ def main(argv=None):
     root = resolve_vivado_root(args.vivado_root)
     flow = Flow(root)
     version = flow.version()
+    sw_build = flow.sw_build()
     out_root = pathlib.Path(args.out)
     out_root.mkdir(parents=True, exist_ok=True)
     cases = make_cases(args.groups, args.lanes, args.transactions, args.seed)
@@ -506,6 +530,11 @@ def main(argv=None):
         "overall_status": "PASS" if not problems else "FAIL",
         "runner": pathlib.Path(__file__).name,
         "vivado": {"root": root.as_posix(), "version": version,
+                   "sw_build": sw_build,
+                   "host": platform.node(),
+                   "machine": "%s %s %s" % (platform.system(), platform.release(),
+                                            platform.machine()),
+                   "python": sys.version.split()[0],
                    "version_note": ("证据只绑定本机 Vivado 版本，不外推到评审者使用的 "
                                     "2024.1（NP6 决策 9 同口径）")},
         "tools": tool_lines(),

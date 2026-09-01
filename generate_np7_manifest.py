@@ -6,7 +6,9 @@
 # 硬门未达标不阻止生成（那是要如实记录的结果，不是被隐藏的错误）。
 
 import json
+import os
 import pathlib
+import platform
 import subprocess
 import sys
 
@@ -77,10 +79,11 @@ EVIDENCE_FILES = [
     "vivado_np7_xsim_reports/logs/cfgneg_dense_L1.log",
     "vivado_np7_xsim_reports/logs/cfgneg_dense_L4.log",
 ]
+# vvp 自己没有版本开关，沿用同一安装的 iverilog banner（与 NP7.5 证据同口径）。
 TOOL_VERSION_COMMANDS = {
-    "iverilog": ["iverilog", "-V"],
-    "vvp": ["vvp", "-N"],
-    "yosys": ["yosys", "--version"],
+    "iverilog": (["iverilog", "-V"], [r"C:\iverilog\bin\iverilog.exe"]),
+    "vvp": (["iverilog", "-V"], [r"C:\iverilog\bin\iverilog.exe"]),
+    "yosys": (["yosys", "--version"], [r"C:\msys64\ucrt64\bin\yosys.exe"]),
 }
 
 
@@ -92,16 +95,25 @@ def git(*args):
 
 
 def tool_versions():
+    # 先按 PATH 探测，再退回本机固定安装位置（与 np7_formal_and_mutations.py
+    # 里的 YOSYS/IVERILOG 绝对路径同一口径），避免把"没配 PATH"伪装成工具缺失。
     versions = {}
-    for name, command in TOOL_VERSION_COMMANDS.items():
-        try:
-            done = subprocess.run(command, capture_output=True, text=True,
-                                  encoding="utf-8", errors="replace",
-                                  check=False, timeout=120)
+    for name, (command, fallbacks) in sorted(TOOL_VERSION_COMMANDS.items()):
+        candidates = [command] + [[path] + command[1:] for path in fallbacks
+                                  if os.path.exists(path)]
+        banner = "missing: not probed"
+        for candidate in candidates:
+            try:
+                done = subprocess.run(candidate, capture_output=True, text=True,
+                                      encoding="utf-8", errors="replace",
+                                      check=False, timeout=120)
+            except (OSError, subprocess.SubprocessError) as error:
+                banner = "missing: %s" % error
+                continue
             text = (done.stdout + done.stderr).strip().splitlines()
-            versions[name] = text[0][:120] if text else "unknown"
-        except OSError as error:
-            versions[name] = "missing: %s" % error
+            banner = text[0][:120] if text else "unknown"
+            break
+        versions[name] = banner
     return versions
 
 
@@ -148,6 +160,9 @@ def main(argv=None):
                             "G2_ops": verifier.GATE_OPS,
                             "G3_cycles": verifier.GATE_CYCLES},
         "tool_versions": tool_versions(),
+        "environment": {"host": platform.node(),
+                        "os": platform.platform(),
+                        "python": sys.version.split()[0]},
         "bindings": bindings,
         "gates": computed["gates"],
         "rtl_observed_reductions": computed["rtl_observed_reductions"],
