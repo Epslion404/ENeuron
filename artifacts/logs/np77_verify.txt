@@ -1,6 +1,6 @@
-# command: python -X utf8 verify_np7_physical_cost.py b31a98d889813a08d9faf34c6e70c62787a3f12f
-# git_head: b31a98d889813a08d9faf34c6e70c62787a3f12f
-# local_time: 2026-09-02 05:34:22
+# command: python -X utf8 verify_np7_physical_cost.py 3130088cab43d51eb932b77a795599037d17b6b8
+# git_head: 3130088cab43d51eb932b77a795599037d17b6b8
+# local_time: 2026-09-02 05:35:31
 NP7_PHYSICAL_CONFIG sparse/L1 lut=115 ff=462 bram36=0 bram18=0 dsp=0 wns=1.281 tns=0.000 whs=0.179 ths=0.000 setup_fail=0 hold_fail=0 drc_err=0 route_err=0 timing_100MHz=MET
 NP7_PHYSICAL_CONFIG sparse/L2 lut=132 ff=462 bram36=0 bram18=0 dsp=0 wns=0.477 tns=0.000 whs=0.224 ths=0.000 setup_fail=0 hold_fail=0 drc_err=0 route_err=0 timing_100MHz=MET
 NP7_PHYSICAL_CONFIG sparse/L4 lut=181 ff=462 bram36=0 bram18=0 dsp=0 wns=-4.627 tns=-246.636 whs=0.192 ths=0.000 setup_fail=56 hold_fail=0 drc_err=0 route_err=0 timing_100MHz=MISS
@@ -9,7 +9,7 @@ NP7_PHYSICAL_CONFIG dense/L1 lut=137 ff=476 bram36=0 bram18=0 dsp=0 wns=2.024 tn
 NP7_PHYSICAL_CONFIG dense/L2 lut=162 ff=476 bram36=0 bram18=0 dsp=0 wns=0.405 tns=0.000 whs=0.163 ths=0.000 setup_fail=0 hold_fail=0 drc_err=0 route_err=0 timing_100MHz=MET
 NP7_PHYSICAL_CONFIG dense/L4 lut=192 ff=476 bram36=0 bram18=0 dsp=0 wns=-3.541 tns=-179.684 whs=0.198 ths=0.000 setup_fail=56 hold_fail=0 drc_err=0 route_err=0 timing_100MHz=MISS
 NP7_PHYSICAL_CONFIG dense/L8 lut=195 ff=476 bram36=0 bram18=0 dsp=0 wns=-4.695 tns=-243.964 whs=0.197 ths=0.000 setup_fail=56 hold_fail=0 drc_err=0 route_err=0 timing_100MHz=MISS
-NP7_PHYSICAL_BINDING verify_head=b31a98d88 code_head=116d79c28 part=xc7z020clg400-1 clock=100.000MHz vivado=2024.2 build=SW Build 5239630 host=Chan-an
+NP7_PHYSICAL_BINDING verify_head=3130088ca code_head=116d79c28 part=xc7z020clg400-1 clock=100.000MHz vivado=2024.2 build=SW Build 5239630 host=Chan-an
 NP7_PHYSICAL_EXCLUDED sparse/L4,sparse/L8,dense/L4,dense/L8
 NP7_PHYSICAL_NOTE excluded 配置在 100MHz 未收敛，不主张其物理周期收益，且禁止用软件周期收益补偿（TODO NP7.7 第 3 条）；流水化改动属于周期合同变更，需管理员新裁定
 NP7_PHYSICAL_SUMMARY rejects=0 configs=8 timing_clean=4(sparse/L1,sparse/L2,dense/L1,dense/L2) excluded=4(sparse/L4,sparse/L8,dense/L4,dense/L8) overall=PASS
