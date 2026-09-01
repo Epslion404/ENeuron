@@ -20,6 +20,7 @@
 - [NPU 局部剪枝与动态门控计划](planning/NPU_PRUNING_TODO.md)
 - [NP4B 正式集成 TODO](planning/NPU_PRUNING_NP4B_TODO.md)
 - [NP6 物理成本评估 TODO](planning/NPU_PRUNING_NP6_TODO.md)
+- [NP6 Runner 静态审计](planning/NPU_PRUNING_NP6_RUNNER_AUDIT.md)
 
 ## 报告
 
