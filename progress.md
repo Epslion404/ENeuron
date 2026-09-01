@@ -800,3 +800,4 @@
 - [x] 核对 NP6 runner 审计中的脚本、顶层和报告目录存在性；确认该 PR 仅是静态审计/冻结草案，没有调用 Vivado。
 - [x] 发现两处事实口径问题：把并非所有既有目录都存在的 `signoff_summary.txt` 写成统一约定；静态审计声称已排除陈旧 RTL，但没有执行新鲜度验证。
 - [x] 通过 GitHub issue comment `5491242843` 提交中文阻断反馈；修正后再重新审查，不建议当前合并。
+- [x] 协作者提交 `34e7c9c` 修正两处口径；复核确认最新 HEAD `e979675`，通过 GitHub review `APPROVED`，PR 保持 open，未合并。
