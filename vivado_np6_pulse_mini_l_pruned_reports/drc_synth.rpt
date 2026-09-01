@@ -1,7 +1,7 @@
 Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
 ------------------------------------------------------------------------------------------------------------------------------------------------
 | Tool Version : Vivado v.2024.2 (win64) Build 5239630 Fri Nov 08 22:35:27 MST 2024
-| Date         : Tue Sep  1 18:22:00 2026
+| Date         : Tue Sep  1 19:05:48 2026
 | Host         : Chan-an running 64-bit major release  (build 9200)
 | Command      : report_drc -file C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/vivado_np6_pulse_mini_l_pruned_reports/drc_synth.rpt
 | Design       : pulse_mini_l_prune_wrapper

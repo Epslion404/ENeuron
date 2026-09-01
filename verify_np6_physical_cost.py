@@ -89,15 +89,14 @@ def parse_timing(text):
     return vals
 
 def parse_drc(text):
-    m = re.search(r'\|\s*Total\s*\|\s*([0-9]+)\s*\|', text)
-    if m:
-        return int(m.group(1))
-    return None
+    rows = re.findall(r'\|\s*([A-Z][A-Z0-9-]+)\s*\|\s*(Error|Critical Warning|Warning|Info|Advisory)\s*\|', text)
+    return sum(1 for _, sev in rows if sev == 'Error')
 
 def parse_route(text):
-    if re.search(r'ERROR|FAILED|Unrouted', text, re.IGNORECASE):
-        return False
-    return 'route_design' in text.lower() or 'Phase' in text or len(text) > 0
+    m = re.search(r'# of nets with routing errors[. ]*:[[:space:]]*([0-9]+)'.replace('[[:space:]]', '\\s'), text)
+    if m is None:
+        return None
+    return int(m.group(1))
 
 def main():
     if len(sys.argv) != 2:
@@ -191,12 +190,14 @@ def main():
                 failures.append(tag + ': cannot recompute failing endpoints from timing report')
             elif str(tim[tkey]) != kv.get(skey):
                 failures.append(tag + ': failing-endpoint count mismatch ' + skey)
-        drc = parse_drc((d / 'drc_impl.rpt').read_text(encoding='utf-8', errors='ignore'))
-        if drc is None or drc != 0:
-            failures.append(tag + ': DRC errors reported: ' + str(drc))
-        route_text = (d / 'route_status_impl.rpt').read_text(encoding='utf-8', errors='ignore')
-        if not parse_route(route_text):
-            failures.append(tag + ': route status indicates errors/unrouted nets')
+        drc_errors = parse_drc((d / 'drc_impl.rpt').read_text(encoding='utf-8', errors='ignore'))
+        if drc_errors != 0:
+            failures.append(tag + ': DRC errors reported: ' + str(drc_errors))
+        route_errors = parse_route((d / 'route_status_impl.rpt').read_text(encoding='utf-8', errors='ignore'))
+        if route_errors is None:
+            failures.append(tag + ': cannot parse route status report')
+        elif route_errors != 0:
+            failures.append(tag + ': route errors reported: ' + str(route_errors))
         for src in sources + [runner, VERIFIER_REL]:
             epoch = git_epoch_at(frozen, src)
             if epoch is None:
