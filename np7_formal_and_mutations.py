@@ -319,14 +319,18 @@ TOOLS = {"yosys": YOSYS, "iverilog": IVERILOG, "vvp": VVP}
 def tool_versions():
     versions = {}
     for name, path in TOOLS.items():
+        flags = ["-V"] if name == "iverilog" else ["--version"]
         try:
-            done = subprocess.run([path, "--version"], capture_output=True,
+            done = subprocess.run([path] + flags, capture_output=True,
                                   text=True, encoding="utf-8", errors="replace",
                                   check=False, timeout=120)
-            text = (done.stdout + done.stderr).strip().splitlines()
-            versions[name] = text[0][:120] if text else "?"
+            text = [line for line in (done.stdout + done.stderr).splitlines()
+                    if line.strip()]
+            versions[name] = text[0][:160] if text else "?"
         except OSError as error:
             versions[name] = "missing: %s" % error
+    if versions.get("iverilog") and versions.get("vvp", "").startswith("missing"):
+        versions["vvp"] = versions["iverilog"] + " (同一安装目录)"
     return versions
 
 
