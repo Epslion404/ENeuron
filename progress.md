@@ -822,3 +822,4 @@
 - 已新增 NP7 共享 BRAM/lane 审核稿；当前停在八项用户决策门，未修改业务 RTL，未运行新的 Vivado。
 - 本轮首次占位 PowerShell 命令误写 `constNotUsed=0`，立即失败且未改变仓库；后续未重复该写法。
 - Nexus 子代理完成增量更新；主代理将 AST 上限从 500 提高到 2500 后重建，最终 155 文件、1682 节点、2310 边、parse errors=0、无截断，并恢复 INDEX 的完整强制路由块。
+- 发现并修复 NP6 mutation 测试夹具问题：复制仓库会让受跟踪 VCD 产生假脏状态；改用 `git clone --no-hardlinks` 后，干净提交态 `MUTATION_SUITE PASS checks=12`。该修复尚未提交，待最后 commit/push。

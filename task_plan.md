@@ -745,3 +745,8 @@
 - [x] 更新总剪枝 TODO、文档索引和持久工作流指针。
 - [x] 形成 `NPU_PRUNING_NP7_TODO.md` 审核稿，冻结到 Vivado 门前的实施顺序。
 - [ ] 用户审核 NP7 八项决定；批准前不修改共享 lane/BRAM RTL。
+
+### 收口复验修正
+
+- [x] 定位 mutation T0 假失败：`shutil.copytree` 复制受跟踪 VCD 后产生工作树差异。
+- [x] 将 mutation 临时仓库改为 `git clone --no-hardlinks`；干净提交态 `MUTATION_SUITE PASS checks=12`。

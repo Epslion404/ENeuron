@@ -833,3 +833,4 @@
 - 稀疏记录采用两个权重和两个位置索引即可唯一表达合法 `2:4`，无需再保存可漂移的四位结构掩码。
 - NP7 必须在 Vivado 前先以负向实现证明计数器能拒绝“全读后门控”和“MAC 后清零”，否则读取/操作下降声明不可审计。
 - Nexus 首轮增量探测因 `--max-nodes 500` 丢弃 1182 个节点；提高到 2500 后得到 1682 节点、2310 条边，`truncated=false`、`parse_errors=0`，消除了结构覆盖降级。
+- 干净提交态首次 mutation 复验的 T0 失败不是 verifier 污染：`shutil.copytree` 复制 4 个 `-text` VCD 后，临时 Git 工作树出现二进制字节差异。将测试夹具改为 `git clone --no-hardlinks` 后，T0 和 T1–T9 全部通过，最终 `MUTATION_SUITE PASS checks=12`。

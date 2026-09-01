@@ -24,8 +24,13 @@ def main():
     head = sys.argv[1]
     tmp_parent = pathlib.Path(tempfile.mkdtemp(prefix='np6_mut_'))
     tmp = tmp_parent / 'repo'
-    print('copying repo to', tmp)
-    shutil.copytree(ROOT, tmp, ignore=shutil.ignore_patterns('.test_matrix', '__pycache__'))
+    print('cloning repo to', tmp)
+    clone = subprocess.run(['git', 'clone', '--quiet', '--no-hardlinks', str(ROOT), str(tmp)],
+                           capture_output=True, text=True)
+    if clone.returncode != 0:
+        print('clone failed:', clone.stderr.strip())
+        shutil.rmtree(tmp_parent, ignore_errors=True)
+        return 1
     results = []
     manifest_rel = pathlib.Path('artifacts') / 'results' / 'np6_physical_cost_manifest.json'
     before = (tmp / manifest_rel).read_bytes()
