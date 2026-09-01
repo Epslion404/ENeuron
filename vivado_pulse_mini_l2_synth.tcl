@@ -44,8 +44,18 @@ proc timing_metric {delay_type} {
     if {[llength $paths] == 0} { return NA }
     return [get_property SLACK [lindex $paths 0]]
 }
+proc sum_negative_slack {delay_type} {
+    set total 0.0
+    foreach path [get_timing_paths -quiet -delay_type $delay_type -nworst 10000] {
+        set s [get_property SLACK $path]
+        if {$s < 0.0} { set total [expr {$total + $s}] }
+    }
+    return $total
+}
 set wns [timing_metric max]
 set whs [timing_metric min]
+set tns [sum_negative_slack max]
+set ths [sum_negative_slack min]
 set summary_path [file join $out_dir signoff_summary.txt]
 set fh [open $summary_path w]
 puts $fh "RESULT=ROUTED"
@@ -56,13 +66,17 @@ puts $fh "MODE=OUT_OF_CONTEXT"
 puts $fh "CLOCK_MHZ=100.000"
 puts $fh "GIT_HEAD=$git_head"
 puts $fh "RUNNER=vivado_pulse_mini_l2_synth.tcl"
+puts $fh "PAIR=4-pulse-mini-l2"
+puts $fh "SIDE=unpruned"
 puts $fh "LUT=$lut"
 puts $fh "FF=$ff"
 puts $fh "BRAM36=$bram36"
 puts $fh "BRAM18=$bram18"
 puts $fh "DSP=$dsp"
 puts $fh "WNS_NS=$wns"
+puts $fh "TNS_NS=$tns"
 puts $fh "WHS_NS=$whs"
+puts $fh "THS_NS=$ths"
 puts $fh "TIMING_SCOPE=REGISTER_TO_REGISTER_ONLY"
 puts $fh "NOTES=Pulse-Mini-L2 PN2 magnitude evidence; four-input fixed-width core; OOC with clock source and I/O false paths"
 close $fh
