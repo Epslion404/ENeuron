@@ -793,3 +793,10 @@
 - 完整 `python verify_goal.py` 已退出 0：387 项 unittest 全部通过、1 项按未设置 `VIVADO_ROOT` 跳过；Tile 协议形式证明通过；Host Bridge 控制器 20 拍安全证明和 6 类可达性见证通过；Tile 10000 事务、System 957 命令协同仿真通过；最终输出 `GOAL_AUDIT_PASS`。
 - 全量验收对 `local_prune_rtl_results.json` 和 `np4b_signoff_summary.json` 产生的日期/基线刷新属于验证副作用，提交前精确恢复，不混入 V1 归档；当前 RTL 对应的 Tile/XPM/System Vivado 正式报告和 `t0_signoff_summary.txt` 保留为严格重建证据。
 - 提交前轻量门全部通过：`verify_np4b_signoff.py`、Python compileall、持久工作流 Check、`git diff --check` 均退出 0；随后按 dry-run 白名单精确清理本轮重新生成的 ignored 缓存、形式临时文件和 Vivado 工作产物，受跟踪的 XPM `simulate.log` 保持存在。
+
+## 2026-09-01 PR #3 NP6 静态审查
+
+- [x] 读取 PR #3 元数据、提交 `b139a99`、文件差异和 CI 状态；PR 为 open，未报告自动检查。
+- [x] 核对 NP6 runner 审计中的脚本、顶层和报告目录存在性；确认该 PR 仅是静态审计/冻结草案，没有调用 Vivado。
+- [x] 发现两处事实口径问题：把并非所有既有目录都存在的 `signoff_summary.txt` 写成统一约定；静态审计声称已排除陈旧 RTL，但没有执行新鲜度验证。
+- [x] 通过 GitHub issue comment `5491242843` 提交中文阻断反馈；修正后再重新审查，不建议当前合并。
