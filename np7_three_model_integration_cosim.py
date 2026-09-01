@@ -439,7 +439,8 @@ def run_model(setup: dict[str, Any], *,
             totals["cycles_per_logical_tick"] = unit.ledger.total_cycles / per_tick
             ledgers[str(lanes)][mode] = totals
     return problems, {"model": model_id, "samples": len(samples),
-                      "ticks_per_sample": 3, "groups_seen": integrator.groups_seen,
+                      "ticks_per_sample": per_tick // len(samples),
+                      "groups_seen": integrator.groups_seen,
                       "reference_work": reference_work,
                       "reference_counts": [list(row) for row in reference_counts],
                       "np7_counts": [list(row) for row in np7_counts],

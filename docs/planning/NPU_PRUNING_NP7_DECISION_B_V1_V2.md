@@ -44,3 +44,60 @@ V1+V2，不是 V1-only。
 
 Dense 与 sparse 必须采用完全相同的 V1+V2 协议、输入流和背压口径。
 
+## 3. B-V1+V2 逐拍账本规范（oracle / RTL / testbench / 验证器四方一致）
+
+账本的唯一事实来源是 testbench 每拍打印的一行观测：
+
+```text
+CYC <n> st=<0..5> ce=<0|1> ad=<addr> lf=<n> bm=<hex> rv=<0|1> rr=<0|1>
+    ap=<0|1> zp=<0|1> sum=<-?n> ls=<0|1> cmp=<0|1>
+```
+
+`tb_np7_exec_unit.sv`（golden）与 `tb_np7_negative.sv`（两个负向实现）用**完全相同**的格式；
+`np7_ledger_reconstruction.py` 只解析这些行重建账本，**不引用 RTL 内部计数器**。
+RTL 计数器只作为"自报"副本参与交叉比对。
+
+1. **流水窗**：第一次 `ap=1` 的拍到最后一次 `rv&&rr=1` 的拍（含端点）。窗口之外的
+   冷启动前/排空后空闲拍不计入 `total_cycles`。
+2. **互斥类别与优先级**（`classify_row`，与 `np7_shared_lane_oracle.classify` 一致）：
+   `RAM(ce) > LANE(lf) > LAT(st=3) > LANE_STALL(st=4 && ls) > BACKPRESSURE(rv && !rr)`
+   `> HOLD_RETIRE(st=5 && rv && rr) > ZERO(ap && zp && rv && rr) > ACCEPT(ap) > IDLE`。
+   每一拍恰好落进一个类别，因此各类之和等于该窗口内非 IDLE 拍数。
+3. **派生字段**：
+   `busy_cycles = RAM + LANE`；`stall_cycles = LANE_STALL + BACKPRESSURE`；
+   `total_cycles = 窗口拍数 - IDLE 拍数`；`completed_groups = #(rv&&rr)`；
+   `accept_events = #ap`；`overlap_cycles = #(ap && rv && rr)` 且排除 V1 单拍零路径
+   （零路径的 accept/result 同拍是 V1 语义，不得重复记为 V2 收益）；
+   `retire_latch_cycles = #(lf && rv && !rr)`；`zero_single_cycles = ZERO 类拍数`；
+   `startup_cycles` = 窗口首拍为纯 ACCEPT 时为 1；`drain_cycles` = 最后一个
+   `ce|lf|LAT` 拍到窗口末拍的间隔；`weight_values_fetched = #(ce) x 槽/字`（2）。
+4. **必须闭合的恒等式**（验证器逐配置重算）：
+   - `total = busy + latency + lane_stall + backpressure + hold_retire + zero_single + accept_own`
+   - `stall = lane_stall + backpressure`
+   - `accept_events = retire_events = completed_groups`（每 accept 恰好一个 result）
+   - `zero_single_cycles <= zero_fast_paths`、`overlap_cycles <= accept_events`
+5. **作废口径**：旧恒等式 `total = busy + stall + 3*(completed-zero) + 2*zero`（独立 DONE 拍、
+   零路径两拍）自本裁定起不再成立。验证器对"新口径不闭合、只在旧口径闭合"的账本直接判为
+   **裁定之前的旧证据**并拒绝，而不是当成算术错误。
+6. **真实路径覆盖**：证据必须真的出现过 `startup / drain / overlap / backpressure /
+   lane_stall / hold_retire / retire_latch / zero_single` 全部 8 类非零计数，且 dense 与
+   sparse **各自**的 `zero_single_cycles > 0`；否则相应形式性质可能只在空真（vacuous）上通过。
+   formal 侧另设 5 个可达性见证寄存器 `saw_zero_single / saw_zero_hold / saw_fold /
+   saw_backpressure / saw_lane_stall`，并要求它们与软件计数一致。
+7. **单槽不变量**：任意时刻最多一个未退出结果；背压期间 `hold_sum`/`hold_zero` 必须稳定保持，
+   不得丢失、重复或被下一事务覆盖；`lane_stall=1` 时不得提前完成或接受下一事务。
+
+## 4. 全量重跑范围与判据（裁定 §三）
+
+旧 NP7.1-NP7.6 证据（HEAD `398dc1a` 及其之前）全部作废，本轮从新 HEAD 重跑下列全部项目：
+
+| 步骤 | 命令 | 判据（不满足即验证器拒绝） |
+|------|------|------|
+| NP7.1 | `python -m unittest test_np7_shared_lane_oracle -v` | oracle 逐拍模型覆盖零路径 ready/背压、最后一批、连续请求、同拍 retire/accept、冷启动、尾部排空 |
+| NP7.3 | `python np7_shared_lane_cosim.py` | dense+sparse x {1,2,4,8} x >=20 seed = >=160 配置、>=160000 事务、连续无气泡流 + 随机背压、逐拍三方一致、恒等式闭合、8 类覆盖非零 |
+| NP7.4 | `python np7_three_model_integration_cosim.py` | 三模型逐样本输出+完整膜状态比对，且每模型每 lane 的 `overlap_cycles>0`、`folded_cycles_saved>0`、`solo_segment_cycles>stream_cycles`、`zero_single_cycles>0`（证明上游确实利用 V2） |
+| NP7.5 | `python np7_formal_and_mutations.py` | 每 accept 恰好一个 result、背压稳定、同拍不覆盖元数据、`lane_stall` 不提前完成；>=9 个 RTL mutation 全部给出反例，含新增"同拍覆盖旧元数据""背压时错误接受下一事务"两类 x dense/sparse |
+| NP7.6 | `python generate_np7_manifest.py` 后 `python verify_np7_software_cost.py <head>` | 从原始逐拍账本重算 G1-G6；拒绝旧恒等式与只改摘要；清单绑定 version/build/执行机与逐拍日志字节 |
+
+停止条件：若重跑后 G3 仍 <25%，**立即停止**，不自动改选 A（降阈值）或 D（随机流量口径），
+也不得静默退回 V1-only；NP7.7 的 8 配置 Vivado 综合只在 NP7.0-NP7.6 全绿后运行。

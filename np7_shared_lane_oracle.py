@@ -793,6 +793,9 @@ class SharedLaneUnit:
             "retire_events": self.ledger.retire_events,
             "overlap_cycles": self.ledger.overlap_cycles,
             "zero_single_cycles": self.ledger.zero_single_cycles,
+            # B-V1+V2 恒等式里"未被前一事务退出边沿合并的 accept 拍"即 ACCEPT 类，
+            # NP7.3 观测侧重建时叫 accept_own_cycles，这里保持同一字段名。
+            "accept_own_cycles": self.ledger.accept_cycles,
             "startup_cycles": self.ledger.startup_cycles,
             "drain_cycles": self.ledger.drain_cycles,
             "groups_per_cycle": (completed / cycles) if cycles else 0.0,
