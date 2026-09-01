@@ -1,0 +1,1192 @@
+{
+  "candidate": "output_2of4",
+  "models": {
+    "eneuron": {
+      "frozen_consistency_problems": [],
+      "frozen_task": {
+        "b21_joint_gate_pass": true,
+        "balanced_accuracy": 1.0,
+        "candidate": "output_2of4",
+        "channel_enable": 255,
+        "coverage": 1.0,
+        "dense_network_reads": 240,
+        "hidden_masks": [
+          5,
+          5,
+          5,
+          5,
+          10,
+          10,
+          10,
+          10
+        ],
+        "joint_gate_pass": true,
+        "output_masks": [
+          3,
+          3
+        ]
+      },
+      "groups_seen": 640,
+      "integration_problems": [],
+      "ledgers": {
+        "1": {
+          "dense_baseline": {
+            "busy_cycles": 600,
+            "completed_groups": 640,
+            "cycles_per_group": 3.21875,
+            "cycles_per_logical_tick": 34.333333333333336,
+            "format": "dense",
+            "group_read_requests": 360,
+            "groups_per_cycle": 0.3106796116504854,
+            "lane_count": 1,
+            "lane_ops_issued": 240,
+            "stall_cycles": 0,
+            "total_cycles": 2060,
+            "weight_values_fetched": 720,
+            "zero_fast_paths": 460
+          },
+          "dense_format": {
+            "busy_cycles": 320,
+            "completed_groups": 640,
+            "cycles_per_group": 2.65625,
+            "cycles_per_logical_tick": 28.333333333333332,
+            "format": "dense",
+            "group_read_requests": 200,
+            "groups_per_cycle": 0.3764705882352941,
+            "lane_count": 1,
+            "lane_ops_issued": 120,
+            "stall_cycles": 0,
+            "total_cycles": 1700,
+            "weight_values_fetched": 400,
+            "zero_fast_paths": 540
+          },
+          "sparse_format": {
+            "busy_cycles": 220,
+            "completed_groups": 640,
+            "cycles_per_group": 2.5,
+            "cycles_per_logical_tick": 26.666666666666668,
+            "format": "sparse",
+            "group_read_requests": 100,
+            "groups_per_cycle": 0.4,
+            "lane_count": 1,
+            "lane_ops_issued": 120,
+            "stall_cycles": 0,
+            "total_cycles": 1600,
+            "weight_values_fetched": 200,
+            "zero_fast_paths": 540
+          }
+        },
+        "2": {
+          "dense_baseline": {
+            "busy_cycles": 560,
+            "completed_groups": 640,
+            "cycles_per_group": 3.15625,
+            "cycles_per_logical_tick": 33.666666666666664,
+            "format": "dense",
+            "group_read_requests": 360,
+            "groups_per_cycle": 0.31683168316831684,
+            "lane_count": 2,
+            "lane_ops_issued": 240,
+            "stall_cycles": 0,
+            "total_cycles": 2020,
+            "weight_values_fetched": 720,
+            "zero_fast_paths": 460
+          },
+          "dense_format": {
+            "busy_cycles": 300,
+            "completed_groups": 640,
+            "cycles_per_group": 2.625,
+            "cycles_per_logical_tick": 28.0,
+            "format": "dense",
+            "group_read_requests": 200,
+            "groups_per_cycle": 0.38095238095238093,
+            "lane_count": 2,
+            "lane_ops_issued": 120,
+            "stall_cycles": 0,
+            "total_cycles": 1680,
+            "weight_values_fetched": 400,
+            "zero_fast_paths": 540
+          },
+          "sparse_format": {
+            "busy_cycles": 200,
+            "completed_groups": 640,
+            "cycles_per_group": 2.46875,
+            "cycles_per_logical_tick": 26.333333333333332,
+            "format": "sparse",
+            "group_read_requests": 100,
+            "groups_per_cycle": 0.4050632911392405,
+            "lane_count": 2,
+            "lane_ops_issued": 120,
+            "stall_cycles": 0,
+            "total_cycles": 1580,
+            "weight_values_fetched": 200,
+            "zero_fast_paths": 540
+          }
+        },
+        "4": {
+          "dense_baseline": {
+            "busy_cycles": 540,
+            "completed_groups": 640,
+            "cycles_per_group": 3.125,
+            "cycles_per_logical_tick": 33.333333333333336,
+            "format": "dense",
+            "group_read_requests": 360,
+            "groups_per_cycle": 0.32,
+            "lane_count": 4,
+            "lane_ops_issued": 240,
+            "stall_cycles": 0,
+            "total_cycles": 2000,
+            "weight_values_fetched": 720,
+            "zero_fast_paths": 460
+          },
+          "dense_format": {
+            "busy_cycles": 300,
+            "completed_groups": 640,
+            "cycles_per_group": 2.625,
+            "cycles_per_logical_tick": 28.0,
+            "format": "dense",
+            "group_read_requests": 200,
+            "groups_per_cycle": 0.38095238095238093,
+            "lane_count": 4,
+            "lane_ops_issued": 120,
+            "stall_cycles": 0,
+            "total_cycles": 1680,
+            "weight_values_fetched": 400,
+            "zero_fast_paths": 540
+          },
+          "sparse_format": {
+            "busy_cycles": 200,
+            "completed_groups": 640,
+            "cycles_per_group": 2.46875,
+            "cycles_per_logical_tick": 26.333333333333332,
+            "format": "sparse",
+            "group_read_requests": 100,
+            "groups_per_cycle": 0.4050632911392405,
+            "lane_count": 4,
+            "lane_ops_issued": 120,
+            "stall_cycles": 0,
+            "total_cycles": 1580,
+            "weight_values_fetched": 200,
+            "zero_fast_paths": 540
+          }
+        },
+        "8": {
+          "dense_baseline": {
+            "busy_cycles": 540,
+            "completed_groups": 640,
+            "cycles_per_group": 3.125,
+            "cycles_per_logical_tick": 33.333333333333336,
+            "format": "dense",
+            "group_read_requests": 360,
+            "groups_per_cycle": 0.32,
+            "lane_count": 8,
+            "lane_ops_issued": 240,
+            "stall_cycles": 0,
+            "total_cycles": 2000,
+            "weight_values_fetched": 720,
+            "zero_fast_paths": 460
+          },
+          "dense_format": {
+            "busy_cycles": 300,
+            "completed_groups": 640,
+            "cycles_per_group": 2.625,
+            "cycles_per_logical_tick": 28.0,
+            "format": "dense",
+            "group_read_requests": 200,
+            "groups_per_cycle": 0.38095238095238093,
+            "lane_count": 8,
+            "lane_ops_issued": 120,
+            "stall_cycles": 0,
+            "total_cycles": 1680,
+            "weight_values_fetched": 400,
+            "zero_fast_paths": 540
+          },
+          "sparse_format": {
+            "busy_cycles": 200,
+            "completed_groups": 640,
+            "cycles_per_group": 2.46875,
+            "cycles_per_logical_tick": 26.333333333333332,
+            "format": "sparse",
+            "group_read_requests": 100,
+            "groups_per_cycle": 0.4050632911392405,
+            "lane_count": 8,
+            "lane_ops_issued": 120,
+            "stall_cycles": 0,
+            "total_cycles": 1580,
+            "weight_values_fetched": 200,
+            "zero_fast_paths": 540
+          }
+        }
+      },
+      "max_cycle_reduction": 0.22330097087378642,
+      "model": "eneuron",
+      "np7_counts": [
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          2
+        ]
+      ],
+      "reference_counts": [
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          2
+        ]
+      ],
+      "reference_work": {
+        "hidden_actual": 80,
+        "hidden_after_structure": 80,
+        "hidden_dense_active": 160,
+        "output_actual": 40,
+        "output_pre_mask": 80
+      },
+      "samples": 20,
+      "state_digest_mismatch_samples": 0,
+      "state_digest_samples": 20,
+      "ticks_per_sample": 3
+    },
+    "pulse_mini_l": {
+      "frozen_consistency_problems": [],
+      "frozen_task": {
+        "b21_joint_gate_pass": true,
+        "balanced_accuracy": 1.0,
+        "candidate": "output_2of4",
+        "channel_enable": 255,
+        "coverage": 1.0,
+        "dense_network_reads": 240,
+        "hidden_masks": [
+          5,
+          5,
+          5,
+          5,
+          10,
+          10,
+          10,
+          10
+        ],
+        "joint_gate_pass": true,
+        "output_masks": [
+          3,
+          3
+        ]
+      },
+      "groups_seen": 640,
+      "integration_problems": [],
+      "ledgers": {
+        "1": {
+          "dense_baseline": {
+            "busy_cycles": 600,
+            "completed_groups": 640,
+            "cycles_per_group": 3.21875,
+            "cycles_per_logical_tick": 34.333333333333336,
+            "format": "dense",
+            "group_read_requests": 360,
+            "groups_per_cycle": 0.3106796116504854,
+            "lane_count": 1,
+            "lane_ops_issued": 240,
+            "stall_cycles": 0,
+            "total_cycles": 2060,
+            "weight_values_fetched": 720,
+            "zero_fast_paths": 460
+          },
+          "dense_format": {
+            "busy_cycles": 320,
+            "completed_groups": 640,
+            "cycles_per_group": 2.65625,
+            "cycles_per_logical_tick": 28.333333333333332,
+            "format": "dense",
+            "group_read_requests": 200,
+            "groups_per_cycle": 0.3764705882352941,
+            "lane_count": 1,
+            "lane_ops_issued": 120,
+            "stall_cycles": 0,
+            "total_cycles": 1700,
+            "weight_values_fetched": 400,
+            "zero_fast_paths": 540
+          },
+          "sparse_format": {
+            "busy_cycles": 220,
+            "completed_groups": 640,
+            "cycles_per_group": 2.5,
+            "cycles_per_logical_tick": 26.666666666666668,
+            "format": "sparse",
+            "group_read_requests": 100,
+            "groups_per_cycle": 0.4,
+            "lane_count": 1,
+            "lane_ops_issued": 120,
+            "stall_cycles": 0,
+            "total_cycles": 1600,
+            "weight_values_fetched": 200,
+            "zero_fast_paths": 540
+          }
+        },
+        "2": {
+          "dense_baseline": {
+            "busy_cycles": 560,
+            "completed_groups": 640,
+            "cycles_per_group": 3.15625,
+            "cycles_per_logical_tick": 33.666666666666664,
+            "format": "dense",
+            "group_read_requests": 360,
+            "groups_per_cycle": 0.31683168316831684,
+            "lane_count": 2,
+            "lane_ops_issued": 240,
+            "stall_cycles": 0,
+            "total_cycles": 2020,
+            "weight_values_fetched": 720,
+            "zero_fast_paths": 460
+          },
+          "dense_format": {
+            "busy_cycles": 300,
+            "completed_groups": 640,
+            "cycles_per_group": 2.625,
+            "cycles_per_logical_tick": 28.0,
+            "format": "dense",
+            "group_read_requests": 200,
+            "groups_per_cycle": 0.38095238095238093,
+            "lane_count": 2,
+            "lane_ops_issued": 120,
+            "stall_cycles": 0,
+            "total_cycles": 1680,
+            "weight_values_fetched": 400,
+            "zero_fast_paths": 540
+          },
+          "sparse_format": {
+            "busy_cycles": 200,
+            "completed_groups": 640,
+            "cycles_per_group": 2.46875,
+            "cycles_per_logical_tick": 26.333333333333332,
+            "format": "sparse",
+            "group_read_requests": 100,
+            "groups_per_cycle": 0.4050632911392405,
+            "lane_count": 2,
+            "lane_ops_issued": 120,
+            "stall_cycles": 0,
+            "total_cycles": 1580,
+            "weight_values_fetched": 200,
+            "zero_fast_paths": 540
+          }
+        },
+        "4": {
+          "dense_baseline": {
+            "busy_cycles": 540,
+            "completed_groups": 640,
+            "cycles_per_group": 3.125,
+            "cycles_per_logical_tick": 33.333333333333336,
+            "format": "dense",
+            "group_read_requests": 360,
+            "groups_per_cycle": 0.32,
+            "lane_count": 4,
+            "lane_ops_issued": 240,
+            "stall_cycles": 0,
+            "total_cycles": 2000,
+            "weight_values_fetched": 720,
+            "zero_fast_paths": 460
+          },
+          "dense_format": {
+            "busy_cycles": 300,
+            "completed_groups": 640,
+            "cycles_per_group": 2.625,
+            "cycles_per_logical_tick": 28.0,
+            "format": "dense",
+            "group_read_requests": 200,
+            "groups_per_cycle": 0.38095238095238093,
+            "lane_count": 4,
+            "lane_ops_issued": 120,
+            "stall_cycles": 0,
+            "total_cycles": 1680,
+            "weight_values_fetched": 400,
+            "zero_fast_paths": 540
+          },
+          "sparse_format": {
+            "busy_cycles": 200,
+            "completed_groups": 640,
+            "cycles_per_group": 2.46875,
+            "cycles_per_logical_tick": 26.333333333333332,
+            "format": "sparse",
+            "group_read_requests": 100,
+            "groups_per_cycle": 0.4050632911392405,
+            "lane_count": 4,
+            "lane_ops_issued": 120,
+            "stall_cycles": 0,
+            "total_cycles": 1580,
+            "weight_values_fetched": 200,
+            "zero_fast_paths": 540
+          }
+        },
+        "8": {
+          "dense_baseline": {
+            "busy_cycles": 540,
+            "completed_groups": 640,
+            "cycles_per_group": 3.125,
+            "cycles_per_logical_tick": 33.333333333333336,
+            "format": "dense",
+            "group_read_requests": 360,
+            "groups_per_cycle": 0.32,
+            "lane_count": 8,
+            "lane_ops_issued": 240,
+            "stall_cycles": 0,
+            "total_cycles": 2000,
+            "weight_values_fetched": 720,
+            "zero_fast_paths": 460
+          },
+          "dense_format": {
+            "busy_cycles": 300,
+            "completed_groups": 640,
+            "cycles_per_group": 2.625,
+            "cycles_per_logical_tick": 28.0,
+            "format": "dense",
+            "group_read_requests": 200,
+            "groups_per_cycle": 0.38095238095238093,
+            "lane_count": 8,
+            "lane_ops_issued": 120,
+            "stall_cycles": 0,
+            "total_cycles": 1680,
+            "weight_values_fetched": 400,
+            "zero_fast_paths": 540
+          },
+          "sparse_format": {
+            "busy_cycles": 200,
+            "completed_groups": 640,
+            "cycles_per_group": 2.46875,
+            "cycles_per_logical_tick": 26.333333333333332,
+            "format": "sparse",
+            "group_read_requests": 100,
+            "groups_per_cycle": 0.4050632911392405,
+            "lane_count": 8,
+            "lane_ops_issued": 120,
+            "stall_cycles": 0,
+            "total_cycles": 1580,
+            "weight_values_fetched": 200,
+            "zero_fast_paths": 540
+          }
+        }
+      },
+      "max_cycle_reduction": 0.22330097087378642,
+      "model": "pulse_mini_l",
+      "np7_counts": [
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ]
+      ],
+      "reference_counts": [
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ]
+      ],
+      "reference_work": {
+        "hidden_actual": 80,
+        "hidden_after_structure": 80,
+        "hidden_dense_active": 160,
+        "output_actual": 40,
+        "output_pre_mask": 80
+      },
+      "samples": 20,
+      "state_digest_mismatch_samples": 0,
+      "state_digest_samples": 20,
+      "ticks_per_sample": 3
+    },
+    "pulse_mini_l2": {
+      "frozen_consistency_problems": [],
+      "frozen_task": {
+        "b21_joint_gate_pass": true,
+        "balanced_accuracy": 1.0,
+        "candidate": "output_2of4",
+        "channel_enable": 255,
+        "coverage": 1.0,
+        "dense_network_reads": 240,
+        "hidden_masks": [
+          5,
+          5,
+          5,
+          5,
+          10,
+          10,
+          10,
+          10
+        ],
+        "joint_gate_pass": true,
+        "output_masks": [
+          3,
+          3
+        ]
+      },
+      "groups_seen": 640,
+      "integration_problems": [],
+      "ledgers": {
+        "1": {
+          "dense_baseline": {
+            "busy_cycles": 600,
+            "completed_groups": 640,
+            "cycles_per_group": 3.21875,
+            "cycles_per_logical_tick": 34.333333333333336,
+            "format": "dense",
+            "group_read_requests": 360,
+            "groups_per_cycle": 0.3106796116504854,
+            "lane_count": 1,
+            "lane_ops_issued": 240,
+            "stall_cycles": 0,
+            "total_cycles": 2060,
+            "weight_values_fetched": 720,
+            "zero_fast_paths": 460
+          },
+          "dense_format": {
+            "busy_cycles": 320,
+            "completed_groups": 640,
+            "cycles_per_group": 2.65625,
+            "cycles_per_logical_tick": 28.333333333333332,
+            "format": "dense",
+            "group_read_requests": 200,
+            "groups_per_cycle": 0.3764705882352941,
+            "lane_count": 1,
+            "lane_ops_issued": 120,
+            "stall_cycles": 0,
+            "total_cycles": 1700,
+            "weight_values_fetched": 400,
+            "zero_fast_paths": 540
+          },
+          "sparse_format": {
+            "busy_cycles": 220,
+            "completed_groups": 640,
+            "cycles_per_group": 2.5,
+            "cycles_per_logical_tick": 26.666666666666668,
+            "format": "sparse",
+            "group_read_requests": 100,
+            "groups_per_cycle": 0.4,
+            "lane_count": 1,
+            "lane_ops_issued": 120,
+            "stall_cycles": 0,
+            "total_cycles": 1600,
+            "weight_values_fetched": 200,
+            "zero_fast_paths": 540
+          }
+        },
+        "2": {
+          "dense_baseline": {
+            "busy_cycles": 560,
+            "completed_groups": 640,
+            "cycles_per_group": 3.15625,
+            "cycles_per_logical_tick": 33.666666666666664,
+            "format": "dense",
+            "group_read_requests": 360,
+            "groups_per_cycle": 0.31683168316831684,
+            "lane_count": 2,
+            "lane_ops_issued": 240,
+            "stall_cycles": 0,
+            "total_cycles": 2020,
+            "weight_values_fetched": 720,
+            "zero_fast_paths": 460
+          },
+          "dense_format": {
+            "busy_cycles": 300,
+            "completed_groups": 640,
+            "cycles_per_group": 2.625,
+            "cycles_per_logical_tick": 28.0,
+            "format": "dense",
+            "group_read_requests": 200,
+            "groups_per_cycle": 0.38095238095238093,
+            "lane_count": 2,
+            "lane_ops_issued": 120,
+            "stall_cycles": 0,
+            "total_cycles": 1680,
+            "weight_values_fetched": 400,
+            "zero_fast_paths": 540
+          },
+          "sparse_format": {
+            "busy_cycles": 200,
+            "completed_groups": 640,
+            "cycles_per_group": 2.46875,
+            "cycles_per_logical_tick": 26.333333333333332,
+            "format": "sparse",
+            "group_read_requests": 100,
+            "groups_per_cycle": 0.4050632911392405,
+            "lane_count": 2,
+            "lane_ops_issued": 120,
+            "stall_cycles": 0,
+            "total_cycles": 1580,
+            "weight_values_fetched": 200,
+            "zero_fast_paths": 540
+          }
+        },
+        "4": {
+          "dense_baseline": {
+            "busy_cycles": 540,
+            "completed_groups": 640,
+            "cycles_per_group": 3.125,
+            "cycles_per_logical_tick": 33.333333333333336,
+            "format": "dense",
+            "group_read_requests": 360,
+            "groups_per_cycle": 0.32,
+            "lane_count": 4,
+            "lane_ops_issued": 240,
+            "stall_cycles": 0,
+            "total_cycles": 2000,
+            "weight_values_fetched": 720,
+            "zero_fast_paths": 460
+          },
+          "dense_format": {
+            "busy_cycles": 300,
+            "completed_groups": 640,
+            "cycles_per_group": 2.625,
+            "cycles_per_logical_tick": 28.0,
+            "format": "dense",
+            "group_read_requests": 200,
+            "groups_per_cycle": 0.38095238095238093,
+            "lane_count": 4,
+            "lane_ops_issued": 120,
+            "stall_cycles": 0,
+            "total_cycles": 1680,
+            "weight_values_fetched": 400,
+            "zero_fast_paths": 540
+          },
+          "sparse_format": {
+            "busy_cycles": 200,
+            "completed_groups": 640,
+            "cycles_per_group": 2.46875,
+            "cycles_per_logical_tick": 26.333333333333332,
+            "format": "sparse",
+            "group_read_requests": 100,
+            "groups_per_cycle": 0.4050632911392405,
+            "lane_count": 4,
+            "lane_ops_issued": 120,
+            "stall_cycles": 0,
+            "total_cycles": 1580,
+            "weight_values_fetched": 200,
+            "zero_fast_paths": 540
+          }
+        },
+        "8": {
+          "dense_baseline": {
+            "busy_cycles": 540,
+            "completed_groups": 640,
+            "cycles_per_group": 3.125,
+            "cycles_per_logical_tick": 33.333333333333336,
+            "format": "dense",
+            "group_read_requests": 360,
+            "groups_per_cycle": 0.32,
+            "lane_count": 8,
+            "lane_ops_issued": 240,
+            "stall_cycles": 0,
+            "total_cycles": 2000,
+            "weight_values_fetched": 720,
+            "zero_fast_paths": 460
+          },
+          "dense_format": {
+            "busy_cycles": 300,
+            "completed_groups": 640,
+            "cycles_per_group": 2.625,
+            "cycles_per_logical_tick": 28.0,
+            "format": "dense",
+            "group_read_requests": 200,
+            "groups_per_cycle": 0.38095238095238093,
+            "lane_count": 8,
+            "lane_ops_issued": 120,
+            "stall_cycles": 0,
+            "total_cycles": 1680,
+            "weight_values_fetched": 400,
+            "zero_fast_paths": 540
+          },
+          "sparse_format": {
+            "busy_cycles": 200,
+            "completed_groups": 640,
+            "cycles_per_group": 2.46875,
+            "cycles_per_logical_tick": 26.333333333333332,
+            "format": "sparse",
+            "group_read_requests": 100,
+            "groups_per_cycle": 0.4050632911392405,
+            "lane_count": 8,
+            "lane_ops_issued": 120,
+            "stall_cycles": 0,
+            "total_cycles": 1580,
+            "weight_values_fetched": 200,
+            "zero_fast_paths": 540
+          }
+        }
+      },
+      "max_cycle_reduction": 0.22330097087378642,
+      "model": "pulse_mini_l2",
+      "np7_counts": [
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ]
+      ],
+      "reference_counts": [
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ]
+      ],
+      "reference_work": {
+        "hidden_actual": 80,
+        "hidden_after_structure": 80,
+        "hidden_dense_active": 160,
+        "output_actual": 40,
+        "output_pre_mask": 80
+      },
+      "samples": 20,
+      "state_digest_mismatch_samples": 0,
+      "state_digest_samples": 20,
+      "ticks_per_sample": 3
+    }
+  },
+  "problems": [],
+  "schema": "np7-three-model-integration-v1"
+}

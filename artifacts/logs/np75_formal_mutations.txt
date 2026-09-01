@@ -1,0 +1,89 @@
+# command: python np7_formal_and_mutations.py
+# code_git_head: cea356c
+# local_time: 2026-09-02 00:53:55
+# toolchain: iverilog 12.0 (C:\iverilog\bin), yosys 0.68 (C:\msys64\ucrt64\bin)
+
+formal_sparse_protocol(proof)                  PASS verdict=proof rc=0
+formal_dense_protocol(proof)                   PASS verdict=proof rc=0
+formal_zero_path_reach(model)                  PASS verdict=model rc=0
+formal_sparse_reach(model)                     PASS verdict=model rc=0
+formal_dense_reach(model)                      PASS verdict=model rc=0
+mutation_fake_weight_slots_caught              PASS verdict=counterexample rc=1 note=自报权重槽减半但读请求不变
+mutation_fake_lane_ops_caught                  PASS verdict=counterexample rc=1 note=发射后不清 pending，掩码可重复发射
+mutation_extra_read_burst_caught               PASS verdict=counterexample rc=1 note=BATCH 期多发读请求
+mutation_dense_fake_val_caught                 PASS verdict=counterexample rc=1 note=稠密自报权重槽与读请求脱钩
+reconstruct_dense_L1_s1                        PASS 
+reconstruct_sparse_L1_s1                       PASS 
+bitexact_sums_L1_s1                            PASS dense=1000 sparse=1000 done
+reconstruct_dense_L1_s2                        PASS 
+reconstruct_sparse_L1_s2                       PASS 
+bitexact_sums_L1_s2                            PASS dense=1000 sparse=1000 done
+reconstruct_dense_L1_s3                        PASS 
+reconstruct_sparse_L1_s3                       PASS 
+bitexact_sums_L1_s3                            PASS dense=1000 sparse=1000 done
+reconstruct_dense_L2_s1                        PASS 
+reconstruct_sparse_L2_s1                       PASS 
+bitexact_sums_L2_s1                            PASS dense=1000 sparse=1000 done
+reconstruct_dense_L2_s2                        PASS 
+reconstruct_sparse_L2_s2                       PASS 
+bitexact_sums_L2_s2                            PASS dense=1000 sparse=1000 done
+reconstruct_dense_L2_s3                        PASS 
+reconstruct_sparse_L2_s3                       PASS 
+bitexact_sums_L2_s3                            PASS dense=1000 sparse=1000 done
+reconstruct_dense_L4_s1                        PASS 
+reconstruct_sparse_L4_s1                       PASS 
+bitexact_sums_L4_s1                            PASS dense=1000 sparse=1000 done
+reconstruct_dense_L4_s2                        PASS 
+reconstruct_sparse_L4_s2                       PASS 
+bitexact_sums_L4_s2                            PASS dense=1000 sparse=1000 done
+reconstruct_dense_L4_s3                        PASS 
+reconstruct_sparse_L4_s3                       PASS 
+bitexact_sums_L4_s3                            PASS dense=1000 sparse=1000 done
+reconstruct_dense_L8_s1                        PASS 
+reconstruct_sparse_L8_s1                       PASS 
+bitexact_sums_L8_s1                            PASS dense=1000 sparse=1000 done
+reconstruct_dense_L8_s2                        PASS 
+reconstruct_sparse_L8_s2                       PASS 
+bitexact_sums_L8_s2                            PASS dense=1000 sparse=1000 done
+reconstruct_dense_L8_s3                        PASS 
+reconstruct_sparse_L8_s3                       PASS 
+bitexact_sums_L8_s3                            PASS dense=1000 sparse=1000 done
+negA_read_all_then_gate_L1_s1_functionally_identical PASS 负向实现必须与 golden 逐笔同和，才能证明功能测试不足以拒绝
+negA_read_all_then_gate_L1_s1_rejected_by_reconstruction PASS 自报账本应无法由逐拍观测重建；violations=4
+negA_read_all_then_gate_L1_s1_rejected_by_gates PASS obs reads=-7.3% ops=49.7% cycles=14.0% (任一未达门即拒绝)
+   negA_read_all_then_gate_L1_s1 viol=4 self={'group_read_requests': 750, 'lane_ops_issued': 1001, 'total_cycles': 4165} obs={'group_read_requests': 2000, 'lane_ops_issued': 1001, 'total_cycles': 6415}
+negB_mac_then_clear_L1_s1_functionally_identical PASS 负向实现必须与 golden 逐笔同和，才能证明功能测试不足以拒绝
+negB_mac_then_clear_L1_s1_rejected_by_reconstruction PASS 自报账本应无法由逐拍观测重建；violations=1
+negB_mac_then_clear_L1_s1_rejected_by_gates    PASS obs reads=59.8% ops=-50.8% cycles=0.5% (任一未达门即拒绝)
+   negB_mac_then_clear_L1_s1 viol=1 self={'group_read_requests': 750, 'lane_ops_issued': 1001, 'total_cycles': 7418} obs={'group_read_requests': 750, 'lane_ops_issued': 3000, 'total_cycles': 7418}
+negA_read_all_then_gate_L1_s3_functionally_identical PASS 负向实现必须与 golden 逐笔同和，才能证明功能测试不足以拒绝
+negA_read_all_then_gate_L1_s3_rejected_by_reconstruction PASS 自报账本应无法由逐拍观测重建；violations=4
+negA_read_all_then_gate_L1_s3_rejected_by_gates PASS obs reads=-6.4% ops=50.4% cycles=14.5% (任一未达门即拒绝)
+   negA_read_all_then_gate_L1_s3 viol=4 self={'group_read_requests': 736, 'lane_ops_issued': 975, 'total_cycles': 4087} obs={'group_read_requests': 2000, 'lane_ops_issued': 975, 'total_cycles': 6351}
+negB_mac_then_clear_L1_s3_functionally_identical PASS 负向实现必须与 golden 逐笔同和，才能证明功能测试不足以拒绝
+negB_mac_then_clear_L1_s3_rejected_by_reconstruction PASS 自报账本应无法由逐拍观测重建；violations=1
+negB_mac_then_clear_L1_s3_rejected_by_gates    PASS obs reads=60.9% ops=-49.7% cycles=1.5% (任一未达门即拒绝)
+   negB_mac_then_clear_L1_s3 viol=1 self={'group_read_requests': 736, 'lane_ops_issued': 975, 'total_cycles': 7322} obs={'group_read_requests': 736, 'lane_ops_issued': 2944, 'total_cycles': 7322}
+negA_read_all_then_gate_L4_s1_functionally_identical PASS 负向实现必须与 golden 逐笔同和，才能证明功能测试不足以拒绝
+negA_read_all_then_gate_L4_s1_rejected_by_reconstruction PASS 自报账本应无法由逐拍观测重建；violations=4
+negA_read_all_then_gate_L4_s1_rejected_by_gates PASS obs reads=-7.9% ops=50.9% cycles=0.4% (任一未达门即拒绝)
+   negA_read_all_then_gate_L4_s1 viol=4 self={'group_read_requests': 722, 'lane_ops_issued': 962, 'total_cycles': 3810} obs={'group_read_requests': 2000, 'lane_ops_issued': 962, 'total_cycles': 6088}
+negB_mac_then_clear_L4_s1_functionally_identical PASS 负向实现必须与 golden 逐笔同和，才能证明功能测试不足以拒绝
+negB_mac_then_clear_L4_s1_rejected_by_reconstruction PASS 自报账本应无法由逐拍观测重建；violations=1
+negB_mac_then_clear_L4_s1_rejected_by_gates    PASS obs reads=61.1% ops=-47.3% cycles=25.9% (任一未达门即拒绝)
+   negB_mac_then_clear_L4_s1 viol=1 self={'group_read_requests': 722, 'lane_ops_issued': 962, 'total_cycles': 4528} obs={'group_read_requests': 722, 'lane_ops_issued': 2888, 'total_cycles': 4528}
+negA_read_all_then_gate_L4_s3_functionally_identical PASS 负向实现必须与 golden 逐笔同和，才能证明功能测试不足以拒绝
+negA_read_all_then_gate_L4_s3_rejected_by_reconstruction PASS 自报账本应无法由逐拍观测重建；violations=4
+negA_read_all_then_gate_L4_s3_rejected_by_gates PASS obs reads=-7.6% ops=49.5% cycles=0.8% (任一未达门即拒绝)
+   negA_read_all_then_gate_L4_s3 viol=4 self={'group_read_requests': 747, 'lane_ops_issued': 1017, 'total_cycles': 3835} obs={'group_read_requests': 2000, 'lane_ops_issued': 1017, 'total_cycles': 6088}
+negB_mac_then_clear_L4_s3_functionally_identical PASS 负向实现必须与 golden 逐笔同和，才能证明功能测试不足以拒绝
+negB_mac_then_clear_L4_s3_rejected_by_reconstruction PASS 自报账本应无法由逐拍观测重建；violations=1
+negB_mac_then_clear_L4_s3_rejected_by_gates    PASS obs reads=59.8% ops=-48.3% cycles=24.8% (任一未达门即拒绝)
+   negB_mac_then_clear_L4_s3 viol=1 self={'group_read_requests': 747, 'lane_ops_issued': 1017, 'total_cycles': 4616} obs={'group_read_requests': 747, 'lane_ops_issued': 2988, 'total_cycles': 4616}
+leak_control_model_clean_eneuron               PASS 
+leak_mutation_detected_eneuron                 PASS eneuron 样本 0 输出计数不一致 ref=(2, 0) np7=(1, 0); eneuron 样本 0 膜状态摘要与未共享实现不一致
+leak_control_model_clean_pulse_mini_l          PASS 
+leak_mutation_detected_pulse_mini_l            PASS pulse_mini_l 样本 0 膜状态摘要与未共享实现不一致
+leak_control_model_clean_pulse_mini_l2         PASS 
+leak_mutation_detected_pulse_mini_l2           PASS pulse_mini_l2 样本 0 膜状态摘要与未共享实现不一致
+NP7.5 形式=75/75 负向拒绝=8 泄漏mutation=3 问题数=0 证据=artifacts\results\np7_formal_and_mutations.json

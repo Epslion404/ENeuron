@@ -1,0 +1,18 @@
+# command: python np7_three_model_integration_cosim.py
+# code_git_head: cea356c
+# local_time: 2026-09-02 00:53:55
+# toolchain: iverilog 12.0 (C:\iverilog\bin), yosys 0.68 (C:\msys64\ucrt64\bin)
+
+[NP7.4] eneuron lanes=1 每 tick 周期 dense基线=34.333 dense格式=28.333 sparse=26.667 降幅=22.3% (仅格式 17.5%)
+[NP7.4] eneuron lanes=2 每 tick 周期 dense基线=33.667 dense格式=28.000 sparse=26.333 降幅=21.8% (仅格式 16.8%)
+[NP7.4] eneuron lanes=4 每 tick 周期 dense基线=33.333 dense格式=28.000 sparse=26.333 降幅=21.0% (仅格式 16.0%)
+[NP7.4] eneuron lanes=8 每 tick 周期 dense基线=33.333 dense格式=28.000 sparse=26.333 降幅=21.0% (仅格式 16.0%)
+[NP7.4] pulse_mini_l lanes=1 每 tick 周期 dense基线=34.333 dense格式=28.333 sparse=26.667 降幅=22.3% (仅格式 17.5%)
+[NP7.4] pulse_mini_l lanes=2 每 tick 周期 dense基线=33.667 dense格式=28.000 sparse=26.333 降幅=21.8% (仅格式 16.8%)
+[NP7.4] pulse_mini_l lanes=4 每 tick 周期 dense基线=33.333 dense格式=28.000 sparse=26.333 降幅=21.0% (仅格式 16.0%)
+[NP7.4] pulse_mini_l lanes=8 每 tick 周期 dense基线=33.333 dense格式=28.000 sparse=26.333 降幅=21.0% (仅格式 16.0%)
+[NP7.4] pulse_mini_l2 lanes=1 每 tick 周期 dense基线=34.333 dense格式=28.333 sparse=26.667 降幅=22.3% (仅格式 17.5%)
+[NP7.4] pulse_mini_l2 lanes=2 每 tick 周期 dense基线=33.667 dense格式=28.000 sparse=26.333 降幅=21.8% (仅格式 16.8%)
+[NP7.4] pulse_mini_l2 lanes=4 每 tick 周期 dense基线=33.333 dense格式=28.000 sparse=26.333 降幅=21.0% (仅格式 16.0%)
+[NP7.4] pulse_mini_l2 lanes=8 每 tick 周期 dense基线=33.333 dense格式=28.000 sparse=26.333 降幅=21.0% (仅格式 16.0%)
+[NP7.4] 模型数=3 问题数=0

@@ -1,0 +1,11 @@
+# command: python np7_shared_lane_cosim.py
+# code_git_head: cea356c
+# local_time: 2026-09-02 00:53:55
+# toolchain: iverilog 12.0 (C:\iverilog\bin), yosys 0.68 (C:\msys64\ucrt64\bin)
+
+[NP7.3] lanes=1 完成 20 seeds x 1000 txns 逐拍比对
+[NP7.3] lanes=2 完成 20 seeds x 1000 txns 逐拍比对
+[NP7.3] lanes=4 完成 20 seeds x 1000 txns 逐拍比对
+[NP7.3] lanes=8 完成 20 seeds x 1000 txns 逐拍比对
+[NP7.3] 运行数=160 失败数=0
+[NP7.3] 原始账本=160 组，逐拍观测不一致=0
