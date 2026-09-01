@@ -31,7 +31,7 @@ XSIM_CASES = {
 XSIM_CASES.update({"golden_dense_L%d" % lanes: "golden" for lanes in (1, 2, 4, 8)})
 XSIM_CASES.update({"neg%d_L%d" % (neg, lanes): "negative"
                    for neg in (0, 1) for lanes in (1, 4)})
-XSIM_CASES.update({"cfgneg_%s_L%d" % (fmt, lanes): "config"
+XSIM_CASES.update({"cfgneg_%s_L%d" % (fmt, lanes): "cfgneg"
                    for fmt in ("sparse", "dense") for lanes in (1, 4)})
 LEDGER_FIELDS = ("req", "val", "ops", "zero", "busy", "stall", "done", "skip",
                  "inzero", "azero", "sat", "total", "proto", "cfgerr",
@@ -250,7 +250,7 @@ def check_xsim_evidence(xsim, frozen_head, integrity):
                              % (case_id, entry.get("status"),
                                 (entry.get("problems") or ["-"])[0]))
             continue
-        if entry.get("kind") != kind:
+        if entry.get("kind") != kind:  # 用例族必须与预期一致，防止偷换测试台
             integrity.append("xsim 证据 %s kind=%s 与预期 %s 不符"
                              % (case_id, entry.get("kind"), kind))
         if metrics.get("observed_rows", 0) <= 0:
@@ -261,7 +261,7 @@ def check_xsim_evidence(xsim, frozen_head, integrity):
         fields = dict(token.split("=", 1) for token in ledger.split()
                       if "=" in token)
         if entry.get("kind") in ("golden", "negative"):
-            if tuple(sorted(fields)) != LEDGER_FIELDS:
+            if set(fields) != set(LEDGER_FIELDS):
                 integrity.append("xsim 证据 %s 的 LEDGER 字段不完整: %r"
                                  % (case_id, ledger[:60]))
             else:
@@ -275,7 +275,7 @@ def check_xsim_evidence(xsim, frozen_head, integrity):
                                      % (case_id, fields["proto"], fields["cfgerr"]))
                 if int(fields["total"]) <= 0:
                     integrity.append("xsim 证据 %s total=%s" % (case_id, fields["total"]))
-        if entry.get("kind") == "config":
+        if entry.get("kind") == "cfgneg":
             summary = metrics.get("summary", "")
             if "RESULT=PASS" not in summary or "FAILED=0" not in summary:
                 integrity.append("xsim 证据 %s 的 CFGNEG 摘要不合格: %r"

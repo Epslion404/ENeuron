@@ -1,4 +1,7 @@
-# Vivado/XSim 与 Icarus 的临时产物：只有 commands.log、signoff_summary.txt 与
-# logs/*.log 作为提交证据；work/ 目录可整目录删除，重跑 runner 即重建。
+# Vivado/XSim 与 Icarus 的临时产物：work/ 整目录可删，重跑 runner 即重建。
 work/
 *~
+# 根 .gitignore 默认排除 *.log；本目录的逐拍日志是提交证据，逐条收回。
+!commands.log
+!signoff_summary.txt
+!logs/*.log
