@@ -8,25 +8,25 @@
       "artifacts/results/np7_cosim_ledgers.json": "1a79b76d16eb133d15f5811a5424e050d4a29a82aa81f2816e3bf6ecbdb03355",
       "artifacts/results/np7_formal_and_mutations.json": "1071c485f865cb61bd11a825a5d621ec9bd520bb5daf9865d9e02f2145a8198d",
       "artifacts/results/np7_three_model_integration.json": "853e5d562d907a830f922178f9e5a46a8cab23816c9ab475607e438cce697fd1",
-      "artifacts/results/np7_vivado_xsim_summary.json": "978cac86ef72924a202c37e5892c62a59c86c527a147403cfada38e2a0da9088",
-      "vivado_np7_xsim_reports/commands.log": "49acc010f19fc36d2c8f167011654a97e8308f34287bdf43f451f51e298b2d81",
-      "vivado_np7_xsim_reports/logs/cfgneg_dense_L1.log": "e0546ae1fdaf1549ff28dcedb4fffa34958dd10b0d5481a7c3aadc8019abf066",
-      "vivado_np7_xsim_reports/logs/cfgneg_dense_L4.log": "cb3da84f091d5cf3f0b61127d9e2d45cf65d4297afe5d53d6169f78b8dd23960",
-      "vivado_np7_xsim_reports/logs/cfgneg_sparse_L1.log": "a61b61a3985cc241dd24210b39566dd6d8cbb53394527bd2edb8408d34c1eaae",
-      "vivado_np7_xsim_reports/logs/cfgneg_sparse_L4.log": "24efdbf03480207c8fbaf6f92c5d45e4d375c3a8258f29f011ae327a898291f6",
-      "vivado_np7_xsim_reports/logs/golden_dense_L1.log": "090ef9868f0629d8ffbfc10d1ccf8c4ee0fb66027e29e6f74c1a649b6d110695",
-      "vivado_np7_xsim_reports/logs/golden_dense_L2.log": "167ebfd62368d201741efe308310a4cc693a48e419b59dd9f6be8a397e4fb3e6",
-      "vivado_np7_xsim_reports/logs/golden_dense_L4.log": "ca362fa96c2ed3c0c0da6ecf9d2cefa60cb7d5445127d0cd2e526c9dfb988cf0",
-      "vivado_np7_xsim_reports/logs/golden_dense_L8.log": "d2bf6c33cfad547522c46a9c1dcf916b3e07d206dbc762e782254e82230ef2cf",
-      "vivado_np7_xsim_reports/logs/golden_sparse_L1.log": "c57d4f282c7269553fc0f513beccbfcaa8a5315b24e5de09e92219fff5369697",
-      "vivado_np7_xsim_reports/logs/golden_sparse_L2.log": "6835d761cf4c1e0887350334685af26fa4fe284726962119d9a40f43002ddc41",
-      "vivado_np7_xsim_reports/logs/golden_sparse_L4.log": "7e3be8ae0e74bba301ac37c7b9177e2fc93bd1730815e65c587cfe923e1abe02",
-      "vivado_np7_xsim_reports/logs/golden_sparse_L8.log": "15096abdb610f7d90426bb16a0b332d53f985b5c1020cd508905d3a32275162e",
-      "vivado_np7_xsim_reports/logs/neg0_L1.log": "eef950de8d5a5a6c41e13423f76ad687df3cfff5235d2bce6178ec043b278241",
-      "vivado_np7_xsim_reports/logs/neg0_L4.log": "617cc3e025dda301a89dfe2b28992fdfb87165230c10ef17d17665ade079e3f0",
-      "vivado_np7_xsim_reports/logs/neg1_L1.log": "89d5eb654207ebfc44c605972f004f5c7b9032642cfa35afde2be98abaefe61f",
-      "vivado_np7_xsim_reports/logs/neg1_L4.log": "e3a7598034b0cc3b6f305986d3f6dbf914ac95ec392376d4c9bba3b6ff4d358f",
-      "vivado_np7_xsim_reports/signoff_summary.txt": "4cf9b76c7fe98b3650f8b49c9dd78270458d0807916761d8ba825691aaf001bd"
+      "artifacts/results/np7_vivado_xsim_summary.json": "864deaed6483afe2fedd86da40ca34fa1b99b37c5ded8028c4d42fb0e9096f0a",
+      "vivado_np7_xsim_reports/commands.log": "33eb803607a7d73d624f03cf9a05b219b0355a24e231811d5758d4b1d71ef6f8",
+      "vivado_np7_xsim_reports/logs/cfgneg_dense_L1.log": "ee8099caebbe5cef1c24672791026214e1e07eeb217c9812e96cea7d9711035d",
+      "vivado_np7_xsim_reports/logs/cfgneg_dense_L4.log": "4483e9d16f2b7da90fd25eee030c598a9a20386357b2d0bf02e7e5cc271457a4",
+      "vivado_np7_xsim_reports/logs/cfgneg_sparse_L1.log": "3c2224b526578cf2a8c5a527b5b2c35eabdc39159b25248c6cfd9bd9bf662f28",
+      "vivado_np7_xsim_reports/logs/cfgneg_sparse_L4.log": "5ba18dced0781f581f554f10fda692a8576af76b80b3311b95ee40fd00705e05",
+      "vivado_np7_xsim_reports/logs/golden_dense_L1.log": "1d65c5ea689442d535d21ef5ae4a64350f60150134a7fe0e5060b2337d511d00",
+      "vivado_np7_xsim_reports/logs/golden_dense_L2.log": "c2d3a932b6a099e0b58186c3107fb6d4b509445685578024801d6b978d84ed10",
+      "vivado_np7_xsim_reports/logs/golden_dense_L4.log": "4e85ccf327b2dedfbc174e5b01d8994a7b7f19afbd20f5cf3fe9173a5b96ffb8",
+      "vivado_np7_xsim_reports/logs/golden_dense_L8.log": "1b1e0f4d0199757eafbeb54616233cb636894542394594f0da922005b16fad04",
+      "vivado_np7_xsim_reports/logs/golden_sparse_L1.log": "5b23afd2ac36fb40f1e8c90fda4ec4e8f01086c193e20f4b5004e7c73ce19a56",
+      "vivado_np7_xsim_reports/logs/golden_sparse_L2.log": "37534db3ecdf34349326578298c4615ac396456c73c05e1753095f32ecf3477f",
+      "vivado_np7_xsim_reports/logs/golden_sparse_L4.log": "b5b2bf1db91a36fc47d7ab83740bb5e54f97dccd95c4057a38e6e972d058f74b",
+      "vivado_np7_xsim_reports/logs/golden_sparse_L8.log": "c992eaf42b9732bed8b6b4b320766561ce3d38ae0e0c6c3a4bdf3989f5d10f72",
+      "vivado_np7_xsim_reports/logs/neg0_L1.log": "1c308253b594be24c86520da9cf14b006e5cddb72bcaf36b4e87b3a6118ad29f",
+      "vivado_np7_xsim_reports/logs/neg0_L4.log": "72d85d556adee0a4181cb39ee4009f3b51bde26f7f8e0293e14b807163c364f2",
+      "vivado_np7_xsim_reports/logs/neg1_L1.log": "eb2e43970d4bd42864af5450ef41b46b12c06adc05e86d527e26d42afbf499a9",
+      "vivado_np7_xsim_reports/logs/neg1_L4.log": "f7f591d41065f9588dfa0e4cb5fc32fb2850e7bf5f6550911ccec7621fcdb25b",
+      "vivado_np7_xsim_reports/signoff_summary.txt": "cd7559b8decab34a762660ee96bf776067945c6df794e921ed9068e4619ed21e"
     },
     "input_files": {
       "docs/planning/NPU_PRUNING_NP7_DECISION_B_V1_V2.md": "805f33030141f29999c969987479d326c8359ad7793d46662426083e5ee893d4",
@@ -51,21 +51,26 @@
       "np7_shared_synapse_lane.sv": "b509d0e99758cfea97e046c2752c1e54b977023930752801a512ebce49791f75",
       "np7_three_model_integration_cosim.py": "2becf547b4fe5ed412562b4cf96eed14a7c77cfb44362e3205cd2a0484d09341",
       "np7_weight_ram.sv": "e979e4a07dc069e077f5c14e6f6001a73b6f4cfd6518493fe81323850cbb9b60",
-      "run_np7_vivado_xsim.py": "3d5b5d2c61329b892d15364582f1c7cd3e5767f460a57432dd57ac18dfbff006",
+      "run_np7_vivado_xsim.py": "0f928a3fc6dfbd2eaa0c16fea3815e4de1c16c59c3551e307a18814eb6b655d6",
       "tb_np7_config_negative.sv": "14c715680dbc3b283e45e5a0e10884cafcb1126ae6002533f661528eddc3e82c",
       "tb_np7_exec_unit.sv": "5de9c9fb6a723747b6b90974a297e13f41955e29f0c82121d7e12b219bdec4e1",
       "tb_np7_negative.sv": "0baeaee5dd12bf7e114a6817e1e8e4a698ab08fa88d7b0470b5f11e352974623",
       "test_np7_shared_lane_oracle.py": "29da14973715e97165882dbd6c20ed5e3dad4329c4f4dbb2a3e179a51c0abad5"
     },
     "tool_files": {
-      "generate_np7_manifest.py": "eda8d6e30f88f292bba997e8327d277e86ae8df4bba825e9633e71b872c20feb",
+      "generate_np7_manifest.py": "80e249197bd29fcd565dedb4abb29d894b7b411645e03dd6baf53725a0bd2cad",
       "test_np7_verifier_mutations.py": "06e9215a1548387dc02615856325e2434e63a05ea8e3b4bd8351d490260fe91c",
-      "verify_np7_software_cost.py": "42aa6220a25d060907ffda0eb15b4fbc795d1a8317840a38c478e65c43999e4f"
+      "verify_np7_software_cost.py": "323528aefb1e0e15c6e0fd2987748760c110b22bb2e07a7df15b399cf90cf0ba"
     }
   },
   "blocking_gates": [],
   "claim_boundary": "仅证明冻结 B2.1 任务上的逻辑周期模型与 RTL 逐拍账本；不证明 DDR/DMA/PS 端到端吞吐、真实功耗或板级表现",
-  "frozen_git_head": "fb64bb2fec5ff1e3b60686388f871e5308f3c917",
+  "environment": {
+    "host": "Chan-an",
+    "os": "Windows-11-10.0.26200-SP0",
+    "python": "3.14.7"
+  },
+  "frozen_git_head": "f9b586aeb7426d15f1a2598064e58f344304cc65",
   "gate_thresholds": {
     "G1_reads": 0.45,
     "G2_ops": 0.45,
@@ -303,7 +308,7 @@
   "schema": "np7-software-cost-manifest-v1",
   "tool_versions": {
     "iverilog": "Icarus Verilog version 12.0 (devel) (s20150603-1539-g2693dd32b)",
-    "vvp": "vvp: no input file.",
-    "yosys": "missing: [WinError 2] 系统找不到指定的文件。"
+    "vvp": "Icarus Verilog version 12.0 (devel) (s20150603-1539-g2693dd32b)",
+    "yosys": "Yosys 0.68 (git sha1 38e001a6f, Release, Clang /workspace/YoWASP/yosys/wasi-sdk-33.0-x86_64-linux/share/cmake/../..//bin"
   }
 }
