@@ -1,7 +1,8 @@
 // NP7.5 负向控制实现（两个"伪收益"参考物）。
 //
 // 本文件不是交付 RTL，而是性能 verifier 的对抗样本：两者都保持与 golden 完全
-// 相同的突触和与 done 协议（功能测试无法区分），只在"性能账本"上作弊。NP7.5
+// 相同的突触和与 B-V1+V2 done/accept 协议（功能测试无法区分），只在"性能账本"上
+// 作弊。NP7.5
 // 要求性能 verifier 必须拒绝它们，否则 NP7 的读取/操作/周期收益不可信。
 //
 // 1) np7_neg_read_all_then_gate：权重读取阶段无条件读取整组四槽（两字），
@@ -63,7 +64,7 @@ module np7_neg_read_all_then_gate #(
     localparam logic [2:0] S_RD1 = 3'd2;
     localparam logic [2:0] S_LAT = 3'd3;
     localparam logic [2:0] S_BATCH = 3'd4;
-    localparam logic [2:0] S_DONE = 3'd5;
+    localparam logic [2:0] S_HOLD = 3'd5;   // B-V1+V2：锁存待退出的结果（原 DONE 拍作废）
 
     logic [2:0] state;
     logic [3:0] pending_mask;
@@ -81,30 +82,47 @@ module np7_neg_read_all_then_gate #(
     logic lane_saturated;
     logic lane_fire;
     logic [19:0] ram_q;
+    logic signed [11:0] hold_sum;
+    logic hold_zero;
 
-    assign issue_ready = (state == S_IDLE) && !cfg_open;
+    // B-V1+V2 协议骨架与 golden 完全一致：负向实现只允许在"自报账本"上作弊，
+    // 否则评审无法把"性能造假"和"协议违规"区分开。
+    wire hold_active = (state == S_HOLD);
+    wire batch_last = (state == S_BATCH) && (pending_mask != 4'd0) && !lane_stall
+                      && ((pending_mask & ~batch_mask) == 4'd0);
+    wire retire_prev = result_ready && (hold_active || batch_last);
+    assign issue_ready = !cfg_open && ((state == S_IDLE) || retire_prev);
     assign accept_pulse = issue_valid && issue_ready;
+    // 作弊点：零掩码事务同样要全读两字，根本不存在零路径退出（golden 是单拍）。
+    wire zero_now = 1'b0;
+    assign result_valid = hold_active || batch_last;
+    assign result_sum = hold_active ? hold_sum : (batch_last ? acc_next : 12'sd0);
+    assign result_zero_path = hold_active ? hold_zero : (batch_last && zero_claim);
+    wire retire_now = result_valid && result_ready;
     assign state_code = state;
-    assign result_sum = acc;
-    assign result_valid = (state == S_DONE);
-    // 作弊点：即使本事务实际读了两字，仍报告"走了零突触快速路径"。
-    assign result_zero_path = zero_claim;
     // 观测事实：无条件发起两次读请求（四槽全读）。
     assign ram_ce = (state == S_RD0) || (state == S_RD1);
     // 稠密基线一组占两个字：地址 {group,0} 与 {group,1}。
     assign ram_addr = (state == S_RD0) ? {group_reg, 1'b0}
                                        : {group_reg, 1'b1};
-
     wire signed [7:0] w0_val = $signed(word0[7:0]);
     wire signed [7:0] w1_val = $signed(word0[15:8]);
     wire signed [7:0] w2_val = $signed(word1[7:0]);
     wire signed [7:0] w3_val = $signed(word1[15:8]);
     wire obs_lat = (state == S_LAT);
-    wire done_handshake = (state == S_DONE) && result_ready;
-    wire stall_now = ((state == S_BATCH) && (pending_mask != 4'd0) && lane_stall)
-                   || ((state == S_DONE) && !result_ready);
+    // 逐拍互斥类别（优先级同 golden/oracle）：RAM>LANE>LAT>LANE_STALL
+    // >BACKPRESSURE>HOLD_RETIRE>ZERO>ACCEPT；busy 与 stall 不重叠。
+    wire edge_busy = ram_ce || lane_fire;
+    wire edge_lstall = (state == S_BATCH) && (pending_mask != 4'd0) && lane_stall;
+    wire edge_bp = hold_active && !result_ready;
+    wire edge_hold_retire = hold_active && result_ready;
+    wire edge_zero = zero_now;
+    wire edge_accept = accept_pulse && !zero_now && !retire_prev;
+    wire edge_active = edge_busy || obs_lat || edge_lstall || edge_bp
+                       || edge_hold_retire || edge_zero || edge_accept;
+    wire any_fire_now = edge_busy;
+    wire stall_now = edge_lstall || edge_bp;
     wire nonzero_txn = !zero_claim;
-
     wire pm0 = pending_mask[0];
     wire pm1 = pending_mask[1];
     wire pm2 = pending_mask[2];
@@ -208,6 +226,8 @@ module np7_neg_read_all_then_gate #(
             word0 <= 20'd0;
             word1 <= 20'd0;
             acc <= 12'sd0;
+            hold_sum <= 12'sd0;
+            hold_zero <= 1'b0;
             protocol_error <= 1'b0;
             group_read_requests_state <= 32'd0;
             weight_values_fetched_state <= 32'd0;
@@ -222,82 +242,88 @@ module np7_neg_read_all_then_gate #(
             saturation_events_state <= 32'd0;
             total_cycles_state <= 32'd0;
         end else begin
-            // 自报账本按 sparse 合同伪造：读请求 1 次/非零事务、权重槽 2 个/非零事务、
-            // busy 只记"一拍读 + 发射拍"，total 只记合同公式，与真实逐拍行为无关。
-            if (accept_pulse)
+            // total/busy/stall 与 golden 同口径逐拍累加（诚实），只有读取侧与零路径
+            // 两处按 sparse 合同伪造，因此"自报 vs 逐拍观测"必然不一致。
+            if (edge_active)
                 total_cycles_state <= total_cycles_state + 32'd1;
+            if (any_fire_now)
+                busy_cycles_state <= busy_cycles_state + 32'd1;
+            if (stall_now)
+                stall_cycles_state <= stall_cycles_state + 32'd1;
+            // 伪造点 1：真实发了两次读请求，自报仍是"每非零事务 1 次请求 / 2 个槽"。
             if (obs_lat && nonzero_txn) begin
-                total_cycles_state <= total_cycles_state + 32'd1;
                 group_read_requests_state <= group_read_requests_state + 32'd1;
                 weight_values_fetched_state <= weight_values_fetched_state + 32'd2;
-                busy_cycles_state <= busy_cycles_state + 32'd1;
             end
             if (lane_fire) begin
                 lane_ops_issued_state <= lane_ops_issued_state + {29'd0, batch_n};
-                busy_cycles_state <= busy_cycles_state + 32'd1;
-                total_cycles_state <= total_cycles_state + 32'd1;
                 if (lane_saturated)
                     saturation_events_state <= saturation_events_state + 32'd1;
             end
-            if (stall_now) begin
-                stall_cycles_state <= stall_cycles_state + 32'd1;
-                total_cycles_state <= total_cycles_state + 32'd1;
-            end
-            if (done_handshake) begin
+            // 伪造点 2：零掩码事务仍然全读，却照记一次"零突触快速路径"。
+            if (accept_pulse && issue_mask == 4'd0)
+                zero_fast_paths_state <= zero_fast_paths_state + 32'd1;
+            if (retire_now)
                 completed_groups_state <= completed_groups_state + 32'd1;
-                total_cycles_state <= total_cycles_state + 32'd1;
-                if (zero_claim)
-                    zero_fast_paths_state <= zero_fast_paths_state + 32'd1;
+            if (accept_pulse) begin
+                group_reg <= issue_group;
+                if (issue_mask & ~issue_activity)
+                    protocol_error <= 1'b1;
+                acc <= 12'sd0;
+                word0 <= 20'd0;
+                word1 <= 20'd0;
+                pending_mask <= issue_mask;
+                zero_claim <= (issue_mask == 4'd0);
+                structural_skips_state <= structural_skips_state
+                    + {29'd0, issue_skip_count};
+                if (issue_activity == 4'd0)
+                    input_zero_groups_state <= input_zero_groups_state + 32'd1;
+                else if (issue_mask == 4'd0)
+                    activity_zero_after_structure_state
+                        <= activity_zero_after_structure_state + 32'd1;
+                // 作弊点：无条件进入读取状态，先读全再门控。
+                state <= S_RD0;
+            end else begin
+                case (state)
+                    S_IDLE: ;
+                    S_RD0: state <= S_RD1;
+                    S_RD1: begin
+                        // 第一字在第二次请求拍出现在 ram_q 上（同步 RAM 打一拍延迟）。
+                        word0 <= ram_q;
+                        state <= S_LAT;
+                    end
+                    S_LAT: begin
+                        word1 <= ram_q;
+                        hold_sum <= 12'sd0;
+                        hold_zero <= zero_claim;
+                        state <= (pending_mask == 4'd0) ? S_HOLD : S_BATCH;
+                    end
+                    S_BATCH: begin
+                        if (lane_fire) begin
+                            acc <= acc_next;
+                            pending_mask <= pending_mask & ~batch_mask;
+                            if (batch_last) begin
+                                if (result_ready) begin
+                                    // V2：最后一批当拍退出，同边沿可接受下一事务。
+                                    state <= S_IDLE;
+                                end else begin
+                                    hold_sum <= acc_next;
+                                    hold_zero <= zero_claim;
+                                    state <= S_HOLD;
+                                end
+                            end
+                        end
+                    end
+                    S_HOLD: if (result_ready) state <= S_IDLE;
+                    default: state <= S_IDLE;
+                endcase
             end
-            case (state)
-                S_IDLE: begin
-                    if (accept_pulse) begin
-                        group_reg <= issue_group;
-                        if (issue_mask & ~issue_activity)
-                            protocol_error <= 1'b1;
-                        acc <= 12'sd0;
-                        word0 <= 20'd0;
-                        word1 <= 20'd0;
-                        pending_mask <= issue_mask;
-                        zero_claim <= (issue_mask == 4'd0);
-                        structural_skips_state <= structural_skips_state
-                            + {29'd0, issue_skip_count};
-                        if (issue_activity == 4'd0)
-                            input_zero_groups_state <= input_zero_groups_state + 32'd1;
-                        else if (issue_mask == 4'd0)
-                            activity_zero_after_structure_state
-                                <= activity_zero_after_structure_state + 32'd1;
-                        // 作弊点：无条件进入读取状态，先读全再门控。
-                        state <= S_RD0;
-                    end
-                end
-                S_RD0: state <= S_RD1;
-                S_RD1: begin
-                    // 第一字在第二次请求拍出现在 ram_q 上（同步 RAM 打一拍延迟）。
-                    word0 <= ram_q;
-                    state <= S_LAT;
-                end
-                S_LAT: begin
-                    word1 <= ram_q;
-                    state <= (pending_mask == 4'd0) ? S_DONE : S_BATCH;
-                end
-                S_BATCH: begin
-                    if (pending_mask == 4'd0) begin
-                        state <= S_DONE;
-                    end else if (!lane_stall) begin
-                        acc <= acc_next;
-                        pending_mask <= pending_mask & ~batch_mask;
-                        if ((pending_mask & ~batch_mask) == 4'd0)
-                            state <= S_DONE;
-                    end
-                end
-                S_DONE: if (result_ready) state <= S_IDLE;
-                default: state <= S_IDLE;
-            endcase
         end
     end
+
     assign cfg_illegal_index = cfg_valid && cfg_open && !cfg_wr_ok;
 endmodule
+
 // 负向实现 2：MAC 后清零（lane 发射数不可重建）。
 //
 // 读取侧与 golden sparse 完全一致（每非零事务 1 次读请求、2 个权重槽、零快速路径），
@@ -351,7 +377,7 @@ module np7_neg_mac_then_clear #(
     localparam logic [2:0] S_RD0 = 3'd1;
     localparam logic [2:0] S_LAT = 3'd3;
     localparam logic [2:0] S_BATCH = 3'd4;
-    localparam logic [2:0] S_DONE = 3'd5;
+    localparam logic [2:0] S_HOLD = 3'd5;   // B-V1+V2：结果锁存态（原 DONE 作废）
 
     logic [2:0] state;
     logic [3:0] slot_mask;
@@ -370,16 +396,25 @@ module np7_neg_mac_then_clear #(
     logic lane_fire;
     logic [19:0] ram_q;
     logic [2:0] claimed_ops;
+    logic signed [11:0] hold_sum;
+    logic hold_zero;
 
-    assign issue_ready = (state == S_IDLE) && !cfg_open;
+    // B-V1+V2 协议骨架与 golden sparse 完全一致（只在自报操作数上作弊）。
+    wire hold_active = (state == S_HOLD);
+    wire batch_last = (state == S_BATCH) && (slot_mask != 4'd0) && !lane_stall
+                      && ((slot_mask & ~batch_mask) == 4'd0);
+    wire retire_prev = result_ready && (hold_active || batch_last);
+    assign issue_ready = !cfg_open && ((state == S_IDLE) || retire_prev);
     assign accept_pulse = issue_valid && issue_ready;
+    wire zero_now = (state == S_IDLE) && accept_pulse && (issue_mask == 4'd0)
+                    && result_ready;
+    assign result_valid = hold_active || batch_last || zero_now;
+    assign result_sum = hold_active ? hold_sum : (batch_last ? acc_next : 12'sd0);
+    assign result_zero_path = hold_active ? hold_zero : zero_now;
+    wire retire_now = result_valid && result_ready;
     assign state_code = state;
-    assign result_sum = acc;
-    assign result_valid = (state == S_DONE);
-    assign result_zero_path = zero_path_reg;
     assign ram_ce = (state == S_RD0);
     assign ram_addr = {1'b0, group_reg};
-
     wire [1:0] idx0_w = word0[17:16];
     wire [1:0] idx1_w = word0[19:18];
     wire signed [7:0] pair0_val = $signed(word0[7:0]);
@@ -490,11 +525,16 @@ module np7_neg_mac_then_clear #(
     );
 
     wire obs_lat = (state == S_LAT);
-    wire any_fire_now = ram_ce || lane_fire;
-    wire stall_now = ((state == S_BATCH) && (slot_mask != 4'd0) && lane_stall)
-                   || ((state == S_DONE) && !result_ready);
-    wire done_handshake = (state == S_DONE) && result_ready;
-
+    wire edge_busy = ram_ce || lane_fire;
+    wire edge_lstall = (state == S_BATCH) && (slot_mask != 4'd0) && lane_stall;
+    wire edge_bp = hold_active && !result_ready;
+    wire edge_hold_retire = hold_active && result_ready;
+    wire edge_zero = zero_now;
+    wire edge_accept = accept_pulse && !zero_now && !retire_prev;
+    wire edge_active = edge_busy || obs_lat || edge_lstall || edge_bp
+                       || edge_hold_retire || edge_zero || edge_accept;
+    wire any_fire_now = edge_busy;
+    wire stall_now = edge_lstall || edge_bp;
     always_ff @(posedge clk) begin
         if (rst) begin
             state <= S_IDLE;
@@ -504,6 +544,8 @@ module np7_neg_mac_then_clear #(
             zero_path_reg <= 1'b0;
             word0 <= 20'd0;
             acc <= 12'sd0;
+            hold_sum <= 12'sd0;
+            hold_zero <= 1'b0;
             protocol_error <= 1'b0;
             group_read_requests_state <= 32'd0;
             weight_values_fetched_state <= 32'd0;
@@ -518,7 +560,9 @@ module np7_neg_mac_then_clear #(
             saturation_events_state <= 32'd0;
             total_cycles_state <= 32'd0;
         end else begin
-            if (accept_pulse || state != S_IDLE)
+            // total/busy/stall/读取/零路径全部诚实，只有 lane_ops_issued 造假：
+            // 真实每拍发射四条候选操作，自报只记 popcount(issue_mask)。
+            if (edge_active)
                 total_cycles_state <= total_cycles_state + 32'd1;
             if (any_fire_now)
                 busy_cycles_state <= busy_cycles_state + 32'd1;
@@ -526,6 +570,8 @@ module np7_neg_mac_then_clear #(
                 stall_cycles_state <= stall_cycles_state + 32'd1;
             if (ram_ce)
                 group_read_requests_state <= group_read_requests_state + 32'd1;
+            if (obs_lat)
+                weight_values_fetched_state <= weight_values_fetched_state + 32'd2;
             // 作弊点：自报操作数 = popcount(issue_mask)，与当拍实际占用的
             // lane 槽位数（lane_fire_count）无关。
             if (obs_lat)
@@ -533,59 +579,68 @@ module np7_neg_mac_then_clear #(
                     + {29'd0, claimed_ops};
             if (lane_fire && lane_saturated)
                 saturation_events_state <= saturation_events_state + 32'd1;
-            if (done_handshake) begin
+            if (accept_pulse && issue_mask == 4'd0)
+                zero_fast_paths_state <= zero_fast_paths_state + 32'd1;
+            if (retire_now)
                 completed_groups_state <= completed_groups_state + 32'd1;
-                if (zero_path_reg)
-                    zero_fast_paths_state <= zero_fast_paths_state + 32'd1;
-            end
-            if (obs_lat)
-                weight_values_fetched_state <= weight_values_fetched_state + 32'd2;
-            case (state)
-                S_IDLE: begin
-                    if (accept_pulse) begin
-                        group_reg <= issue_group;
-                        if (issue_mask & ~issue_activity)
-                            protocol_error <= 1'b1;
-                        acc <= 12'sd0;
-                        word0 <= 20'd0;
-                        issue_reg <= issue_mask;
-                        zero_path_reg <= (issue_mask == 4'd0);
-                        structural_skips_state <= structural_skips_state
-                            + {29'd0, issue_skip_count};
-                        if (issue_activity == 4'd0)
-                            input_zero_groups_state <= input_zero_groups_state + 32'd1;
-                        else if (issue_mask == 4'd0)
-                            activity_zero_after_structure_state
-                                <= activity_zero_after_structure_state + 32'd1;
-                        if (issue_mask == 4'd0) begin
-                            slot_mask <= 4'd0;
-                            state <= S_DONE;
-                        end else begin
-                            // 作弊点：发射全部四条候选槽位。
-                            slot_mask <= 4'b1111;
-                            state <= S_RD0;
+            if (accept_pulse) begin
+                group_reg <= issue_group;
+                if (issue_mask & ~issue_activity)
+                    protocol_error <= 1'b1;
+                acc <= 12'sd0;
+                word0 <= 20'd0;
+                issue_reg <= issue_mask;
+                zero_path_reg <= (issue_mask == 4'd0);
+                structural_skips_state <= structural_skips_state
+                    + {29'd0, issue_skip_count};
+                if (issue_activity == 4'd0)
+                    input_zero_groups_state <= input_zero_groups_state + 32'd1;
+                else if (issue_mask == 4'd0)
+                    activity_zero_after_structure_state
+                        <= activity_zero_after_structure_state + 32'd1;
+                if (issue_mask == 4'd0) begin
+                    slot_mask <= 4'd0;
+                    if (!zero_now) begin
+                        hold_sum <= 12'sd0;
+                        hold_zero <= 1'b1;
+                        state <= S_HOLD;
+                    end else begin
+                        state <= S_IDLE;   // V1：单拍零路径
+                    end
+                end else begin
+                    // 作弊点：发射全部四条候选槽位。
+                    slot_mask <= 4'b1111;
+                    state <= S_RD0;
+                end
+            end else begin
+                case (state)
+                    S_IDLE: ;
+                    S_RD0: state <= S_LAT;
+                    S_LAT: begin
+                        word0 <= ram_q;
+                        state <= (slot_mask == 4'd0) ? S_HOLD : S_BATCH;
+                    end
+                    S_BATCH: begin
+                        if (lane_fire) begin
+                            acc <= acc_next;
+                            slot_mask <= slot_mask & ~batch_mask;
+                            if (batch_last) begin
+                                if (result_ready) begin
+                                    state <= S_IDLE;   // V2：同拍退出并接受下一事务
+                                end else begin
+                                    hold_sum <= acc_next;
+                                    hold_zero <= 1'b0;
+                                    state <= S_HOLD;
+                                end
+                            end
                         end
                     end
-                end
-                S_RD0: state <= S_LAT;
-                S_LAT: begin
-                    word0 <= ram_q;
-                    state <= S_BATCH;
-                end
-                S_BATCH: begin
-                    if (slot_mask == 4'd0) begin
-                        state <= S_DONE;
-                    end else if (!lane_stall) begin
-                        acc <= acc_next;
-                        slot_mask <= slot_mask & ~batch_mask;
-                        if ((slot_mask & ~batch_mask) == 4'd0)
-                            state <= S_DONE;
-                    end
-                end
-                S_DONE: if (result_ready) state <= S_IDLE;
-                default: state <= S_IDLE;
-            endcase
+                    S_HOLD: if (result_ready) state <= S_IDLE;
+                    default: state <= S_IDLE;
+                endcase
+            end
         end
     end
+
     assign cfg_illegal_index = cfg_valid && cfg_open && !cfg_wr_ok;
 endmodule

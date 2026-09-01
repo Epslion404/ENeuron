@@ -194,28 +194,6 @@ def m_integrity_not_empty(root, head):
     manifest["integrity"] = ["生成时就已知的问题"]
     write_json(root, MANIFEST, manifest)
     return head, "证据自检"
-
-
-MUTATIONS = [
-    ("delete_run_log", m_missing_log),
-    ("tamper_gate_status", m_tamper_gate_status),
-    ("tamper_rtl_ledger", m_tamper_rtl_ledger),
-    ("fake_cycle_gain", m_fake_cycle_gain),
-    ("lower_gate_threshold", m_lower_threshold),
-    ("accept_negative_control", m_accept_negative_control),
-    ("weaken_formal_verdict", m_weaken_formal_verdict),
-    ("leak_mutation_escapes", m_leak_escapes),
-    ("tamper_frozen_accuracy", m_tamper_frozen_accuracy),
-    ("post_freeze_rtl_rebind", m_post_freeze_rtl),
-    ("post_freeze_tool_rebind", m_post_freeze_tool),
-    ("bogus_frozen_head", m_bogus_frozen_head),
-    ("manifest_integrity_flagged", m_integrity_not_empty),
-    ("fake_xsim_behavioral_evidence", m_fake_xsim_evidence),
-    ("fake_xsim_ledger_markers", m_fake_xsim_ledger),
-    ("drop_xsim_case", m_drop_xsim_case),
-]
-
-
 def m_fake_xsim_evidence(root, head):
     # 整份 xsim 证据被改成"全绿"：删掉一个用例、把另一个用例的观测哈希改脏。
     rel = "artifacts/results/np7_vivado_xsim_summary.json"
@@ -249,6 +227,27 @@ def m_drop_xsim_case(root, head):
     del data["cases"]["cfgneg_dense_L4"]
     write_json(root, rel, data)
     return head, "缺少用例"
+
+
+
+MUTATIONS = [
+    ("delete_run_log", m_missing_log),
+    ("tamper_gate_status", m_tamper_gate_status),
+    ("tamper_rtl_ledger", m_tamper_rtl_ledger),
+    ("fake_cycle_gain", m_fake_cycle_gain),
+    ("lower_gate_threshold", m_lower_threshold),
+    ("accept_negative_control", m_accept_negative_control),
+    ("weaken_formal_verdict", m_weaken_formal_verdict),
+    ("leak_mutation_escapes", m_leak_escapes),
+    ("tamper_frozen_accuracy", m_tamper_frozen_accuracy),
+    ("post_freeze_rtl_rebind", m_post_freeze_rtl),
+    ("post_freeze_tool_rebind", m_post_freeze_tool),
+    ("bogus_frozen_head", m_bogus_frozen_head),
+    ("manifest_integrity_flagged", m_integrity_not_empty),
+    ("fake_xsim_behavioral_evidence", m_fake_xsim_evidence),
+    ("fake_xsim_ledger_markers", m_fake_xsim_ledger),
+    ("drop_xsim_case", m_drop_xsim_case),
+]
 
 
 def main(argv=None):

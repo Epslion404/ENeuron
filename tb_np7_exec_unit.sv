@@ -61,6 +61,7 @@ module tb;
     int index;
     int completed;
     int issued;
+    int n_hold;
     // Vivado xvlog 要求标识符先声明后使用：run_phase 在下方 initial 与连续赋值中均被引用。
     logic run_phase = 1'b0;
     generate
@@ -170,8 +171,8 @@ module tb;
         $finish;
     end
 
-    // 组合驱动激励：接受拍与后续拍的编号与 oracle 的"本地周期序号"完全对齐，
-    // 不接受拍不消耗周期，因此无需为流水线气泡补拍。
+    // 组合驱动激励：接受拍与后续拍的编号与 oracle 的流水拍号完全对齐；
+    // B-V1+V2 下同拍 retire+accept 是常态，窗口不再按"每事务独立段"切分。
     wire [31:0] cur_txn = txn[issued < ntxn ? issued : (ntxn - 1)];
     wire [7:0] cur_bp = bp[cycle < MAX_CYC ? cycle : (MAX_CYC - 1)];
 
@@ -181,15 +182,18 @@ module tb;
     assign issue_skip = cur_txn[14:12];
     assign lane_stall = run_phase && cur_bp[0];
     assign result_ready = !run_phase || cur_bp[1];
-    assign issue_valid = run_phase && (state_code == 3'd0) && (issued < ntxn);
+    // B-V1+V2：上游连续供数（无气泡），接受拍可以与前一事务的结果退出同拍，
+    // 因此不再用 state_code==IDLE 门控 issue_valid。
+    assign issue_valid = run_phase && (issued < ntxn);
 
     always @(posedge clk) begin
         cycle <= cycle + 1;
         if (!rst && run_phase) begin
+            // 非阻塞更新：避免与 DUT 在同一边沿采样 issue_* 形成竞争。
             if (accept_pulse)
-                issued = issued + 1;
+                issued <= issued + 1;
             if (result_valid && result_ready)
-                completed = completed + 1;
+                completed <= completed + 1;
         end
     end
 

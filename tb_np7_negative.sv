@@ -5,6 +5,10 @@
 // np7_bp.hex 三个由 np7_formal_and_mutations.py 生成的激励文件。
 // 每拍打印一行 CYC CSV，结束打印一行 LEDGER，格式与 NP7.3 完全一致，便于同一
 // 套重建规则同时用于 golden 与负向实现。本文件不进入综合路径。
+//
+// B-V1+V2 口径：负向实现与 golden 共用同一套 V1/V2 握手（同拍 retire+accept、
+// 零路径单拍、背压锁存），激励也是连续无气泡 + 随机背压流；两者只在"自报账本"
+// 上不同，因此窗口按整条流（首次 accept → 最后退出）切分，不再按事务分段。
 `timescale 1ns/1ps
 module tb;
     localparam int MAX_TXN = 2048;
@@ -180,15 +184,18 @@ module tb;
     assign issue_skip = cur_txn[14:12];
     assign lane_stall = run_phase && cur_bp[0];
     assign result_ready = !run_phase || cur_bp[1];
-    assign issue_valid = run_phase && (state_code == 3'd0) && (issued < ntxn);
+    // B-V1+V2：上游连续供数（无气泡），接受拍可与前一事务结果退出同拍，
+    // 因此不再用 state_code==IDLE 门控 issue_valid（旧口径永远测不到 V2 重叠）。
+    assign issue_valid = run_phase && (issued < ntxn);
 
     always @(posedge clk) begin
         cycle <= cycle + 1;
         if (!rst && run_phase) begin
+            // 非阻塞更新：避免与 DUT 在同一边沿采样 issue_* 形成竞争。
             if (accept_pulse)
-                issued = issued + 1;
+                issued <= issued + 1;
             if (result_valid && result_ready)
-                completed = completed + 1;
+                completed <= completed + 1;
         end
     end
 

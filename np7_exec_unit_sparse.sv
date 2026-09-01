@@ -5,9 +5,11 @@
 // 掩码：掩码在 READ 之后由索引组合重建。lane 阵列与饱和加法来自与 dense 顶层完全
 // 同源的 np7_shared_synapse_lane，格式只改变读取数、请求数与周期。
 //
-// 周期合同（NP7.0 §2.1）：ACCEPT 1 拍 + READ 1 拍 + LATENCY 1 拍
-// + ceil(k/L) 拍发射 + DONE 至少 1 拍；issue_mask=0 时走零快速路径
-// （ACCEPT 1 拍 + DONE 1 拍），不发 RAM 请求、不发 lane 操作，仍产生恰好一个 done。
+// 周期合同（PR #6 管理员裁定 B-V1+V2，见 docs/planning/NPU_PRUNING_NP7_DECISION_B_V1_V2.md）：
+// 非零事务 = 1(READ) + 1(LAT) + ceil(k/L)(BATCH) 拍，accept 折进上一事务的退出边沿，
+// 只有首事务额外计 1 拍冷启动；issue_mask=0 走 V1 零路径，恰好 1 拍（accept 与 result
+// 同一边沿完成），不发 RAM 请求、不发 lane 操作。不存在独立 DONE 拍：结果退出与下一
+// 事务接受允许同边沿重叠（V2），但任意时刻最多保存一个未退出结果（单槽弹性流水）。
 module np7_exec_unit_sparse #(
     parameter int LANES = 4
 ) (
@@ -56,7 +58,7 @@ module np7_exec_unit_sparse #(
     localparam logic [2:0] S_RD1 = 3'd2;
     localparam logic [2:0] S_LAT = 3'd3;
     localparam logic [2:0] S_BATCH = 3'd4;
-    localparam logic [2:0] S_DONE = 3'd5;
+    localparam logic [2:0] S_HOLD = 3'd5;
     logic [2:0] state;
     logic [3:0] pending_mask;
     logic [3:0] group_reg;
@@ -64,6 +66,8 @@ module np7_exec_unit_sparse #(
     logic [19:0] word0;
     logic [19:0] word1;
     logic signed [11:0] acc;
+    logic signed [11:0] hold_sum;
+    logic hold_zero;
     logic [2:0] remaining_n;
     logic [2:0] batch_n;
     logic [1:0] sel0, sel1, sel2, sel3;
@@ -75,12 +79,29 @@ module np7_exec_unit_sparse #(
     logic lane_fire;
     logic [19:0] ram_q;
 
-    assign issue_ready = (state == S_IDLE) && !cfg_open;
-    assign accept_pulse = issue_valid && issue_ready;
     assign state_code = state;
-    assign result_sum = acc;
-    assign result_valid = (state == S_DONE);
-    assign result_zero_path = zero_path_reg;
+
+    // ===================== B-V1+V2 周期协议 =====================
+    // 合同来源：PR #6 管理员评论 5498372499（docs/planning/NPU_PRUNING_NP7_DECISION_B_V1_V2.md）。
+    // V1 零路径单拍：issue_valid && issue_ready && issue_mask==0 不发 RAM 请求、不发 lane
+    //   操作，结果为 0 且 result_zero_path=1；当拍 result_ready=1 时 accept 与 result 同一
+    //   边沿完成（只计 1 拍）；result_ready=0 时把 0 结果锁存进 S_HOLD 稳定保持。
+    // V2 退出与接受重叠：非零事务最后一批 BATCH 得到最终 acc_next 的当拍，若 result_ready=1
+    //   就当拍完成结果，不再进独立 DONE 拍；同一边沿允许 issue_ready=1 并接受下一事务。
+    //   结果背压时锁存旧结果并停止接收，只有旧结果退出的同一边沿才可接受下一事务；
+    //   lane_stall=1 时 batch_last 不成立，因此既不会提前完成也不会提前接受。
+    // 元数据分离：正在退出的结果走组合 acc_next / 寄存器 hold_sum，accept 只写新事务寄存器。
+    wire hold_active = (state == S_HOLD);
+    wire batch_last = (state == S_BATCH) && (pending_mask != 4'd0) && !lane_stall
+                      && ((pending_mask & ~batch_mask) == 4'd0);
+    wire retire_prev = result_ready && (hold_active || batch_last);
+    assign issue_ready = !cfg_open && ((state == S_IDLE) || retire_prev);
+    assign accept_pulse = issue_valid && issue_ready;
+    wire zero_now = (state == S_IDLE) && accept_pulse && (issue_mask == 4'd0) && result_ready;
+    assign result_valid = hold_active || batch_last || zero_now;
+    assign result_sum = hold_active ? hold_sum : (batch_last ? acc_next : 12'sd0);
+    assign result_zero_path = hold_active ? hold_zero : zero_now;
+    wire retire_now = result_valid && result_ready;
     assign ram_ce = (state == S_RD0);
     assign ram_addr = {1'b0, group_reg};
 
@@ -191,10 +212,20 @@ module np7_exec_unit_sparse #(
     );
 
     wire word_reserved_nonzero = (word0[19:16] != 4'b0000) || (ram_q[19:16] != 4'b0000);
-    wire any_fire_now = (ram_ce) || lane_fire;
-    wire stall_now = ((state == S_BATCH) && (pending_mask != 4'd0) && lane_stall)
-                   || ((state == S_DONE) && !result_ready);
-    wire done_handshake = (state == S_DONE) && result_ready;
+
+    // 逐拍互斥类别（与 oracle/验证器同一优先级：RAM>LANE>LAT>LANE_STALL>BACKPRESSURE
+    // >HOLD_RETIRE>ZERO>ACCEPT），busy 与 stall 不重叠。
+    wire edge_busy = ram_ce || lane_fire;
+    wire edge_lat = (state == S_LAT);
+    wire edge_lstall = (state == S_BATCH) && (pending_mask != 4'd0) && lane_stall;
+    wire edge_bp = hold_active && !result_ready;
+    wire edge_hold_retire = hold_active && result_ready;
+    wire edge_zero = zero_now;
+    wire edge_accept = accept_pulse && !zero_now && !retire_prev;
+    wire edge_active = edge_busy || edge_lat || edge_lstall || edge_bp
+                       || edge_hold_retire || edge_zero || edge_accept;
+    wire any_fire_now = edge_busy;
+    wire stall_now = edge_lstall || edge_bp;
     always_ff @(posedge clk) begin
         if (rst) begin
             state <= S_IDLE;
@@ -204,6 +235,8 @@ module np7_exec_unit_sparse #(
             word0 <= 20'd0;
             word1 <= 20'd0;
             acc <= 12'sd0;
+            hold_sum <= 12'sd0;
+            hold_zero <= 1'b0;
             protocol_error <= 1'b0;
             // 一次性运行期复查标志必须可复位：否则四态仿真下残留 x、且跨事务不复位。
             checked_lat <= 1'b0;
@@ -220,9 +253,11 @@ module np7_exec_unit_sparse #(
             saturation_events_state <= 32'd0;
             total_cycles_state <= 32'd0;
         end else begin
-            // 账本：busy 与 stall 互斥，overhead（accept/latency/done）单独成段，
-            // 恒等式 total = accept + latency + busy + stall + done 由 cosim 核对。
-            if (accept_pulse || state != S_IDLE)
+            // 账本：逐拍互斥类别，busy 与 stall 不重叠。新恒等式
+            // total = busy + latency + lane_stall + backpressure + hold_retire
+            //       + zero_single + accept_own（stall = lane_stall + backpressure）由 cosim
+            // 核对；旧口径 total = accept + latency + busy + stall + done 已随 B-V1+V2 作废。
+            if (edge_active)
                 total_cycles_state <= total_cycles_state + 32'd1;
             if (any_fire_now)
                 busy_cycles_state <= busy_cycles_state + 32'd1;
@@ -235,72 +270,84 @@ module np7_exec_unit_sparse #(
                     + {29'd0, batch_n};
             if (lane_fire && lane_saturated)
                 saturation_events_state <= saturation_events_state + 32'd1;
-            if (done_handshake) begin
+            if (accept_pulse && issue_mask == 4'd0)
+                zero_fast_paths_state <= zero_fast_paths_state + 32'd1;
+            if (retire_now) begin
                 completed_groups_state <= completed_groups_state + 32'd1;
-                if (zero_path_reg)
-                    zero_fast_paths_state <= zero_fast_paths_state + 32'd1;
             end
             if (state == S_BATCH && !checked_lat)
                 protocol_error <= protocol_error | sparse_record_illegal
                     | ((pending_mask & ~struct_mask_w) != 4'b0);
             if (state == S_BATCH)
                 checked_lat <= 1'b1;
-            case (state)
-                S_IDLE: begin
-                    if (accept_pulse) begin
-                        // 每笔新事务重新武装一次性的结构复查（评审意见 2 后半段）。
-                        checked_lat <= 1'b0;
-                        group_reg <= issue_group;
-                        if (issue_mask & ~issue_activity)
-                            protocol_error <= 1'b1;
-                        acc <= 12'sd0;
-                        word0 <= 20'd0;
-                        word1 <= 20'd0;
-                        pending_mask <= issue_mask;
-                        // 分账：输入为零与结构跳过互斥，两者都不发 RAM 请求。
-                        if (issue_activity == 4'd0)
-                            input_zero_groups_state <= input_zero_groups_state + 32'd1;
-                        else if (issue_mask == 4'd0)
-                            activity_zero_after_structure_state
-                                <= activity_zero_after_structure_state + 32'd1;
-                        structural_skips_state <= structural_skips_state
-                            + {29'd0, issue_skip_count};
-                        if (issue_mask == 4'd0) begin
-                            // 零突触快速路径：无读、无 lane 发射，仍走 DONE 协议。
-                            zero_path_reg <= 1'b1;
-                            state <= S_DONE;
-                        end else begin
-                            zero_path_reg <= 1'b0;
-                            state <= S_RD0;
+            if (accept_pulse) begin
+                // 元数据与正在退出的结果严格分离：退出结果走 acc_next/hold_sum，
+                // accept 只写新事务寄存器（group/pending/acc/word），同拍不互相覆盖。
+                checked_lat <= 1'b0;
+                group_reg <= issue_group;
+                if (issue_mask & ~issue_activity)
+                    protocol_error <= 1'b1;
+                acc <= 12'sd0;
+                word0 <= 20'd0;
+                word1 <= 20'd0;
+                pending_mask <= issue_mask;
+                if (issue_activity == 4'd0)
+                    input_zero_groups_state <= input_zero_groups_state + 32'd1;
+                else if (issue_mask == 4'd0)
+                    activity_zero_after_structure_state
+                        <= activity_zero_after_structure_state + 32'd1;
+                structural_skips_state <= structural_skips_state
+                    + {29'd0, issue_skip_count};
+                if (issue_mask == 4'd0) begin
+                    zero_path_reg <= 1'b1;
+                    if (zero_now) begin
+                        // V1：accept 与 result 同一边沿完成，只占 1 拍。
+                        state <= S_IDLE;
+                    end else begin
+                        // V1 背压：0 结果锁存并稳定保持到 result_ready。
+                        hold_sum <= 12'sd0;
+                        hold_zero <= 1'b1;
+                        state <= S_HOLD;
+                    end
+                end else begin
+                    zero_path_reg <= 1'b0;
+                    state <= S_RD0;
+                end
+            end else begin
+                case (state)
+                    S_IDLE: ;
+                    S_RD0: begin
+                        // 同步 RAM：本拍只发请求，数据在下一拍（S_LAT）有效。
+                        state <= S_LAT;
+                    end
+                    S_LAT: begin
+                        word0 <= ram_q;
+                        weight_values_fetched_state <= weight_values_fetched_state + 32'd2;
+                        state <= S_BATCH;
+                    end
+                    S_BATCH: begin
+                        if (lane_fire) begin
+                            acc <= acc_next;
+                            pending_mask <= pending_mask & ~batch_mask;
+                            if (batch_last) begin
+                                if (result_ready) begin
+                                    // V2：最后一批当拍退出，不再进独立 DONE 拍。
+                                    state <= S_IDLE;
+                                end else begin
+                                    hold_sum <= acc_next;
+                                    hold_zero <= 1'b0;
+                                    state <= S_HOLD;
+                                end
+                            end
                         end
                     end
-                end
-                S_RD0: begin
-                    // 同步 RAM：本拍只发请求，数据在下一拍（S_LAT）有效。
-                    state <= S_LAT;
-                end
-                S_LAT: begin
-                    word0 <= ram_q;
-                    weight_values_fetched_state <= weight_values_fetched_state + 32'd2;
-                    state <= S_BATCH;
-                end
-                S_BATCH: begin
-                    if (pending_mask == 4'd0) begin
-                        state <= S_DONE;
-                    end else if (!lane_stall) begin
-                        acc <= acc_next;
-                        pending_mask <= pending_mask & ~batch_mask;
-                        // 最后一批发射的当拍直接进 DONE，不额外消耗空拍。
-                        if ((pending_mask & ~batch_mask) == 4'd0)
-                            state <= S_DONE;
+                    S_HOLD: begin
+                        if (result_ready)
+                            state <= S_IDLE;
                     end
-                end
-                S_DONE: begin
-                    if (result_ready)
-                        state <= S_IDLE;
-                end
-                default: state <= S_IDLE;
-            endcase
+                    default: state <= S_IDLE;
+                endcase
+            end
         end
     end
 

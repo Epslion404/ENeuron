@@ -61,66 +61,140 @@ def _digest(core: Any) -> dict[str, Any]:
             and isinstance(value, (int, float, list, tuple, bool, str))}
 
 
+INTEGRATOR_GROUPS = 10   # 8 个 hidden detector + 2 个输出突触组
+
+
 class SharedLaneIntegrator:
-    """把一次突触累加交给共享 RAM + 共享 lane 周期模型，并记三套账本。"""
+    """把一次突触累加交给共享 RAM + 共享 lane 周期模型，并记三套账本。
+
+    B-V1+V2 口径：一个逻辑 tick 内的全部突触事务组成一条连续无气泡的事务流，
+    交给 SharedLaneUnit.run_stream 逐拍重放。accept 折进上一事务的结果退出边沿
+    （V2 重叠），零突触事务只占 1 拍（V1），因此 tick 周期数不等于"每事务独立
+    段周期之和"——这正是上游神经元确实利用了 V2 的证据（见 solo_vs_stream）。
+    """
 
     def __init__(self) -> None:
         self.units = {}
         for lanes in LANE_COUNTS:
             for mode in ("dense_baseline", "dense_format", "sparse_format"):
                 fmt = FORMAT_SPARSE if mode == "sparse_format" else FORMAT_DENSE
-                self.units[(lanes, mode)] = SharedLaneUnit(fmt, lanes, group_count=1)
+                self.units[(lanes, mode)] = SharedLaneUnit(fmt, lanes,
+                                                           group_count=INTEGRATOR_GROUPS)
+        self.loaded: set[tuple] = set()
         self.groups_seen = 0
         self.mismatches: list[str] = []
+        self.ticks = 0
+        # 每 tick 的"独立段求和"对照周期（不使用 V2 折叠）与实际流水周期。
+        self.solo_cycles = {key: 0 for key in self.units}
+        self.stream_cycles = {key: 0 for key in self.units}
+        self.pending: dict[tuple, list] = {key: [] for key in self.units}
 
-    def _load(self, unit: SharedLaneUnit, weights: Sequence[int],
-              struct: int, gate: int | None = None) -> None:
-        """重装一个组的位模式；账本跨事务累计，不被装载清空。"""
+    def _ensure_config(self, key, gid: int, weights: Sequence[int],
+                       struct: int) -> None:
+        """把一个组的位模式写进对应单元的配置区（账本与配置解耦，跨事务累计）。"""
+        lanes, mode = key
+        fingerprint = (key, gid, tuple(weights), struct)
+        if fingerprint in self.loaded:
+            return
+        unit = self.units[key]
         ledger = unit.ledger
-        unit.ram = [None] * len(unit.ram)
-        unit.configured_groups = set()
-        unit.txn_log = []
         unit.config_open = True
         positions = [index for index in range(4) if (struct >> index) & 1]
+        if not 0 <= gid < INTEGRATOR_GROUPS:
+            raise AssertionError("integrator group id 越界 %d" % gid)
         if unit.fmt == FORMAT_SPARSE:
-            unit.config_write(0, [weights[index] for index in positions],
+            unit.config_write(gid, [weights[index] for index in positions[:2]],
                               (positions[0], positions[1]))
+            unit.set_gate_mask(gid, struct)
         else:
-            unit.config_write(0, list(weights))
-        unit.set_gate_mask(0, struct if gate is None else gate)
-        unit.config_finish()
+            if mode == "dense_baseline":
+                unit.config_write(gid, list(weights))
+                unit.set_gate_mask(gid, 0b1111)
+            else:
+                unit.config_write(gid, [weights[index] if (struct >> index) & 1 else 0
+                                        for index in range(4)])
+                unit.set_gate_mask(gid, struct)
+        # 逐组增量配置：绕开 config_finish 的"全组必须配置"检查（未启用的通道
+        # 永远不会被使用），但仍逐组解码校验位模式，配置期写入与运行期只读的
+        # 边界由 NP7.2/NP7.6 的 config-negative 证据保证。
+        unit._decode_group(gid)
+        unit.config_open = False
         unit.ledger = ledger
+        self.loaded.add(fingerprint)
 
     def accumulate(self, tag: str, weights: Sequence[int], activity: int,
-                   struct: int) -> int:
-        """返回共享 lane 计算的突触和；同时校验与 dense 格式一致性。"""
+                   struct: int, gid: int) -> int:
+        """登记一笔突触事务并返回功能结果；周期在 tick 边界由 end_tick 统一重放。
+
+        同时校验 sparse 与 dense 格式的突触和逐笔全等（G5），以及两者都等于
+        未共享实现的 native 累加（功能正确性），任何偏差都记入 mismatches。
+        """
         issue = struct & activity
         positions = [index for index in range(4) if (issue >> index) & 1]
         native = sum(weights[index] for index in positions)
         self.groups_seen += 1
         for lanes in LANE_COUNTS:
-            # 基线账本（未剪枝函数：4 槽全读，发射所有活动连接）
-            baseline = self.units[(lanes, "dense_baseline")]
-            self._load(baseline, weights, 0b1111, gate=0b1111)
-            baseline.run_group(0, activity)
-            # dense 格式账本（同一剪枝函数，但每组仍读 4 槽）
-            dense = self.units[(lanes, "dense_format")]
-            self._load(dense, weights, struct, gate=struct)
-            dense_result = dense.run_group(0, activity, struct & activity)
-            # sparse 格式（2 权重 + 2 索引，每组读 2 槽）
-            sparse = self.units[(lanes, "sparse_format")]
-            self._load(sparse, weights, struct)
-            sparse_result = sparse.run_group(0, activity, issue)
-            if sparse_result.synapse_sum != native:
-                self.mismatches.append(
-                    "%s lanes=%d sparse 突触和 %d != 未共享累加 %d"
-                    % (tag, lanes, sparse_result.synapse_sum, native))
-            if dense_result.synapse_sum != sparse_result.synapse_sum:
-                self.mismatches.append(
-                    "%s lanes=%d dense/sparse 突触和不等 %d != %d"
-                    % (tag, lanes, dense_result.synapse_sum,
-                       sparse_result.synapse_sum))
+            for mode in ("dense_baseline", "dense_format", "sparse_format"):
+                key = (lanes, mode)
+                self._ensure_config(key, gid, weights, struct)
+                unit = self.units[key]
+                got = unit.record_txn(gid, activity)
+                if mode == "sparse_format" and got != native:
+                    self.mismatches.append(
+                        "%s lanes=%d sparse 突触和 %d != 未共享累加 %d"
+                        % (tag, lanes, got, native))
+                if mode == "dense_format" and got != native:
+                    self.mismatches.append(
+                        "%s lanes=%d dense 突触和 %d != 未共享累加 %d"
+                        % (tag, lanes, got, native))
+                self.pending[key].append((gid, activity, mode))
         return native
+
+    def end_tick(self) -> None:
+        """把一个逻辑 tick 内登记的连续事务流按 B-V1+V2 逐拍重放进账本。"""
+        self.ticks += 1
+        for key, unit in self.units.items():
+            stream = [(gid, activity) for gid, activity, _mode in self.pending[key]]
+            self.pending[key] = []
+            if not stream:
+                continue
+            before = unit.ledger.total_cycles
+            unit.replay_recorded()
+            spent = unit.ledger.total_cycles - before
+            self.stream_cycles[key] += spent
+            self.solo_cycles[key] += self._solo_total(unit, stream)
+
+    @staticmethod
+    def _solo_total(unit: SharedLaneUnit,
+                    stream: Sequence[tuple[int, int]]) -> int:
+        """不使用 V1/V2 时的周期和：非零 3+words+ceil(k/L)、零路径 2 拍，逐段相加。"""
+        total = 0
+        for group_id, activity in stream:
+            plan = unit._plan(group_id, activity)
+            if plan.issue == 0:
+                total += 2
+            else:
+                total += 3 + plan.words + len(plan.batches)
+        return total
+
+    def v2_evidence(self) -> dict[str, Any]:
+        """上游是否真的吃到 V2：折叠节省的周期与同拍 retire/accept 次数。"""
+        out: dict[str, Any] = {}
+        for lanes in LANE_COUNTS:
+            key = (lanes, "sparse_format")
+            unit = self.units[key]
+            solo = self.solo_cycles[key]
+            spent = self.stream_cycles[key]
+            out[str(lanes)] = {
+                "solo_segment_cycles": solo,
+                "stream_cycles": spent,
+                "folded_cycles_saved": solo - spent,
+                "overlap_cycles": unit.ledger.overlap_cycles,
+                "zero_single_cycles": unit.ledger.zero_single_cycles,
+                "ticks": self.ticks,
+            }
+        return out
+
 
 def _mask_of(pending: Any) -> int:
     if isinstance(pending, int):
@@ -154,7 +228,8 @@ def _np7_infer_sample(model_id: str, checkpoint: B2Checkpoint, *,
         for label, output in enumerate(outputs):
             pre = _mask_of(pending[label])
             struct = config.output_masks[label]
-            integrator.accumulate("output", list(output.weights), pre, struct)
+            integrator.accumulate("output", list(output.weights), pre, struct,
+                               8 + label)
             if skip_state_on_zero and not (pre & struct):
                 # negative mutation: zero-synapse tick must still advance leak/threshold
                 spike = 0
@@ -174,7 +249,7 @@ def _np7_infer_sample(model_id: str, checkpoint: B2Checkpoint, *,
             if not config.channel_enable & (1 << index):
                 continue
             integrator.accumulate("hidden", list(core.weights),
-                                  input_mask, structural_mask)
+                                  input_mask, structural_mask, index)
             if skip_state_on_zero and not (input_mask & structural_mask):
                 # negative mutation: 漏掉泄放/阈值/时间推进的零快速路径
                 fired = 0
@@ -196,10 +271,12 @@ def _np7_infer_sample(model_id: str, checkpoint: B2Checkpoint, *,
                                   if (value >> bit) & 1) for value in next_pending)
         else:
             pending = (next_pending[0], next_pending[1])
+        # 一个逻辑 tick 结束：把本 tick 的连续事务流交给周期模型逐拍重放（V1+V2）。
+        integrator.end_tick()
     for label, output in enumerate(outputs):
         pre = _mask_of(pending[label])
         struct = config.output_masks[label]
-        integrator.accumulate("flush", list(output.weights), pre, struct)
+        integrator.accumulate("flush", list(output.weights), pre, struct, 8 + label)
         if skip_state_on_zero and not (pre & struct):
             # negative mutation: flush tick 同样漏掉状态推进
             flushed = 0
@@ -212,6 +289,7 @@ def _np7_infer_sample(model_id: str, checkpoint: B2Checkpoint, *,
             flushed = int(response.spike)
         counts[label] += flushed
         events.append(("flush", label, 3, pre & struct, counts[label]))
+    integrator.end_tick()   # flush tick 同样作为一段连续流水
     return tuple(counts), events, detectors, outputs
 
 
@@ -339,7 +417,19 @@ def run_model(setup: dict[str, Any], *,
     if baseline.ledger.lane_ops_issued != want_dense_ops:
         problems.append("%s dense 基线操作数 %d != 冻结账本 %d"
                         % (model_id, baseline.ledger.lane_ops_issued, want_dense_ops))
-    per_tick = (len(samples) * 3)
+    per_tick = integrator.ticks
+    if per_tick != len(samples) * 4:
+        problems.append("%s tick 数 %d != 样本数 x 4" % (model_id, per_tick))
+    # 上游必须真的利用 V2：同拍 retire/accept 与折叠节省的周期都要 >0。
+    for lanes in LANE_COUNTS:
+        ev = integrator.v2_evidence()[str(lanes)]
+        if ev["overlap_cycles"] <= 0:
+            problems.append("%s lanes=%d 没有同拍 retire/accept，上游未利用 V2"
+                            % (model_id, lanes))
+        if ev["folded_cycles_saved"] <= 0:
+            problems.append("%s lanes=%d 折叠未省周期 solo=%d stream=%d"
+                            % (model_id, lanes, ev["solo_segment_cycles"],
+                               ev["stream_cycles"]))
     ledgers = {}
     for lanes in LANE_COUNTS:
         ledgers[str(lanes)] = {}
@@ -354,6 +444,8 @@ def run_model(setup: dict[str, Any], *,
                       "reference_counts": [list(row) for row in reference_counts],
                       "np7_counts": [list(row) for row in np7_counts],
                       "ledgers": ledgers,
+                      "v2_evidence": integrator.v2_evidence(),
+                      "logical_ticks": per_tick,
                       "state_digest_samples": len(digests),
                       "state_digest_mismatch_samples": digest_mismatches}
 

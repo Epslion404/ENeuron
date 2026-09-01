@@ -29,6 +29,18 @@ from np7_shared_lane_oracle import (
     exhaustive_structures,
     mask_from_indices,
 )
+from np7_ledger_reconstruction import (OBSERVABLE_FIELDS,
+                                       accepted_issue_masks, classify_row,
+                                       identity_violations, observe, parse_rows,
+                                       reconstruct_violations, result_sums,
+                                       stream_window)
+
+# B-V1+V2 里所有能从 CYC 逐拍行重建的账本字段（其余为激励派生或与 DUT 自报交叉核对）。
+OBSERVABLE_V2_FIELDS = OBSERVABLE_FIELDS + (
+    "latency_cycles", "lane_stall_cycles", "backpressure_cycles",
+    "hold_retire_cycles", "zero_single_cycles", "accept_events",
+    "retire_events", "overlap_cycles", "accept_cycles", "startup_cycles",
+    "drain_cycles", "retire_latch_cycles")
 
 ROOT = Path(__file__).resolve().parent
 RTL_SOURCES = [
@@ -133,19 +145,23 @@ def run_case(binary: Path, fmt: str, lanes: int, seed: int,
     return len(txns), failures, sums
 
 
-def record_raw_ledger(stdout: str, fmt: str, lanes: int, seed: int,
-                      txns: Sequence[tuple[int, int, int, int]],
-                      sums: Sequence[int]) -> None:
+def record_raw_ledger(stdout, fmt, lanes, seed, txns, sums):
+    """NP7.3 每次运行都留一份"原始逐拍观测 + 自报账本"副本，供 NP7.6 重新计算硬门。
+
+    只认自报数字的实现（例如 NP7.5 的两个负向实现）会在这份证据里露出马脚：
+    B-V1+V2 之后连 total/busy/stall 都必须由逐拍类别重建，旧恒等式不再成立。
+    """
     import hashlib
-    from np7_ledger_reconstruction import (accepted_issue_masks, observe,
-                                           parse_rows, reconstruct_violations)
     rows, claimed = parse_rows(stdout)
     observed = observe(rows, accepted_issue_masks(rows, txns))
     RAW_LEDGERS.append({
         "format": fmt, "lanes": lanes, "seed": seed, "transactions": len(txns),
-        "cycles_logged": len(rows), "claimed": claimed, "observed": observed,
-        "reconstruction_violations": reconstruct_violations(claimed, observed,
-                                                            "%s/%d/%d" % (fmt, lanes, seed)),
+        "cycles_logged": len(rows), "contract": "B-V1+V2",
+        "claimed": claimed, "observed": observed,
+        "reconstruction_violations": reconstruct_violations(
+            claimed, observed, "%s/%d/%d" % (fmt, lanes, seed)),
+        "identity_violations": identity_violations(
+            observed, "%s/%d/%d" % (fmt, lanes, seed)),
         # 逐笔突触和的指纹：dense 与 sparse 必须逐笔全等（G5），但证据文件里
         # 不放原始向量，避免把 160000 个整数写进仓库。
         "result_sums_sha256": hashlib.sha256(
@@ -153,115 +169,121 @@ def record_raw_ledger(stdout: str, fmt: str, lanes: int, seed: int,
         "result_sums_count": len(sums),
     })
 
-def unit_group_was_zero(txn, structures, fmt):
-    """该事务是否走零突触快速路径（与 oracle 判据一致）。"""
-    group, activity, _issue, _skip = txn
-    struct = 0b1111 if fmt == FORMAT_DENSE else mask_from_indices(structures[group])
-    return (struct & activity) == 0
 
+def compare_case(stdout, fmt, lanes, structures, sem, words, txns, bp):
+    """逐拍比对 RTL 流水与 B-V1+V2 oracle 流水，并核对三方账本。
 
-def parse_fields(match):
-    return {"cycle": int(match.group(1)), "st": int(match.group(2)),
-            "ce": int(match.group(3)), "ad": int(match.group(4)),
-            "lf": int(match.group(5)), "bm": int(match.group(6), 16),
-            "rv": int(match.group(7)), "rr": int(match.group(8)),
-            "ap": int(match.group(9)), "zp": int(match.group(10)),
-            "sum": int(match.group(11))}
-
-
-def compare_case(stdout: str, fmt: str, lanes: int, structures, sem,
-                 words, txns, bp) -> tuple[list[str], list[int]]:
-    """逐拍比对 RTL 与 oracle，并核对最终账本。"""
-    failures: list[str] = []
-    cycles = []
-    ledger_line = None
-    for raw in stdout.splitlines():
-        match = CYC_RE.match(raw.strip())
-        if match:
-            cycles.append(match)
-            continue
-        if LEDGER_RE.match(raw.strip()):
-            ledger_line = LEDGER_RE.match(raw.strip())
-    if ledger_line is None:
-        return ["输出缺少 LEDGER 行: " + stdout[-300:]], []
-    base = int(cycles[0].group(1)) if cycles else 0
-    for position, match in enumerate(cycles):
-        if int(match.group(1)) != base + position:
-            failures.append("CYC 序号不连续 at %d" % position)
-            break
-    if failures:
-        return failures, []
+    三方 = DUT 自报 LEDGER 计数器、tb CYC 行的观测重建、oracle 流水模型。旧口径按
+    "每事务独立段"切窗；V2 的同拍 retire/accept 会让事务窗口重叠，因此改成整条流一次比。
+    """
+    failures = []
+    rows, claimed = parse_rows(stdout)
+    if not rows:
+        return ["没有任何 CYC 观测行"], []
+    base = rows[0]["cycle"]
+    for position, row in enumerate(rows):
+        if row["cycle"] != base + position:
+            return ["CYC 序号不连续 at %d" % position], []
+    lo, hi = stream_window(rows)
+    window = rows[lo:hi + 1]
     unit = SharedLaneUnit(fmt, lanes, GROUP_COUNT)
     unit.config_load_words(words)
     unit.config_finish()
-    accepts = [int(m.group(1)) - base for m in cycles
-               if m.group(9) == "1"]
-    if len(accepts) != len(txns):
-        failures.append("接受事务数 %d != 激励数 %d" % (len(accepts), len(txns)))
-        return failures, []
-    sums: list[int] = []
-    for position, accept in enumerate(accepts):
-        group, activity, _issue, _skip = txns[position]
-        stop = accepts[position + 1] if position + 1 < len(accepts) else len(cycles)
-        origin = base + accept
-        result = unit.run_group(
-            group, activity,
-            lane_stall=lambda cycle, start=origin: (
-                (bp[start + cycle] & 1) if start + cycle < len(bp) else 0),
-            result_ready=lambda cycle, start=origin: (
-                ((bp[start + cycle] >> 1) & 1) if start + cycle < len(bp) else 1))
-        sums.append(result.synapse_sum)
-        observed = cycles[accept:stop]
-        if position + 1 < len(accepts) and len(observed) != result.cycles:
-            failures.append("事务 %d 周期 %d != oracle %d (%s/%d lane seed case)"
-                            % (position, len(observed), result.cycles, fmt, lanes))
-            continue
-        if len(observed) < result.cycles:
-            failures.append("事务 %d 观测周期不足 %d < %d"
-                            % (position, len(observed), result.cycles))
-            continue
-        for offset, event in enumerate(result.events):
-            seen = parse_fields(observed[offset])
+    results = unit.run_stream(
+        [(txn[0], txn[1]) for txn in txns],
+        lane_stall=lambda tick: window[tick]["ls"],
+        result_ready=lambda tick: window[tick]["rr"],
+        issue_valid=lambda tick: 1)
+    if len(results) != len(txns):
+        return ["oracle 完成事务数 %d != %d" % (len(results), len(txns))], []
+    events = unit.stream_events
+    if len(events) != len(window):
+        failures.append("流水窗长度不等 rtl=%d oracle=%d（%s/%d lane）"
+                        % (len(window), len(events), fmt, lanes))
+    else:
+        for offset, event in enumerate(events):
+            seen = window[offset]
             want_bm = sum(1 << pos for pos in event.lane_positions)
-            seen_bm = seen["bm"] if event.lane_count else want_bm
-            if (seen["ce"], seen["lf"], seen_bm, seen["rv"]) != (
-                    event.ram_ce, event.lane_count, want_bm, event.result_valid):
+            mismatch = (seen["ce"], seen["rv"], seen["rr"], seen["ap"],
+                        seen["zp"], seen["ls"]) != (
+                           event.ram_ce, event.result_valid, event.result_ready,
+                           event.accepted, event.result_zero, seen["ls"])
+            if not mismatch and seen["ce"] and seen["ad"] != event.ram_addr:
+                mismatch = True
+            if not mismatch and seen["lf"] != event.lane_count:
+                mismatch = True
+            if not mismatch and event.lane_count and seen["bm"] != want_bm:
+                mismatch = True
+            if not mismatch and event.result_valid and seen["sum"] != event.result_sum:
+                mismatch = True
+            if not mismatch and classify_row(seen) != event.cls:
+                mismatch = True
+            if mismatch:
                 failures.append(
-                    "事务 %d 第 %d 拍不等: rtl ce=%d lf=%d bm=%d rv=%d / "
-                    "oracle ce=%d lf=%d bm=%d rv=%d"
-                    % (position, offset, seen["ce"], seen["lf"], seen["bm"],
-                       seen["rv"], event.ram_ce, event.lane_count, want_bm,
-                       event.result_valid))
+                    "第 %d 拍不等 rtl ce=%d ad=%d lf=%d bm=%x rv=%d rr=%d ap=%d zp=%d "
+                    "sum=%d st=%d / oracle ce=%d ad=%d lf=%d bm=%d rv=%d ap=%d zp=%d "
+                    "sum=%d cls=%s"
+                    % (offset, seen["ce"], seen["ad"], seen["lf"], seen["bm"],
+                       seen["rv"], seen["rr"], seen["ap"], seen["zp"], seen["sum"],
+                       seen["st"], event.ram_ce, event.ram_addr, event.lane_count,
+                       want_bm, event.result_valid, event.accepted,
+                       event.result_zero, event.result_sum, event.cls))
                 break
-            if event.ram_ce and seen["ad"] != event.ram_addr:
-                failures.append("事务 %d 第 %d 拍地址 %d != %d"
-                                % (position, offset, seen["ad"], event.ram_addr))
-                break
-            if offset == len(result.events) - 1 and seen["sum"] != result.synapse_sum:
-                failures.append("事务 %d 突触和 %d != %d"
-                                % (position, seen["sum"], result.synapse_sum))
-                break
-            if offset == len(result.events) - 1 and seen["zp"] != int(
-                    bool(event.state == "DONE" and
-                         unit_group_was_zero(txns[position], structures, fmt))):
-                failures.append("事务 %d 零路径标志与 oracle 不一致" % position)
-                break
-    observed_ledger = [int(ledger_line.group(index)) for index in range(1, 13)]
-    want_ledger = [unit.ledger.group_read_requests, unit.ledger.weight_values_fetched,
-                   unit.ledger.lane_ops_issued, unit.ledger.zero_fast_paths,
-                   unit.ledger.busy_cycles, unit.ledger.stall_cycles,
-                   unit.ledger.completed_groups, unit.ledger.structural_skips,
-                   unit.ledger.input_zero_groups,
-                   unit.ledger.activity_zero_after_structure,
-                   unit.ledger.saturation_events, unit.ledger.total_cycles]
-    if observed_ledger != want_ledger:
-        failures.append("账本不等 rtl=%s oracle=%s" % (observed_ledger, want_ledger))
-    if ledger_line.group(13) != "0":
+    sums = [result.synapse_sum for result in results]
+    rtl_sums = result_sums(rows)
+    if rtl_sums != sums:
+        first_bad = next((index for index in range(min(len(rtl_sums), len(sums)))
+                          if rtl_sums[index] != sums[index]), min(len(rtl_sums), len(sums)))
+        failures.append("突触和序列第 %d 笔不一致 rtl=%d oracle=%d"
+                        % (first_bad,
+                           rtl_sums[first_bad] if first_bad < len(rtl_sums) else -1,
+                           sums[first_bad] if first_bad < len(sums) else -1))
+    observed = observe(rows, accepted_issue_masks(rows, txns))
+    # (a) 逐拍可观测字段：oracle 流水模型 vs 从 CYC 行重建的观测账本。
+    for field in OBSERVABLE_V2_FIELDS:
+        if not hasattr(unit.ledger, field):
+            failures.append("oracle 账本缺少字段 %s" % field)
+            continue
+        if field not in observed:
+            failures.append("观测账本缺少字段 %s" % field)
+            continue
+        want = getattr(unit.ledger, field)
+        got = observed[field]
+        if want != got:
+            failures.append("%s oracle=%d rtl观测=%d" % (field, want, got))
+    # (b) 激励派生字段：CYC 行看不出"结构跳过/输入为零/结构化后为零"这类语义，
+    # 只能把 oracle、DUT 自报计数器和激励真值三边对齐。
+    truth = {
+        "structural_skips": sum(txn[3] for txn in txns),
+        "input_zero_groups": sum(1 for txn in txns if txn[1] == 0),
+        "activity_zero_after_structure": sum(
+            1 for txn in txns if txn[1] != 0 and txn[2] == 0),
+    }
+    for field, want in truth.items():
+        if not hasattr(unit.ledger, field):
+            failures.append("oracle 账本缺少字段 %s" % field)
+            continue
+        if getattr(unit.ledger, field) != want:
+            failures.append("%s oracle=%d 激励真值=%d"
+                            % (field, getattr(unit.ledger, field), want))
+        if claimed.get(field, -1) != want:
+            failures.append("%s DUT自报=%d 激励真值=%d"
+                            % (field, claimed.get(field, -1), want))
+    if unit.ledger.saturation_events != claimed["saturation_events"]:
+        failures.append("saturation_events oracle=%d DUT自报=%d"
+                        % (unit.ledger.saturation_events,
+                           claimed["saturation_events"]))
+    failures += identity_violations(observed, "%s/%d lane 观测" % (fmt, lanes))
+    failures += unit.identity_violations("%s/%d lane oracle" % (fmt, lanes))
+    failures += reconstruct_violations(claimed, observed, "%s/%d lane 自报" % (fmt, lanes))
+    if claimed["protocol_error"] != 0:
         failures.append("protocol_error 被置位")
-    if ledger_line.group(14) != "0":
+    if claimed["config_error"] != 0:
         failures.append("cfg_error 被置位")
-    if int(ledger_line.group(15)) != len(txns):
-        failures.append("完成事务数 %s != %d" % (ledger_line.group(15), len(txns)))
+    if claimed["completed"] != len(txns):
+        failures.append("完成事务数 %s != %d" % (claimed["completed"], len(txns)))
+    if not any(result.zero_path for result in results[1:]) and fmt == FORMAT_DENSE:
+        pass
     return failures, sums
 
 
