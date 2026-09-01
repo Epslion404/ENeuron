@@ -813,3 +813,12 @@
 - 复验仍发现冻结字节绑定漏洞和两处文档状态陈旧，准备提交新的精简 `CHANGES_REQUESTED`；未运行 Vivado、未修改协作者分支。
 - 最新 HEAD `550ec26` 已完成隔离复验：正向 verifier PASS、manifest/工作树不变、12 项 mutation 全通过，冻结后 RTL/runner 联合篡改被拒绝，权威文档状态一致。
 - 本轮无需重跑 Vivado；准备对 PR #5 提交 `APPROVE`，但批准仅表示证据链和报告口径可合并，不改变 100 MHz 时序仅部分通过的事实。
+
+## 2026-09-01 NP6 收口与 NP7 审核稿
+
+- PR #5 已合并到远端 main；本地 review 记录提交后成功 rebase 到 `origin/main`。
+- 持久恢复检查通过，但发现 `WORKFLOW_STATE.md` 和 NP6 TODO 仍停在未批准状态。
+- 已更新 NP6.0-NP6.8 的真实完成状态、总剪枝 TODO、文档索引和工作流指针。
+- 已新增 NP7 共享 BRAM/lane 审核稿；当前停在八项用户决策门，未修改业务 RTL，未运行新的 Vivado。
+- 本轮首次占位 PowerShell 命令误写 `constNotUsed=0`，立即失败且未改变仓库；后续未重复该写法。
+- Nexus 子代理完成增量更新；主代理将 AST 上限从 500 提高到 2500 后重建，最终 155 文件、1682 节点、2310 边、parse errors=0、无截断，并恢复 INDEX 的完整强制路由块。

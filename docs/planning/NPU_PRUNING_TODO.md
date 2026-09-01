@@ -348,7 +348,7 @@ NP4 V1 六项决定已于 2026-08-29 获用户批准并冻结：隐藏层和输�
 
 NP4A 公共控制器已于 2026-08-29 通过：四拍扫描、原子双位 mask、固定 gain 适配器、读取前 `issue_mask` 和层级分账均已实现。NP4B 正式接入仍未完成，因为 ENeuron 尚无可综合 snapshot evidence 输出，Pulse 尚需在 FEEDBACK 清除前锁存 evidence，现有 `4→2→2` 输出层也不是四输入组。完整边界见 `docs/reports/LOCAL_PRUNE_RTL_REPORT.md`。
 
-NP4B 八项实现决定已于 2026-08-29 获用户批准并完成实施。ENeuron committed snapshot 只读旁路、Pulse FEEDBACK 接受沿证据锁存、真正四输入的 `4→8→2` 网络、三模型端到端协同仿真、非空形式验证与最终签核全部通过；当前为 `NP4B_INTEGRATION_PASS / NP6_REVIEW_REQUIRED`，仍未开放 NP6 Vivado。
+NP4B 八项实现决定已于 2026-08-29 获用户批准并完成实施。NP6 也已完成并合并：7 个配置均实现完成、route/DRC error 为 0，但只有 gate 与 ENeuron 剪枝封装通过 100 MHz，因此状态为 `NP6_PHYSICAL_COST_PARTIAL / NP7_REVIEW_REQUIRED`。
 
 ### NP5：协同仿真和形式检查
 
@@ -363,12 +363,12 @@ NP5 当前签核范围仅为独立公共控制器；三核心 wrapper 完成后�
 
 ### NP6：单组物理成本
 
-- [ ] 对独立剪枝模块、Pulse-Mini-L 包装和 ENeuron 包装分别综合。
-- [ ] 报告逻辑、寄存器、比较链、扇出和关键路径来源。
-- [ ] 比较组合四选二与多周期扫描，只保留满足 100 MHz 且资源较低者。
-- [ ] 使用相同切换序列生成活动文件，比较门控前后的动态功耗估算。
+- [x] 对独立剪枝模块、ENeuron 和 Pulse-Mini-L/L2 的冻结矩阵完成 7 次综合与实现。
+- [x] 报告 LUT/FF/BRAM/DSP、WNS/WHS、TNS/THS、失败端点、DRC、route status 和 vector-less 功耗。
+- [x] 对可比 wrapper 报告物理增量；ENeuron 不同微架构配对明确标 `NOT_COMPARABLE`。
+- [x] 建立只读 manifest verifier、冻结字节三方绑定和 12 项 mutation 负向控制。
 
-硬门：100 MHz routed 全通过。面积先报告实测增量；在首轮数据前不以拍脑袋预算删除功能。
+硬门结果：未全通过，阶段结论为 `PARTIAL`。不得把 NP6 写成整体 100 MHz 签核成功；下一阶段必须独立证明共享 lane 的周期收益。
 
 ### NP7：真正跳算的共享 lane
 

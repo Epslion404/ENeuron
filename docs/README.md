@@ -20,6 +20,7 @@
 - [NPU 局部剪枝与动态门控计划](planning/NPU_PRUNING_TODO.md)
 - [NP4B 正式集成 TODO](planning/NPU_PRUNING_NP4B_TODO.md)
 - [NP6 物理成本评估 TODO](planning/NPU_PRUNING_NP6_TODO.md)
+- [NP7 共享 BRAM 与共享 lane TODO](planning/NPU_PRUNING_NP7_TODO.md)
 - [NP6 Runner 静态审计](planning/NPU_PRUNING_NP6_RUNNER_AUDIT.md)
 
 ## 报告
@@ -29,6 +30,7 @@
 - [ENeuron 1.0 发布说明](reports/RELEASE_1.0.md)
 - [三版本纯仿真比较](reports/SIMULATION_COMPARISON_REPORT.md)
 - [Vivado/XSim 局部剪枝仿真报告](reports/SIMULATION_REPORT.md)
+- [NP6 物理成本阶段报告](reports/LOCAL_PRUNE_NP6_PHYSICAL_COST_REPORT.md)
 - [Pulse-Mini-L/L2 协议与多任务报告](reports/PULSE_MINI_L2_PROTOCOL_REPORT.md)
 - [数字识别 D0](reports/DIGIT_RECOGNITION_D0.md)
 - [数字识别 D1](reports/DIGIT_RECOGNITION_D1.md)

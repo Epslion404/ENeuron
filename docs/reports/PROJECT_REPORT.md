@@ -1,6 +1,6 @@
 # ENeuron 当前项目报告
 
-报告日期：2026-08-29
+报告日期：2026-09-01
 
 NP4B 证据提交：`e3708af`；原 ENeuron 1.0 正式标签仍为 `v1.0`
 
@@ -266,9 +266,9 @@ D2 状态为 `D2_FAIL_GENERALIZATION`，部分种子同时属于 `D2_FAIL_ACTIVI
 
 ## 11. 建议下一阶段
 
-### 前置人工门：NP6 审核
+### 当前人工门：NP7 审核
 
-NP4B 当前状态为 `NP4B_INTEGRATION_PASS / NP6_REVIEW_REQUIRED`。只有用户再次批准后，才使用 Vivado 2024.1 测量单 gate、三个 wrapper 和三个 `4→8→2` 顶层在 XC7Z020 上的资源与时序增量。NP7 才涉及共享 BRAM 格式、真实读请求跳过和共享 lane 周期下降。
+NP6 已完成并以 PR #5 合并。7 个配置均完成 Vivado 2024.2 实现且 route/DRC error 为 0，但只有独立 gate 与 ENeuron 剪枝封装通过 100 MHz，因此状态为 `NP6_PHYSICAL_COST_PARTIAL / NP7_REVIEW_REQUIRED`。NP7 审核稿见 `docs/planning/NPU_PRUNING_NP7_TODO.md`；它才负责共享 BRAM 格式、真实读请求跳过和共享 lane 周期下降。
 
 ### 优先级 1：D2.1 输出信用修正
 

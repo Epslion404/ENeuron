@@ -1,6 +1,6 @@
 # NPU 局部剪枝 NP6 物理成本 TODO
 
-状态：`NP6_REVIEW_REQUIRED`
+状态：`NP6_PHYSICAL_COST_PARTIAL / NP7_REVIEW_REQUIRED`
 
 日期：2026-09-01
 
@@ -14,7 +14,7 @@ NP6 只测量 NP4B 已签核剪枝结构在指定 FPGA 上的综合、实现、�
 
 ## 2. 工具与冻结条件
 
-- Vivado：`G:\Xilinx\Vivado\2024.1\bin\unwrapped\win64.o\vivado.exe`
+- 实际证据环境：协作者本机 Vivado 2024.2（SW Build 5239630）。项目本机另有 Vivado 2024.1，但本阶段最终报告只绑定 2024.2，不跨版本外推。
 - 目标器件：`xc7z020clg400-1`；若项目板卡约束要求不同封装，必须在审核时单独冻结。
 - 目标时钟：100 MHz；Host/Tile 双时钟版本保持既有 50/100 MHz 合同。
 - 每个被测配置必须记录 Git HEAD、工作树状态、Vivado 版本、Tcl 命令、退出码和报告 SHA-256。
@@ -33,15 +33,23 @@ NP6 只测量 NP4B 已签核剪枝结构在指定 FPGA 上的综合、实现、�
 
 ## 4. 执行任务
 
-- [ ] NP6.0：冻结器件封装、时钟约束、综合/实现策略和比较矩阵。
-- [ ] NP6.1：审计现有 runner，确认所有输出目录、约束和顶层与冻结矩阵一一对应。
-- [ ] NP6.2：先运行不改 RTL 的静态结构检查和 Tcl dry-run，确认每项都使用当前 HEAD。
-- [ ] NP6.3：构建 gate、三种 wrapper、网络和系统的未剪枝/剪枝配对工程。
-- [ ] NP6.4：执行 Vivado 综合、实现、时序、DRC、资源和 vector-less 功耗报告。
-- [ ] NP6.5：从报告解析资源、WNS/WHS、TNS/THS、DRC、route error，并生成配对增量表。
-- [ ] NP6.6：对每项报告、工程输入、Tcl、约束、摘要和 verifier 建立 SHA-256 绑定。
-- [ ] NP6.7：运行独立 fail-closed verifier；任一配对缺失、器件/时钟不一致、报告陈旧或解析失败则拒绝签核。
-- [ ] NP6.8：更新阶段报告和 `WORKFLOW_STATE.md`，停在 `NP6_PHYSICAL_COST_PASS / NP7_REVIEW_REQUIRED` 或明确失败状态。
+- [x] NP6.0：九项冻结决策已获用户批准，器件为 `xc7z020clg400-1`、单时钟对象为 100 MHz、Vivado 为协作者本机 2024.2。
+- [x] NP6.1：完成 runner、顶层、报告目录和约束的静态审计。
+- [x] NP6.2：完成 7 个配置的结构预检；每次实现均绑定冻结 HEAD `7023b15`。
+- [x] NP6.3：按冻结矩阵构建 gate、ENeuron 两侧、Pulse-L 两侧和 Pulse-L2 两侧；网络与系统配对按批准决定标 `NOT_COMPARABLE`。
+- [x] NP6.4：7 个配置均完成 Vivado 2024.2 综合和实现，route error=0、DRC error=0；vector-less 功耗只作附带估算。
+- [x] NP6.5：独立解析资源、WNS/WHS、TNS/THS、失败端点、DRC 和 route status；配对 2 因微架构不同标 `NOT_COMPARABLE`。
+- [x] NP6.6：固定每配置 9 件报告并绑定 SHA-256；RTL/runner 与冻结提交字节三方一致，未绑定未提交 DCP。
+- [x] NP6.7：只读 fail-closed verifier 正向通过；12 项 mutation 均被正确接受或拒绝，验证后 manifest 与工作树不变。
+- [x] NP6.8：PR #5 已以 merge commit `241b1d0` 合并；阶段状态收口为 `NP6_PHYSICAL_COST_PARTIAL / NP7_REVIEW_REQUIRED`。
+
+## 4.1 实际阶段结论
+
+- 7 个实现均完成且没有 route/DRC error。
+- `local_prune_gate_2of4` 与 `eneuron_local_prune_wrapper` 通过 100 MHz。
+- `digital_lif_core` 以及 Pulse-Mini-L/L2 两侧未通过 100 MHz，因此不能记为 `NP6_PHYSICAL_COST_PASS`。
+- Pulse-Mini-L 可比增量为 `+297 LUT / +356 FF`；Pulse-Mini-L2 为 `+349 LUT / +360 FF`。
+- NP6 只证明指定环境下的物理成本和部分时序结果，不证明 BRAM 跳读、周期缩短、实际功耗下降或板级加速。
 
 ## 5. 验收门
 
@@ -59,10 +67,6 @@ NP6 只测量 NP4B 已签核剪枝结构在指定 FPGA 上的综合、实现、�
 - 报告无法区分未剪枝基线与剪枝版本。
 - 需要修改 NP4B 冻结协议、神经元方程或 Host Bridge 才能完成测量。
 
-## 7. 用户需审核的冻结决策
+## 7. 已批准的冻结决策
 
-1. 是否批准进入 NP6 并允许调用 Vivado 2024.1。
-2. 是否冻结器件为 `xc7z020clg400-1`，还是指定其他 XC7Z020 封装/速度级。
-3. 是否接受 100 MHz 为主时钟目标、Host/Tile 采用 50/100 MHz 双时钟约束。
-4. 是否接受上述六类配对对象和“不可比对象必须标记”的比较矩阵。
-5. 是否接受 vector-less 功耗仅作为附带估算，不作为硬门或性能收益声明。
+九项实际裁定、执行机和批准链见 `NPU_PRUNING_NP6_FREEZE_DECISIONS.md`。仓库所有者已在 PR #5 评论 `5492928792` 逐项确认，当前没有待确认的 NP6 决策。

@@ -277,6 +277,10 @@ D2 使用 `64→16→4→10` 网络，共 30 个神经元和 120 条逻辑连接
 
 ## 11. 下一阶段建议
 
+### 2026-09-01 后续状态
+
+PR #5 已合并到 `main`（merge commit `241b1d0`）。NP6 的 7 个物理评估配置均完成实现且 route/DRC error 为 0，但只有独立剪枝 gate 与 ENeuron 剪枝封装通过 100 MHz，因此当前阶段状态为 `NP6_PHYSICAL_COST_PARTIAL / NP7_REVIEW_REQUIRED`。NP6 的完整报告见 `docs/reports/LOCAL_PRUNE_NP6_PHYSICAL_COST_REPORT.md`；下一步需先审核 `docs/planning/NPU_PRUNING_NP7_TODO.md`，再实现共享 BRAM/lane 的数字功能验证。
+
 1. **NP6：Vivado 物理剪枝评估**。比较 dense/pruned 单 gate、wrapper 和 `4→8→2` 网络的 LUT、FF、BRAM、WNS、周期和功耗。
 2. **NP7：共享 BRAM 和共享 lane**。让 `issue_mask` 真正减少 BRAM 读请求，并测量每 tick 周期、持续吞吐和 FIFO 带宽。
 3. **数字识别重新分阶段**。先做 `4→4→3`，再做 `4→8→10`，分离 local teacher、feedback alignment 和 global reward。

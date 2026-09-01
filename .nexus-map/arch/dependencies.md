@@ -1,8 +1,18 @@
 # 依赖关系
 
-generated_by: nexus-mapper / manual synthesis
+generated_by: nexus-mapper v2 / manual synthesis
 verified_at: 2026-09-01
 provenance: `.nexus-map/raw/ast_nodes.json` hub analysis and static imports
+
+```mermaid
+graph TD
+  ref[Python reference models] --> cosim[RTL co-simulation]
+  rtl[SystemVerilog neuron/tile] --> wrap[pruning wrappers]
+  wrap --> net[network and host bridge]
+  cosim --> verify[signoff verifiers]
+  vivado[Vivado runners] --> reports[physical reports]
+  reports --> verify
+```
 
 ```text
 Python oracle → cosim runners → unittest/verifier

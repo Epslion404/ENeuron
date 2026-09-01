@@ -824,3 +824,12 @@
 - PR #5 HEAD `550ec26` 已要求 manifest binding、`git show 7023b15:<path>` 和当前磁盘文件三者哈希完全一致，并移除 mtime 新鲜度判定。
 - 本机复验：compileall 通过；只读 verifier 正向 PASS；manifest 不变、工作树干净；mutation suite 12/12 PASS，T8/T9 均拒绝冻结后源码/runner 与 manifest 联合篡改；测试后 HEAD 仍为 `550ec26`。
 - 阶段报告已统一为冻结 HEAD `7023b15`，批准链已引用仓库所有者评论 `5492928792` 并删除待确认状态。当前没有新的合并阻断；结论仍只允许记为 `NP6_PHYSICAL_COST_PARTIAL`。
+
+## 2026-09-01 NP6 合并后状态恢复
+
+- PR #5 已于 2026-09-01 合并，merge commit `241b1d0`；本地旧工作流仍写 NP6 未批准，属于状态漂移而非新的工程阻断。
+- NP6 实际结论是 `PARTIAL`：7 个配置均完成实现且 route/DRC error 为 0，只有 gate 和 ENeuron 剪枝封装通过 100 MHz。
+- NP7 的最小可信边界应先证明独立共享突触执行路径，再接三模型网络；否则完整网络中的学习、泄放和路由会掩盖 RAM 请求与 lane 周期的因果关系。
+- 稀疏记录采用两个权重和两个位置索引即可唯一表达合法 `2:4`，无需再保存可漂移的四位结构掩码。
+- NP7 必须在 Vivado 前先以负向实现证明计数器能拒绝“全读后门控”和“MAC 后清零”，否则读取/操作下降声明不可审计。
+- Nexus 首轮增量探测因 `--max-nodes 500` 丢弃 1182 个节点；提高到 2500 后得到 1682 节点、2310 条边，`truncated=false`、`parse_errors=0`，消除了结构覆盖降级。

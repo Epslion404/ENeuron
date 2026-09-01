@@ -4,13 +4,13 @@
 
 最后更新：2026-09-01
 
-状态：`ACTIVE / NEXT_REVIEW_REQUIRED`
+状态：`ACTIVE / NP6_PHYSICAL_COST_PARTIAL / NP7_REVIEW_REQUIRED`
 
 ## 当前活动目标
 
-NP4B 功能集成证据闭环已经完成；当前等待用户决定是否批准 NP6 Vivado 物理成本阶段。
+NP6 物理成本证据已经合并并完成阶段收口；当前进入 NP7 共享 BRAM 与共享 lane 的方案审核门。
 
-活动合同：`docs/planning/NPU_PRUNING_NP6_TODO.md`（NP6 方案审核稿）；NP4B 历史签核见 `docs/planning/NPU_PRUNING_NP4B_TODO.md`。
+活动合同：`docs/planning/NPU_PRUNING_NP7_TODO.md`（NP7 审核稿）；NP6 结果见 `docs/planning/NPU_PRUNING_NP6_TODO.md` 与 `docs/reports/LOCAL_PRUNE_NP6_PHYSICAL_COST_REPORT.md`。
 
 ## 当前事实
 
@@ -21,25 +21,27 @@ NP4B 功能集成证据闭环已经完成；当前等待用户决定是否批准
 - P1 verifier、3 项定向测试、Python 编译和绝对路径 Icarus `-Wall -tnull` 均通过；正式日志与成功 witness 已入库，cex/tmp 未纳入。
 - 三模型各 20,000 条新鲜矩阵、五套 proof/reach 与独立 verifier、8 个 RTL 编译目标和最终全仓 `359/359` 均通过。
 - P5 已提交：`e3708af test: add NP4B fail-closed signoff`；总摘要绑定 87 个文件并通过独立 verifier。
-- 当前正式状态为 `NP4B_INTEGRATION_PASS / NP6_REVIEW_REQUIRED`。
-- NP6 尚未获再次批准，禁止运行 Vivado。
+- NP6 九项冻结决策已获批准；PR #5 已合并为 `241b1d0`。
+- NP6 fail-closed verifier 正向通过，12 项 mutation 全部通过；冻结证据 HEAD 为 `7023b15`。
+- 7 个 NP6 实现均完成且 route/DRC error 为 0；只有 gate 与 ENeuron 剪枝封装通过 100 MHz，正式状态为 `NP6_PHYSICAL_COST_PARTIAL`。
 - 根目录结果归档、当前 RTL Vivado 证据重建和 Goal 审计已推送：提交 `9465142`；随后 NP6 规划提交 `cbff013`，nexus 知识库提交 `c7c5c5b`；文档入口为 `docs/README.md`，知识库入口为 `.nexus-map/INDEX.md`。
 
 ## 允许动作
 
-- 只读恢复、状态核对和工作流维护。
-- 只读审计、状态恢复和回答用户关于 NP4B 证据的问题。
-- NP6 审核稿已形成；只有用户明确批准 NP6 的器件、时钟和比较矩阵后，才运行 Vivado 物理成本评估。
+- 只读恢复、状态核对、工作流维护和 NP7 方案审核。
+- 在 NP7 决策获批后，实现 Python 周期 oracle、RTL 共享 lane、协同仿真、形式检查和软件性能计数。
+- NP7 的 Vivado 阶段必须在前述功能门全部通过后单独执行。
 
 ## 禁止动作
 
-- 运行 Vivado 或把逻辑计数解释成物理加速、BRAM 跳读或功耗收益。
+- 在 NP7 审核前修改共享 lane/BRAM RTL，或在 NP7 功能门通过前运行新的 Vivado 实现。
+- 把 NP6 的逻辑资源和 vector-less 功耗解释成真实加速、BRAM 跳读或功耗收益。
 - 将 cex、tmp 日志或来源不明的历史产物纳入正式证据。
 - 清理、覆盖或混入当前工作树中的已有改动。
 
 ## 下一动作
 
-等待用户审核并批准 `docs/planning/NPU_PRUNING_NP6_TODO.md` 第 7 节；批准前只做静态审计、nexus 更新和文档维护，不调用 Vivado。
+等待用户审核并批准 `docs/planning/NPU_PRUNING_NP7_TODO.md` 第 8 节。批准前只做静态审计、Nexus 更新和文档维护；批准后推进到 NP7 Vivado 门前停止。
 
 ## 恢复检查
 
