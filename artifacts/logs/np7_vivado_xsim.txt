@@ -1,6 +1,6 @@
 # command: python run_np7_vivado_xsim.py --vivado-root C:/Users/MGL/Documents/Codex/Vivado2024_2 --transactions 120
-# code_git_head: 519232d
-# local_time: 2026-09-02 05:01:29
+# code_git_head: bed4216
+# local_time: 2026-09-02 05:06:15
 # toolchain: iverilog 12.0 (C:\iverilog\bin), yosys 0.68 (C:\msys64\ucrt64\bin)
 golden_sparse_L1         PASS rows=412 
 golden_sparse_L2         PASS rows=377 

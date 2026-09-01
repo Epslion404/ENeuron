@@ -43,7 +43,7 @@ Built simulation snapshot np7sim
   **** SW Build 5239630 on Fri Nov 08 22:35:27 MST 2024
   **** IP Build 5239520 on Sun Nov 10 16:12:51 MST 2024
   **** SharedData Build 5239561 on Fri Nov 08 14:39:27 MST 2024
-  **** Start of session at: Wed Sep  2 05:00:19 2026
+  **** Start of session at: Wed Sep  2 05:05:05 2026
     ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
     ** Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
 
@@ -135,7 +135,7 @@ CYC 367 st=0 ce=0 ad=3 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=120
 LEDGER req=94 val=188 ops=125 zero=26 busy=188 stall=28 done=120 skip=112 inzero=6 azero=20 sat=0 total=352 proto=0 cfgerr=0 completed=120
 $finish called at time : 3675 ns : File "C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/tb_np7_exec_unit.sv" Line 171
 exit
-INFO: [Common 17-206] Exiting xsim at Wed Sep  2 05:00:21 2026...
+INFO: [Common 17-206] Exiting xsim at Wed Sep  2 05:05:07 2026...
 
 #### iverilog (exit 0) ####
 
