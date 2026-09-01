@@ -13,12 +13,7 @@ from verify_np6_physical_cost import CONFIGS, EXPECTED_FILES, EXPECTED_PART, EXP
 
 ROOT = pathlib.Path(__file__).resolve().parent
 
-def sha256_file(path):
-    h = hashlib.sha256()
-    with open(path, 'rb') as fh:
-        for chunk in iter(lambda: fh.read(1 << 20), b''):
-            h.update(chunk)
-    return h.hexdigest()
+from verify_np6_physical_cost import sha256_file  # canonical LF hashing
 
 def main():
     if len(sys.argv) != 2:

@@ -50,11 +50,16 @@ CONFIGS = {
 PAIRS_BOTH = ['3-pulse-mini-l', '4-pulse-mini-l2']
 VERIFIER_REL = 'verify_np6_physical_cost.py'
 
+def canonical_bytes(data):
+    return data.replace(b'\r\n', b'\n').replace(b'\r', b'\n')
+
 def sha256_file(path):
+    # Canonical LF hash (repo convention, matches NP4B verify_local_prune_rtl.py):
+    # identical result on CRLF working trees and LF checkouts.
     h = hashlib.sha256()
     with open(path, 'rb') as fh:
         for chunk in iter(lambda: fh.read(1 << 20), b''):
-            h.update(chunk)
+            h.update(canonical_bytes(chunk))
     return h.hexdigest()
 
 def git(*args):
@@ -113,7 +118,7 @@ def main():
         print('NP6_VERIFY_FAIL: manifest missing on disk')
         return 1
     disk_bytes = disk_path.read_bytes()
-    if disk_bytes != committed.encode('utf-8'):
+    if canonical_bytes(disk_bytes) != canonical_bytes(committed.encode('utf-8')):
         failures.append('manifest on disk differs from committed bytes at ' + verify_head)
     manifest = json.loads(disk_bytes.decode('utf-8'))
     frozen = manifest.get('frozen_git_head', '')
