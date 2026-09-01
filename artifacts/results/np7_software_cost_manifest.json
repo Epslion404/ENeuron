@@ -59,7 +59,7 @@
     },
     "tool_files": {
       "generate_np7_manifest.py": "80e249197bd29fcd565dedb4abb29d894b7b411645e03dd6baf53725a0bd2cad",
-      "test_np7_verifier_mutations.py": "06e9215a1548387dc02615856325e2434e63a05ea8e3b4bd8351d490260fe91c",
+      "test_np7_verifier_mutations.py": "d84f0c14e3c27b542a00c18329d88978e082cf239b34b06a7061c04c851c7728",
       "verify_np7_software_cost.py": "323528aefb1e0e15c6e0fd2987748760c110b22bb2e07a7df15b399cf90cf0ba"
     }
   },
@@ -70,7 +70,7 @@
     "os": "Windows-11-10.0.26200-SP0",
     "python": "3.14.7"
   },
-  "frozen_git_head": "f9b586aeb7426d15f1a2598064e58f344304cc65",
+  "frozen_git_head": "4ed72d69b9761e0574c9ba433e015cddbc7f2c40",
   "gate_thresholds": {
     "G1_reads": 0.45,
     "G2_ops": 0.45,
