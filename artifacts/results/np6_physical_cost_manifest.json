@@ -1,6 +1,6 @@
 {
-  "frozen_git_head": "8c269f0d5bfb99954708914edea8458b82d956a4",
-  "generated_at_epoch": 1788257619,
+  "frozen_git_head": "67a70f342d46e358742b98242e3b14a5238445b0",
+  "generated_at_epoch": 1788258420,
   "part": "xc7z020clg400-1",
   "clock_mhz": "100.000",
   "configs": {
@@ -15,7 +15,7 @@
         "PART": "xc7z020clg400-1",
         "TOP": "local_prune_gate_2of4",
         "CLOCK_MHZ": "100.000",
-        "GIT_HEAD": "8c269f0d5bfb99954708914edea8458b82d956a4",
+        "GIT_HEAD": "67a70f342d46e358742b98242e3b14a5238445b0",
         "RUNNER": "vivado_np6_gate_ooc_synth.tcl",
         "PAIR": "1-gate",
         "SIDE": "gate",
@@ -28,18 +28,20 @@
         "TNS_NS": "0.000",
         "WHS_NS": "0.182",
         "THS_NS": "0.000",
+        "SETUP_FAILING_ENDPOINTS": "0",
+        "HOLD_FAILING_ENDPOINTS": "0",
         "NOTES": "NP6 frozen config xc7z020clg400-1 100MHz OOC default strategies"
       },
       "files_sha256": {
-        "drc_impl.rpt": "351db1e3e963aac9d9c62b9d7e5fbab3cab02712c9f1968c454ca51cd632bd0e",
-        "drc_synth.rpt": "e6f3cb1410c4fb73e2088264c303d02ea6e99bcb2d3e1bfbb7889bdcc08ee1af",
-        "local_prune_gate_2of4_impl.dcp": "7666154f20e73075cf0eb67bd9be900000f557f7d14e378214ae626f4c42afbb",
-        "power_impl.rpt": "8da363fdac238e7cdc133e2263d5c8ce05b740304cf9cf3538a1299ffa2e3696",
-        "signoff_summary.txt": "01d70bd91728f5d73894ffe78a62ba2ed127e2926fc41a86ed98b2ac424f41b1",
-        "timing_impl.rpt": "cf692fd1846e93b7bf6e0e3c865c3943976275bfd9ad1fdb544769edad1ce3a3",
-        "timing_synth.rpt": "fcd12ba03748e68ad4b65630293eeec58e6739edcbe876f1232deef1decf7639",
-        "utilization_impl.rpt": "38864f917738a3b55c5871e84f7148076eb75a29df2ee413d5d722570bbfb4ac",
-        "utilization_synth.rpt": "b312920f3b0e317f055136aeefd26d48d69fd7e79886cc0fa94af9e9923f42b8"
+        "drc_impl.rpt": "5f394091b239b51cc0ed057fa8e6fcb9dedf5d7ff09112972d9fa69305658ff0",
+        "drc_synth.rpt": "574eccb199813ff5aaadcb5f12402ab88ce0c5b3b476963801ece2f0aad443a4",
+        "local_prune_gate_2of4_impl.dcp": "4be568afd4211f9eb43ebf3f9e7733d52851acf0f794342386caf9309bc74987",
+        "power_impl.rpt": "2814df7a6a7188aff8420d1d6abab0a208b73a2a867b6f21666bf31b34e19ca0",
+        "signoff_summary.txt": "b15a8d4a11b86be42a38c99015b5d98c70c0ccbdf21be198196081458af8b634",
+        "timing_impl.rpt": "28dc6621a304eff03701dce7958153dfa950b0e7ba3df7b284c0a927d32ac9e8",
+        "timing_synth.rpt": "9af1606656a9415640b3168401d572ca357d0746b03b7f0c816b20b794087695",
+        "utilization_impl.rpt": "4797e0d8274d816e799f164185c5eea4bde17bc798c81bcf408839d14e32322a",
+        "utilization_synth.rpt": "d8562f2f5c1537abb8db0476ea9d71ae16f29bf882c70f1f11780d5c8ab608ae"
       }
     },
     "2-eneuron/unpruned": {
@@ -53,7 +55,7 @@
         "PART": "xc7z020clg400-1",
         "TOP": "digital_lif_core",
         "CLOCK_MHZ": "100.000",
-        "GIT_HEAD": "8c269f0d5bfb99954708914edea8458b82d956a4",
+        "GIT_HEAD": "67a70f342d46e358742b98242e3b14a5238445b0",
         "RUNNER": "vivado_np6_eneuron_unpruned_synth.tcl",
         "PAIR": "2-eneuron",
         "SIDE": "unpruned",
@@ -66,18 +68,20 @@
         "TNS_NS": "-3108.765",
         "WHS_NS": "0.241",
         "THS_NS": "0.000",
+        "SETUP_FAILING_ENDPOINTS": "204",
+        "HOLD_FAILING_ENDPOINTS": "0",
         "NOTES": "NP6 frozen config xc7z020clg400-1 100MHz OOC default strategies"
       },
       "files_sha256": {
-        "digital_lif_core_impl.dcp": "8bb8cf3cb2ef4463a4cff26f87d01c81cbc4006455b12fe4feb12e6d8e40d21c",
-        "drc_impl.rpt": "709ed7cb07dc2ef5d76b9473986a86724071159fcf5358fc25e13d943d49519b",
-        "drc_synth.rpt": "5891e253435172bc00619a8797cc12bc4fc0daf3fd0b6e9056e3d0bc6f73db30",
-        "power_impl.rpt": "b744f724eb2d3504915c07110f8962bb6a70c44a67e52ced5963d16d66e5a6f5",
-        "signoff_summary.txt": "d275a6e90602e44e836ae5390933969222fa045b7a25698d98c7f067172e8fb3",
-        "timing_impl.rpt": "a1ced74b3deb88ac63400a302f96cadee4a0ed3416ff1ed5e9672a5a9e8132ef",
-        "timing_synth.rpt": "ec703af05e34fdf0a93facc27507d7213ebae9c21b7d56e941223116e59bcb9f",
-        "utilization_impl.rpt": "2a4c2c1bdcb98ea14685e6f7c31182dac04e00a0454047f580919163185d6388",
-        "utilization_synth.rpt": "e05fb2e2a29986f775b9629e59b7cf0a4c4d8b54239faa2f18e78261915f25ec"
+        "digital_lif_core_impl.dcp": "5ecabc630ccbd002a220c4ad061961227637b944f8274428a6e0901e169b72de",
+        "drc_impl.rpt": "59707372c130918155e40faf2c7b10271a355ff6f27a4a1b5dc80764b0c169e8",
+        "drc_synth.rpt": "9516d1664d8d8fe4e8d63f61893410642b6b897a8b7abd3a590850d2287e7c08",
+        "power_impl.rpt": "b5b73230a8e38e8964b4a2a082e58e7d6c101eb7504547ca7ff9fd8ed1fb543f",
+        "signoff_summary.txt": "35adec219222a9bdeacda404cabae670bad0cdc6b187000bf79fdeb705684d7a",
+        "timing_impl.rpt": "beac16b70839e1574d0f13e047e1cb712fa5a34cf0905f3d6e1d13f448b6644a",
+        "timing_synth.rpt": "f7abafbbb68effc9454e4e1ab4fa4ea63cd6164cf726f491c02a1011524d3b0a",
+        "utilization_impl.rpt": "0f92e0c41a92a40e81e400d2a47d6b9f6a1e5f73ac3e10787bf8d9201ad4e70d",
+        "utilization_synth.rpt": "781d47e0d1f114bd928cf09d95ca2f903af4fb3e44af16098d34b67213e3e315"
       }
     },
     "2-eneuron/pruned": {
@@ -91,7 +95,7 @@
         "PART": "xc7z020clg400-1",
         "TOP": "eneuron_local_prune_wrapper",
         "CLOCK_MHZ": "100.000",
-        "GIT_HEAD": "8c269f0d5bfb99954708914edea8458b82d956a4",
+        "GIT_HEAD": "67a70f342d46e358742b98242e3b14a5238445b0",
         "RUNNER": "vivado_np6_eneuron_pruned_synth.tcl",
         "PAIR": "2-eneuron",
         "SIDE": "pruned",
@@ -104,18 +108,20 @@
         "TNS_NS": "0.000",
         "WHS_NS": "0.133",
         "THS_NS": "0.000",
+        "SETUP_FAILING_ENDPOINTS": "0",
+        "HOLD_FAILING_ENDPOINTS": "0",
         "NOTES": "NP6 frozen config xc7z020clg400-1 100MHz OOC default strategies"
       },
       "files_sha256": {
-        "drc_impl.rpt": "91abb2f73834ce5e26def1d97cb4dbe9e8e5fae6f9d744c1af8917585fa0ee3a",
-        "drc_synth.rpt": "079586d409f9b4414bf679cc8df8391d1737629eaa60499c9a831a110ac39eb6",
-        "eneuron_local_prune_wrapper_impl.dcp": "45193539c2cf36e4a847e5bb1ca0a7a7f82e12f4512667738a21185fb33a49db",
-        "power_impl.rpt": "6c41c9d27e1af25d29b63c6ee93e8fe06719a8e96e284821ebf1416a86295acc",
-        "signoff_summary.txt": "28b7a97d2280f3669978512cd2fada27ba5f5b7583381513256fb39a6472fa84",
-        "timing_impl.rpt": "c9aef7404404215450cfbe2eae4c4780db8aaffe4143b5f06a2c0bca41ae1b7b",
-        "timing_synth.rpt": "23b0df9fbe395e0d71852fcd73c3190bbe63b2ffd1bd95250ce39b09dff7bf5a",
-        "utilization_impl.rpt": "13793af349f77e301c7cf878163966e4de5ea178e39471e4726e76c58060cbe4",
-        "utilization_synth.rpt": "ec4634d88837b3a1ccab4dc2376eec3654b0bd1ac4593d09f168c51da0811927"
+        "drc_impl.rpt": "9333ac907c13f1235c73f84cfeef50c32dc5d1589c02d3b13fbe440e821f76e8",
+        "drc_synth.rpt": "6c8ee64664b3fc0e29e1821c3aec5824a2aa72fb773801db7cd9b3490f769731",
+        "eneuron_local_prune_wrapper_impl.dcp": "882d39335b6c0c170c02f9e1983681beaf4155be5e80b1516860b5894036c171",
+        "power_impl.rpt": "50ab9e9f40a0a3589b5dca6a2d1b86911b43742dfdd836eaea7126a829d49f51",
+        "signoff_summary.txt": "b69790acb70d774a5606e0247cdbfa541ca0fb44ad85893cac53b29f6f955070",
+        "timing_impl.rpt": "95dd367d5c7805c5773d08176d15dc72aaf0dce04df858b87fef69628c3432de",
+        "timing_synth.rpt": "52ac0875a0b51dc0c2a40ca79befbbd5e46f23b5fbbfa74a265bf7c4418152ac",
+        "utilization_impl.rpt": "8e55effae89cf2063c937b6a68808e915f1f2536eebff91c7c218b1e9f63cd0d",
+        "utilization_synth.rpt": "d1ea97d2df1262c00af372ff0299fe0f9eecbf95c264e748bf37ac9fda18532d"
       }
     },
     "3-pulse-mini-l/unpruned": {
@@ -129,7 +135,7 @@
         "PART": "xc7z020clg400-1",
         "TOP": "pulse_mini_core",
         "CLOCK_MHZ": "100.000",
-        "GIT_HEAD": "8c269f0d5bfb99954708914edea8458b82d956a4",
+        "GIT_HEAD": "67a70f342d46e358742b98242e3b14a5238445b0",
         "RUNNER": "vivado_pulse_mini_synth.tcl",
         "PAIR": "3-pulse-mini-l",
         "SIDE": "unpruned",
@@ -142,18 +148,20 @@
         "TNS_NS": "-61.844",
         "WHS_NS": "0.212",
         "THS_NS": "0.000",
+        "SETUP_FAILING_ENDPOINTS": "27",
+        "HOLD_FAILING_ENDPOINTS": "0",
         "NOTES": "Pulse-Mini four-input fixed-width core; OOC no I/O delays"
       },
       "files_sha256": {
-        "drc_impl.rpt": "b57f76f5fa503e84ee0aa07cb236cae922203f58a04f446a54516c186e0c943b",
-        "drc_synth.rpt": "84f99482a457e893ff11af981bf9bd3cfa1523f0aae51ea11167a77e6df14a54",
-        "power_impl.rpt": "699a78eea64ac3e91b04ad94c17fadfefec10911a6ed7cadd0215e5ac97e820d",
-        "pulse_mini_core_impl.dcp": "2a0484a3f38a5cab2a5ba206ff3933aaba3bfeee8d7d08a979858463832fca2e",
-        "signoff_summary.txt": "ed86a51a287fe0e4240d35815e938cebcc95f4e4c7de8ae75ca028d8aeed6ac2",
-        "timing_impl.rpt": "fdac59498f147bd4d155d083b621edeaa0a385c5372560a8c5e5d057dfc9a8e8",
-        "timing_synth.rpt": "3b1f029130434738bb148f5b3b109607b2a71de427b4056d37138cccf57a69f5",
-        "utilization_impl.rpt": "0a60ada27726cb605ae011f82a7c8baabbd016ac50521d1c7521b7893ef87867",
-        "utilization_synth.rpt": "de5f754abd0c56bded2599df19d041e19e58338f8473a14d425c4eba5c31a42c"
+        "drc_impl.rpt": "7b40d4650a3eeeca08be4da168d380e0a94ed991e57f0ca0c804d99a7b1539d1",
+        "drc_synth.rpt": "f1657ee587e358074101b5bfefda71d407d17d9257f3bb1940af14f075b25ad0",
+        "power_impl.rpt": "2a622d678d60eb377cbc639466b20a5c4c7e389c8889c644e1844dc7f70876ce",
+        "pulse_mini_core_impl.dcp": "d9f8f5d2eab162f906aa002275086202b7c0d04a758facade118eef7f5e4b063",
+        "signoff_summary.txt": "cdbc05b3a61c6eb9794bf7119c76e9c7b8543b2efda34c221f795ebf0de8d9f9",
+        "timing_impl.rpt": "c3220986034d3fe1c5c8bfa9470834edbc8248e3644196e539c06a7cbe8431f2",
+        "timing_synth.rpt": "6b9b5e2eb9435552c47780afe0a563819d8e852663fcd47e52dfaea9d313d84d",
+        "utilization_impl.rpt": "7dcfad8b418d1f7719f1bcc52cf99cacb8841907a7ddbb564940d7e9e90ae5cd",
+        "utilization_synth.rpt": "c91511bb337a4e00036c9873023981455e98a0b05fecb1a88bb108269bf2dca8"
       }
     },
     "3-pulse-mini-l/pruned": {
@@ -167,7 +175,7 @@
         "PART": "xc7z020clg400-1",
         "TOP": "pulse_mini_l_prune_wrapper",
         "CLOCK_MHZ": "100.000",
-        "GIT_HEAD": "8c269f0d5bfb99954708914edea8458b82d956a4",
+        "GIT_HEAD": "67a70f342d46e358742b98242e3b14a5238445b0",
         "RUNNER": "vivado_np6_pulse_mini_l_pruned_synth.tcl",
         "PAIR": "3-pulse-mini-l",
         "SIDE": "pruned",
@@ -180,18 +188,20 @@
         "TNS_NS": "-119.900",
         "WHS_NS": "0.098",
         "THS_NS": "0.000",
+        "SETUP_FAILING_ENDPOINTS": "26",
+        "HOLD_FAILING_ENDPOINTS": "0",
         "NOTES": "NP6 frozen config xc7z020clg400-1 100MHz OOC default strategies"
       },
       "files_sha256": {
-        "drc_impl.rpt": "8bd10f7d4ea289dd07c3bb92e2b1910b5a1e564a9da6f6dea534cab365970963",
-        "drc_synth.rpt": "5b3403301efb7822c7cd45812ed14d952072aa4afa48c6e11e3fbfd4e97e657b",
-        "power_impl.rpt": "3083052069cec35631e6c17d55b4f8aeb9eb6205d2b17148f26debb0e7fd2428",
-        "pulse_mini_l_prune_wrapper_impl.dcp": "6c7d84fa13bc2436083ef57ba3ab4f4c4e4550f49cb66911e63aac76bab118dd",
-        "signoff_summary.txt": "9f9df5a525d1e976294426c0a36717fa4126038f9a3827a27ddc32a43df8e900",
-        "timing_impl.rpt": "edf5fcddaeb2568430cf87a424f6dfd620c41a08b0b01b3961f926372a321b39",
-        "timing_synth.rpt": "8078346958f13e64e9b09c55496128e74010635a1196374cdd034220663a10d2",
-        "utilization_impl.rpt": "2cdefc6e4de5fbe6f74d08dfa3db843fcdbc58808d16ee8590a1fb1a3b7ae7e9",
-        "utilization_synth.rpt": "067a00bcc9af7855ef8ab213d01da7a6756c7ebf2614e98f49060c8e40308c06"
+        "drc_impl.rpt": "5c3474003fa90eea28318cc6e56d4e3ed35f1fbca75636dedf55802c4f70e834",
+        "drc_synth.rpt": "a8b8c302baacc841194cbfc634e6dbbfff5efd378a6ae675c384d4216d9ecdf7",
+        "power_impl.rpt": "a9e341d6821b25786f062b134e7a8e489fb702f6ee9c1bd66e14644070fe046b",
+        "pulse_mini_l_prune_wrapper_impl.dcp": "bf744ac323d8fb30eb074c7ae773231578a547ac556e1a7f91bdec1da3589d5a",
+        "signoff_summary.txt": "295a1d5a550344b2f698ab57395b36381f2d22f8b89141804dd487116ef88591",
+        "timing_impl.rpt": "b8f46eb7eafc7b9a5692dbcc9dea96bc31c742cfad39de505ad28382b50ac030",
+        "timing_synth.rpt": "fed0fb3b4d9fc2e24d4d2ec9320c30918acc1d174c302a9bbd1fa8f34786ad38",
+        "utilization_impl.rpt": "30db2c414bcf68dcfe0d91350c4c59ed4e278b0930a24a1d00dddf72624d83ee",
+        "utilization_synth.rpt": "a127a8a2a9e59a00724398563b41af42f0adc960c98d8c2f20e4e432b02eb67a"
       }
     },
     "4-pulse-mini-l2/unpruned": {
@@ -206,7 +216,7 @@
         "TOP": "pulse_mini_l2_core",
         "MODE": "OUT_OF_CONTEXT",
         "CLOCK_MHZ": "100.000",
-        "GIT_HEAD": "8c269f0d5bfb99954708914edea8458b82d956a4",
+        "GIT_HEAD": "67a70f342d46e358742b98242e3b14a5238445b0",
         "RUNNER": "vivado_pulse_mini_l2_synth.tcl",
         "PAIR": "4-pulse-mini-l2",
         "SIDE": "unpruned",
@@ -216,22 +226,24 @@
         "BRAM18": "0",
         "DSP": "0",
         "WNS_NS": "-2.866",
-        "TNS_NS": "-28660.00000000765",
+        "TNS_NS": "-75.777",
         "WHS_NS": "0.191",
-        "THS_NS": "0.0",
+        "THS_NS": "0.000",
+        "SETUP_FAILING_ENDPOINTS": "33",
+        "HOLD_FAILING_ENDPOINTS": "0",
         "TIMING_SCOPE": "REGISTER_TO_REGISTER_ONLY",
         "NOTES": "Pulse-Mini-L2 PN2 magnitude evidence; four-input fixed-width core; OOC with clock source and I/O false paths"
       },
       "files_sha256": {
-        "drc_impl.rpt": "cd52b9b5a8a5b4ca46e67243fa859ec174c8882bc803b429f31952167db07b18",
-        "drc_synth.rpt": "03cbeebea3c2c3cd911ba127c943f2963ebebf5c423cefc893d42882a3007ebe",
-        "power_impl.rpt": "911e801a67e6d41ada4847bed84409c22b17987d0ef73a339f85b567381455a3",
-        "pulse_mini_l2_core_impl.dcp": "edac5993c7adfb6c5f67380daf59145c514ff6adf46657520afd7babf7ac4dd9",
-        "signoff_summary.txt": "baf79107ac0693f75697d892743cc7e2e9de749a282b012a6523d5b49247b243",
-        "timing_impl.rpt": "476185d2b27783b49f354489253290b2e17f86352b4e77e394eb96da664ce4da",
-        "timing_synth.rpt": "418c234af470d5408b38061e4bbe491055061e2c33aaec14342e2ff6a4849f58",
-        "utilization_impl.rpt": "d6e2083a5c6605cbe2225539c83fb6e96d7654c3e317d96e4e3fa85200e60cbd",
-        "utilization_synth.rpt": "dd0687418b22ddfdee4c9f1263a4bc9a36f04625fe7a92bd7438132cb25462b6"
+        "drc_impl.rpt": "768da07d953f52b4508e430820dc8942c7b2e2a54579945539550671bf404829",
+        "drc_synth.rpt": "9ecb98f3dcdd993f27c5ede07162b0ee63e3d501a967fd6497b994e2ab5ebe4d",
+        "power_impl.rpt": "99e68f79bc93fafec7d8fc13defcc3b6636a5ad4588ec7df42d1a1f2bfb66d8a",
+        "pulse_mini_l2_core_impl.dcp": "4e9de677b9350225dd03440281c183fa603df63598c950a081158bb6cfa00f4c",
+        "signoff_summary.txt": "2b1ee48a543163519453cd581b43fa1608e2bf58011b403f11bf9ca1321cbca6",
+        "timing_impl.rpt": "f703e36b0ce665dcbbc9e3611ac9dd61ad67f8e170325e61cbe389f3f7125f8e",
+        "timing_synth.rpt": "83e971a9f09207d7fdae4cc782da9f3dda12a46cc246b543bfbcb157ca0d8c4b",
+        "utilization_impl.rpt": "e756e4aaa92d22c8bc208bca7a7dd417f47e1f9a4e6254fa8133d148191d892b",
+        "utilization_synth.rpt": "5e23128414045fa5d47cc33b8d689d48cfbf41ba584a748339199e03b53cc928"
       }
     },
     "4-pulse-mini-l2/pruned": {
@@ -245,7 +257,7 @@
         "PART": "xc7z020clg400-1",
         "TOP": "pulse_mini_l2_prune_wrapper",
         "CLOCK_MHZ": "100.000",
-        "GIT_HEAD": "8c269f0d5bfb99954708914edea8458b82d956a4",
+        "GIT_HEAD": "67a70f342d46e358742b98242e3b14a5238445b0",
         "RUNNER": "vivado_np6_pulse_mini_l2_pruned_synth.tcl",
         "PAIR": "4-pulse-mini-l2",
         "SIDE": "pruned",
@@ -255,22 +267,24 @@
         "BRAM18": "0",
         "DSP": "0",
         "WNS_NS": "-5.160",
-        "TNS_NS": "-51600.000000011896",
+        "TNS_NS": "-155.235",
         "WHS_NS": "0.165",
-        "THS_NS": "0.0",
+        "THS_NS": "0.000",
+        "SETUP_FAILING_ENDPOINTS": "33",
+        "HOLD_FAILING_ENDPOINTS": "0",
         "TIMING_SCOPE": "REGISTER_TO_REGISTER_ONLY",
         "NOTES": "NP6 frozen config xc7z020clg400-1 100MHz OOC; constraint style aligned with unpruned l2 runner"
       },
       "files_sha256": {
-        "drc_impl.rpt": "ca789e6a3ea0db1a5ca4dbb0f97f4afb975a40b5562c92b3b79d9f27c9df905e",
-        "drc_synth.rpt": "f9b876b4164f03f56d917b967ddfd42f63037d1469b1a4e1862ecb68720da303",
-        "power_impl.rpt": "11124dff40d7d0024dffa378c59dd73a7478cdba56e8652658fbd12ac635d431",
-        "pulse_mini_l2_prune_wrapper_impl.dcp": "d8e202d4f1af305db7f4d0847072d13952dc75f79a22616da12c786ece296642",
-        "signoff_summary.txt": "61d2e1d1d2557d338f10fd505464e8952ae9ed89a4c6e1c51c8426c00795cc3a",
-        "timing_impl.rpt": "c410857415230eb710b3f75c70d498657987ec5fa69bcbb5faa6a066df80831d",
-        "timing_synth.rpt": "c149a4b09eecdad20cfe6438170cc8a4f27e195490b1db344b368ac8efed7d14",
-        "utilization_impl.rpt": "468d7bc52e5476c2ed9a992fc94553d785f338110d859990404fb6803c56e303",
-        "utilization_synth.rpt": "994295055f6cf24a34d047e56f20de4fbff1b209b8bf214bac781c0ff30cbb96"
+        "drc_impl.rpt": "055f21192e476e1d716749fb645d9c1e3f90c66312dce0c9c6a3ad4163f4bee8",
+        "drc_synth.rpt": "2c038155959fec081f53ba1b898327f110262e2010a88eced7a2aaedbb503f11",
+        "power_impl.rpt": "110b56a7681f50909ba01beaf4fb51bac5b58906a04058f0f41131d0cf914a30",
+        "pulse_mini_l2_prune_wrapper_impl.dcp": "0dde073b2fc3bd4d95fcdf9e7437e99f4144c2b782f2cef827f3f55629f9fca9",
+        "signoff_summary.txt": "10fc78e8f4dcc64def61a1122e0176d14240eb7e86d31c37e4710d7b4daee51e",
+        "timing_impl.rpt": "cfb405a8bccd685e453b782b163a11505ec470dbd75dadcb5c63c91a2b888e8c",
+        "timing_synth.rpt": "171e7db9e08839d18ccc79402860b4f12f007b2c7bfa4ea13a559fc651cf45b0",
+        "utilization_impl.rpt": "dc114a65eab8bb24d93e8238134f9b70b2b5938689b38844444042562a43a6d1",
+        "utilization_synth.rpt": "627558b708d6721e24918ec56b077b6fe56a98ab712a6b66d6e17045f604d303"
       }
     }
   }
