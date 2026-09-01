@@ -65,8 +65,9 @@ def write_json(root, rel, data):
         encoding="utf-8")
 
 
-def commit_all(root):
-    git_at(root, "add", "-A")
+def commit_all(root, stage_all=True):
+    if stage_all:
+        git_at(root, "add", "-A")
     rc, out = git_at(root, "-c", "user.email=mutation@example.invalid",
                      "-c", "user.name=mutation", "commit", "-q", "-m", "mutation")
     if rc != 0:
@@ -128,11 +129,13 @@ def m_drop_report(root, head):
 
 
 def m_uncommitted_report(root, head):
+    # 只从索引里移除、不把删除加回去：模拟"报告还在工作树但没进提交"。
     rc, out = git_at(root, "rm", "--cached", "-q",
                      "vivado_np7_ooc_dense_L1_reports/drc_impl.rpt")
     if rc != 0:
         raise AssertionError(out)
-    return commit_all(root), "不在 HEAD 提交树里"
+    git_at(root, "add", "-A", "--", SUMMARY)
+    return commit_all(root, stage_all=False), "不在 HEAD 提交树里"
 
 
 def m_drop_config(root, head):
@@ -204,7 +207,9 @@ def m_no_converged_dense(root, head):
     for lanes in (1, 2, 4, 8):
         data["configs"]["dense/L%d" % lanes]["status"] = "FAIL"
     write_json(root, SUMMARY, data)
-    return commit_all(root), "收敛"
+    # 汇总自报 FAIL 而原始报告仍是收敛的：必须由"运行未通过"这条判据挡下，
+    # 不允许用自报字段把已收敛配置伪装成失败来绕开 excluded 口径。
+    return commit_all(root), "运行未通过"
 
 
 MUTATIONS = [

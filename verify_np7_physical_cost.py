@@ -149,11 +149,15 @@ def check_config(rejects, summary, name, frozen_head, wrapper_expect):
         rejects.append("%s 报告目录不存在 %s" % (name, entry.get("report_dir")))
         return None
     recorded = entry.get("reports_sha256") or {}
+    missing = [report for report in REPORTS if not (out_dir / report).exists()]
+    for report in missing:
+        rejects.append("%s 缺少报告 %s" % (name, report))
+    if missing:
+        # 原始报告不齐全时立刻停止：绝不用自报数字代替重算，也不让异常冒出来
+        # （异常冒出来只是退出码非零，不算"给出对应拒绝理由"）。
+        return None
     for report in REPORTS:
         path = out_dir / report
-        if not path.exists():
-            rejects.append("%s 缺少报告 %s" % (name, report))
-            continue
         if recorded.get(report) != sha256_file(path):
             rejects.append("%s 报告字节偏离汇总 %s" % (name, report))
         rel = "%s/%s" % (entry["report_dir"], report)
