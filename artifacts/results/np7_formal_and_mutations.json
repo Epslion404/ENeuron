@@ -11,6 +11,11 @@
       "ok": true
     },
     {
+      "detail": "verdict=proof rc=0",
+      "name": "formal_config_reject(proof)",
+      "ok": true
+    },
+    {
       "detail": "verdict=model rc=0",
       "name": "formal_zero_path_reach(model)",
       "ok": true
@@ -43,6 +48,11 @@
     {
       "detail": "verdict=counterexample rc=1 note=稠密自报权重槽与读请求脱钩",
       "name": "mutation_dense_fake_val_caught",
+      "ok": true
+    },
+    {
+      "detail": "verdict=counterexample rc=1 note=写使能不受 cfg_wr_ok 门控：非法字可进 RAM",
+      "name": "mutation_config_rejection_bypass_caught",
       "ok": true
     },
     {
@@ -346,6 +356,36 @@
       "ok": true
     },
     {
+      "detail": "CFGNEG SUMMARY FORMAT=sparse LANES=1 CHECKS=8 FAILED=0 RESULT=PASS fails=[]",
+      "name": "config_rejection_tb_sparse_L1",
+      "ok": true
+    },
+    {
+      "detail": "CFGNEG SUMMARY FORMAT=sparse LANES=4 CHECKS=8 FAILED=0 RESULT=PASS fails=[]",
+      "name": "config_rejection_tb_sparse_L4",
+      "ok": true
+    },
+    {
+      "detail": "CFGNEG SUMMARY FORMAT=dense LANES=1 CHECKS=8 FAILED=0 RESULT=PASS fails=[]",
+      "name": "config_rejection_tb_dense_L1",
+      "ok": true
+    },
+    {
+      "detail": "CFGNEG SUMMARY FORMAT=dense LANES=4 CHECKS=8 FAILED=0 RESULT=PASS fails=[]",
+      "name": "config_rejection_tb_dense_L4",
+      "ok": true
+    },
+    {
+      "detail": "CFGNEG SUMMARY FORMAT=sparse LANES=4 CHECKS=8 FAILED=3 RESULT=FAIL fails=['poison_after_legal_ram_unchanged', 'error_latched_sticky', 'no_protocol_error_any_phase']",
+      "name": "config_rejection_bypass_caught_sparse",
+      "ok": true
+    },
+    {
+      "detail": "CFGNEG SUMMARY FORMAT=dense LANES=4 CHECKS=8 FAILED=3 RESULT=FAIL fails=['poison_after_legal_ram_unchanged', 'error_latched_sticky', 'no_protocol_error_any_phase']",
+      "name": "config_rejection_bypass_caught_dense",
+      "ok": true
+    },
+    {
       "detail": "",
       "name": "leak_control_model_clean_eneuron",
       "ok": true
@@ -376,7 +416,84 @@
       "ok": true
     }
   ],
+  "config_rejection": {
+    "bypass_mutation": {
+      "dense": {
+        "fail_checks": [
+          "poison_after_legal_ram_unchanged",
+          "error_latched_sticky",
+          "no_protocol_error_any_phase"
+        ],
+        "file": "np7_exec_unit_dense.sv",
+        "note": "wire cfg_wr_ok = 1'b1; // MUTATION bypass",
+        "summary": "CFGNEG SUMMARY FORMAT=dense LANES=4 CHECKS=8 FAILED=3 RESULT=FAIL"
+      },
+      "sparse": {
+        "fail_checks": [
+          "poison_after_legal_ram_unchanged",
+          "error_latched_sticky",
+          "no_protocol_error_any_phase"
+        ],
+        "file": "np7_exec_unit_sparse.sv",
+        "note": "wire cfg_wr_ok = 1'b1; // MUTATION bypass",
+        "summary": "CFGNEG SUMMARY FORMAT=sparse LANES=4 CHECKS=8 FAILED=3 RESULT=FAIL"
+      }
+    },
+    "runs": {
+      "dense_L1": {
+        "fail_checks": [],
+        "phases": [
+          "CFGNEG PHASE 0 err_after_cfg=0 err_final=0 proto=0 strobes=0 sums=18 done=18 total=120",
+          "CFGNEG PHASE 1 err_after_cfg=1 err_final=1 proto=0 strobes=1 sums=18 done=18 total=120",
+          "CFGNEG PHASE 2 err_after_cfg=1 err_final=1 proto=0 strobes=1 sums=18 done=18 total=120",
+          "CFGNEG PHASE 3 err_after_cfg=0 err_final=1 proto=0 strobes=0 sums=36 done=36 total=240"
+        ],
+        "rc": 0,
+        "summary": "CFGNEG SUMMARY FORMAT=dense LANES=1 CHECKS=8 FAILED=0 RESULT=PASS"
+      },
+      "dense_L4": {
+        "fail_checks": [],
+        "phases": [
+          "CFGNEG PHASE 0 err_after_cfg=0 err_final=0 proto=0 strobes=0 sums=18 done=18 total=84",
+          "CFGNEG PHASE 1 err_after_cfg=1 err_final=1 proto=0 strobes=1 sums=18 done=18 total=84",
+          "CFGNEG PHASE 2 err_after_cfg=1 err_final=1 proto=0 strobes=1 sums=18 done=18 total=84",
+          "CFGNEG PHASE 3 err_after_cfg=0 err_final=1 proto=0 strobes=0 sums=36 done=36 total=168"
+        ],
+        "rc": 0,
+        "summary": "CFGNEG SUMMARY FORMAT=dense LANES=4 CHECKS=8 FAILED=0 RESULT=PASS"
+      },
+      "sparse_L1": {
+        "fail_checks": [],
+        "phases": [
+          "CFGNEG PHASE 0 err_after_cfg=0 err_final=0 proto=0 strobes=0 sums=18 done=18 total=85",
+          "CFGNEG PHASE 1 err_after_cfg=1 err_final=1 proto=0 strobes=1 sums=18 done=18 total=85",
+          "CFGNEG PHASE 2 err_after_cfg=1 err_final=1 proto=0 strobes=1 sums=18 done=18 total=85",
+          "CFGNEG PHASE 3 err_after_cfg=0 err_final=1 proto=0 strobes=0 sums=36 done=36 total=170"
+        ],
+        "rc": 0,
+        "summary": "CFGNEG SUMMARY FORMAT=sparse LANES=1 CHECKS=8 FAILED=0 RESULT=PASS"
+      },
+      "sparse_L4": {
+        "fail_checks": [],
+        "phases": [
+          "CFGNEG PHASE 0 err_after_cfg=0 err_final=0 proto=0 strobes=0 sums=18 done=18 total=73",
+          "CFGNEG PHASE 1 err_after_cfg=1 err_final=1 proto=0 strobes=1 sums=18 done=18 total=73",
+          "CFGNEG PHASE 2 err_after_cfg=1 err_final=1 proto=0 strobes=1 sums=18 done=18 total=73",
+          "CFGNEG PHASE 3 err_after_cfg=0 err_final=1 proto=0 strobes=0 sums=36 done=36 total=146"
+        ],
+        "rc": 0,
+        "summary": "CFGNEG SUMMARY FORMAT=sparse LANES=4 CHECKS=8 FAILED=0 RESULT=PASS"
+      }
+    }
+  },
   "formal": {
+    "config_reject": {
+      "expected": "proof",
+      "returncode": 0,
+      "script": "formal_np7_config_reject.ys",
+      "sha256": "4e4bf75eb56ecd5e0b9ca29370c94c6a8f9bb644efebdbf618ab053f8143333e",
+      "verdict": "proof"
+    },
     "dense_protocol": {
       "expected": "proof",
       "returncode": 0,
@@ -413,7 +530,7 @@
       "verdict": "model"
     }
   },
-  "git_head": "7ba4852d33947e441adf172b9e15fd53567237e3",
+  "git_head": "17bc8165f472c308eafa20eafbcf8ef1f2b88cea",
   "leak_mutation": {
     "eneuron": {
       "clean_problems": [],
@@ -1665,6 +1782,12 @@
   },
   "problems": [],
   "rtl_mutations": {
+    "config_rejection_bypass": {
+      "file": "np7_weight_ram.sv",
+      "note": "写使能不受 cfg_wr_ok 门控：非法字可进 RAM",
+      "script": "formal_np7_config_reject.ys",
+      "verdict": "counterexample"
+    },
     "dense_fake_val": {
       "file": "np7_exec_unit_dense.sv",
       "note": "稠密自报权重槽与读请求脱钩",

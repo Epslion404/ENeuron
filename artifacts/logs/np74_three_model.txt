@@ -1,6 +1,6 @@
 # command: python np7_three_model_integration_cosim.py
-# code_git_head: cea356c
-# local_time: 2026-09-02 00:53:55
+# code_git_head: 17bc816
+# local_time: 2026-09-02 02:33:53
 # toolchain: iverilog 12.0 (C:\iverilog\bin), yosys 0.68 (C:\msys64\ucrt64\bin)
 
 [NP7.4] eneuron lanes=1 每 tick 周期 dense基线=34.333 dense格式=28.333 sparse=26.667 降幅=22.3% (仅格式 17.5%)

@@ -1,0 +1,716 @@
+{
+  "cases": {
+    "cfgneg_dense_L1": {
+      "compiled_sources": [
+        "np7_weight_ram.sv",
+        "np7_shared_synapse_lane.sv",
+        "np7_exec_unit_dense.sv",
+        "np7_exec_unit_sparse.sv",
+        "tb_np7_config_negative.sv",
+        "work/cfgneg_dense_L1/xsim_top.sv"
+      ],
+      "fmt": "dense",
+      "kind": "cfgneg",
+      "lanes": 1,
+      "logs": {
+        "cfgneg_dense_L1.log": "bd24a9ac7d1bdf8348735115a79096b42316aa0945de5777e59fe3e03280c544"
+      },
+      "metrics": {
+        "cyc_rows": 0,
+        "icarus_observed_sha256": "64edb9ecf583e67091c415f1b0f9a2ac2dcb713db52834885a0637cd538fac60",
+        "ledger": "",
+        "log_file": "logs/cfgneg_dense_L1.log",
+        "observed_rows": 13,
+        "observed_sha256": "64edb9ecf583e67091c415f1b0f9a2ac2dcb713db52834885a0637cd538fac60",
+        "summary": "CFGNEG SUMMARY FORMAT=dense LANES=1 CHECKS=8 FAILED=0 RESULT=PASS"
+      },
+      "neg": -1,
+      "ntxn": 0,
+      "problems": [],
+      "seed": 0,
+      "status": "PASS",
+      "stimulus": {},
+      "tb_params": [
+        ".LANES(1)",
+        ".SPARSE(1'b0)"
+      ],
+      "work_dir": "work/cfgneg_dense_L1"
+    },
+    "cfgneg_dense_L4": {
+      "compiled_sources": [
+        "np7_weight_ram.sv",
+        "np7_shared_synapse_lane.sv",
+        "np7_exec_unit_dense.sv",
+        "np7_exec_unit_sparse.sv",
+        "tb_np7_config_negative.sv",
+        "work/cfgneg_dense_L4/xsim_top.sv"
+      ],
+      "fmt": "dense",
+      "kind": "cfgneg",
+      "lanes": 4,
+      "logs": {
+        "cfgneg_dense_L4.log": "7657411c26ce0388b2813c3643496944eb831441fa184958475f2fd26249d9b2"
+      },
+      "metrics": {
+        "cyc_rows": 0,
+        "icarus_observed_sha256": "678d702f48182ca388e9d33b7d492c1f52ce26f6ab5ae3b0b87e84327aaebeb3",
+        "ledger": "",
+        "log_file": "logs/cfgneg_dense_L4.log",
+        "observed_rows": 13,
+        "observed_sha256": "678d702f48182ca388e9d33b7d492c1f52ce26f6ab5ae3b0b87e84327aaebeb3",
+        "summary": "CFGNEG SUMMARY FORMAT=dense LANES=4 CHECKS=8 FAILED=0 RESULT=PASS"
+      },
+      "neg": -1,
+      "ntxn": 0,
+      "problems": [],
+      "seed": 0,
+      "status": "PASS",
+      "stimulus": {},
+      "tb_params": [
+        ".LANES(4)",
+        ".SPARSE(1'b0)"
+      ],
+      "work_dir": "work/cfgneg_dense_L4"
+    },
+    "cfgneg_sparse_L1": {
+      "compiled_sources": [
+        "np7_weight_ram.sv",
+        "np7_shared_synapse_lane.sv",
+        "np7_exec_unit_dense.sv",
+        "np7_exec_unit_sparse.sv",
+        "tb_np7_config_negative.sv",
+        "work/cfgneg_sparse_L1/xsim_top.sv"
+      ],
+      "fmt": "sparse",
+      "kind": "cfgneg",
+      "lanes": 1,
+      "logs": {
+        "cfgneg_sparse_L1.log": "d89ff972549be7dc4f474cceffe54e2a8e543022afbcc95da964d2a33286003a"
+      },
+      "metrics": {
+        "cyc_rows": 0,
+        "icarus_observed_sha256": "c9ea5ca62b4238006eb01310d96b93275188a898660600c39cbcad1053901d10",
+        "ledger": "",
+        "log_file": "logs/cfgneg_sparse_L1.log",
+        "observed_rows": 13,
+        "observed_sha256": "c9ea5ca62b4238006eb01310d96b93275188a898660600c39cbcad1053901d10",
+        "summary": "CFGNEG SUMMARY FORMAT=sparse LANES=1 CHECKS=8 FAILED=0 RESULT=PASS"
+      },
+      "neg": -1,
+      "ntxn": 0,
+      "problems": [],
+      "seed": 0,
+      "status": "PASS",
+      "stimulus": {},
+      "tb_params": [
+        ".LANES(1)",
+        ".SPARSE(1'b1)"
+      ],
+      "work_dir": "work/cfgneg_sparse_L1"
+    },
+    "cfgneg_sparse_L4": {
+      "compiled_sources": [
+        "np7_weight_ram.sv",
+        "np7_shared_synapse_lane.sv",
+        "np7_exec_unit_dense.sv",
+        "np7_exec_unit_sparse.sv",
+        "tb_np7_config_negative.sv",
+        "work/cfgneg_sparse_L4/xsim_top.sv"
+      ],
+      "fmt": "sparse",
+      "kind": "cfgneg",
+      "lanes": 4,
+      "logs": {
+        "cfgneg_sparse_L4.log": "14c45b072f2b8663cc116186cd1f91679ffe95d4a495e96934256f47ff50d6eb"
+      },
+      "metrics": {
+        "cyc_rows": 0,
+        "icarus_observed_sha256": "730307520536e65ab6ef70f4d9df00f17b4b3d36cab104d21ad96455294cccc5",
+        "ledger": "",
+        "log_file": "logs/cfgneg_sparse_L4.log",
+        "observed_rows": 13,
+        "observed_sha256": "730307520536e65ab6ef70f4d9df00f17b4b3d36cab104d21ad96455294cccc5",
+        "summary": "CFGNEG SUMMARY FORMAT=sparse LANES=4 CHECKS=8 FAILED=0 RESULT=PASS"
+      },
+      "neg": -1,
+      "ntxn": 0,
+      "problems": [],
+      "seed": 0,
+      "status": "PASS",
+      "stimulus": {},
+      "tb_params": [
+        ".LANES(4)",
+        ".SPARSE(1'b1)"
+      ],
+      "work_dir": "work/cfgneg_sparse_L4"
+    },
+    "golden_dense_L1": {
+      "compiled_sources": [
+        "np7_weight_ram.sv",
+        "np7_shared_synapse_lane.sv",
+        "np7_exec_unit_dense.sv",
+        "np7_exec_unit_sparse.sv",
+        "tb_np7_exec_unit.sv",
+        "work/golden_dense_L1/xsim_top.sv"
+      ],
+      "fmt": "dense",
+      "kind": "golden",
+      "lanes": 1,
+      "logs": {
+        "golden_dense_L1.log": "7d77da2137a308e624f13d3892c4c09818de29b4be5a5dcf4920c3e61da4bd38"
+      },
+      "metrics": {
+        "cyc_rows": 913,
+        "icarus_observed_sha256": "921a97196f9adbf17fc34b0860b74c4670db8ab77e3dfce541af6c841d8b1dd1",
+        "ledger": "LEDGER req=224 val=448 ops=242 zero=8 busy=466 stall=72 done=120 skip=0 inzero=8 azero=0 sat=0 total=890 proto=0 cfgerr=0 completed=120",
+        "log_file": "logs/golden_dense_L1.log",
+        "observed_rows": 914,
+        "observed_sha256": "921a97196f9adbf17fc34b0860b74c4670db8ab77e3dfce541af6c841d8b1dd1",
+        "summary": ""
+      },
+      "neg": -1,
+      "ntxn": 120,
+      "problems": [],
+      "seed": 1,
+      "status": "PASS",
+      "stimulus": {
+        "cfg_words": 20,
+        "np7_bp.hex": "2ef951431fdab7a7124b1072d90863b7306b65a6a1c64727c75fe6e5e7bdc957",
+        "np7_cfg.hex": "244c0688905ff8caa4c95debae14eeab5bc1ec95a42dd10f1b5c4aff9b1ba7c1",
+        "np7_txn.hex": "f5fd546d17697aa50ac264d61f067ee28d3ffbfa2e48aae5128659fb7851bed4",
+        "txns": 120
+      },
+      "tb_params": [
+        ".LANES(1)",
+        ".SPARSE(1'b0)",
+        ".NTXN(120)",
+        ".NWORD(20)"
+      ],
+      "work_dir": "work/golden_dense_L1"
+    },
+    "golden_dense_L2": {
+      "compiled_sources": [
+        "np7_weight_ram.sv",
+        "np7_shared_synapse_lane.sv",
+        "np7_exec_unit_dense.sv",
+        "np7_exec_unit_sparse.sv",
+        "tb_np7_exec_unit.sv",
+        "work/golden_dense_L2/xsim_top.sv"
+      ],
+      "fmt": "dense",
+      "kind": "golden",
+      "lanes": 2,
+      "logs": {
+        "golden_dense_L2.log": "367bbf1f223d7c545201bd60e4de71586ad53e01d76b7a6475feb291b3efbd5e"
+      },
+      "metrics": {
+        "cyc_rows": 808,
+        "icarus_observed_sha256": "5566a4586a02f5f0375689761621cd3e622a1b6dfb5073b86052ee0c3eb2224a",
+        "ledger": "LEDGER req=224 val=448 ops=238 zero=8 busy=372 stall=61 done=120 skip=0 inzero=8 azero=0 sat=0 total=785 proto=0 cfgerr=0 completed=120",
+        "log_file": "logs/golden_dense_L2.log",
+        "observed_rows": 809,
+        "observed_sha256": "5566a4586a02f5f0375689761621cd3e622a1b6dfb5073b86052ee0c3eb2224a",
+        "summary": ""
+      },
+      "neg": -1,
+      "ntxn": 120,
+      "problems": [],
+      "seed": 1,
+      "status": "PASS",
+      "stimulus": {
+        "cfg_words": 20,
+        "np7_bp.hex": "de4f240560c14de49496791e80b89824f46815cad458bbc70a8a443f989dc819",
+        "np7_cfg.hex": "ec985a2167400308a8f10e5f9ccaf87e8604c2a12875b4411551d91868ca13e7",
+        "np7_txn.hex": "717fef6b1bcdab22b0faf2c19d423b58afe816eb5d500861b3846df0d05b91c6",
+        "txns": 120
+      },
+      "tb_params": [
+        ".LANES(2)",
+        ".SPARSE(1'b0)",
+        ".NTXN(120)",
+        ".NWORD(20)"
+      ],
+      "work_dir": "work/golden_dense_L2"
+    },
+    "golden_dense_L4": {
+      "compiled_sources": [
+        "np7_weight_ram.sv",
+        "np7_shared_synapse_lane.sv",
+        "np7_exec_unit_dense.sv",
+        "np7_exec_unit_sparse.sv",
+        "tb_np7_exec_unit.sv",
+        "work/golden_dense_L4/xsim_top.sv"
+      ],
+      "fmt": "dense",
+      "kind": "golden",
+      "lanes": 4,
+      "logs": {
+        "golden_dense_L4.log": "1ca61787dfcac2c2efe06ca8ed4c4fe5e2296dea6f380954283c4d1088fcd5a4"
+      },
+      "metrics": {
+        "cyc_rows": 759,
+        "icarus_observed_sha256": "b6dd25c5686eee82130623860b97e399a94abebf5493c2ddebf40b64205b84a4",
+        "ledger": "LEDGER req=226 val=452 ops=221 zero=7 busy=339 stall=44 done=120 skip=0 inzero=7 azero=0 sat=0 total=736 proto=0 cfgerr=0 completed=120",
+        "log_file": "logs/golden_dense_L4.log",
+        "observed_rows": 760,
+        "observed_sha256": "b6dd25c5686eee82130623860b97e399a94abebf5493c2ddebf40b64205b84a4",
+        "summary": ""
+      },
+      "neg": -1,
+      "ntxn": 120,
+      "problems": [],
+      "seed": 1,
+      "status": "PASS",
+      "stimulus": {
+        "cfg_words": 20,
+        "np7_bp.hex": "4f6bbdca97b942978cb40f5453519a701f166643ebab57e05c7abb824afaf918",
+        "np7_cfg.hex": "f69ffd271c96a49bf33011c34da136f3d17948e2bee7bd99c261a8164aa4b5f9",
+        "np7_txn.hex": "613714b162364dd46da729570397acd56d5dd2df8f2791884f167fa31f3559a7",
+        "txns": 120
+      },
+      "tb_params": [
+        ".LANES(4)",
+        ".SPARSE(1'b0)",
+        ".NTXN(120)",
+        ".NWORD(20)"
+      ],
+      "work_dir": "work/golden_dense_L4"
+    },
+    "golden_dense_L8": {
+      "compiled_sources": [
+        "np7_weight_ram.sv",
+        "np7_shared_synapse_lane.sv",
+        "np7_exec_unit_dense.sv",
+        "np7_exec_unit_sparse.sv",
+        "tb_np7_exec_unit.sv",
+        "work/golden_dense_L8/xsim_top.sv"
+      ],
+      "fmt": "dense",
+      "kind": "golden",
+      "lanes": 8,
+      "logs": {
+        "golden_dense_L8.log": "d0a9ed1e020bd6a5c896ad3ae0f98300fe599fe05112d2554925bc45c7043977"
+      },
+      "metrics": {
+        "cyc_rows": 776,
+        "icarus_observed_sha256": "97273d920c90c68539eedaaf7a26c8c2b352eee106997264c4584e83d8267fe6",
+        "ledger": "LEDGER req=228 val=456 ops=237 zero=6 busy=342 stall=57 done=120 skip=0 inzero=6 azero=0 sat=0 total=753 proto=0 cfgerr=0 completed=120",
+        "log_file": "logs/golden_dense_L8.log",
+        "observed_rows": 777,
+        "observed_sha256": "97273d920c90c68539eedaaf7a26c8c2b352eee106997264c4584e83d8267fe6",
+        "summary": ""
+      },
+      "neg": -1,
+      "ntxn": 120,
+      "problems": [],
+      "seed": 1,
+      "status": "PASS",
+      "stimulus": {
+        "cfg_words": 20,
+        "np7_bp.hex": "814cdc16b613ac37d1354b720c5fec7303aaaa559b0ca5b261c0d4812a35f91c",
+        "np7_cfg.hex": "da181840ec8e49a58805fd2d16a1222feea913e7242cdff218ce3c5883b5f5c6",
+        "np7_txn.hex": "d8974206eb1d74631cdf3437893ef23685aaf91f73bffc209573c8a15cd7085b",
+        "txns": 120
+      },
+      "tb_params": [
+        ".LANES(8)",
+        ".SPARSE(1'b0)",
+        ".NTXN(120)",
+        ".NWORD(20)"
+      ],
+      "work_dir": "work/golden_dense_L8"
+    },
+    "golden_sparse_L1": {
+      "compiled_sources": [
+        "np7_weight_ram.sv",
+        "np7_shared_synapse_lane.sv",
+        "np7_exec_unit_dense.sv",
+        "np7_exec_unit_sparse.sv",
+        "tb_np7_exec_unit.sv",
+        "work/golden_sparse_L1/xsim_top.sv"
+      ],
+      "fmt": "sparse",
+      "kind": "golden",
+      "lanes": 1,
+      "logs": {
+        "golden_sparse_L1.log": "34b10364784370d62157e6b4a85e1b5a7abb5a9032094c0250f542da8b7dc765"
+      },
+      "metrics": {
+        "cyc_rows": 623,
+        "icarus_observed_sha256": "e6a6786333a03930384e6c53d3bb985bf3f236c2543738125001f2ab536bcd02",
+        "ledger": "LEDGER req=93 val=186 ops=124 zero=27 busy=217 stall=60 done=120 skip=118 inzero=8 azero=19 sat=0 total=610 proto=0 cfgerr=0 completed=120",
+        "log_file": "logs/golden_sparse_L1.log",
+        "observed_rows": 624,
+        "observed_sha256": "e6a6786333a03930384e6c53d3bb985bf3f236c2543738125001f2ab536bcd02",
+        "summary": ""
+      },
+      "neg": -1,
+      "ntxn": 120,
+      "problems": [],
+      "seed": 1,
+      "status": "PASS",
+      "stimulus": {
+        "cfg_words": 10,
+        "np7_bp.hex": "2ef951431fdab7a7124b1072d90863b7306b65a6a1c64727c75fe6e5e7bdc957",
+        "np7_cfg.hex": "1017275d3969b11dfd4d7ce2a3071160060db168b6a0ddf771761d4e89da8223",
+        "np7_txn.hex": "869d78ec63d5d489400ed0cb0630e9ef87b544256a377e23e93cc4491da90941",
+        "txns": 120
+      },
+      "tb_params": [
+        ".LANES(1)",
+        ".SPARSE(1'b1)",
+        ".NTXN(120)",
+        ".NWORD(10)"
+      ],
+      "work_dir": "work/golden_sparse_L1"
+    },
+    "golden_sparse_L2": {
+      "compiled_sources": [
+        "np7_weight_ram.sv",
+        "np7_shared_synapse_lane.sv",
+        "np7_exec_unit_dense.sv",
+        "np7_exec_unit_sparse.sv",
+        "tb_np7_exec_unit.sv",
+        "work/golden_sparse_L2/xsim_top.sv"
+      ],
+      "fmt": "sparse",
+      "kind": "golden",
+      "lanes": 2,
+      "logs": {
+        "golden_sparse_L2.log": "11b4b2ff1f4b3102ec03658dfeb9ce5e0aaeffe17249bdf61690b78a81cf9b1b"
+      },
+      "metrics": {
+        "cyc_rows": 594,
+        "icarus_observed_sha256": "43d36d86b9c26eb561ab4011fd8d51d21eedcee84ab09231f65c7f40e798f51b",
+        "ledger": "LEDGER req=95 val=190 ops=126 zero=25 busy=190 stall=56 done=120 skip=112 inzero=8 azero=17 sat=0 total=581 proto=0 cfgerr=0 completed=120",
+        "log_file": "logs/golden_sparse_L2.log",
+        "observed_rows": 595,
+        "observed_sha256": "43d36d86b9c26eb561ab4011fd8d51d21eedcee84ab09231f65c7f40e798f51b",
+        "summary": ""
+      },
+      "neg": -1,
+      "ntxn": 120,
+      "problems": [],
+      "seed": 1,
+      "status": "PASS",
+      "stimulus": {
+        "cfg_words": 10,
+        "np7_bp.hex": "de4f240560c14de49496791e80b89824f46815cad458bbc70a8a443f989dc819",
+        "np7_cfg.hex": "c32b7f3f98b05933162c6c8284f1035dd9205490c84852571068ff943594a7a8",
+        "np7_txn.hex": "46128e01a32957f8c99f26f98b747dba5d67b84d9616965fb0f47e70d98ed590",
+        "txns": 120
+      },
+      "tb_params": [
+        ".LANES(2)",
+        ".SPARSE(1'b1)",
+        ".NTXN(120)",
+        ".NWORD(10)"
+      ],
+      "work_dir": "work/golden_sparse_L2"
+    },
+    "golden_sparse_L4": {
+      "compiled_sources": [
+        "np7_weight_ram.sv",
+        "np7_shared_synapse_lane.sv",
+        "np7_exec_unit_dense.sv",
+        "np7_exec_unit_sparse.sv",
+        "tb_np7_exec_unit.sv",
+        "work/golden_sparse_L4/xsim_top.sv"
+      ],
+      "fmt": "sparse",
+      "kind": "golden",
+      "lanes": 4,
+      "logs": {
+        "golden_sparse_L4.log": "12472f6883ecab354d128d54cd4727627434314f6176f908b80fb2a0f615fd8a"
+      },
+      "metrics": {
+        "cyc_rows": 545,
+        "icarus_observed_sha256": "09431ea2755307f6933a254294c922c4c6724efcc56ba8958c1ac39f6d54cef9",
+        "ledger": "LEDGER req=84 val=168 ops=112 zero=36 busy=168 stall=40 done=120 skip=109 inzero=7 azero=29 sat=0 total=532 proto=0 cfgerr=0 completed=120",
+        "log_file": "logs/golden_sparse_L4.log",
+        "observed_rows": 546,
+        "observed_sha256": "09431ea2755307f6933a254294c922c4c6724efcc56ba8958c1ac39f6d54cef9",
+        "summary": ""
+      },
+      "neg": -1,
+      "ntxn": 120,
+      "problems": [],
+      "seed": 1,
+      "status": "PASS",
+      "stimulus": {
+        "cfg_words": 10,
+        "np7_bp.hex": "4f6bbdca97b942978cb40f5453519a701f166643ebab57e05c7abb824afaf918",
+        "np7_cfg.hex": "88df03dd50645b3daae6874c0a327a45af842b8cfb484538504f076805215730",
+        "np7_txn.hex": "dc02edf7e2be9c41d1e9985f4d6ac6ad5a77407f9413f1d05455d4156945aa94",
+        "txns": 120
+      },
+      "tb_params": [
+        ".LANES(4)",
+        ".SPARSE(1'b1)",
+        ".NTXN(120)",
+        ".NWORD(10)"
+      ],
+      "work_dir": "work/golden_sparse_L4"
+    },
+    "golden_sparse_L8": {
+      "compiled_sources": [
+        "np7_weight_ram.sv",
+        "np7_shared_synapse_lane.sv",
+        "np7_exec_unit_dense.sv",
+        "np7_exec_unit_sparse.sv",
+        "tb_np7_exec_unit.sv",
+        "work/golden_sparse_L8/xsim_top.sv"
+      ],
+      "fmt": "sparse",
+      "kind": "golden",
+      "lanes": 8,
+      "logs": {
+        "golden_sparse_L8.log": "63adade3e8cd73287d499e0b13b02b3fc20130122a89c66b6c7eb1c12dc8c13a"
+      },
+      "metrics": {
+        "cyc_rows": 584,
+        "icarus_observed_sha256": "bf481fbca028e32f5df5467c2fc7c491ed17867e79e1605218570af288d1d705",
+        "ledger": "LEDGER req=94 val=188 ops=125 zero=26 busy=188 stall=49 done=120 skip=112 inzero=6 azero=20 sat=0 total=571 proto=0 cfgerr=0 completed=120",
+        "log_file": "logs/golden_sparse_L8.log",
+        "observed_rows": 585,
+        "observed_sha256": "bf481fbca028e32f5df5467c2fc7c491ed17867e79e1605218570af288d1d705",
+        "summary": ""
+      },
+      "neg": -1,
+      "ntxn": 120,
+      "problems": [],
+      "seed": 1,
+      "status": "PASS",
+      "stimulus": {
+        "cfg_words": 10,
+        "np7_bp.hex": "814cdc16b613ac37d1354b720c5fec7303aaaa559b0ca5b261c0d4812a35f91c",
+        "np7_cfg.hex": "db0d736b2bc3ca5486cef9af551675a4db71a72b2a4634d3bba84eeae9499421",
+        "np7_txn.hex": "fea0a6a72ddbd6141a91d315f3243e2139c848f4547b7f54651a01941912c5a3",
+        "txns": 120
+      },
+      "tb_params": [
+        ".LANES(8)",
+        ".SPARSE(1'b1)",
+        ".NTXN(120)",
+        ".NWORD(10)"
+      ],
+      "work_dir": "work/golden_sparse_L8"
+    },
+    "neg0_L1": {
+      "compiled_sources": [
+        "np7_weight_ram.sv",
+        "np7_shared_synapse_lane.sv",
+        "np7_exec_unit_dense.sv",
+        "np7_exec_unit_sparse.sv",
+        "np7_negative_controls.sv",
+        "tb_np7_negative.sv",
+        "work/neg0_L1/xsim_top.sv"
+      ],
+      "fmt": "sparse",
+      "kind": "negative",
+      "lanes": 1,
+      "logs": {
+        "neg0_L1.log": "04a406bad74313689e8b84fb68573e006195fd76ca0900e10e242e00573c9b0e"
+      },
+      "metrics": {
+        "cyc_rows": 800,
+        "icarus_observed_sha256": "fad66c77448845c5d1d1a1581af1b054e37fd9d472c08193a005507e1a3ea03a",
+        "ledger": "LEDGER req=93 val=186 ops=124 zero=27 busy=217 stall=53 done=120 skip=118 inzero=8 azero=19 sat=0 total=510 proto=0 cfgerr=0 completed=120",
+        "log_file": "logs/neg0_L1.log",
+        "observed_rows": 801,
+        "observed_sha256": "fad66c77448845c5d1d1a1581af1b054e37fd9d472c08193a005507e1a3ea03a",
+        "summary": ""
+      },
+      "neg": 0,
+      "ntxn": 120,
+      "problems": [],
+      "seed": 1,
+      "status": "PASS",
+      "stimulus": {
+        "cfg_words": 20,
+        "np7_bp.hex": "2ef951431fdab7a7124b1072d90863b7306b65a6a1c64727c75fe6e5e7bdc957",
+        "np7_cfg.hex": "244c0688905ff8caa4c95debae14eeab5bc1ec95a42dd10f1b5c4aff9b1ba7c1",
+        "np7_txn.hex": "869d78ec63d5d489400ed0cb0630e9ef87b544256a377e23e93cc4491da90941",
+        "txns": 120
+      },
+      "tb_params": [
+        ".LANES(1)",
+        ".NEG(0)",
+        ".NTXN(120)",
+        ".NWORD(20)"
+      ],
+      "work_dir": "work/neg0_L1"
+    },
+    "neg0_L4": {
+      "compiled_sources": [
+        "np7_weight_ram.sv",
+        "np7_shared_synapse_lane.sv",
+        "np7_exec_unit_dense.sv",
+        "np7_exec_unit_sparse.sv",
+        "np7_negative_controls.sv",
+        "tb_np7_negative.sv",
+        "work/neg0_L4/xsim_top.sv"
+      ],
+      "fmt": "sparse",
+      "kind": "negative",
+      "lanes": 4,
+      "logs": {
+        "neg0_L4.log": "d43a07c197b3475f12b514204cfd28e50c729f799447ed627cd54aadff69d175"
+      },
+      "metrics": {
+        "cyc_rows": 753,
+        "icarus_observed_sha256": "3c97fd8d127e62d78e9ed073886d77bbb1d1c99dac53a88372cda9d679f39eb8",
+        "ledger": "LEDGER req=84 val=168 ops=112 zero=36 busy=168 stall=46 done=120 skip=109 inzero=7 azero=29 sat=0 total=454 proto=0 cfgerr=0 completed=120",
+        "log_file": "logs/neg0_L4.log",
+        "observed_rows": 754,
+        "observed_sha256": "3c97fd8d127e62d78e9ed073886d77bbb1d1c99dac53a88372cda9d679f39eb8",
+        "summary": ""
+      },
+      "neg": 0,
+      "ntxn": 120,
+      "problems": [],
+      "seed": 1,
+      "status": "PASS",
+      "stimulus": {
+        "cfg_words": 20,
+        "np7_bp.hex": "4f6bbdca97b942978cb40f5453519a701f166643ebab57e05c7abb824afaf918",
+        "np7_cfg.hex": "f69ffd271c96a49bf33011c34da136f3d17948e2bee7bd99c261a8164aa4b5f9",
+        "np7_txn.hex": "dc02edf7e2be9c41d1e9985f4d6ac6ad5a77407f9413f1d05455d4156945aa94",
+        "txns": 120
+      },
+      "tb_params": [
+        ".LANES(4)",
+        ".NEG(0)",
+        ".NTXN(120)",
+        ".NWORD(20)"
+      ],
+      "work_dir": "work/neg0_L4"
+    },
+    "neg1_L1": {
+      "compiled_sources": [
+        "np7_weight_ram.sv",
+        "np7_shared_synapse_lane.sv",
+        "np7_exec_unit_dense.sv",
+        "np7_exec_unit_sparse.sv",
+        "np7_negative_controls.sv",
+        "tb_np7_negative.sv",
+        "work/neg1_L1/xsim_top.sv"
+      ],
+      "fmt": "sparse",
+      "kind": "negative",
+      "lanes": 1,
+      "logs": {
+        "neg1_L1.log": "e767b7066c598153a2ff481ce0549789b2681ab5295ba166a2f1e002be743678"
+      },
+      "metrics": {
+        "cyc_rows": 925,
+        "icarus_observed_sha256": "eb828e0c8b33e60621ecca3f4694d358f1d75a39568b1b93516e1bd3505f3438",
+        "ledger": "LEDGER req=93 val=186 ops=124 zero=27 busy=465 stall=114 done=120 skip=118 inzero=8 azero=19 sat=0 total=912 proto=0 cfgerr=0 completed=120",
+        "log_file": "logs/neg1_L1.log",
+        "observed_rows": 926,
+        "observed_sha256": "eb828e0c8b33e60621ecca3f4694d358f1d75a39568b1b93516e1bd3505f3438",
+        "summary": ""
+      },
+      "neg": 1,
+      "ntxn": 120,
+      "problems": [],
+      "seed": 1,
+      "status": "PASS",
+      "stimulus": {
+        "cfg_words": 10,
+        "np7_bp.hex": "2ef951431fdab7a7124b1072d90863b7306b65a6a1c64727c75fe6e5e7bdc957",
+        "np7_cfg.hex": "1017275d3969b11dfd4d7ce2a3071160060db168b6a0ddf771761d4e89da8223",
+        "np7_txn.hex": "869d78ec63d5d489400ed0cb0630e9ef87b544256a377e23e93cc4491da90941",
+        "txns": 120
+      },
+      "tb_params": [
+        ".LANES(1)",
+        ".NEG(1)",
+        ".NTXN(120)",
+        ".NWORD(10)"
+      ],
+      "work_dir": "work/neg1_L1"
+    },
+    "neg1_L4": {
+      "compiled_sources": [
+        "np7_weight_ram.sv",
+        "np7_shared_synapse_lane.sv",
+        "np7_exec_unit_dense.sv",
+        "np7_exec_unit_sparse.sv",
+        "np7_negative_controls.sv",
+        "tb_np7_negative.sv",
+        "work/neg1_L4/xsim_top.sv"
+      ],
+      "fmt": "sparse",
+      "kind": "negative",
+      "lanes": 4,
+      "logs": {
+        "neg1_L4.log": "55e7be15ab0c8a3a2f2cb32f030f2c7db58c788ea4e089b96b5c795ab0beba26"
+      },
+      "metrics": {
+        "cyc_rows": 545,
+        "icarus_observed_sha256": "56678fd621adbaa3edac6d947532ac0b532a28f19f7cd7854dda26b1ca624cc0",
+        "ledger": "LEDGER req=84 val=168 ops=112 zero=36 busy=168 stall=40 done=120 skip=109 inzero=7 azero=29 sat=0 total=532 proto=0 cfgerr=0 completed=120",
+        "log_file": "logs/neg1_L4.log",
+        "observed_rows": 546,
+        "observed_sha256": "56678fd621adbaa3edac6d947532ac0b532a28f19f7cd7854dda26b1ca624cc0",
+        "summary": ""
+      },
+      "neg": 1,
+      "ntxn": 120,
+      "problems": [],
+      "seed": 1,
+      "status": "PASS",
+      "stimulus": {
+        "cfg_words": 10,
+        "np7_bp.hex": "4f6bbdca97b942978cb40f5453519a701f166643ebab57e05c7abb824afaf918",
+        "np7_cfg.hex": "88df03dd50645b3daae6874c0a327a45af842b8cfb484538504f076805215730",
+        "np7_txn.hex": "dc02edf7e2be9c41d1e9985f4d6ac6ad5a77407f9413f1d05455d4156945aa94",
+        "txns": 120
+      },
+      "tb_params": [
+        ".LANES(4)",
+        ".NEG(1)",
+        ".NTXN(120)",
+        ".NWORD(10)"
+      ],
+      "work_dir": "work/neg1_L4"
+    }
+  },
+  "code_git_head": "17bc8165f472c308eafa20eafbcf8ef1f2b88cea",
+  "commands_log_sha256": "c025ca0639b15d3d1e1eabd1d1a8f76a97745b8c1ad52bcbebe50313d4b4f5df",
+  "groups": [
+    "golden",
+    "negative",
+    "config"
+  ],
+  "overall_status": "PASS",
+  "problems": [],
+  "runner": "run_np7_vivado_xsim.py",
+  "schema": "np7-vivado-xsim-v1",
+  "seed": 1,
+  "source_sha256": {
+    "np7_exec_unit_dense.sv": "d947de9ab740e3619159ce6c053b2a2628d1d6f89fcc4bcb95b80a06aaa24c60",
+    "np7_exec_unit_sparse.sv": "a0a3eb3eceff8b0e9053ae3bc53efd8b28b650862a78b12693252906821e4ede",
+    "np7_negative_controls.sv": "9d8bc97b37522743dfa99c48a3a7fba469745e3326bb5c1b1060a68de0093ee0",
+    "np7_shared_synapse_lane.sv": "b509d0e99758cfea97e046c2752c1e54b977023930752801a512ebce49791f75",
+    "np7_weight_ram.sv": "e979e4a07dc069e077f5c14e6f6001a73b6f4cfd6518493fe81323850cbb9b60",
+    "run_np7_vivado_xsim.py": "b4cae2e3cd0ba16978fb2592ceeaa951fa7d3ac1b7c8457685463d942a348ec7",
+    "tb_np7_config_negative.sv": "14c715680dbc3b283e45e5a0e10884cafcb1126ae6002533f661528eddc3e82c",
+    "tb_np7_exec_unit.sv": "dadc92a8e00937fbdcd703f348a0e925a58b24ec63ef33a42a9d4b258dcb77b9",
+    "tb_np7_negative.sv": "fa509904597304c36ebe1b1e4eef63e4df074f2577db63846fbf8a1e77bb6552"
+  },
+  "tools": {
+    "iverilog_line": "Icarus Verilog version 12.0 (devel) (s20150603-1539-g2693dd32b)",
+    "vvp_line": "Icarus Verilog runtime version 12.0 (devel) (s20150603-1539-g2693dd32b)"
+  },
+  "transactions_per_case": 120,
+  "vivado": {
+    "root": "C:/Users/MGL/Documents/Codex/Vivado2024_2",
+    "version": "Vivado Simulator v2024.2.0",
+    "version_note": "证据只绑定本机 Vivado 版本，不外推到评审者使用的 2024.1（NP6 决策 9 同口径）"
+  },
+  "worktree_dirty": [
+    "?? run_evidence.py"
+  ]
+}

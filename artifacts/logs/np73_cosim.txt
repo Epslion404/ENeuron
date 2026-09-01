@@ -1,6 +1,6 @@
 # command: python np7_shared_lane_cosim.py
-# code_git_head: cea356c
-# local_time: 2026-09-02 00:53:55
+# code_git_head: 17bc816
+# local_time: 2026-09-02 02:33:26
 # toolchain: iverilog 12.0 (C:\iverilog\bin), yosys 0.68 (C:\msys64\ucrt64\bin)
 
 [NP7.3] lanes=1 完成 20 seeds x 1000 txns 逐拍比对

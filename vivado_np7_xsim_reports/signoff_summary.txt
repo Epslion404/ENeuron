@@ -1,0 +1,38 @@
+NP7_VIVADO_XSIM_SIGNOFF schema=np7-vivado-xsim-v1
+RESULT=PASS
+VIVADO_VERSION=Vivado Simulator v2024.2.0
+VIVADO_ROOT=C:/Users/MGL/Documents/Codex/Vivado2024_2
+VERSION_NOTE=证据只绑定本机 Vivado 版本，不外推到评审者使用的 2024.1（NP6 决策 9 同口径）
+CODE_GIT_HEAD=17bc8165f472c308eafa20eafbcf8ef1f2b88cea
+RUNNER=run_np7_vivado_xsim.py
+ICARUS=Icarus Verilog version 12.0 (devel) (s20150603-1539-g2693dd32b)
+VVP=Icarus Verilog runtime version 12.0 (devel) (s20150603-1539-g2693dd32b)
+CASES=16 PASS=16 FAIL=0
+XSIM_VS_ICARUS_EQUAL=16/16
+SOURCE_BYTES
+  d947de9ab740e3619159ce6c053b2a2628d1d6f89fcc4bcb95b80a06aaa24c60 np7_exec_unit_dense.sv
+  a0a3eb3eceff8b0e9053ae3bc53efd8b28b650862a78b12693252906821e4ede np7_exec_unit_sparse.sv
+  9d8bc97b37522743dfa99c48a3a7fba469745e3326bb5c1b1060a68de0093ee0 np7_negative_controls.sv
+  b509d0e99758cfea97e046c2752c1e54b977023930752801a512ebce49791f75 np7_shared_synapse_lane.sv
+  e979e4a07dc069e077f5c14e6f6001a73b6f4cfd6518493fe81323850cbb9b60 np7_weight_ram.sv
+  b4cae2e3cd0ba16978fb2592ceeaa951fa7d3ac1b7c8457685463d942a348ec7 run_np7_vivado_xsim.py
+  14c715680dbc3b283e45e5a0e10884cafcb1126ae6002533f661528eddc3e82c tb_np7_config_negative.sv
+  dadc92a8e00937fbdcd703f348a0e925a58b24ec63ef33a42a9d4b258dcb77b9 tb_np7_exec_unit.sv
+  fa509904597304c36ebe1b1e4eef63e4df074f2577db63846fbf8a1e77bb6552 tb_np7_negative.sv
+CASE cfgneg_dense_L1 PASS kind=cfgneg fmt=dense lanes=1 ntxn=0 rows=13 observed_sha256=64edb9ecf583e670 icarus_sha256=64edb9ecf583e670 logs=cfgneg_dense_L1.log:bd24a9ac
+CASE cfgneg_dense_L4 PASS kind=cfgneg fmt=dense lanes=4 ntxn=0 rows=13 observed_sha256=678d702f48182ca3 icarus_sha256=678d702f48182ca3 logs=cfgneg_dense_L4.log:7657411c
+CASE cfgneg_sparse_L1 PASS kind=cfgneg fmt=sparse lanes=1 ntxn=0 rows=13 observed_sha256=c9ea5ca62b423800 icarus_sha256=c9ea5ca62b423800 logs=cfgneg_sparse_L1.log:d89ff972
+CASE cfgneg_sparse_L4 PASS kind=cfgneg fmt=sparse lanes=4 ntxn=0 rows=13 observed_sha256=730307520536e65a icarus_sha256=730307520536e65a logs=cfgneg_sparse_L4.log:14c45b07
+CASE golden_dense_L1 PASS kind=golden fmt=dense lanes=1 ntxn=120 rows=914 observed_sha256=921a97196f9adbf1 icarus_sha256=921a97196f9adbf1 logs=golden_dense_L1.log:7d77da21
+CASE golden_dense_L2 PASS kind=golden fmt=dense lanes=2 ntxn=120 rows=809 observed_sha256=5566a4586a02f5f0 icarus_sha256=5566a4586a02f5f0 logs=golden_dense_L2.log:367bbf1f
+CASE golden_dense_L4 PASS kind=golden fmt=dense lanes=4 ntxn=120 rows=760 observed_sha256=b6dd25c5686eee82 icarus_sha256=b6dd25c5686eee82 logs=golden_dense_L4.log:1ca61787
+CASE golden_dense_L8 PASS kind=golden fmt=dense lanes=8 ntxn=120 rows=777 observed_sha256=97273d920c90c685 icarus_sha256=97273d920c90c685 logs=golden_dense_L8.log:d0a9ed1e
+CASE golden_sparse_L1 PASS kind=golden fmt=sparse lanes=1 ntxn=120 rows=624 observed_sha256=e6a6786333a03930 icarus_sha256=e6a6786333a03930 logs=golden_sparse_L1.log:34b10364
+CASE golden_sparse_L2 PASS kind=golden fmt=sparse lanes=2 ntxn=120 rows=595 observed_sha256=43d36d86b9c26eb5 icarus_sha256=43d36d86b9c26eb5 logs=golden_sparse_L2.log:11b4b2ff
+CASE golden_sparse_L4 PASS kind=golden fmt=sparse lanes=4 ntxn=120 rows=546 observed_sha256=09431ea2755307f6 icarus_sha256=09431ea2755307f6 logs=golden_sparse_L4.log:12472f68
+CASE golden_sparse_L8 PASS kind=golden fmt=sparse lanes=8 ntxn=120 rows=585 observed_sha256=bf481fbca028e32f icarus_sha256=bf481fbca028e32f logs=golden_sparse_L8.log:63adade3
+CASE neg0_L1 PASS kind=negative fmt=sparse lanes=1 ntxn=120 rows=801 observed_sha256=fad66c77448845c5 icarus_sha256=fad66c77448845c5 logs=neg0_L1.log:04a406ba
+CASE neg0_L4 PASS kind=negative fmt=sparse lanes=4 ntxn=120 rows=754 observed_sha256=3c97fd8d127e62d7 icarus_sha256=3c97fd8d127e62d7 logs=neg0_L4.log:d43a07c1
+CASE neg1_L1 PASS kind=negative fmt=sparse lanes=1 ntxn=120 rows=926 observed_sha256=eb828e0c8b33e606 icarus_sha256=eb828e0c8b33e606 logs=neg1_L1.log:e767b706
+CASE neg1_L4 PASS kind=negative fmt=sparse lanes=4 ntxn=120 rows=546 observed_sha256=56678fd621adbaa3 icarus_sha256=56678fd621adbaa3 logs=neg1_L4.log:55e7be15
+DURATION_S=92.5
