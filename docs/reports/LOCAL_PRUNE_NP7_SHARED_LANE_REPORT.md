@@ -34,10 +34,11 @@ L4：**15.250 → 11.000**。三模型（ENeuron / Pulse-Mini-L / Pulse-Mini-L2�
 | NP7.3 逐拍协同仿真 | `python -X utf8 np7_shared_lane_cosim.py` | 0 | `artifacts/results/np7_cosim_ledgers.json`（schema `np7-cosim-ledgers-v2`）+ `artifacts/logs/np73_cosim.txt`：**160 配置**（dense+sparse × L=1/2/4/8 × 20 seed）、**160,000 事务**、逐拍 oracle 失败 **0**、自报账本不可重建配置 **0** |
 | NP7.4 三模型接入 | `python -X utf8 np7_three_model_integration_cosim.py` | 0 | `np7_three_model_integration.json`（schema `np7-three-model-integration-v2`）+ `np74_three_model.txt`：模型数=3 **问题数=0**；每模型 `v2_evidence`：`overlap_cycles=270`、`folded_cycles_saved=700`、`solo_segment_cycles=1600 > stream_cycles=900`、`zero_single_cycles=330` |
 | NP7.5 形式与负向 | `python -X utf8 np7_formal_and_mutations.py` | 0 | `np7_formal_and_mutations.json` + `np75_formal_mutations.txt`：**形式检查 87/87 PASS、问题数 0**；3 个 proof（sparse/dense 协议、CONFIG 拒绝，均 `sat -seq 14 -verify`）+ 3 个 witness（`zero_path_reach` seq 10、`sparse_reach`/`dense_reach` seq 16）；**9 个 RTL mutation 全部 counterexample**；8 个负向实现运行全部被拒；3 个泄漏 mutation 全部被状态等价抓到 |
-| NP7.6 软件签核 | `python -X utf8 generate_np7_manifest.py` → `python -X utf8 verify_np7_software_cost.py 3c0f06f0bc8fde8cc917f55bd7e6c0fdb1382d04` | 0 / 0 | 清单 `np7_software_cost_manifest.json`：`frozen_git_head=4ed72d6`、绑定 **27 输入 + 3 工具 + 26 证据**、`overall=PASS`、`integrity=[]`；验证器日志 `np76_verify.txt`：**rejects=0 / blocking=- / overall=PASS** |
+| NP7.6 软件签核 | `python -X utf8 generate_np7_manifest.py` → `python -X utf8 verify_np7_software_cost.py <HEAD>` | 0 / 0 | 清单 `np7_software_cost_manifest.json`：`frozen_git_head=4ed72d6`、绑定 **27 输入 + 3 工具 + 26 证据**、`overall=PASS`、`integrity=[]`；验证器日志 `np76_verify.txt`：**rejects=0 / blocking=- / overall=PASS** |
 | NP7.6 变异 | `python -X utf8 test_np7_verifier_mutations.py`；同命令在 `chcp 936` 默认代码页下再跑一遍 | 0 / 0 | `np76_mutations.txt`、`np76_mutations_defaultcp.txt`：**MUTATION_SUITE PASS checks=19**（两轮一致） |
 | Vivado 行为仿真 | `python -X utf8 run_np7_vivado_xsim.py --vivado-root C:/Users/MGL/Documents/Codex/Vivado2024_2 --transactions 120` | 0 | `np7_vivado_xsim_summary.json`（schema `np7-vivado-xsim-v2`）+ `vivado_np7_xsim_reports/`：**16 用例 PASS、problems=0**、xsim 与 Icarus 观测流逐字节相同 **16/16**（见 §5） |
-| NP7.7 物理门（本轮已跑） | `python -X utf8 run_np7_vivado_ooc.py --vivado-root C:/Users/MGL/Documents/Codex/Vivado2024_2 --jobs 4` → `python -X utf8 verify_np7_physical_cost.py 116d79c...` | 0 / 见 §9 | `np7_vivado_ooc_summary.json`（schema `np7-vivado-ooc-v1`）+ 8 个 `vivado_np7_ooc_<fmt>_L<n>_reports/`（各 9 份报告 + OOC 封装）+ `np77_ooc.txt`：**8/8 RESULT=ROUTED、DRC=0、route errors=0、hold 全收敛**；100 MHz **4/8 收敛**（L1/L2），L4/L8 未收敛并列为 excluded（见 §9） |
+| NP7.7 变异 | `python -X utf8 test_np7_physical_mutations.py`；同命令在默认代码页(936)下再跑一遍 | 0 / 0 | `np77_mutations.txt`、`np77_mutations_defaultcp.txt`：**NP77_MUTATION_SUITE PASS checks=12**（基线干净克隆 rejects=0；12 个变异全部被对应判据拦下，见 §6） |
+| NP7.7 物理门（本轮已跑） | `python -X utf8 run_np7_vivado_ooc.py --vivado-root C:/Users/MGL/Documents/Codex/Vivado2024_2 --jobs 4` → `python -X utf8 verify_np7_physical_cost.py <HEAD>` | 0 / 见 §9 | `np7_vivado_ooc_summary.json`（schema `np7-vivado-ooc-v1`）+ 8 个 `vivado_np7_ooc_<fmt>_L<n>_reports/`（各 9 份报告 + OOC 封装）+ `np77_ooc.txt`：**8/8 RESULT=ROUTED、DRC=0、route errors=0、hold 全收敛**；100 MHz **4/8 收敛**（L1/L2），L4/L8 未收敛并列为 excluded（见 §9） |
 
 随机流量（NP7.3，非冻结任务）下同一份 RTL 的逐拍观测下降（20 seed 合计）：
 读取 60.01 / 59.99 / 60.25 / 60.13%，操作 49.93 / 49.95 / 50.50 / 50.18%，
@@ -135,6 +136,7 @@ NP7.6 不再信任这些自报字符串：`check_xsim_evidence()` 要求每条 g
   **只在旧恒等式下闭合的账本**、**篡改逐拍覆盖统计**、**删掉裁定强制的 RTL mutation**。
 - 干净克隆基线：`git clone` 后 `python -X utf8 verify_np7_software_cost.py <clone-head>` 输出
   `rejects=0 overall=PASS`（变异套件的第 0 步就是在验证这一点）。
+- 本报告里六份日志（`np76_verify.txt`、`np77_verify.txt`、两个变异套件各含默认代码页复跑）绑定同一个提交号（见每份日志头部的 `git_head:` 行），即它们所验证的那个提交；日志文件自身随下一个提交入库（日志无法记录自己所在的提交号，这里如实说明，不伪造"自包含"链接）。
 - NP7.7 的物理侧独立绑定链（与软件链互不复用）：`artifacts/results/np7_vivado_ooc_summary.json`
   由 `run_np7_vivado_ooc.py` 在综合时点一次写入，8 个 `vivado_np7_ooc_<fmt>_L<n>_reports/` 里
   的 Vivado 原始报告全部提交；`verify_np7_physical_cost.py` **只读**，逐配置把
