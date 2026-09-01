@@ -19,6 +19,7 @@ report_drc -file [file join $out_dir drc_synth.rpt]
 opt_design
 place_design
 route_design
+report_route_status -file [file join $out_dir route_status_impl.rpt]
 report_utilization -file [file join $out_dir utilization_impl.rpt]
 report_timing_summary -delay_type min_max -max_paths 20 -file [file join $out_dir timing_impl.rpt]
 report_drc -file [file join $out_dir drc_impl.rpt]
