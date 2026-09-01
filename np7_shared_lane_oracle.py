@@ -262,7 +262,28 @@ class SharedLaneUnit:
         self.configured_groups: set[int] = set()
         self.ledger = Ledger()
         self.skip_count = 0
+        self.gate_mask = [0b1111] * group_count
         self.txn_log: list[dict[str, object]] = []
+
+    def set_gate_mask(self, group_id: int, mask: int) -> None:
+        """上层 gate 提交的结构掩码。
+
+        dense 顶层存储四个槽位但仍在发射前门控，因此 gate 掩码可以窄于全 1；
+        sparse 顶层的 gate 掩码必须与记录索引重建出的掩码完全相同，否则报
+        CONFIG 不一致（防止出现第二份可漂移的掩码真值）。
+        """
+        if not 0 <= group_id < self.group_count:
+            raise ConfigError("group_id out of range")
+        if not isinstance(mask, int) or isinstance(mask, bool):
+            raise ConfigError("gate mask must be an integer")
+        if not 0 <= mask <= 0b1111:
+            raise ConfigError("gate mask must be a four-bit value")
+        if self.fmt == FORMAT_SPARSE:
+            rebuilt = self.structural_mask[group_id]
+            if rebuilt and rebuilt != mask:
+                raise ConfigError("gate mask disagrees with record indices")
+            self.structural_mask[group_id] = mask
+        self.gate_mask[group_id] = mask
 
     def config_write(self, group_id: int, weights: Sequence[int],
                      indices: Sequence[int] | None = None) -> None:
@@ -275,6 +296,7 @@ class SharedLaneUnit:
                 raise ConfigError("dense format has no position indices")
             words = encode_dense_group(weights)
             self.structural_mask[group_id] = 0b1111
+            self.gate_mask[group_id] = 0b1111
         else:
             if indices is None:
                 raise ConfigError("sparse format requires two position indices")
@@ -337,7 +359,9 @@ class SharedLaneUnit:
             raise ValueError("group_id out of range")
         stall_fn = lane_stall if lane_stall is not None else (lambda cycle: 0)
         ready_fn = result_ready if result_ready is not None else (lambda cycle: 1)
-        slots, structural = self._decode_group(group_id)
+        slots, decoded = self._decode_group(group_id)
+        structural = (decoded if self.fmt == FORMAT_SPARSE
+                    else self.gate_mask[group_id])
         expected_issue = structural & activity_mask
         if issue_mask is None:
             issue_mask = expected_issue

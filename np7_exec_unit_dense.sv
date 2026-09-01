@@ -251,7 +251,7 @@ module np7_exec_unit_dense #(
                 S_IDLE: begin
                     if (accept_pulse) begin
                         group_reg <= issue_group;
-                        if (issue_mask != issue_activity)
+                        if (issue_mask & ~issue_activity)
                             protocol_error <= 1'b1;
                         acc <= 12'sd0;
                         word0 <= 20'd0;

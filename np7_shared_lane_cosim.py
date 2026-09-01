@@ -7,6 +7,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 import random
 import re
@@ -14,6 +15,7 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+from typing import Sequence
 
 from rtl_tile_cosim import find_tool
 
@@ -38,6 +40,9 @@ RTL_SOURCES = [
 ]
 TXN_PER_SEED = 1000
 SEEDS_PER_CONFIG = 20
+# NP7.3 每次运行都留一份"原始账本 + 逐拍观测"副本，供 NP7.6 重新计算硬门。
+# 只认自报数字的实现（例如 NP7.5 的两个负向控制）在这份证据里会露出马脚。
+RAW_LEDGERS: list[dict] = []
 GROUP_COUNT = 10
 CYC_RE = re.compile(
     r"CYC (\d+) st=(\d) ce=(\d) ad=(\d+) lf=(\d) bm=(\S+) rv=(\d) rr=(\d) "
@@ -124,7 +129,29 @@ def run_case(binary: Path, fmt: str, lanes: int, seed: int,
         return 0, failures, []
     failures, sums = compare_case(done.stdout, fmt, lanes, structures,
                                    sem, words, txns, bp)
+    record_raw_ledger(done.stdout, fmt, lanes, seed, txns, sums)
     return len(txns), failures, sums
+
+
+def record_raw_ledger(stdout: str, fmt: str, lanes: int, seed: int,
+                      txns: Sequence[tuple[int, int, int, int]],
+                      sums: Sequence[int]) -> None:
+    import hashlib
+    from np7_ledger_reconstruction import (accepted_issue_masks, observe,
+                                           parse_rows, reconstruct_violations)
+    rows, claimed = parse_rows(stdout)
+    observed = observe(rows, accepted_issue_masks(rows, txns))
+    RAW_LEDGERS.append({
+        "format": fmt, "lanes": lanes, "seed": seed, "transactions": len(txns),
+        "cycles_logged": len(rows), "claimed": claimed, "observed": observed,
+        "reconstruction_violations": reconstruct_violations(claimed, observed,
+                                                            "%s/%d/%d" % (fmt, lanes, seed)),
+        # 逐笔突触和的指纹：dense 与 sparse 必须逐笔全等（G5），但证据文件里
+        # 不放原始向量，避免把 160000 个整数写进仓库。
+        "result_sums_sha256": hashlib.sha256(
+            ",".join(str(value) for value in sums).encode("ascii")).hexdigest(),
+        "result_sums_count": len(sums),
+    })
 
 def unit_group_was_zero(txn, structures, fmt):
     """该事务是否走零突触快速路径（与 oracle 判据一致）。"""
@@ -273,7 +300,18 @@ def main(argv: list[str] | None = None) -> int:
     print("[NP7.3] 运行数=%d 失败数=%d" % (runs, len(failures)))
     for text in failures[:20]:
         print("  FAIL", text)
-    return 1 if failures else 0
+    results = Path("artifacts") / "results"
+    results.mkdir(parents=True, exist_ok=True)
+    bad = sum(1 for entry in RAW_LEDGERS if entry["reconstruction_violations"])
+    (results / "np7_cosim_ledgers.json").write_text(json.dumps(
+        {"schema": "np7-cosim-ledgers-v1", "configs": runs,
+         "transactions": sum(e["transactions"] for e in RAW_LEDGERS),
+         "per_tick_failures": len(failures),
+         "reconstruction_dirty_configs": bad, "ledgers": RAW_LEDGERS},
+        indent=2, ensure_ascii=False, sort_keys=True) + "\n", encoding="utf-8")
+    print("[NP7.3] 原始账本=%d 组，逐拍观测不一致=%d"
+          % (len(RAW_LEDGERS), bad))
+    return 1 if (failures or bad) else 0
 
 
 if __name__ == "__main__":
