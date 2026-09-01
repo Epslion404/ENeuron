@@ -1,0 +1,18 @@
++====================+===================+========================================+
+| Launch Setup Clock | Launch Hold Clock | Pin                                    |
++====================+===================+========================================+
+| clk                | clk               | core/positive_evidence_reg_reg[0][0]/D |
+| clk                | clk               | core/positive_evidence_reg_reg[2][0]/D |
+| clk                | clk               | core/positive_evidence_reg_reg[3][0]/D |
+| clk                | clk               | core/positive_evidence_reg_reg[0][1]/D |
+| clk                | clk               | core/positive_evidence_reg_reg[2][1]/D |
+| clk                | clk               | core/positive_evidence_reg_reg[1][0]/D |
+| clk                | clk               | core/positive_evidence_reg_reg[3][1]/D |
+| clk                | clk               | core/spike_reg_reg/D                   |
+| clk                | clk               | core/post_age_reg_reg[3]/D             |
+| clk                | clk               | core/post_age_reg_reg[2]/D             |
+| clk                | clk               | core/leak_timer_reg_reg[3]/D           |
+| clk                | clk               | core/leak_timer_reg_reg[0]/D           |
+| clk                | clk               | core/leak_timer_reg_reg[1]/D           |
+| clk                | clk               | core/leak_timer_reg_reg[2]/D           |
++--------------------+-------------------+----------------------------------------+

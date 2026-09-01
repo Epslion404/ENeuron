@@ -39,23 +39,23 @@ foreach {pattern var} {
 } {
     if {[regexp $pattern $util_text -> value]} { set $var $value }
 }
-proc timing_metric {delay_type} {
-    set paths [get_timing_paths -quiet -delay_type $delay_type -max_paths 1 -nworst 1]
-    if {[llength $paths] == 0} { return NA }
-    return [get_property SLACK [lindex $paths 0]]
+set timing_text [read [open [file join $out_dir timing_impl.rpt] r]]
+set wns NA
+set tns NA
+set whs NA
+set ths NA
+set setup_fail NA
+set hold_fail NA
+if {[regexp {Setup[[:space:]]*:[[:space:]]*([0-9]+)[[:space:]]+Failing Endpoints,[[:space:]]+Worst Slack[[:space:]]+(-?[0-9.]+)ns,[[:space:]]+Total Violation[[:space:]]+(-?[0-9.]+)ns} $timing_text -> c s t]} {
+    set setup_fail $c
+    set wns $s
+    set tns $t
 }
-proc sum_negative_slack {delay_type} {
-    set total 0.0
-    foreach path [get_timing_paths -quiet -delay_type $delay_type -nworst 10000] {
-        set s [get_property SLACK $path]
-        if {$s < 0.0} { set total [expr {$total + $s}] }
-    }
-    return $total
+if {[regexp {Hold[[:space:]]*:[[:space:]]*([0-9]+)[[:space:]]+Failing Endpoints,[[:space:]]+Worst Slack[[:space:]]+(-?[0-9.]+)ns,[[:space:]]+Total Violation[[:space:]]+(-?[0-9.]+)ns} $timing_text -> c h th]} {
+    set hold_fail $c
+    set whs $h
+    set ths $th
 }
-set wns [timing_metric max]
-set whs [timing_metric min]
-set tns [sum_negative_slack max]
-set ths [sum_negative_slack min]
 set summary_path [file join $out_dir signoff_summary.txt]
 set fh [open $summary_path w]
 puts $fh "RESULT=ROUTED"
@@ -77,6 +77,8 @@ puts $fh "WNS_NS=$wns"
 puts $fh "TNS_NS=$tns"
 puts $fh "WHS_NS=$whs"
 puts $fh "THS_NS=$ths"
+puts $fh "SETUP_FAILING_ENDPOINTS=$setup_fail"
+puts $fh "HOLD_FAILING_ENDPOINTS=$hold_fail"
 puts $fh "TIMING_SCOPE=REGISTER_TO_REGISTER_ONLY"
 puts $fh "NOTES=Pulse-Mini-L2 PN2 magnitude evidence; four-input fixed-width core; OOC with clock source and I/O false paths"
 close $fh

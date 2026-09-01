@@ -1,16 +1,16 @@
 Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
--------------------------------------------------------------------------------------------------------------------------------------------------
-| Tool Version     : Vivado v.2024.1 (win64) Build 5076996 Wed May 22 18:37:14 MDT 2024
-| Date             : Thu Aug 20 03:23:39 2026
-| Host             : LAPTOP-AJQHFMKI running 64-bit major release  (build 9200)
-| Command          : report_power -file D:/Documents/Code/ENeuron/vivado_pulse_mini_l2_reports/power_impl.rpt
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version     : Vivado v.2024.2 (win64) Build 5239630 Fri Nov 08 22:35:27 MST 2024
+| Date             : Tue Sep  1 18:10:16 2026
+| Host             : Chan-an running 64-bit major release  (build 9200)
+| Command          : report_power -file C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/vivado_pulse_mini_l2_reports/power_impl.rpt
 | Design           : pulse_mini_l2_core
 | Device           : xc7z020clg400-1
 | Design State     : routed
 | Grade            : commercial
 | Process          : typical
 | Characterization : Production
--------------------------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------------------------
 
 Power Report
 
@@ -30,7 +30,7 @@ Table of Contents
 ----------
 
 +--------------------------+--------------+
-| Total On-Chip Power (W)  | 0.106        |
+| Total On-Chip Power (W)  | 0.105        |
 | Design Power Budget (W)  | Unspecified* |
 | Power Budget Margin (W)  | NA           |
 | Dynamic (W)              | 0.003        |
@@ -53,15 +53,14 @@ Table of Contents
 | On-Chip        | Power (W) | Used     | Available | Utilization (%) |
 +----------------+-----------+----------+-----------+-----------------+
 | Clocks         |    <0.001 |        3 |       --- |             --- |
-| Slice Logic    |     0.001 |      557 |       --- |             --- |
-|   LUT as Logic |     0.001 |      366 |     53200 |            0.69 |
-|   CARRY4       |    <0.001 |       33 |     13300 |            0.25 |
-|   Register     |    <0.001 |       91 |    106400 |            0.09 |
-|   F7/F8 Muxes  |    <0.001 |        1 |     53200 |           <0.01 |
+| Slice Logic    |    <0.001 |      534 |       --- |             --- |
+|   LUT as Logic |    <0.001 |      347 |     53200 |            0.65 |
+|   CARRY4       |    <0.001 |       31 |     13300 |            0.23 |
+|   Register     |    <0.001 |       93 |    106400 |            0.09 |
 |   Others       |     0.000 |        2 |       --- |             --- |
-| Signals        |     0.001 |      373 |       --- |             --- |
+| Signals        |    <0.001 |      353 |       --- |             --- |
 | Static Power   |     0.103 |          |           |                 |
-| Total          |     0.106 |          |           |                 |
+| Total          |     0.105 |          |           |                 |
 +----------------+-----------+----------+-----------+-----------------+
 
 
@@ -71,7 +70,7 @@ Table of Contents
 +-----------+-------------+-----------+-------------+------------+-------------+-------------+------------+
 | Source    | Voltage (V) | Total (A) | Dynamic (A) | Static (A) | Powerup (A) | Budget (A)  | Margin (A) |
 +-----------+-------------+-----------+-------------+------------+-------------+-------------+------------+
-| Vccint    |       1.000 |     0.011 |       0.003 |      0.007 |       NA    | Unspecified | NA         |
+| Vccint    |       1.000 |     0.010 |       0.003 |      0.007 |       NA    | Unspecified | NA         |
 | Vccaux    |       1.800 |     0.010 |       0.000 |      0.010 |       NA    | Unspecified | NA         |
 | Vcco33    |       3.300 |     0.000 |       0.000 |      0.000 |       NA    | Unspecified | NA         |
 | Vcco25    |       2.500 |     0.000 |       0.000 |      0.000 |       NA    | Unspecified | NA         |
