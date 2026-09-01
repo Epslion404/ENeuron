@@ -22,7 +22,20 @@ EVIDENCE_REL = [
     "artifacts/results/np7_three_model_integration.json",
     "artifacts/results/np7_formal_and_mutations.json",
     "artifacts/results/local_prune_b21_results.json",
+    "artifacts/results/np7_vivado_xsim_summary.json",
 ]
+XSIM_REL = "artifacts/results/np7_vivado_xsim_summary.json"
+XSIM_REPORTS = "vivado_np7_xsim_reports"
+XSIM_CASES = {
+    "golden_sparse_L%d" % lanes: "golden" for lanes in (1, 2, 4, 8)}
+XSIM_CASES.update({"golden_dense_L%d" % lanes: "golden" for lanes in (1, 2, 4, 8)})
+XSIM_CASES.update({"neg%d_L%d" % (neg, lanes): "negative"
+                   for neg in (0, 1) for lanes in (1, 4)})
+XSIM_CASES.update({"cfgneg_%s_L%d" % (fmt, lanes): "config"
+                   for fmt in ("sparse", "dense") for lanes in (1, 4)})
+LEDGER_FIELDS = ("req", "val", "ops", "zero", "busy", "stall", "done", "skip",
+                 "inzero", "azero", "sat", "total", "proto", "cfgerr",
+                 "completed")
 GATE_READS = 0.45
 GATE_OPS = 0.45
 GATE_CYCLES = 0.25
@@ -30,9 +43,12 @@ LANES = ("1", "2", "4", "8")
 MODELS = ("eneuron", "pulse_mini_l", "pulse_mini_l2")
 # 这四个字段在逐拍观测侧不可见（由 NP7.3 的 oracle 逐拍比对覆盖），
 # 因此重建一致性检查只看其余字段。
+FORMAT_SPARSE_KEY = "sparse"
+FORMAT_DENSE_KEY = "dense"
 UNOBSERVABLE = ("structural_skips", "input_zero_groups",
                 "activity_zero_after_structure", "saturation_events")
 FORMAL_EXPECT = {"sparse_protocol": "proof", "dense_protocol": "proof",
+                 "config_reject": "proof",
                  "zero_path_reach": "model", "sparse_reach": "model",
                  "dense_reach": "model"}
 ROUND = 6
@@ -179,6 +195,22 @@ def check_formal_evidence(formal, integrity):
         if not entry.get("sums_match_golden"):
             integrity.append("negative control %s is not functionally identical"
                              " (功能测试不足以拒绝的前提不成立)" % name)
+    cfgneg = formal.get("config_rejection", {})
+    runs = cfgneg.get("runs", {})
+    if len(runs) < 4:
+        integrity.append("NP7.5 CONFIG 拒绝测试台用例缩减到 %d" % len(runs))
+    for tag, entry in sorted(runs.items()):
+        if "RESULT=PASS" not in entry.get("summary", "") or entry.get("fail_checks"):
+            integrity.append("NP7.5 CONFIG 拒绝测试台未通过 %s (%s)"
+                             % (tag, entry.get("summary", "")[:60]))
+    bypass = cfgneg.get("bypass_mutation", {})
+    for fmt in (FORMAT_SPARSE_KEY, FORMAT_DENSE_KEY):
+        entry = bypass.get(fmt)
+        if entry is None:
+            integrity.append("NP7.5 拒绝旁路 mutation 缺失 %s" % fmt)
+        elif "RESULT=FAIL" not in entry.get("summary", "") or \
+                not entry.get("fail_checks"):
+            integrity.append("NP7.5 拒绝旁路 mutation 逃逸 CONFIG 负向测试 %s" % fmt)
     leak = formal.get("leak_mutation", {})
     for model in MODELS:
         entry = leak.get(model)
@@ -189,6 +221,84 @@ def check_formal_evidence(formal, integrity):
                              % model)
         elif entry.get("clean_problems"):
             integrity.append("leak control run not clean for %s" % model)
+
+
+def check_xsim_evidence(xsim, frozen_head, integrity):
+    # PR #6 评审意见 1：Vivado 行为仿真必须可复现，且证据必须钉在冻结代码上。
+    # 这里不信任 status 字段本身：逐用例从观测流、LEDGER 内容与日志文件哈希重新判定。
+    if xsim.get("schema") != "np7-vivado-xsim-v1":
+        integrity.append("xsim 证据 schema 未知")
+        return
+    if xsim.get("overall_status") != "PASS":
+        integrity.append("xsim 证据 overall_status=%s" % xsim.get("overall_status"))
+    if xsim.get("problems"):
+        integrity.append("xsim 证据自带问题单: %s" % xsim["problems"][0])
+    if not str(xsim.get("vivado", {}).get("version", "")).startswith("Vivado Simulator"):
+        integrity.append("xsim 证据未记录 Vivado 版本")
+    if xsim.get("worktree_dirty"):
+        integrity.append("xsim 证据运行时代码工作树不干净：%s"
+                         % ",".join(xsim["worktree_dirty"])[:120])
+    cases = xsim.get("cases", {})
+    for case_id, kind in sorted(XSIM_CASES.items()):
+        entry = cases.get(case_id)
+        if entry is None:
+            integrity.append("xsim 证据缺少用例 %s (kind=%s)" % (case_id, kind))
+            continue
+        metrics = entry.get("metrics", {})
+        if entry.get("status") != "PASS" or entry.get("problems"):
+            integrity.append("xsim 证据 %s 状态=%s problems=%s"
+                             % (case_id, entry.get("status"),
+                                (entry.get("problems") or ["-"])[0]))
+            continue
+        if entry.get("kind") != kind:
+            integrity.append("xsim 证据 %s kind=%s 与预期 %s 不符"
+                             % (case_id, entry.get("kind"), kind))
+        if metrics.get("observed_rows", 0) <= 0:
+            integrity.append("xsim 证据 %s 没有观测行" % case_id)
+        if not metrics.get("observed_sha256") or                 metrics.get("observed_sha256") != metrics.get("icarus_observed_sha256"):
+            integrity.append("xsim 证据 %s 的 xsim/Icarus 观测流不一致" % case_id)
+        ledger = metrics.get("ledger", "")
+        fields = dict(token.split("=", 1) for token in ledger.split()
+                      if "=" in token)
+        if entry.get("kind") in ("golden", "negative"):
+            if tuple(sorted(fields)) != LEDGER_FIELDS:
+                integrity.append("xsim 证据 %s 的 LEDGER 字段不完整: %r"
+                                 % (case_id, ledger[:60]))
+            else:
+                ntxn = entry.get("ntxn")
+                if int(fields["completed"]) != ntxn or int(fields["done"]) < ntxn:
+                    integrity.append("xsim 证据 %s 完成数 %s != 注入 %s"
+                                     % (case_id, fields["completed"], ntxn))
+                if entry.get("kind") == "golden" and (fields["proto"] != "0"
+                                                      or fields["cfgerr"] != "0"):
+                    integrity.append("xsim 证据 %s golden 用例报出 proto=%s cfgerr=%s"
+                                     % (case_id, fields["proto"], fields["cfgerr"]))
+                if int(fields["total"]) <= 0:
+                    integrity.append("xsim 证据 %s total=%s" % (case_id, fields["total"]))
+        if entry.get("kind") == "config":
+            summary = metrics.get("summary", "")
+            if "RESULT=PASS" not in summary or "FAILED=0" not in summary:
+                integrity.append("xsim 证据 %s 的 CFGNEG 摘要不合格: %r"
+                                 % (case_id, summary[:80]))
+        for log_name, want in sorted(entry.get("logs", {}).items()):
+            path = ROOT / XSIM_REPORTS / "logs" / log_name
+            if not path.exists():
+                integrity.append("xsim 证据 %s 的日志缺失 %s" % (case_id, log_name))
+            elif sha256_file(path) != want:
+                integrity.append("xsim 证据 %s 的日志字节与证据不一致 %s"
+                                 % (case_id, log_name))
+    for rel, want in sorted(xsim.get("source_sha256", {}).items()):
+        path = ROOT / rel
+        if not path.exists():
+            integrity.append("xsim 证据绑定的源文件缺失 %s" % rel)
+            continue
+        if sha256_file(path) != want:
+            integrity.append("xsim 证据的源文件磁盘字节偏离 %s" % rel)
+        rc, blob = git("show", "%s:%s" % (frozen_head, rel))
+        if rc != 0:
+            integrity.append("xsim 证据的源文件在冻结提交中不存在 %s" % rel)
+        elif sha256_bytes(blob) != want:
+            integrity.append("xsim 证据的源文件字节与冻结提交不一致 %s" % rel)
 
 
 def gates_from_b21(integration, frozen, integrity):
@@ -287,7 +397,7 @@ GATE_LABELS = {
 }
 
 
-def compute_all():
+def compute_all(frozen_head="HEAD"):
     cosim = load_json("artifacts/results/np7_cosim_ledgers.json")
     integration = load_json("artifacts/results/np7_three_model_integration.json")
     formal = load_json("artifacts/results/np7_formal_and_mutations.json")
@@ -296,6 +406,7 @@ def compute_all():
     rtl_reductions = {}
     check_rtl_evidence(cosim, integrity, rtl_reductions)
     check_formal_evidence(formal, integrity)
+    check_xsim_evidence(load_json(XSIM_REL), frozen_head, integrity)
     values, fails = gates_from_b21(integration, frozen, integrity)
     gates = {}
     for gate in ("G1", "G2", "G3", "G4", "G5", "G6"):
@@ -361,7 +472,7 @@ def main(argv=None):
     if manifest.get("integrity"):
         rejects.append("清单生成时证据自检已报错：%s" % manifest["integrity"][0])
     try:
-        recomputed = compute_all()
+        recomputed = compute_all(frozen_head or "HEAD")
     except (IOError, KeyError, ValueError, TypeError) as error:
         print("NP7_VERIFY_REJECT: 证据不可重算 %s" % error)
         return 1

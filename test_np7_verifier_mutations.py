@@ -12,6 +12,16 @@ import subprocess
 import sys
 import tempfile
 
+# PR #6 评审意见 3：套件不得依赖调用者的代码页。这里同时钉死三件事：
+#   1) 子进程（验证器）强制以 UTF-8 输出（-X utf8，等价于 PYTHONUTF8=1）；
+#   2) 父进程按 UTF-8 解码子进程输出（encoding/errors 显式给出）；
+#   3) 父进程自己的 stdout/stderr 固定为 UTF-8，避免默认中文代码页下
+#      打印被替换字符（U+FFFD）时抛 UnicodeEncodeError 而丢掉判定结果。
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 ROOT = pathlib.Path(__file__).resolve().parent
 MANIFEST = "artifacts/results/np7_software_cost_manifest.json"
 FAILURES = []
@@ -27,7 +37,7 @@ def git_at(root, *args):
 def clone(dest):
     done = subprocess.run(["git", "clone", "--no-hardlinks", "-q", str(ROOT),
                            str(dest)], capture_output=True, text=True,
-                          check=False)
+                          encoding="utf-8", errors="replace", check=False)
     if done.returncode != 0:
         raise AssertionError("clone 失败: %s%s" % (done.stdout, done.stderr))
     _rc, head = git_at(dest, "rev-parse", "HEAD")
@@ -35,7 +45,9 @@ def clone(dest):
 
 
 def run_verifier(root, head):
-    done = subprocess.run([sys.executable, "verify_np7_software_cost.py", head],
+    # -X utf8 由测试脚本自身钉死子进程编码，不要求调用者预先设置 PYTHONUTF8。
+    done = subprocess.run([sys.executable, "-X", "utf8",
+                           "verify_np7_software_cost.py", head],
                           cwd=str(root), capture_output=True, text=True,
                           encoding="utf-8", errors="replace", check=False)
     text = done.stdout + done.stderr
@@ -198,7 +210,45 @@ MUTATIONS = [
     ("post_freeze_tool_rebind", m_post_freeze_tool),
     ("bogus_frozen_head", m_bogus_frozen_head),
     ("manifest_integrity_flagged", m_integrity_not_empty),
+    ("fake_xsim_behavioral_evidence", m_fake_xsim_evidence),
+    ("fake_xsim_ledger_markers", m_fake_xsim_ledger),
+    ("drop_xsim_case", m_drop_xsim_case),
 ]
+
+
+def m_fake_xsim_evidence(root, head):
+    # 整份 xsim 证据被改成"全绿"：删掉一个用例、把另一个用例的观测哈希改脏。
+    rel = "artifacts/results/np7_vivado_xsim_summary.json"
+    data = read_json(root, rel)
+    del data["cases"]["neg1_L4"]
+    victim = data["cases"]["golden_dense_L2"]
+    victim["metrics"]["icarus_observed_sha256"] = "0" * 64
+    victim["logs"] = {}
+    data["overall_status"] = "PASS"
+    data["problems"] = []
+    write_json(root, rel, data)
+    return head, "xsim 证据"
+
+
+def m_fake_xsim_ledger(root, head):
+    rel = "artifacts/results/np7_vivado_xsim_summary.json"
+    data = read_json(root, rel)
+    case = data["cases"]["golden_sparse_L1"]
+    case["status"] = "PASS"
+    case["problems"] = []
+    case["metrics"]["ledger"] = (
+        "LEDGER req=0 val=0 ops=0 zero=0 busy=0 stall=0 done=0 skip=0 inzero=0 "
+        "azero=0 sat=0 total=0 proto=1 cfgerr=1 completed=0")
+    write_json(root, rel, data)
+    return head, "xsim 证据"
+
+
+def m_drop_xsim_case(root, head):
+    rel = "artifacts/results/np7_vivado_xsim_summary.json"
+    data = read_json(root, rel)
+    del data["cases"]["cfgneg_dense_L4"]
+    write_json(root, rel, data)
+    return head, "缺少用例"
 
 
 def main(argv=None):
