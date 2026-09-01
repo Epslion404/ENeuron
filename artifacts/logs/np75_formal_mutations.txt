@@ -1,6 +1,6 @@
 # command: python np7_formal_and_mutations.py
-# code_git_head: cea356c
-# local_time: 2026-09-02 00:53:55
+# code_git_head: 7ba4852
+# local_time: 2026-09-02 01:01:20
 # toolchain: iverilog 12.0 (C:\iverilog\bin), yosys 0.68 (C:\msys64\ucrt64\bin)
 
 formal_sparse_protocol(proof)                  PASS verdict=proof rc=0

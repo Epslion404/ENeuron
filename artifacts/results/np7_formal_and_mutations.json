@@ -413,7 +413,7 @@
       "verdict": "model"
     }
   },
-  "git_head": "cea356cf352e121616d0bb172b938321631e2ad0",
+  "git_head": "7ba4852d33947e441adf172b9e15fd53567237e3",
   "leak_mutation": {
     "eneuron": {
       "clean_problems": [],
@@ -1692,8 +1692,8 @@
   },
   "schema": "np7-formal-mutations-v1",
   "tool_versions": {
-    "iverilog": "C:\\iverilog\\bin\\iverilog.exe: unknown option -- -",
-    "vvp": "C:\\iverilog\\bin\\vvp.exe: unknown option -- -",
-    "yosys": "Yosys 0.68 (git sha1 38e001a6f, Release, Clang /workspace/YoWASP/yosys/wasi-sdk-33.0-x86_64-linux/share/cmake/../..//bin"
+    "iverilog": "Icarus Verilog version 12.0 (devel) (s20150603-1539-g2693dd32b)",
+    "vvp": "Icarus Verilog version 12.0 (devel) (s20150603-1539-g2693dd32b) (same install)",
+    "yosys": "Yosys 0.68 (git sha1 38e001a6f, Release, Clang /workspace/YoWASP/yosys/wasi-sdk-33.0-x86_64-linux/share/cmake/../..//bin/clang++ 22.1.0)"
   }
 }
