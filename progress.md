@@ -801,3 +801,4 @@
 - [x] 发现两处事实口径问题：把并非所有既有目录都存在的 `signoff_summary.txt` 写成统一约定；静态审计声称已排除陈旧 RTL，但没有执行新鲜度验证。
 - [x] 通过 GitHub issue comment `5491242843` 提交中文阻断反馈；修正后再重新审查，不建议当前合并。
 - [x] 协作者提交 `34e7c9c` 修正两处口径；复核确认最新 HEAD `e979675`，通过 GitHub review `APPROVED`，PR 保持 open，未合并。
+- [x] 协作者后续回复确认 PR 仍严格限定为 NP6.1 静态审计/NP6.0 冻结草案；最新 HEAD `734faf9` 仅同步 main，无新增代码或证据。复核维持 `APPROVED`，PR 仍 open、未合并。
