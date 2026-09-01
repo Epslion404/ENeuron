@@ -215,6 +215,7 @@ class GroupResult:
     activity_mask: int
     issue_mask: int
     ops: tuple[tuple[int, int], ...]
+    skip_count: int
     synapse_sum: int
     cycles: int
     events: tuple[CycleEvent, ...]
@@ -260,6 +261,7 @@ class SharedLaneUnit:
         self.config_open = True
         self.configured_groups: set[int] = set()
         self.ledger = Ledger()
+        self.skip_count = 0
         self.txn_log: list[dict[str, object]] = []
 
     def config_write(self, group_id: int, weights: Sequence[int],
@@ -307,6 +309,7 @@ class SharedLaneUnit:
         return slots, mask
 
     def run_group(self, group_id: int, activity_mask: int,
+                  issue_mask: int | None = None,
                   lane_stall: Callable[[int], int] | None = None,
                   result_ready: Callable[[int], int] | None = None,
                   acc_seed: int = 0) -> GroupResult:
@@ -322,7 +325,19 @@ class SharedLaneUnit:
         stall_fn = lane_stall if lane_stall is not None else (lambda cycle: 0)
         ready_fn = result_ready if result_ready is not None else (lambda cycle: 1)
         slots, structural = self._decode_group(group_id)
-        issue_mask = structural & activity_mask
+        expected_issue = structural & activity_mask
+        if issue_mask is None:
+            issue_mask = expected_issue
+        else:
+            # 上游 gate 传入的发射掩码必须与本单元的账本口径一致，否则视为合同
+            # 违约：dense 不得借外部掩码偷偷做结构跳过。
+            if not isinstance(issue_mask, int) or isinstance(issue_mask, bool):
+                raise TypeError("issue_mask must be an integer")
+            if issue_mask & ~activity_mask:
+                raise ValueError("issue_mask must be a subset of activity_mask")
+            if issue_mask != expected_issue:
+                raise ValueError("issue_mask must equal structural AND activity")
+        self.skip_count = bin(activity_mask & ~structural & 0b1111).count("1")
         ops = tuple((position, slots[position]) for position in sorted(slots)
                     if (issue_mask >> position) & 1)
         dense_ops = tuple((position, slots[position]) for position in sorted(slots)
@@ -402,7 +417,8 @@ class SharedLaneUnit:
                   "ops": list(ops), "synapse_sum": synapse_sum, "cycles": cycle}
         self.txn_log.append(record)
         return GroupResult(group_id, self.fmt, structural, activity_mask, issue_mask,
-                           ops, synapse_sum, cycle, tuple(events), led)
+                           ops, led.structural_skips, synapse_sum, cycle,
+                           tuple(events), led)
     def run_trace(self, trace: Sequence[tuple[int, int]],
                   lane_stall: Callable[[int], int] | None = None,
                   result_ready: Callable[[int], int] | None = None) -> list[GroupResult]:
