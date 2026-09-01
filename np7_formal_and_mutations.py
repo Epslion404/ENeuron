@@ -135,6 +135,26 @@ RTL_MUTATIONS = [
      "assign cfg_write_en = cfg_valid && cfg_open && cfg_wr_ok;",
      "assign cfg_write_en = cfg_valid && cfg_open;",
      "config_reject", "写使能不受 cfg_wr_ok 门控：非法字可进 RAM"),
+    # PR #6 评论 5498372499（裁定 B-V1+V2）新增的两类造假：
+    #   (a) retire/accept 同一边沿时，用新事务的元数据覆盖正在退出的旧结果；
+    #   (b) 结果背压（旧结果未退出）时仍然接受下一事务。
+    # 两者都必须被 P1/P9 形式性质给出反例，两格式各测一次。
+    ("sparse_same_edge_metadata_overwrite", "np7_exec_unit_sparse.sv",
+     '    assign result_zero_path = hold_active ? hold_zero : zero_now;',
+     "    assign result_zero_path = accept_pulse ? (issue_mask == 4\'d0) : (hold_active ? hold_zero : zero_now); // MUTATION same-edge overwrite",
+     "sparse_protocol", "同拍覆盖：退出结果的 zero_path 标志被新事务覆盖"),
+    ("dense_same_edge_metadata_overwrite", "np7_exec_unit_dense.sv",
+     '    assign result_zero_path = hold_active ? hold_zero : zero_now;',
+     "    assign result_zero_path = accept_pulse ? (issue_mask == 4\'d0) : (hold_active ? hold_zero : zero_now); // MUTATION same-edge overwrite",
+     "dense_protocol", "同拍覆盖（稠密基线）"),
+    ("sparse_accept_under_backpressure", "np7_exec_unit_sparse.sv",
+     '    assign issue_ready = !cfg_open && ((state == S_IDLE) || retire_prev);',
+     '    assign issue_ready = !cfg_open; // MUTATION 在途/背压时仍接受下一事务',
+     "sparse_protocol", "背压时错误接受：hold/在途期间 issue_ready 仍为 1"),
+    ("dense_accept_under_backpressure", "np7_exec_unit_dense.sv",
+     '    assign issue_ready = !cfg_open && ((state == S_IDLE) || retire_prev);',
+     '    assign issue_ready = !cfg_open; // MUTATION 在途/背压时仍接受下一事务',
+     "dense_protocol", "背压时错误接受（稠密基线）"),
 ]
 
 

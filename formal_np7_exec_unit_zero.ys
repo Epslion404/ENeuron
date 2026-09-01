@@ -1,6 +1,8 @@
+# NP7.5 V1 零路径 witness：单拍完成的零路径与背压锁存的零路径都必须真实可达，
+# 以免 P5 只在空真上成立。
 read_verilog -formal -sv np7_weight_ram.sv np7_shared_synapse_lane.sv np7_exec_unit_sparse.sv np7_exec_unit_dense.sv formal_np7_exec_unit.sv
 prep -top formal_np7_exec_unit -flatten
 async2sync
 memory_map
 opt_clean
-sat -seq 10 -set-assumes -set-init-zero -set-at 10 zero_fast_paths_state 1 -show completed_groups_state,lane_ops_issued_state,zero_fast_paths_state,group_read_requests_state -dump_vcd formal_np7_exec_unit_zero.vcd
+sat -seq 10 -set-assumes -set-init-zero -set-at 10 saw_zero_single 1 -set-at 10 saw_zero_hold 1 -set-at 10 zero_fast_paths_state 2 -show completed_groups_state,lane_ops_issued_state,zero_fast_paths_state,group_read_requests_state,saw_zero_single,saw_zero_hold,saw_fold,saw_backpressure,saw_lane_stall -dump_vcd formal_np7_exec_unit_zero.vcd

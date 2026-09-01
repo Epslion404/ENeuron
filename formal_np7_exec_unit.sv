@@ -1,23 +1,30 @@
 // NP7.5 共享突触执行单元的有限深度形式检查工装（不进入综合路径）。
 //
-// 检查目标（TODO §5 NP7.5）：
-//   P1 单槽协议：一个事务完成前不得再次接受执行请求；
-//   P2 恰好一次完成：每个接受事务产生且只产生一次 done，空闲时不得有未完成事务；
+// 检查目标（PR #6 评论 5498372499 裁定 B-V1+V2 后新增/改写的性质）：
+//   P1 单槽协议：任意时刻最多一个未退出结果；只有旧结果退出的同一边沿才可接受下一
+//      事务（V2），结果背压时必须停止接收；
+//   P2 恰好一次完成：每个 accept 恰好一个 result（accept/retire 计数最多差 1）；
 //   P3 地址边界：读请求地址必须落在 RAM 深度内且与本组一致；
-//   P4 无重复发射：同一事务内同一位置的 lane 槽位不得被发射两次，
-//      且 lane_fire_count 必须等于当拍 batch_mask 的置位数（LANES=1 时恰为一位）；
-//   P5 零突触快速路径：issue_mask=0 的事务不发 RAM 请求、不发 lane 操作，
-//      仍在 2 拍内完成一个事务；
-//   P6 计数守恒：busy = 读请求 + lane 操作；权重槽 = 2 x 读请求；
-//      完成数 = 读请求 + 零路径；total = busy + stall + 3x非零 + 2x零；
-//   P7 上游门控一致性：由记录索引重建掩码并取与活动掩码时，执行单元自检
-//      永不过滤（protocol_error/cfg_error/cfg_illegal_index 恒 0）。
+//   P4 无重复发射：同一事务内同一位置的 lane 槽位不得发射两次；
+//   P5 V1 零路径：issue_mask=0 不发 RAM 请求、不发 lane 操作，result_ready=1 时
+//      accept 与 result 同一边沿完成，result_ready=0 时锁存不丢；
+//   P6 逐拍账本恒等式：total = busy + latency + lane_stall + backpressure
+//      + hold_retire + zero + accept_own，且所有自报计数器与影子逐拍分类一致；
+//   P7 上游门控一致性：protocol_error/cfg_error/cfg_illegal_index 恒 0；
+//   P8 背压稳定性：锁存期间 result_valid/result_sum/result_zero_path 逐拍保持；
+//   P9 同拍元数据分离：retire 与 accept 同边沿时退出的结果属于上一事务；
+//   P10 lane_stall 不提前完成：被挡住的 BATCH 拍不得给出结果，也不得接受下一事务。
 //
-// 形式模型对握手取"无反压"假设（lane_stall=0、result_ready=1），把状态空间
-// 让给协议与账本不变式；随机背压下的逐拍等价的覆盖由 NP7.3 的 160000 事务
-// 协同仿真提供，两者互补，不互相替代。
+// 与上一轮的差别：形式输入不再假设"无反压"，lane_stall 与 result_ready 逐拍自由，
+// 因为背压稳定性与同拍不覆盖正是本轮裁定要求证明的性质；影子账本按 B-V1+V2 的
+// 互斥类别逐拍重建，用来证明新恒等式而不是旧的 +DONE 口径。
+`timescale 1ns/1ps
+
 module formal_np7_exec_unit(input logic clk);
     localparam int LANES = 1;
+    localparam logic [3:0] READS_PER_TXN = 4'd1;   // sparse：每非零事务 1 次组读
+    localparam logic [31:0] VALS_PER_LAT = 32'd2;   // sparse：一次读 2 个权重槽
+    localparam logic [3:0] CFG_OPEN_LAST = 4'd3;     // sparse：1 个 CONFIG 写拍
 
     logic        rst;
     logic        cfg_valid;
@@ -60,15 +67,13 @@ module formal_np7_exec_unit(input logic clk);
 
     np7_exec_unit_sparse #(.LANES(LANES)) dut (.*);
 
-    // 形式输入：任意但合法的一组位模式（索引严格升序），组号固定为 0。
-    // 三个形式输入都由复位拍装载 + 非复位拍重新取任意值（yosys $anyseq），
-    // 不用 (* anyseq *) 属性：属性变量再被 always_ff 驱动会与 -set-init-zero 冲突。
+    // 形式输入：位模式是复位拍装载一次的符号常量；activity/request/背压逐拍自由。
     logic [19:0] record_word;
-    logic        request_now;
-    logic [3:0]  activity;
 
     wire [1:0] idx0 = record_word[17:16];
     wire [1:0] idx1 = record_word[19:18];
+    wire signed [7:0] w0 = $signed(record_word[7:0]);
+    wire signed [7:0] w1 = $signed(record_word[15:8]);
     wire [3:0] struct_mask = (4'b1 << idx0) | (4'b1 << idx1);
     wire [3:0] gate_mask = struct_mask & activity;
     wire [2:0] skip_bits = ((activity & ~struct_mask & 4'b0001) != 4'b0)
@@ -76,69 +81,133 @@ module formal_np7_exec_unit(input logic clk);
                          + ((activity & ~struct_mask & 4'b0100) != 4'b0)
                          + ((activity & ~struct_mask & 4'b1000) != 4'b0);
 
-    logic [2:0] phase;
+    logic [3:0] phase;
     logic       past_valid;
+    logic       request_now;
+    logic [3:0] activity;
+    logic       stall_seq;
+    logic       ready_seq;
+
+    // ---- 影子状态：单槽协议、逐拍类别与背压锁存的可观测模型 ----
+    logic        outstanding;
+    logic        txn_zero;
+    logic [3:0]  txn_mask;
+    logic [3:0]  fired;
+    logic [3:0]  txn_read_cycles;
+    logic [3:0]  txn_fire_cycles;
+    logic        prev_bp;
+    logic signed [11:0] prev_sum;
+    logic        prev_zero_flag;
+    // V1/V2 关键路径可达性见证（供 reach/zero witness 使用，防止"空真通过"）：
+    //   saw_zero_single  V1 单拍零路径（accept 与 result 同一边沿）
+    //   saw_zero_hold    V1 零路径遇到结果背压 -> 锁存进 S_HOLD
+    //   saw_fold         V2 旧结果退出与下一事务接受同一边沿
+    //   saw_backpressure 结果背压保持拍（S_HOLD 且 result_ready=0）
+    //   saw_lane_stall   lane_stall 挡住 BATCH 的拍
+    logic        saw_zero_single;
+    logic        saw_zero_hold;
+    logic        saw_fold;
+    logic        saw_backpressure;
+    logic        saw_lane_stall;
+    logic [31:0] s_total, s_busy, s_stall, s_lat, s_lstall, s_bp, s_hr, s_zero;
+    logic [31:0] s_own, s_accepts, s_retires, s_reads, s_ops, s_vals, s_zero_paths;
 
     assign rst = !past_valid;
-    assign cfg_open = (phase < 3'd3);
-    assign cfg_valid = (phase == 3'd2);
+    assign cfg_open = (phase < CFG_OPEN_LAST);
+    assign cfg_valid = (phase == 4'd2);
     assign cfg_addr = 5'd0;
     assign cfg_wdata = record_word;
     assign issue_group = 4'd0;
     assign issue_activity = activity;
     assign issue_mask = gate_mask;
     assign issue_skip_count = skip_bits;
-    assign issue_valid = request_now && (phase >= 3'd3);
-    assign lane_stall = 1'b0;
-    assign result_ready = 1'b1;
-
-    // 影子状态：单槽协议、重复发射与零路径观测。
-    logic        outstanding;
-    logic        txn_zero;
-    logic [3:0]  fired;
-    logic [3:0]  txn_mask;
-    logic [3:0]  txn_read_cycles;
-    logic [3:0]  txn_fire_cycles;
-    logic [4:0]  txn_cycles;
+    assign issue_valid = request_now && (phase >= 4'd3);
+    assign lane_stall = stall_seq && (phase >= 4'd3);
+    assign result_ready = ready_seq;
 
     wire done_now = result_valid && result_ready;
+    // 退出边沿上被比较的事务掩码：已接受未退出的是旧事务，冷启动当拍的是新事务。
+    wire [3:0] sum_mask = outstanding ? txn_mask : issue_mask;
+    wire [2:0] mask_bits = ((sum_mask & 4'b0001) != 4'b0)
+                        + ((sum_mask & 4'b0010) != 4'b0)
+                        + ((sum_mask & 4'b0100) != 4'b0)
+                        + ((sum_mask & 4'b1000) != 4'b0);
     wire [2:0] batch_mask_bits = ((batch_mask & 4'b0001) != 4'b0)
-                         + ((batch_mask & 4'b0010) != 4'b0)
-                         + ((batch_mask & 4'b0100) != 4'b0)
-                         + ((batch_mask & 4'b1000) != 4'b0);
+                        + ((batch_mask & 4'b0010) != 4'b0)
+                        + ((batch_mask & 4'b0100) != 4'b0)
+                        + ((batch_mask & 4'b1000) != 4'b0);
+    // 逐拍互斥类别，优先级与 oracle/RTL 完全一致：
+    //   RAM > LANE > LAT > LANE_STALL > BACKPRESSURE > HOLD_RETIRE > ZERO > ACCEPT
+    // 最后一批的锁存边沿归入 LANE（busy），只有已锁存进 HOLD 且 result_ready=0
+    // 的保持拍才算 BACKPRESSURE。
+    wire raw_bp = result_valid && !result_ready;
+    wire e_ram = ram_ce;
+    wire e_lane = (lane_fire_count != 3'd0);
+    wire e_lat = (state_code == 3'd3);
+    wire e_lstall = (state_code == 3'd4) && lane_stall;
+    wire e_bp = (state_code == 3'd5) && raw_bp;
+    wire e_hr = (state_code == 3'd5) && result_valid && result_ready;
+    wire e_zero = accept_pulse && (issue_mask == 4'd0) && done_now
+                  && (state_code == 3'd0);
+    wire e_own = accept_pulse && !e_zero && !done_now;
+    // 旧结果已退出、且本拍接受的零路径事务同拍完成 -> 该事务不留下在途结果。
+    wire v1_single_done = accept_pulse && !outstanding && done_now
+                          && (issue_mask == 4'd0);
+    wire e_active = e_ram || e_lane || e_lat || e_lstall || e_bp || e_hr
+                    || e_zero || e_own;
+
+    // 期望突触和：至多 4 x 127 = 508，12 bit 饱和路径不会触发，可解析比较。
+    logic signed [11:0] expect_sum;
+    always_comb begin
+        expect_sum = 12'sd0;
+        if ((sum_mask & 4'b0001) != 4'b0) expect_sum = expect_sum + ((idx0 == 2'd0) ? w0 : (idx1 == 2'd0) ? w1 : 8'sd0);
+        if ((sum_mask & 4'b0010) != 4'b0) expect_sum = expect_sum + ((idx0 == 2'd1) ? w0 : (idx1 == 2'd1) ? w1 : 8'sd0);
+        if ((sum_mask & 4'b0100) != 4'b0) expect_sum = expect_sum + ((idx0 == 2'd2) ? w0 : (idx1 == 2'd2) ? w1 : 8'sd0);
+        if ((sum_mask & 4'b1000) != 4'b0) expect_sum = expect_sum + ((idx0 == 2'd3) ? w0 : (idx1 == 2'd3) ? w1 : 8'sd0);
+    end
 
     always_ff @(posedge clk) begin
         if (!past_valid) begin
-            // 复位拍不得 assume 输入位模式：-set-init-zero 已把被 always_ff 驱动的
-            // anyseq 变量钉成 0，此时 assume(idx1 > idx0) 会让假设集不可满足，
-            // 整个证明退化为空真（NP7.5 首轮就是这样漏掉的，已用可达性检查抓到）。
-            // 复位拍先把符号输入装载为任意值，非复位拍的 assume 才有可满足的取值空间。
+            // 复位拍不得 assume 输入位模式：-set-init-zero 会把被 always_ff 驱动的
+            // anyseq 钉成 0，此时 assume 会让假设集不可满足（NP7.5 首轮空真教训）。
             record_word <= $anyseq;
-            assume(phase == 3'd0);
+            assume(phase == 4'd0);
             assume(!outstanding);
             assume(!protocol_error);
             past_valid <= 1'b1;
             outstanding <= 1'b0;
             txn_zero <= 1'b0;
+            txn_mask <= 4'd0;
             fired <= 4'd0;
             txn_read_cycles <= 4'd0;
             txn_fire_cycles <= 4'd0;
-            txn_cycles <= 5'd0;
-            phase <= 3'd1;
+            prev_bp <= 1'b0;
+            prev_sum <= 12'sd0;
+            prev_zero_flag <= 1'b0;
+            s_total <= 32'd0; s_busy <= 32'd0; s_stall <= 32'd0; s_lat <= 32'd0;
+            s_lstall <= 32'd0; s_bp <= 32'd0; s_hr <= 32'd0; s_zero <= 32'd0;
+            s_own <= 32'd0; s_accepts <= 32'd0; s_retires <= 32'd0;
+            s_reads <= 32'd0; s_ops <= 32'd0; s_zero_paths <= 32'd0;
+            s_vals <= 32'd0;
+            saw_zero_single <= 1'b0; saw_zero_hold <= 1'b0; saw_fold <= 1'b0;
+            saw_backpressure <= 1'b0; saw_lane_stall <= 1'b0;
+            phase <= 4'd1;
         end else begin
-            // record_word 保持复位拍装载的符号常量，与 RAM 中的配置同源；
-            // 逐拍自由会让工装侧 issue_mask 与被测件从 RAM 解码出的掩码不一致，
-            // 从而虚假触发 protocol_error。activity/request_now 逐拍自由。
             assume(record_word[19:18] > record_word[17:16]);
             activity <= $anyseq;
             request_now <= $anyseq;
-            phase <= phase + 3'd1;
+            stall_seq <= $anyseq;
+            ready_seq <= $anyseq;
+            if (phase != 4'd15) phase <= phase + 4'd1;
 
-            // P1 单槽协议
-            assert(!(accept_pulse && outstanding));
-            // P2 恰好一次完成
-            assert(!(done_now && !outstanding));
-            assert(!(issue_ready && outstanding));
+            // P1 单槽协议：任意时刻最多一个未退出结果；只有在旧结果退出的同一边沿
+            //     才允许接受下一事务（V2），结果背压时必须停止接收。
+            assert(!(accept_pulse && outstanding && !done_now));
+            assert(!(raw_bp && accept_pulse));
+            // P2 恰好一次完成：不会凭空退出（V1 零路径的退出与 accept 同拍，
+            //     此时影子 outstanding 尚未置位，属于合法的单拍完成）。
+            assert(!(done_now && !outstanding && !accept_pulse));
+            assert(s_accepts == s_retires || s_accepts == s_retires + 32'd1);
             // P3 地址边界
             assert(!ram_ce || {1'b0, ram_addr} < 6'd32);
             assert(!ram_ce || ram_addr == {1'b0, issue_group});
@@ -148,65 +217,149 @@ module formal_np7_exec_unit(input logic clk);
                 assert({1'b0, batch_mask_bits} == lane_fire_count);
             assert(!(lane_fire_count != 3'd0 && (batch_mask & fired) != 4'd0));
             assert(!(lane_fire_count != 3'd0 && (batch_mask & ~txn_mask) != 4'd0));
-            if (done_now && !txn_zero)
-                assert(fired == txn_mask);
-            // P5 零路径静默
+            // P5 V1 零路径静默：不发 RAM 请求、不发 lane 操作，仍当拍给出 0 结果。
             assert(!(outstanding && txn_zero && ram_ce));
             assert(!(outstanding && txn_zero && lane_fire_count != 3'd0));
+            if (accept_pulse && (issue_mask == 4'd0) && !outstanding) begin
+                assert(!ram_ce);
+                assert(lane_fire_count == 3'd0);
+                if (result_ready) begin
+                    assert(result_valid);
+                    assert(result_zero_path);
+                    assert(result_sum == 12'sd0);
+                end else begin
+                    assert(!done_now);
+                end
+            end
+            // P8 背压锁存稳定性：result_valid 且 result_ready=0 时结果必须原样保持。
+            if (prev_bp) begin
+                assert(result_valid);
+                assert(result_sum == prev_sum);
+                assert(result_zero_path == prev_zero_flag);
+            end
+            // P9 同拍 retire/accept 的元数据分离：退出的结果必须属于上一事务，
+            //     新接受的 issue_mask/零标志不得污染本拍的 result_*。
+            if (done_now)
+                assert(result_sum == expect_sum);
+            if (done_now && accept_pulse && outstanding)
+                assert(result_zero_path == txn_zero);
+            // P10 lane_stall 挡住的 BATCH 拍：不提前完成、不提前接受。
+            if (e_lstall) begin
+                assert(!done_now);
+                assert(!result_valid);
+                assert(!accept_pulse);
+            end
             // P7 上游门控一致性
             assert(!protocol_error);
             assert(!cfg_error);
             assert(!cfg_illegal_index);
-            // P6 计数守恒（空闲且未启动新事务的那一拍检查）
-            if (issue_ready && !accept_pulse && past_valid) begin
-                assert(busy_cycles_state
-                       == group_read_requests_state + lane_ops_issued_state);
-                assert(weight_values_fetched_state
-                       == (group_read_requests_state << 1));
-                assert(completed_groups_state
-                       == group_read_requests_state + zero_fast_paths_state);
-                assert(total_cycles_state == busy_cycles_state + stall_cycles_state
-                       + (completed_groups_state - zero_fast_paths_state) * 3
-                       + zero_fast_paths_state * 2);
-                assert(stall_cycles_state == 32'd0);
+            // P6 逐拍账本恒等式（与 np7_ledger_reconstruction.py 的 B-V1+V2 同源）：
+            //     自报计数器必须与影子逐拍分类完全一致，旧 DONE 拍口径不再出现。
+            assert(group_read_requests_state == s_reads);
+            assert(lane_ops_issued_state == s_ops);
+            assert(weight_values_fetched_state == s_vals);
+            assert(zero_fast_paths_state == s_zero_paths);
+            assert(completed_groups_state == s_retires);
+            assert(busy_cycles_state == s_busy);
+            assert(stall_cycles_state == s_stall);
+            assert(s_stall == s_lstall + s_bp);
+            assert(s_total == s_busy + s_lat + s_lstall + s_bp + s_hr + s_zero
+                           + s_own);
+            assert(total_cycles_state == s_total);
+            if (issue_ready && !accept_pulse && !outstanding) begin
+                // 空闲且无在途结果时：权重槽 = 2x 读请求；接受数 = 退出数；
+                // 完成数 = 读事务数 + 零路径数（每非零事务占 READS_PER_TXN 次读，
+                // sparse 为 1、dense 为 2，因此用 READS_PER_TXN 归一而不是直接相等）。
+                assert(s_vals == (s_reads << 1));
+                assert(s_accepts == s_retires);
+                assert({28'd0, READS_PER_TXN} * completed_groups_state
+                       == group_read_requests_state
+                       + {28'd0, READS_PER_TXN} * zero_fast_paths_state);
             end
 
-            if (accept_pulse) begin
-                assert(!outstanding);
-                outstanding <= 1'b1;
-                txn_zero <= (issue_mask == 4'd0);
+            if (phase >= 4'd3) begin
+                s_accepts <= s_accepts + {31'd0, accept_pulse};
+                s_retires <= s_retires + {31'd0, done_now};
+                s_reads <= s_reads + {31'd0, e_ram};
+                s_vals <= s_vals + (e_lat ? VALS_PER_LAT : 32'd0);
+                s_ops <= s_ops + {29'd0, lane_fire_count};
+                s_zero_paths <= s_zero_paths + {31'd0,
+                              (accept_pulse && (issue_mask == 4'd0))};
+                s_busy <= s_busy + {31'd0, (e_ram || e_lane)};
+                s_lat <= s_lat + {31'd0, e_lat};
+                s_lstall <= s_lstall + {31'd0, e_lstall};
+                s_stall <= s_stall + {31'd0, (e_lstall || e_bp)};
+                s_bp <= s_bp + {31'd0, e_bp};
+                s_hr <= s_hr + {31'd0, e_hr};
+                s_zero <= s_zero + {31'd0, e_zero};
+                s_own <= s_own + {31'd0, e_own};
+                s_total <= s_total + {31'd0, e_active};
+                // 见证标志：只在正式流水期（phase>=3）累计，与 s_* 计数器同步。
+                saw_zero_single <= saw_zero_single || e_zero;
+                saw_zero_hold <= saw_zero_hold || (accept_pulse
+                        && (issue_mask == 4'd0) && !outstanding && !result_ready);
+                saw_fold <= saw_fold || (done_now && accept_pulse && outstanding);
+                saw_backpressure <= saw_backpressure || e_bp;
+                saw_lane_stall <= saw_lane_stall || e_lstall;
+                // 见证标志必须与对应计数器一致（这些性质同时保证标志本身
+                // 不会被优化掉，reachable/witness 检查才有意义）。
+                assert(!(saw_fold && !(s_retires > 32'd0)));
+                assert(!(saw_zero_single && !(s_zero > 32'd0)));
+                assert(!(saw_zero_hold && !(s_zero_paths > 32'd0)));
+                assert(!(saw_backpressure && !(s_bp > 32'd0)));
+                assert(!(saw_lane_stall && !(s_lstall > 32'd0)));
+            end
+            prev_bp <= raw_bp;
+            prev_sum <= result_sum;
+            prev_zero_flag <= result_zero_path;
+            // 先收尾旧事务，再登记新事务：V2 的折叠边沿两侧都要更新。
+            if (done_now) begin
+                assert(outstanding || accept_pulse);
+                if (outstanding) begin
+                    // 退出的是上一个事务：按它的影子逐拍账本核对读/lane 覆盖。
+                    if (!txn_zero) begin
+                        assert(txn_read_cycles == READS_PER_TXN);
+                        assert(txn_fire_cycles + {3'd0, e_lane} == mask_bits);
+                        assert((fired | (e_lane ? batch_mask : 4'd0)) == txn_mask);
+                    end
+                end else begin
+                    // V1 单拍零路径：退出结果属于本拍刚接受的事务，因此必须是
+                    // issue_mask=0 的零结果，非零事务不可能在 accept 同拍完成。
+                    assert(accept_pulse);
+                    assert(issue_mask == 4'd0);
+                    assert(result_zero_path);
+                    assert(result_sum == 12'sd0);
+                end
                 fired <= 4'd0;
+                outstanding <= 1'b0;
+            end
+            if (accept_pulse) begin
+                assert(!outstanding || done_now);
+                // V1：零路径事务可以在 accept 的同一边沿完成退出，此时它从来不是
+                //     "未退出结果"，影子不得把它记成 outstanding（否则 P1 会误报）。
+                outstanding <= !v1_single_done;
+                txn_zero <= (issue_mask == 4'd0) && !v1_single_done;
                 txn_mask <= issue_mask;
+                fired <= 4'd0;
                 txn_read_cycles <= 4'd0;
                 txn_fire_cycles <= 4'd0;
-                txn_cycles <= 5'd1;
             end else if (outstanding) begin
-                txn_cycles <= txn_cycles + 5'd1;
                 if (ram_ce)
                     txn_read_cycles <= txn_read_cycles + 4'd1;
                 if (lane_fire_count != 3'd0) begin
                     txn_fire_cycles <= txn_fire_cycles + 4'd1;
                     fired <= fired | batch_mask;
                 end
-                if (done_now) begin
-                    outstanding <= 1'b0;
-                    fired <= 4'd0;
-                    // P5/P1 周期合同：零路径 2 拍；非零 = 3 + 读拍 + 发射拍
-                    if (txn_zero)
-                        assert(txn_cycles + 5'd1 == 5'd2);
-                    else
-                        assert(txn_cycles + 5'd1 == 5'd3 + {1'b0, txn_read_cycles}
-                                                 + {1'b0, txn_fire_cycles});
-                    assert(!ram_ce || !txn_zero);
-                end
             end
         end
     end
 endmodule
 
-// 稠密顶层的同类检查：四个槽位全读，只检查单槽协议、地址边界与计数守恒。
 module formal_np7_exec_unit_dense(input logic clk);
     localparam int LANES = 1;
+    localparam logic [3:0] READS_PER_TXN = 4'd2;   // dense：每非零事务 2 次组读
+    localparam logic [31:0] VALS_PER_LAT = 32'd4;   // dense：LAT 拍一次入账 4 个权重槽
+    localparam logic [3:0] CFG_OPEN_LAST = 4'd4;     // dense：2 个 CONFIG 写拍
 
     logic        rst;
     logic        cfg_valid;
@@ -249,107 +402,281 @@ module formal_np7_exec_unit_dense(input logic clk);
 
     np7_exec_unit_dense #(.LANES(LANES)) dut (.*);
 
-    // 权重字：复位拍装载一次的符号常量；activity/request_now：逐拍自由。
+    // 形式输入：位模式是复位拍装载一次的符号常量；activity/request/背压逐拍自由。
     logic [19:0] word_low;
     logic [19:0] word_high;
-    logic        request_now;
-    logic [3:0]  activity;
 
-    logic [2:0] phase;
-    logic       past_valid;
-    logic       outstanding;
-    logic [3:0] fired;
-    logic [3:0] txn_mask;
-    logic       txn_zero;
-    logic [3:0] txn_read_cycles;
-    logic [3:0] txn_fire_cycles;
-    logic [4:0] txn_cycles;
-
+    wire signed [7:0] w0 = $signed(word_low[7:0]);
+    wire signed [7:0] w1 = $signed(word_low[15:8]);
+    wire signed [7:0] w2 = $signed(word_high[7:0]);
+    wire signed [7:0] w3 = $signed(word_high[15:8]);
     wire [3:0] gate_mask = activity;
-    wire done_now = result_valid && result_ready;
+    wire [2:0] skip_bits = 3'd0;
+
+    logic [3:0] phase;
+    logic       past_valid;
+    logic       request_now;
+    logic [3:0] activity;
+    logic       stall_seq;
+    logic       ready_seq;
+
+    // ---- 影子状态：单槽协议、逐拍类别与背压锁存的可观测模型 ----
+    logic        outstanding;
+    logic        txn_zero;
+    logic [3:0]  txn_mask;
+    logic [3:0]  fired;
+    logic [3:0]  txn_read_cycles;
+    logic [3:0]  txn_fire_cycles;
+    logic        prev_bp;
+    logic signed [11:0] prev_sum;
+    logic        prev_zero_flag;
+    // V1/V2 关键路径可达性见证（供 reach/zero witness 使用，防止"空真通过"）：
+    //   saw_zero_single  V1 单拍零路径（accept 与 result 同一边沿）
+    //   saw_zero_hold    V1 零路径遇到结果背压 -> 锁存进 S_HOLD
+    //   saw_fold         V2 旧结果退出与下一事务接受同一边沿
+    //   saw_backpressure 结果背压保持拍（S_HOLD 且 result_ready=0）
+    //   saw_lane_stall   lane_stall 挡住 BATCH 的拍
+    logic        saw_zero_single;
+    logic        saw_zero_hold;
+    logic        saw_fold;
+    logic        saw_backpressure;
+    logic        saw_lane_stall;
+    logic [31:0] s_total, s_busy, s_stall, s_lat, s_lstall, s_bp, s_hr, s_zero;
+    logic [31:0] s_own, s_accepts, s_retires, s_reads, s_ops, s_vals, s_zero_paths;
 
     assign rst = !past_valid;
-    assign cfg_open = (phase < 3'd4);
-    assign cfg_valid = (phase == 3'd2) || (phase == 3'd3);
-    assign cfg_addr = (phase == 3'd2) ? 5'd0 : 5'd1;
-    assign cfg_wdata = (phase == 3'd2) ? {4'b0, word_low[15:0]}
-                                       : {4'b0, word_high[15:0]};
+    assign cfg_open = (phase < CFG_OPEN_LAST);
+    assign cfg_valid = ((phase == 4'd2) || (phase == 4'd3));
+    assign cfg_addr = ((phase == 4'd2) ? 5'd0 : 5'd1);
+    assign cfg_wdata = ((phase == 4'd2) ? {4'b0, word_low[15:0]} : {4'b0, word_high[15:0]});
     assign issue_group = 4'd0;
     assign issue_activity = activity;
     assign issue_mask = gate_mask;
-    assign issue_skip_count = 3'd0;
-    assign issue_valid = request_now && (phase >= 3'd4);
-    assign lane_stall = 1'b0;
-    assign result_ready = 1'b1;
+    assign issue_skip_count = skip_bits;
+    assign issue_valid = request_now && (phase >= 4'd3);
+    assign lane_stall = stall_seq && (phase >= 4'd3);
+    assign result_ready = ready_seq;
+
+    wire done_now = result_valid && result_ready;
+    // 退出边沿上被比较的事务掩码：已接受未退出的是旧事务，冷启动当拍的是新事务。
+    wire [3:0] sum_mask = outstanding ? txn_mask : issue_mask;
+    wire [2:0] mask_bits = ((sum_mask & 4'b0001) != 4'b0)
+                        + ((sum_mask & 4'b0010) != 4'b0)
+                        + ((sum_mask & 4'b0100) != 4'b0)
+                        + ((sum_mask & 4'b1000) != 4'b0);
+    wire [2:0] batch_mask_bits = ((batch_mask & 4'b0001) != 4'b0)
+                        + ((batch_mask & 4'b0010) != 4'b0)
+                        + ((batch_mask & 4'b0100) != 4'b0)
+                        + ((batch_mask & 4'b1000) != 4'b0);
+    // 逐拍互斥类别，优先级与 oracle/RTL 完全一致：
+    //   RAM > LANE > LAT > LANE_STALL > BACKPRESSURE > HOLD_RETIRE > ZERO > ACCEPT
+    // 最后一批的锁存边沿归入 LANE（busy），只有已锁存进 HOLD 且 result_ready=0
+    // 的保持拍才算 BACKPRESSURE。
+    wire raw_bp = result_valid && !result_ready;
+    wire e_ram = ram_ce;
+    wire e_lane = (lane_fire_count != 3'd0);
+    wire e_lat = (state_code == 3'd3);
+    wire e_lstall = (state_code == 3'd4) && lane_stall;
+    wire e_bp = (state_code == 3'd5) && raw_bp;
+    wire e_hr = (state_code == 3'd5) && result_valid && result_ready;
+    wire e_zero = accept_pulse && (issue_mask == 4'd0) && done_now
+                  && (state_code == 3'd0);
+    wire e_own = accept_pulse && !e_zero && !done_now;
+    // 旧结果已退出、且本拍接受的零路径事务同拍完成 -> 该事务不留下在途结果。
+    wire v1_single_done = accept_pulse && !outstanding && done_now
+                          && (issue_mask == 4'd0);
+    wire e_active = e_ram || e_lane || e_lat || e_lstall || e_bp || e_hr
+                    || e_zero || e_own;
+
+    // 期望突触和：至多 4 x 127 = 508，12 bit 饱和路径不会触发，可解析比较。
+    logic signed [11:0] expect_sum;
+    always_comb begin
+        expect_sum = 12'sd0;
+        if ((sum_mask & 4'b0001) != 4'b0) expect_sum = expect_sum + w0;
+        if ((sum_mask & 4'b0010) != 4'b0) expect_sum = expect_sum + w1;
+        if ((sum_mask & 4'b0100) != 4'b0) expect_sum = expect_sum + w2;
+        if ((sum_mask & 4'b1000) != 4'b0) expect_sum = expect_sum + w3;
+    end
 
     always_ff @(posedge clk) begin
         if (!past_valid) begin
+            // 复位拍不得 assume 输入位模式：-set-init-zero 会把被 always_ff 驱动的
+            // anyseq 钉成 0，此时 assume 会让假设集不可满足（NP7.5 首轮空真教训）。
             word_low <= $anyseq;
             word_high <= $anyseq;
-            assume(phase == 3'd0);
+            assume(phase == 4'd0);
             assume(!outstanding);
+            assume(!protocol_error);
             past_valid <= 1'b1;
             outstanding <= 1'b0;
             txn_zero <= 1'b0;
+            txn_mask <= 4'd0;
             fired <= 4'd0;
             txn_read_cycles <= 4'd0;
             txn_fire_cycles <= 4'd0;
-            txn_cycles <= 5'd0;
-            phase <= 3'd1;
+            prev_bp <= 1'b0;
+            prev_sum <= 12'sd0;
+            prev_zero_flag <= 1'b0;
+            s_total <= 32'd0; s_busy <= 32'd0; s_stall <= 32'd0; s_lat <= 32'd0;
+            s_lstall <= 32'd0; s_bp <= 32'd0; s_hr <= 32'd0; s_zero <= 32'd0;
+            s_own <= 32'd0; s_accepts <= 32'd0; s_retires <= 32'd0;
+            s_reads <= 32'd0; s_ops <= 32'd0; s_zero_paths <= 32'd0;
+            s_vals <= 32'd0;
+            saw_zero_single <= 1'b0; saw_zero_hold <= 1'b0; saw_fold <= 1'b0;
+            saw_backpressure <= 1'b0; saw_lane_stall <= 1'b0;
+            phase <= 4'd1;
         end else begin
-            phase <= phase + 3'd1;
+            
             activity <= $anyseq;
             request_now <= $anyseq;
-            assert(!(accept_pulse && outstanding));
-            assert(!(done_now && !outstanding));
-            assert(!(issue_ready && outstanding));
+            stall_seq <= $anyseq;
+            ready_seq <= $anyseq;
+            if (phase != 4'd15) phase <= phase + 4'd1;
+
+            // P1 单槽协议：任意时刻最多一个未退出结果；只有在旧结果退出的同一边沿
+            //     才允许接受下一事务（V2），结果背压时必须停止接收。
+            assert(!(accept_pulse && outstanding && !done_now));
+            assert(!(raw_bp && accept_pulse));
+            // P2 恰好一次完成：不会凭空退出（V1 零路径的退出与 accept 同拍，
+            //     此时影子 outstanding 尚未置位，属于合法的单拍完成）。
+            assert(!(done_now && !outstanding && !accept_pulse));
+            assert(s_accepts == s_retires || s_accepts == s_retires + 32'd1);
+            // P3 地址边界
             assert(!ram_ce || {1'b0, ram_addr} < 6'd32);
-            // P3-prime: dense may only read the two words of the accepted group
-            assert(!ram_ce || ram_addr == {issue_group, 1'b0}
-                              || ram_addr == {issue_group, 1'b1});
+            assert(!ram_ce || (ram_addr == {issue_group, 1'b0} || ram_addr == {issue_group, 1'b1}));
+            // P4 无重复发射、发射宽度自洽
             assert(lane_fire_count == 3'd0 || batch_mask != 4'd0);
+            if (lane_fire_count != 3'd0)
+                assert({1'b0, batch_mask_bits} == lane_fire_count);
             assert(!(lane_fire_count != 3'd0 && (batch_mask & fired) != 4'd0));
             assert(!(lane_fire_count != 3'd0 && (batch_mask & ~txn_mask) != 4'd0));
-            if (done_now && !txn_zero)
-                assert(fired == txn_mask);
+            // P5 V1 零路径静默：不发 RAM 请求、不发 lane 操作，仍当拍给出 0 结果。
+            assert(!(outstanding && txn_zero && ram_ce));
+            assert(!(outstanding && txn_zero && lane_fire_count != 3'd0));
+            if (accept_pulse && (issue_mask == 4'd0) && !outstanding) begin
+                assert(!ram_ce);
+                assert(lane_fire_count == 3'd0);
+                if (result_ready) begin
+                    assert(result_valid);
+                    assert(result_zero_path);
+                    assert(result_sum == 12'sd0);
+                end else begin
+                    assert(!done_now);
+                end
+            end
+            // P8 背压锁存稳定性：result_valid 且 result_ready=0 时结果必须原样保持。
+            if (prev_bp) begin
+                assert(result_valid);
+                assert(result_sum == prev_sum);
+                assert(result_zero_path == prev_zero_flag);
+            end
+            // P9 同拍 retire/accept 的元数据分离：退出的结果必须属于上一事务，
+            //     新接受的 issue_mask/零标志不得污染本拍的 result_*。
+            if (done_now)
+                assert(result_sum == expect_sum);
+            if (done_now && accept_pulse && outstanding)
+                assert(result_zero_path == txn_zero);
+            // P10 lane_stall 挡住的 BATCH 拍：不提前完成、不提前接受。
+            if (e_lstall) begin
+                assert(!done_now);
+                assert(!result_valid);
+                assert(!accept_pulse);
+            end
+            // P7 上游门控一致性
             assert(!protocol_error);
             assert(!cfg_error);
-            if (issue_ready && !accept_pulse) begin
-                assert(weight_values_fetched_state
-                       == (group_read_requests_state << 1));
-                assert(completed_groups_state
-                       == group_read_requests_state / 2 + zero_fast_paths_state);
-                assert(busy_cycles_state
-                       == group_read_requests_state + lane_ops_issued_state);
-                assert(total_cycles_state == busy_cycles_state
-                       + stall_cycles_state
-                       + (completed_groups_state - zero_fast_paths_state) * 3
-                       + zero_fast_paths_state * 2);
-                assert(input_zero_groups_state == zero_fast_paths_state);
-                // 工装无反压假设：lane_stall=0 且 result_ready=1
-                assert(stall_cycles_state == 32'd0);
+            assert(!cfg_illegal_index);
+            // P6 逐拍账本恒等式（与 np7_ledger_reconstruction.py 的 B-V1+V2 同源）：
+            //     自报计数器必须与影子逐拍分类完全一致，旧 DONE 拍口径不再出现。
+            assert(group_read_requests_state == s_reads);
+            assert(lane_ops_issued_state == s_ops);
+            assert(weight_values_fetched_state == s_vals);
+            assert(zero_fast_paths_state == s_zero_paths);
+            assert(completed_groups_state == s_retires);
+            assert(busy_cycles_state == s_busy);
+            assert(stall_cycles_state == s_stall);
+            assert(s_stall == s_lstall + s_bp);
+            assert(s_total == s_busy + s_lat + s_lstall + s_bp + s_hr + s_zero
+                           + s_own);
+            assert(total_cycles_state == s_total);
+            if (issue_ready && !accept_pulse && !outstanding) begin
+                // 空闲且无在途结果时：权重槽 = 2x 读请求；接受数 = 退出数；
+                // 完成数 = 读事务数 + 零路径数（每非零事务占 READS_PER_TXN 次读，
+                // sparse 为 1、dense 为 2，因此用 READS_PER_TXN 归一而不是直接相等）。
+                assert(s_vals == (s_reads << 1));
+                assert(s_accepts == s_retires);
+                assert({28'd0, READS_PER_TXN} * completed_groups_state
+                       == group_read_requests_state
+                       + {28'd0, READS_PER_TXN} * zero_fast_paths_state);
+            end
+
+            if (phase >= 4'd3) begin
+                s_accepts <= s_accepts + {31'd0, accept_pulse};
+                s_retires <= s_retires + {31'd0, done_now};
+                s_reads <= s_reads + {31'd0, e_ram};
+                s_vals <= s_vals + (e_lat ? VALS_PER_LAT : 32'd0);
+                s_ops <= s_ops + {29'd0, lane_fire_count};
+                s_zero_paths <= s_zero_paths + {31'd0,
+                              (accept_pulse && (issue_mask == 4'd0))};
+                s_busy <= s_busy + {31'd0, (e_ram || e_lane)};
+                s_lat <= s_lat + {31'd0, e_lat};
+                s_lstall <= s_lstall + {31'd0, e_lstall};
+                s_stall <= s_stall + {31'd0, (e_lstall || e_bp)};
+                s_bp <= s_bp + {31'd0, e_bp};
+                s_hr <= s_hr + {31'd0, e_hr};
+                s_zero <= s_zero + {31'd0, e_zero};
+                s_own <= s_own + {31'd0, e_own};
+                s_total <= s_total + {31'd0, e_active};
+                // 见证标志：只在正式流水期（phase>=3）累计，与 s_* 计数器同步。
+                saw_zero_single <= saw_zero_single || e_zero;
+                saw_zero_hold <= saw_zero_hold || (accept_pulse
+                        && (issue_mask == 4'd0) && !outstanding && !result_ready);
+                saw_fold <= saw_fold || (done_now && accept_pulse && outstanding);
+                saw_backpressure <= saw_backpressure || e_bp;
+                saw_lane_stall <= saw_lane_stall || e_lstall;
+                // 见证标志必须与对应计数器一致（这些性质同时保证标志本身
+                // 不会被优化掉，reachable/witness 检查才有意义）。
+                assert(!(saw_fold && !(s_retires > 32'd0)));
+                assert(!(saw_zero_single && !(s_zero > 32'd0)));
+                assert(!(saw_zero_hold && !(s_zero_paths > 32'd0)));
+                assert(!(saw_backpressure && !(s_bp > 32'd0)));
+                assert(!(saw_lane_stall && !(s_lstall > 32'd0)));
+            end
+            prev_bp <= raw_bp;
+            prev_sum <= result_sum;
+            prev_zero_flag <= result_zero_path;
+            // 先收尾旧事务，再登记新事务：V2 的折叠边沿两侧都要更新。
+            if (done_now) begin
+                assert(outstanding || accept_pulse);
+                if (outstanding) begin
+                    // 退出的是上一个事务：按它的影子逐拍账本核对读/lane 覆盖。
+                    if (!txn_zero) begin
+                        assert(txn_read_cycles == READS_PER_TXN);
+                        assert(txn_fire_cycles + {3'd0, e_lane} == mask_bits);
+                        assert((fired | (e_lane ? batch_mask : 4'd0)) == txn_mask);
+                    end
+                end else begin
+                    // V1 单拍零路径：退出结果属于本拍刚接受的事务，因此必须是
+                    // issue_mask=0 的零结果，非零事务不可能在 accept 同拍完成。
+                    assert(accept_pulse);
+                    assert(issue_mask == 4'd0);
+                    assert(result_zero_path);
+                    assert(result_sum == 12'sd0);
+                end
+                fired <= 4'd0;
+                outstanding <= 1'b0;
             end
             if (accept_pulse) begin
-                outstanding <= 1'b1;
-                txn_zero <= (issue_mask == 4'd0);
-                fired <= 4'd0;
+                assert(!outstanding || done_now);
+                // V1：零路径事务可以在 accept 的同一边沿完成退出，此时它从来不是
+                //     "未退出结果"，影子不得把它记成 outstanding（否则 P1 会误报）。
+                outstanding <= !v1_single_done;
+                txn_zero <= (issue_mask == 4'd0) && !v1_single_done;
                 txn_mask <= issue_mask;
+                fired <= 4'd0;
                 txn_read_cycles <= 4'd0;
                 txn_fire_cycles <= 4'd0;
-                txn_cycles <= 5'd1;
-            end else if (done_now) begin
-                outstanding <= 1'b0;
-                fired <= 4'd0;
-                // P5: zero path completes in 2 cycles; non-zero = accept + reads + latency
-                //     + fire + done.  The shadow counter excludes the done cycle.
-                if (txn_zero)
-                    assert(txn_cycles + 5'd1 == 5'd2);
-                else
-                    assert(txn_cycles + 5'd1 == 5'd3 + {1'b0, txn_read_cycles}
-                                             + {1'b0, txn_fire_cycles});
-                assert(!ram_ce || !txn_zero);
             end else if (outstanding) begin
-                txn_cycles <= txn_cycles + 5'd1;
                 if (ram_ce)
                     txn_read_cycles <= txn_read_cycles + 4'd1;
                 if (lane_fire_count != 3'd0) begin
