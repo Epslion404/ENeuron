@@ -99,9 +99,14 @@ def m_missing_log(root, head):
 
 
 def m_tamper_gate_status(root, head):
+    # 清单里的门槛结论必须能由原始账本重算复现。这里双向造假：伪造一个 G3
+    # 数值，并把 G1 的结论翻转——无论该门槛当前是 PASS 还是 FAIL 都必须被拒。
     manifest = read_json(root, MANIFEST)
-    manifest["gates"]["G3"]["status"] = "PASS"
-    manifest["gates"]["G3"]["failures"] = []
+    victim = manifest["gates"]["G3"]["values"]
+    key = sorted(victim)[0]
+    victim[key] = round(float(victim[key]) + 0.05, 6)
+    g1 = manifest["gates"]["G1"]
+    g1["status"] = "FAIL" if g1["status"] == "PASS" else "PASS"
     write_json(root, MANIFEST, manifest)
     return head, "重算"
 
