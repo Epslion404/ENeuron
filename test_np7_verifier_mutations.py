@@ -230,6 +230,46 @@ def m_drop_xsim_case(root, head):
 
 
 
+
+
+def m_legacy_identity_only(root, head):
+    """把一份 NP7.3 观测账本改回"只在旧恒等式下闭合"：证明验证器真的拒绝
+    裁定 B-V1+V2 之前的旧口径证据，而不是只看数字大小。"""
+    rel = "artifacts/results/np7_cosim_ledgers.json"
+    data = read_json(root, rel)
+    sys.path.insert(0, str(ROOT))
+    import verify_np7_software_cost as verifier
+    for entry in data["ledgers"]:
+        observed = entry["observed"]
+        legacy = verifier.legacy_identity_total(observed)
+        if legacy != observed["total_cycles"]:
+            observed["total_cycles"] = legacy
+            if "total_cycles" in entry["claimed"]:
+                entry["claimed"]["total_cycles"] = legacy
+            break
+    write_json(root, rel, data)
+    return head, "旧恒等式"
+
+
+def m_tamper_ledger_coverage(root, head):
+    """清单里的逐拍覆盖统计被改小（伪称从未覆盖单拍零路径）。"""
+    manifest = read_json(root, MANIFEST)
+    manifest["ledger_coverage"]["zero_single_cycles"] = 0
+    write_json(root, MANIFEST, manifest)
+    return head, "逐拍覆盖"
+
+
+def m_drop_forced_rtl_mutation(root, head):
+    """删掉裁定要求的两类新 mutation 之一：RTL 变异集缩水必须被拒绝。"""
+    rel = "artifacts/results/np7_formal_and_mutations.json"
+    data = read_json(root, rel)
+    for tag in ("sparse_same_edge_metadata_overwrite",
+                "dense_same_edge_metadata_overwrite"):
+        data["rtl_mutations"].pop(tag, None)
+    write_json(root, rel, data)
+    return head, "强制 RTL mutation"
+
+
 MUTATIONS = [
     ("delete_run_log", m_missing_log),
     ("tamper_gate_status", m_tamper_gate_status),
@@ -247,6 +287,9 @@ MUTATIONS = [
     ("fake_xsim_behavioral_evidence", m_fake_xsim_evidence),
     ("fake_xsim_ledger_markers", m_fake_xsim_ledger),
     ("drop_xsim_case", m_drop_xsim_case),
+    ("legacy_identity_only_evidence", m_legacy_identity_only),
+    ("tamper_ledger_coverage", m_tamper_ledger_coverage),
+    ("drop_forced_rtl_mutation", m_drop_forced_rtl_mutation),
 ]
 
 

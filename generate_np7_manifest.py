@@ -47,6 +47,7 @@ INPUT_FILES = [
     "formal_np7_config_reject.sv",
     "formal_np7_config_reject.ys",
     "run_np7_vivado_xsim.py",
+    "docs/planning/NPU_PRUNING_NP7_DECISION_B_V1_V2.md",
 ]
 EVIDENCE_FILES = [
     "artifacts/results/np7_cosim_ledgers.json",
@@ -150,6 +151,7 @@ def main(argv=None):
         "bindings": bindings,
         "gates": computed["gates"],
         "rtl_observed_reductions": computed["rtl_observed_reductions"],
+        "ledger_coverage": computed["ledger_coverage"],
         "blocking_gates": computed["blocking_gates"],
         "overall_status": computed["overall_status"],
         "integrity": computed["integrity"],

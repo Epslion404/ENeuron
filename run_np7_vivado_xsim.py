@@ -34,6 +34,8 @@ ROOT = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 
 import np7_shared_lane_cosim as cosim
+from np7_ledger_reconstruction import (CLASS_ORDER, classify_row, observe,
+                                       parse_rows)
 from np7_shared_lane_oracle import FORMAT_DENSE, FORMAT_SPARSE
 
 RTL = [ROOT / name for name in (
@@ -47,9 +49,19 @@ REPORT_DIR = ROOT / "vivado_np7_xsim_reports"
 SUMMARY_JSON = ROOT / "artifacts" / "results" / "np7_vivado_xsim_summary.json"
 IVERILOG = os.environ.get("IVERILOG", "iverilog")
 VVP = os.environ.get("VVP", "vvp")
-SCHEMA = "np7-vivado-xsim-v1"
+SCHEMA = "np7-vivado-xsim-v2"
 OBSERVED_PREFIX = ("CYC ", "LEDGER ", "CFGNEG ")
 KEEP_CYC_EDGES = 40   # 提交进仓库的日志只保留首尾各这么多行 CYC，中间用 sha256 钉死
+# B-V1+V2 逐拍账本重建结果（PR #6 评论 5498372499）：NP7.6 验证器不用自报口径，
+# 而是从这些由原始 CYC 流重建的互斥类别计数里重算恒等式，并核对保留行的分类。
+RAW_LEDGER_KEYS = ("total_cycles", "busy_cycles", "stall_cycles", "latency_cycles",
+                   "lane_stall_cycles", "backpressure_cycles", "hold_retire_cycles",
+                   "zero_single_cycles", "accept_own_cycles", "group_read_requests",
+                   "weight_values_fetched", "lane_ops_issued", "completed_groups",
+                   "accept_events", "retire_events", "overlap_cycles",
+                   "retire_latch_cycles", "startup_cycles", "drain_cycles",
+                   "window_cycles")
+CLASS_CODE = dict((name, str(index)) for index, name in enumerate(CLASS_ORDER))
 
 
 class StepFailure(Exception):
@@ -245,9 +257,27 @@ def judge(case, xsim_text, icarus_text, words):
         if len(summaries) != 1 or "RESULT=PASS" not in summaries[0] or fails:
             problems.append("config-negative 未通过：%s fails=%d"
                             % (summaries[:1], len(fails)))
+    raw = {}
+    visible = ""
+    visible_rows = 0
+    if case["kind"] in ("golden", "negative") and ledgers:
+        # 从原始逐拍 CYC 流重建账本（不用 DUT 自报计数器），并给出保留行
+        # （截断后进仓库的第一/最后各 KEEP_CYC_EDGES 拍）的分类指纹，
+        # 使 NP7.6 验证器能独立复算恒等式并核对可见部分没有被伪造。
+        rows, _claimed = parse_rows("\n".join(xsim_rows))
+        rebuilt = observe(rows)
+        raw = dict((key, rebuilt[key]) for key in RAW_LEDGER_KEYS)
+        kept = (rows[:KEEP_CYC_EDGES]
+                + (rows[-KEEP_CYC_EDGES:]
+                   if len(rows) > 2 * KEEP_CYC_EDGES else []))
+        visible = "".join(CLASS_CODE[classify_row(row)] for row in kept)
+        visible_rows = len(kept)
     return problems, {"cyc_rows": len([r for r in xsim_rows
                                        if r.startswith("CYC ")]),
                       "ledger": ledgers[0] if ledgers else "",
+                      "raw_ledger": raw,
+                      "visible_class": visible,
+                      "visible_rows": visible_rows,
                       "summary": next((s for s in xsim_rows
                                        if s.startswith("CFGNEG SUMMARY")), ""),
                       "observed_rows": len(xsim_rows),

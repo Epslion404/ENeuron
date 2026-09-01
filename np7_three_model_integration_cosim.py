@@ -474,7 +474,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 2
     frozen = json.loads(RESULTS.read_text(encoding="utf-8"))
     problems: list[str] = []
-    report: dict[str, Any] = {"schema": "np7-three-model-integration-v1",
+    report: dict[str, Any] = {"schema": "np7-three-model-integration-v2",
                               "candidate": CANDIDATE, "models": {}}
     for model_id in MODELS:
         setup = _model_setup(model_id)

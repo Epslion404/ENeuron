@@ -326,7 +326,7 @@ def main(argv: list[str] | None = None) -> int:
     results.mkdir(parents=True, exist_ok=True)
     bad = sum(1 for entry in RAW_LEDGERS if entry["reconstruction_violations"])
     (results / "np7_cosim_ledgers.json").write_text(json.dumps(
-        {"schema": "np7-cosim-ledgers-v1", "configs": runs,
+        {"schema": "np7-cosim-ledgers-v2", "configs": runs,
          "transactions": sum(e["transactions"] for e in RAW_LEDGERS),
          "per_tick_failures": len(failures),
          "reconstruction_dirty_configs": bad, "ledgers": RAW_LEDGERS},
