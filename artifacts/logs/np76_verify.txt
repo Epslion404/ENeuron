@@ -1,0 +1,17 @@
+# command: python verify_np7_software_cost.py ae91b0d7bc6806d5c5e7824b6bdd07c9e60fee5e
+# git_head: ae91b0d7bc6806d5c5e7824b6bdd07c9e60fee5e
+# local_time: 2026-09-02 01:07:07
+
+GATE G1 PASS 实际权重槽读取下降 阈值=0.45 失败项=0
+GATE G2 PASS 共享 lane 操作数下降 阈值=0.45 失败项=0
+GATE G3 FAIL 每逻辑 tick 周期下降 阈值=0.25 失败项=12
+     - eneuron/L1 22.3%<25%
+     - eneuron/L2 21.8%<25%
+     - eneuron/L4 21.0%<25%
+     - eneuron/L8 21.0%<25%
+     - pulse_mini_l/L1 22.3%<25%
+     - pulse_mini_l/L2 21.8%<25%
+GATE G4 PASS stall 单列且未抵消吞吐 阈值=None 失败项=0
+GATE G5 PASS 膜状态/突触和 bit-exact 阈值=None 失败项=0
+GATE G6 PASS 三模型精度维持冻结门槛 阈值=None 失败项=0
+NP7_VERIFY_SUMMARY rejects=0 blocking_gates=G3 overall=FAIL

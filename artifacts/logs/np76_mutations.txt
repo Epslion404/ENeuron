@@ -1,0 +1,19 @@
+# command: python test_np7_verifier_mutations.py
+# git_head: ae91b0d7bc6806d5c5e7824b6bdd07c9e60fee5e
+# local_time: 2026-09-02 01:07:09
+
+baseline clone head=ae91b0d rc=1 baseline_rejects=0 NP7_VERIFY_SUMMARY rejects=0 blocking_gates=G3 overall=FAIL
+delete_run_log               rc=1 new_rejects=1 CAUGHT
+tamper_gate_status           rc=1 new_rejects=2 CAUGHT
+tamper_rtl_ledger            rc=1 new_rejects=3 CAUGHT
+fake_cycle_gain              rc=1 new_rejects=26 CAUGHT
+lower_gate_threshold         rc=1 new_rejects=2 CAUGHT
+accept_negative_control      rc=1 new_rejects=9 CAUGHT
+weaken_formal_verdict        rc=1 new_rejects=2 CAUGHT
+leak_mutation_escapes        rc=1 new_rejects=2 CAUGHT
+tamper_frozen_accuracy       rc=1 new_rejects=2 CAUGHT
+post_freeze_rtl_rebind       rc=1 new_rejects=1 CAUGHT
+post_freeze_tool_rebind      rc=1 new_rejects=1 CAUGHT
+bogus_frozen_head            rc=1 new_rejects=34 CAUGHT
+manifest_integrity_flagged   rc=1 new_rejects=2 CAUGHT
+MUTATION_SUITE PASS checks=13

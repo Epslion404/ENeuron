@@ -1,7 +1,7 @@
 # NPU 局部剪枝 NP7 共享 BRAM 与共享 lane 软件签核报告（NP7.1–NP7.6）
 
 日期：2026-09-02。分支 `feature/np7-shared-lanes-20260901`（基线 `main @ 8853f7b`）。
-证据清单：`artifacts/results/np7_software_cost_manifest.json`，绑定冻结 HEAD `37e9567`；验证器 `verify_np7_software_cost.py` 在 `f5adce2` 运行，绑定与证据自检拒绝数 `rejects=0`。
+证据清单：`artifacts/results/np7_software_cost_manifest.json`，绑定冻结 HEAD `c181ff3`；清单提交 `ae91b0d`；验证器 `verify_np7_software_cost.py` 在 `ae91b0d` 运行，绑定与证据自检拒绝数 `rejects=0`（日志 `artifacts/logs/np76_verify.txt`）；变异套件 `MUTATION_SUITE PASS checks=13`（日志 `artifacts/logs/np76_mutations.txt`）。两份 NP7.6 运行日志在清单生成之后产生，不参与哈希绑定（避免自引用）。
 
 状态：`NP7_FUNCTIONAL_HOLD`
 
