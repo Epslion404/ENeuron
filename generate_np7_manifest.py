@@ -61,8 +61,9 @@ TOOL_VERSION_COMMANDS = {
 
 
 def git(*args):
+    # 原始字节返回，和验证器同一口径（避免本地代码页解码破坏字节级比对）。
     done = subprocess.run(["git", "-C", str(ROOT)] + list(args),
-                          capture_output=True, text=True, check=False)
+                          capture_output=True, check=False)
     return done.returncode, done.stdout
 
 
@@ -85,7 +86,7 @@ def main(argv=None):
     if rc != 0:
         print("NP7_MANIFEST_FAIL: 无法取 HEAD")
         return 1
-    head = head.strip()
+    head = head.decode("utf-8", "replace").strip()
     problems = []
     bindings = {}
     for group, files in (("input_files", INPUT_FILES),
@@ -102,7 +103,7 @@ def main(argv=None):
             if rc != 0:
                 problems.append("%s 尚未提交到 %s：%s" % (rel, head[:7], "missing"))
                 continue
-            if verifier.sha256_bytes(blob.encode("utf-8")) != sha:
+            if verifier.sha256_bytes(blob) != sha:
                 problems.append("%s 磁盘字节与 HEAD 提交字节不一致" % rel)
                 continue
             entries[rel] = sha

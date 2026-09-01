@@ -19,7 +19,8 @@ FAILURES = []
 
 def git_at(root, *args):
     done = subprocess.run(["git", "-C", str(root)] + list(args),
-                          capture_output=True, text=True, check=False)
+                          capture_output=True, text=True, check=False,
+                          encoding="utf-8", errors="replace")
     return done.returncode, (done.stdout + done.stderr).strip()
 
 

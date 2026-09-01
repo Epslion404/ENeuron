@@ -52,8 +52,9 @@ def sha256_file(path):
 
 
 def git(*args):
+    # 返回原始字节：清单绑定用字节级哈希，任何按本地代码页的解码都会破坏比对。
     done = subprocess.run(["git", "-C", str(ROOT)] + list(args),
-                          capture_output=True, text=True, check=False)
+                          capture_output=True, check=False)
     return done.returncode, done.stdout
 
 
@@ -321,7 +322,7 @@ def main(argv=None):
     if not disk.exists():
         print("NP7_VERIFY_REJECT: 清单文件不在磁盘上")
         return 1
-    if canonical_bytes(disk.read_bytes()) != canonical_bytes(committed.encode("utf-8")):
+    if canonical_bytes(disk.read_bytes()) != canonical_bytes(committed):
         rejects.append("清单磁盘字节与 %s 提交字节不一致" % verify_head)
     manifest = json.loads(disk.read_bytes().decode("utf-8"))
     if manifest.get("schema") != "np7-software-cost-manifest-v1":
@@ -334,7 +335,8 @@ def main(argv=None):
         if rc != 0:
             rejects.append("冻结提交 %s 不是 %s 的祖先" % (frozen_head[:7], verify_head))
     rc, _out = git("rev-parse", "--verify", "HEAD")
-    if rc == 0 and _out.strip() and _out.strip() != verify_head and verify_head != "HEAD":
+    current = _out.decode("utf-8", "replace").strip()
+    if rc == 0 and current and current != verify_head and verify_head != "HEAD":
         rejects.append("verify head 与当前 HEAD 不一致（先同步再验证）")
     groups = manifest.get("bindings", {})
     for group in ("input_files", "tool_files", "evidence_files"):
@@ -352,7 +354,7 @@ def main(argv=None):
             rc, blob = git("show", "%s:%s" % (frozen_head, rel))
             if rc != 0:
                 rejects.append("%s 在冻结提交中不存在 %s" % (group, rel))
-            elif sha256_bytes(blob.encode("utf-8")) != want:
+            elif sha256_bytes(blob) != want:
                 rejects.append("%s 冻结提交字节偏离清单 %s" % (group, rel))
     if ".dcp" in json.dumps(manifest):
         rejects.append("清单绑定了 .dcp（未提交的二进制不得作为证据）")
