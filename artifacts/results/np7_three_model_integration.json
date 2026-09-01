@@ -33,6 +33,7 @@
           "dense_baseline": {
             "accept_cycles": 40,
             "accept_events": 640,
+            "accept_own_cycles": 40,
             "backpressure_cycles": 0,
             "busy_cycles": 600,
             "completed_groups": 640,
@@ -62,6 +63,7 @@
           "dense_format": {
             "accept_cycles": 40,
             "accept_events": 640,
+            "accept_own_cycles": 40,
             "backpressure_cycles": 0,
             "busy_cycles": 320,
             "completed_groups": 640,
@@ -91,6 +93,7 @@
           "sparse_format": {
             "accept_cycles": 40,
             "accept_events": 640,
+            "accept_own_cycles": 40,
             "backpressure_cycles": 0,
             "busy_cycles": 220,
             "completed_groups": 640,
@@ -122,6 +125,7 @@
           "dense_baseline": {
             "accept_cycles": 40,
             "accept_events": 640,
+            "accept_own_cycles": 40,
             "backpressure_cycles": 0,
             "busy_cycles": 560,
             "completed_groups": 640,
@@ -151,6 +155,7 @@
           "dense_format": {
             "accept_cycles": 40,
             "accept_events": 640,
+            "accept_own_cycles": 40,
             "backpressure_cycles": 0,
             "busy_cycles": 300,
             "completed_groups": 640,
@@ -180,6 +185,7 @@
           "sparse_format": {
             "accept_cycles": 40,
             "accept_events": 640,
+            "accept_own_cycles": 40,
             "backpressure_cycles": 0,
             "busy_cycles": 200,
             "completed_groups": 640,
@@ -211,6 +217,7 @@
           "dense_baseline": {
             "accept_cycles": 40,
             "accept_events": 640,
+            "accept_own_cycles": 40,
             "backpressure_cycles": 0,
             "busy_cycles": 540,
             "completed_groups": 640,
@@ -240,6 +247,7 @@
           "dense_format": {
             "accept_cycles": 40,
             "accept_events": 640,
+            "accept_own_cycles": 40,
             "backpressure_cycles": 0,
             "busy_cycles": 300,
             "completed_groups": 640,
@@ -269,6 +277,7 @@
           "sparse_format": {
             "accept_cycles": 40,
             "accept_events": 640,
+            "accept_own_cycles": 40,
             "backpressure_cycles": 0,
             "busy_cycles": 200,
             "completed_groups": 640,
@@ -300,6 +309,7 @@
           "dense_baseline": {
             "accept_cycles": 40,
             "accept_events": 640,
+            "accept_own_cycles": 40,
             "backpressure_cycles": 0,
             "busy_cycles": 540,
             "completed_groups": 640,
@@ -329,6 +339,7 @@
           "dense_format": {
             "accept_cycles": 40,
             "accept_events": 640,
+            "accept_own_cycles": 40,
             "backpressure_cycles": 0,
             "busy_cycles": 300,
             "completed_groups": 640,
@@ -358,6 +369,7 @@
           "sparse_format": {
             "accept_cycles": 40,
             "accept_events": 640,
+            "accept_own_cycles": 40,
             "backpressure_cycles": 0,
             "busy_cycles": 200,
             "completed_groups": 640,
@@ -563,7 +575,7 @@
       "samples": 20,
       "state_digest_mismatch_samples": 0,
       "state_digest_samples": 20,
-      "ticks_per_sample": 3,
+      "ticks_per_sample": 4,
       "v2_evidence": {
         "1": {
           "folded_cycles_saved": 700,
@@ -631,6 +643,7 @@
           "dense_baseline": {
             "accept_cycles": 40,
             "accept_events": 640,
+            "accept_own_cycles": 40,
             "backpressure_cycles": 0,
             "busy_cycles": 600,
             "completed_groups": 640,
@@ -660,6 +673,7 @@
           "dense_format": {
             "accept_cycles": 40,
             "accept_events": 640,
+            "accept_own_cycles": 40,
             "backpressure_cycles": 0,
             "busy_cycles": 320,
             "completed_groups": 640,
@@ -689,6 +703,7 @@
           "sparse_format": {
             "accept_cycles": 40,
             "accept_events": 640,
+            "accept_own_cycles": 40,
             "backpressure_cycles": 0,
             "busy_cycles": 220,
             "completed_groups": 640,
@@ -720,6 +735,7 @@
           "dense_baseline": {
             "accept_cycles": 40,
             "accept_events": 640,
+            "accept_own_cycles": 40,
             "backpressure_cycles": 0,
             "busy_cycles": 560,
             "completed_groups": 640,
@@ -749,6 +765,7 @@
           "dense_format": {
             "accept_cycles": 40,
             "accept_events": 640,
+            "accept_own_cycles": 40,
             "backpressure_cycles": 0,
             "busy_cycles": 300,
             "completed_groups": 640,
@@ -778,6 +795,7 @@
           "sparse_format": {
             "accept_cycles": 40,
             "accept_events": 640,
+            "accept_own_cycles": 40,
             "backpressure_cycles": 0,
             "busy_cycles": 200,
             "completed_groups": 640,
@@ -809,6 +827,7 @@
           "dense_baseline": {
             "accept_cycles": 40,
             "accept_events": 640,
+            "accept_own_cycles": 40,
             "backpressure_cycles": 0,
             "busy_cycles": 540,
             "completed_groups": 640,
@@ -838,6 +857,7 @@
           "dense_format": {
             "accept_cycles": 40,
             "accept_events": 640,
+            "accept_own_cycles": 40,
             "backpressure_cycles": 0,
             "busy_cycles": 300,
             "completed_groups": 640,
@@ -867,6 +887,7 @@
           "sparse_format": {
             "accept_cycles": 40,
             "accept_events": 640,
+            "accept_own_cycles": 40,
             "backpressure_cycles": 0,
             "busy_cycles": 200,
             "completed_groups": 640,
@@ -898,6 +919,7 @@
           "dense_baseline": {
             "accept_cycles": 40,
             "accept_events": 640,
+            "accept_own_cycles": 40,
             "backpressure_cycles": 0,
             "busy_cycles": 540,
             "completed_groups": 640,
@@ -927,6 +949,7 @@
           "dense_format": {
             "accept_cycles": 40,
             "accept_events": 640,
+            "accept_own_cycles": 40,
             "backpressure_cycles": 0,
             "busy_cycles": 300,
             "completed_groups": 640,
@@ -956,6 +979,7 @@
           "sparse_format": {
             "accept_cycles": 40,
             "accept_events": 640,
+            "accept_own_cycles": 40,
             "backpressure_cycles": 0,
             "busy_cycles": 200,
             "completed_groups": 640,
@@ -1161,7 +1185,7 @@
       "samples": 20,
       "state_digest_mismatch_samples": 0,
       "state_digest_samples": 20,
-      "ticks_per_sample": 3,
+      "ticks_per_sample": 4,
       "v2_evidence": {
         "1": {
           "folded_cycles_saved": 700,
@@ -1229,6 +1253,7 @@
           "dense_baseline": {
             "accept_cycles": 40,
             "accept_events": 640,
+            "accept_own_cycles": 40,
             "backpressure_cycles": 0,
             "busy_cycles": 600,
             "completed_groups": 640,
@@ -1258,6 +1283,7 @@
           "dense_format": {
             "accept_cycles": 40,
             "accept_events": 640,
+            "accept_own_cycles": 40,
             "backpressure_cycles": 0,
             "busy_cycles": 320,
             "completed_groups": 640,
@@ -1287,6 +1313,7 @@
           "sparse_format": {
             "accept_cycles": 40,
             "accept_events": 640,
+            "accept_own_cycles": 40,
             "backpressure_cycles": 0,
             "busy_cycles": 220,
             "completed_groups": 640,
@@ -1318,6 +1345,7 @@
           "dense_baseline": {
             "accept_cycles": 40,
             "accept_events": 640,
+            "accept_own_cycles": 40,
             "backpressure_cycles": 0,
             "busy_cycles": 560,
             "completed_groups": 640,
@@ -1347,6 +1375,7 @@
           "dense_format": {
             "accept_cycles": 40,
             "accept_events": 640,
+            "accept_own_cycles": 40,
             "backpressure_cycles": 0,
             "busy_cycles": 300,
             "completed_groups": 640,
@@ -1376,6 +1405,7 @@
           "sparse_format": {
             "accept_cycles": 40,
             "accept_events": 640,
+            "accept_own_cycles": 40,
             "backpressure_cycles": 0,
             "busy_cycles": 200,
             "completed_groups": 640,
@@ -1407,6 +1437,7 @@
           "dense_baseline": {
             "accept_cycles": 40,
             "accept_events": 640,
+            "accept_own_cycles": 40,
             "backpressure_cycles": 0,
             "busy_cycles": 540,
             "completed_groups": 640,
@@ -1436,6 +1467,7 @@
           "dense_format": {
             "accept_cycles": 40,
             "accept_events": 640,
+            "accept_own_cycles": 40,
             "backpressure_cycles": 0,
             "busy_cycles": 300,
             "completed_groups": 640,
@@ -1465,6 +1497,7 @@
           "sparse_format": {
             "accept_cycles": 40,
             "accept_events": 640,
+            "accept_own_cycles": 40,
             "backpressure_cycles": 0,
             "busy_cycles": 200,
             "completed_groups": 640,
@@ -1496,6 +1529,7 @@
           "dense_baseline": {
             "accept_cycles": 40,
             "accept_events": 640,
+            "accept_own_cycles": 40,
             "backpressure_cycles": 0,
             "busy_cycles": 540,
             "completed_groups": 640,
@@ -1525,6 +1559,7 @@
           "dense_format": {
             "accept_cycles": 40,
             "accept_events": 640,
+            "accept_own_cycles": 40,
             "backpressure_cycles": 0,
             "busy_cycles": 300,
             "completed_groups": 640,
@@ -1554,6 +1589,7 @@
           "sparse_format": {
             "accept_cycles": 40,
             "accept_events": 640,
+            "accept_own_cycles": 40,
             "backpressure_cycles": 0,
             "busy_cycles": 200,
             "completed_groups": 640,
@@ -1759,7 +1795,7 @@
       "samples": 20,
       "state_digest_mismatch_samples": 0,
       "state_digest_samples": 20,
-      "ticks_per_sample": 3,
+      "ticks_per_sample": 4,
       "v2_evidence": {
         "1": {
           "folded_cycles_saved": 700,
@@ -1797,5 +1833,5 @@
     }
   },
   "problems": [],
-  "schema": "np7-three-model-integration-v1"
+  "schema": "np7-three-model-integration-v2"
 }

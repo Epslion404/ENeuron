@@ -13,16 +13,19 @@
       "kind": "cfgneg",
       "lanes": 1,
       "logs": {
-        "cfgneg_dense_L1.log": "835471156098ff9521d8d349ac262cafe67f1d77311bc0a8d4aa2b1a177dd585"
+        "cfgneg_dense_L1.log": "e0546ae1fdaf1549ff28dcedb4fffa34958dd10b0d5481a7c3aadc8019abf066"
       },
       "metrics": {
         "cyc_rows": 0,
-        "icarus_observed_sha256": "64edb9ecf583e67091c415f1b0f9a2ac2dcb713db52834885a0637cd538fac60",
+        "icarus_observed_sha256": "70e651ef63f0ae80085a5960a52526151bd7345e22e7efa42c1114517663b415",
         "ledger": "",
         "log_file": "logs/cfgneg_dense_L1.log",
         "observed_rows": 13,
-        "observed_sha256": "64edb9ecf583e67091c415f1b0f9a2ac2dcb713db52834885a0637cd538fac60",
-        "summary": "CFGNEG SUMMARY FORMAT=dense LANES=1 CHECKS=8 FAILED=0 RESULT=PASS"
+        "observed_sha256": "70e651ef63f0ae80085a5960a52526151bd7345e22e7efa42c1114517663b415",
+        "raw_ledger": {},
+        "summary": "CFGNEG SUMMARY FORMAT=dense LANES=1 CHECKS=8 FAILED=0 RESULT=PASS",
+        "visible_class": "",
+        "visible_rows": 0
       },
       "neg": -1,
       "ntxn": 0,
@@ -49,16 +52,19 @@
       "kind": "cfgneg",
       "lanes": 4,
       "logs": {
-        "cfgneg_dense_L4.log": "785c455209412af6fa409db5eacde730ebd7e0eff746f51472f79cc10bfd52d6"
+        "cfgneg_dense_L4.log": "cb3da84f091d5cf3f0b61127d9e2d45cf65d4297afe5d53d6169f78b8dd23960"
       },
       "metrics": {
         "cyc_rows": 0,
-        "icarus_observed_sha256": "678d702f48182ca388e9d33b7d492c1f52ce26f6ab5ae3b0b87e84327aaebeb3",
+        "icarus_observed_sha256": "3d80e5b03d4e102a8a9c3f0d72d6c0ee687ee06bc0057cb252adbdf2632bac75",
         "ledger": "",
         "log_file": "logs/cfgneg_dense_L4.log",
         "observed_rows": 13,
-        "observed_sha256": "678d702f48182ca388e9d33b7d492c1f52ce26f6ab5ae3b0b87e84327aaebeb3",
-        "summary": "CFGNEG SUMMARY FORMAT=dense LANES=4 CHECKS=8 FAILED=0 RESULT=PASS"
+        "observed_sha256": "3d80e5b03d4e102a8a9c3f0d72d6c0ee687ee06bc0057cb252adbdf2632bac75",
+        "raw_ledger": {},
+        "summary": "CFGNEG SUMMARY FORMAT=dense LANES=4 CHECKS=8 FAILED=0 RESULT=PASS",
+        "visible_class": "",
+        "visible_rows": 0
       },
       "neg": -1,
       "ntxn": 0,
@@ -85,16 +91,19 @@
       "kind": "cfgneg",
       "lanes": 1,
       "logs": {
-        "cfgneg_sparse_L1.log": "c49c93e27fabcfe2d872e3cad3292cf082e968c510bd8d6a767f6018c57d3e49"
+        "cfgneg_sparse_L1.log": "a61b61a3985cc241dd24210b39566dd6d8cbb53394527bd2edb8408d34c1eaae"
       },
       "metrics": {
         "cyc_rows": 0,
-        "icarus_observed_sha256": "c9ea5ca62b4238006eb01310d96b93275188a898660600c39cbcad1053901d10",
+        "icarus_observed_sha256": "0a8f6fcbce1f59f60b0bd6cff5f28bd911f056c324ef19aa03038516d85dbc51",
         "ledger": "",
         "log_file": "logs/cfgneg_sparse_L1.log",
         "observed_rows": 13,
-        "observed_sha256": "c9ea5ca62b4238006eb01310d96b93275188a898660600c39cbcad1053901d10",
-        "summary": "CFGNEG SUMMARY FORMAT=sparse LANES=1 CHECKS=8 FAILED=0 RESULT=PASS"
+        "observed_sha256": "0a8f6fcbce1f59f60b0bd6cff5f28bd911f056c324ef19aa03038516d85dbc51",
+        "raw_ledger": {},
+        "summary": "CFGNEG SUMMARY FORMAT=sparse LANES=1 CHECKS=8 FAILED=0 RESULT=PASS",
+        "visible_class": "",
+        "visible_rows": 0
       },
       "neg": -1,
       "ntxn": 0,
@@ -121,16 +130,19 @@
       "kind": "cfgneg",
       "lanes": 4,
       "logs": {
-        "cfgneg_sparse_L4.log": "416cae722e73f33a98e7d0e1765714ada917d7a5700d8328b27981603b625973"
+        "cfgneg_sparse_L4.log": "24efdbf03480207c8fbaf6f92c5d45e4d375c3a8258f29f011ae327a898291f6"
       },
       "metrics": {
         "cyc_rows": 0,
-        "icarus_observed_sha256": "730307520536e65ab6ef70f4d9df00f17b4b3d36cab104d21ad96455294cccc5",
+        "icarus_observed_sha256": "d109e86149611fc895ced2e1627aa2d175f0785d8c82fead19e141a1ba127bc4",
         "ledger": "",
         "log_file": "logs/cfgneg_sparse_L4.log",
         "observed_rows": 13,
-        "observed_sha256": "730307520536e65ab6ef70f4d9df00f17b4b3d36cab104d21ad96455294cccc5",
-        "summary": "CFGNEG SUMMARY FORMAT=sparse LANES=4 CHECKS=8 FAILED=0 RESULT=PASS"
+        "observed_sha256": "d109e86149611fc895ced2e1627aa2d175f0785d8c82fead19e141a1ba127bc4",
+        "raw_ledger": {},
+        "summary": "CFGNEG SUMMARY FORMAT=sparse LANES=4 CHECKS=8 FAILED=0 RESULT=PASS",
+        "visible_class": "",
+        "visible_rows": 0
       },
       "neg": -1,
       "ntxn": 0,
@@ -157,16 +169,40 @@
       "kind": "golden",
       "lanes": 1,
       "logs": {
-        "golden_dense_L1.log": "7520e5ed00fde4308dfae1b363e3f8f4886e61a4df23d9ff0865522dd877e30c"
+        "golden_dense_L1.log": "090ef9868f0629d8ffbfc10d1ccf8c4ee0fb66027e29e6f74c1a649b6d110695"
       },
       "metrics": {
-        "cyc_rows": 913,
-        "icarus_observed_sha256": "921a97196f9adbf17fc34b0860b74c4670db8ab77e3dfce541af6c841d8b1dd1",
-        "ledger": "LEDGER req=224 val=448 ops=242 zero=8 busy=466 stall=72 done=120 skip=0 inzero=8 azero=0 sat=0 total=890 proto=0 cfgerr=0 completed=120",
+        "cyc_rows": 693,
+        "icarus_observed_sha256": "51d16d17d4f87a76c6d01ad53f121e776ecdde49e3e57d148c4509d425534cc1",
+        "ledger": "LEDGER req=224 val=448 ops=242 zero=8 busy=466 stall=70 done=120 skip=0 inzero=8 azero=0 sat=0 total=670 proto=0 cfgerr=0 completed=120",
         "log_file": "logs/golden_dense_L1.log",
-        "observed_rows": 914,
-        "observed_sha256": "921a97196f9adbf17fc34b0860b74c4670db8ab77e3dfce541af6c841d8b1dd1",
-        "summary": ""
+        "observed_rows": 694,
+        "observed_sha256": "51d16d17d4f87a76c6d01ad53f121e776ecdde49e3e57d148c4509d425534cc1",
+        "raw_ledger": {
+          "accept_events": 120,
+          "accept_own_cycles": 1,
+          "backpressure_cycles": 3,
+          "busy_cycles": 466,
+          "completed_groups": 120,
+          "drain_cycles": 0,
+          "group_read_requests": 224,
+          "hold_retire_cycles": 21,
+          "lane_ops_issued": 242,
+          "lane_stall_cycles": 67,
+          "latency_cycles": 112,
+          "overlap_cycles": 119,
+          "retire_events": 120,
+          "retire_latch_cycles": 13,
+          "stall_cycles": 70,
+          "startup_cycles": 1,
+          "total_cycles": 670,
+          "weight_values_fetched": 448,
+          "window_cycles": 670,
+          "zero_single_cycles": 0
+        },
+        "summary": "",
+        "visible_class": "88888888888888888888887002331100211100210211002111002331002133131100231100211318",
+        "visible_rows": 80
       },
       "neg": -1,
       "ntxn": 120,
@@ -201,16 +237,40 @@
       "kind": "golden",
       "lanes": 2,
       "logs": {
-        "golden_dense_L2.log": "962ad6e0062b97c783385073871fbbc7c73e6970f28c6597acede7e90f5c74e7"
+        "golden_dense_L2.log": "167ebfd62368d201741efe308310a4cc693a48e419b59dd9f6be8a397e4fb3e6"
       },
       "metrics": {
-        "cyc_rows": 808,
-        "icarus_observed_sha256": "5566a4586a02f5f0375689761621cd3e622a1b6dfb5073b86052ee0c3eb2224a",
-        "ledger": "LEDGER req=224 val=448 ops=238 zero=8 busy=372 stall=61 done=120 skip=0 inzero=8 azero=0 sat=0 total=785 proto=0 cfgerr=0 completed=120",
+        "cyc_rows": 588,
+        "icarus_observed_sha256": "e1ea39493a39a23d258e8f1c70f55dea08d43ba341d5afe0c5345b7ec18f60ca",
+        "ledger": "LEDGER req=224 val=448 ops=238 zero=8 busy=372 stall=54 done=120 skip=0 inzero=8 azero=0 sat=0 total=565 proto=0 cfgerr=0 completed=120",
         "log_file": "logs/golden_dense_L2.log",
-        "observed_rows": 809,
-        "observed_sha256": "5566a4586a02f5f0375689761621cd3e622a1b6dfb5073b86052ee0c3eb2224a",
-        "summary": ""
+        "observed_rows": 589,
+        "observed_sha256": "e1ea39493a39a23d258e8f1c70f55dea08d43ba341d5afe0c5345b7ec18f60ca",
+        "raw_ledger": {
+          "accept_events": 120,
+          "accept_own_cycles": 1,
+          "backpressure_cycles": 4,
+          "busy_cycles": 372,
+          "completed_groups": 120,
+          "drain_cycles": 0,
+          "group_read_requests": 224,
+          "hold_retire_cycles": 26,
+          "lane_ops_issued": 238,
+          "lane_stall_cycles": 50,
+          "latency_cycles": 112,
+          "overlap_cycles": 119,
+          "retire_events": 120,
+          "retire_latch_cycles": 18,
+          "stall_cycles": 54,
+          "startup_cycles": 1,
+          "total_cycles": 565,
+          "weight_values_fetched": 448,
+          "window_cycles": 565,
+          "zero_single_cycles": 0
+        },
+        "summary": "",
+        "visible_class": "88888888888888888888887002100210023115000215002310021450023110023100210023100218",
+        "visible_rows": 80
       },
       "neg": -1,
       "ntxn": 120,
@@ -245,16 +305,40 @@
       "kind": "golden",
       "lanes": 4,
       "logs": {
-        "golden_dense_L4.log": "5dcfee1d87f7d72f1e4801cde9a9cbdb90ee57b9473a9581ff861cfaac634100"
+        "golden_dense_L4.log": "ca362fa96c2ed3c0c0da6ecf9d2cefa60cb7d5445127d0cd2e526c9dfb988cf0"
       },
       "metrics": {
-        "cyc_rows": 759,
-        "icarus_observed_sha256": "b6dd25c5686eee82130623860b97e399a94abebf5493c2ddebf40b64205b84a4",
-        "ledger": "LEDGER req=226 val=452 ops=221 zero=7 busy=339 stall=44 done=120 skip=0 inzero=7 azero=0 sat=0 total=736 proto=0 cfgerr=0 completed=120",
+        "cyc_rows": 534,
+        "icarus_observed_sha256": "5e47b03b09d450a71c97af50fb35cb86b0a6fe3f350e55f10f4be87e4be22eb5",
+        "ledger": "LEDGER req=226 val=452 ops=221 zero=7 busy=339 stall=35 done=120 skip=0 inzero=7 azero=0 sat=0 total=511 proto=0 cfgerr=0 completed=120",
         "log_file": "logs/golden_dense_L4.log",
-        "observed_rows": 760,
-        "observed_sha256": "b6dd25c5686eee82130623860b97e399a94abebf5493c2ddebf40b64205b84a4",
-        "summary": ""
+        "observed_rows": 535,
+        "observed_sha256": "5e47b03b09d450a71c97af50fb35cb86b0a6fe3f350e55f10f4be87e4be22eb5",
+        "raw_ledger": {
+          "accept_events": 120,
+          "accept_own_cycles": 1,
+          "backpressure_cycles": 5,
+          "busy_cycles": 339,
+          "completed_groups": 120,
+          "drain_cycles": 0,
+          "group_read_requests": 226,
+          "hold_retire_cycles": 23,
+          "lane_ops_issued": 221,
+          "lane_stall_cycles": 30,
+          "latency_cycles": 113,
+          "overlap_cycles": 119,
+          "retire_events": 120,
+          "retire_latch_cycles": 16,
+          "stall_cycles": 35,
+          "startup_cycles": 1,
+          "total_cycles": 511,
+          "weight_values_fetched": 452,
+          "window_cycles": 511,
+          "zero_single_cycles": 0
+        },
+        "summary": "",
+        "visible_class": "88888888888888888888887002310021500210020210021002100210023100210023310023100218",
+        "visible_rows": 80
       },
       "neg": -1,
       "ntxn": 120,
@@ -289,16 +373,40 @@
       "kind": "golden",
       "lanes": 8,
       "logs": {
-        "golden_dense_L8.log": "1f7e55d411489ab47098fafe1772eb619cb86623d9d536546d90b36fdab23222"
+        "golden_dense_L8.log": "d2bf6c33cfad547522c46a9c1dcf916b3e07d206dbc762e782254e82230ef2cf"
       },
       "metrics": {
-        "cyc_rows": 776,
-        "icarus_observed_sha256": "97273d920c90c68539eedaaf7a26c8c2b352eee106997264c4584e83d8267fe6",
-        "ledger": "LEDGER req=228 val=456 ops=237 zero=6 busy=342 stall=57 done=120 skip=0 inzero=6 azero=0 sat=0 total=753 proto=0 cfgerr=0 completed=120",
+        "cyc_rows": 545,
+        "icarus_observed_sha256": "5b4227161dc2539cd163307a0eaa28a7d7fea24b02c4ead35457e3a624c7c234",
+        "ledger": "LEDGER req=228 val=456 ops=237 zero=6 busy=342 stall=40 done=120 skip=0 inzero=6 azero=0 sat=0 total=522 proto=0 cfgerr=0 completed=120",
         "log_file": "logs/golden_dense_L8.log",
-        "observed_rows": 777,
-        "observed_sha256": "97273d920c90c68539eedaaf7a26c8c2b352eee106997264c4584e83d8267fe6",
-        "summary": ""
+        "observed_rows": 546,
+        "observed_sha256": "5b4227161dc2539cd163307a0eaa28a7d7fea24b02c4ead35457e3a624c7c234",
+        "raw_ledger": {
+          "accept_events": 120,
+          "accept_own_cycles": 1,
+          "backpressure_cycles": 4,
+          "busy_cycles": 342,
+          "completed_groups": 120,
+          "drain_cycles": 0,
+          "group_read_requests": 228,
+          "hold_retire_cycles": 25,
+          "lane_ops_issued": 237,
+          "lane_stall_cycles": 36,
+          "latency_cycles": 114,
+          "overlap_cycles": 119,
+          "retire_events": 120,
+          "retire_latch_cycles": 19,
+          "stall_cycles": 40,
+          "startup_cycles": 1,
+          "total_cycles": 522,
+          "weight_values_fetched": 456,
+          "window_cycles": 522,
+          "zero_single_cycles": 0
+        },
+        "summary": "",
+        "visible_class": "88888888888888888888887002310021002100233100210021002100215002100210021002100218",
+        "visible_rows": 80
       },
       "neg": -1,
       "ntxn": 120,
@@ -333,16 +441,40 @@
       "kind": "golden",
       "lanes": 1,
       "logs": {
-        "golden_sparse_L1.log": "78fe02bace1d80be44e728bea7e8901705728f56d69e4a5c1b30319759b8768e"
+        "golden_sparse_L1.log": "c57d4f282c7269553fc0f513beccbfcaa8a5315b24e5de09e92219fff5369697"
       },
       "metrics": {
-        "cyc_rows": 623,
-        "icarus_observed_sha256": "e6a6786333a03930384e6c53d3bb985bf3f236c2543738125001f2ab536bcd02",
-        "ledger": "LEDGER req=93 val=186 ops=124 zero=27 busy=217 stall=60 done=120 skip=118 inzero=8 azero=19 sat=0 total=610 proto=0 cfgerr=0 completed=120",
+        "cyc_rows": 411,
+        "icarus_observed_sha256": "271cff5a8ef7342d4bb42692bf5b5888f564a00dada74fefeac279961f92813b",
+        "ledger": "LEDGER req=93 val=186 ops=124 zero=27 busy=217 stall=37 done=120 skip=118 inzero=8 azero=19 sat=0 total=398 proto=0 cfgerr=0 completed=120",
         "log_file": "logs/golden_sparse_L1.log",
-        "observed_rows": 624,
-        "observed_sha256": "e6a6786333a03930384e6c53d3bb985bf3f236c2543738125001f2ab536bcd02",
-        "summary": ""
+        "observed_rows": 412,
+        "observed_sha256": "271cff5a8ef7342d4bb42692bf5b5888f564a00dada74fefeac279961f92813b",
+        "raw_ledger": {
+          "accept_events": 120,
+          "accept_own_cycles": 1,
+          "backpressure_cycles": 8,
+          "busy_cycles": 217,
+          "completed_groups": 120,
+          "drain_cycles": 0,
+          "group_read_requests": 93,
+          "hold_retire_cycles": 50,
+          "lane_ops_issued": 124,
+          "lane_stall_cycles": 29,
+          "latency_cycles": 93,
+          "overlap_cycles": 119,
+          "retire_events": 120,
+          "retire_latch_cycles": 23,
+          "stall_cycles": 37,
+          "startup_cycles": 1,
+          "total_cycles": 398,
+          "weight_values_fetched": 186,
+          "window_cycles": 398,
+          "zero_single_cycles": 0
+        },
+        "summary": "",
+        "visible_class": "88888888888870210210210214502102150215022110211023102102310210210211502115502118",
+        "visible_rows": 80
       },
       "neg": -1,
       "ntxn": 120,
@@ -377,16 +509,40 @@
       "kind": "golden",
       "lanes": 2,
       "logs": {
-        "golden_sparse_L2.log": "86c0f8f125530b89bb5ec36581fed405f9e3737f8301788c8a121f222bf86a31"
+        "golden_sparse_L2.log": "6835d761cf4c1e0887350334685af26fa4fe284726962119d9a40f43002ddc41"
       },
       "metrics": {
-        "cyc_rows": 594,
-        "icarus_observed_sha256": "43d36d86b9c26eb561ab4011fd8d51d21eedcee84ab09231f65c7f40e798f51b",
-        "ledger": "LEDGER req=95 val=190 ops=126 zero=25 busy=190 stall=56 done=120 skip=112 inzero=8 azero=17 sat=0 total=581 proto=0 cfgerr=0 completed=120",
+        "cyc_rows": 376,
+        "icarus_observed_sha256": "f1fcd4552fc63213b919cf01ef3865f711dbf85487e07901309529a83182dc0d",
+        "ledger": "LEDGER req=95 val=190 ops=126 zero=25 busy=190 stall=38 done=120 skip=112 inzero=8 azero=17 sat=0 total=363 proto=0 cfgerr=0 completed=120",
         "log_file": "logs/golden_sparse_L2.log",
-        "observed_rows": 595,
-        "observed_sha256": "43d36d86b9c26eb561ab4011fd8d51d21eedcee84ab09231f65c7f40e798f51b",
-        "summary": ""
+        "observed_rows": 377,
+        "observed_sha256": "f1fcd4552fc63213b919cf01ef3865f711dbf85487e07901309529a83182dc0d",
+        "raw_ledger": {
+          "accept_events": 120,
+          "accept_own_cycles": 1,
+          "backpressure_cycles": 8,
+          "busy_cycles": 190,
+          "completed_groups": 120,
+          "drain_cycles": 3,
+          "group_read_requests": 95,
+          "hold_retire_cycles": 37,
+          "lane_ops_issued": 126,
+          "lane_stall_cycles": 30,
+          "latency_cycles": 95,
+          "overlap_cycles": 117,
+          "retire_events": 120,
+          "retire_latch_cycles": 14,
+          "stall_cycles": 38,
+          "startup_cycles": 0,
+          "total_cycles": 363,
+          "weight_values_fetched": 190,
+          "window_cycles": 363,
+          "zero_single_cycles": 2
+        },
+        "summary": "",
+        "visible_class": "88888888888866702102102102102102310215451502315023102310210231023150210210215458",
+        "visible_rows": 80
       },
       "neg": -1,
       "ntxn": 120,
@@ -421,16 +577,40 @@
       "kind": "golden",
       "lanes": 4,
       "logs": {
-        "golden_sparse_L4.log": "88565e055e991cc4ce5e1e6b7cb97f2515be155e301750b6a9845bc058b57901"
+        "golden_sparse_L4.log": "7e3be8ae0e74bba301ac37c7b9177e2fc93bd1730815e65c587cfe923e1abe02"
       },
       "metrics": {
-        "cyc_rows": 545,
-        "icarus_observed_sha256": "09431ea2755307f6933a254294c922c4c6724efcc56ba8958c1ac39f6d54cef9",
-        "ledger": "LEDGER req=84 val=168 ops=112 zero=36 busy=168 stall=40 done=120 skip=109 inzero=7 azero=29 sat=0 total=532 proto=0 cfgerr=0 completed=120",
+        "cyc_rows": 345,
+        "icarus_observed_sha256": "ade602113f779c2e0190cc2f3883fb0fcad57af60891a5dfaaa1348b60033c23",
+        "ledger": "LEDGER req=84 val=168 ops=112 zero=36 busy=168 stall=25 done=120 skip=109 inzero=7 azero=29 sat=0 total=332 proto=0 cfgerr=0 completed=120",
         "log_file": "logs/golden_sparse_L4.log",
-        "observed_rows": 546,
-        "observed_sha256": "09431ea2755307f6933a254294c922c4c6724efcc56ba8958c1ac39f6d54cef9",
-        "summary": ""
+        "observed_rows": 346,
+        "observed_sha256": "ade602113f779c2e0190cc2f3883fb0fcad57af60891a5dfaaa1348b60033c23",
+        "raw_ledger": {
+          "accept_events": 120,
+          "accept_own_cycles": 1,
+          "backpressure_cycles": 9,
+          "busy_cycles": 168,
+          "completed_groups": 120,
+          "drain_cycles": 0,
+          "group_read_requests": 84,
+          "hold_retire_cycles": 53,
+          "lane_ops_issued": 112,
+          "lane_stall_cycles": 16,
+          "latency_cycles": 84,
+          "overlap_cycles": 118,
+          "retire_events": 120,
+          "retire_latch_cycles": 18,
+          "stall_cycles": 25,
+          "startup_cycles": 0,
+          "total_cycles": 332,
+          "weight_values_fetched": 168,
+          "window_cycles": 332,
+          "zero_single_cycles": 1
+        },
+        "summary": "",
+        "visible_class": "88888888888867021554502102310215021502152145550215021021502310215021502102150218",
+        "visible_rows": 80
       },
       "neg": -1,
       "ntxn": 120,
@@ -465,16 +645,40 @@
       "kind": "golden",
       "lanes": 8,
       "logs": {
-        "golden_sparse_L8.log": "75ef4c2746ec6429e64d11ab3ef7de40537fd973234c3c4b86f1a4b7c5759e93"
+        "golden_sparse_L8.log": "15096abdb610f7d90426bb16a0b332d53f985b5c1020cd508905d3a32275162e"
       },
       "metrics": {
-        "cyc_rows": 584,
-        "icarus_observed_sha256": "bf481fbca028e32f5df5467c2fc7c491ed17867e79e1605218570af288d1d705",
-        "ledger": "LEDGER req=94 val=188 ops=125 zero=26 busy=188 stall=49 done=120 skip=112 inzero=6 azero=20 sat=0 total=571 proto=0 cfgerr=0 completed=120",
+        "cyc_rows": 365,
+        "icarus_observed_sha256": "57c0c1c5ce58d9d2a6c8035f74225a1b747058c08e5e97e30da51b43de8c59e5",
+        "ledger": "LEDGER req=94 val=188 ops=125 zero=26 busy=188 stall=28 done=120 skip=112 inzero=6 azero=20 sat=0 total=352 proto=0 cfgerr=0 completed=120",
         "log_file": "logs/golden_sparse_L8.log",
-        "observed_rows": 585,
-        "observed_sha256": "bf481fbca028e32f5df5467c2fc7c491ed17867e79e1605218570af288d1d705",
-        "summary": ""
+        "observed_rows": 366,
+        "observed_sha256": "57c0c1c5ce58d9d2a6c8035f74225a1b747058c08e5e97e30da51b43de8c59e5",
+        "raw_ledger": {
+          "accept_events": 120,
+          "accept_own_cycles": 1,
+          "backpressure_cycles": 8,
+          "busy_cycles": 188,
+          "completed_groups": 120,
+          "drain_cycles": 0,
+          "group_read_requests": 94,
+          "hold_retire_cycles": 41,
+          "lane_ops_issued": 125,
+          "lane_stall_cycles": 20,
+          "latency_cycles": 94,
+          "overlap_cycles": 119,
+          "retire_events": 120,
+          "retire_latch_cycles": 15,
+          "stall_cycles": 28,
+          "startup_cycles": 1,
+          "total_cycles": 352,
+          "weight_values_fetched": 188,
+          "window_cycles": 352,
+          "zero_single_cycles": 0
+        },
+        "summary": "",
+        "visible_class": "88888888888870210231021021455021021502101023310210210215021502102150210210210218",
+        "visible_rows": 80
       },
       "neg": -1,
       "ntxn": 120,
@@ -510,16 +714,40 @@
       "kind": "negative",
       "lanes": 1,
       "logs": {
-        "neg0_L1.log": "a245ce5c85fd4510fc2ed39ce59e1b1ef7ca6e8dc5420cb2cafd0ca784f850a2"
+        "neg0_L1.log": "eef950de8d5a5a6c41e13423f76ad687df3cfff5235d2bce6178ec043b278241"
       },
       "metrics": {
-        "cyc_rows": 800,
-        "icarus_observed_sha256": "fad66c77448845c5d1d1a1581af1b054e37fd9d472c08193a005507e1a3ea03a",
-        "ledger": "LEDGER req=93 val=186 ops=124 zero=27 busy=217 stall=53 done=120 skip=118 inzero=8 azero=19 sat=0 total=510 proto=0 cfgerr=0 completed=120",
+        "cyc_rows": 586,
+        "icarus_observed_sha256": "b7ebb6d23c871cd867bed53299d7057942aedf8e4b7071156c37b299ff79d20a",
+        "ledger": "LEDGER req=93 val=186 ops=124 zero=27 busy=364 stall=34 done=120 skip=118 inzero=8 azero=19 sat=0 total=563 proto=0 cfgerr=0 completed=120",
         "log_file": "logs/neg0_L1.log",
-        "observed_rows": 801,
-        "observed_sha256": "fad66c77448845c5d1d1a1581af1b054e37fd9d472c08193a005507e1a3ea03a",
-        "summary": ""
+        "observed_rows": 587,
+        "observed_sha256": "b7ebb6d23c871cd867bed53299d7057942aedf8e4b7071156c37b299ff79d20a",
+        "raw_ledger": {
+          "accept_events": 120,
+          "accept_own_cycles": 1,
+          "backpressure_cycles": 10,
+          "busy_cycles": 364,
+          "completed_groups": 120,
+          "drain_cycles": 0,
+          "group_read_requests": 240,
+          "hold_retire_cycles": 44,
+          "lane_ops_issued": 124,
+          "lane_stall_cycles": 24,
+          "latency_cycles": 120,
+          "overlap_cycles": 119,
+          "retire_events": 120,
+          "retire_latch_cycles": 17,
+          "stall_cycles": 34,
+          "startup_cycles": 1,
+          "total_cycles": 563,
+          "weight_values_fetched": 480,
+          "window_cycles": 563,
+          "zero_single_cycles": 0
+        },
+        "summary": "",
+        "visible_class": "88888888888888888888887002331002100215001500210021002100211002450021310025002118",
+        "visible_rows": 80
       },
       "neg": 0,
       "ntxn": 120,
@@ -555,16 +783,40 @@
       "kind": "negative",
       "lanes": 4,
       "logs": {
-        "neg0_L4.log": "41e33b8e32a179964deb07c90ad869c75bde037d458aeb056cdcd3d16f0a1d32"
+        "neg0_L4.log": "617cc3e025dda301a89dfe2b28992fdfb87165230c10ef17d17665ade079e3f0"
       },
       "metrics": {
-        "cyc_rows": 753,
-        "icarus_observed_sha256": "3c97fd8d127e62d78e9ed073886d77bbb1d1c99dac53a88372cda9d679f39eb8",
-        "ledger": "LEDGER req=84 val=168 ops=112 zero=36 busy=168 stall=46 done=120 skip=109 inzero=7 azero=29 sat=0 total=454 proto=0 cfgerr=0 completed=120",
+        "cyc_rows": 553,
+        "icarus_observed_sha256": "7a5a3394e005ca0a3ae3f61da4020d670299b985bbfa8e99adabf274b3c6ef43",
+        "ledger": "LEDGER req=84 val=168 ops=112 zero=36 busy=324 stall=38 done=120 skip=109 inzero=7 azero=29 sat=0 total=530 proto=0 cfgerr=0 completed=120",
         "log_file": "logs/neg0_L4.log",
-        "observed_rows": 754,
-        "observed_sha256": "3c97fd8d127e62d78e9ed073886d77bbb1d1c99dac53a88372cda9d679f39eb8",
-        "summary": ""
+        "observed_rows": 554,
+        "observed_sha256": "7a5a3394e005ca0a3ae3f61da4020d670299b985bbfa8e99adabf274b3c6ef43",
+        "raw_ledger": {
+          "accept_events": 120,
+          "accept_own_cycles": 1,
+          "backpressure_cycles": 7,
+          "busy_cycles": 324,
+          "completed_groups": 120,
+          "drain_cycles": 0,
+          "group_read_requests": 240,
+          "hold_retire_cycles": 47,
+          "lane_ops_issued": 112,
+          "lane_stall_cycles": 31,
+          "latency_cycles": 120,
+          "overlap_cycles": 119,
+          "retire_events": 120,
+          "retire_latch_cycles": 11,
+          "stall_cycles": 38,
+          "startup_cycles": 1,
+          "total_cycles": 530,
+          "weight_values_fetched": 480,
+          "window_cycles": 530,
+          "zero_single_cycles": 0
+        },
+        "summary": "",
+        "visible_class": "88888888888888888888887002500215002500250021002333100231002500231002310024500218",
+        "visible_rows": 80
       },
       "neg": 0,
       "ntxn": 120,
@@ -600,16 +852,40 @@
       "kind": "negative",
       "lanes": 1,
       "logs": {
-        "neg1_L1.log": "d09b0e01799da3936e3e98b230ba44411cc723ef9d5cf6a23aa362b7e7e08bf8"
+        "neg1_L1.log": "89d5eb654207ebfc44c605972f004f5c7b9032642cfa35afde2be98abaefe61f"
       },
       "metrics": {
-        "cyc_rows": 925,
-        "icarus_observed_sha256": "eb828e0c8b33e60621ecca3f4694d358f1d75a39568b1b93516e1bd3505f3438",
-        "ledger": "LEDGER req=93 val=186 ops=124 zero=27 busy=465 stall=114 done=120 skip=118 inzero=8 azero=19 sat=0 total=912 proto=0 cfgerr=0 completed=120",
+        "cyc_rows": 704,
+        "icarus_observed_sha256": "9a60bae9bd8cfdbbeebe7e4777174c2a4cce607ce46fe9838286b3f2a4e8b0b4",
+        "ledger": "LEDGER req=93 val=186 ops=124 zero=27 busy=465 stall=91 done=120 skip=118 inzero=8 azero=19 sat=0 total=691 proto=0 cfgerr=0 completed=120",
         "log_file": "logs/neg1_L1.log",
-        "observed_rows": 926,
-        "observed_sha256": "eb828e0c8b33e60621ecca3f4694d358f1d75a39568b1b93516e1bd3505f3438",
-        "summary": ""
+        "observed_rows": 705,
+        "observed_sha256": "9a60bae9bd8cfdbbeebe7e4777174c2a4cce607ce46fe9838286b3f2a4e8b0b4",
+        "raw_ledger": {
+          "accept_events": 120,
+          "accept_own_cycles": 1,
+          "backpressure_cycles": 7,
+          "busy_cycles": 465,
+          "completed_groups": 120,
+          "drain_cycles": 0,
+          "group_read_requests": 93,
+          "hold_retire_cycles": 41,
+          "lane_ops_issued": 372,
+          "lane_stall_cycles": 84,
+          "latency_cycles": 93,
+          "overlap_cycles": 119,
+          "retire_events": 120,
+          "retire_latch_cycles": 14,
+          "stall_cycles": 91,
+          "startup_cycles": 1,
+          "total_cycles": 691,
+          "weight_values_fetched": 186,
+          "window_cycles": 691,
+          "zero_single_cycles": 0
+        },
+        "summary": "",
+        "visible_class": "88888888888870213111021311331023111102111150211313310211110211131502111150211118",
+        "visible_rows": 80
       },
       "neg": 1,
       "ntxn": 120,
@@ -645,16 +921,40 @@
       "kind": "negative",
       "lanes": 4,
       "logs": {
-        "neg1_L4.log": "19ee174b20c1e1c2d8e7ca1f314df2c9ed379e339942a5e492e92198056016f2"
+        "neg1_L4.log": "e3a7598034b0cc3b6f305986d3f6dbf914ac95ec392376d4c9bba3b6ff4d358f"
       },
       "metrics": {
-        "cyc_rows": 545,
-        "icarus_observed_sha256": "56678fd621adbaa3edac6d947532ac0b532a28f19f7cd7854dda26b1ca624cc0",
-        "ledger": "LEDGER req=84 val=168 ops=112 zero=36 busy=168 stall=40 done=120 skip=109 inzero=7 azero=29 sat=0 total=532 proto=0 cfgerr=0 completed=120",
+        "cyc_rows": 345,
+        "icarus_observed_sha256": "64d1e06eb72b818e60c5debe30b751296533347e591a0f63a6bea2380775237b",
+        "ledger": "LEDGER req=84 val=168 ops=112 zero=36 busy=168 stall=25 done=120 skip=109 inzero=7 azero=29 sat=0 total=332 proto=0 cfgerr=0 completed=120",
         "log_file": "logs/neg1_L4.log",
-        "observed_rows": 546,
-        "observed_sha256": "56678fd621adbaa3edac6d947532ac0b532a28f19f7cd7854dda26b1ca624cc0",
-        "summary": ""
+        "observed_rows": 346,
+        "observed_sha256": "64d1e06eb72b818e60c5debe30b751296533347e591a0f63a6bea2380775237b",
+        "raw_ledger": {
+          "accept_events": 120,
+          "accept_own_cycles": 1,
+          "backpressure_cycles": 9,
+          "busy_cycles": 168,
+          "completed_groups": 120,
+          "drain_cycles": 0,
+          "group_read_requests": 84,
+          "hold_retire_cycles": 53,
+          "lane_ops_issued": 336,
+          "lane_stall_cycles": 16,
+          "latency_cycles": 84,
+          "overlap_cycles": 118,
+          "retire_events": 120,
+          "retire_latch_cycles": 18,
+          "stall_cycles": 25,
+          "startup_cycles": 0,
+          "total_cycles": 332,
+          "weight_values_fetched": 168,
+          "window_cycles": 332,
+          "zero_single_cycles": 1
+        },
+        "summary": "",
+        "visible_class": "88888888888867021554502102310215021502152145550215021021502310215021502102150218",
+        "visible_rows": 80
       },
       "neg": 1,
       "ntxn": 120,
@@ -677,8 +977,8 @@
       "work_dir": "work/neg1_L4"
     }
   },
-  "code_git_head": "a10e001a17b8cf85dec5ca07aa54617c9d96fb77",
-  "commands_log_sha256": "8aab2035b95cbb03b442efe56163ca6881165d64fceada1de8ab40d1864d07de",
+  "code_git_head": "519232db9eaf6953349b38ba10f6ec19eb2d61a2",
+  "commands_log_sha256": "49acc010f19fc36d2c8f167011654a97e8308f34287bdf43f451f51e298b2d81",
   "groups": [
     "golden",
     "negative",
@@ -687,18 +987,18 @@
   "overall_status": "PASS",
   "problems": [],
   "runner": "run_np7_vivado_xsim.py",
-  "schema": "np7-vivado-xsim-v1",
+  "schema": "np7-vivado-xsim-v2",
   "seed": 1,
   "source_sha256": {
-    "np7_exec_unit_dense.sv": "d947de9ab740e3619159ce6c053b2a2628d1d6f89fcc4bcb95b80a06aaa24c60",
-    "np7_exec_unit_sparse.sv": "a0a3eb3eceff8b0e9053ae3bc53efd8b28b650862a78b12693252906821e4ede",
-    "np7_negative_controls.sv": "9d8bc97b37522743dfa99c48a3a7fba469745e3326bb5c1b1060a68de0093ee0",
+    "np7_exec_unit_dense.sv": "30aa696c245ccd7c8f763f3debd6b4e60cd612edbc1bec002cd482a0f9368e72",
+    "np7_exec_unit_sparse.sv": "1aa65ac7eb5ad7e0f4569aff765d142e6d0d4c2dd9124aff5dc11fb868aa8874",
+    "np7_negative_controls.sv": "1d5a4898ca52cd97bdffe8961cae315d31d406c94d05ca71d5498db8b3457aad",
     "np7_shared_synapse_lane.sv": "b509d0e99758cfea97e046c2752c1e54b977023930752801a512ebce49791f75",
     "np7_weight_ram.sv": "e979e4a07dc069e077f5c14e6f6001a73b6f4cfd6518493fe81323850cbb9b60",
-    "run_np7_vivado_xsim.py": "b4cae2e3cd0ba16978fb2592ceeaa951fa7d3ac1b7c8457685463d942a348ec7",
+    "run_np7_vivado_xsim.py": "3d5b5d2c61329b892d15364582f1c7cd3e5767f460a57432dd57ac18dfbff006",
     "tb_np7_config_negative.sv": "14c715680dbc3b283e45e5a0e10884cafcb1126ae6002533f661528eddc3e82c",
-    "tb_np7_exec_unit.sv": "dadc92a8e00937fbdcd703f348a0e925a58b24ec63ef33a42a9d4b258dcb77b9",
-    "tb_np7_negative.sv": "fa509904597304c36ebe1b1e4eef63e4df074f2577db63846fbf8a1e77bb6552"
+    "tb_np7_exec_unit.sv": "5de9c9fb6a723747b6b90974a297e13f41955e29f0c82121d7e12b219bdec4e1",
+    "tb_np7_negative.sv": "0baeaee5dd12bf7e114a6817e1e8e4a698ab08fa88d7b0470b5f11e352974623"
   },
   "tools": {
     "iverilog_line": "Icarus Verilog version 12.0 (devel) (s20150603-1539-g2693dd32b)",

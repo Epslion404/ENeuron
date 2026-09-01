@@ -1,20 +1,19 @@
 # command: python run_np7_vivado_xsim.py --vivado-root C:/Users/MGL/Documents/Codex/Vivado2024_2 --transactions 120
-# code_git_head: a10e001
-# local_time: 2026-09-02 02:39:33
-# toolchain: Vivado Simulator v2024.2 (xvlog/xelab/xsim), iverilog/vvp 12.0
-
-golden_sparse_L1         PASS rows=624 
-golden_sparse_L2         PASS rows=595 
-golden_sparse_L4         PASS rows=546 
-golden_sparse_L8         PASS rows=585 
-golden_dense_L1          PASS rows=914 
-golden_dense_L2          PASS rows=809 
-golden_dense_L4          PASS rows=760 
-golden_dense_L8          PASS rows=777 
-neg0_L1                  PASS rows=801 
-neg0_L4                  PASS rows=754 
-neg1_L1                  PASS rows=926 
-neg1_L4                  PASS rows=546 
+# code_git_head: 519232d
+# local_time: 2026-09-02 05:01:29
+# toolchain: iverilog 12.0 (C:\iverilog\bin), yosys 0.68 (C:\msys64\ucrt64\bin)
+golden_sparse_L1         PASS rows=412 
+golden_sparse_L2         PASS rows=377 
+golden_sparse_L4         PASS rows=346 
+golden_sparse_L8         PASS rows=366 
+golden_dense_L1          PASS rows=694 
+golden_dense_L2          PASS rows=589 
+golden_dense_L4          PASS rows=535 
+golden_dense_L8          PASS rows=546 
+neg0_L1                  PASS rows=587 
+neg0_L4                  PASS rows=554 
+neg1_L1                  PASS rows=705 
+neg1_L4                  PASS rows=346 
 cfgneg_sparse_L1         PASS rows=13 
 cfgneg_sparse_L4         PASS rows=13 
 cfgneg_dense_L1          PASS rows=13 

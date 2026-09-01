@@ -23,7 +23,7 @@ Running: C:/Users/MGL/Documents/Codex/Vivado2024_2/bin/unwrapped/win64.o/xelab.e
 Multi-threading is on. Using 30 slave threads.
 Starting static elaboration
 Pass Through NonSizing Optimizer
-WARNING: [VRFC 10-3705] select index 32 into 'lane_weights' is out of bounds [C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/np7_negative_controls.sv:176]
+WARNING: [VRFC 10-3705] select index 32 into 'lane_weights' is out of bounds [C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/np7_negative_controls.sv:194]
 Completed static elaboration
 Starting simulation data flow analysis
 WARNING: [XSIM 43-4099] "C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/np7_weight_ram.sv" Line 18. Module np7_weight_ram doesn't have a timescale but at least one module in design has a timescale.
@@ -45,7 +45,7 @@ Built simulation snapshot np7sim
   **** SW Build 5239630 on Fri Nov 08 22:35:27 MST 2024
   **** IP Build 5239520 on Sun Nov 10 16:12:51 MST 2024
   **** SharedData Build 5239561 on Fri Nov 08 14:39:27 MST 2024
-  **** Start of session at: Wed Sep  2 02:38:57 2026
+  **** Start of session at: Wed Sep  2 05:00:53 2026
     ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
     ** Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
 
@@ -76,75 +76,75 @@ CYC 22 st=0 ce=0 ad=1 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=0
 CYC 23 st=0 ce=0 ad=1 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=0
 CYC 24 st=0 ce=0 ad=1 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=0
 CYC 25 st=0 ce=0 ad=1 lf=0 bm=0 rv=0 rr=0 ap=1 zp=0 sum=0 ls=0 cmp=0
-CYC 26 st=1 ce=1 ad=2 lf=0 bm=0 rv=0 rr=1 ap=0 zp=1 sum=0 ls=0 cmp=0
-CYC 27 st=2 ce=1 ad=3 lf=0 bm=0 rv=0 rr=1 ap=0 zp=1 sum=0 ls=0 cmp=0
-CYC 28 st=3 ce=0 ad=3 lf=0 bm=0 rv=0 rr=1 ap=0 zp=1 sum=0 ls=0 cmp=0
-CYC 29 st=5 ce=0 ad=3 lf=0 bm=0 rv=1 rr=1 ap=0 zp=1 sum=0 ls=1 cmp=0
-CYC 30 st=0 ce=0 ad=3 lf=0 bm=0 rv=0 rr=1 ap=1 zp=1 sum=0 ls=0 cmp=1
-CYC 31 st=1 ce=1 ad=18 lf=0 bm=4 rv=0 rr=0 ap=0 zp=0 sum=0 ls=1 cmp=1
-CYC 32 st=2 ce=1 ad=19 lf=0 bm=4 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=1
-CYC 33 st=3 ce=0 ad=19 lf=0 bm=4 rv=0 rr=0 ap=0 zp=0 sum=0 ls=0 cmp=1
-CYC 34 st=4 ce=0 ad=19 lf=1 bm=4 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=1
-CYC 35 st=5 ce=0 ad=19 lf=0 bm=0 rv=1 rr=1 ap=0 zp=0 sum=24 ls=1 cmp=1
-CYC 36 st=0 ce=0 ad=19 lf=0 bm=0 rv=0 rr=1 ap=1 zp=0 sum=24 ls=0 cmp=2
-CYC 37 st=1 ce=1 ad=10 lf=0 bm=0 rv=0 rr=0 ap=0 zp=1 sum=0 ls=0 cmp=2
-CYC 38 st=2 ce=1 ad=11 lf=0 bm=0 rv=0 rr=1 ap=0 zp=1 sum=0 ls=0 cmp=2
-CYC 39 st=3 ce=0 ad=11 lf=0 bm=0 rv=0 rr=1 ap=0 zp=1 sum=0 ls=0 cmp=2
-CYC 40 st=5 ce=0 ad=11 lf=0 bm=0 rv=1 rr=1 ap=0 zp=1 sum=0 ls=0 cmp=2
-CYC 41 st=0 ce=0 ad=11 lf=0 bm=0 rv=0 rr=0 ap=1 zp=1 sum=0 ls=0 cmp=3
-CYC 42 st=1 ce=1 ad=4 lf=0 bm=0 rv=0 rr=1 ap=0 zp=1 sum=0 ls=0 cmp=3
-[NP7_XSIM_OMITTED cyc_rows=673 of 753 full_stream_sha256=3c97fd8d127e62d78e9ed073886d77bbb1d1c99dac53a88372cda9d679f39eb8]
-CYC 716 st=1 ce=1 ad=8 lf=0 bm=1 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=114
-CYC 717 st=2 ce=1 ad=9 lf=0 bm=1 rv=0 rr=0 ap=0 zp=0 sum=0 ls=0 cmp=114
-CYC 718 st=3 ce=0 ad=9 lf=0 bm=1 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=114
-CYC 719 st=4 ce=0 ad=9 lf=1 bm=1 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=114
-CYC 720 st=5 ce=0 ad=9 lf=0 bm=0 rv=1 rr=0 ap=0 zp=0 sum=117 ls=0 cmp=114
-CYC 721 st=5 ce=0 ad=9 lf=0 bm=0 rv=1 rr=1 ap=0 zp=0 sum=117 ls=0 cmp=114
-CYC 722 st=0 ce=0 ad=9 lf=0 bm=0 rv=0 rr=1 ap=1 zp=0 sum=117 ls=1 cmp=115
-CYC 723 st=1 ce=1 ad=14 lf=0 bm=0 rv=0 rr=1 ap=0 zp=1 sum=0 ls=0 cmp=115
-CYC 724 st=2 ce=1 ad=15 lf=0 bm=0 rv=0 rr=1 ap=0 zp=1 sum=0 ls=1 cmp=115
-CYC 725 st=3 ce=0 ad=15 lf=0 bm=0 rv=0 rr=1 ap=0 zp=1 sum=0 ls=0 cmp=115
-CYC 726 st=5 ce=0 ad=15 lf=0 bm=0 rv=1 rr=0 ap=0 zp=1 sum=0 ls=0 cmp=115
-CYC 727 st=5 ce=0 ad=15 lf=0 bm=0 rv=1 rr=1 ap=0 zp=1 sum=0 ls=0 cmp=115
-CYC 728 st=0 ce=0 ad=15 lf=0 bm=0 rv=0 rr=1 ap=1 zp=1 sum=0 ls=0 cmp=116
-CYC 729 st=1 ce=1 ad=2 lf=0 bm=1 rv=0 rr=0 ap=0 zp=0 sum=0 ls=0 cmp=116
-CYC 730 st=2 ce=1 ad=3 lf=0 bm=1 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=116
-CYC 731 st=3 ce=0 ad=3 lf=0 bm=1 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=116
-CYC 732 st=4 ce=0 ad=3 lf=1 bm=1 rv=0 rr=0 ap=0 zp=0 sum=0 ls=0 cmp=116
-CYC 733 st=5 ce=0 ad=3 lf=0 bm=0 rv=1 rr=1 ap=0 zp=0 sum=34 ls=1 cmp=116
-CYC 734 st=0 ce=0 ad=3 lf=0 bm=0 rv=0 rr=1 ap=1 zp=0 sum=34 ls=0 cmp=117
-CYC 735 st=1 ce=1 ad=10 lf=0 bm=4 rv=0 rr=0 ap=0 zp=0 sum=0 ls=0 cmp=117
-CYC 736 st=2 ce=1 ad=11 lf=0 bm=4 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=117
-CYC 737 st=3 ce=0 ad=11 lf=0 bm=4 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=117
-CYC 738 st=4 ce=0 ad=11 lf=0 bm=4 rv=0 rr=0 ap=0 zp=0 sum=0 ls=1 cmp=117
-CYC 739 st=4 ce=0 ad=11 lf=1 bm=4 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=117
-CYC 740 st=5 ce=0 ad=11 lf=0 bm=0 rv=1 rr=0 ap=0 zp=0 sum=-59 ls=0 cmp=117
-CYC 741 st=5 ce=0 ad=11 lf=0 bm=0 rv=1 rr=0 ap=0 zp=0 sum=-59 ls=1 cmp=117
-CYC 742 st=5 ce=0 ad=11 lf=0 bm=0 rv=1 rr=1 ap=0 zp=0 sum=-59 ls=0 cmp=117
-CYC 743 st=0 ce=0 ad=11 lf=0 bm=0 rv=0 rr=1 ap=1 zp=0 sum=-59 ls=0 cmp=118
-CYC 744 st=1 ce=1 ad=18 lf=0 bm=0 rv=0 rr=1 ap=0 zp=1 sum=0 ls=0 cmp=118
-CYC 745 st=2 ce=1 ad=19 lf=0 bm=0 rv=0 rr=1 ap=0 zp=1 sum=0 ls=0 cmp=118
-CYC 746 st=3 ce=0 ad=19 lf=0 bm=0 rv=0 rr=1 ap=0 zp=1 sum=0 ls=0 cmp=118
-CYC 747 st=5 ce=0 ad=19 lf=0 bm=0 rv=1 rr=0 ap=0 zp=1 sum=0 ls=0 cmp=118
-CYC 748 st=5 ce=0 ad=19 lf=0 bm=0 rv=1 rr=1 ap=0 zp=1 sum=0 ls=1 cmp=118
-CYC 749 st=0 ce=0 ad=19 lf=0 bm=0 rv=0 rr=1 ap=1 zp=1 sum=0 ls=0 cmp=119
-CYC 750 st=1 ce=1 ad=8 lf=0 bm=9 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=119
-CYC 751 st=2 ce=1 ad=9 lf=0 bm=9 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=119
-CYC 752 st=3 ce=0 ad=9 lf=0 bm=9 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=119
-CYC 753 st=4 ce=0 ad=9 lf=2 bm=9 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=119
-CYC 754 st=5 ce=0 ad=9 lf=0 bm=0 rv=1 rr=1 ap=0 zp=0 sum=195 ls=0 cmp=119
-CYC 755 st=0 ce=0 ad=9 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=195 ls=0 cmp=120
-LEDGER req=84 val=168 ops=112 zero=36 busy=168 stall=46 done=120 skip=109 inzero=7 azero=29 sat=0 total=454 proto=0 cfgerr=0 completed=120
-$finish called at time : 7555 ns : File "C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/tb_np7_negative.sv" Line 169
+CYC 26 st=1 ce=1 ad=2 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=0
+CYC 27 st=2 ce=1 ad=3 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=0
+CYC 28 st=3 ce=0 ad=3 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=0
+CYC 29 st=5 ce=0 ad=3 lf=0 bm=0 rv=1 rr=1 ap=1 zp=1 sum=0 ls=1 cmp=0
+CYC 30 st=1 ce=1 ad=18 lf=0 bm=4 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=1
+CYC 31 st=2 ce=1 ad=19 lf=0 bm=4 rv=0 rr=0 ap=0 zp=0 sum=0 ls=1 cmp=1
+CYC 32 st=3 ce=0 ad=19 lf=0 bm=4 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=1
+CYC 33 st=4 ce=0 ad=19 lf=1 bm=4 rv=1 rr=0 ap=0 zp=0 sum=24 ls=0 cmp=1
+CYC 34 st=5 ce=0 ad=19 lf=0 bm=0 rv=1 rr=1 ap=1 zp=0 sum=24 ls=0 cmp=1
+CYC 35 st=1 ce=1 ad=10 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=2
+CYC 36 st=2 ce=1 ad=11 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=2
+CYC 37 st=3 ce=0 ad=11 lf=0 bm=0 rv=0 rr=0 ap=0 zp=0 sum=0 ls=0 cmp=2
+CYC 38 st=5 ce=0 ad=11 lf=0 bm=0 rv=1 rr=1 ap=1 zp=1 sum=0 ls=0 cmp=2
+CYC 39 st=1 ce=1 ad=4 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=3
+CYC 40 st=2 ce=1 ad=5 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=3
+CYC 41 st=3 ce=0 ad=5 lf=0 bm=0 rv=0 rr=0 ap=0 zp=0 sum=0 ls=0 cmp=3
+CYC 42 st=5 ce=0 ad=5 lf=0 bm=0 rv=1 rr=1 ap=1 zp=1 sum=0 ls=0 cmp=3
+[NP7_XSIM_OMITTED cyc_rows=473 of 553 full_stream_sha256=7a5a3394e005ca0a3ae3f61da4020d670299b985bbfa8e99adabf274b3c6ef43]
+CYC 516 st=1 ce=1 ad=16 lf=0 bm=9 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=112
+CYC 517 st=2 ce=1 ad=17 lf=0 bm=9 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=112
+CYC 518 st=3 ce=0 ad=17 lf=0 bm=9 rv=0 rr=0 ap=0 zp=0 sum=0 ls=1 cmp=112
+CYC 519 st=4 ce=0 ad=17 lf=2 bm=9 rv=1 rr=1 ap=1 zp=0 sum=-97 ls=0 cmp=112
+CYC 520 st=1 ce=1 ad=16 lf=0 bm=8 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=113
+CYC 521 st=2 ce=1 ad=17 lf=0 bm=8 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=113
+CYC 522 st=3 ce=0 ad=17 lf=0 bm=8 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=113
+CYC 523 st=4 ce=0 ad=17 lf=0 bm=8 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=113
+CYC 524 st=4 ce=0 ad=17 lf=0 bm=8 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=113
+CYC 525 st=4 ce=0 ad=17 lf=0 bm=8 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=113
+CYC 526 st=4 ce=0 ad=17 lf=1 bm=8 rv=1 rr=1 ap=1 zp=0 sum=-95 ls=0 cmp=113
+CYC 527 st=1 ce=1 ad=8 lf=0 bm=1 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=114
+CYC 528 st=2 ce=1 ad=9 lf=0 bm=1 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=114
+CYC 529 st=3 ce=0 ad=9 lf=0 bm=1 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=114
+CYC 530 st=4 ce=0 ad=9 lf=0 bm=1 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=114
+CYC 531 st=4 ce=0 ad=9 lf=1 bm=1 rv=1 rr=1 ap=1 zp=0 sum=117 ls=0 cmp=114
+CYC 532 st=1 ce=1 ad=14 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=115
+CYC 533 st=2 ce=1 ad=15 lf=0 bm=0 rv=0 rr=0 ap=0 zp=0 sum=0 ls=0 cmp=115
+CYC 534 st=3 ce=0 ad=15 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=115
+CYC 535 st=5 ce=0 ad=15 lf=0 bm=0 rv=1 rr=1 ap=1 zp=1 sum=0 ls=0 cmp=115
+CYC 536 st=1 ce=1 ad=2 lf=0 bm=1 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=116
+CYC 537 st=2 ce=1 ad=3 lf=0 bm=1 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=116
+CYC 538 st=3 ce=0 ad=3 lf=0 bm=1 rv=0 rr=0 ap=0 zp=0 sum=0 ls=0 cmp=116
+CYC 539 st=4 ce=0 ad=3 lf=0 bm=1 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=116
+CYC 540 st=4 ce=0 ad=3 lf=1 bm=1 rv=1 rr=1 ap=1 zp=0 sum=34 ls=0 cmp=116
+CYC 541 st=1 ce=1 ad=10 lf=0 bm=4 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=117
+CYC 542 st=2 ce=1 ad=11 lf=0 bm=4 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=117
+CYC 543 st=3 ce=0 ad=11 lf=0 bm=4 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=117
+CYC 544 st=4 ce=0 ad=11 lf=0 bm=4 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=117
+CYC 545 st=4 ce=0 ad=11 lf=1 bm=4 rv=1 rr=1 ap=1 zp=0 sum=-59 ls=0 cmp=117
+CYC 546 st=1 ce=1 ad=18 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=118
+CYC 547 st=2 ce=1 ad=19 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=118
+CYC 548 st=3 ce=0 ad=19 lf=0 bm=0 rv=0 rr=0 ap=0 zp=0 sum=0 ls=0 cmp=118
+CYC 549 st=5 ce=0 ad=19 lf=0 bm=0 rv=1 rr=0 ap=0 zp=1 sum=0 ls=0 cmp=118
+CYC 550 st=5 ce=0 ad=19 lf=0 bm=0 rv=1 rr=1 ap=1 zp=1 sum=0 ls=0 cmp=118
+CYC 551 st=1 ce=1 ad=8 lf=0 bm=9 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=119
+CYC 552 st=2 ce=1 ad=9 lf=0 bm=9 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=119
+CYC 553 st=3 ce=0 ad=9 lf=0 bm=9 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=119
+CYC 554 st=4 ce=0 ad=9 lf=2 bm=9 rv=1 rr=1 ap=0 zp=0 sum=195 ls=0 cmp=119
+CYC 555 st=0 ce=0 ad=9 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=120
+LEDGER req=84 val=168 ops=112 zero=36 busy=324 stall=38 done=120 skip=109 inzero=7 azero=29 sat=0 total=530 proto=0 cfgerr=0 completed=120
+$finish called at time : 5555 ns : File "C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/tb_np7_negative.sv" Line 173
 exit
-INFO: [Common 17-206] Exiting xsim at Wed Sep  2 02:38:59 2026...
+INFO: [Common 17-206] Exiting xsim at Wed Sep  2 05:00:54 2026...
 
 #### iverilog (exit 0) ####
 
 #### icarus (exit 0) ####
-WARNING: C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/tb_np7_negative.sv:129: $readmemh(np7_cfg.hex): Not enough words in the file for the requested range [0:63].
-WARNING: C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/tb_np7_negative.sv:130: $readmemh(np7_txn.hex): Not enough words in the file for the requested range [0:2047].
-WARNING: C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/tb_np7_negative.sv:131: $readmemh(np7_bp.hex): Not enough words in the file for the requested range [0:59999].
+WARNING: C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/tb_np7_negative.sv:133: $readmemh(np7_cfg.hex): Not enough words in the file for the requested range [0:63].
+WARNING: C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/tb_np7_negative.sv:134: $readmemh(np7_txn.hex): Not enough words in the file for the requested range [0:2047].
+WARNING: C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/tb_np7_negative.sv:135: $readmemh(np7_bp.hex): Not enough words in the file for the requested range [0:59999].
 CYC 3 st=0 ce=0 ad=1 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=0
 CYC 4 st=0 ce=0 ad=1 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=0
 CYC 5 st=0 ce=0 ad=1 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=0
@@ -168,63 +168,63 @@ CYC 22 st=0 ce=0 ad=1 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=0
 CYC 23 st=0 ce=0 ad=1 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=0
 CYC 24 st=0 ce=0 ad=1 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=0
 CYC 25 st=0 ce=0 ad=1 lf=0 bm=0 rv=0 rr=0 ap=1 zp=0 sum=0 ls=0 cmp=0
-CYC 26 st=1 ce=1 ad=2 lf=0 bm=0 rv=0 rr=1 ap=0 zp=1 sum=0 ls=0 cmp=0
-CYC 27 st=2 ce=1 ad=3 lf=0 bm=0 rv=0 rr=1 ap=0 zp=1 sum=0 ls=0 cmp=0
-CYC 28 st=3 ce=0 ad=3 lf=0 bm=0 rv=0 rr=1 ap=0 zp=1 sum=0 ls=0 cmp=0
-CYC 29 st=5 ce=0 ad=3 lf=0 bm=0 rv=1 rr=1 ap=0 zp=1 sum=0 ls=1 cmp=0
-CYC 30 st=0 ce=0 ad=3 lf=0 bm=0 rv=0 rr=1 ap=1 zp=1 sum=0 ls=0 cmp=1
-CYC 31 st=1 ce=1 ad=18 lf=0 bm=4 rv=0 rr=0 ap=0 zp=0 sum=0 ls=1 cmp=1
-CYC 32 st=2 ce=1 ad=19 lf=0 bm=4 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=1
-CYC 33 st=3 ce=0 ad=19 lf=0 bm=4 rv=0 rr=0 ap=0 zp=0 sum=0 ls=0 cmp=1
-CYC 34 st=4 ce=0 ad=19 lf=1 bm=4 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=1
-CYC 35 st=5 ce=0 ad=19 lf=0 bm=0 rv=1 rr=1 ap=0 zp=0 sum=24 ls=1 cmp=1
-CYC 36 st=0 ce=0 ad=19 lf=0 bm=0 rv=0 rr=1 ap=1 zp=0 sum=24 ls=0 cmp=2
-CYC 37 st=1 ce=1 ad=10 lf=0 bm=0 rv=0 rr=0 ap=0 zp=1 sum=0 ls=0 cmp=2
-CYC 38 st=2 ce=1 ad=11 lf=0 bm=0 rv=0 rr=1 ap=0 zp=1 sum=0 ls=0 cmp=2
-CYC 39 st=3 ce=0 ad=11 lf=0 bm=0 rv=0 rr=1 ap=0 zp=1 sum=0 ls=0 cmp=2
-CYC 40 st=5 ce=0 ad=11 lf=0 bm=0 rv=1 rr=1 ap=0 zp=1 sum=0 ls=0 cmp=2
-CYC 41 st=0 ce=0 ad=11 lf=0 bm=0 rv=0 rr=0 ap=1 zp=1 sum=0 ls=0 cmp=3
-CYC 42 st=1 ce=1 ad=4 lf=0 bm=0 rv=0 rr=1 ap=0 zp=1 sum=0 ls=0 cmp=3
-[NP7_XSIM_OMITTED cyc_rows=673 of 753 full_stream_sha256=3c97fd8d127e62d78e9ed073886d77bbb1d1c99dac53a88372cda9d679f39eb8]
-CYC 716 st=1 ce=1 ad=8 lf=0 bm=1 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=114
-CYC 717 st=2 ce=1 ad=9 lf=0 bm=1 rv=0 rr=0 ap=0 zp=0 sum=0 ls=0 cmp=114
-CYC 718 st=3 ce=0 ad=9 lf=0 bm=1 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=114
-CYC 719 st=4 ce=0 ad=9 lf=1 bm=1 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=114
-CYC 720 st=5 ce=0 ad=9 lf=0 bm=0 rv=1 rr=0 ap=0 zp=0 sum=117 ls=0 cmp=114
-CYC 721 st=5 ce=0 ad=9 lf=0 bm=0 rv=1 rr=1 ap=0 zp=0 sum=117 ls=0 cmp=114
-CYC 722 st=0 ce=0 ad=9 lf=0 bm=0 rv=0 rr=1 ap=1 zp=0 sum=117 ls=1 cmp=115
-CYC 723 st=1 ce=1 ad=14 lf=0 bm=0 rv=0 rr=1 ap=0 zp=1 sum=0 ls=0 cmp=115
-CYC 724 st=2 ce=1 ad=15 lf=0 bm=0 rv=0 rr=1 ap=0 zp=1 sum=0 ls=1 cmp=115
-CYC 725 st=3 ce=0 ad=15 lf=0 bm=0 rv=0 rr=1 ap=0 zp=1 sum=0 ls=0 cmp=115
-CYC 726 st=5 ce=0 ad=15 lf=0 bm=0 rv=1 rr=0 ap=0 zp=1 sum=0 ls=0 cmp=115
-CYC 727 st=5 ce=0 ad=15 lf=0 bm=0 rv=1 rr=1 ap=0 zp=1 sum=0 ls=0 cmp=115
-CYC 728 st=0 ce=0 ad=15 lf=0 bm=0 rv=0 rr=1 ap=1 zp=1 sum=0 ls=0 cmp=116
-CYC 729 st=1 ce=1 ad=2 lf=0 bm=1 rv=0 rr=0 ap=0 zp=0 sum=0 ls=0 cmp=116
-CYC 730 st=2 ce=1 ad=3 lf=0 bm=1 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=116
-CYC 731 st=3 ce=0 ad=3 lf=0 bm=1 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=116
-CYC 732 st=4 ce=0 ad=3 lf=1 bm=1 rv=0 rr=0 ap=0 zp=0 sum=0 ls=0 cmp=116
-CYC 733 st=5 ce=0 ad=3 lf=0 bm=0 rv=1 rr=1 ap=0 zp=0 sum=34 ls=1 cmp=116
-CYC 734 st=0 ce=0 ad=3 lf=0 bm=0 rv=0 rr=1 ap=1 zp=0 sum=34 ls=0 cmp=117
-CYC 735 st=1 ce=1 ad=10 lf=0 bm=4 rv=0 rr=0 ap=0 zp=0 sum=0 ls=0 cmp=117
-CYC 736 st=2 ce=1 ad=11 lf=0 bm=4 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=117
-CYC 737 st=3 ce=0 ad=11 lf=0 bm=4 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=117
-CYC 738 st=4 ce=0 ad=11 lf=0 bm=4 rv=0 rr=0 ap=0 zp=0 sum=0 ls=1 cmp=117
-CYC 739 st=4 ce=0 ad=11 lf=1 bm=4 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=117
-CYC 740 st=5 ce=0 ad=11 lf=0 bm=0 rv=1 rr=0 ap=0 zp=0 sum=-59 ls=0 cmp=117
-CYC 741 st=5 ce=0 ad=11 lf=0 bm=0 rv=1 rr=0 ap=0 zp=0 sum=-59 ls=1 cmp=117
-CYC 742 st=5 ce=0 ad=11 lf=0 bm=0 rv=1 rr=1 ap=0 zp=0 sum=-59 ls=0 cmp=117
-CYC 743 st=0 ce=0 ad=11 lf=0 bm=0 rv=0 rr=1 ap=1 zp=0 sum=-59 ls=0 cmp=118
-CYC 744 st=1 ce=1 ad=18 lf=0 bm=0 rv=0 rr=1 ap=0 zp=1 sum=0 ls=0 cmp=118
-CYC 745 st=2 ce=1 ad=19 lf=0 bm=0 rv=0 rr=1 ap=0 zp=1 sum=0 ls=0 cmp=118
-CYC 746 st=3 ce=0 ad=19 lf=0 bm=0 rv=0 rr=1 ap=0 zp=1 sum=0 ls=0 cmp=118
-CYC 747 st=5 ce=0 ad=19 lf=0 bm=0 rv=1 rr=0 ap=0 zp=1 sum=0 ls=0 cmp=118
-CYC 748 st=5 ce=0 ad=19 lf=0 bm=0 rv=1 rr=1 ap=0 zp=1 sum=0 ls=1 cmp=118
-CYC 749 st=0 ce=0 ad=19 lf=0 bm=0 rv=0 rr=1 ap=1 zp=1 sum=0 ls=0 cmp=119
-CYC 750 st=1 ce=1 ad=8 lf=0 bm=9 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=119
-CYC 751 st=2 ce=1 ad=9 lf=0 bm=9 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=119
-CYC 752 st=3 ce=0 ad=9 lf=0 bm=9 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=119
-CYC 753 st=4 ce=0 ad=9 lf=2 bm=9 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=119
-CYC 754 st=5 ce=0 ad=9 lf=0 bm=0 rv=1 rr=1 ap=0 zp=0 sum=195 ls=0 cmp=119
-CYC 755 st=0 ce=0 ad=9 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=195 ls=0 cmp=120
-LEDGER req=84 val=168 ops=112 zero=36 busy=168 stall=46 done=120 skip=109 inzero=7 azero=29 sat=0 total=454 proto=0 cfgerr=0 completed=120
-C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/tb_np7_negative.sv:169: $finish called at 7555000 (1ps)
+CYC 26 st=1 ce=1 ad=2 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=0
+CYC 27 st=2 ce=1 ad=3 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=0
+CYC 28 st=3 ce=0 ad=3 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=0
+CYC 29 st=5 ce=0 ad=3 lf=0 bm=0 rv=1 rr=1 ap=1 zp=1 sum=0 ls=1 cmp=0
+CYC 30 st=1 ce=1 ad=18 lf=0 bm=4 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=1
+CYC 31 st=2 ce=1 ad=19 lf=0 bm=4 rv=0 rr=0 ap=0 zp=0 sum=0 ls=1 cmp=1
+CYC 32 st=3 ce=0 ad=19 lf=0 bm=4 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=1
+CYC 33 st=4 ce=0 ad=19 lf=1 bm=4 rv=1 rr=0 ap=0 zp=0 sum=24 ls=0 cmp=1
+CYC 34 st=5 ce=0 ad=19 lf=0 bm=0 rv=1 rr=1 ap=1 zp=0 sum=24 ls=0 cmp=1
+CYC 35 st=1 ce=1 ad=10 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=2
+CYC 36 st=2 ce=1 ad=11 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=2
+CYC 37 st=3 ce=0 ad=11 lf=0 bm=0 rv=0 rr=0 ap=0 zp=0 sum=0 ls=0 cmp=2
+CYC 38 st=5 ce=0 ad=11 lf=0 bm=0 rv=1 rr=1 ap=1 zp=1 sum=0 ls=0 cmp=2
+CYC 39 st=1 ce=1 ad=4 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=3
+CYC 40 st=2 ce=1 ad=5 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=3
+CYC 41 st=3 ce=0 ad=5 lf=0 bm=0 rv=0 rr=0 ap=0 zp=0 sum=0 ls=0 cmp=3
+CYC 42 st=5 ce=0 ad=5 lf=0 bm=0 rv=1 rr=1 ap=1 zp=1 sum=0 ls=0 cmp=3
+[NP7_XSIM_OMITTED cyc_rows=473 of 553 full_stream_sha256=7a5a3394e005ca0a3ae3f61da4020d670299b985bbfa8e99adabf274b3c6ef43]
+CYC 516 st=1 ce=1 ad=16 lf=0 bm=9 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=112
+CYC 517 st=2 ce=1 ad=17 lf=0 bm=9 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=112
+CYC 518 st=3 ce=0 ad=17 lf=0 bm=9 rv=0 rr=0 ap=0 zp=0 sum=0 ls=1 cmp=112
+CYC 519 st=4 ce=0 ad=17 lf=2 bm=9 rv=1 rr=1 ap=1 zp=0 sum=-97 ls=0 cmp=112
+CYC 520 st=1 ce=1 ad=16 lf=0 bm=8 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=113
+CYC 521 st=2 ce=1 ad=17 lf=0 bm=8 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=113
+CYC 522 st=3 ce=0 ad=17 lf=0 bm=8 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=113
+CYC 523 st=4 ce=0 ad=17 lf=0 bm=8 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=113
+CYC 524 st=4 ce=0 ad=17 lf=0 bm=8 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=113
+CYC 525 st=4 ce=0 ad=17 lf=0 bm=8 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=113
+CYC 526 st=4 ce=0 ad=17 lf=1 bm=8 rv=1 rr=1 ap=1 zp=0 sum=-95 ls=0 cmp=113
+CYC 527 st=1 ce=1 ad=8 lf=0 bm=1 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=114
+CYC 528 st=2 ce=1 ad=9 lf=0 bm=1 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=114
+CYC 529 st=3 ce=0 ad=9 lf=0 bm=1 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=114
+CYC 530 st=4 ce=0 ad=9 lf=0 bm=1 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=114
+CYC 531 st=4 ce=0 ad=9 lf=1 bm=1 rv=1 rr=1 ap=1 zp=0 sum=117 ls=0 cmp=114
+CYC 532 st=1 ce=1 ad=14 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=115
+CYC 533 st=2 ce=1 ad=15 lf=0 bm=0 rv=0 rr=0 ap=0 zp=0 sum=0 ls=0 cmp=115
+CYC 534 st=3 ce=0 ad=15 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=115
+CYC 535 st=5 ce=0 ad=15 lf=0 bm=0 rv=1 rr=1 ap=1 zp=1 sum=0 ls=0 cmp=115
+CYC 536 st=1 ce=1 ad=2 lf=0 bm=1 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=116
+CYC 537 st=2 ce=1 ad=3 lf=0 bm=1 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=116
+CYC 538 st=3 ce=0 ad=3 lf=0 bm=1 rv=0 rr=0 ap=0 zp=0 sum=0 ls=0 cmp=116
+CYC 539 st=4 ce=0 ad=3 lf=0 bm=1 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=116
+CYC 540 st=4 ce=0 ad=3 lf=1 bm=1 rv=1 rr=1 ap=1 zp=0 sum=34 ls=0 cmp=116
+CYC 541 st=1 ce=1 ad=10 lf=0 bm=4 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=117
+CYC 542 st=2 ce=1 ad=11 lf=0 bm=4 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=117
+CYC 543 st=3 ce=0 ad=11 lf=0 bm=4 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=117
+CYC 544 st=4 ce=0 ad=11 lf=0 bm=4 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=117
+CYC 545 st=4 ce=0 ad=11 lf=1 bm=4 rv=1 rr=1 ap=1 zp=0 sum=-59 ls=0 cmp=117
+CYC 546 st=1 ce=1 ad=18 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=118
+CYC 547 st=2 ce=1 ad=19 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=118
+CYC 548 st=3 ce=0 ad=19 lf=0 bm=0 rv=0 rr=0 ap=0 zp=0 sum=0 ls=0 cmp=118
+CYC 549 st=5 ce=0 ad=19 lf=0 bm=0 rv=1 rr=0 ap=0 zp=1 sum=0 ls=0 cmp=118
+CYC 550 st=5 ce=0 ad=19 lf=0 bm=0 rv=1 rr=1 ap=1 zp=1 sum=0 ls=0 cmp=118
+CYC 551 st=1 ce=1 ad=8 lf=0 bm=9 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=119
+CYC 552 st=2 ce=1 ad=9 lf=0 bm=9 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=119
+CYC 553 st=3 ce=0 ad=9 lf=0 bm=9 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=119
+CYC 554 st=4 ce=0 ad=9 lf=2 bm=9 rv=1 rr=1 ap=0 zp=0 sum=195 ls=0 cmp=119
+CYC 555 st=0 ce=0 ad=9 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=120
+LEDGER req=84 val=168 ops=112 zero=36 busy=324 stall=38 done=120 skip=109 inzero=7 azero=29 sat=0 total=530 proto=0 cfgerr=0 completed=120
+C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/tb_np7_negative.sv:173: $finish called at 5555000 (1ps)
