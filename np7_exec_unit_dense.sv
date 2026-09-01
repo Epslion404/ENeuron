@@ -48,6 +48,7 @@ module np7_exec_unit_dense #(
     output logic [31:0]        activity_zero_after_structure_state,
     output logic [31:0]        saturation_events_state,
     output logic [31:0]        total_cycles_state,
+    output logic               cfg_illegal_index,
     output logic               protocol_error
 );
     localparam logic [2:0] S_IDLE = 3'd0;
@@ -74,6 +75,9 @@ module np7_exec_unit_dense #(
     logic lane_fire;
     logic [19:0] ram_q;
 
+    // dense 记录无位置索引；CONFIG 拒绝保留位非零的字。
+    assign cfg_illegal_index = cfg_valid && cfg_open
+        && (cfg_wdata[19:16] != 4'b0000);
     assign issue_ready = (state == S_IDLE) && !cfg_open;
     assign accept_pulse = issue_valid && issue_ready;
     assign state_code = state;
@@ -287,6 +291,9 @@ module np7_exec_unit_dense #(
                     end else if (!lane_stall) begin
                         acc <= acc_next;
                         pending_mask <= pending_mask & ~batch_mask;
+                        // 最后一批发射的当拍直接进 DONE，不额外消耗空拍。
+                        if ((pending_mask & ~batch_mask) == 4'd0)
+                            state <= S_DONE;
                     end
                 end
                 S_DONE: begin

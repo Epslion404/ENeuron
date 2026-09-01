@@ -285,6 +285,19 @@ class SharedLaneUnit:
             self.ram[base + offset] = word
         self.configured_groups.add(group_id)
 
+    def config_load_words(self, words: Sequence[int]) -> None:
+        """直接装载 RAM 位模式（与 RTL 的 np7_cfg.hex 同源），随后由
+        config_finish 解码校验，杜绝运行期写与第二份结构真值。"""
+        if not self.config_open:
+            raise RuntimeError("runtime weight write is forbidden (read-only RAM)")
+        per_group = group_word_count(self.fmt)
+        if len(words) != per_group * self.group_count:
+            raise ConfigError("config word count mismatch")
+        for index, word in enumerate(words):
+            self.ram[index] = word
+        for group in range(self.group_count):
+            self.configured_groups.add(group)
+
     def config_finish(self) -> None:
         missing = [gid for gid in range(self.group_count)
                    if gid not in self.configured_groups]

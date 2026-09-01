@@ -68,7 +68,6 @@ module np7_exec_unit_sparse #(
     logic [2:0] batch_n;
     logic [1:0] sel0, sel1, sel2, sel3;
     logic [2:0] rank1, rank2, rank3;
-    logic [4:0] read_offset;
     logic [LANES * 8 - 1:0] lane_weights;
     logic signed [11:0] acc_next;
     logic lane_saturated;
@@ -93,8 +92,8 @@ module np7_exec_unit_sparse #(
     wire [3:0] struct_mask_w = (4'b1 << idx0_w) | (4'b1 << idx1_w);
     wire sparse_record_illegal = (idx1_w <= idx0_w);
     // CONFIG 装载期拒绝：非规范（等值或降序）索引不得进入运行期。
-    assign cfg_illegal_index = cfg_valid && cfg_open && sparse_record_illegal_next;
     wire sparse_record_illegal_next = (cfg_wdata[19:18] <= cfg_wdata[17:16]);
+    assign cfg_illegal_index = cfg_valid && cfg_open && sparse_record_illegal_next;
 
     // Icarus 对 always_comb 内的位选支持有限，先以常量位选引出单比特线网。
     wire pm0 = pending_mask[0];
@@ -269,10 +268,11 @@ module np7_exec_unit_sparse #(
                     end
                 end
                 S_RD0: begin
-                    word0 <= ram_q;
+                    // 同步 RAM：本拍只发请求，数据在下一拍（S_LAT）有效。
                     state <= S_LAT;
                 end
                 S_LAT: begin
+                    word0 <= ram_q;
                     weight_values_fetched_state <= weight_values_fetched_state + 32'd2;
                     state <= S_BATCH;
                 end
@@ -282,6 +282,9 @@ module np7_exec_unit_sparse #(
                     end else if (!lane_stall) begin
                         acc <= acc_next;
                         pending_mask <= pending_mask & ~batch_mask;
+                        // 最后一批发射的当拍直接进 DONE，不额外消耗空拍。
+                        if ((pending_mask & ~batch_mask) == 4'd0)
+                            state <= S_DONE;
                     end
                 end
                 S_DONE: begin
