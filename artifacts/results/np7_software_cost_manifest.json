@@ -10,7 +10,7 @@
       "artifacts/results/np7_three_model_integration.json": "127435a59e498eb092f4874a337c2a99b4504dcea0e2d49ee31c9048f6172711"
     },
     "input_files": {
-      "docs/planning/NPU_PRUNING_NP7_FREEZE_DECISIONS.md": "42aced1c6d8197150ad75dd7f3370e36632a0d7ae10bc6e5969fd19880f1de03",
+      "docs/planning/NPU_PRUNING_NP7_FREEZE_DECISIONS.md": "7e03f08e2bad8bcd66615ed05d43ae2348e78259874ffb6fff996afa58b63374",
       "docs/planning/NPU_PRUNING_NP7_TODO.md": "f9249f69d4b63fac61a995a97802bd4a134ac47f5140f451fb9e4e35ca62c5cf",
       "formal_np7_exec_unit.sv": "da5a510a168b6aae16910b3e0c0871179dd5383fcd1bd04303cb887fd712d606",
       "formal_np7_exec_unit.ys": "1763f32f609ad172c8daef4b37b8d65c7f95e0346d8b7da582794c6b2b59a3bc",
@@ -43,7 +43,7 @@
     "G3"
   ],
   "claim_boundary": "仅证明冻结 B2.1 任务上的逻辑周期模型与 RTL 逐拍账本；不证明 DDR/DMA/PS 端到端吞吐、真实功耗或板级表现",
-  "frozen_git_head": "37e9567a71e8252c39d834ab680d23e65d15d521",
+  "frozen_git_head": "c181ff30539640b5677a2922666a2b492d3d50ad",
   "gate_thresholds": {
     "G1_reads": 0.45,
     "G2_ops": 0.45,
