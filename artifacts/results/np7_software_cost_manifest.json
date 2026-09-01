@@ -1,0 +1,266 @@
+{
+  "bindings": {
+    "evidence_files": {
+      "artifacts/logs/np73_cosim.txt": "e13533436c6ef4b457a1a6102f1eb9522429c875673d17a40d4d60e03f8a84fc",
+      "artifacts/logs/np74_three_model.txt": "f95d77b45abe90a3e55f077280e8ded41529e5c0c282b00db4943f4fe170db1c",
+      "artifacts/logs/np75_formal_mutations.txt": "ac71b25e525a32dea29eac2483542ac90286745d934958316d6bdd30ca29f753",
+      "artifacts/results/local_prune_b21_results.json": "c9e6492973ccb97271418af7802a340fdb431775872d5c1c1c3c5287518d3d89",
+      "artifacts/results/np7_cosim_ledgers.json": "a052882d8ef650f28c0ba94a80c18cf89eb4bf10d1d3a01dc1e22092b9fdc0f5",
+      "artifacts/results/np7_formal_and_mutations.json": "9777296dabb820b676d36d44ce2eab3b621002a616bad06c1255fdc5b5ac86c8",
+      "artifacts/results/np7_three_model_integration.json": "127435a59e498eb092f4874a337c2a99b4504dcea0e2d49ee31c9048f6172711"
+    },
+    "input_files": {
+      "docs/planning/NPU_PRUNING_NP7_FREEZE_DECISIONS.md": "42aced1c6d8197150ad75dd7f3370e36632a0d7ae10bc6e5969fd19880f1de03",
+      "docs/planning/NPU_PRUNING_NP7_TODO.md": "f9249f69d4b63fac61a995a97802bd4a134ac47f5140f451fb9e4e35ca62c5cf",
+      "formal_np7_exec_unit.sv": "da5a510a168b6aae16910b3e0c0871179dd5383fcd1bd04303cb887fd712d606",
+      "formal_np7_exec_unit.ys": "1763f32f609ad172c8daef4b37b8d65c7f95e0346d8b7da582794c6b2b59a3bc",
+      "formal_np7_exec_unit_dense.ys": "c06b7149289b5d0f5cb160766f175ccb2bf8cdbf2a04273f223a4bc6d9c20c79",
+      "formal_np7_exec_unit_dense_reach.ys": "b1e6afbf7f69632f9f76584fce1170ccb5deadf15a5e212fa554c5b54b3f0c59",
+      "formal_np7_exec_unit_reach.ys": "f6c2d3c2c33ed42cd82599d0085811783b38980b271f78ddaa72701c52fe569d",
+      "formal_np7_exec_unit_zero.ys": "1df1e60c655378f10a3035d26cb2324e80c9ddd5812ea2f1b83448af5145687d",
+      "local_prune_b21.py": "f1450d4637f380d4b6d919be766e736cdef4470982a14218aa82b1501e373dd3",
+      "np7_exec_unit_dense.sv": "d7c8346d3624823ee58fa6b235d3f02f98dffbda3ea16fd38a87b088f0dbf00e",
+      "np7_exec_unit_sparse.sv": "58975d596510b96bf05e17c6c3258429a76842dd48f64bbd570e7097731224eb",
+      "np7_formal_and_mutations.py": "b35b6c1d1788a79fb4932fcdae69018f37ddb9dc2dceb90fefb721860e7956ae",
+      "np7_ledger_reconstruction.py": "64d7b9f36822e357bdd26378fc2b5aede8467b7d158641dcb23f093aaa49fe32",
+      "np7_negative_controls.sv": "0ff4bb419416113010a619a6efbfa29bde0624eb7cd29cb4ca6a414e1b79b776",
+      "np7_shared_lane_cosim.py": "e5b011fb391360cbb478f19ed8ac749116072e65233b3b5b9467603fc371213d",
+      "np7_shared_lane_oracle.py": "b5ffe4136575877f102dc01d1ff5eab7c2de2edd268561479cb1816cfa5b8712",
+      "np7_shared_synapse_lane.sv": "b509d0e99758cfea97e046c2752c1e54b977023930752801a512ebce49791f75",
+      "np7_three_model_integration_cosim.py": "39ec8948d6b4173ef034ee6162369281c019875aa93d0ac291df919c91869c60",
+      "np7_weight_ram.sv": "eabac73511e37763871508562ea8868c027e8a9cfef920ddca99711548b8eb75",
+      "tb_np7_exec_unit.sv": "b162b3477de2e2f997b1a09b233bf4093ff3e62accf52d18f0d2280b119057e5",
+      "tb_np7_negative.sv": "23f7bfc07c03b9028663855df5295f96b3d0d2e0b3aef66e0b430fc33c8e2f7a",
+      "test_np7_shared_lane_oracle.py": "2b96b1bdc2249442b9556a3559a08c2fde2eeff4c68bc5e57983826ddd7700e2"
+    },
+    "tool_files": {
+      "generate_np7_manifest.py": "42e7dc43737680f82a5e400cc157e5b93c001398b4b9d602c58b9847847b6e76",
+      "test_np7_verifier_mutations.py": "b809a712692b5e847a10aa1950e530990ce292cf09e8a6e021de4990854f9614",
+      "verify_np7_software_cost.py": "5746a46da7f241df103e44d0d33d90655944f6c61cc08b2226d87f34092871e7"
+    }
+  },
+  "blocking_gates": [
+    "G3"
+  ],
+  "claim_boundary": "仅证明冻结 B2.1 任务上的逻辑周期模型与 RTL 逐拍账本；不证明 DDR/DMA/PS 端到端吞吐、真实功耗或板级表现",
+  "frozen_git_head": "33f206e912e415c8be1e8a04bfabc3f028dfcef9",
+  "gate_thresholds": {
+    "G1_reads": 0.45,
+    "G2_ops": 0.45,
+    "G3_cycles": 0.25
+  },
+  "gates": {
+    "G1": {
+      "failures": [],
+      "label": "实际权重槽读取下降",
+      "status": "PASS",
+      "threshold": 0.45,
+      "values": {
+        "eneuron/L1": 0.722222,
+        "eneuron/L2": 0.722222,
+        "eneuron/L4": 0.722222,
+        "eneuron/L8": 0.722222,
+        "pulse_mini_l/L1": 0.722222,
+        "pulse_mini_l/L2": 0.722222,
+        "pulse_mini_l/L4": 0.722222,
+        "pulse_mini_l/L8": 0.722222,
+        "pulse_mini_l2/L1": 0.722222,
+        "pulse_mini_l2/L2": 0.722222,
+        "pulse_mini_l2/L4": 0.722222,
+        "pulse_mini_l2/L8": 0.722222
+      }
+    },
+    "G2": {
+      "failures": [],
+      "label": "共享 lane 操作数下降",
+      "status": "PASS",
+      "threshold": 0.45,
+      "values": {
+        "eneuron/L1": 0.5,
+        "eneuron/L2": 0.5,
+        "eneuron/L4": 0.5,
+        "eneuron/L8": 0.5,
+        "pulse_mini_l/L1": 0.5,
+        "pulse_mini_l/L2": 0.5,
+        "pulse_mini_l/L4": 0.5,
+        "pulse_mini_l/L8": 0.5,
+        "pulse_mini_l2/L1": 0.5,
+        "pulse_mini_l2/L2": 0.5,
+        "pulse_mini_l2/L4": 0.5,
+        "pulse_mini_l2/L8": 0.5
+      }
+    },
+    "G3": {
+      "failures": [
+        "eneuron/L1 22.3%<25%",
+        "eneuron/L2 21.8%<25%",
+        "eneuron/L4 21.0%<25%",
+        "eneuron/L8 21.0%<25%",
+        "pulse_mini_l/L1 22.3%<25%",
+        "pulse_mini_l/L2 21.8%<25%",
+        "pulse_mini_l/L4 21.0%<25%",
+        "pulse_mini_l/L8 21.0%<25%",
+        "pulse_mini_l2/L1 22.3%<25%",
+        "pulse_mini_l2/L2 21.8%<25%",
+        "pulse_mini_l2/L4 21.0%<25%",
+        "pulse_mini_l2/L8 21.0%<25%"
+      ],
+      "label": "每逻辑 tick 周期下降",
+      "status": "FAIL",
+      "threshold": 0.25,
+      "values": {
+        "eneuron/L1": 0.223301,
+        "eneuron/L2": 0.217822,
+        "eneuron/L4": 0.21,
+        "eneuron/L8": 0.21,
+        "pulse_mini_l/L1": 0.223301,
+        "pulse_mini_l/L2": 0.217822,
+        "pulse_mini_l/L4": 0.21,
+        "pulse_mini_l/L8": 0.21,
+        "pulse_mini_l2/L1": 0.223301,
+        "pulse_mini_l2/L2": 0.217822,
+        "pulse_mini_l2/L4": 0.21,
+        "pulse_mini_l2/L8": 0.21
+      }
+    },
+    "G4": {
+      "failures": [],
+      "label": "stall 单列且未抵消吞吐",
+      "status": "PASS",
+      "threshold": null,
+      "values": {
+        "eneuron/L1": {
+          "delta": 0,
+          "dense_stall": 0,
+          "sparse_stall": 0
+        },
+        "eneuron/L2": {
+          "delta": 0,
+          "dense_stall": 0,
+          "sparse_stall": 0
+        },
+        "eneuron/L4": {
+          "delta": 0,
+          "dense_stall": 0,
+          "sparse_stall": 0
+        },
+        "eneuron/L8": {
+          "delta": 0,
+          "dense_stall": 0,
+          "sparse_stall": 0
+        },
+        "pulse_mini_l/L1": {
+          "delta": 0,
+          "dense_stall": 0,
+          "sparse_stall": 0
+        },
+        "pulse_mini_l/L2": {
+          "delta": 0,
+          "dense_stall": 0,
+          "sparse_stall": 0
+        },
+        "pulse_mini_l/L4": {
+          "delta": 0,
+          "dense_stall": 0,
+          "sparse_stall": 0
+        },
+        "pulse_mini_l/L8": {
+          "delta": 0,
+          "dense_stall": 0,
+          "sparse_stall": 0
+        },
+        "pulse_mini_l2/L1": {
+          "delta": 0,
+          "dense_stall": 0,
+          "sparse_stall": 0
+        },
+        "pulse_mini_l2/L2": {
+          "delta": 0,
+          "dense_stall": 0,
+          "sparse_stall": 0
+        },
+        "pulse_mini_l2/L4": {
+          "delta": 0,
+          "dense_stall": 0,
+          "sparse_stall": 0
+        },
+        "pulse_mini_l2/L8": {
+          "delta": 0,
+          "dense_stall": 0,
+          "sparse_stall": 0
+        }
+      }
+    },
+    "G5": {
+      "failures": [],
+      "label": "膜状态/突触和 bit-exact",
+      "status": "PASS",
+      "threshold": null,
+      "values": {}
+    },
+    "G6": {
+      "failures": [],
+      "label": "三模型精度维持冻结门槛",
+      "status": "PASS",
+      "threshold": null,
+      "values": {
+        "eneuron": {
+          "b21_joint_gate_pass": true,
+          "balanced_accuracy": 1.0,
+          "coverage": 1.0,
+          "joint_gate_pass": true
+        },
+        "pulse_mini_l": {
+          "b21_joint_gate_pass": true,
+          "balanced_accuracy": 1.0,
+          "coverage": 1.0,
+          "joint_gate_pass": true
+        },
+        "pulse_mini_l2": {
+          "b21_joint_gate_pass": true,
+          "balanced_accuracy": 1.0,
+          "coverage": 1.0,
+          "joint_gate_pass": true
+        }
+      }
+    }
+  },
+  "integrity": [],
+  "overall_status": "FAIL",
+  "rtl_observed_reductions": {
+    "1": {
+      "cycles": 0.340312,
+      "ops": 0.499298,
+      "reads": 0.600112,
+      "seeds": 20,
+      "slot_reads": 0.600112
+    },
+    "2": {
+      "cycles": 0.295325,
+      "ops": 0.499498,
+      "reads": 0.599936,
+      "seeds": 20,
+      "slot_reads": 0.599936
+    },
+    "4": {
+      "cycles": 0.252895,
+      "ops": 0.504982,
+      "reads": 0.602458,
+      "seeds": 20,
+      "slot_reads": 0.602458
+    },
+    "8": {
+      "cycles": 0.253028,
+      "ops": 0.501837,
+      "reads": 0.601342,
+      "seeds": 20,
+      "slot_reads": 0.601342
+    }
+  },
+  "schema": "np7-software-cost-manifest-v1",
+  "tool_versions": {
+    "iverilog": "Icarus Verilog version 12.0 (devel) (s20150603-1539-g2693dd32b)",
+    "vvp": "vvp: no input file.",
+    "yosys": "missing: [WinError 2] 系统找不到指定的文件。"
+  }
+}
