@@ -1,0 +1,180 @@
+{
+  "bindings": {
+    "digital_lif_core.sv": "fff3034d30838e7a47171093e28e0f4325c348cea0a0c42debe9cefa88ce7775",
+    "digital_lif_engine.sv": "499a430c50e32bed0430976a1bd40430c1bdd2317dc57e9513f638fa39707dc5",
+    "eneuron_local_prune_wrapper.sv": "a51db0a6f85f3a078f51816129efd5887d3df7d71c55e814d231f82030578c69",
+    "local_prune_evidence_gain.sv": "4b2bb7c3d45808a0907ac60f547fe0ab0a607e3e8b4340410ea4467705b8301c",
+    "local_prune_gate_2of4.sv": "d52a1fd3bcdaba8d6e2823ddfda11adb72a1e5789528b4ce6f890929c939c321",
+    "pulse_mini_core.sv": "69361fc4f470a933890dd9d5e4210801fc1529716a860823d4526756d083c38b",
+    "pulse_mini_l2_core.sv": "79f9b790e449d1d1cbd6a5b8c6576834f54debd3b454bc2875c3dbad528da077",
+    "pulse_mini_l2_prune_wrapper.sv": "d07b9402f584f49e3c54cb05f29796f5005e81a9279fe4620592f85e71eadda1",
+    "pulse_mini_l_prune_wrapper.sv": "246714fa805c441c60b6417fa992c4ba6f89245c55fa33435111ac5d0ac61d27",
+    "pulse_mini_prune_bridge.sv": "cb1b831c1162f36bcbf8601eda8947a21c482413dd78843a834dedf9f8c140f7",
+    "vivado_np6_eneuron_pruned_synth.tcl": "3227e240f41156d5e04cdf20bab6c2e56de89270c8879ce5b86cd9636dc89a50",
+    "vivado_np6_eneuron_unpruned_synth.tcl": "18aa9e69ec2846ea610207353c8a3a0635f347c1146415f7fbfdf67084bc40e3",
+    "vivado_np6_gate_ooc_synth.tcl": "42d875b84730745988d98c9428d7e6ee44b2844097dfa60d48053ab27f481628",
+    "vivado_np6_pulse_mini_l2_pruned_synth.tcl": "3e43fb0245e665b3c8e9f1f70daf5c309477d02cd2e508b4e07cf21638450960",
+    "vivado_np6_pulse_mini_l_pruned_synth.tcl": "f2d393890e9fbefca6ea51e53efacd2e106a1eed681e253eb0b173c65c1dac24",
+    "vivado_pulse_mini_l2_synth.tcl": "2f904a4bcc7e0aa1772fdb57562505f16b9515c2ad1edbd6254e9ae1f26cef15",
+    "vivado_pulse_mini_synth.tcl": "47328ed1a79de698ec46373e8711c1683ca32d0391ad840109b19670b707e0bd"
+  },
+  "clock_mhz": "100.000",
+  "configs": {
+    "1-gate/gate": {
+      "files_sha256": {
+        "drc_impl.rpt": "9e1b9d451242525faf18e05d48245887b073619b549e43e03bb63837c9a8b3f7",
+        "drc_synth.rpt": "3cbae02a182c888e1f6ae19fb510281fccfc9b211a6d2cd7c01290136da74ad9",
+        "power_impl.rpt": "5cd9b67b1d386e3f7f2d5d3402293b45953b26f190e17de8229e6a0f71c13d84",
+        "route_status_impl.rpt": "33396dfb9a5f77bb460c96684667570b5300e26d1865ba72d76f2d6feb27c996",
+        "signoff_summary.txt": "0b089d8b83755b777d8ebb1529c17553b4ce65b52c2ab9ef223569ac1b17b6c4",
+        "timing_impl.rpt": "d4954fbaa5531614a607d169e76729e7b529f78fb861c9e7e6b5f24b5a1e97a1",
+        "timing_synth.rpt": "63b46c8fb0a3b1b4f5789ff4f5cfde5c0fa7e9b46a8b38b52502f60d69bd71f4",
+        "utilization_impl.rpt": "b05141979cd2b291a521ded073a7168b3c599f358f38e89086a11c7fc85eb47c",
+        "utilization_synth.rpt": "c5c64534f51f303754ff815e49831f3fb7518d3fb21007d68757abebbb9fe4a6"
+      },
+      "report_dir": "vivado_np6_gate_ooc_reports",
+      "runner": "vivado_np6_gate_ooc_synth.tcl",
+      "side": "gate",
+      "sources": [
+        "local_prune_gate_2of4.sv"
+      ],
+      "top": "local_prune_gate_2of4"
+    },
+    "2-eneuron/pruned": {
+      "files_sha256": {
+        "drc_impl.rpt": "4684d461764b8942981047a854909a2daf2ef108055b6b83099aa6688c18620a",
+        "drc_synth.rpt": "408110933d0fc164f38f49dbb2a0211cd95e0439cdbc2d0c78dc72cda38f3596",
+        "power_impl.rpt": "4c652bfb175c6a6a6cd05aab4b9eb7a335e4e9ceccf39293b5dbc69bb19c9a06",
+        "route_status_impl.rpt": "8273835018a9aeb4158ba9b1f9345efa66069bcc3a434ad2404b3d78f84f5667",
+        "signoff_summary.txt": "4fae1df195c8f60b7186951b2469e30a40c4fb31268264427b9e7f613c6d2b74",
+        "timing_impl.rpt": "9c1a130289d84375e9574d7b09d547eb31c933a0925c80ee696d8429481e87b0",
+        "timing_synth.rpt": "93b4ff73694e47218bc87ad63d828b2c2c89aaed965dd9e787d4ae17948041a0",
+        "utilization_impl.rpt": "eefc58e449162c6e1e0343871096fb826052e303d8a7b0c2e8ff96b687985de9",
+        "utilization_synth.rpt": "fd6359b9a20b418c725921238197b3baa030151656f0c038e0c1cf4a16b1b846"
+      },
+      "report_dir": "vivado_np6_eneuron_pruned_reports",
+      "runner": "vivado_np6_eneuron_pruned_synth.tcl",
+      "side": "pruned",
+      "sources": [
+        "eneuron_local_prune_wrapper.sv",
+        "digital_lif_engine.sv",
+        "local_prune_gate_2of4.sv"
+      ],
+      "top": "eneuron_local_prune_wrapper"
+    },
+    "2-eneuron/unpruned": {
+      "files_sha256": {
+        "drc_impl.rpt": "11c6ced263c8f56965f72fc6d8deba7317b899f3f1d21c24b08fa64f2c3df4a9",
+        "drc_synth.rpt": "1b1c0f859e387e77607c2e28dad9bbdeb7a9c75e5a61b6651fdaf86e03eab573",
+        "power_impl.rpt": "30a01daa4e4836e2a379859252d6ec40be1ab599f7b523681c18ed0dc8413935",
+        "route_status_impl.rpt": "ae3c90afa3914b4206a579e1b4c2b87c85e375d23f74a95ba5bbe2f1669a14ec",
+        "signoff_summary.txt": "c0b004dccad91f4468ceb1b26f7433476ed3582b49b8fa6682a0a83587ffdb78",
+        "timing_impl.rpt": "ea6271f9c4a4cd0ce7b4bf20b7f8151f3945c511096a4ef52102cd76b0e3a7af",
+        "timing_synth.rpt": "d158bf40e4cdd38e4cf519c082a723c369f641044cfbef33453658aa32c6f899",
+        "utilization_impl.rpt": "81faaf68ac883d7128e6294666dbf52cdebf944d6a3295b57bf57e109e36cfc1",
+        "utilization_synth.rpt": "d9a40d30e511e8faa3e3edbb9d7506d23adaf69ae8361b04b55ed0fee214d92c"
+      },
+      "report_dir": "vivado_np6_eneuron_unpruned_reports",
+      "runner": "vivado_np6_eneuron_unpruned_synth.tcl",
+      "side": "unpruned",
+      "sources": [
+        "digital_lif_core.sv"
+      ],
+      "top": "digital_lif_core"
+    },
+    "3-pulse-mini-l/pruned": {
+      "files_sha256": {
+        "drc_impl.rpt": "c8e892993a159f9fbebdd64d7a3e9dc3ab4063567047f86f34492afcc5eaf147",
+        "drc_synth.rpt": "5c49815e6bbe1afa9a9f1fa950149550716a4cb86b583085bc9a16657ef9bc7d",
+        "power_impl.rpt": "ca201a6821f432a48138300367439e86461cfc3eb47adfe27729ff5505739c91",
+        "route_status_impl.rpt": "cbe04cbb1691dab2fcff8ab16d9c1983a383a160d99102ab27a2c23d610a0543",
+        "signoff_summary.txt": "88ec3492d478249fddb32d289d5e1865d7db09ae17aa7f26947cc501d79f57aa",
+        "timing_impl.rpt": "72723e8652d7a0e5d45186238a5c1f27f3311e1e203fecf05ef656a6c2681d46",
+        "timing_synth.rpt": "05e0a013490b8b674bae5b4654dbca5ec1f1a363e49e46ee00467241fb29e3d8",
+        "utilization_impl.rpt": "ded17f26f513aa4095e026edc2469a23ea03804fe48aa7ecc5a8d193a48230b3",
+        "utilization_synth.rpt": "ea39cc29dcfe654eb7266110a29967d3172f214ea65ae09a38adcbace6a22090"
+      },
+      "report_dir": "vivado_np6_pulse_mini_l_pruned_reports",
+      "runner": "vivado_np6_pulse_mini_l_pruned_synth.tcl",
+      "side": "pruned",
+      "sources": [
+        "pulse_mini_l_prune_wrapper.sv",
+        "pulse_mini_core.sv",
+        "pulse_mini_prune_bridge.sv",
+        "local_prune_gate_2of4.sv",
+        "local_prune_evidence_gain.sv"
+      ],
+      "top": "pulse_mini_l_prune_wrapper"
+    },
+    "3-pulse-mini-l/unpruned": {
+      "files_sha256": {
+        "drc_impl.rpt": "b327f6511b7ff48cd0ccb21a9847a4044205669d4afab0d368277ae12750c7e5",
+        "drc_synth.rpt": "7ad3181c33969b902b6a874ef06f5bc73eef621f5d64762d88456126c9c0c74e",
+        "power_impl.rpt": "2012e38bcb861ce3d17ea9124552da2ab301236b8b3d0f4f798bbd8d68d8f7ba",
+        "route_status_impl.rpt": "cedc202f4189aa4972c265633c9fc7ca717a1ae40803f61e4af37f6aa468dd8a",
+        "signoff_summary.txt": "5c25e0676304ae638202396ea701168423cc9f32fb673c78a1399479ad567a85",
+        "timing_impl.rpt": "7ea193cc9441f5a1e5d0833ce7a953caab3d35c2d161ec305b1864ad145ac8d9",
+        "timing_synth.rpt": "898e14c34dd7f17a96d21593a0e669f2ff2c3d1232162c46adda21839c759cae",
+        "utilization_impl.rpt": "cdf5f5e6b37f5f3ab528fd8fee7926cc43599adef571256d54bcf82ea1ee776c",
+        "utilization_synth.rpt": "6a647dddeb43a813a1c65a2fc6c842b88eecfaa2b697ed0fad12cd10a4c38d02"
+      },
+      "report_dir": "vivado_pulse_mini_reports",
+      "runner": "vivado_pulse_mini_synth.tcl",
+      "side": "unpruned",
+      "sources": [
+        "pulse_mini_core.sv"
+      ],
+      "top": "pulse_mini_core"
+    },
+    "4-pulse-mini-l2/pruned": {
+      "files_sha256": {
+        "drc_impl.rpt": "7e2779bddfa0fafd243557ab388ebaaeaa101b4bae4ebb027b72aff112b12c7b",
+        "drc_synth.rpt": "dd03cfcb77edebae10428764ea4f184bb08f7b73a047c18bc44437255b501b74",
+        "power_impl.rpt": "192bafe7d0221527255189a3ba96e322dacc779922c540b017bfc7bae35d4783",
+        "route_status_impl.rpt": "2164637e1bd88676f4d2bf9b8827ed96d311bce82ea97ae020e93194b8a3bcd8",
+        "signoff_summary.txt": "07d51b8177ed42815d723e76946972cb26075cdfb8ab29ff6f582e4a6ffe2439",
+        "timing_impl.rpt": "75487149f4ab63ebcdc54ea3d01ebfbaa6554c5ca31ccae436e3b85ba3232a59",
+        "timing_synth.rpt": "25b3ed63deec016ca2e492b36edf95334d9cdc73ae9b189bec3d91821e12d3a7",
+        "utilization_impl.rpt": "b30ca975656886aab7b97c2f9a302eb0a88699e569bf1b84cc737b969a09afca",
+        "utilization_synth.rpt": "f33ff189331f16c9e09d61c8ecc51094fdc17cbfa683dc1631e223a674239a05"
+      },
+      "report_dir": "vivado_np6_pulse_mini_l2_pruned_reports",
+      "runner": "vivado_np6_pulse_mini_l2_pruned_synth.tcl",
+      "side": "pruned",
+      "sources": [
+        "pulse_mini_l2_prune_wrapper.sv",
+        "pulse_mini_l2_core.sv",
+        "pulse_mini_prune_bridge.sv",
+        "local_prune_gate_2of4.sv",
+        "local_prune_evidence_gain.sv"
+      ],
+      "top": "pulse_mini_l2_prune_wrapper"
+    },
+    "4-pulse-mini-l2/unpruned": {
+      "files_sha256": {
+        "drc_impl.rpt": "fdd5f5763097a61016e255d2c76382adfdccf2aa7a2bfed612479d8c9def1576",
+        "drc_synth.rpt": "a666ed063f7e11b9e9fb483d444e84b447bb023306ffdbca8f322f9cf60ca80d",
+        "power_impl.rpt": "e821cc125e5a30b59700f3dd467737711d0c5ace4d24e707cf8ac960b5ffa15a",
+        "route_status_impl.rpt": "4f0dec9444e8630a7205d5e1d019d68a7ffdc97da4690db4a7cb8f98e2ab3c58",
+        "signoff_summary.txt": "b26bb3e68b962d7da30636f1f974eb616e05f78d865b83eae329a5a55cff0f5a",
+        "timing_impl.rpt": "a8f675ad810495a71858a969881523b82461b9f4406c607f6a6f52de399129f3",
+        "timing_synth.rpt": "63ba9260fecb643ef6112474a572cea2fed52709aa8e1c0584edb3ec254c7bee",
+        "utilization_impl.rpt": "74231e35c66d2ae71261e7e4efef19134190fa7193f574996adb53ba08e1b591",
+        "utilization_synth.rpt": "ac1654a93eeccfa09a7e4beb614a09f3cf26ecb614f02e42097d3c59dbb98d02"
+      },
+      "report_dir": "vivado_pulse_mini_l2_reports",
+      "runner": "vivado_pulse_mini_l2_synth.tcl",
+      "side": "unpruned",
+      "sources": [
+        "pulse_mini_l2_core.sv"
+      ],
+      "top": "pulse_mini_l2_core"
+    }
+  },
+  "frozen_git_head": "7023b15a10d9649b7e974856feec3b10419c2345",
+  "generated_at_epoch": 1788262152,
+  "part": "xc7z020clg400-1",
+  "tool_bindings": {
+    "verify_np6_physical_cost.py": "58b9cf3eac0454ecde6ca56f4030c50b8aa4e678dc1372a9a5151300e9e994fc"
+  }
+}

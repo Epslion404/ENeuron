@@ -1,5 +1,7 @@
 # Pulse-Mini-L2 XC7Z020 OOC 综合/布局布线与机器可读摘要。
 set root [file normalize [pwd]]
+set git_head [lindex $argv 0]
+if {$git_head eq {}} { set git_head UNKNOWN }
 set out_dir [file join $root vivado_pulse_mini_l2_reports]
 file mkdir $out_dir
 set part xc7z020clg400-1
@@ -16,6 +18,7 @@ report_drc -file [file join $out_dir drc_synth.rpt]
 opt_design
 place_design
 route_design
+report_route_status -file [file join $out_dir route_status_impl.rpt]
 report_utilization -file [file join $out_dir utilization_impl.rpt]
 report_timing_summary -delay_type min_max -max_paths 20 -file [file join $out_dir timing_impl.rpt]
 report_drc -file [file join $out_dir drc_impl.rpt]
@@ -37,13 +40,23 @@ foreach {pattern var} {
 } {
     if {[regexp $pattern $util_text -> value]} { set $var $value }
 }
-proc timing_metric {delay_type} {
-    set paths [get_timing_paths -quiet -delay_type $delay_type -max_paths 1 -nworst 1]
-    if {[llength $paths] == 0} { return NA }
-    return [get_property SLACK [lindex $paths 0]]
+set timing_text [read [open [file join $out_dir timing_impl.rpt] r]]
+set wns NA
+set tns NA
+set whs NA
+set ths NA
+set setup_fail NA
+set hold_fail NA
+if {[regexp {Setup[[:space:]]*:[[:space:]]*([0-9]+)[[:space:]]+Failing Endpoints,[[:space:]]+Worst Slack[[:space:]]+(-?[0-9.]+)ns,[[:space:]]+Total Violation[[:space:]]+(-?[0-9.]+)ns} $timing_text -> c s t]} {
+    set setup_fail $c
+    set wns $s
+    set tns $t
 }
-set wns [timing_metric max]
-set whs [timing_metric min]
+if {[regexp {Hold[[:space:]]*:[[:space:]]*([0-9]+)[[:space:]]+Failing Endpoints,[[:space:]]+Worst Slack[[:space:]]+(-?[0-9.]+)ns,[[:space:]]+Total Violation[[:space:]]+(-?[0-9.]+)ns} $timing_text -> c h th]} {
+    set hold_fail $c
+    set whs $h
+    set ths $th
+}
 set summary_path [file join $out_dir signoff_summary.txt]
 set fh [open $summary_path w]
 puts $fh "RESULT=ROUTED"
@@ -52,13 +65,21 @@ puts $fh "PART=$part"
 puts $fh "TOP=$top"
 puts $fh "MODE=OUT_OF_CONTEXT"
 puts $fh "CLOCK_MHZ=100.000"
+puts $fh "GIT_HEAD=$git_head"
+puts $fh "RUNNER=vivado_pulse_mini_l2_synth.tcl"
+puts $fh "PAIR=4-pulse-mini-l2"
+puts $fh "SIDE=unpruned"
 puts $fh "LUT=$lut"
 puts $fh "FF=$ff"
 puts $fh "BRAM36=$bram36"
 puts $fh "BRAM18=$bram18"
 puts $fh "DSP=$dsp"
 puts $fh "WNS_NS=$wns"
+puts $fh "TNS_NS=$tns"
 puts $fh "WHS_NS=$whs"
+puts $fh "THS_NS=$ths"
+puts $fh "SETUP_FAILING_ENDPOINTS=$setup_fail"
+puts $fh "HOLD_FAILING_ENDPOINTS=$hold_fail"
 puts $fh "TIMING_SCOPE=REGISTER_TO_REGISTER_ONLY"
 puts $fh "NOTES=Pulse-Mini-L2 PN2 magnitude evidence; four-input fixed-width core; OOC with clock source and I/O false paths"
 close $fh
