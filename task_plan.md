@@ -692,6 +692,14 @@
 - [x] T6：完整回归、NP4B verifier、严格 Goal 验收、compileall、工作流和 Git 检查
 - [x] T7：提交、推送并核对本地 `main` 与 `origin/main`
 
+## NP6 物理成本评估规划（2026-09-01）
+
+- [x] 读取 NP4B 当前签核、工作流状态和可用 Vivado 路径
+- [x] 冻结 NP6 只测量物理资源/时序/DRC，不提前声明 BRAM 跳读或板级收益
+- [x] 形成 `docs/planning/NPU_PRUNING_NP6_TODO.md`，列明比较矩阵、验收门和停止条件
+- [ ] 用户审核 NP6 五项冻结决策并明确批准调用 Vivado
+- [ ] NP6.0→NP6.8：按批准矩阵执行配对综合、实现、报告解析、fail-closed 签核与推送
+
 ### V1 严格证据追加授权（2026-09-01）
 
 - 用户在得知 Tile RTL 晚于现有 Vivado 报告后明确选择方案 1，授权使用 Vivado 2024.1 重建严格证据闭环。

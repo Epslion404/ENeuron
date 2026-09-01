@@ -2,7 +2,7 @@
 
 模式：`PERSISTENT_WORKFLOW_V1`
 
-最后更新：2026-08-31
+最后更新：2026-09-01
 
 状态：`ACTIVE / NEXT_REVIEW_REQUIRED`
 
@@ -10,7 +10,7 @@
 
 NP4B 功能集成证据闭环已经完成；当前等待用户决定是否批准 NP6 Vivado 物理成本阶段。
 
-活动合同：`docs/planning/NPU_PRUNING_NP4B_TODO.md` 第 9 节。
+活动合同：`docs/planning/NPU_PRUNING_NP6_TODO.md`（NP6 方案审核稿）；NP4B 历史签核见 `docs/planning/NPU_PRUNING_NP4B_TODO.md`。
 
 ## 当前事实
 
@@ -23,13 +23,13 @@ NP4B 功能集成证据闭环已经完成；当前等待用户决定是否批准
 - P5 已提交：`e3708af test: add NP4B fail-closed signoff`；总摘要绑定 87 个文件并通过独立 verifier。
 - 当前正式状态为 `NP4B_INTEGRATION_PASS / NP6_REVIEW_REQUIRED`。
 - NP6 尚未获再次批准，禁止运行 Vivado。
-- 根目录 Markdown 已整理归档并推送：`ebd6c0d docs: archive project markdown files`；文档入口为 `docs/README.md`。
+- 根目录结果归档、当前 RTL Vivado 证据重建和 Goal 审计已推送：提交 `9465142`；文档入口为 `docs/README.md`。
 
 ## 允许动作
 
 - 只读恢复、状态核对和工作流维护。
 - 只读审计、状态恢复和回答用户关于 NP4B 证据的问题。
-- 只有用户明确批准 NP6 后，才规划并运行 Vivado 物理成本评估。
+- NP6 审核稿已形成；只有用户明确批准 NP6 的器件、时钟和比较矩阵后，才运行 Vivado 物理成本评估。
 
 ## 禁止动作
 
@@ -39,7 +39,7 @@ NP4B 功能集成证据闭环已经完成；当前等待用户决定是否批准
 
 ## 下一动作
 
-停止实施，等待用户再次批准 NP6。此前不调用 Vivado。
+等待用户审核并批准 `docs/planning/NPU_PRUNING_NP6_TODO.md` 第 7 节；批准前只做静态审计、nexus 更新和文档维护，不调用 Vivado。
 
 ## 恢复检查
 
