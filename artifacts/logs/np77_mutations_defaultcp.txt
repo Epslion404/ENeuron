@@ -1,0 +1,20 @@
+# command: python test_np7_physical_mutations.py  (默认 Windows 代码页，不设 PYTHONUTF8)
+# git_head: 3bc35cc932b6f97fdd56fddc3e8b0c319f1cc292
+# python: 3.14.7 (默认代码页，PYTHONUTF8/PYTHONIOENCODING 未设置)
+# note: NP7.7 变异套件在默认代码页下的复跑（评审阻断 4 的同类要求）
+# local_time: 2026-09-02 06:08:22
+
+baseline clone head=3bc35cc rc=0 NP7_PHYSICAL_SUMMARY rejects=0 configs=8 timing_clean=4(sparse/L1,sparse/L2,dense/L1,dense/L2) excluded=4(sparse/L4,sparse/L8,dense/L4,dense/L8) overall=PASS
+summary_only_edit          rc=1 new_rejects=1 CAUGHT
+tamper_signoff_rehash      rc=1 new_rejects=2 CAUGHT
+tamper_wns_sign            rc=1 new_rejects=2 CAUGHT
+drop_report_file           rc=1 new_rejects=1 CAUGHT
+uncommitted_report         rc=1 new_rejects=1 CAUGHT
+drop_one_config            rc=1 new_rejects=3 CAUGHT
+bogus_code_head            rc=1 new_rejects=14 CAUGHT
+blank_execution_host       rc=1 new_rejects=9 CAUGHT
+post_freeze_rtl_edit       rc=1 new_rejects=1 CAUGHT
+ooc_wrapper_rewritten      rc=1 new_rejects=2 CAUGHT
+lane_lut_regression        rc=1 new_rejects=1 CAUGHT
+no_converged_dense         rc=1 new_rejects=4 CAUGHT
+NP77_MUTATION_SUITE PASS checks=12

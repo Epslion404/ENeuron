@@ -1,9 +1,10 @@
-# command: chcp 936 + 清空 PYTHONUTF8/PYTHONIOENCODING 后运行 python test_np7_verifier_mutations.py
-# git_head: 3c0f06f0bc8fde8cc917f55bd7e6c0fdb1382d04
-# note: 复审阻断 4 的回归证据——Windows 默认代码页（936）下套件必须完整跑完
-# local_time: 2026-09-02 05:13:31
+# command: python test_np7_verifier_mutations.py  (默认 Windows 代码页，不设 PYTHONUTF8)
+# git_head: 3bc35cc932b6f97fdd56fddc3e8b0c319f1cc292
+# python: 3.14.7 (默认代码页，PYTHONUTF8/PYTHONIOENCODING 未设置)
+# note: 复现评审阻断 4 的口径：默认代码页（936）下套件必须完整跑完且结论一致
+# local_time: 2026-09-02 06:06:19
 
-baseline clone head=3c0f06f rc=0 baseline_rejects=0 NP7_VERIFY_SUMMARY rejects=0 blocking_gates=- overall=PASS
+baseline clone head=3bc35cc rc=0 baseline_rejects=0 NP7_VERIFY_SUMMARY rejects=0 blocking_gates=- overall=PASS
 delete_run_log               rc=1 new_rejects=1 CAUGHT
 tamper_gate_status           rc=1 new_rejects=2 CAUGHT
 tamper_rtl_ledger            rc=1 new_rejects=3 CAUGHT

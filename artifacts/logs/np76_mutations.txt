@@ -1,7 +1,10 @@
 # command: python -X utf8 test_np7_verifier_mutations.py
-# git_head: 3c0f06f0bc8fde8cc917f55bd7e6c0fdb1382d04
-# local_time: 2026-09-02 05:11:52
-baseline clone head=3c0f06f rc=0 baseline_rejects=0 NP7_VERIFY_SUMMARY rejects=0 blocking_gates=- overall=PASS
+# git_head: 3bc35cc932b6f97fdd56fddc3e8b0c319f1cc292
+# python: 3.14.7 (-X utf8)
+# note: NP7.6 软件验证器变异套件（19 项，含裁定强制的新 mutation 与逐拍覆盖篡改）
+# local_time: 2026-09-02 06:04:58
+
+baseline clone head=3bc35cc rc=0 baseline_rejects=0 NP7_VERIFY_SUMMARY rejects=0 blocking_gates=- overall=PASS
 delete_run_log               rc=1 new_rejects=1 CAUGHT
 tamper_gate_status           rc=1 new_rejects=2 CAUGHT
 tamper_rtl_ledger            rc=1 new_rejects=3 CAUGHT

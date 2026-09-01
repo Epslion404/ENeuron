@@ -1,6 +1,9 @@
-# command: python -X utf8 verify_np7_software_cost.py 3586ec20e76512a16ace94a8f9af4a65ec09332d
-# git_head: 3586ec20e76512a16ace94a8f9af4a65ec09332d
-# local_time: 2026-09-02 05:35:10
+# command: python -X utf8 verify_np7_software_cost.py 3bc35cc932b6f97fdd56fddc3e8b0c319f1cc292
+# git_head: 3bc35cc932b6f97fdd56fddc3e8b0c319f1cc292
+# python: 3.14.7 (-X utf8)
+# note: NP7.6 软件签核最终复验：G1-G6 从原始逐拍账本重算，rejects 必须为 0
+# local_time: 2026-09-02 06:03:38
+
 GATE G1 PASS 实际权重槽读取下降 阈值=0.45 失败项=0
 GATE G2 PASS 共享 lane 操作数下降 阈值=0.45 失败项=0
 GATE G3 PASS 每逻辑 tick 周期下降 阈值=0.25 失败项=0
