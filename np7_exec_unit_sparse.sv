@@ -91,8 +91,11 @@ module np7_exec_unit_sparse #(
     wire signed [7:0] pair1_val = $signed(word0[15:8]);
     wire [3:0] struct_mask_w = (4'b1 << idx0_w) | (4'b1 << idx1_w);
     wire sparse_record_illegal = (idx1_w <= idx0_w);
-    // CONFIG 装载期拒绝：非规范（等值或降序）索引不得进入运行期。
+    // CONFIG 装载期硬件拒绝（PR #6 评审意见 2）：非规范（等值或降序）索引不得写入
+    // RAM。cfg_wr_ok 直接进 np7_weight_ram 的写使能，非法字被丢弃且 cfg_error 锁存；
+    // cfg_illegal_index 保留为可观测提示，不是唯一的阻止手段。
     wire sparse_record_illegal_next = (cfg_wdata[19:18] <= cfg_wdata[17:16]);
+    wire cfg_wr_ok = !sparse_record_illegal_next;
     assign cfg_illegal_index = cfg_valid && cfg_open && sparse_record_illegal_next;
 
     // Icarus 对 always_comb 内的位选支持有限，先以常量位选引出单比特线网。
@@ -178,6 +181,7 @@ module np7_exec_unit_sparse #(
     np7_weight_ram weight_ram (
         .clk(clk), .rst(rst), .cfg_valid(cfg_valid), .cfg_ready(cfg_ready),
         .cfg_addr(cfg_addr), .cfg_wdata(cfg_wdata), .cfg_open(cfg_open),
+        .cfg_wr_ok(cfg_wr_ok),
         .cfg_error(cfg_error), .rd_ce(ram_ce), .rd_addr(ram_addr), .rd_q(ram_q)
     );
 
@@ -201,6 +205,8 @@ module np7_exec_unit_sparse #(
             word1 <= 20'd0;
             acc <= 12'sd0;
             protocol_error <= 1'b0;
+            // 一次性运行期复查标志必须可复位：否则四态仿真下残留 x、且跨事务不复位。
+            checked_lat <= 1'b0;
             group_read_requests_state <= 32'd0;
             weight_values_fetched_state <= 32'd0;
             lane_ops_issued_state <= 32'd0;
@@ -242,6 +248,8 @@ module np7_exec_unit_sparse #(
             case (state)
                 S_IDLE: begin
                     if (accept_pulse) begin
+                        // 每笔新事务重新武装一次性的结构复查（评审意见 2 后半段）。
+                        checked_lat <= 1'b0;
                         group_reg <= issue_group;
                         if (issue_mask & ~issue_activity)
                             protocol_error <= 1'b1;

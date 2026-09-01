@@ -185,9 +185,12 @@ module np7_neg_read_all_then_gate #(
     assign lane_fire = (state == S_BATCH) && (pending_mask != 4'd0) && !lane_stall;
     assign lane_fire_count = lane_fire ? batch_n : 3'd0;
 
+    // 与 golden dense 同源：保留位非零的 CONFIG 字在硬件写使能处被阻止，cfg_error 锁存。
+    wire cfg_wr_ok = (cfg_wdata[19:16] == 4'b0000);
     np7_weight_ram weight_ram (
         .clk(clk), .rst(rst), .cfg_valid(cfg_valid), .cfg_ready(cfg_ready),
         .cfg_addr(cfg_addr), .cfg_wdata(cfg_wdata), .cfg_open(cfg_open),
+        .cfg_wr_ok(cfg_wr_ok),
         .cfg_error(cfg_error), .rd_ce(ram_ce), .rd_addr(ram_addr), .rd_q(ram_q)
     );
 
@@ -293,7 +296,7 @@ module np7_neg_read_all_then_gate #(
             endcase
         end
     end
-    assign cfg_illegal_index = 1'b0;
+    assign cfg_illegal_index = cfg_valid && cfg_open && !cfg_wr_ok;
 endmodule
 // 负向实现 2：MAC 后清零（lane 发射数不可重建）。
 //
@@ -472,9 +475,12 @@ module np7_neg_mac_then_clear #(
     // 观测事实：当拍占用的 lane 槽位数（四条候选操作全部发射）。
     assign lane_fire_count = lane_fire ? batch_n : 3'd0;
 
+    // 与 golden sparse 同源：索引非严格升序的 CONFIG 字在硬件写使能处被阻止。
+    wire cfg_wr_ok = (cfg_wdata[19:18] > cfg_wdata[17:16]);
     np7_weight_ram weight_ram (
         .clk(clk), .rst(rst), .cfg_valid(cfg_valid), .cfg_ready(cfg_ready),
         .cfg_addr(cfg_addr), .cfg_wdata(cfg_wdata), .cfg_open(cfg_open),
+        .cfg_wr_ok(cfg_wr_ok),
         .cfg_error(cfg_error), .rd_ce(ram_ce), .rd_addr(ram_addr), .rd_q(ram_q)
     );
 
@@ -581,5 +587,5 @@ module np7_neg_mac_then_clear #(
             endcase
         end
     end
-    assign cfg_illegal_index = 1'b0;
+    assign cfg_illegal_index = cfg_valid && cfg_open && !cfg_wr_ok;
 endmodule

@@ -1,0 +1,7 @@
+# NP7 CONFIG 拒绝语义形式检查（np7_weight_ram 写握手，有限深度 BMC + 假设）。
+read_verilog -formal -sv np7_weight_ram.sv formal_np7_config_reject.sv
+prep -top formal_np7_config_reject -flatten
+async2sync
+memory_map
+opt_clean
+sat -seq 14 -set-assumes -set-init-zero -prove-asserts -verify

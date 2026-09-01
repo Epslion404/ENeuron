@@ -12,6 +12,11 @@ module tb;
     localparam int MAX_WORDS = 64;
 
     parameter int LANES = 4;
+    // NTXN/NWORD 允许两条路径注入：Icarus 用 +NTXN=/+NWORD= plusarg，
+    // Vivado xsim 用实例化参数（xsim.bat 经 cmd 转发会把 NAME=VALUE 拆成两个参数）。
+    // plusarg 优先，参数为 0 时退回原有的 1000/20 默认值，行为与历史证据完全一致。
+    parameter int NTXN = 0;
+    parameter int NWORD = 0;
     parameter int NEG = 0;
 
     logic clk = 1'b0;
@@ -56,6 +61,8 @@ module tb;
     int index;
     int completed;
     int issued;
+    // Vivado xvlog 要求标识符先声明后使用：run_phase 在下方 initial 与连续赋值中均被引用。
+    logic run_phase = 1'b0;
     generate
         if (NEG == 0) begin : g_dut_neg_read_all
             np7_neg_read_all_then_gate #(.LANES(LANES)) dut (
@@ -115,8 +122,8 @@ module tb;
             );
         end
     endgenerate    initial begin
-        if (!$value$plusargs("NTXN=%d", ntxn)) ntxn = 1000;
-        if (!$value$plusargs("NWORD=%d", nword)) nword = 20;
+        if (!$value$plusargs("NTXN=%d", ntxn)) ntxn = (NTXN > 0) ? NTXN : 1000;
+        if (!$value$plusargs("NWORD=%d", nword)) nword = (NWORD > 0) ? NWORD : 20;
         for (index = 0; index < MAX_CYC; index = index + 1)
             bp[index] = 8'h02;
         $readmemh("np7_cfg.hex", words);
@@ -164,7 +171,6 @@ module tb;
 
     // 组合驱动激励：接受拍与后续拍的编号与 oracle 的"本地周期序号"完全对齐，
     // 不接受拍不消耗周期，因此无需为流水线气泡补拍。
-    reg run_phase = 1'b0;
     wire [31:0] cur_txn = txn[issued < ntxn ? issued : (ntxn - 1)];
     wire [7:0] cur_bp = bp[cycle < MAX_CYC ? cycle : (MAX_CYC - 1)];
 

@@ -35,7 +35,18 @@ NEG_SOURCES = ["np7_weight_ram.sv", "np7_shared_synapse_lane.sv",
                "np7_negative_controls.sv", "tb_np7_negative.sv"]
 FORMAL_SOURCES = ["np7_weight_ram.sv", "np7_shared_synapse_lane.sv",
                   "np7_exec_unit_dense.sv", "np7_exec_unit_sparse.sv",
-                  "formal_np7_exec_unit.sv"]
+                  "formal_np7_exec_unit.sv", "formal_np7_config_reject.sv"]
+CFGNEG_SOURCES = ["np7_weight_ram.sv", "np7_shared_synapse_lane.sv",
+                  "np7_exec_unit_dense.sv", "np7_exec_unit_sparse.sv",
+                  "tb_np7_config_negative.sv"]
+CFGNEG_BYPASS = {
+    FORMAT_SPARSE: ("np7_exec_unit_sparse.sv",
+                    "    wire cfg_wr_ok = !sparse_record_illegal_next;",
+                    "    wire cfg_wr_ok = 1'b1; // MUTATION bypass"),
+    FORMAT_DENSE: ("np7_exec_unit_dense.sv",
+                   "    wire cfg_wr_ok = !dense_record_illegal_next;",
+                   "    wire cfg_wr_ok = 1'b1; // MUTATION bypass"),
+}
 LANES_LIST = (1, 2, 4, 8)
 SEEDS = (1, 2, 3)
 
@@ -66,6 +77,7 @@ def run_yosys(ys_text, workdir, tag):
 FORMAL_SCRIPTS = [
     ("sparse_protocol", "formal_np7_exec_unit.ys", "proof"),
     ("dense_protocol", "formal_np7_exec_unit_dense.ys", "proof"),
+    ("config_reject", "formal_np7_config_reject.ys", "proof"),
     ("zero_path_reach", "formal_np7_exec_unit_zero.ys", "model"),
     ("sparse_reach", "formal_np7_exec_unit_reach.ys", "model"),
     ("dense_reach", "formal_np7_exec_unit_dense_reach.ys", "model"),
@@ -119,7 +131,16 @@ RTL_MUTATIONS = [
      "weight_values_fetched_state <= weight_values_fetched_state + 32'd4;",
      "weight_values_fetched_state <= weight_values_fetched_state + 32'd2;",
      "dense_protocol", "稠密自报权重槽与读请求脱钩"),
+    ("config_rejection_bypass", "np7_weight_ram.sv",
+     "assign cfg_write_en = cfg_valid && cfg_open && cfg_wr_ok;",
+     "assign cfg_write_en = cfg_valid && cfg_open;",
+     "config_reject", "写使能不受 cfg_wr_ok 门控：非法字可进 RAM"),
 ]
+
+
+MUTATION_SCRIPTS = {"sparse_protocol": "formal_np7_exec_unit.ys",
+                    "dense_protocol": "formal_np7_exec_unit_dense.ys",
+                    "config_reject": "formal_np7_config_reject.ys"}
 
 
 def run_rtl_mutations():
@@ -128,7 +149,9 @@ def run_rtl_mutations():
     try:
         for name in FORMAL_SOURCES:
             shutil.copyfile(ROOT / name, work / name)
-        for script in ("formal_np7_exec_unit.ys", "formal_np7_exec_unit_dense.ys"):
+        for script in ("formal_np7_exec_unit.ys",
+                       "formal_np7_exec_unit_dense.ys",
+                       "formal_np7_config_reject.ys"):
             shutil.copyfile(ROOT / script, work / script)
         for tag, target, needle, repl, script_tag, note in RTL_MUTATIONS:
             original = (work / target).read_text(encoding="utf-8")
@@ -137,8 +160,8 @@ def run_rtl_mutations():
                 continue
             (work / target).write_text(original.replace(needle, repl, 1),
                                        encoding="utf-8", newline="\n")
-            script = ("formal_np7_exec_unit.ys" if script_tag == "sparse_protocol"
-                      else "formal_np7_exec_unit_dense.ys")
+            script = MUTATION_SCRIPTS.get(script_tag,
+                                          "formal_np7_exec_unit_dense.ys")
             rc, output = run_yosys((work / script).read_text(encoding="utf-8"),
                                    work, "mut_" + tag)
             verdict = formal_verdict(output)
@@ -313,6 +336,77 @@ def run_leak_mutation():
         }
     return results
 
+def compile_config_negative(fmt, lanes, work, sources=None):
+    binary = work / ("cfgneg_%s_%d.out" % (fmt, lanes))
+    command = [IVERILOG, "-g2012", "-s", "tb", "-Ptb.LANES=%d" % lanes,
+               "-Ptb.SPARSE=%s" % ("1'b1" if fmt == FORMAT_SPARSE else "1'b0"),
+               "-o", os.fspath(binary)] + (sources or CFGNEG_SOURCES)
+    done = subprocess.run(command, cwd=str(ROOT), capture_output=True,
+                          text=True, encoding="utf-8", errors="replace",
+                          check=False)
+    if done.returncode != 0:
+        raise AssertionError("config-negative 编译失败 %s/%d: %s%s"
+                             % (fmt, lanes, done.stdout, done.stderr))
+    return binary
+
+
+def vvp_cfgneg(binary, work, tag):
+    case_dir = work / ("cfgneg_run_%s" % tag)
+    case_dir.mkdir(parents=True, exist_ok=True)
+    done = subprocess.run([VVP, os.fspath(binary)], cwd=str(case_dir),
+                          capture_output=True, text=True, encoding="utf-8",
+                          errors="replace", check=False)
+    text = done.stdout + done.stderr
+    lines = text.splitlines()
+    summary = [l for l in lines if l.startswith("CFGNEG SUMMARY")]
+    fails = [l for l in lines if "CFGNEG FAIL" in l]
+    return {"rc": done.returncode, "summary": summary[0] if summary else "",
+            "fail_checks": [l.split("check=")[-1].strip() for l in fails],
+            "phases": [l for l in lines if l.startswith("CFGNEG PHASE")]}
+
+
+def run_config_negative(work):
+    # PR #6 评审意见 2：非法 CONFIG 字不得改变 RAM、错误必须锁存、合法字仍可执行。
+    # 正向：两格式 x 两个 lane 数的四相位测试台必须 8/8 PASS。
+    # 反向：把拒绝旁路成常 1 之后，同一测试台必须 FAIL（证明测试台有牙齿）。
+    out = {"runs": {}, "bypass_mutation": {}}
+    for fmt in (FORMAT_SPARSE, FORMAT_DENSE):
+        for lanes in (1, 4):
+            tag = "%s_L%d" % (fmt, lanes)
+            entry = vvp_cfgneg(compile_config_negative(fmt, lanes, work),
+                               work, tag)
+            ok = (entry["rc"] == 0 and entry["summary"].endswith("RESULT=PASS")
+                  and "FAILED=0" in entry["summary"] and not entry["fail_checks"]
+                  and len(entry["phases"]) == 4)
+            out["runs"][tag] = entry
+            check("config_rejection_tb_%s" % tag, ok,
+                  "%s fails=%s" % (entry["summary"][:150], entry["fail_checks"]))
+    for fmt in (FORMAT_SPARSE, FORMAT_DENSE):
+        target, needle, repl = CFGNEG_BYPASS[fmt]
+        mut = work / ("cfgneg_mut_%s" % fmt)
+        mut.mkdir(parents=True, exist_ok=True)
+        for name in CFGNEG_SOURCES:
+            shutil.copyfile(ROOT / name, mut / name)
+        original = (mut / target).read_text(encoding="utf-8")
+        if needle not in original:
+            check("config_rejection_bypass_%s_anchor" % fmt, False,
+                  "锚点缺失 " + target)
+            continue
+        (mut / target).write_text(original.replace(needle, repl, 1),
+                                 encoding="utf-8", newline="\n")
+        sources = [str(mut / name) for name in CFGNEG_SOURCES]
+        entry = vvp_cfgneg(compile_config_negative(fmt, 4, mut, sources),
+                           mut, "bypass_%s" % fmt)
+        caught = (entry["summary"].endswith("RESULT=FAIL")
+                  and bool(entry["fail_checks"]))
+        out["bypass_mutation"][fmt] = {"file": target, "note": repl.strip(),
+                                       "summary": entry["summary"],
+                                       "fail_checks": entry["fail_checks"]}
+        check("config_rejection_bypass_caught_%s" % fmt, caught,
+              "%s fails=%s" % (entry["summary"][:150], entry["fail_checks"]))
+    return out
+
+
 TOOLS = {"yosys": YOSYS, "iverilog": IVERILOG, "vvp": VVP}
 
 
@@ -351,12 +445,14 @@ def main(argv=None):
     matrix = {}
     negatives = {}
     leak = {}
+    cfgneg = {}
     with tempfile.TemporaryDirectory(prefix="np75_") as temp_dir:
         work = Path(temp_dir)
         formal = run_formal_suite()
         mutations = run_rtl_mutations()
         matrix = run_ledger_matrix(work)
         negatives = run_negative_controls(work, matrix)
+        cfgneg = run_config_negative(work)
         leak = run_leak_mutation()
     observed = {}
     for lanes in LANES_LIST:
@@ -393,6 +489,7 @@ def main(argv=None):
                                      "claimed": entry["claimed"]}
                               for name, entry in sorted(negatives.items())},
         "leak_mutation": leak,
+        "config_rejection": cfgneg,
         "observed_random_traffic_reductions": observed,
         "checks": CHECKS,
         "problems": PROBLEMS,

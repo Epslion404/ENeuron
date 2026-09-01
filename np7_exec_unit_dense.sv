@@ -75,9 +75,11 @@ module np7_exec_unit_dense #(
     logic lane_fire;
     logic [19:0] ram_q;
 
-    // dense 记录无位置索引；CONFIG 拒绝保留位非零的字。
-    assign cfg_illegal_index = cfg_valid && cfg_open
-        && (cfg_wdata[19:16] != 4'b0000);
+    // dense 记录无位置索引；CONFIG 拒绝保留位非零的字（PR #6 评审意见 2）。
+    // cfg_wr_ok 进 RAM 写使能：非法字被硬件丢弃、cfg_error 锁存，提示信号仅供观测。
+    wire dense_record_illegal_next = (cfg_wdata[19:16] != 4'b0000);
+    wire cfg_wr_ok = !dense_record_illegal_next;
+    assign cfg_illegal_index = cfg_valid && cfg_open && dense_record_illegal_next;
     assign issue_ready = (state == S_IDLE) && !cfg_open;
     assign accept_pulse = issue_valid && issue_ready;
     assign state_code = state;
@@ -189,6 +191,7 @@ module np7_exec_unit_dense #(
     np7_weight_ram weight_ram (
         .clk(clk), .rst(rst), .cfg_valid(cfg_valid), .cfg_ready(cfg_ready),
         .cfg_addr(cfg_addr), .cfg_wdata(cfg_wdata), .cfg_open(cfg_open),
+        .cfg_wr_ok(cfg_wr_ok),
         .cfg_error(cfg_error), .rd_ce(ram_ce), .rd_addr(ram_addr), .rd_q(ram_q)
     );
 

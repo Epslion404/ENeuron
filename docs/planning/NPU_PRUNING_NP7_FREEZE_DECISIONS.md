@@ -5,6 +5,12 @@
 - 冻结分支：`feature/np7-shared-lanes-20260901`，基线 `main @ 8853f7b`
 - 执行机：MGL 笔记本；Vivado 2024.2（SW Build 5239630），路径 C:/Users/MGL/Documents/Codex/Vivado2024_2
 - 状态：八项裁定完成；NP7.1-NP7.6 功能门允许实施；NP7.7 Vivado 仅在 NP7.0-NP7.6 全绿后执行
+- PR #6 评审轮 2（2026-09-02）：决策 2 的“在 CONFIG 写入时拒绝”已落到硬件——`np7_weight_ram` 写使能改为 `cfg_valid && cfg_open && cfg_wr_ok`，
+  非法字被丢弃且 `cfg_error` 锁存到 `rst`；`cfg_wr_ok` 由 sparse 索引序/dense 保留位
+  解码给出，与软件 oracle 的 `ConfigError`（CONFIG must reject）口径一致。证据：形式件
+  `formal_np7_config_reject.ys`（14 拍 BMC，C1-C5）+ 负向测试台
+  `tb_np7_config_negative.sv`（四相位：非法字后写、非法字先写、运行期写尝试），并在
+  Vivado `run_np7_vivado_xsim.py` 回归里与 Icarus 逐拍流哈希逐用例一致。决策 4-8 不变。
 - 2026-09-02 实测收口：NP7.1-NP7.5 全绿；NP7.6 的 G1/G2/G4/G5/G6 PASS、**G3 每逻辑 tick 周期下降 22.33/21.78/21.00/21.00% < 25% 在 3 模型 × 4 lane 数全部未达标**；按本文 §4 与 TODO §5/§6 停止条件，**NP7.7 未运行 Vivado**。数字与待裁定路径见 `docs/reports/LOCAL_PRUNE_NP7_SHARED_LANE_REPORT.md` §2-§3。
 
 ## 1. 八项冻结决策
@@ -12,7 +18,8 @@
 | # | 决策 | 裁定 |
 |---|------|------|
 | 1 | 两阶段边界：先做单个共享突触执行单元，再接入三神经元网络 | 批准。阶段一边界为"共享 RAM+lane 执行单元"与"网络"，网络只替换突触读取/累加 |
-| 2 | 稀疏记录使用两权重 + 两个 2-bit 位置索引，掩码由索引重建 | 批准。追加裁定：索引必须互异且严格升序（`idx0 < idx1`）；等值、降序或越界均为非规范编码，在 CONFIG 写入时拒绝，执行路径不再重复检查；不存第二份掩码真值 || 3 | 底板 RAM 为 CONFIG 写入、运行时只读，不做训练权重写回 | 批准。权重与剪枝结构经 CONFIG 装载口预写入；运行时无权重写端口、无双写仲裁、无一致性回写 |
+| 2 | 稀疏记录使用两权重 + 两个 2-bit 位置索引，掩码由索引重建 | 批准。追加裁定：索引必须互异且严格升序（`idx0 < idx1`）；等值、降序或越界均为非规范编码，在 CONFIG 写入时拒绝，执行路径不再重复检查；不存第二份掩码真值 |
+| 3 | 底板 RAM 为 CONFIG 写入、运行时只读，不做训练权重写回 | 批准。权重与剪枝结构经 CONFIG 装载口预写入；运行时无权重写端口、无双写仲裁、无一致性回写 |
 | 4 | 固定扫描 1/2/4/8 lane，并与同 lane 数 dense 基线比较周期 | 批准。lane 数 = 每周期可发射的"命中活动的带符号权重饱和加"操作数；dense 与 sparse 顶层共用同一 lane 阵列与同一饱和加法模块 |
 | 5 | 单槽 ready/valid 与 issue_mask=0 零突触快速路径 | 批准。零路径不产生 RAM 请求与 lane 发射，仍在同一协议下产生恰好一个 done；同一逻辑 tick 内上层照常推进泄放、阈值与时间状态 |
 | 6 | 三模型全部接入冻结 4->8->2 B2.1 任务，禁止跨模型替换 | 批准。ENeuron、Pulse-Mini-L、Pulse-Mini-L2 各自独立接入并独立签核 |
