@@ -1,0 +1,13 @@
+# command: python run_np7_vivado_ooc.py --vivado-root C:/Users/MGL/Documents/Codex/Vivado2024_2 --jobs 4
+# code_git_head: 116d79c
+# local_time: 2026-09-02 05:23:01
+# toolchain: iverilog 12.0 (C:\iverilog\bin), yosys 0.68 (C:\msys64\ucrt64\bin)
+sparse/L1      PASS rc=0 lut=115 ff=462 bram36=0 dsp=0 wns=1.281 whs=0.179
+sparse/L2      PASS rc=0 lut=132 ff=462 bram36=0 dsp=0 wns=0.477 whs=0.224
+sparse/L4      PASS rc=0 lut=181 ff=462 bram36=0 dsp=0 wns=-4.627 whs=0.192
+sparse/L8      PASS rc=0 lut=186 ff=462 bram36=0 dsp=0 wns=-5.709 whs=0.186
+dense/L1       PASS rc=0 lut=137 ff=476 bram36=0 dsp=0 wns=2.024 whs=0.183
+dense/L2       PASS rc=0 lut=162 ff=476 bram36=0 dsp=0 wns=0.405 whs=0.163
+dense/L4       PASS rc=0 lut=192 ff=476 bram36=0 dsp=0 wns=-3.541 whs=0.198
+dense/L8       PASS rc=0 lut=195 ff=476 bram36=0 dsp=0 wns=-4.695 whs=0.197
+NP7_OOC_SUMMARY configs=8 problems=0 overall=PASS json=C:\Users\MGL\Documents\Codex\2026-08-29\vivado\github_pr\artifacts\results\np7_vivado_ooc_summary.json

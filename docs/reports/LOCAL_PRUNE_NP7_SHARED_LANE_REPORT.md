@@ -1,4 +1,4 @@
-# NPU 局部剪枝 NP7 共享 BRAM 与共享 lane 软件签核报告（NP7.1–NP7.6，round 3 / B-V1+V2）
+# NPU 局部剪枝 NP7 共享 BRAM 与共享 lane 签核报告（NP7.1–NP7.7，round 3 / B-V1+V2）
 
 日期：2026-09-02。分支 `feature/np7-shared-lanes-20260901`（基线 `main @ 8853f7b`）。
 周期合同来源：**PR #6 仓库管理员评论 `5498372499`**（决定 5 修订为 **B-V1+V2**，A/C/D 均不采用）；
@@ -8,7 +8,9 @@
 
 ## 0. 结论
 
-状态：`NP7_SOFTWARE_SIGNED_OFF` —— NP7.0–NP7.6 全部通过，G3 达标，NP7.7 的停止条件解除。
+状态：`NP7_SOFTWARE_SIGNED_OFF` + `NP7_PHYSICS_PARTIAL` —— NP7.0–NP7.6 全部通过，G3 达标；
+NP7.7 的 8 配置 OOC 综合已完成，其中 **4/8 在 100 MHz 收敛**（详见 §9，未收敛配置一律排除，
+不用软件周期收益补偿）。
 
 | 硬门 | 阈值 | 本轮实测（B-V1+V2，从新 HEAD 的原始逐拍账本重算） | 结论 |
 |---|---|---|---|
@@ -35,7 +37,7 @@ L4：**15.250 → 11.000**。三模型（ENeuron / Pulse-Mini-L / Pulse-Mini-L2�
 | NP7.6 软件签核 | `python -X utf8 generate_np7_manifest.py` → `python -X utf8 verify_np7_software_cost.py 3c0f06f0bc8fde8cc917f55bd7e6c0fdb1382d04` | 0 / 0 | 清单 `np7_software_cost_manifest.json`：`frozen_git_head=4ed72d6`、绑定 **27 输入 + 3 工具 + 26 证据**、`overall=PASS`、`integrity=[]`；验证器日志 `np76_verify.txt`：**rejects=0 / blocking=- / overall=PASS** |
 | NP7.6 变异 | `python -X utf8 test_np7_verifier_mutations.py`；同命令在 `chcp 936` 默认代码页下再跑一遍 | 0 / 0 | `np76_mutations.txt`、`np76_mutations_defaultcp.txt`：**MUTATION_SUITE PASS checks=19**（两轮一致） |
 | Vivado 行为仿真 | `python -X utf8 run_np7_vivado_xsim.py --vivado-root C:/Users/MGL/Documents/Codex/Vivado2024_2 --transactions 120` | 0 | `np7_vivado_xsim_summary.json`（schema `np7-vivado-xsim-v2`）+ `vivado_np7_xsim_reports/`：**16 用例 PASS、problems=0**、xsim 与 Icarus 观测流逐字节相同 **16/16**（见 §5） |
-| NP7.7 物理门 | 未在本报告范围内 | - | 停止条件已解除；OOC 综合另出 `NP7.7` 证据与清单，不在本报告主张任何资源/时序结论 |
+| NP7.7 物理门（本轮已跑） | `python -X utf8 run_np7_vivado_ooc.py --vivado-root C:/Users/MGL/Documents/Codex/Vivado2024_2 --jobs 4` → `python -X utf8 verify_np7_physical_cost.py 116d79c...` | 0 / 见 §9 | `np7_vivado_ooc_summary.json`（schema `np7-vivado-ooc-v1`）+ 8 个 `vivado_np7_ooc_<fmt>_L<n>_reports/`（各 9 份报告 + OOC 封装）+ `np77_ooc.txt`：**8/8 RESULT=ROUTED、DRC=0、route errors=0、hold 全收敛**；100 MHz **4/8 收敛**（L1/L2），L4/L8 未收敛并列为 excluded（见 §9） |
 
 随机流量（NP7.3，非冻结任务）下同一份 RTL 的逐拍观测下降（20 seed 合计）：
 读取 60.01 / 59.99 / 60.25 / 60.13%，操作 49.93 / 49.95 / 50.50 / 50.18%，
@@ -148,6 +150,7 @@ NP7.6 不再信任这些自报字符串：`check_xsim_evidence()` 要求每条 g
   冲突、DDR/DMA、PS 软件、以太网或板级端到端吞吐；vector-less 功耗不作为 NP7 门；不做板级结论。
 - NP7.3 的每组 4 连接、10 组 RAM 内容是穷举式随机结构（seed 由 `lanes*100003+seed` 决定，可复现），
   不是真实训练权重；真实权重下的活动分布只由冻结 B2.1 任务（NP7.4）代表。
+- **NP7.7 只覆盖综合/实现层**：OOC（out-of-context）单模块综合，不含真实 BRAM/DDR 端口竞争、时钟树、布局收敛后的系统级时序；`BRAM36=0/DSP=0` 是 32x20 同步 RAM 被映射成 LUTRAM、8-bit 饱和加被映射进 CARRY4 的结果，**不主张“省 BRAM/省 DSP”**，只如实报告占用为 0。
 - G1–G6 在 1/2/4/8 四种 lane 数下分别报告，未以任何最优 lane 数掩盖。
 - 本轮未修改 `WORKFLOW_STATE.md`、`task_plan.md`、`.nexus-map/` 与任何已签核的 NP4B/NP6 产物。
 
@@ -163,14 +166,67 @@ python -X utf8 run_np7_vivado_xsim.py --vivado-root <Vivado2024.2 根> --transac
 python -X utf8 generate_np7_manifest.py                     # 仅在证据时点执行一次
 python -X utf8 verify_np7_software_cost.py <HEAD>           # 只读；本轮 rejects=0 overall=PASS
 python -X utf8 test_np7_verifier_mutations.py               # 19 mutations 全部被拒
+python -X utf8 run_np7_vivado_ooc.py --vivado-root <Vivado2024.2 根> --jobs 4
+python -X utf8 verify_np7_physical_cost.py <HEAD>           # 只读；NP7.7 rejects=0 overall=PASS
 ```
 
-## 9. 批准链与下一步
+## 9. NP7.7 八配置 OOC 综合（Vivado 2024.2，本轮新增）
+
+前置条件（NP7.0–NP7.6 全绿 + G3>=25%）成立后，按裁定在 `xc7z020clg400-1` 上对
+`sparse/dense x 1/2/4/8 lane` 共 8 个 out-of-context 配置执行 synth+place+route，
+`create_clock -period 10.000`（100 MHz），默认策略。命令与退出码见 §1/§8；
+全部数字由 `verify_np7_physical_cost.py` 从原始 `.rpt` **重算**后才写进本表。
+
+| 配置 | LUT | FF | BRAM36 | DSP | WNS (ns) | TNS (ns) | WHS (ns) | setup 失败端点 | hold 失败端点 | 100 MHz |
+|---|---|---|---|---|---|---|---|---|---|---|
+| sparse/L1 | 115 | 462 | 0 | 0 | +1.281 | 0.000 | 0.179 | 0 | 0 | **MET** |
+| sparse/L2 | 132 | 462 | 0 | 0 | +0.477 | 0.000 | 0.224 | 0 | 0 | **MET** |
+| sparse/L4 | 181 | 462 | 0 | 0 | -4.627 | -246.636 | 0.192 | 56 | 0 | **MISS** |
+| sparse/L8 | 186 | 462 | 0 | 0 | -5.709 | -295.570 | 0.186 | 56 | 0 | **MISS** |
+| dense/L1 | 137 | 476 | 0 | 0 | +2.024 | 0.000 | 0.183 | 0 | 0 | **MET** |
+| dense/L2 | 162 | 476 | 0 | 0 | +0.405 | 0.000 | 0.163 | 0 | 0 | **MET** |
+| dense/L4 | 192 | 476 | 0 | 0 | -3.541 | -179.684 | 0.198 | 56 | 0 | **MISS** |
+| dense/L8 | 195 | 476 | 0 | 0 | -4.695 | -243.964 | 0.197 | 56 | 0 | **MISS** |
+
+8/8 配置 `RESULT=ROUTED`、DRC Errors=0、routing errors=0、hold 全部收敛（THS=0.000）。
+
+- **收敛面**：只有 4/8 满足 100 MHz。按 TODO NP7.7 第 3 条，**未收敛配置不用软件周期收益补偿**，
+  因此可主张物理结论的范围只有 `sparse/L1·L2` 与 `dense/L1·L2`；
+  `sparse/L4·L8`、`dense/L4·L8` 在验证器输出里被列进 `NP7_PHYSICAL_EXCLUDED`。
+- **最小可用实现**：`sparse/L2`（LUT 132、WNS +0.477 ns 收敛），其 G3 收益 29.03% 仍 >= 25%，
+  即"周期收益"与"时序收敛"可以同时成立，不需要退到 L1（L1 面积 115 LUT 但只有 1 个 lane 的吞吐）。
+- **面积随 lane 单调**：sparse 115->132->181->186，dense 137->162->192->195 LUT；
+  FF 在同一格式内恒定 462/476（lane 数不新增寄存器，只有首拍锁存与饱和事件计数）。
+  sparse 在同等 lane 数下始终比 dense 省 25–34 LUT，与 G1/G2 的软件侧下降方向一致。
+- **未收敛的根因（不掩饰）**：`sparse/L4` 的关键路径是
+  `dut/word0_reg[19]/C -> dut/saturation_events_state_reg[10]/CE`，
+  `Data Path Delay 14.338 ns`（logic 7.023 + route 7.315）超出 10 ns 要求，
+  `Logic Levels 20`（其中 **CARRY4=12**）。即 8-bit 饱和加减的进位链与饱和事件计数
+  在单周期内串成一条长行波链，lane 越多并行复制该链的布线拥塞越严重，L4/L8 首先失守。
+  在 lane 内部把饱和判断/计数打一拍可以解决，但**这会改变每逻辑 tick 的周期合同**，
+  属于 B-V1+V2 的修订，必须由管理员新裁定后才能动，本轮不改。
+- `BRAM36=0`、`BRAM18=0`、`DSP=0`：32x20 同步 RAM 被综合进 LUTRAM，8-bit 饱和加未被推断成
+  DSP48。**因此本轮不主张"节省 BRAM/DSP 资源"**，只报告实测占用为 0 且面积代价全在 LUT/FF。
+- 版本绑定（决定 8）：`vivado v2024.2 (64-bit) / SW Build 5239630`，执行机 `Chan-an`
+  （Windows 11 AMD64，python 3.14.7）。评审者若用 2024.1 需自行复跑，**不跨版本外推**。
+- 证据：8 个 `vivado_np7_ooc_<fmt>_L<n>_reports/`（各 9 份 `.rpt`/`.txt` + 自动生成的 OOC 顶层封装
+  `.sv`）+ `artifacts/results/np7_vivado_ooc_summary.json` + `artifacts/logs/np77_ooc.txt`
+  + `artifacts/logs/np77_verify.txt`。`.dcp/.jou/.pb/.str` 被 `.gitignore` 排除，不作为证据。
+- 验证器 `verify_np7_physical_cost.py`（只读）：汇总必须在被验证提交内且磁盘字节一致；
+  每个配置的 `signoff_summary.txt` 与 JSON 自报值、以及**从 `.rpt` 重算的
+  LUT/FF/BRAM36/BRAM18/DSP/WNS/TNS/WHS/THS/失败端点/DRC 错误数**三方逐项相等；
+  OOC 封装 sha256 必须等于用 `run_np7_vivado_ooc.py` 的端口表重算的字节；
+  报告必须已在 HEAD 树内；同格式 lane 增多 LUT 不得减少；每格式至少 1 个配置收敛。
+
+## 10. 批准链与下一步
 
 - 八项冻结决定的批准链已在 PR #6 内闭环（评论 `5498372499` 逐项裁定），仓库内副本见
   `docs/planning/NPU_PRUNING_NP7_DECISION_B_V1_V2.md` §1；决策 5 的旧口径在
   `NPU_PRUNING_NP7_FREEZE_DECISIONS.md` 中标注为"已被管理员修订/作废"，不再作为合同使用。
-- NP7.0–NP7.6 全绿且 G3>=25%，因此 TODO §5 NP7.7 的前置条件成立：下一步在
-  `xc7z020clg400-1` 上对 1/2/4/8 lane × dense/sparse 共 **8 个 OOC 综合配置**跑 Vivado，
-  比较 LUT/FF/BRAM/DSP、WNS/WHS 与周期/吞吐，并单独出 NP7.7 的 fail-closed 清单；
-  任何 100 MHz 不满足的配置不得用软件周期收益补偿。
+- NP7.0–NP7.6 全绿且 G3>=25%，NP7.7 的 8 配置 OOC 已按裁定完成并如实分层报告（4 收敛 / 4 未收敛）。
+- 待管理员裁定的两项（本轮不擅自推进）：
+  (1) 是否允许在 lane 内插入一拍饱和/计数流水以救 L4/L8 的 100 MHz——这会修订周期合同；
+  (2) 物理门是否接受"L1·L2 收敛即达标、L4·L8 记为超频目标未达成"的部分通过口径，
+      或要求 8/8 收敛才算 NP7.7 通过。
+- 若裁定 (2) 为部分通过，则 NP7 可进入签核收口；若要求 8/8，则按 (1) 的流水化新裁定重跑
+  NP7.1–NP7.7（软件账本口径不变，周期数字需重算）。
