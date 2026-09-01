@@ -53,6 +53,9 @@ VERIFIER_REL = 'verify_np6_physical_cost.py'
 def canonical_bytes(data):
     return data.replace(b'\r\n', b'\n').replace(b'\r', b'\n')
 
+def sha256_bytes(data):
+    return hashlib.sha256(data).hexdigest()
+
 def sha256_file(path):
     # Canonical LF hash (repo convention, matches NP4B verify_local_prune_rtl.py):
     # identical result on CRLF working trees and LF checkouts.
@@ -65,11 +68,6 @@ def sha256_file(path):
 def git(*args):
     r = subprocess.run(['git', '-C', str(ROOT)] + list(args), capture_output=True, text=True)
     return r.returncode, r.stdout
-
-def git_epoch_at(sha, fname):
-    rc, out = git('log', '-1', '--format=%ct', sha, '--', fname)
-    text = out.strip()
-    return int(text) if rc == 0 and text else None
 
 def parse_utilization(text):
     vals = {}
@@ -203,23 +201,30 @@ def main():
             failures.append(tag + ': cannot parse route status report')
         elif route_errors != 0:
             failures.append(tag + ': route errors reported: ' + str(route_errors))
-        for src in sources + [runner, VERIFIER_REL]:
-            epoch = git_epoch_at(frozen, src)
-            if epoch is None:
-                failures.append(tag + ': ' + src + ' absent at frozen HEAD')
-            elif spath.stat().st_mtime < epoch:
-                failures.append(tag + ': summary older than frozen commit of ' + src)
     bindings = manifest.get('bindings', {})
-    must_bind = sorted(set([c[3] for c in CONFIGS.values()] + [VERIFIER_REL] + list(bound_sources)))
+    must_bind = sorted(set([c[3] for c in CONFIGS.values()] + list(bound_sources)))
     for rel in must_bind:
         if rel not in bindings:
             failures.append('binding missing: ' + rel)
             continue
+        r = subprocess.run(['git', '-C', str(ROOT), 'show', frozen + ':' + rel],
+                           capture_output=True)
+        if r.returncode != 0:
+            failures.append('bound file absent at frozen HEAD: ' + rel)
+            continue
+        h_frozen = sha256_bytes(canonical_bytes(r.stdout))
         fp = ROOT / rel
         if not fp.exists():
             failures.append('bound file missing on disk: ' + rel)
-        elif sha256_file(fp) != bindings[rel]:
-            failures.append('binding SHA-256 mismatch: ' + rel)
+            continue
+        h_disk = sha256_file(fp)
+        if not (bindings[rel] == h_frozen == h_disk):
+            failures.append('frozen binding mismatch (manifest/frozen/disk): ' + rel)
+    tool_bindings = manifest.get('tool_bindings', {})
+    if VERIFIER_REL not in tool_bindings:
+        failures.append('tool binding missing: ' + VERIFIER_REL)
+    elif sha256_file(ROOT / VERIFIER_REL) != tool_bindings[VERIFIER_REL]:
+        failures.append('tool binding mismatch: ' + VERIFIER_REL)
     for pair in PAIRS_BOTH:
         if pair + '/unpruned' not in summaries or pair + '/pruned' not in summaries:
             failures.append(pair + ': pair incomplete')

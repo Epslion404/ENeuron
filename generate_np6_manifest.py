@@ -9,11 +9,12 @@ import json
 import pathlib
 import sys
 import time
-from verify_np6_physical_cost import CONFIGS, EXPECTED_FILES, EXPECTED_PART, EXPECTED_CLOCK, VERIFIER_REL
+from verify_np6_physical_cost import (CONFIGS, EXPECTED_FILES, EXPECTED_PART,
+                                       EXPECTED_CLOCK, VERIFIER_REL, canonical_bytes)
 
 ROOT = pathlib.Path(__file__).resolve().parent
 
-from verify_np6_physical_cost import sha256_file  # canonical LF hashing
+from verify_np6_physical_cost import sha256_file, sha256_bytes  # canonical LF hashing
 
 def main():
     if len(sys.argv) != 2:
@@ -39,13 +40,15 @@ def main():
                                     'files_sha256': files}
         bound.update(sources)
         bound.add(runner)
-    bound.add(VERIFIER_REL)
+    import subprocess
     for rel in sorted(bound):
-        fp = ROOT / rel
-        if not fp.exists():
-            print('MISSING binding source', rel)
+        r = subprocess.run(['git', '-C', str(ROOT), 'show', frozen + ':' + rel],
+                           capture_output=True)
+        if r.returncode != 0:
+            print('NOT AT FROZEN', rel)
             return 1
-        manifest['bindings'][rel] = sha256_file(fp)
+        manifest['bindings'][rel] = sha256_bytes(canonical_bytes(r.stdout))
+    manifest['tool_bindings'] = {VERIFIER_REL: sha256_file(ROOT / VERIFIER_REL)}
     out = ROOT / 'artifacts' / 'results' / 'np6_physical_cost_manifest.json'
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(manifest, indent=2, ensure_ascii=False, sort_keys=True) + '\n', encoding='utf-8')

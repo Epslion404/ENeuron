@@ -1,10 +1,10 @@
 # NPU 局部剪枝 NP6 物理成本阶段报告（NP6.2–NP6.7）
 
-日期：2026-09-01。冻结分支 `feature/np6-runner-audit-20260901`，冻结 HEAD `67a70f342d46e358742b98242e3b14a5238445b0`（短 `67a70f3`）。
+日期：2026-09-01。冻结分支 `feature/np6-runner-audit-20260901`，冻结 HEAD `7023b15a10d9649b7e974856feec3b10419c2345`（短 `7023b15`）。
 
 ## 1. 冻结基线
 
-- 批准：用户 2026-09-01 明确批准进入 NP6 并调用 Vivado；九项冻结决策记录于 `docs/planning/NPU_PRUNING_NP6_FREEZE_DECISIONS.md`。
+- 批准：用户 2026-09-01 明确批准进入 NP6 并调用 Vivado；仓库所有者于 PR #5 评论 `5492928792` 逐项确认九项决策，批准链闭环；决策全文记录于 `docs/planning/NPU_PRUNING_NP6_FREEZE_DECISIONS.md`。
 - 器件：`xc7z020clg400-1`；时钟：单时钟对象 100 MHz（10 ns）；配对 4 两侧统一采用 CLK_SRC + I/O false paths（测量范围为 register-to-register）。
 - 策略：Vivado 默认综合 + 默认实现，`out_of_context`；不做策略扫描。
 - 执行机与版本：MGL 笔记本，Vivado 2024.2（SW Build 5239630）。与 TODO §2 所写评审机 2024.1 不同，全部结论仅对本机版本成立，跨版本不外推。
@@ -58,5 +58,5 @@
 - 剪枝门 `local_prune_gate_2of4`：200 LUT / 499 FF / 0 BRAM / 0 DSP，100 MHz 时序通过。
 - 剪枝封装相对裸核开销（同微架构可比对）：Pulse-Mini-L +297 LUT / +356 FF；Pulse-Mini-L2 +349 LUT / +360 FF（含 bridge + gate + evidence 逻辑）。
 - 建议状态记为 `NP6_PHYSICAL_COST_PARTIAL`（时序门部分未通过）；`WORKFLOW_STATE.md` 由评审管理，协作侧不修改，状态推进请评审核查后执行。
-- 授权链：批准来源与待确认状态见 `docs/planning/NPU_PRUNING_NP6_FREEZE_DECISIONS.md` 与 PR #5 评论 5492861157。
+- 授权链：用户线下指令原文记录于 `docs/planning/NPU_PRUNING_NP6_FREEZE_DECISIONS.md`；九项决策已由仓库所有者 2026-09-01 在 PR #5 评论 `5492928792` 逐项确认，批准链闭环。
 - 后续选项（均需另行裁定）：降低时钟目标重测；流水线/重定时（涉及 RTL 修改，另立项）；补测配对 2 同引擎未剪枝侧；维持 100 MHz 结论不变。

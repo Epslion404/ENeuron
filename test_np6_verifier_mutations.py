@@ -1,4 +1,6 @@
 """NP6 verifier mutation suite: every known mutation must be rejected (non-zero exit)."""
+import hashlib
+import json
 import pathlib
 import shutil
 import subprocess
@@ -71,6 +73,26 @@ def main():
     mutate('T6 tamper manifest bytes', tamper_manifest)
     manifest_text = (tmp / manifest_rel).read_text(encoding='utf-8')
     results.append(('T7 manifest binds no .dcp', '.dcp' not in manifest_text))
+    def committed_attack(name, target_rel):
+        tp = tmp / target_rel
+        tp.write_text(tp.read_text(encoding='utf-8') + chr(10) + '// post-freeze mutation', encoding='utf-8')
+        mp = tmp / manifest_rel
+        m = json.loads(mp.read_text(encoding='utf-8'))
+        data = tp.read_bytes().replace(b'\r\n', b'\n').replace(b'\r', b'\n')
+        m['bindings'][target_rel] = hashlib.sha256(data).hexdigest()
+        mp.write_text(json.dumps(m, indent=2, ensure_ascii=False, sort_keys=True) + chr(10), encoding='utf-8')
+        subprocess.run(['git', '-C', str(tmp), 'add', '-A'], capture_output=True)
+        subprocess.run(['git', '-C', str(tmp), '-c', 'user.email=np6@test.local', '-c', 'user.name=np6-mutation', 'commit', '-qm', 'tamper'], capture_output=True)
+        new_head = subprocess.run(['git', '-C', str(tmp), 'rev-parse', 'HEAD'], capture_output=True, text=True).stdout.strip()
+        rc, out = run_verifier(tmp, new_head)
+        results.append((name, rc != 0))
+        print('---', name, 'rc=' + str(rc))
+        for line in out.splitlines():
+            if 'frozen binding' in line or 'binding' in line:
+                print('   ', line[:160])
+        subprocess.run(['git', '-C', str(tmp), 'reset', '--hard', head], capture_output=True)
+    committed_attack('T8 post-freeze RTL tamper + manifest co-update', 'local_prune_gate_2of4.sv')
+    committed_attack('T9 post-freeze runner tamper + manifest co-update', 'vivado_np6_gate_ooc_synth.tcl')
     shutil.rmtree(tmp_parent, ignore_errors=True)
     all_ok = True
     for name, ok in results:

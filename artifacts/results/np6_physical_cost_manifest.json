@@ -10,7 +10,6 @@
     "pulse_mini_l2_prune_wrapper.sv": "d07b9402f584f49e3c54cb05f29796f5005e81a9279fe4620592f85e71eadda1",
     "pulse_mini_l_prune_wrapper.sv": "246714fa805c441c60b6417fa992c4ba6f89245c55fa33435111ac5d0ac61d27",
     "pulse_mini_prune_bridge.sv": "cb1b831c1162f36bcbf8601eda8947a21c482413dd78843a834dedf9f8c140f7",
-    "verify_np6_physical_cost.py": "ac20e0c043c93805c5c753a51ea939b01ccb049d88982ea79f73147c70d17568",
     "vivado_np6_eneuron_pruned_synth.tcl": "3227e240f41156d5e04cdf20bab6c2e56de89270c8879ce5b86cd9636dc89a50",
     "vivado_np6_eneuron_unpruned_synth.tcl": "18aa9e69ec2846ea610207353c8a3a0635f347c1146415f7fbfdf67084bc40e3",
     "vivado_np6_gate_ooc_synth.tcl": "42d875b84730745988d98c9428d7e6ee44b2844097dfa60d48053ab27f481628",
@@ -173,6 +172,9 @@
     }
   },
   "frozen_git_head": "7023b15a10d9649b7e974856feec3b10419c2345",
-  "generated_at_epoch": 1788261137,
-  "part": "xc7z020clg400-1"
+  "generated_at_epoch": 1788262152,
+  "part": "xc7z020clg400-1",
+  "tool_bindings": {
+    "verify_np6_physical_cost.py": "58b9cf3eac0454ecde6ca56f4030c50b8aa4e678dc1372a9a5151300e9e994fc"
+  }
 }
