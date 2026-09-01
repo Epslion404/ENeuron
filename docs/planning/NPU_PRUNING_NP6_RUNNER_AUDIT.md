@@ -29,7 +29,7 @@
 | `vivado_xpm_wrapper_sim.tcl` | xc7a35tcpg236-1 | `digital_snn_host_bridge` | host 20 ns / tile 14 ns | `vivado_xpm_wrapper_sim` | XSim + 综合 |
 | `run_local_prune_gate_vivado.py` | （仅 XSim，不综合） | testbench | - | - | NP4B 三模型对比仿真 |
 
-报告约定（既有证据目录一致遵守，NP6 沿用）：每配置含 `drc_synth/impl`、`timing_synth/impl`、`utilization_synth/impl`、`power_impl`、机器可读 `signoff_summary.txt`；系统级另含 `route_status`、`methodology`、层次化利用率与 CDC 报告。
+既有报告集合盘点（**并非所有目录齐备**）：5 个目录（`vivado_pulse_original_reports`、`vivado_pulse_mini_reports`、`vivado_pulse_mini_l2_reports`、`vivado_tile_reports`、`vivado_host_bridge_reports`）含机器可读 `signoff_summary.txt` 与较完整的 drc/timing/utilization/power 报告，其中 host bridge 目录另含 `route_status`、`methodology`、层次化利用率与 CDC 报告；其余 6 个目录（`vivado_reports`、`vivado_engine_reports`、`vivado_zynq7020_engine_n2_reports`、`vivado_zynq7020_engine_n4_reports`、`vivado_pulse_mini_array_reports`、`vivado_xpm_wrapper_sim`）**不含** `signoff_summary.txt`。**NP6 强制要求（非既有约定）**：每个新建配置必须生成完整报告集合（drc/timing/utilization/power 的 synth+impl 版本）外加机器可读摘要（至少含 part / top / 时钟 / 策略 / Git HEAD / Vivado 版本 / 退出码 / WNS / WHS / 资源计数）。
 
 ## 3. 六类配对映射与缺口
 
@@ -63,5 +63,5 @@ TODO §7 的五项决策仍然全部有效（进入 NP6 与 Vivado 授权、器�
 ## 6. 停止条件自查（对照 TODO §6）
 
 - 未发现拓扑/器件/时钟/约束的既成不一致——全部差异已列为待冻结决策项，不在冻结前运行。
-- 无 runner 引用陈旧 RTL：main 头部为 NP4B 冻结源 + V1 归档后状态，源哈希与签核链一致。
+- 静态审计未发现明显路径错误（runner 引用的脚本与顶层在当前工作树中存在）；本审计未运行任何 runner，也没有比较报告时间与源码/约束/runner/verifier 的最后修改时间，**不能证明新鲜度**——新鲜度仍待 NP6.2/NP6.7 通过冻结 HEAD、实际运行与 verifier 验证。
 - 本审计为静态文档工作，未产生任何 Vivado 输出。
