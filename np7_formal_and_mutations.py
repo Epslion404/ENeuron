@@ -329,8 +329,11 @@ def tool_versions():
             versions[name] = text[0][:160] if text else "?"
         except OSError as error:
             versions[name] = "missing: %s" % error
-    if versions.get("iverilog") and versions.get("vvp", "").startswith("missing"):
-        versions["vvp"] = versions["iverilog"] + " (同一安装目录)"
+    iv = versions.get("iverilog", "")
+    vvp = versions.get("vvp", "")
+    if iv and not vvp.startswith("Icarus"):
+        # vvp 无版本开关，取同安装目录的 iverilog 版本行作为口径。
+        versions["vvp"] = iv + " (same install)"
     return versions
 
 
