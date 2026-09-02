@@ -1,6 +1,6 @@
-# NPU 局部剪枝 NP7 共享 BRAM 与共享 lane 签核报告（NP7.1–NP7.7，round 4 / B-V1+V2 + P1 lane 一拍流水）
+# NPU 局部剪枝 NP7 共享 BRAM 与共享 lane 签核报告（NP7.1–NP7.7，round 5 / B-V1+V2 + P1 lane 一拍流水 + PR gate 适配）
 
-日期：2026-09-02。分支 `feature/np7-shared-lanes-20260901`（基线 `main @ 8853f7b`）。
+日期：2026-09-02。分支 `feature/np7-shared-lanes-20260901`（基线 `main @ 8853f7b`，本轮已合并 `main @ 724a5dc` 的 PR gate 与管理员裁定文档，见 §11）。
 周期合同来源：**PR #6 仓库管理员评论 `5498372499`**（决定 5 修订为 **B-V1+V2**，A/C/D 均不采用）；
 仓库内规范副本 `docs/planning/NPU_PRUNING_NP7_DECISION_B_V1_V2.md`（含 §3 逐拍账本口径与 §4 重跑范围）。
 **P1 修订**（管理员 review `5085536010`，2026-09-02T04:21:41Z，被裁定时的 head `537eb7a`）：允许在 lane 的
@@ -338,3 +338,68 @@ P1 裁定的内容。软件侧同理：round 3 的 G1–G6 与每 tick 绝对周
 - 下一步（等复审）：(1) 按 §一 7 项 + §二 6 判据复核本轮全量重跑证据；(2) 若接受，NP7 才进入
   签核收口，是否合并由维护者决定；(3) 2024.1 跨版本复跑仍待有该版本的环境时执行，本轮不外推；
   (4) 真实权重活动分布、BRAM 端口竞争、系统级时序仍属 NP8+ 范围，本轮不主张。
+
+## 11. PR gate（main `724a5dc`）适配与本地复刻结果
+
+本轮 push 前 main 前进到 `724a5dc`：新增 `.github/workflows/pr-gate.yml` + `docs/CI_PR_GATE.md`，
+并把 DP-NP7-001 决策文档与 TODO §8 的管理员裁定版本落库。PR #6 因此变成 `mergeable_state=dirty`，
+唯一重叠文件是 `docs/planning/NPU_PRUNING_NP7_DECISION_B_V1_V2.md`——**取 main 版原文**（管理员自己写的
+DP-NP7-001），撤掉我们此前的“仓库内副本”，P1 修订单独记在 `NPU_PRUNING_NP7_DECISION_LANE_PIPELINE_P1.md`。
+合并提交 `27bd388`。`task_plan.md` / `findings.md` / `progress.md` / `docs/README.md` 只是随合并带入
+main 的内容，本方未自行编辑这些文件。
+
+gate 的 `NP7 functional` 作业顺序是“先重跑 NP7.3/NP7.5，再用 PR HEAD 校验 NP7.6 清单绑定”，
+所以本轮做了三处适配（提交 `a0987e1`）：
+
+1. `np7_formal_and_mutations.py` 的 yosys/iverilog/vvp 由写死的 `C:\...` 改为
+   “环境变量 `NP7_YOSYS/NP7_IVEROLOG/NP7_VVP` > PATH > 已知 Windows 安装路径 > 裸名”
+   （与仓库既有 `rtl_tile_cosim.find_tool()` 同一口径）。本机解析结果与旧绝对路径一致
+   （yosys 0.68 / Icarus 12.0，`C:\iverilog\bin`），所以证据语义不变；ubuntu runner 上用 apt 版本。
+2. 同脚本新增 `keep_or_freeze_evidence()`：**默认不改写已冻结证据字节**，只有显式
+   `NP7_FREEZE_EVIDENCE=1` 才重绑；若语义字段（formal / mutation / negative / ledger）与冻结证据
+   不一致则不改写、直接返回失败。旧实现无条件写入 `git_head`/`tool_versions`，在 CI 顺序下必然触发
+   `evidence_files 磁盘字节偏离清单 artifacts/results/np7_formal_and_mutations.json`——
+   这是复现门的假失败（本地按 CI 顺序复刻时已实测复现，见下方矩阵）。
+3. 结论行打印去掉行尾空白，`formal_np7_exec_unit.sv` 第 570 行的行尾空白一并清掉
+   （gate 的 `git diff --check` 会因日志尾随空格整体失败）。
+
+`.gitattributes` 只给**工具生成的原始报告**加 `-whitespace`（`*.rpt`、`vivado_np7_ooc_*_reports/**`、
+`vivado_np7_xsim_reports/**`、`artifacts/logs/np7_vivado_xsim.txt`）：Vivado/xsim 的行尾空格是其表格排版
+的一部分，为满足 lint 去改写工具输出等于伪造证据。豁免只关闭空白 lint，不改行尾策略、不影响哈希与清单绑定。
+实测 `git diff --check main...HEAD` 由 **4930 处（51 文件）降到 0 处**（其中 27 处 NP7.5 日志随生成器修复重跑消除，
+1 处是我们手写 SV 的真实缺陷已修，其余全是 Vivado/xsim 原样输出）。
+
+`test_artifact_layout.py` 的归档清单与 `artifacts/README.md` 索引补登 PR #5/#6 新增的 7 个
+`artifacts/results/*.json`（`np6_physical_cost_manifest` + 6 个 `np7_*`）。该测试在 main tip `724a5dc`
+的干净工作树上**本来也 FAIL**（缺 `np6_physical_cost_manifest.json` 登记），本轮一并修好。
+
+### 11.1 本地按 `docs/CI_PR_GATE.md` 逐条复刻（隔离工作树，HEAD `27bd388` = 适配前）
+
+| gate 步骤 | 命令 | rc | 结论 |
+|---|---|---|---|
+| Python and syntax | `python -X utf8 -m compileall -q .` | 0 | PASS |
+| Python and syntax | `python -X utf8 -m unittest discover -v` | 1 | 407 tests：**1 FAIL**（`test_artifact_layout`，本轮已修）+ **2 ERROR**（`test_host_bridge_xpm_wrapper`，见 §11.2） |
+| NP7 functional | `python -X utf8 -m unittest -v test_np7_shared_lane_oracle` | 0 | PASS |
+| NP7 functional | `python -X utf8 np7_shared_lane_cosim.py` | 0 | 160 配置 / 160,000 事务；输出与冻结证据逐字节相同（确定性复现，57s） |
+| NP7 functional | `python -X utf8 np7_three_model_integration_cosim.py` | 0 | 输出与冻结证据逐字节相同 |
+| NP7 functional | `python -X utf8 np7_formal_and_mutations.py` | 0 | 90/90、12/12 counterexample；但**改写了**证据字节 → 下一步假失败 |
+| NP7 functional | `python -X utf8 verify_np7_software_cost.py <PR HEAD>` | 1 | `rejects=3`：2 条来自合并改动的 planning 文档（随后重绑清单解决），1 条正是上面那条“磁盘字节偏离清单” |
+| NP7 physical evidence | `python -X utf8 verify_np7_physical_cost.py <PR HEAD>` | 0 | `rejects=0 8/8` |
+| NP7 physical evidence | `python -X utf8 test_np7_physical_mutations.py` | 0 | 13/13 PASS |
+| Python and syntax | `git diff --check base...head` | 2 | 4930 处尾随空白（→ 本轮 .gitattributes + 生成器修复后 0） |
+
+适配后（HEAD `06d7f38`）的本地复跑：`verify_np7_software_cost.py` **rejects=0 / overall=PASS**，
+`verify_np7_physical_cost.py` **rejects=0 / configs=8 / timing_clean=8**，
+两套变异 `19/19` 与 `13/13` PASS（UTF-8 与默认代码页 936 各一轮），NP7.5 重跑 `90/90`、
+`12/12 mutation counterexample`、`problems=0`，且除新增一行 FREEZE 提示外与上一轮输出逐行相同。
+
+### 11.2 仍未解决、且不属于 NP7 范围的 gate 失败（请管理员裁定）
+
+`test_host_bridge_xpm_wrapper` 写死 `C:/msys64/ucrt64/bin/iverilog.exe`：在 ubuntu runner 上必然
+`RuntimeError: 需要 C:/msys64/ucrt64/bin 下的 iverilog 和 vvp`；在本机该 iverilog 构建编译
+`xpm_fifo_async_sim.sv` 时以退出码 `3221225477`（`0xC0000409`）崩溃、无 stdout/stderr，而仓库其余
+NP7 步骤用的是 `C:\iverilog\bin` 的 Icarus 12.0（同一份 RTL 手工编译 rc=0 通过）。
+在 `724a5dc` 干净工作树上单独运行该模块同样 2 ERROR（`Ran 3 tests ... FAILED (errors=2)`），
+**与 PR #6 的改动无关**。可选处置：(a) 把该测试改用仓库既有 `find_tool()` 并在工具缺失时 `skipUnless`；
+(b) 让 gate 的 discover 步骤只跑与改动相关的测试；(c) 维持现状，把它记为已知红。按
+`docs/CI_PR_GATE.md` 的“出现门槛或范围选择必须回到 PR 请求裁定”，本方**不擅自修改他人的测试与工作流**。

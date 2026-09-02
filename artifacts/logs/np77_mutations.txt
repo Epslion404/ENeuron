@@ -1,10 +1,10 @@
 # command: python -X utf8 test_np7_physical_mutations.py
-# git_head: 9d07b99c70cd61836980930862938fc38f1e71da
+# git_head: 06d7f38f987a8412a27fa90bd27e4cfe13d6d350
 # python: 3.14.7 (-X utf8)
 # note: NP7.7 物理验证器变异套件（13 项）：基线干净克隆必须 rejects=0，变异必须被对应判据挡下
-# local_time: 2026-09-02 13:59:17
+# local_time: 2026-09-02 15:07:36
 
-baseline clone head=9d07b99 rc=0 NP7_PHYSICAL_SUMMARY rejects=0 configs=8 timing_clean=8(sparse/L1,sparse/L2,sparse/L4,sparse/L8,dense/L1,dense/L2,dense/L4,dense/L8) excluded=0(-) overall=PASS
+baseline clone head=06d7f38 rc=0 NP7_PHYSICAL_SUMMARY rejects=0 configs=8 timing_clean=8(sparse/L1,sparse/L2,sparse/L4,sparse/L8,dense/L1,dense/L2,dense/L4,dense/L8) excluded=0(-) overall=PASS
 summary_only_edit          rc=1 new_rejects=1 CAUGHT
 tamper_signoff_rehash      rc=1 new_rejects=2 CAUGHT
 tamper_wns_sign            rc=1 new_rejects=2 CAUGHT

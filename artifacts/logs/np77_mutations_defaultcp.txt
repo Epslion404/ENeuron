@@ -1,10 +1,10 @@
 # command: python test_np7_physical_mutations.py  (默认 Windows 代码页，不设 PYTHONUTF8)
-# git_head: 9d07b99c70cd61836980930862938fc38f1e71da
+# git_head: 06d7f38f987a8412a27fa90bd27e4cfe13d6d350
 # python: 3.14.7 (默认代码页，PYTHONUTF8/PYTHONIOENCODING 未设置)
 # note: NP7.7 变异套件（13 项）在默认代码页下的复跑（评审阻断 4 的同类要求）
-# local_time: 2026-09-02 14:00:21
+# local_time: 2026-09-02 15:08:53
 
-baseline clone head=9d07b99 rc=0 NP7_PHYSICAL_SUMMARY rejects=0 configs=8 timing_clean=8(sparse/L1,sparse/L2,sparse/L4,sparse/L8,dense/L1,dense/L2,dense/L4,dense/L8) excluded=0(-) overall=PASS
+baseline clone head=06d7f38 rc=0 NP7_PHYSICAL_SUMMARY rejects=0 configs=8 timing_clean=8(sparse/L1,sparse/L2,sparse/L4,sparse/L8,dense/L1,dense/L2,dense/L4,dense/L8) excluded=0(-) overall=PASS
 summary_only_edit          rc=1 new_rejects=1 CAUGHT
 tamper_signoff_rehash      rc=1 new_rejects=2 CAUGHT
 tamper_wns_sign            rc=1 new_rejects=2 CAUGHT
