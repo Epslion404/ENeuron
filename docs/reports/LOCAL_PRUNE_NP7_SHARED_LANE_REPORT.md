@@ -451,10 +451,47 @@ head，按新裁定执行一次 8 配置 OOC 即可（约 25–35 分钟）。
    我的 `str(Path)` 断言在 POSIX 不成立；`verify_formal_local_prune_commit_barrier.py` 也硬编码了
    同一固定路径（改为 `find_tool()`：PATH 优先 + UCRT64 兜底 + 无工具时 NOT APPLICABLE 跳过）。
    细节与实测矩阵见 `docs/WINDOWS_MSYS2_XPM_TOOLCHAIN.md`（§3、§4.1、§4.2、§7）。
-5. 本机证据：`artifacts/logs/xpm_wrapper_windows_fixed_path.txt`（`Ran 4 tests / OK (skipped=2)`）、
-   `xpm_wrapper_nonwindows_notice.txt`（非 Windows 文案）、`xpm_toolchain_defect_matrix.txt`
-   （A=`C:\msys64\ucrt64\bin` 12.0 stable 局部拷贝、B=`C:\iverilog\bin` 12.0 devel 完整安装的
-   退出码矩阵；A 的 `vvp.exe` 连空 testbench 都 0xC0000005 无输出，故本机固定路径**不能**充当
-   “跑过仿真”的证据，真实执行环境是 CI 的 Windows 作业）。
-6. 全仓回归（干净 worktree，非 Windows 语义等价检查由 CI 提供）：`Ran 408 tests in 420.604s`
-   → `OK (skipped=3)`，`git diff --check origin/main...HEAD` rc=0。
+5. 本机证据：`artifacts/logs/xpm_wrapper_windows_fixed_path.txt`（head `187d970` 时代 4 条用例
+   的快照：`Ran 4 tests / OK (skipped=2)`）、`xpm_wrapper_nonwindows_notice.txt`（非 Windows
+   文案）、`xpm_toolchain_defect_matrix.txt`（A=`C:\msys64\ucrt64\bin` 12.0 stable 局部拷贝、
+   B=`C:\iverilog\bin` 12.0 devel 完整安装的退出码矩阵；A 的 `vvp.exe` 连空 testbench 都
+   0xC0000005 无输出，故本机固定路径**不能**充当“跑过仿真”的证据）。该结论在 round 7 之后
+   仍然成立，但“真实执行环境”不再只有 CI：见第 7、8 条。
+6. 全仓回归（干净 worktree，非 Windows 语义等价检查由 CI 提供）：head `5fbef11`
+   `Ran 408 tests in 427.335s` → `OK (skipped=3)`、head `538cbee`
+   `Ran 408 tests in 420.604s` → `OK (skipped=3)`。**这两条数字在 `2f39f5b` 之后失效**：
+   `2f39f5b` 改动 `verify_formal_local_prune_commit_barrier.py` 后没有刷新 NP4B 冻结的
+   `file_sha256` 绑定，同一 worktree 变成 `Ran 408 tests / FAILED (failures=2, skipped=3)`
+   （`test_current_summary_and_file_hashes_pass`、
+   `test_official_reverify_keeps_np4b_signoff_verifiable`）。`1844d74`（把测试入口文件恢复成
+   冻结字节、只改 verifier 的工具解析）+ `f525bf6`（用仓库自带的
+   `generate_np4b_signoff.py` 走 `binding_refresh` 机制重算绑定，仅 1 条哈希变化、
+   date/regression/tools 冻结记录原样继承）修好之后，最终 head 的回归见第 8 条。
+   `git diff --check origin/main...HEAD` 在 `538cbee` 与最终 head 均为 rc=0。
+7. round 7 的新阻断与更正：run `33615563208`（head `ddb24fc`）第一次让裁定保留的固定路径
+   `C:/msys64/ucrt64/bin` 在 CI 里被真实 provision（`fixed_path_source=redirected_from=C:\msys64\msys64\ucrt64`，
+   `iverilog.exe`/`vvp.exe` 均为 Icarus 13.0 (stable) v13_0），5 条用例真实执行，但 2 条仿真
+   用例在 **elaborate** 阶段失败，根因是仓库自带的接口等价模型 `xpm_fifo_async_sim.sv`
+   把 `ram_empty` 用在 :77、声明写在 :88——本机两套 Icarus（12.0 stable 局部拷贝、
+   12.0 devel s20150603 快照）都静默接受这种前向引用，所以此前没有任何本地/CI 证据能发现它。
+   修复在 RTL 侧（声明前移 `:78` + `assign` 驱动 `:92`，表达式与位宽不变），并新增**不依赖任何
+   外部工具**的平台无关静态守卫 `test_model_declares_every_signal_before_use`：把修复前的文件
+   放回去立即以 `[('ram_empty', 77, 88)]` 失败。为验证 13.0 行为，本轮把 CI 安装的**同一个**
+   MSYS2 包 `mingw-w64-ucrt-x86_64-iverilog-1~13.0-2-any.pkg.tar.zst`
+   （sha256 `fd4d7d7cb60cda1eb437f5476673503d92964cf47ce6c11b460eb3bd05c43582`）解压到本机
+   scratch 目录（未安装、未改动 `C:\msys64`），实测：elaborate rc=4→0、`vvp` 13.0 真实跑完两条
+   testbench（`XPM_WRAPPER_TRANSPORT_PASS`；负向用例按预期 `RESET_REENTRY_ERROR` 非 0 退出）、
+   整模块 `Ran 5 tests / OK / 0 skipped / 无 TOOLCHAIN_DEFECT`。日志见
+   `artifacts/logs/xpm_wrapper_ci_run_33615563208.txt`、
+   `artifacts/logs/xpm_wrapper_icarus130_before_after.txt`，版本矩阵见
+   `docs/WINDOWS_MSYS2_XPM_TOOLCHAIN.md` 第 8 节。
+8. 最终 head 本地全量复核（`6059f65`，干净 worktree `C:\Users\MGL\wt_prhead`）：
+   `python -X utf8 -m unittest discover` → `Ran 409 tests in 376.890s` → `OK (skipped=3)`
+   rc=0（409 = 408 + 新增守卫）；`python -X utf8 verify_np7_software_cost.py 6059f65...`
+   → `NP7_VERIFY_SUMMARY rejects=0 overall=PASS`（G1–G6 全 PASS，160 配置 / 160000 事务）；
+   `python -X utf8 verify_np7_physical_cost.py 6059f65...` → `NP7_PHYSICAL_SUMMARY rejects=0
+   configs=8 timing_clean=8 overall=PASS`（binding `verify_head=6059f651e`、
+   `code_head=9d07b99c7`、`xc7z020clg400-1`、100 MHz、Vivado 2024.2、host `Chan-an`）；
+   `git diff --check origin/main...HEAD` rc=0，两个 verifier 都不改写跟踪文件。
+   CI 侧 4 项要求（固定路径版本打印、5 条用例真实执行、Ubuntu 明确跳过且其余通过、
+   whitespace 步骤真实执行）在 push 后的新 run 上复核，结论以 PR 内追评为准。
