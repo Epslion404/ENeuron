@@ -1,0 +1,78 @@
+NP7 round-8: the three-model real-Vivado short regression, executed locally for the first time
+============================================================================================================
+
+Why this job matters
+  test_local_prune_gate_vivado.VivadoRegressionTest drives run_local_prune_gate_vivado.py over the
+  three frozen gain modules (eneuron, pulse_mini_l, pulse_mini_l2) with a real xvlog/xelab/xsim run.
+  The PR Gate has no Vivado on either runner, so this test is *always* skipped in CI and the only
+  in-repo summary (VIVADO_LOCAL_PRUNE_GATE_SUMMARY.json) is review-machine evidence.  After PR #6
+  merged, this is the first time the job was replayed on this machine (host Chan-an, Vivado 2024.2).
+
+Reproduce
+  git clone <repo> wt && cd wt            # clean worktree at the head below
+  $env:VIVADO_ROOT='C:/Users/MGL/Documents/Codex/Vivado2024_2'
+  python -X utf8 -m unittest -v test_local_prune_gate_vivado.VivadoRegressionTest
+  # args inside the test: --seeds 1 --transactions 140 --models eneuron,pulse_mini_l,pulse_mini_l2 --skip-mutants
+  # worktree: C:\\Users\\MGL\\wt_prhead   git_head=02e347dd0de61561be84f83cad2a15bae97f8143
+
+Six consecutive attempts on this host
+  run  rc   wall-clock   cases reported PASS   last marker
+  1    1    130.8 s      20 of 24              VIVADO_LOCAL_PRUNE_GATE_FAIL xsim exited 3221225477
+  2    1    128.5 s      20 of 24              VIVADO_LOCAL_PRUNE_GATE_FAIL xsim exited 3221225477
+  3    0    141.7 s      24 of 24              OK (unittest)
+  4    0    142.1 s      24 of 24              OK (unittest)
+  5    0    140.0 s      24 of 24              OK (unittest)
+  6    0    149.2 s      24 of 24              OK (unittest)
+  marker of run 6: VIVADO_LOCAL_PRUNE_GATE_PASS version=Vivado Simulator v2024.2.0 models=3 seeds=1 transactions_compared=723 cases=24 mutants=0
+
+Where the two failures stop, and what they do NOT mean
+  * Both stop at the same case: directed 'two_lane_mask_and_low_score_exact_two', model pulse_mini_l2 = case 21 of 24.
+  * The xsim process finished the testbench first: 'TB_COMPLETE transactions=11' and
+    '$finish called at time : 266 ns' are both present, and only then the kernel reports
+    'Abnormal program termination (EXCEPTION_ACCESS_VIOLATION)' -> exit code 3221225477 = 0xC0000005.
+  * The 11 ROW lines emitted by the crashing simulator were re-checked offline against the Python
+    oracle for the identical transaction list (24 columns each):
+      observed rows              : 11
+      oracle rows                : 11
+      differing rows             : 0
+      case verifier on observed  : OK
+      2:4 structural invariant    : OK
+  * So the RTL behaviour was contract-correct even in the failing attempts.  What is unstable here is
+    the xsim 2024.2 process teardown on this host, at a rate of 2/6 for this job.
+
+Observed ROW lines from the crashing simulator (run 2, verbatim)
+  ROW 0 0 0 15 0 0 15 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  ROW 1 0 0 12 0 0 12 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  ROW 2 0 0 12 0 0 12 1 0 0 0 0 0 0 2 2 2 0 0 0 0 0 0 0
+  ROW 2 0 0 12 0 0 12 1 0 0 0 0 0 0 5 4 4 1 0 0 0 0 0 0
+  ROW 2 0 0 12 0 0 12 1 0 0 0 0 0 0 7 4 4 3 0 0 0 0 0 1
+  ROW 0 0 0 15 0 0 15 0 0 0 0 0 0 0 7 4 4 3 0 0 0 0 0 1
+  ROW 0 0 1 15 0 3 15 0 1 1 0 0 0 0 7 4 4 3 0 0 0 0 0 1
+  ROW 0 0 2 3 0 3 3 1 1 1 1 2 1 0 7 4 4 3 0 0 0 0 0 1
+  ROW 0 0 0 15 0 0 15 0 0 0 0 0 1 0 7 4 4 3 0 0 0 0 0 1
+  ROW 0 0 1 3 0 0 3 1 0 0 1 1 2 0 7 4 4 3 0 0 0 0 0 1
+  ROW 2 0 0 3 0 0 3 1 0 0 1 1 2 0 11 6 6 5 0 0 0 0 0 1
+
+Deliberate non-action
+  run_local_prune_gate_vivado.py keeps 'non-zero xsim exit code == FAIL'.  Adding a retry, or
+  whitelisting 3221225477 once TB_COMPLETE is seen, would weaken a fail-closed gate and needs a
+  maintainer ruling in the PR, so nothing was changed this round: no runner edit, no test edit, no
+  RTL edit.  The same symptom is already recorded once in task_plan.md ('xsim ... 3221225477',
+  'recorded as tool-process stability rather than a code failure'); this round adds the statistics.
+
+Not claimed
+  No area / BRAM / DSP / wall-clock / timing improvement is claimed from this job; its output is
+  behavioural only.  Vivado 2024.1 is not installed here, so this is not a cross-version re-run.
+============================================================================================================
+Captured attempt logs (scratch dir, not committed) - sha256 first 16 hex
+  119478a52ae4c73e  r8_gate3.txt              4646 bytes  run 1 (FAIL)
+  c1351c001baf4da1  r8_gate3_try1.txt         4093 bytes  run 2 (FAIL)
+  36c244c54878d7ce  r8_gate3_try2.txt         2884 bytes  run 3 (PASS)
+  a604a334416cfeaa  r8_gate3_try3.txt         2884 bytes  run 4 (PASS)
+  47edd9367c518bc8  r8_gate3_try4.txt         2884 bytes  run 5 (PASS)
+  0aa76182b4b75855  r8_gate3_try5.txt         2884 bytes  run 6 (PASS)
+  host=Chan-an  VIVADO_ROOT=C:/Users/MGL/Documents/Codex/Vivado2024_2
+  git_head_of_worktree=02e347dd0de61561be84f83cad2a15bae97f8143
+
+Cross-reference: the NP7.7 XSim behavioural evidence (16 cases, transactions=120) re-ran cleanly at
+the same head in the same round: cases=16 problems=0 overall=PASS, worktree_dirty=[].
