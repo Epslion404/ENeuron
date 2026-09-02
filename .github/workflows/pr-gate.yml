@@ -90,23 +90,43 @@ jobs:
           MSYS2_LOCATION: ${{ steps.msys2.outputs.msys2-location }}
         run: |
           echo "setup_msys2_location=${MSYS2_LOCATION:-unset}"
-          echo "ruled_fixed_path=C:/msys64/ucrt64/bin (Windows + MSYS2 UCRT64 only)"
-          if [ ! -x "C:/msys64/ucrt64/bin/iverilog.exe" ] && [ -n "${MSYS2_LOCATION:-}" ]; then
-            SRC="$(cygpath -u "${MSYS2_LOCATION}")/ucrt64/bin"
-            if [ -x "${SRC}/iverilog.exe" ]; then
-              echo "MSYS2 was installed elsewhere; copying the UCRT64 bin tree into the ruled fixed path"
-              mkdir -p /c/msys64/ucrt64
-              cp -r "${SRC}" /c/msys64/ucrt64/bin
+          echo "ruled_fixed_path=C:/msys64/ucrt64/bin (Windows + MSYS2 UCRT64 only; admin ruling 5506790489)"
+          FIXED="/c/msys64/ucrt64"
+          if [ -x "${FIXED}/bin/iverilog.exe" ] && [ -x "${FIXED}/bin/vvp.exe" ]; then
+            echo "fixed_path_source=direct_install"
+          else
+            SRC=""
+            for cand in "${MSYS2_LOCATION:-}" "${MSYS2_LOCATION:-}/msys64"; do
+              [ -n "${cand}" ] || continue
+              probe="$(cygpath -u "${cand}")/ucrt64"
+              if [ -x "${probe}/bin/iverilog.exe" ] && [ -x "${probe}/bin/vvp.exe" ]; then
+                SRC="${probe}"
+                break
+              fi
+            done
+            if [ -z "${SRC}" ]; then
+              echo "::error title=MSYS2 UCRT64 tree not found::no ucrt64/bin/iverilog.exe below location=${MSYS2_LOCATION:-unset}; the runner did not provision the ruled toolchain"
+              exit 1
             fi
+            echo "discovered_ucrt64_root=${SRC}"
+            WIN_SRC="$(cygpath -w "${SRC}")"
+            powershell.exe -NoProfile -Command "New-Item -ItemType Directory -Force -Path 'C:\msys64' > \$null; if (-not (Test-Path 'C:\msys64\ucrt64')) { New-Item -ItemType Junction -Path 'C:\msys64\ucrt64' -Target '${WIN_SRC}' > \$null }" \
+              || echo "junction creation failed; falling back to a full copy"
+            if [ ! -x "${FIXED}/bin/iverilog.exe" ]; then
+              mkdir -p "${FIXED}"
+              cp -a "${SRC}/." "${FIXED}/"
+            fi
+            echo "fixed_path_source=redirected_from=${WIN_SRC}"
           fi
-          if [ ! -x "C:/msys64/ucrt64/bin/iverilog.exe" ] || [ ! -x "C:/msys64/ucrt64/bin/vvp.exe" ]; then
+          if [ ! -x "${FIXED}/bin/iverilog.exe" ] || [ ! -x "${FIXED}/bin/vvp.exe" ]; then
             echo "::error title=Fixed toolchain path not provisioned::C:/msys64/ucrt64/bin/iverilog.exe or vvp.exe is missing on the Windows runner. This is a CI environment problem, not an RTL functional failure."
-            ls -l /c/msys64/ucrt64/bin 2>/dev/null || echo "C:/msys64/ucrt64/bin does not exist"
+            ls -l "${FIXED}/bin" 2>/dev/null | head -n 20 || echo "C:/msys64/ucrt64/bin does not exist"
             exit 1
           fi
-          ls -l "C:/msys64/ucrt64/bin/iverilog.exe" "C:/msys64/ucrt64/bin/vvp.exe"
-          "C:/msys64/ucrt64/bin/iverilog.exe" -V | head -n 1
-          "C:/msys64/ucrt64/bin/vvp.exe" -V | head -n 1 || echo "vvp -V is not supported by this build"
+          ls -l "${FIXED}/bin/iverilog.exe" "${FIXED}/bin/vvp.exe"
+          "${FIXED}/bin/iverilog.exe" -V | head -n 1
+          "${FIXED}/bin/vvp.exe" -V | head -n 1 || echo "vvp -V is not supported by this build"
+          "${FIXED}/bin/iverilog.exe" -V | grep -i "version" || true
 
       - name: Run XPM CDC wrapper tests on Windows
         shell: bash
