@@ -802,6 +802,13 @@
 | 索引/TODO 同步补丁被原文 Markdown 反引号截断，JavaScript 报语法错误 | 1 | 决策正文已成功；剩余同步改为纯行补丁，不回退正文 |
 | PowerShell 下 `rg` 通配符被当作非法 Windows 路径 | 1 | 改用 `rg -g '*.py'` 形式；未影响工作流文件，重新检查通过 |
 
+## PR #10 fail-closed 清单修复
+
+- [x] 读取 GitHub 失败日志并定位为 TODO 字节绑定失配。
+- [x] 用当前提交重新生成 NP7 软件成本 manifest。
+- [x] 显式使用 `C:\msys64\ucrt64\bin` 探测本机 Icarus/Yosys，排除旧路径缺失假象。
+- [ ] 提交、推送并等待 Webhook/CI 回报。
+
 ## 2026-09-02 PR 自动检查工作流
 
 - [x] 读取 GitHub 官方 Actions、权限、分支保护与不可信 PR 代码安全文档。

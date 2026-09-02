@@ -43,6 +43,13 @@ NP6 物理成本证据已经合并并完成阶段收口；NP7 共享 BRAM 与共
 
 NP7 已完成；下一步是重新审核并批准传统 NPU + 神经元集成计划。批准前只做静态审计、Nexus 更新和文档维护。
 
+## 2026-09-03 PR #10 清单绑定修复
+
+- PR #10 的 CI 失败仅来自 fail-closed 完整性门：`NPU_PRUNING_NP7_TODO.md` 已更新，但 NP7 软件清单仍绑定旧字节；G1-G6、账本覆盖和物理证据门均通过。
+- 已在当前提交 `61b694b` 上重新运行 `generate_np7_manifest.py`，仅更新 `artifacts/results/np7_software_cost_manifest.json` 的冻结提交、输入文件哈希和本机工具链记录。
+- 生成时显式使用管理员批准的 `C:\msys64\ucrt64\bin` 工具链；未把缺失的旧 `C:\iverilog\bin` 路径写入证据。
+- 本地独立验证已重算 G1-G6 全部通过；提交后需再次运行带提交 HEAD 的验证器并等待 Webhook/CI 结果。
+
 ## 恢复检查
 
 ```powershell

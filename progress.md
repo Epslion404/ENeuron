@@ -861,3 +861,10 @@
 - 管理员裁定：允许在 lane 内插入一拍流水，以解决 L4/L8 的 100 MHz 关键路径问题。
 - 管理员裁定：NP7.7 必须要求 dense/sparse × L=1/2/4/8 共 8/8 配置全部 100 MHz 收敛，不接受当前 4/8 部分通过口径。
 - 已向 PR #6 提交 OWNER `CHANGES_REQUESTED` review，review id `PRR_kwDOUIH1ms8AAAABLx8fCg`；要求流水化后全量重跑 NP7.1–NP7.7，PR 暂不得合并。
+
+## 2026-09-03 PR #10 清单绑定修复
+
+- 读取 PR #10 run `33655668879` 失败日志，确认失败原因为 `NP7_VERIFY_REJECT: input_files 磁盘字节偏离清单 docs/planning/NPU_PRUNING_NP7_TODO.md`，不是 NP7 功能门失败。
+- 在分支 `codex/record-np7-merged-after-revert` 上运行 `python -X utf8 generate_np7_manifest.py`，将清单重新绑定到当前 HEAD `61b694b`；G1-G6 与 `overall=PASS` 保持不变。
+- 首次本机生成误探测旧 Icarus 路径，已废弃该结果；随后显式加入 `C:\msys64\ucrt64\bin` 重生成，记录实际 Icarus/Yosys 版本。
+- 当前待提交文件仅为 manifest 与本轮工作流记录；未运行新的 Vivado，未修改业务 RTL。
