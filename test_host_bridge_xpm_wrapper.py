@@ -497,6 +497,39 @@ class HostBridgeXpmWrapperTests(unittest.TestCase):
         ):
             self.assertEqual(len(re.findall(setting, source)), 2, setting)
 
+    # 只匹配“独立成句”的线网/寄存器声明；端口段以 input/output 开头，因此不会被误判。
+    DECLARATION = re.compile(r"^\s*(?:wire|reg|logic)\s+(?:\[[^\]]*\]\s*)?(\w+)")
+
+    def test_model_declares_every_signal_before_use(self) -> None:
+        """平台无关静态守卫：模型内不得出现“声明晚于使用”的信号。
+
+        ``windows-xpm-cdc`` 作业安装的 ``mingw-w64-ucrt-x86_64-iverilog`` 13.0 会在
+        elaborate 阶段拒绝模块内的前向引用（``error: Unable to bind
+        wire/reg/memory 'ram_empty' ... Check for declaration after use.``，见
+        ``artifacts/logs/xpm_wrapper_ci_run_33615563208.txt``），而 2015 快照的
+        ``Icarus Verilog 12.0 (devel)`` 会静默 elaborate 通过。本守卫只读源码、不调用任何
+        外部工具，因此在 Windows 与 Ubuntu runner 上都会真实执行。
+        """
+        lines = [
+            re.sub(r"//.*$", "", line)
+            for line in (ROOT / "xpm_fifo_async_sim.sv").read_text(encoding="utf-8").splitlines()
+        ]
+        declared: dict[str, int] = {}
+        for index, line in enumerate(lines, 1):
+            match = self.DECLARATION.match(line)
+            if match:
+                declared.setdefault(match.group(1), index)
+        self.assertTrue(declared, "声明扫描正则失效：一个信号都没匹配到")
+        late = []
+        for name, declaration_line in sorted(declared.items()):
+            for index, line in enumerate(lines, 1):
+                if index >= declaration_line:
+                    break
+                if re.search(r"\b" + re.escape(name) + r"\b", line):
+                    late.append((name, index, declaration_line))
+                    break
+        self.assertEqual(late, [], "xpm_fifo_async_sim.sv 存在使用前未声明的信号: " + str(late))
+
     def test_bidirectional_transport_backpressure_wrap_and_reset(self) -> None:
         result = compile_and_run(TRANSPORT_TESTBENCH)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
