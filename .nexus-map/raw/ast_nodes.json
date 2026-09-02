@@ -3,13 +3,13 @@
     "python"
   ],
   "stats": {
-    "total_files": 155,
-    "total_lines": 33602,
+    "total_files": 168,
+    "total_lines": 39944,
     "parse_errors": 0,
     "truncated": false,
     "truncated_nodes": 0,
     "supported_file_counts": {
-      "python": 155
+      "python": 168
     },
     "languages_with_structural_queries": [
       "c",
@@ -2009,6 +2009,41 @@
       "parent": "generate_np6_manifest",
       "start_line": 19,
       "end_line": 57
+    },
+    {
+      "id": "generate_np7_manifest",
+      "type": "Module",
+      "label": "generate_np7_manifest",
+      "path": "generate_np7_manifest.py",
+      "lines": 190,
+      "lang": "python"
+    },
+    {
+      "id": "generate_np7_manifest.git",
+      "type": "Function",
+      "label": "git",
+      "path": "generate_np7_manifest.py",
+      "parent": "generate_np7_manifest",
+      "start_line": 91,
+      "end_line": 95
+    },
+    {
+      "id": "generate_np7_manifest.tool_versions",
+      "type": "Function",
+      "label": "tool_versions",
+      "path": "generate_np7_manifest.py",
+      "parent": "generate_np7_manifest",
+      "start_line": 98,
+      "end_line": 118
+    },
+    {
+      "id": "generate_np7_manifest.main",
+      "type": "Function",
+      "label": "main",
+      "path": "generate_np7_manifest.py",
+      "parent": "generate_np7_manifest",
+      "start_line": 121,
+      "end_line": 186
     },
     {
       "id": "host_bridge_controller_cosim",
@@ -5285,6 +5320,910 @@
       "end_line": 186
     },
     {
+      "id": "np7_formal_and_mutations",
+      "type": "Module",
+      "label": "np7_formal_and_mutations",
+      "path": "np7_formal_and_mutations.py",
+      "lines": 625,
+      "lang": "python"
+    },
+    {
+      "id": "np7_formal_and_mutations.resolve_tool",
+      "type": "Function",
+      "label": "resolve_tool",
+      "path": "np7_formal_and_mutations.py",
+      "parent": "np7_formal_and_mutations",
+      "start_line": 33,
+      "end_line": 44
+    },
+    {
+      "id": "np7_formal_and_mutations.check",
+      "type": "Function",
+      "label": "check",
+      "path": "np7_formal_and_mutations.py",
+      "parent": "np7_formal_and_mutations",
+      "start_line": 75,
+      "end_line": 82
+    },
+    {
+      "id": "np7_formal_and_mutations.sha256_text",
+      "type": "Function",
+      "label": "sha256_text",
+      "path": "np7_formal_and_mutations.py",
+      "parent": "np7_formal_and_mutations",
+      "start_line": 84,
+      "end_line": 85
+    },
+    {
+      "id": "np7_formal_and_mutations.run_yosys",
+      "type": "Function",
+      "label": "run_yosys",
+      "path": "np7_formal_and_mutations.py",
+      "parent": "np7_formal_and_mutations",
+      "start_line": 88,
+      "end_line": 94
+    },
+    {
+      "id": "np7_formal_and_mutations.formal_verdict",
+      "type": "Function",
+      "label": "formal_verdict",
+      "path": "np7_formal_and_mutations.py",
+      "parent": "np7_formal_and_mutations",
+      "start_line": 107,
+      "end_line": 123
+    },
+    {
+      "id": "np7_formal_and_mutations.run_formal_suite",
+      "type": "Function",
+      "label": "run_formal_suite",
+      "path": "np7_formal_and_mutations.py",
+      "parent": "np7_formal_and_mutations",
+      "start_line": 126,
+      "end_line": 139
+    },
+    {
+      "id": "np7_formal_and_mutations.run_rtl_mutations",
+      "type": "Function",
+      "label": "run_rtl_mutations",
+      "path": "np7_formal_and_mutations.py",
+      "parent": "np7_formal_and_mutations",
+      "start_line": 205,
+      "end_line": 234
+    },
+    {
+      "id": "np7_formal_and_mutations.prepare_stimulus",
+      "type": "Function",
+      "label": "prepare_stimulus",
+      "path": "np7_formal_and_mutations.py",
+      "parent": "np7_formal_and_mutations",
+      "start_line": 240,
+      "end_line": 245
+    },
+    {
+      "id": "np7_formal_and_mutations.write_stimulus",
+      "type": "Function",
+      "label": "write_stimulus",
+      "path": "np7_formal_and_mutations.py",
+      "parent": "np7_formal_and_mutations",
+      "start_line": 248,
+      "end_line": 256
+    },
+    {
+      "id": "np7_formal_and_mutations.sim_run",
+      "type": "Function",
+      "label": "sim_run",
+      "path": "np7_formal_and_mutations.py",
+      "parent": "np7_formal_and_mutations",
+      "start_line": 259,
+      "end_line": 286
+    },
+    {
+      "id": "np7_formal_and_mutations.compile_negative",
+      "type": "Function",
+      "label": "compile_negative",
+      "path": "np7_formal_and_mutations.py",
+      "parent": "np7_formal_and_mutations",
+      "start_line": 289,
+      "end_line": 299
+    },
+    {
+      "id": "np7_formal_and_mutations.run_ledger_matrix",
+      "type": "Function",
+      "label": "run_ledger_matrix",
+      "path": "np7_formal_and_mutations.py",
+      "parent": "np7_formal_and_mutations",
+      "start_line": 301,
+      "end_line": 325
+    },
+    {
+      "id": "np7_formal_and_mutations.run_negative_controls",
+      "type": "Function",
+      "label": "run_negative_controls",
+      "path": "np7_formal_and_mutations.py",
+      "parent": "np7_formal_and_mutations",
+      "start_line": 328,
+      "end_line": 373
+    },
+    {
+      "id": "np7_formal_and_mutations.run_leak_mutation",
+      "type": "Function",
+      "label": "run_leak_mutation",
+      "path": "np7_formal_and_mutations.py",
+      "parent": "np7_formal_and_mutations",
+      "start_line": 375,
+      "end_line": 396
+    },
+    {
+      "id": "np7_formal_and_mutations.compile_config_negative",
+      "type": "Function",
+      "label": "compile_config_negative",
+      "path": "np7_formal_and_mutations.py",
+      "parent": "np7_formal_and_mutations",
+      "start_line": 398,
+      "end_line": 409
+    },
+    {
+      "id": "np7_formal_and_mutations.vvp_cfgneg",
+      "type": "Function",
+      "label": "vvp_cfgneg",
+      "path": "np7_formal_and_mutations.py",
+      "parent": "np7_formal_and_mutations",
+      "start_line": 412,
+      "end_line": 424
+    },
+    {
+      "id": "np7_formal_and_mutations.run_config_negative",
+      "type": "Function",
+      "label": "run_config_negative",
+      "path": "np7_formal_and_mutations.py",
+      "parent": "np7_formal_and_mutations",
+      "start_line": 427,
+      "end_line": 466
+    },
+    {
+      "id": "np7_formal_and_mutations.tool_versions",
+      "type": "Function",
+      "label": "tool_versions",
+      "path": "np7_formal_and_mutations.py",
+      "parent": "np7_formal_and_mutations",
+      "start_line": 472,
+      "end_line": 490
+    },
+    {
+      "id": "np7_formal_and_mutations.git_head",
+      "type": "Function",
+      "label": "git_head",
+      "path": "np7_formal_and_mutations.py",
+      "parent": "np7_formal_and_mutations",
+      "start_line": 493,
+      "end_line": 497
+    },
+    {
+      "id": "np7_formal_and_mutations.main",
+      "type": "Function",
+      "label": "main",
+      "path": "np7_formal_and_mutations.py",
+      "parent": "np7_formal_and_mutations",
+      "start_line": 500,
+      "end_line": 566
+    },
+    {
+      "id": "np7_formal_and_mutations._semantic_view",
+      "type": "Function",
+      "label": "_semantic_view",
+      "path": "np7_formal_and_mutations.py",
+      "parent": "np7_formal_and_mutations",
+      "start_line": 573,
+      "end_line": 576
+    },
+    {
+      "id": "np7_formal_and_mutations.keep_or_freeze_evidence",
+      "type": "Function",
+      "label": "keep_or_freeze_evidence",
+      "path": "np7_formal_and_mutations.py",
+      "parent": "np7_formal_and_mutations",
+      "start_line": 579,
+      "end_line": 620
+    },
+    {
+      "id": "np7_ledger_reconstruction",
+      "type": "Module",
+      "label": "np7_ledger_reconstruction",
+      "path": "np7_ledger_reconstruction.py",
+      "lines": 237,
+      "lang": "python"
+    },
+    {
+      "id": "np7_ledger_reconstruction.parse_rows",
+      "type": "Function",
+      "label": "parse_rows",
+      "path": "np7_ledger_reconstruction.py",
+      "parent": "np7_ledger_reconstruction",
+      "start_line": 59,
+      "end_line": 81
+    },
+    {
+      "id": "np7_ledger_reconstruction.classify_row",
+      "type": "Function",
+      "label": "classify_row",
+      "path": "np7_ledger_reconstruction.py",
+      "parent": "np7_ledger_reconstruction",
+      "start_line": 84,
+      "end_line": 102
+    },
+    {
+      "id": "np7_ledger_reconstruction.stream_window",
+      "type": "Function",
+      "label": "stream_window",
+      "path": "np7_ledger_reconstruction.py",
+      "parent": "np7_ledger_reconstruction",
+      "start_line": 105,
+      "end_line": 112
+    },
+    {
+      "id": "np7_ledger_reconstruction.observe",
+      "type": "Function",
+      "label": "observe",
+      "path": "np7_ledger_reconstruction.py",
+      "parent": "np7_ledger_reconstruction",
+      "start_line": 115,
+      "end_line": 165
+    },
+    {
+      "id": "np7_ledger_reconstruction.identity_violations",
+      "type": "Function",
+      "label": "identity_violations",
+      "path": "np7_ledger_reconstruction.py",
+      "parent": "np7_ledger_reconstruction",
+      "start_line": 168,
+      "end_line": 195
+    },
+    {
+      "id": "np7_ledger_reconstruction.accepted_issue_masks",
+      "type": "Function",
+      "label": "accepted_issue_masks",
+      "path": "np7_ledger_reconstruction.py",
+      "parent": "np7_ledger_reconstruction",
+      "start_line": 198,
+      "end_line": 202
+    },
+    {
+      "id": "np7_ledger_reconstruction.result_sums",
+      "type": "Function",
+      "label": "result_sums",
+      "path": "np7_ledger_reconstruction.py",
+      "parent": "np7_ledger_reconstruction",
+      "start_line": 205,
+      "end_line": 207
+    },
+    {
+      "id": "np7_ledger_reconstruction.reconstruct_violations",
+      "type": "Function",
+      "label": "reconstruct_violations",
+      "path": "np7_ledger_reconstruction.py",
+      "parent": "np7_ledger_reconstruction",
+      "start_line": 210,
+      "end_line": 220
+    },
+    {
+      "id": "np7_ledger_reconstruction.reduction",
+      "type": "Function",
+      "label": "reduction",
+      "path": "np7_ledger_reconstruction.py",
+      "parent": "np7_ledger_reconstruction",
+      "start_line": 223,
+      "end_line": 228
+    },
+    {
+      "id": "np7_shared_lane_cosim",
+      "type": "Module",
+      "label": "np7_shared_lane_cosim",
+      "path": "np7_shared_lane_cosim.py",
+      "lines": 341,
+      "lang": "python"
+    },
+    {
+      "id": "np7_shared_lane_cosim.build_case",
+      "type": "Function",
+      "label": "build_case",
+      "path": "np7_shared_lane_cosim.py",
+      "parent": "np7_shared_lane_cosim",
+      "start_line": 69,
+      "end_line": 99
+    },
+    {
+      "id": "np7_shared_lane_cosim.compile_tb",
+      "type": "Function",
+      "label": "compile_tb",
+      "path": "np7_shared_lane_cosim.py",
+      "parent": "np7_shared_lane_cosim",
+      "start_line": 102,
+      "end_line": 117
+    },
+    {
+      "id": "np7_shared_lane_cosim.run_case",
+      "type": "Function",
+      "label": "run_case",
+      "path": "np7_shared_lane_cosim.py",
+      "parent": "np7_shared_lane_cosim",
+      "start_line": 120,
+      "end_line": 145
+    },
+    {
+      "id": "np7_shared_lane_cosim.record_raw_ledger",
+      "type": "Function",
+      "label": "record_raw_ledger",
+      "path": "np7_shared_lane_cosim.py",
+      "parent": "np7_shared_lane_cosim",
+      "start_line": 148,
+      "end_line": 170
+    },
+    {
+      "id": "np7_shared_lane_cosim.compare_case",
+      "type": "Function",
+      "label": "compare_case",
+      "path": "np7_shared_lane_cosim.py",
+      "parent": "np7_shared_lane_cosim",
+      "start_line": 173,
+      "end_line": 287
+    },
+    {
+      "id": "np7_shared_lane_cosim.main",
+      "type": "Function",
+      "label": "main",
+      "path": "np7_shared_lane_cosim.py",
+      "parent": "np7_shared_lane_cosim",
+      "start_line": 290,
+      "end_line": 336
+    },
+    {
+      "id": "np7_shared_lane_oracle",
+      "type": "Module",
+      "label": "np7_shared_lane_oracle",
+      "path": "np7_shared_lane_oracle.py",
+      "lines": 921,
+      "lang": "python"
+    },
+    {
+      "id": "np7_shared_lane_oracle.ConfigError",
+      "type": "Class",
+      "label": "ConfigError",
+      "path": "np7_shared_lane_oracle.py",
+      "parent": "np7_shared_lane_oracle",
+      "start_line": 45,
+      "end_line": 46
+    },
+    {
+      "id": "np7_shared_lane_oracle.sat_add",
+      "type": "Function",
+      "label": "sat_add",
+      "path": "np7_shared_lane_oracle.py",
+      "parent": "np7_shared_lane_oracle",
+      "start_line": 49,
+      "end_line": 56
+    },
+    {
+      "id": "np7_shared_lane_oracle.check_weight",
+      "type": "Function",
+      "label": "check_weight",
+      "path": "np7_shared_lane_oracle.py",
+      "parent": "np7_shared_lane_oracle",
+      "start_line": 58,
+      "end_line": 63
+    },
+    {
+      "id": "np7_shared_lane_oracle.legal_structural_indices",
+      "type": "Function",
+      "label": "legal_structural_indices",
+      "path": "np7_shared_lane_oracle.py",
+      "parent": "np7_shared_lane_oracle",
+      "start_line": 66,
+      "end_line": 75
+    },
+    {
+      "id": "np7_shared_lane_oracle.mask_from_indices",
+      "type": "Function",
+      "label": "mask_from_indices",
+      "path": "np7_shared_lane_oracle.py",
+      "parent": "np7_shared_lane_oracle",
+      "start_line": 78,
+      "end_line": 82
+    },
+    {
+      "id": "np7_shared_lane_oracle._to_word_bits",
+      "type": "Function",
+      "label": "_to_word_bits",
+      "path": "np7_shared_lane_oracle.py",
+      "parent": "np7_shared_lane_oracle",
+      "start_line": 85,
+      "end_line": 86
+    },
+    {
+      "id": "np7_shared_lane_oracle._from_word_bits",
+      "type": "Function",
+      "label": "_from_word_bits",
+      "path": "np7_shared_lane_oracle.py",
+      "parent": "np7_shared_lane_oracle",
+      "start_line": 89,
+      "end_line": 92
+    },
+    {
+      "id": "np7_shared_lane_oracle.encode_dense_group",
+      "type": "Function",
+      "label": "encode_dense_group",
+      "path": "np7_shared_lane_oracle.py",
+      "parent": "np7_shared_lane_oracle",
+      "start_line": 95,
+      "end_line": 106
+    },
+    {
+      "id": "np7_shared_lane_oracle.decode_dense_group",
+      "type": "Function",
+      "label": "decode_dense_group",
+      "path": "np7_shared_lane_oracle.py",
+      "parent": "np7_shared_lane_oracle",
+      "start_line": 109,
+      "end_line": 122
+    },
+    {
+      "id": "np7_shared_lane_oracle.encode_sparse_group",
+      "type": "Function",
+      "label": "encode_sparse_group",
+      "path": "np7_shared_lane_oracle.py",
+      "parent": "np7_shared_lane_oracle",
+      "start_line": 124,
+      "end_line": 134
+    },
+    {
+      "id": "np7_shared_lane_oracle.decode_sparse_group",
+      "type": "Function",
+      "label": "decode_sparse_group",
+      "path": "np7_shared_lane_oracle.py",
+      "parent": "np7_shared_lane_oracle",
+      "start_line": 137,
+      "end_line": 152
+    },
+    {
+      "id": "np7_shared_lane_oracle.group_word_count",
+      "type": "Function",
+      "label": "group_word_count",
+      "path": "np7_shared_lane_oracle.py",
+      "parent": "np7_shared_lane_oracle",
+      "start_line": 155,
+      "end_line": 160
+    },
+    {
+      "id": "np7_shared_lane_oracle.group_base_address",
+      "type": "Function",
+      "label": "group_base_address",
+      "path": "np7_shared_lane_oracle.py",
+      "parent": "np7_shared_lane_oracle",
+      "start_line": 163,
+      "end_line": 169
+    },
+    {
+      "id": "np7_shared_lane_oracle.Ledger",
+      "type": "Class",
+      "label": "Ledger",
+      "path": "np7_shared_lane_oracle.py",
+      "parent": "np7_shared_lane_oracle",
+      "start_line": 176,
+      "end_line": 254
+    },
+    {
+      "id": "np7_shared_lane_oracle.Ledger.merge",
+      "type": "Function",
+      "label": "merge",
+      "path": "np7_shared_lane_oracle.py",
+      "parent": "np7_shared_lane_oracle.Ledger",
+      "start_line": 221,
+      "end_line": 224
+    },
+    {
+      "id": "np7_shared_lane_oracle.Ledger.as_dict",
+      "type": "Function",
+      "label": "as_dict",
+      "path": "np7_shared_lane_oracle.py",
+      "parent": "np7_shared_lane_oracle.Ledger",
+      "start_line": 226,
+      "end_line": 227
+    },
+    {
+      "id": "np7_shared_lane_oracle.Ledger.identity_violations",
+      "type": "Function",
+      "label": "identity_violations",
+      "path": "np7_shared_lane_oracle.py",
+      "parent": "np7_shared_lane_oracle.Ledger",
+      "start_line": 229,
+      "end_line": 254
+    },
+    {
+      "id": "np7_shared_lane_oracle.CycleEvent",
+      "type": "Class",
+      "label": "CycleEvent",
+      "path": "np7_shared_lane_oracle.py",
+      "parent": "np7_shared_lane_oracle",
+      "start_line": 258,
+      "end_line": 280
+    },
+    {
+      "id": "np7_shared_lane_oracle.GroupResult",
+      "type": "Class",
+      "label": "GroupResult",
+      "path": "np7_shared_lane_oracle.py",
+      "parent": "np7_shared_lane_oracle",
+      "start_line": 284,
+      "end_line": 300
+    },
+    {
+      "id": "np7_shared_lane_oracle.tree_sum",
+      "type": "Function",
+      "label": "tree_sum",
+      "path": "np7_shared_lane_oracle.py",
+      "parent": "np7_shared_lane_oracle",
+      "start_line": 303,
+      "end_line": 316
+    },
+    {
+      "id": "np7_shared_lane_oracle.classify",
+      "type": "Function",
+      "label": "classify",
+      "path": "np7_shared_lane_oracle.py",
+      "parent": "np7_shared_lane_oracle",
+      "start_line": 319,
+      "end_line": 337
+    },
+    {
+      "id": "np7_shared_lane_oracle._Plan",
+      "type": "Class",
+      "label": "_Plan",
+      "path": "np7_shared_lane_oracle.py",
+      "parent": "np7_shared_lane_oracle",
+      "start_line": 341,
+      "end_line": 360
+    },
+    {
+      "id": "np7_shared_lane_oracle._Plan.__init__",
+      "type": "Function",
+      "label": "__init__",
+      "path": "np7_shared_lane_oracle.py",
+      "parent": "np7_shared_lane_oracle._Plan",
+      "start_line": 347,
+      "end_line": 360
+    },
+    {
+      "id": "np7_shared_lane_oracle.SharedLaneUnit",
+      "type": "Class",
+      "label": "SharedLaneUnit",
+      "path": "np7_shared_lane_oracle.py",
+      "parent": "np7_shared_lane_oracle",
+      "start_line": 363,
+      "end_line": 897
+    },
+    {
+      "id": "np7_shared_lane_oracle.SharedLaneUnit.__init__",
+      "type": "Function",
+      "label": "__init__",
+      "path": "np7_shared_lane_oracle.py",
+      "parent": "np7_shared_lane_oracle.SharedLaneUnit",
+      "start_line": 382,
+      "end_line": 401
+    },
+    {
+      "id": "np7_shared_lane_oracle.SharedLaneUnit.set_gate_mask",
+      "type": "Function",
+      "label": "set_gate_mask",
+      "path": "np7_shared_lane_oracle.py",
+      "parent": "np7_shared_lane_oracle.SharedLaneUnit",
+      "start_line": 404,
+      "end_line": 417
+    },
+    {
+      "id": "np7_shared_lane_oracle.SharedLaneUnit.config_write",
+      "type": "Function",
+      "label": "config_write",
+      "path": "np7_shared_lane_oracle.py",
+      "parent": "np7_shared_lane_oracle.SharedLaneUnit",
+      "start_line": 419,
+      "end_line": 439
+    },
+    {
+      "id": "np7_shared_lane_oracle.SharedLaneUnit.config_load_words",
+      "type": "Function",
+      "label": "config_load_words",
+      "path": "np7_shared_lane_oracle.py",
+      "parent": "np7_shared_lane_oracle.SharedLaneUnit",
+      "start_line": 441,
+      "end_line": 451
+    },
+    {
+      "id": "np7_shared_lane_oracle.SharedLaneUnit.config_finish",
+      "type": "Function",
+      "label": "config_finish",
+      "path": "np7_shared_lane_oracle.py",
+      "parent": "np7_shared_lane_oracle.SharedLaneUnit",
+      "start_line": 453,
+      "end_line": 460
+    },
+    {
+      "id": "np7_shared_lane_oracle.SharedLaneUnit._decode_group",
+      "type": "Function",
+      "label": "_decode_group",
+      "path": "np7_shared_lane_oracle.py",
+      "parent": "np7_shared_lane_oracle.SharedLaneUnit",
+      "start_line": 462,
+      "end_line": 474
+    },
+    {
+      "id": "np7_shared_lane_oracle.SharedLaneUnit.synapse_sum",
+      "type": "Function",
+      "label": "synapse_sum",
+      "path": "np7_shared_lane_oracle.py",
+      "parent": "np7_shared_lane_oracle.SharedLaneUnit",
+      "start_line": 477,
+      "end_line": 480
+    },
+    {
+      "id": "np7_shared_lane_oracle.SharedLaneUnit._plan",
+      "type": "Function",
+      "label": "_plan",
+      "path": "np7_shared_lane_oracle.py",
+      "parent": "np7_shared_lane_oracle.SharedLaneUnit",
+      "start_line": 482,
+      "end_line": 503
+    },
+    {
+      "id": "np7_shared_lane_oracle.SharedLaneUnit.run_stream",
+      "type": "Function",
+      "label": "run_stream",
+      "path": "np7_shared_lane_oracle.py",
+      "parent": "np7_shared_lane_oracle.SharedLaneUnit",
+      "start_line": 506,
+      "end_line": 776
+    },
+    {
+      "id": "np7_shared_lane_oracle.SharedLaneUnit.run_group",
+      "type": "Function",
+      "label": "run_group",
+      "path": "np7_shared_lane_oracle.py",
+      "parent": "np7_shared_lane_oracle.SharedLaneUnit",
+      "start_line": 778,
+      "end_line": 791
+    },
+    {
+      "id": "np7_shared_lane_oracle.SharedLaneUnit.run_trace",
+      "type": "Function",
+      "label": "run_trace",
+      "path": "np7_shared_lane_oracle.py",
+      "parent": "np7_shared_lane_oracle.SharedLaneUnit",
+      "start_line": 793,
+      "end_line": 796
+    },
+    {
+      "id": "np7_shared_lane_oracle.SharedLaneUnit.identity_violations",
+      "type": "Function",
+      "label": "identity_violations",
+      "path": "np7_shared_lane_oracle.py",
+      "parent": "np7_shared_lane_oracle.SharedLaneUnit",
+      "start_line": 798,
+      "end_line": 799
+    },
+    {
+      "id": "np7_shared_lane_oracle.SharedLaneUnit.totals",
+      "type": "Function",
+      "label": "totals",
+      "path": "np7_shared_lane_oracle.py",
+      "parent": "np7_shared_lane_oracle.SharedLaneUnit",
+      "start_line": 801,
+      "end_line": 835
+    },
+    {
+      "id": "np7_shared_lane_oracle.SharedLaneUnit._txn_ledger",
+      "type": "Function",
+      "label": "_txn_ledger",
+      "path": "np7_shared_lane_oracle.py",
+      "parent": "np7_shared_lane_oracle.SharedLaneUnit",
+      "start_line": 838,
+      "end_line": 885
+    },
+    {
+      "id": "np7_shared_lane_oracle.SharedLaneUnit.record_txn",
+      "type": "Function",
+      "label": "record_txn",
+      "path": "np7_shared_lane_oracle.py",
+      "parent": "np7_shared_lane_oracle.SharedLaneUnit",
+      "start_line": 887,
+      "end_line": 890
+    },
+    {
+      "id": "np7_shared_lane_oracle.SharedLaneUnit.replay_recorded",
+      "type": "Function",
+      "label": "replay_recorded",
+      "path": "np7_shared_lane_oracle.py",
+      "parent": "np7_shared_lane_oracle.SharedLaneUnit",
+      "start_line": 892,
+      "end_line": 897
+    },
+    {
+      "id": "np7_shared_lane_oracle.exhaustive_structures",
+      "type": "Function",
+      "label": "exhaustive_structures",
+      "path": "np7_shared_lane_oracle.py",
+      "parent": "np7_shared_lane_oracle",
+      "start_line": 898,
+      "end_line": 900
+    },
+    {
+      "id": "np7_shared_lane_oracle.illegal_index_samples",
+      "type": "Function",
+      "label": "illegal_index_samples",
+      "path": "np7_shared_lane_oracle.py",
+      "parent": "np7_shared_lane_oracle",
+      "start_line": 903,
+      "end_line": 908
+    },
+    {
+      "id": "np7_three_model_integration_cosim",
+      "type": "Module",
+      "label": "np7_three_model_integration_cosim",
+      "path": "np7_three_model_integration_cosim.py",
+      "lines": 541,
+      "lang": "python"
+    },
+    {
+      "id": "np7_three_model_integration_cosim._digest",
+      "type": "Function",
+      "label": "_digest",
+      "path": "np7_three_model_integration_cosim.py",
+      "parent": "np7_three_model_integration_cosim",
+      "start_line": 54,
+      "end_line": 61
+    },
+    {
+      "id": "np7_three_model_integration_cosim.SharedLaneIntegrator",
+      "type": "Class",
+      "label": "SharedLaneIntegrator",
+      "path": "np7_three_model_integration_cosim.py",
+      "parent": "np7_three_model_integration_cosim",
+      "start_line": 67,
+      "end_line": 203
+    },
+    {
+      "id": "np7_three_model_integration_cosim.SharedLaneIntegrator.__init__",
+      "type": "Function",
+      "label": "__init__",
+      "path": "np7_three_model_integration_cosim.py",
+      "parent": "np7_three_model_integration_cosim.SharedLaneIntegrator",
+      "start_line": 76,
+      "end_line": 90
+    },
+    {
+      "id": "np7_three_model_integration_cosim.SharedLaneIntegrator._ensure_config",
+      "type": "Function",
+      "label": "_ensure_config",
+      "path": "np7_three_model_integration_cosim.py",
+      "parent": "np7_three_model_integration_cosim.SharedLaneIntegrator",
+      "start_line": 92,
+      "end_line": 123
+    },
+    {
+      "id": "np7_three_model_integration_cosim.SharedLaneIntegrator.accumulate",
+      "type": "Function",
+      "label": "accumulate",
+      "path": "np7_three_model_integration_cosim.py",
+      "parent": "np7_three_model_integration_cosim.SharedLaneIntegrator",
+      "start_line": 125,
+      "end_line": 151
+    },
+    {
+      "id": "np7_three_model_integration_cosim.SharedLaneIntegrator.end_tick",
+      "type": "Function",
+      "label": "end_tick",
+      "path": "np7_three_model_integration_cosim.py",
+      "parent": "np7_three_model_integration_cosim.SharedLaneIntegrator",
+      "start_line": 153,
+      "end_line": 165
+    },
+    {
+      "id": "np7_three_model_integration_cosim.SharedLaneIntegrator._solo_total",
+      "type": "Function",
+      "label": "_solo_total",
+      "path": "np7_three_model_integration_cosim.py",
+      "parent": "np7_three_model_integration_cosim.SharedLaneIntegrator",
+      "start_line": 168,
+      "end_line": 184
+    },
+    {
+      "id": "np7_three_model_integration_cosim.SharedLaneIntegrator.v2_evidence",
+      "type": "Function",
+      "label": "v2_evidence",
+      "path": "np7_three_model_integration_cosim.py",
+      "parent": "np7_three_model_integration_cosim.SharedLaneIntegrator",
+      "start_line": 187,
+      "end_line": 203
+    },
+    {
+      "id": "np7_three_model_integration_cosim._mask_of",
+      "type": "Function",
+      "label": "_mask_of",
+      "path": "np7_three_model_integration_cosim.py",
+      "parent": "np7_three_model_integration_cosim",
+      "start_line": 206,
+      "end_line": 209
+    },
+    {
+      "id": "np7_three_model_integration_cosim._np7_infer_sample",
+      "type": "Function",
+      "label": "_np7_infer_sample",
+      "path": "np7_three_model_integration_cosim.py",
+      "parent": "np7_three_model_integration_cosim",
+      "start_line": 212,
+      "end_line": 300
+    },
+    {
+      "id": "np7_three_model_integration_cosim._mask_of",
+      "type": "Function",
+      "label": "_mask_of",
+      "path": "np7_three_model_integration_cosim.py",
+      "parent": "np7_three_model_integration_cosim",
+      "start_line": 303,
+      "end_line": 306
+    },
+    {
+      "id": "np7_three_model_integration_cosim._model_setup",
+      "type": "Function",
+      "label": "_model_setup",
+      "path": "np7_three_model_integration_cosim.py",
+      "parent": "np7_three_model_integration_cosim",
+      "start_line": 308,
+      "end_line": 329
+    },
+    {
+      "id": "np7_three_model_integration_cosim._reference_state_cores",
+      "type": "Function",
+      "label": "_reference_state_cores",
+      "path": "np7_three_model_integration_cosim.py",
+      "parent": "np7_three_model_integration_cosim",
+      "start_line": 332,
+      "end_line": 358
+    },
+    {
+      "id": "np7_three_model_integration_cosim.hook",
+      "type": "Function",
+      "label": "hook",
+      "path": "np7_three_model_integration_cosim.py",
+      "parent": "np7_three_model_integration_cosim",
+      "start_line": 342,
+      "end_line": 347
+    },
+    {
+      "id": "np7_three_model_integration_cosim.run_model",
+      "type": "Function",
+      "label": "run_model",
+      "path": "np7_three_model_integration_cosim.py",
+      "parent": "np7_three_model_integration_cosim",
+      "start_line": 361,
+      "end_line": 458
+    },
+    {
+      "id": "np7_three_model_integration_cosim._frozen_consistency",
+      "type": "Function",
+      "label": "_frozen_consistency",
+      "path": "np7_three_model_integration_cosim.py",
+      "parent": "np7_three_model_integration_cosim",
+      "start_line": 461,
+      "end_line": 475
+    },
+    {
+      "id": "np7_three_model_integration_cosim.main",
+      "type": "Function",
+      "label": "main",
+      "path": "np7_three_model_integration_cosim.py",
+      "parent": "np7_three_model_integration_cosim",
+      "start_line": 478,
+      "end_line": 536
+    },
+    {
       "id": "pruned_network_tick_cosim",
       "type": "Module",
       "label": "pruned_network_tick_cosim",
@@ -8330,6 +9269,373 @@
       "end_line": 50
     },
     {
+      "id": "run_np7_vivado_ooc",
+      "type": "Module",
+      "label": "run_np7_vivado_ooc",
+      "path": "run_np7_vivado_ooc.py",
+      "lines": 266,
+      "lang": "python"
+    },
+    {
+      "id": "run_np7_vivado_ooc.canon",
+      "type": "Function",
+      "label": "canon",
+      "path": "run_np7_vivado_ooc.py",
+      "parent": "run_np7_vivado_ooc",
+      "start_line": 39,
+      "end_line": 40
+    },
+    {
+      "id": "run_np7_vivado_ooc.sha256_file",
+      "type": "Function",
+      "label": "sha256_file",
+      "path": "run_np7_vivado_ooc.py",
+      "parent": "run_np7_vivado_ooc",
+      "start_line": 43,
+      "end_line": 46
+    },
+    {
+      "id": "run_np7_vivado_ooc.module_ports",
+      "type": "Function",
+      "label": "module_ports",
+      "path": "run_np7_vivado_ooc.py",
+      "parent": "run_np7_vivado_ooc",
+      "start_line": 49,
+      "end_line": 68
+    },
+    {
+      "id": "run_np7_vivado_ooc.wrapper_text",
+      "type": "Function",
+      "label": "wrapper_text",
+      "path": "run_np7_vivado_ooc.py",
+      "parent": "run_np7_vivado_ooc",
+      "start_line": 71,
+      "end_line": 92
+    },
+    {
+      "id": "run_np7_vivado_ooc.resolve_vivado_root",
+      "type": "Function",
+      "label": "resolve_vivado_root",
+      "path": "run_np7_vivado_ooc.py",
+      "parent": "run_np7_vivado_ooc",
+      "start_line": 95,
+      "end_line": 112
+    },
+    {
+      "id": "run_np7_vivado_ooc.vivado_binary",
+      "type": "Function",
+      "label": "vivado_binary",
+      "path": "run_np7_vivado_ooc.py",
+      "parent": "run_np7_vivado_ooc",
+      "start_line": 115,
+      "end_line": 117
+    },
+    {
+      "id": "run_np7_vivado_ooc.probe_version",
+      "type": "Function",
+      "label": "probe_version",
+      "path": "run_np7_vivado_ooc.py",
+      "parent": "run_np7_vivado_ooc",
+      "start_line": 120,
+      "end_line": 131
+    },
+    {
+      "id": "run_np7_vivado_ooc.git_head",
+      "type": "Function",
+      "label": "git_head",
+      "path": "run_np7_vivado_ooc.py",
+      "parent": "run_np7_vivado_ooc",
+      "start_line": 134,
+      "end_line": 136
+    },
+    {
+      "id": "run_np7_vivado_ooc.run_one",
+      "type": "Function",
+      "label": "run_one",
+      "path": "run_np7_vivado_ooc.py",
+      "parent": "run_np7_vivado_ooc",
+      "start_line": 139,
+      "end_line": 190
+    },
+    {
+      "id": "run_np7_vivado_ooc.main",
+      "type": "Function",
+      "label": "main",
+      "path": "run_np7_vivado_ooc.py",
+      "parent": "run_np7_vivado_ooc",
+      "start_line": 193,
+      "end_line": 261
+    },
+    {
+      "id": "run_np7_vivado_xsim",
+      "type": "Module",
+      "label": "run_np7_vivado_xsim",
+      "path": "run_np7_vivado_xsim.py",
+      "lines": 572,
+      "lang": "python"
+    },
+    {
+      "id": "run_np7_vivado_xsim.StepFailure",
+      "type": "Class",
+      "label": "StepFailure",
+      "path": "run_np7_vivado_xsim.py",
+      "parent": "run_np7_vivado_xsim",
+      "start_line": 69,
+      "end_line": 70
+    },
+    {
+      "id": "run_np7_vivado_xsim.canon",
+      "type": "Function",
+      "label": "canon",
+      "path": "run_np7_vivado_xsim.py",
+      "parent": "run_np7_vivado_xsim",
+      "start_line": 73,
+      "end_line": 74
+    },
+    {
+      "id": "run_np7_vivado_xsim.sha256_text",
+      "type": "Function",
+      "label": "sha256_text",
+      "path": "run_np7_vivado_xsim.py",
+      "parent": "run_np7_vivado_xsim",
+      "start_line": 77,
+      "end_line": 78
+    },
+    {
+      "id": "run_np7_vivado_xsim.sha256_file",
+      "type": "Function",
+      "label": "sha256_file",
+      "path": "run_np7_vivado_xsim.py",
+      "parent": "run_np7_vivado_xsim",
+      "start_line": 81,
+      "end_line": 82
+    },
+    {
+      "id": "run_np7_vivado_xsim.git_output",
+      "type": "Function",
+      "label": "git_output",
+      "path": "run_np7_vivado_xsim.py",
+      "parent": "run_np7_vivado_xsim",
+      "start_line": 85,
+      "end_line": 89
+    },
+    {
+      "id": "run_np7_vivado_xsim.resolve_vivado_root",
+      "type": "Function",
+      "label": "resolve_vivado_root",
+      "path": "run_np7_vivado_xsim.py",
+      "parent": "run_np7_vivado_xsim",
+      "start_line": 92,
+      "end_line": 106
+    },
+    {
+      "id": "run_np7_vivado_xsim.Flow",
+      "type": "Class",
+      "label": "Flow",
+      "path": "run_np7_vivado_xsim.py",
+      "parent": "run_np7_vivado_xsim",
+      "start_line": 109,
+      "end_line": 169
+    },
+    {
+      "id": "run_np7_vivado_xsim.Flow.__init__",
+      "type": "Function",
+      "label": "__init__",
+      "path": "run_np7_vivado_xsim.py",
+      "parent": "run_np7_vivado_xsim.Flow",
+      "start_line": 112,
+      "end_line": 114
+    },
+    {
+      "id": "run_np7_vivado_xsim.Flow.tool",
+      "type": "Function",
+      "label": "tool",
+      "path": "run_np7_vivado_xsim.py",
+      "parent": "run_np7_vivado_xsim.Flow",
+      "start_line": 116,
+      "end_line": 121
+    },
+    {
+      "id": "run_np7_vivado_xsim.Flow.step",
+      "type": "Function",
+      "label": "step",
+      "path": "run_np7_vivado_xsim.py",
+      "parent": "run_np7_vivado_xsim.Flow",
+      "start_line": 123,
+      "end_line": 141
+    },
+    {
+      "id": "run_np7_vivado_xsim.Flow.version",
+      "type": "Function",
+      "label": "version",
+      "path": "run_np7_vivado_xsim.py",
+      "parent": "run_np7_vivado_xsim.Flow",
+      "start_line": 143,
+      "end_line": 150
+    },
+    {
+      "id": "run_np7_vivado_xsim.Flow.sw_build",
+      "type": "Function",
+      "label": "sw_build",
+      "path": "run_np7_vivado_xsim.py",
+      "parent": "run_np7_vivado_xsim.Flow",
+      "start_line": 152,
+      "end_line": 169
+    },
+    {
+      "id": "run_np7_vivado_xsim.write_stimulus",
+      "type": "Function",
+      "label": "write_stimulus",
+      "path": "run_np7_vivado_xsim.py",
+      "parent": "run_np7_vivado_xsim",
+      "start_line": 170,
+      "end_line": 177
+    },
+    {
+      "id": "run_np7_vivado_xsim.wrapper_text",
+      "type": "Function",
+      "label": "wrapper_text",
+      "path": "run_np7_vivado_xsim.py",
+      "parent": "run_np7_vivado_xsim",
+      "start_line": 180,
+      "end_line": 187
+    },
+    {
+      "id": "run_np7_vivado_xsim.truncate_log",
+      "type": "Function",
+      "label": "truncate_log",
+      "path": "run_np7_vivado_xsim.py",
+      "parent": "run_np7_vivado_xsim",
+      "start_line": 190,
+      "end_line": 210
+    },
+    {
+      "id": "run_np7_vivado_xsim.observed_lines",
+      "type": "Function",
+      "label": "observed_lines",
+      "path": "run_np7_vivado_xsim.py",
+      "parent": "run_np7_vivado_xsim",
+      "start_line": 213,
+      "end_line": 215
+    },
+    {
+      "id": "run_np7_vivado_xsim.sources_for",
+      "type": "Function",
+      "label": "sources_for",
+      "path": "run_np7_vivado_xsim.py",
+      "parent": "run_np7_vivado_xsim",
+      "start_line": 218,
+      "end_line": 223
+    },
+    {
+      "id": "run_np7_vivado_xsim.tb_params_for",
+      "type": "Function",
+      "label": "tb_params_for",
+      "path": "run_np7_vivado_xsim.py",
+      "parent": "run_np7_vivado_xsim",
+      "start_line": 226,
+      "end_line": 238
+    },
+    {
+      "id": "run_np7_vivado_xsim.icarus_params",
+      "type": "Function",
+      "label": "icarus_params",
+      "path": "run_np7_vivado_xsim.py",
+      "parent": "run_np7_vivado_xsim",
+      "start_line": 241,
+      "end_line": 248
+    },
+    {
+      "id": "run_np7_vivado_xsim.judge",
+      "type": "Function",
+      "label": "judge",
+      "path": "run_np7_vivado_xsim.py",
+      "parent": "run_np7_vivado_xsim",
+      "start_line": 251,
+      "end_line": 306
+    },
+    {
+      "id": "run_np7_vivado_xsim.run_case",
+      "type": "Function",
+      "label": "run_case",
+      "path": "run_np7_vivado_xsim.py",
+      "parent": "run_np7_vivado_xsim",
+      "start_line": 309,
+      "end_line": 365
+    },
+    {
+      "id": "run_np7_vivado_xsim.cosim_stimulus",
+      "type": "Function",
+      "label": "cosim_stimulus",
+      "path": "run_np7_vivado_xsim.py",
+      "parent": "run_np7_vivado_xsim",
+      "start_line": 369,
+      "end_line": 377
+    },
+    {
+      "id": "run_np7_vivado_xsim.make_cases",
+      "type": "Function",
+      "label": "make_cases",
+      "path": "run_np7_vivado_xsim.py",
+      "parent": "run_np7_vivado_xsim",
+      "start_line": 380,
+      "end_line": 405
+    },
+    {
+      "id": "run_np7_vivado_xsim.source_identity",
+      "type": "Function",
+      "label": "source_identity",
+      "path": "run_np7_vivado_xsim.py",
+      "parent": "run_np7_vivado_xsim",
+      "start_line": 408,
+      "end_line": 418
+    },
+    {
+      "id": "run_np7_vivado_xsim.write_outputs",
+      "type": "Function",
+      "label": "write_outputs",
+      "path": "run_np7_vivado_xsim.py",
+      "parent": "run_np7_vivado_xsim",
+      "start_line": 421,
+      "end_line": 466
+    },
+    {
+      "id": "run_np7_vivado_xsim.tool_lines",
+      "type": "Function",
+      "label": "tool_lines",
+      "path": "run_np7_vivado_xsim.py",
+      "parent": "run_np7_vivado_xsim",
+      "start_line": 469,
+      "end_line": 480
+    },
+    {
+      "id": "run_np7_vivado_xsim.main",
+      "type": "Function",
+      "label": "main",
+      "path": "run_np7_vivado_xsim.py",
+      "parent": "run_np7_vivado_xsim",
+      "start_line": 483,
+      "end_line": 560
+    },
+    {
+      "id": "run_np7_vivado_xsim.git_head_text",
+      "type": "Function",
+      "label": "git_head_text",
+      "path": "run_np7_vivado_xsim.py",
+      "parent": "run_np7_vivado_xsim",
+      "start_line": 563,
+      "end_line": 564
+    },
+    {
+      "id": "run_np7_vivado_xsim.git_status_porcelain_text",
+      "type": "Function",
+      "label": "git_status_porcelain_text",
+      "path": "run_np7_vivado_xsim.py",
+      "parent": "run_np7_vivado_xsim",
+      "start_line": 567,
+      "end_line": 568
+    },
+    {
       "id": "run_pulse_pruned_network_signoff",
       "type": "Module",
       "label": "run_pulse_pruned_network_signoff",
@@ -8502,7 +9808,7 @@
       "type": "Module",
       "label": "test_artifact_layout",
       "path": "test_artifact_layout.py",
-      "lines": 52,
+      "lines": 61,
       "lang": "python"
     },
     {
@@ -8511,8 +9817,8 @@
       "label": "ArtifactLayoutTests",
       "path": "test_artifact_layout.py",
       "parent": "test_artifact_layout",
-      "start_line": 32,
-      "end_line": 46
+      "start_line": 41,
+      "end_line": 55
     },
     {
       "id": "test_artifact_layout.ArtifactLayoutTests.test_results_are_archived_once_and_indexed",
@@ -8520,8 +9826,8 @@
       "label": "test_results_are_archived_once_and_indexed",
       "path": "test_artifact_layout.py",
       "parent": "test_artifact_layout.ArtifactLayoutTests",
-      "start_line": 35,
-      "end_line": 46
+      "start_line": 44,
+      "end_line": 55
     },
     {
       "id": "test_compare_simulation",
@@ -10757,8 +12063,71 @@
       "type": "Module",
       "label": "test_host_bridge_xpm_wrapper",
       "path": "test_host_bridge_xpm_wrapper.py",
-      "lines": 323,
+      "lines": 546,
       "lang": "python"
+    },
+    {
+      "id": "test_host_bridge_xpm_wrapper.unsigned_return_code",
+      "type": "Function",
+      "label": "unsigned_return_code",
+      "path": "test_host_bridge_xpm_wrapper.py",
+      "parent": "test_host_bridge_xpm_wrapper",
+      "start_line": 72,
+      "end_line": 73
+    },
+    {
+      "id": "test_host_bridge_xpm_wrapper.is_silent_abnormal_exit",
+      "type": "Function",
+      "label": "is_silent_abnormal_exit",
+      "path": "test_host_bridge_xpm_wrapper.py",
+      "parent": "test_host_bridge_xpm_wrapper",
+      "start_line": 76,
+      "end_line": 83
+    },
+    {
+      "id": "test_host_bridge_xpm_wrapper.toolchain_unavailability",
+      "type": "Function",
+      "label": "toolchain_unavailability",
+      "path": "test_host_bridge_xpm_wrapper.py",
+      "parent": "test_host_bridge_xpm_wrapper",
+      "start_line": 86,
+      "end_line": 99
+    },
+    {
+      "id": "test_host_bridge_xpm_wrapper.toolchain_notice",
+      "type": "Function",
+      "label": "toolchain_notice",
+      "path": "test_host_bridge_xpm_wrapper.py",
+      "parent": "test_host_bridge_xpm_wrapper",
+      "start_line": 102,
+      "end_line": 116
+    },
+    {
+      "id": "test_host_bridge_xpm_wrapper.log_toolchain_notice",
+      "type": "Function",
+      "label": "log_toolchain_notice",
+      "path": "test_host_bridge_xpm_wrapper.py",
+      "parent": "test_host_bridge_xpm_wrapper",
+      "start_line": 119,
+      "end_line": 123
+    },
+    {
+      "id": "test_host_bridge_xpm_wrapper.require_windows_msys2_toolchain",
+      "type": "Function",
+      "label": "require_windows_msys2_toolchain",
+      "path": "test_host_bridge_xpm_wrapper.py",
+      "parent": "test_host_bridge_xpm_wrapper",
+      "start_line": 126,
+      "end_line": 131
+    },
+    {
+      "id": "test_host_bridge_xpm_wrapper.toolchain_defect",
+      "type": "Function",
+      "label": "toolchain_defect",
+      "path": "test_host_bridge_xpm_wrapper.py",
+      "parent": "test_host_bridge_xpm_wrapper",
+      "start_line": 134,
+      "end_line": 145
     },
     {
       "id": "test_host_bridge_xpm_wrapper.compile_and_run",
@@ -10766,8 +12135,8 @@
       "label": "compile_and_run",
       "path": "test_host_bridge_xpm_wrapper.py",
       "parent": "test_host_bridge_xpm_wrapper",
-      "start_line": 18,
-      "end_line": 61
+      "start_line": 148,
+      "end_line": 203
     },
     {
       "id": "test_host_bridge_xpm_wrapper.HostBridgeXpmWrapperTests",
@@ -10775,8 +12144,17 @@
       "label": "HostBridgeXpmWrapperTests",
       "path": "test_host_bridge_xpm_wrapper.py",
       "parent": "test_host_bridge_xpm_wrapper",
-      "start_line": 296,
-      "end_line": 318
+      "start_line": 438,
+      "end_line": 541
+    },
+    {
+      "id": "test_host_bridge_xpm_wrapper.HostBridgeXpmWrapperTests.test_windows_msys2_toolchain_dependency_is_declared",
+      "type": "Function",
+      "label": "test_windows_msys2_toolchain_dependency_is_declared",
+      "path": "test_host_bridge_xpm_wrapper.py",
+      "parent": "test_host_bridge_xpm_wrapper.HostBridgeXpmWrapperTests",
+      "start_line": 439,
+      "end_line": 485
     },
     {
       "id": "test_host_bridge_xpm_wrapper.HostBridgeXpmWrapperTests.test_xpm_configuration_is_frozen",
@@ -10784,8 +12162,17 @@
       "label": "test_xpm_configuration_is_frozen",
       "path": "test_host_bridge_xpm_wrapper.py",
       "parent": "test_host_bridge_xpm_wrapper.HostBridgeXpmWrapperTests",
-      "start_line": 297,
-      "end_line": 308
+      "start_line": 487,
+      "end_line": 498
+    },
+    {
+      "id": "test_host_bridge_xpm_wrapper.HostBridgeXpmWrapperTests.test_model_declares_every_signal_before_use",
+      "type": "Function",
+      "label": "test_model_declares_every_signal_before_use",
+      "path": "test_host_bridge_xpm_wrapper.py",
+      "parent": "test_host_bridge_xpm_wrapper.HostBridgeXpmWrapperTests",
+      "start_line": 503,
+      "end_line": 531
     },
     {
       "id": "test_host_bridge_xpm_wrapper.HostBridgeXpmWrapperTests.test_bidirectional_transport_backpressure_wrap_and_reset",
@@ -10793,8 +12180,8 @@
       "label": "test_bidirectional_transport_backpressure_wrap_and_reset",
       "path": "test_host_bridge_xpm_wrapper.py",
       "parent": "test_host_bridge_xpm_wrapper.HostBridgeXpmWrapperTests",
-      "start_line": 310,
-      "end_line": 313
+      "start_line": 533,
+      "end_line": 536
     },
     {
       "id": "test_host_bridge_xpm_wrapper.HostBridgeXpmWrapperTests.test_illegal_reset_reentry_is_rejected",
@@ -10802,8 +12189,8 @@
       "label": "test_illegal_reset_reentry_is_rejected",
       "path": "test_host_bridge_xpm_wrapper.py",
       "parent": "test_host_bridge_xpm_wrapper.HostBridgeXpmWrapperTests",
-      "start_line": 315,
-      "end_line": 318
+      "start_line": 538,
+      "end_line": 541
     },
     {
       "id": "test_local_prune_b1",
@@ -12224,7 +13611,7 @@
       "type": "Module",
       "label": "test_np6_verifier_mutations",
       "path": "test_np6_verifier_mutations.py",
-      "lines": 106,
+      "lines": 112,
       "lang": "python"
     },
     {
@@ -12252,7 +13639,7 @@
       "path": "test_np6_verifier_mutations.py",
       "parent": "test_np6_verifier_mutations",
       "start_line": 20,
-      "end_line": 103
+      "end_line": 108
     },
     {
       "id": "test_np6_verifier_mutations.mutate",
@@ -12260,8 +13647,8 @@
       "label": "mutate",
       "path": "test_np6_verifier_mutations.py",
       "parent": "test_np6_verifier_mutations",
-      "start_line": 39,
-      "end_line": 48
+      "start_line": 44,
+      "end_line": 53
     },
     {
       "id": "test_np6_verifier_mutations.del_timing",
@@ -12269,8 +13656,8 @@
       "label": "del_timing",
       "path": "test_np6_verifier_mutations.py",
       "parent": "test_np6_verifier_mutations",
-      "start_line": 49,
-      "end_line": 50
+      "start_line": 54,
+      "end_line": 55
     },
     {
       "id": "test_np6_verifier_mutations.tamper_summary",
@@ -12278,8 +13665,8 @@
       "label": "tamper_summary",
       "path": "test_np6_verifier_mutations.py",
       "parent": "test_np6_verifier_mutations",
-      "start_line": 51,
-      "end_line": 54
+      "start_line": 56,
+      "end_line": 59
     },
     {
       "id": "test_np6_verifier_mutations.tamper_report",
@@ -12287,8 +13674,8 @@
       "label": "tamper_report",
       "path": "test_np6_verifier_mutations.py",
       "parent": "test_np6_verifier_mutations",
-      "start_line": 55,
-      "end_line": 58
+      "start_line": 60,
+      "end_line": 63
     },
     {
       "id": "test_np6_verifier_mutations.tamper_runner",
@@ -12296,8 +13683,8 @@
       "label": "tamper_runner",
       "path": "test_np6_verifier_mutations.py",
       "parent": "test_np6_verifier_mutations",
-      "start_line": 59,
-      "end_line": 61
+      "start_line": 64,
+      "end_line": 66
     },
     {
       "id": "test_np6_verifier_mutations.del_summary",
@@ -12305,8 +13692,8 @@
       "label": "del_summary",
       "path": "test_np6_verifier_mutations.py",
       "parent": "test_np6_verifier_mutations",
-      "start_line": 62,
-      "end_line": 63
+      "start_line": 67,
+      "end_line": 68
     },
     {
       "id": "test_np6_verifier_mutations.tamper_manifest",
@@ -12314,8 +13701,8 @@
       "label": "tamper_manifest",
       "path": "test_np6_verifier_mutations.py",
       "parent": "test_np6_verifier_mutations",
-      "start_line": 64,
-      "end_line": 67
+      "start_line": 69,
+      "end_line": 72
     },
     {
       "id": "test_np6_verifier_mutations.committed_attack",
@@ -12323,8 +13710,725 @@
       "label": "committed_attack",
       "path": "test_np6_verifier_mutations.py",
       "parent": "test_np6_verifier_mutations",
-      "start_line": 76,
-      "end_line": 93
+      "start_line": 81,
+      "end_line": 98
+    },
+    {
+      "id": "test_np7_physical_mutations",
+      "type": "Module",
+      "label": "test_np7_physical_mutations",
+      "path": "test_np7_physical_mutations.py",
+      "lines": 315,
+      "lang": "python"
+    },
+    {
+      "id": "test_np7_physical_mutations.git_at",
+      "type": "Function",
+      "label": "git_at",
+      "path": "test_np7_physical_mutations.py",
+      "parent": "test_np7_physical_mutations",
+      "start_line": 31,
+      "end_line": 35
+    },
+    {
+      "id": "test_np7_physical_mutations.clone",
+      "type": "Function",
+      "label": "clone",
+      "path": "test_np7_physical_mutations.py",
+      "parent": "test_np7_physical_mutations",
+      "start_line": 38,
+      "end_line": 45
+    },
+    {
+      "id": "test_np7_physical_mutations.run_verifier",
+      "type": "Function",
+      "label": "run_verifier",
+      "path": "test_np7_physical_mutations.py",
+      "parent": "test_np7_physical_mutations",
+      "start_line": 48,
+      "end_line": 57
+    },
+    {
+      "id": "test_np7_physical_mutations.read_json",
+      "type": "Function",
+      "label": "read_json",
+      "path": "test_np7_physical_mutations.py",
+      "parent": "test_np7_physical_mutations",
+      "start_line": 60,
+      "end_line": 61
+    },
+    {
+      "id": "test_np7_physical_mutations.write_json",
+      "type": "Function",
+      "label": "write_json",
+      "path": "test_np7_physical_mutations.py",
+      "parent": "test_np7_physical_mutations",
+      "start_line": 64,
+      "end_line": 67
+    },
+    {
+      "id": "test_np7_physical_mutations.commit_all",
+      "type": "Function",
+      "label": "commit_all",
+      "path": "test_np7_physical_mutations.py",
+      "parent": "test_np7_physical_mutations",
+      "start_line": 70,
+      "end_line": 78
+    },
+    {
+      "id": "test_np7_physical_mutations.rebind_report",
+      "type": "Function",
+      "label": "rebind_report",
+      "path": "test_np7_physical_mutations.py",
+      "parent": "test_np7_physical_mutations",
+      "start_line": 80,
+      "end_line": 89
+    },
+    {
+      "id": "test_np7_physical_mutations.edit_signoff",
+      "type": "Function",
+      "label": "edit_signoff",
+      "path": "test_np7_physical_mutations.py",
+      "parent": "test_np7_physical_mutations",
+      "start_line": 92,
+      "end_line": 102
+    },
+    {
+      "id": "test_np7_physical_mutations.m_summary_only_edit",
+      "type": "Function",
+      "label": "m_summary_only_edit",
+      "path": "test_np7_physical_mutations.py",
+      "parent": "test_np7_physical_mutations",
+      "start_line": 105,
+      "end_line": 110
+    },
+    {
+      "id": "test_np7_physical_mutations.m_tamper_signoff_rehash",
+      "type": "Function",
+      "label": "m_tamper_signoff_rehash",
+      "path": "test_np7_physical_mutations.py",
+      "parent": "test_np7_physical_mutations",
+      "start_line": 113,
+      "end_line": 117
+    },
+    {
+      "id": "test_np7_physical_mutations.m_tamper_wns_sign",
+      "type": "Function",
+      "label": "m_tamper_wns_sign",
+      "path": "test_np7_physical_mutations.py",
+      "parent": "test_np7_physical_mutations",
+      "start_line": 120,
+      "end_line": 125
+    },
+    {
+      "id": "test_np7_physical_mutations.m_drop_report",
+      "type": "Function",
+      "label": "m_drop_report",
+      "path": "test_np7_physical_mutations.py",
+      "parent": "test_np7_physical_mutations",
+      "start_line": 128,
+      "end_line": 131
+    },
+    {
+      "id": "test_np7_physical_mutations.m_uncommitted_report",
+      "type": "Function",
+      "label": "m_uncommitted_report",
+      "path": "test_np7_physical_mutations.py",
+      "parent": "test_np7_physical_mutations",
+      "start_line": 134,
+      "end_line": 141
+    },
+    {
+      "id": "test_np7_physical_mutations.m_drop_config",
+      "type": "Function",
+      "label": "m_drop_config",
+      "path": "test_np7_physical_mutations.py",
+      "parent": "test_np7_physical_mutations",
+      "start_line": 144,
+      "end_line": 148
+    },
+    {
+      "id": "test_np7_physical_mutations.m_bogus_code_head",
+      "type": "Function",
+      "label": "m_bogus_code_head",
+      "path": "test_np7_physical_mutations.py",
+      "parent": "test_np7_physical_mutations",
+      "start_line": 151,
+      "end_line": 155
+    },
+    {
+      "id": "test_np7_physical_mutations.m_blank_execution_host",
+      "type": "Function",
+      "label": "m_blank_execution_host",
+      "path": "test_np7_physical_mutations.py",
+      "parent": "test_np7_physical_mutations",
+      "start_line": 158,
+      "end_line": 162
+    },
+    {
+      "id": "test_np7_physical_mutations.m_post_freeze_rtl_edit",
+      "type": "Function",
+      "label": "m_post_freeze_rtl_edit",
+      "path": "test_np7_physical_mutations.py",
+      "parent": "test_np7_physical_mutations",
+      "start_line": 165,
+      "end_line": 174
+    },
+    {
+      "id": "test_np7_physical_mutations.m_wrapper_rewritten",
+      "type": "Function",
+      "label": "m_wrapper_rewritten",
+      "path": "test_np7_physical_mutations.py",
+      "parent": "test_np7_physical_mutations",
+      "start_line": 177,
+      "end_line": 189
+    },
+    {
+      "id": "test_np7_physical_mutations.m_lane_lut_regression",
+      "type": "Function",
+      "label": "m_lane_lut_regression",
+      "path": "test_np7_physical_mutations.py",
+      "parent": "test_np7_physical_mutations",
+      "start_line": 192,
+      "end_line": 211
+    },
+    {
+      "id": "test_np7_physical_mutations.m_no_converged_dense",
+      "type": "Function",
+      "label": "m_no_converged_dense",
+      "path": "test_np7_physical_mutations.py",
+      "parent": "test_np7_physical_mutations",
+      "start_line": 214,
+      "end_line": 222
+    },
+    {
+      "id": "test_np7_physical_mutations.m_not_met_config_forge",
+      "type": "Function",
+      "label": "m_not_met_config_forge",
+      "path": "test_np7_physical_mutations.py",
+      "parent": "test_np7_physical_mutations",
+      "start_line": 225,
+      "end_line": 250
+    },
+    {
+      "id": "test_np7_physical_mutations.main",
+      "type": "Function",
+      "label": "main",
+      "path": "test_np7_physical_mutations.py",
+      "parent": "test_np7_physical_mutations",
+      "start_line": 270,
+      "end_line": 311
+    },
+    {
+      "id": "test_np7_shared_lane_oracle",
+      "type": "Module",
+      "label": "test_np7_shared_lane_oracle",
+      "path": "test_np7_shared_lane_oracle.py",
+      "lines": 539,
+      "lang": "python"
+    },
+    {
+      "id": "test_np7_shared_lane_oracle.build",
+      "type": "Function",
+      "label": "build",
+      "path": "test_np7_shared_lane_oracle.py",
+      "parent": "test_np7_shared_lane_oracle",
+      "start_line": 43,
+      "end_line": 52
+    },
+    {
+      "id": "test_np7_shared_lane_oracle.expected_cycles",
+      "type": "Function",
+      "label": "expected_cycles",
+      "path": "test_np7_shared_lane_oracle.py",
+      "parent": "test_np7_shared_lane_oracle",
+      "start_line": 55,
+      "end_line": 66
+    },
+    {
+      "id": "test_np7_shared_lane_oracle.RecordFormatTests",
+      "type": "Class",
+      "label": "RecordFormatTests",
+      "path": "test_np7_shared_lane_oracle.py",
+      "parent": "test_np7_shared_lane_oracle",
+      "start_line": 69,
+      "end_line": 113
+    },
+    {
+      "id": "test_np7_shared_lane_oracle.RecordFormatTests.test_dense_round_trip_and_reserved_bits",
+      "type": "Function",
+      "label": "test_dense_round_trip_and_reserved_bits",
+      "path": "test_np7_shared_lane_oracle.py",
+      "parent": "test_np7_shared_lane_oracle.RecordFormatTests",
+      "start_line": 70,
+      "end_line": 81
+    },
+    {
+      "id": "test_np7_shared_lane_oracle.RecordFormatTests.test_six_legal_structures_enumerated",
+      "type": "Function",
+      "label": "test_six_legal_structures_enumerated",
+      "path": "test_np7_shared_lane_oracle.py",
+      "parent": "test_np7_shared_lane_oracle.RecordFormatTests",
+      "start_line": 83,
+      "end_line": 95
+    },
+    {
+      "id": "test_np7_shared_lane_oracle.RecordFormatTests.test_illegal_indices_rejected_at_config",
+      "type": "Function",
+      "label": "test_illegal_indices_rejected_at_config",
+      "path": "test_np7_shared_lane_oracle.py",
+      "parent": "test_np7_shared_lane_oracle.RecordFormatTests",
+      "start_line": 97,
+      "end_line": 104
+    },
+    {
+      "id": "test_np7_shared_lane_oracle.RecordFormatTests.test_stored_illegal_indices_rejected_on_decode",
+      "type": "Function",
+      "label": "test_stored_illegal_indices_rejected_on_decode",
+      "path": "test_np7_shared_lane_oracle.py",
+      "parent": "test_np7_shared_lane_oracle.RecordFormatTests",
+      "start_line": 106,
+      "end_line": 109
+    },
+    {
+      "id": "test_np7_shared_lane_oracle.RecordFormatTests.test_ram_is_read_only_after_config",
+      "type": "Function",
+      "label": "test_ram_is_read_only_after_config",
+      "path": "test_np7_shared_lane_oracle.py",
+      "parent": "test_np7_shared_lane_oracle.RecordFormatTests",
+      "start_line": 111,
+      "end_line": 113
+    },
+    {
+      "id": "test_np7_shared_lane_oracle.CycleLedgerTests",
+      "type": "Class",
+      "label": "CycleLedgerTests",
+      "path": "test_np7_shared_lane_oracle.py",
+      "parent": "test_np7_shared_lane_oracle",
+      "start_line": 116,
+      "end_line": 443
+    },
+    {
+      "id": "test_np7_shared_lane_oracle.CycleLedgerTests.test_all_masks_all_structures_all_lanes_exact_ledger",
+      "type": "Function",
+      "label": "test_all_masks_all_structures_all_lanes_exact_ledger",
+      "path": "test_np7_shared_lane_oracle.py",
+      "parent": "test_np7_shared_lane_oracle.CycleLedgerTests",
+      "start_line": 117,
+      "end_line": 162
+    },
+    {
+      "id": "test_np7_shared_lane_oracle.CycleLedgerTests.test_zero_fast_path_contract",
+      "type": "Function",
+      "label": "test_zero_fast_path_contract",
+      "path": "test_np7_shared_lane_oracle.py",
+      "parent": "test_np7_shared_lane_oracle.CycleLedgerTests",
+      "start_line": 163,
+      "end_line": 191
+    },
+    {
+      "id": "test_np7_shared_lane_oracle.CycleLedgerTests.test_backpressure_is_counted_as_stall_only",
+      "type": "Function",
+      "label": "test_backpressure_is_counted_as_stall_only",
+      "path": "test_np7_shared_lane_oracle.py",
+      "parent": "test_np7_shared_lane_oracle.CycleLedgerTests",
+      "start_line": 193,
+      "end_line": 228
+    },
+    {
+      "id": "test_np7_shared_lane_oracle.CycleLedgerTests.test_saturation_and_tree_semantics",
+      "type": "Function",
+      "label": "test_saturation_and_tree_semantics",
+      "path": "test_np7_shared_lane_oracle.py",
+      "parent": "test_np7_shared_lane_oracle.CycleLedgerTests",
+      "start_line": 230,
+      "end_line": 240
+    },
+    {
+      "id": "test_np7_shared_lane_oracle.CycleLedgerTests.test_v1_zero_path_under_backpressure_latches_one_result",
+      "type": "Function",
+      "label": "test_v1_zero_path_under_backpressure_latches_one_result",
+      "path": "test_np7_shared_lane_oracle.py",
+      "parent": "test_np7_shared_lane_oracle.CycleLedgerTests",
+      "start_line": 241,
+      "end_line": 271
+    },
+    {
+      "id": "test_np7_shared_lane_oracle.CycleLedgerTests.test_v2_gapless_stream_folds_accept_into_retire",
+      "type": "Function",
+      "label": "test_v2_gapless_stream_folds_accept_into_retire",
+      "path": "test_np7_shared_lane_oracle.py",
+      "parent": "test_np7_shared_lane_oracle.CycleLedgerTests",
+      "start_line": 273,
+      "end_line": 297
+    },
+    {
+      "id": "test_np7_shared_lane_oracle.CycleLedgerTests.test_v2_lane_stall_blocks_completion_and_accept",
+      "type": "Function",
+      "label": "test_v2_lane_stall_blocks_completion_and_accept",
+      "path": "test_np7_shared_lane_oracle.py",
+      "parent": "test_np7_shared_lane_oracle.CycleLedgerTests",
+      "start_line": 299,
+      "end_line": 326
+    },
+    {
+      "id": "test_np7_shared_lane_oracle.CycleLedgerTests.test_one_result_per_accept_over_random_backpressure",
+      "type": "Function",
+      "label": "test_one_result_per_accept_over_random_backpressure",
+      "path": "test_np7_shared_lane_oracle.py",
+      "parent": "test_np7_shared_lane_oracle.CycleLedgerTests",
+      "start_line": 328,
+      "end_line": 365
+    },
+    {
+      "id": "test_np7_shared_lane_oracle.CycleLedgerTests.test_cold_start_and_tail_drain_are_counted",
+      "type": "Function",
+      "label": "test_cold_start_and_tail_drain_are_counted",
+      "path": "test_np7_shared_lane_oracle.py",
+      "parent": "test_np7_shared_lane_oracle.CycleLedgerTests",
+      "start_line": 367,
+      "end_line": 381
+    },
+    {
+      "id": "test_np7_shared_lane_oracle.CycleLedgerTests.test_dense_sparse_bit_exact_over_random_streams",
+      "type": "Function",
+      "label": "test_dense_sparse_bit_exact_over_random_streams",
+      "path": "test_np7_shared_lane_oracle.py",
+      "parent": "test_np7_shared_lane_oracle.CycleLedgerTests",
+      "start_line": 383,
+      "end_line": 413
+    },
+    {
+      "id": "test_np7_shared_lane_oracle.CycleLedgerTests.test_ledger_conservation_across_trace",
+      "type": "Function",
+      "label": "test_ledger_conservation_across_trace",
+      "path": "test_np7_shared_lane_oracle.py",
+      "parent": "test_np7_shared_lane_oracle.CycleLedgerTests",
+      "start_line": 415,
+      "end_line": 443
+    },
+    {
+      "id": "test_np7_shared_lane_oracle.LanePipelineTests",
+      "type": "Class",
+      "label": "LanePipelineTests",
+      "path": "test_np7_shared_lane_oracle.py",
+      "parent": "test_np7_shared_lane_oracle",
+      "start_line": 447,
+      "end_line": 535
+    },
+    {
+      "id": "test_np7_shared_lane_oracle.LanePipelineTests.setUp",
+      "type": "Function",
+      "label": "setUp",
+      "path": "test_np7_shared_lane_oracle.py",
+      "parent": "test_np7_shared_lane_oracle.LanePipelineTests",
+      "start_line": 454,
+      "end_line": 455
+    },
+    {
+      "id": "test_np7_shared_lane_oracle.LanePipelineTests._single",
+      "type": "Function",
+      "label": "_single",
+      "path": "test_np7_shared_lane_oracle.py",
+      "parent": "test_np7_shared_lane_oracle.LanePipelineTests",
+      "start_line": 457,
+      "end_line": 460
+    },
+    {
+      "id": "test_np7_shared_lane_oracle.LanePipelineTests.test_result_lags_last_batch_issue_by_exactly_one_cycle",
+      "type": "Function",
+      "label": "test_result_lags_last_batch_issue_by_exactly_one_cycle",
+      "path": "test_np7_shared_lane_oracle.py",
+      "parent": "test_np7_shared_lane_oracle.LanePipelineTests",
+      "start_line": 462,
+      "end_line": 481
+    },
+    {
+      "id": "test_np7_shared_lane_oracle.LanePipelineTests.test_zero_path_does_not_enter_lane_pipeline",
+      "type": "Function",
+      "label": "test_zero_path_does_not_enter_lane_pipeline",
+      "path": "test_np7_shared_lane_oracle.py",
+      "parent": "test_np7_shared_lane_oracle.LanePipelineTests",
+      "start_line": 483,
+      "end_line": 497
+    },
+    {
+      "id": "test_np7_shared_lane_oracle.LanePipelineTests.test_drain_stage_respects_lane_stall",
+      "type": "Function",
+      "label": "test_drain_stage_respects_lane_stall",
+      "path": "test_np7_shared_lane_oracle.py",
+      "parent": "test_np7_shared_lane_oracle.LanePipelineTests",
+      "start_line": 499,
+      "end_line": 515
+    },
+    {
+      "id": "test_np7_shared_lane_oracle.LanePipelineTests.test_drain_fold_latches_on_backpressure",
+      "type": "Function",
+      "label": "test_drain_fold_latches_on_backpressure",
+      "path": "test_np7_shared_lane_oracle.py",
+      "parent": "test_np7_shared_lane_oracle.LanePipelineTests",
+      "start_line": 517,
+      "end_line": 535
+    },
+    {
+      "id": "test_np7_verifier_mutations",
+      "type": "Module",
+      "label": "test_np7_verifier_mutations",
+      "path": "test_np7_verifier_mutations.py",
+      "lines": 350,
+      "lang": "python"
+    },
+    {
+      "id": "test_np7_verifier_mutations.git_at",
+      "type": "Function",
+      "label": "git_at",
+      "path": "test_np7_verifier_mutations.py",
+      "parent": "test_np7_verifier_mutations",
+      "start_line": 30,
+      "end_line": 34
+    },
+    {
+      "id": "test_np7_verifier_mutations.clone",
+      "type": "Function",
+      "label": "clone",
+      "path": "test_np7_verifier_mutations.py",
+      "parent": "test_np7_verifier_mutations",
+      "start_line": 37,
+      "end_line": 44
+    },
+    {
+      "id": "test_np7_verifier_mutations.run_verifier",
+      "type": "Function",
+      "label": "run_verifier",
+      "path": "test_np7_verifier_mutations.py",
+      "parent": "test_np7_verifier_mutations",
+      "start_line": 47,
+      "end_line": 57
+    },
+    {
+      "id": "test_np7_verifier_mutations.read_json",
+      "type": "Function",
+      "label": "read_json",
+      "path": "test_np7_verifier_mutations.py",
+      "parent": "test_np7_verifier_mutations",
+      "start_line": 60,
+      "end_line": 61
+    },
+    {
+      "id": "test_np7_verifier_mutations.write_json",
+      "type": "Function",
+      "label": "write_json",
+      "path": "test_np7_verifier_mutations.py",
+      "parent": "test_np7_verifier_mutations",
+      "start_line": 64,
+      "end_line": 67
+    },
+    {
+      "id": "test_np7_verifier_mutations.touch",
+      "type": "Function",
+      "label": "touch",
+      "path": "test_np7_verifier_mutations.py",
+      "parent": "test_np7_verifier_mutations",
+      "start_line": 70,
+      "end_line": 72
+    },
+    {
+      "id": "test_np7_verifier_mutations.rebind",
+      "type": "Function",
+      "label": "rebind",
+      "path": "test_np7_verifier_mutations.py",
+      "parent": "test_np7_verifier_mutations",
+      "start_line": 75,
+      "end_line": 84
+    },
+    {
+      "id": "test_np7_verifier_mutations.commit_all",
+      "type": "Function",
+      "label": "commit_all",
+      "path": "test_np7_verifier_mutations.py",
+      "parent": "test_np7_verifier_mutations",
+      "start_line": 87,
+      "end_line": 94
+    },
+    {
+      "id": "test_np7_verifier_mutations.m_missing_log",
+      "type": "Function",
+      "label": "m_missing_log",
+      "path": "test_np7_verifier_mutations.py",
+      "parent": "test_np7_verifier_mutations",
+      "start_line": 96,
+      "end_line": 98
+    },
+    {
+      "id": "test_np7_verifier_mutations.m_tamper_gate_status",
+      "type": "Function",
+      "label": "m_tamper_gate_status",
+      "path": "test_np7_verifier_mutations.py",
+      "parent": "test_np7_verifier_mutations",
+      "start_line": 101,
+      "end_line": 111
+    },
+    {
+      "id": "test_np7_verifier_mutations.m_tamper_rtl_ledger",
+      "type": "Function",
+      "label": "m_tamper_rtl_ledger",
+      "path": "test_np7_verifier_mutations.py",
+      "parent": "test_np7_verifier_mutations",
+      "start_line": 114,
+      "end_line": 119
+    },
+    {
+      "id": "test_np7_verifier_mutations.m_fake_cycle_gain",
+      "type": "Function",
+      "label": "m_fake_cycle_gain",
+      "path": "test_np7_verifier_mutations.py",
+      "parent": "test_np7_verifier_mutations",
+      "start_line": 122,
+      "end_line": 132
+    },
+    {
+      "id": "test_np7_verifier_mutations.m_lower_threshold",
+      "type": "Function",
+      "label": "m_lower_threshold",
+      "path": "test_np7_verifier_mutations.py",
+      "parent": "test_np7_verifier_mutations",
+      "start_line": 135,
+      "end_line": 141
+    },
+    {
+      "id": "test_np7_verifier_mutations.m_accept_negative_control",
+      "type": "Function",
+      "label": "m_accept_negative_control",
+      "path": "test_np7_verifier_mutations.py",
+      "parent": "test_np7_verifier_mutations",
+      "start_line": 144,
+      "end_line": 150
+    },
+    {
+      "id": "test_np7_verifier_mutations.m_weaken_formal_verdict",
+      "type": "Function",
+      "label": "m_weaken_formal_verdict",
+      "path": "test_np7_verifier_mutations.py",
+      "parent": "test_np7_verifier_mutations",
+      "start_line": 153,
+      "end_line": 158
+    },
+    {
+      "id": "test_np7_verifier_mutations.m_leak_escapes",
+      "type": "Function",
+      "label": "m_leak_escapes",
+      "path": "test_np7_verifier_mutations.py",
+      "parent": "test_np7_verifier_mutations",
+      "start_line": 161,
+      "end_line": 166
+    },
+    {
+      "id": "test_np7_verifier_mutations.m_tamper_frozen_accuracy",
+      "type": "Function",
+      "label": "m_tamper_frozen_accuracy",
+      "path": "test_np7_verifier_mutations.py",
+      "parent": "test_np7_verifier_mutations",
+      "start_line": 169,
+      "end_line": 175
+    },
+    {
+      "id": "test_np7_verifier_mutations.m_post_freeze_rtl",
+      "type": "Function",
+      "label": "m_post_freeze_rtl",
+      "path": "test_np7_verifier_mutations.py",
+      "parent": "test_np7_verifier_mutations",
+      "start_line": 178,
+      "end_line": 181
+    },
+    {
+      "id": "test_np7_verifier_mutations.m_post_freeze_tool",
+      "type": "Function",
+      "label": "m_post_freeze_tool",
+      "path": "test_np7_verifier_mutations.py",
+      "parent": "test_np7_verifier_mutations",
+      "start_line": 184,
+      "end_line": 187
+    },
+    {
+      "id": "test_np7_verifier_mutations.m_bogus_frozen_head",
+      "type": "Function",
+      "label": "m_bogus_frozen_head",
+      "path": "test_np7_verifier_mutations.py",
+      "parent": "test_np7_verifier_mutations",
+      "start_line": 190,
+      "end_line": 194
+    },
+    {
+      "id": "test_np7_verifier_mutations.m_integrity_not_empty",
+      "type": "Function",
+      "label": "m_integrity_not_empty",
+      "path": "test_np7_verifier_mutations.py",
+      "parent": "test_np7_verifier_mutations",
+      "start_line": 197,
+      "end_line": 201
+    },
+    {
+      "id": "test_np7_verifier_mutations.m_fake_xsim_evidence",
+      "type": "Function",
+      "label": "m_fake_xsim_evidence",
+      "path": "test_np7_verifier_mutations.py",
+      "parent": "test_np7_verifier_mutations",
+      "start_line": 202,
+      "end_line": 213
+    },
+    {
+      "id": "test_np7_verifier_mutations.m_fake_xsim_ledger",
+      "type": "Function",
+      "label": "m_fake_xsim_ledger",
+      "path": "test_np7_verifier_mutations.py",
+      "parent": "test_np7_verifier_mutations",
+      "start_line": 216,
+      "end_line": 226
+    },
+    {
+      "id": "test_np7_verifier_mutations.m_drop_xsim_case",
+      "type": "Function",
+      "label": "m_drop_xsim_case",
+      "path": "test_np7_verifier_mutations.py",
+      "parent": "test_np7_verifier_mutations",
+      "start_line": 229,
+      "end_line": 234
+    },
+    {
+      "id": "test_np7_verifier_mutations.m_legacy_identity_only",
+      "type": "Function",
+      "label": "m_legacy_identity_only",
+      "path": "test_np7_verifier_mutations.py",
+      "parent": "test_np7_verifier_mutations",
+      "start_line": 240,
+      "end_line": 256
+    },
+    {
+      "id": "test_np7_verifier_mutations.m_tamper_ledger_coverage",
+      "type": "Function",
+      "label": "m_tamper_ledger_coverage",
+      "path": "test_np7_verifier_mutations.py",
+      "parent": "test_np7_verifier_mutations",
+      "start_line": 259,
+      "end_line": 264
+    },
+    {
+      "id": "test_np7_verifier_mutations.m_drop_forced_rtl_mutation",
+      "type": "Function",
+      "label": "m_drop_forced_rtl_mutation",
+      "path": "test_np7_verifier_mutations.py",
+      "parent": "test_np7_verifier_mutations",
+      "start_line": 267,
+      "end_line": 275
+    },
+    {
+      "id": "test_np7_verifier_mutations.main",
+      "type": "Function",
+      "label": "main",
+      "path": "test_np7_verifier_mutations.py",
+      "parent": "test_np7_verifier_mutations",
+      "start_line": 301,
+      "end_line": 344
     },
     {
       "id": "test_pruned_network_tick_scheduler",
@@ -14274,8 +16378,26 @@
       "type": "Module",
       "label": "verify_formal_local_prune_commit_barrier",
       "path": "verify_formal_local_prune_commit_barrier.py",
-      "lines": 64,
+      "lines": 105,
       "lang": "python"
+    },
+    {
+      "id": "verify_formal_local_prune_commit_barrier.find_tool",
+      "type": "Function",
+      "label": "find_tool",
+      "path": "verify_formal_local_prune_commit_barrier.py",
+      "parent": "verify_formal_local_prune_commit_barrier",
+      "start_line": 24,
+      "end_line": 32
+    },
+    {
+      "id": "verify_formal_local_prune_commit_barrier.compile_top",
+      "type": "Function",
+      "label": "compile_top",
+      "path": "verify_formal_local_prune_commit_barrier.py",
+      "parent": "verify_formal_local_prune_commit_barrier",
+      "start_line": 35,
+      "end_line": 43
     },
     {
       "id": "verify_formal_local_prune_commit_barrier.require",
@@ -14283,8 +16405,8 @@
       "label": "require",
       "path": "verify_formal_local_prune_commit_barrier.py",
       "parent": "verify_formal_local_prune_commit_barrier",
-      "start_line": 11,
-      "end_line": 12
+      "start_line": 45,
+      "end_line": 46
     },
     {
       "id": "verify_formal_local_prune_commit_barrier.read_log",
@@ -14292,8 +16414,8 @@
       "label": "read_log",
       "path": "verify_formal_local_prune_commit_barrier.py",
       "parent": "verify_formal_local_prune_commit_barrier",
-      "start_line": 14,
-      "end_line": 16
+      "start_line": 48,
+      "end_line": 50
     },
     {
       "id": "verify_formal_local_prune_commit_barrier.verify",
@@ -14301,8 +16423,8 @@
       "label": "verify",
       "path": "verify_formal_local_prune_commit_barrier.py",
       "parent": "verify_formal_local_prune_commit_barrier",
-      "start_line": 18,
-      "end_line": 60
+      "start_line": 52,
+      "end_line": 101
     },
     {
       "id": "verify_formal_local_prune_gate",
@@ -14907,6 +17029,319 @@
       "parent": "verify_np6_physical_cost",
       "start_line": 104,
       "end_line": 257
+    },
+    {
+      "id": "verify_np7_physical_cost",
+      "type": "Module",
+      "label": "verify_np7_physical_cost",
+      "path": "verify_np7_physical_cost.py",
+      "lines": 377,
+      "lang": "python"
+    },
+    {
+      "id": "verify_np7_physical_cost.canonical_bytes",
+      "type": "Function",
+      "label": "canonical_bytes",
+      "path": "verify_np7_physical_cost.py",
+      "parent": "verify_np7_physical_cost",
+      "start_line": 44,
+      "end_line": 45
+    },
+    {
+      "id": "verify_np7_physical_cost.sha256_bytes",
+      "type": "Function",
+      "label": "sha256_bytes",
+      "path": "verify_np7_physical_cost.py",
+      "parent": "verify_np7_physical_cost",
+      "start_line": 48,
+      "end_line": 49
+    },
+    {
+      "id": "verify_np7_physical_cost.sha256_file",
+      "type": "Function",
+      "label": "sha256_file",
+      "path": "verify_np7_physical_cost.py",
+      "parent": "verify_np7_physical_cost",
+      "start_line": 52,
+      "end_line": 54
+    },
+    {
+      "id": "verify_np7_physical_cost.git",
+      "type": "Function",
+      "label": "git",
+      "path": "verify_np7_physical_cost.py",
+      "parent": "verify_np7_physical_cost",
+      "start_line": 57,
+      "end_line": 60
+    },
+    {
+      "id": "verify_np7_physical_cost.read_text",
+      "type": "Function",
+      "label": "read_text",
+      "path": "verify_np7_physical_cost.py",
+      "parent": "verify_np7_physical_cost",
+      "start_line": 63,
+      "end_line": 64
+    },
+    {
+      "id": "verify_np7_physical_cost.parse_kv",
+      "type": "Function",
+      "label": "parse_kv",
+      "path": "verify_np7_physical_cost.py",
+      "parent": "verify_np7_physical_cost",
+      "start_line": 67,
+      "end_line": 73
+    },
+    {
+      "id": "verify_np7_physical_cost.grab",
+      "type": "Function",
+      "label": "grab",
+      "path": "verify_np7_physical_cost.py",
+      "parent": "verify_np7_physical_cost",
+      "start_line": 75,
+      "end_line": 77
+    },
+    {
+      "id": "verify_np7_physical_cost.recompute_reports",
+      "type": "Function",
+      "label": "recompute_reports",
+      "path": "verify_np7_physical_cost.py",
+      "parent": "verify_np7_physical_cost",
+      "start_line": 80,
+      "end_line": 106
+    },
+    {
+      "id": "verify_np7_physical_cost.short_version",
+      "type": "Function",
+      "label": "short_version",
+      "path": "verify_np7_physical_cost.py",
+      "parent": "verify_np7_physical_cost",
+      "start_line": 109,
+      "end_line": 112
+    },
+    {
+      "id": "verify_np7_physical_cost.normalize_bram",
+      "type": "Function",
+      "label": "normalize_bram",
+      "path": "verify_np7_physical_cost.py",
+      "parent": "verify_np7_physical_cost",
+      "start_line": 115,
+      "end_line": 116
+    },
+    {
+      "id": "verify_np7_physical_cost.timing_met",
+      "type": "Function",
+      "label": "timing_met",
+      "path": "verify_np7_physical_cost.py",
+      "parent": "verify_np7_physical_cost",
+      "start_line": 119,
+      "end_line": 128
+    },
+    {
+      "id": "verify_np7_physical_cost.check_binding",
+      "type": "Function",
+      "label": "check_binding",
+      "path": "verify_np7_physical_cost.py",
+      "parent": "verify_np7_physical_cost",
+      "start_line": 131,
+      "end_line": 142
+    },
+    {
+      "id": "verify_np7_physical_cost.check_config",
+      "type": "Function",
+      "label": "check_config",
+      "path": "verify_np7_physical_cost.py",
+      "parent": "verify_np7_physical_cost",
+      "start_line": 145,
+      "end_line": 223
+    },
+    {
+      "id": "verify_np7_physical_cost.main",
+      "type": "Function",
+      "label": "main",
+      "path": "verify_np7_physical_cost.py",
+      "parent": "verify_np7_physical_cost",
+      "start_line": 225,
+      "end_line": 315
+    },
+    {
+      "id": "verify_np7_physical_cost.finish",
+      "type": "Function",
+      "label": "finish",
+      "path": "verify_np7_physical_cost.py",
+      "parent": "verify_np7_physical_cost",
+      "start_line": 318,
+      "end_line": 373
+    },
+    {
+      "id": "verify_np7_software_cost",
+      "type": "Module",
+      "label": "verify_np7_software_cost",
+      "path": "verify_np7_software_cost.py",
+      "lines": 789,
+      "lang": "python"
+    },
+    {
+      "id": "verify_np7_software_cost.canonical_bytes",
+      "type": "Function",
+      "label": "canonical_bytes",
+      "path": "verify_np7_software_cost.py",
+      "parent": "verify_np7_software_cost",
+      "start_line": 111,
+      "end_line": 112
+    },
+    {
+      "id": "verify_np7_software_cost.sha256_bytes",
+      "type": "Function",
+      "label": "sha256_bytes",
+      "path": "verify_np7_software_cost.py",
+      "parent": "verify_np7_software_cost",
+      "start_line": 115,
+      "end_line": 116
+    },
+    {
+      "id": "verify_np7_software_cost.sha256_file",
+      "type": "Function",
+      "label": "sha256_file",
+      "path": "verify_np7_software_cost.py",
+      "parent": "verify_np7_software_cost",
+      "start_line": 119,
+      "end_line": 121
+    },
+    {
+      "id": "verify_np7_software_cost.git",
+      "type": "Function",
+      "label": "git",
+      "path": "verify_np7_software_cost.py",
+      "parent": "verify_np7_software_cost",
+      "start_line": 124,
+      "end_line": 128
+    },
+    {
+      "id": "verify_np7_software_cost.load_json",
+      "type": "Function",
+      "label": "load_json",
+      "path": "verify_np7_software_cost.py",
+      "parent": "verify_np7_software_cost",
+      "start_line": 131,
+      "end_line": 135
+    },
+    {
+      "id": "verify_np7_software_cost.reduction",
+      "type": "Function",
+      "label": "reduction",
+      "path": "verify_np7_software_cost.py",
+      "parent": "verify_np7_software_cost",
+      "start_line": 138,
+      "end_line": 142
+    },
+    {
+      "id": "verify_np7_software_cost.fixed",
+      "type": "Function",
+      "label": "fixed",
+      "path": "verify_np7_software_cost.py",
+      "parent": "verify_np7_software_cost",
+      "start_line": 145,
+      "end_line": 146
+    },
+    {
+      "id": "verify_np7_software_cost.legacy_identity_total",
+      "type": "Function",
+      "label": "legacy_identity_total",
+      "path": "verify_np7_software_cost.py",
+      "parent": "verify_np7_software_cost",
+      "start_line": 148,
+      "end_line": 152
+    },
+    {
+      "id": "verify_np7_software_cost.ledger_identity",
+      "type": "Function",
+      "label": "ledger_identity",
+      "path": "verify_np7_software_cost.py",
+      "parent": "verify_np7_software_cost",
+      "start_line": 155,
+      "end_line": 200
+    },
+    {
+      "id": "verify_np7_software_cost.tick_class",
+      "type": "Function",
+      "label": "tick_class",
+      "path": "verify_np7_software_cost.py",
+      "parent": "verify_np7_software_cost",
+      "start_line": 203,
+      "end_line": 225
+    },
+    {
+      "id": "verify_np7_software_cost.visible_tick_classes",
+      "type": "Function",
+      "label": "visible_tick_classes",
+      "path": "verify_np7_software_cost.py",
+      "parent": "verify_np7_software_cost",
+      "start_line": 228,
+      "end_line": 243
+    },
+    {
+      "id": "verify_np7_software_cost.check_rtl_evidence",
+      "type": "Function",
+      "label": "check_rtl_evidence",
+      "path": "verify_np7_software_cost.py",
+      "parent": "verify_np7_software_cost",
+      "start_line": 246,
+      "end_line": 352
+    },
+    {
+      "id": "verify_np7_software_cost.check_manifest_environment",
+      "type": "Function",
+      "label": "check_manifest_environment",
+      "path": "verify_np7_software_cost.py",
+      "parent": "verify_np7_software_cost",
+      "start_line": 355,
+      "end_line": 364
+    },
+    {
+      "id": "verify_np7_software_cost.check_formal_evidence",
+      "type": "Function",
+      "label": "check_formal_evidence",
+      "path": "verify_np7_software_cost.py",
+      "parent": "verify_np7_software_cost",
+      "start_line": 367,
+      "end_line": 430
+    },
+    {
+      "id": "verify_np7_software_cost.check_xsim_evidence",
+      "type": "Function",
+      "label": "check_xsim_evidence",
+      "path": "verify_np7_software_cost.py",
+      "parent": "verify_np7_software_cost",
+      "start_line": 433,
+      "end_line": 546
+    },
+    {
+      "id": "verify_np7_software_cost.gates_from_b21",
+      "type": "Function",
+      "label": "gates_from_b21",
+      "path": "verify_np7_software_cost.py",
+      "parent": "verify_np7_software_cost",
+      "start_line": 549,
+      "end_line": 654
+    },
+    {
+      "id": "verify_np7_software_cost.compute_all",
+      "type": "Function",
+      "label": "compute_all",
+      "path": "verify_np7_software_cost.py",
+      "parent": "verify_np7_software_cost",
+      "start_line": 666,
+      "end_line": 692
+    },
+    {
+      "id": "verify_np7_software_cost.main",
+      "type": "Function",
+      "label": "main",
+      "path": "verify_np7_software_cost.py",
+      "parent": "verify_np7_software_cost",
+      "start_line": 695,
+      "end_line": 785
     },
     {
       "id": "verify_pulse_mini",
@@ -16626,6 +19061,51 @@
     {
       "source": "generate_np6_manifest",
       "target": "subprocess",
+      "type": "imports"
+    },
+    {
+      "source": "generate_np7_manifest",
+      "target": "generate_np7_manifest.git",
+      "type": "contains"
+    },
+    {
+      "source": "generate_np7_manifest",
+      "target": "generate_np7_manifest.tool_versions",
+      "type": "contains"
+    },
+    {
+      "source": "generate_np7_manifest",
+      "target": "generate_np7_manifest.main",
+      "type": "contains"
+    },
+    {
+      "source": "generate_np7_manifest",
+      "target": "json",
+      "type": "imports"
+    },
+    {
+      "source": "generate_np7_manifest",
+      "target": "os",
+      "type": "imports"
+    },
+    {
+      "source": "generate_np7_manifest",
+      "target": "pathlib",
+      "type": "imports"
+    },
+    {
+      "source": "generate_np7_manifest",
+      "target": "platform",
+      "type": "imports"
+    },
+    {
+      "source": "generate_np7_manifest",
+      "target": "subprocess",
+      "type": "imports"
+    },
+    {
+      "source": "generate_np7_manifest",
+      "target": "sys",
       "type": "imports"
     },
     {
@@ -19066,6 +21546,681 @@
     {
       "source": "np4b5_negative_controls",
       "target": "re",
+      "type": "imports"
+    },
+    {
+      "source": "np7_formal_and_mutations",
+      "target": "np7_formal_and_mutations.resolve_tool",
+      "type": "contains"
+    },
+    {
+      "source": "np7_formal_and_mutations",
+      "target": "np7_formal_and_mutations.check",
+      "type": "contains"
+    },
+    {
+      "source": "np7_formal_and_mutations",
+      "target": "np7_formal_and_mutations.sha256_text",
+      "type": "contains"
+    },
+    {
+      "source": "np7_formal_and_mutations",
+      "target": "np7_formal_and_mutations.run_yosys",
+      "type": "contains"
+    },
+    {
+      "source": "np7_formal_and_mutations",
+      "target": "np7_formal_and_mutations.formal_verdict",
+      "type": "contains"
+    },
+    {
+      "source": "np7_formal_and_mutations",
+      "target": "np7_formal_and_mutations.run_formal_suite",
+      "type": "contains"
+    },
+    {
+      "source": "np7_formal_and_mutations",
+      "target": "np7_formal_and_mutations.run_rtl_mutations",
+      "type": "contains"
+    },
+    {
+      "source": "np7_formal_and_mutations",
+      "target": "np7_formal_and_mutations.prepare_stimulus",
+      "type": "contains"
+    },
+    {
+      "source": "np7_formal_and_mutations",
+      "target": "np7_formal_and_mutations.write_stimulus",
+      "type": "contains"
+    },
+    {
+      "source": "np7_formal_and_mutations",
+      "target": "np7_formal_and_mutations.sim_run",
+      "type": "contains"
+    },
+    {
+      "source": "np7_formal_and_mutations",
+      "target": "np7_formal_and_mutations.compile_negative",
+      "type": "contains"
+    },
+    {
+      "source": "np7_formal_and_mutations",
+      "target": "np7_formal_and_mutations.run_ledger_matrix",
+      "type": "contains"
+    },
+    {
+      "source": "np7_formal_and_mutations",
+      "target": "np7_formal_and_mutations.run_negative_controls",
+      "type": "contains"
+    },
+    {
+      "source": "np7_formal_and_mutations",
+      "target": "np7_formal_and_mutations.run_leak_mutation",
+      "type": "contains"
+    },
+    {
+      "source": "np7_formal_and_mutations",
+      "target": "np7_formal_and_mutations.compile_config_negative",
+      "type": "contains"
+    },
+    {
+      "source": "np7_formal_and_mutations",
+      "target": "np7_formal_and_mutations.vvp_cfgneg",
+      "type": "contains"
+    },
+    {
+      "source": "np7_formal_and_mutations",
+      "target": "np7_formal_and_mutations.run_config_negative",
+      "type": "contains"
+    },
+    {
+      "source": "np7_formal_and_mutations",
+      "target": "np7_formal_and_mutations.tool_versions",
+      "type": "contains"
+    },
+    {
+      "source": "np7_formal_and_mutations",
+      "target": "np7_formal_and_mutations.git_head",
+      "type": "contains"
+    },
+    {
+      "source": "np7_formal_and_mutations",
+      "target": "np7_formal_and_mutations.main",
+      "type": "contains"
+    },
+    {
+      "source": "np7_formal_and_mutations",
+      "target": "np7_formal_and_mutations._semantic_view",
+      "type": "contains"
+    },
+    {
+      "source": "np7_formal_and_mutations",
+      "target": "np7_formal_and_mutations.keep_or_freeze_evidence",
+      "type": "contains"
+    },
+    {
+      "source": "np7_formal_and_mutations",
+      "target": "hashlib",
+      "type": "imports"
+    },
+    {
+      "source": "np7_formal_and_mutations",
+      "target": "json",
+      "type": "imports"
+    },
+    {
+      "source": "np7_formal_and_mutations",
+      "target": "os",
+      "type": "imports"
+    },
+    {
+      "source": "np7_formal_and_mutations",
+      "target": "shutil",
+      "type": "imports"
+    },
+    {
+      "source": "np7_formal_and_mutations",
+      "target": "subprocess",
+      "type": "imports"
+    },
+    {
+      "source": "np7_formal_and_mutations",
+      "target": "sys",
+      "type": "imports"
+    },
+    {
+      "source": "np7_formal_and_mutations",
+      "target": "tempfile",
+      "type": "imports"
+    },
+    {
+      "source": "np7_formal_and_mutations",
+      "target": "pathlib",
+      "type": "imports"
+    },
+    {
+      "source": "np7_formal_and_mutations",
+      "target": "np7_shared_lane_oracle",
+      "type": "imports"
+    },
+    {
+      "source": "np7_formal_and_mutations",
+      "target": "np7_ledger_reconstruction",
+      "type": "imports"
+    },
+    {
+      "source": "np7_ledger_reconstruction",
+      "target": "np7_ledger_reconstruction.parse_rows",
+      "type": "contains"
+    },
+    {
+      "source": "np7_ledger_reconstruction",
+      "target": "np7_ledger_reconstruction.classify_row",
+      "type": "contains"
+    },
+    {
+      "source": "np7_ledger_reconstruction",
+      "target": "np7_ledger_reconstruction.stream_window",
+      "type": "contains"
+    },
+    {
+      "source": "np7_ledger_reconstruction",
+      "target": "np7_ledger_reconstruction.observe",
+      "type": "contains"
+    },
+    {
+      "source": "np7_ledger_reconstruction",
+      "target": "np7_ledger_reconstruction.identity_violations",
+      "type": "contains"
+    },
+    {
+      "source": "np7_ledger_reconstruction",
+      "target": "np7_ledger_reconstruction.accepted_issue_masks",
+      "type": "contains"
+    },
+    {
+      "source": "np7_ledger_reconstruction",
+      "target": "np7_ledger_reconstruction.result_sums",
+      "type": "contains"
+    },
+    {
+      "source": "np7_ledger_reconstruction",
+      "target": "np7_ledger_reconstruction.reconstruct_violations",
+      "type": "contains"
+    },
+    {
+      "source": "np7_ledger_reconstruction",
+      "target": "np7_ledger_reconstruction.reduction",
+      "type": "contains"
+    },
+    {
+      "source": "np7_ledger_reconstruction",
+      "target": "re",
+      "type": "imports"
+    },
+    {
+      "source": "np7_ledger_reconstruction",
+      "target": "typing",
+      "type": "imports"
+    },
+    {
+      "source": "np7_shared_lane_cosim",
+      "target": "np7_shared_lane_cosim.build_case",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_cosim",
+      "target": "np7_shared_lane_cosim.compile_tb",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_cosim",
+      "target": "np7_shared_lane_cosim.run_case",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_cosim",
+      "target": "np7_shared_lane_cosim.record_raw_ledger",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_cosim",
+      "target": "np7_shared_lane_cosim.compare_case",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_cosim",
+      "target": "np7_shared_lane_cosim.main",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_cosim",
+      "target": "json",
+      "type": "imports"
+    },
+    {
+      "source": "np7_shared_lane_cosim",
+      "target": "os",
+      "type": "imports"
+    },
+    {
+      "source": "np7_shared_lane_cosim",
+      "target": "random",
+      "type": "imports"
+    },
+    {
+      "source": "np7_shared_lane_cosim",
+      "target": "re",
+      "type": "imports"
+    },
+    {
+      "source": "np7_shared_lane_cosim",
+      "target": "subprocess",
+      "type": "imports"
+    },
+    {
+      "source": "np7_shared_lane_cosim",
+      "target": "sys",
+      "type": "imports"
+    },
+    {
+      "source": "np7_shared_lane_cosim",
+      "target": "tempfile",
+      "type": "imports"
+    },
+    {
+      "source": "np7_shared_lane_cosim",
+      "target": "pathlib",
+      "type": "imports"
+    },
+    {
+      "source": "np7_shared_lane_cosim",
+      "target": "typing",
+      "type": "imports"
+    },
+    {
+      "source": "np7_shared_lane_cosim",
+      "target": "rtl_tile_cosim",
+      "type": "imports"
+    },
+    {
+      "source": "np7_shared_lane_cosim",
+      "target": "np7_shared_lane_oracle",
+      "type": "imports"
+    },
+    {
+      "source": "np7_shared_lane_cosim",
+      "target": "np7_ledger_reconstruction",
+      "type": "imports"
+    },
+    {
+      "source": "np7_shared_lane_cosim",
+      "target": "hashlib",
+      "type": "imports"
+    },
+    {
+      "source": "np7_shared_lane_oracle",
+      "target": "np7_shared_lane_oracle.ConfigError",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_oracle",
+      "target": "np7_shared_lane_oracle.sat_add",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_oracle",
+      "target": "np7_shared_lane_oracle.check_weight",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_oracle",
+      "target": "np7_shared_lane_oracle.legal_structural_indices",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_oracle",
+      "target": "np7_shared_lane_oracle.mask_from_indices",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_oracle",
+      "target": "np7_shared_lane_oracle._to_word_bits",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_oracle",
+      "target": "np7_shared_lane_oracle._from_word_bits",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_oracle",
+      "target": "np7_shared_lane_oracle.encode_dense_group",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_oracle",
+      "target": "np7_shared_lane_oracle.decode_dense_group",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_oracle",
+      "target": "np7_shared_lane_oracle.encode_sparse_group",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_oracle",
+      "target": "np7_shared_lane_oracle.decode_sparse_group",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_oracle",
+      "target": "np7_shared_lane_oracle.group_word_count",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_oracle",
+      "target": "np7_shared_lane_oracle.group_base_address",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_oracle",
+      "target": "np7_shared_lane_oracle.Ledger",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_oracle.Ledger",
+      "target": "np7_shared_lane_oracle.Ledger.merge",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_oracle.Ledger",
+      "target": "np7_shared_lane_oracle.Ledger.as_dict",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_oracle.Ledger",
+      "target": "np7_shared_lane_oracle.Ledger.identity_violations",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_oracle",
+      "target": "np7_shared_lane_oracle.CycleEvent",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_oracle",
+      "target": "np7_shared_lane_oracle.GroupResult",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_oracle",
+      "target": "np7_shared_lane_oracle.tree_sum",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_oracle",
+      "target": "np7_shared_lane_oracle.classify",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_oracle",
+      "target": "np7_shared_lane_oracle._Plan",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_oracle._Plan",
+      "target": "np7_shared_lane_oracle._Plan.__init__",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_oracle",
+      "target": "np7_shared_lane_oracle.SharedLaneUnit",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_oracle.SharedLaneUnit",
+      "target": "np7_shared_lane_oracle.SharedLaneUnit.__init__",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_oracle.SharedLaneUnit",
+      "target": "np7_shared_lane_oracle.SharedLaneUnit.set_gate_mask",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_oracle.SharedLaneUnit",
+      "target": "np7_shared_lane_oracle.SharedLaneUnit.config_write",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_oracle.SharedLaneUnit",
+      "target": "np7_shared_lane_oracle.SharedLaneUnit.config_load_words",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_oracle.SharedLaneUnit",
+      "target": "np7_shared_lane_oracle.SharedLaneUnit.config_finish",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_oracle.SharedLaneUnit",
+      "target": "np7_shared_lane_oracle.SharedLaneUnit._decode_group",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_oracle.SharedLaneUnit",
+      "target": "np7_shared_lane_oracle.SharedLaneUnit.synapse_sum",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_oracle.SharedLaneUnit",
+      "target": "np7_shared_lane_oracle.SharedLaneUnit._plan",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_oracle.SharedLaneUnit",
+      "target": "np7_shared_lane_oracle.SharedLaneUnit.run_stream",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_oracle.SharedLaneUnit",
+      "target": "np7_shared_lane_oracle.SharedLaneUnit.run_group",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_oracle.SharedLaneUnit",
+      "target": "np7_shared_lane_oracle.SharedLaneUnit.run_trace",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_oracle.SharedLaneUnit",
+      "target": "np7_shared_lane_oracle.SharedLaneUnit.identity_violations",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_oracle.SharedLaneUnit",
+      "target": "np7_shared_lane_oracle.SharedLaneUnit.totals",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_oracle.SharedLaneUnit",
+      "target": "np7_shared_lane_oracle.SharedLaneUnit._txn_ledger",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_oracle.SharedLaneUnit",
+      "target": "np7_shared_lane_oracle.SharedLaneUnit.record_txn",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_oracle.SharedLaneUnit",
+      "target": "np7_shared_lane_oracle.SharedLaneUnit.replay_recorded",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_oracle",
+      "target": "np7_shared_lane_oracle.exhaustive_structures",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_oracle",
+      "target": "np7_shared_lane_oracle.illegal_index_samples",
+      "type": "contains"
+    },
+    {
+      "source": "np7_shared_lane_oracle",
+      "target": "dataclasses",
+      "type": "imports"
+    },
+    {
+      "source": "np7_shared_lane_oracle",
+      "target": "typing",
+      "type": "imports"
+    },
+    {
+      "source": "np7_three_model_integration_cosim",
+      "target": "np7_three_model_integration_cosim._digest",
+      "type": "contains"
+    },
+    {
+      "source": "np7_three_model_integration_cosim",
+      "target": "np7_three_model_integration_cosim.SharedLaneIntegrator",
+      "type": "contains"
+    },
+    {
+      "source": "np7_three_model_integration_cosim.SharedLaneIntegrator",
+      "target": "np7_three_model_integration_cosim.SharedLaneIntegrator.__init__",
+      "type": "contains"
+    },
+    {
+      "source": "np7_three_model_integration_cosim.SharedLaneIntegrator",
+      "target": "np7_three_model_integration_cosim.SharedLaneIntegrator._ensure_config",
+      "type": "contains"
+    },
+    {
+      "source": "np7_three_model_integration_cosim.SharedLaneIntegrator",
+      "target": "np7_three_model_integration_cosim.SharedLaneIntegrator.accumulate",
+      "type": "contains"
+    },
+    {
+      "source": "np7_three_model_integration_cosim.SharedLaneIntegrator",
+      "target": "np7_three_model_integration_cosim.SharedLaneIntegrator.end_tick",
+      "type": "contains"
+    },
+    {
+      "source": "np7_three_model_integration_cosim.SharedLaneIntegrator",
+      "target": "np7_three_model_integration_cosim.SharedLaneIntegrator._solo_total",
+      "type": "contains"
+    },
+    {
+      "source": "np7_three_model_integration_cosim.SharedLaneIntegrator",
+      "target": "np7_three_model_integration_cosim.SharedLaneIntegrator.v2_evidence",
+      "type": "contains"
+    },
+    {
+      "source": "np7_three_model_integration_cosim",
+      "target": "np7_three_model_integration_cosim._mask_of",
+      "type": "contains"
+    },
+    {
+      "source": "np7_three_model_integration_cosim",
+      "target": "np7_three_model_integration_cosim._np7_infer_sample",
+      "type": "contains"
+    },
+    {
+      "source": "np7_three_model_integration_cosim",
+      "target": "np7_three_model_integration_cosim._mask_of",
+      "type": "contains"
+    },
+    {
+      "source": "np7_three_model_integration_cosim",
+      "target": "np7_three_model_integration_cosim._model_setup",
+      "type": "contains"
+    },
+    {
+      "source": "np7_three_model_integration_cosim",
+      "target": "np7_three_model_integration_cosim._reference_state_cores",
+      "type": "contains"
+    },
+    {
+      "source": "np7_three_model_integration_cosim",
+      "target": "np7_three_model_integration_cosim.hook",
+      "type": "contains"
+    },
+    {
+      "source": "np7_three_model_integration_cosim",
+      "target": "np7_three_model_integration_cosim.run_model",
+      "type": "contains"
+    },
+    {
+      "source": "np7_three_model_integration_cosim",
+      "target": "np7_three_model_integration_cosim._frozen_consistency",
+      "type": "contains"
+    },
+    {
+      "source": "np7_three_model_integration_cosim",
+      "target": "np7_three_model_integration_cosim.main",
+      "type": "contains"
+    },
+    {
+      "source": "np7_three_model_integration_cosim",
+      "target": "copy",
+      "type": "imports"
+    },
+    {
+      "source": "np7_three_model_integration_cosim",
+      "target": "json",
+      "type": "imports"
+    },
+    {
+      "source": "np7_three_model_integration_cosim",
+      "target": "sys",
+      "type": "imports"
+    },
+    {
+      "source": "np7_three_model_integration_cosim",
+      "target": "pathlib",
+      "type": "imports"
+    },
+    {
+      "source": "np7_three_model_integration_cosim",
+      "target": "typing",
+      "type": "imports"
+    },
+    {
+      "source": "np7_three_model_integration_cosim",
+      "target": "local_prune_b2",
+      "type": "imports"
+    },
+    {
+      "source": "np7_three_model_integration_cosim",
+      "target": "local_prune_b21",
+      "type": "imports"
+    },
+    {
+      "source": "np7_three_model_integration_cosim",
+      "target": "local_prune_np2",
+      "type": "imports"
+    },
+    {
+      "source": "np7_three_model_integration_cosim",
+      "target": "pulse_mini_l2_reference",
+      "type": "imports"
+    },
+    {
+      "source": "np7_three_model_integration_cosim",
+      "target": "pulse_mini_reference",
+      "type": "imports"
+    },
+    {
+      "source": "np7_three_model_integration_cosim",
+      "target": "np7_shared_lane_oracle",
+      "type": "imports"
+    },
+    {
+      "source": "np7_three_model_integration_cosim",
+      "target": "local_prune_b21",
       "type": "imports"
     },
     {
@@ -21649,6 +24804,331 @@
       "type": "imports"
     },
     {
+      "source": "run_np7_vivado_ooc",
+      "target": "run_np7_vivado_ooc.canon",
+      "type": "contains"
+    },
+    {
+      "source": "run_np7_vivado_ooc",
+      "target": "run_np7_vivado_ooc.sha256_file",
+      "type": "contains"
+    },
+    {
+      "source": "run_np7_vivado_ooc",
+      "target": "run_np7_vivado_ooc.module_ports",
+      "type": "contains"
+    },
+    {
+      "source": "run_np7_vivado_ooc",
+      "target": "run_np7_vivado_ooc.wrapper_text",
+      "type": "contains"
+    },
+    {
+      "source": "run_np7_vivado_ooc",
+      "target": "run_np7_vivado_ooc.resolve_vivado_root",
+      "type": "contains"
+    },
+    {
+      "source": "run_np7_vivado_ooc",
+      "target": "run_np7_vivado_ooc.vivado_binary",
+      "type": "contains"
+    },
+    {
+      "source": "run_np7_vivado_ooc",
+      "target": "run_np7_vivado_ooc.probe_version",
+      "type": "contains"
+    },
+    {
+      "source": "run_np7_vivado_ooc",
+      "target": "run_np7_vivado_ooc.git_head",
+      "type": "contains"
+    },
+    {
+      "source": "run_np7_vivado_ooc",
+      "target": "run_np7_vivado_ooc.run_one",
+      "type": "contains"
+    },
+    {
+      "source": "run_np7_vivado_ooc",
+      "target": "run_np7_vivado_ooc.main",
+      "type": "contains"
+    },
+    {
+      "source": "run_np7_vivado_ooc",
+      "target": "argparse",
+      "type": "imports"
+    },
+    {
+      "source": "run_np7_vivado_ooc",
+      "target": "concurrent.futures",
+      "type": "imports"
+    },
+    {
+      "source": "run_np7_vivado_ooc",
+      "target": "hashlib",
+      "type": "imports"
+    },
+    {
+      "source": "run_np7_vivado_ooc",
+      "target": "io",
+      "type": "imports"
+    },
+    {
+      "source": "run_np7_vivado_ooc",
+      "target": "json",
+      "type": "imports"
+    },
+    {
+      "source": "run_np7_vivado_ooc",
+      "target": "os",
+      "type": "imports"
+    },
+    {
+      "source": "run_np7_vivado_ooc",
+      "target": "pathlib",
+      "type": "imports"
+    },
+    {
+      "source": "run_np7_vivado_ooc",
+      "target": "platform",
+      "type": "imports"
+    },
+    {
+      "source": "run_np7_vivado_ooc",
+      "target": "re",
+      "type": "imports"
+    },
+    {
+      "source": "run_np7_vivado_ooc",
+      "target": "subprocess",
+      "type": "imports"
+    },
+    {
+      "source": "run_np7_vivado_ooc",
+      "target": "sys",
+      "type": "imports"
+    },
+    {
+      "source": "run_np7_vivado_ooc",
+      "target": "time",
+      "type": "imports"
+    },
+    {
+      "source": "run_np7_vivado_xsim",
+      "target": "run_np7_vivado_xsim.StepFailure",
+      "type": "contains"
+    },
+    {
+      "source": "run_np7_vivado_xsim",
+      "target": "run_np7_vivado_xsim.canon",
+      "type": "contains"
+    },
+    {
+      "source": "run_np7_vivado_xsim",
+      "target": "run_np7_vivado_xsim.sha256_text",
+      "type": "contains"
+    },
+    {
+      "source": "run_np7_vivado_xsim",
+      "target": "run_np7_vivado_xsim.sha256_file",
+      "type": "contains"
+    },
+    {
+      "source": "run_np7_vivado_xsim",
+      "target": "run_np7_vivado_xsim.git_output",
+      "type": "contains"
+    },
+    {
+      "source": "run_np7_vivado_xsim",
+      "target": "run_np7_vivado_xsim.resolve_vivado_root",
+      "type": "contains"
+    },
+    {
+      "source": "run_np7_vivado_xsim",
+      "target": "run_np7_vivado_xsim.Flow",
+      "type": "contains"
+    },
+    {
+      "source": "run_np7_vivado_xsim.Flow",
+      "target": "run_np7_vivado_xsim.Flow.__init__",
+      "type": "contains"
+    },
+    {
+      "source": "run_np7_vivado_xsim.Flow",
+      "target": "run_np7_vivado_xsim.Flow.tool",
+      "type": "contains"
+    },
+    {
+      "source": "run_np7_vivado_xsim.Flow",
+      "target": "run_np7_vivado_xsim.Flow.step",
+      "type": "contains"
+    },
+    {
+      "source": "run_np7_vivado_xsim.Flow",
+      "target": "run_np7_vivado_xsim.Flow.version",
+      "type": "contains"
+    },
+    {
+      "source": "run_np7_vivado_xsim.Flow",
+      "target": "run_np7_vivado_xsim.Flow.sw_build",
+      "type": "contains"
+    },
+    {
+      "source": "run_np7_vivado_xsim",
+      "target": "run_np7_vivado_xsim.write_stimulus",
+      "type": "contains"
+    },
+    {
+      "source": "run_np7_vivado_xsim",
+      "target": "run_np7_vivado_xsim.wrapper_text",
+      "type": "contains"
+    },
+    {
+      "source": "run_np7_vivado_xsim",
+      "target": "run_np7_vivado_xsim.truncate_log",
+      "type": "contains"
+    },
+    {
+      "source": "run_np7_vivado_xsim",
+      "target": "run_np7_vivado_xsim.observed_lines",
+      "type": "contains"
+    },
+    {
+      "source": "run_np7_vivado_xsim",
+      "target": "run_np7_vivado_xsim.sources_for",
+      "type": "contains"
+    },
+    {
+      "source": "run_np7_vivado_xsim",
+      "target": "run_np7_vivado_xsim.tb_params_for",
+      "type": "contains"
+    },
+    {
+      "source": "run_np7_vivado_xsim",
+      "target": "run_np7_vivado_xsim.icarus_params",
+      "type": "contains"
+    },
+    {
+      "source": "run_np7_vivado_xsim",
+      "target": "run_np7_vivado_xsim.judge",
+      "type": "contains"
+    },
+    {
+      "source": "run_np7_vivado_xsim",
+      "target": "run_np7_vivado_xsim.run_case",
+      "type": "contains"
+    },
+    {
+      "source": "run_np7_vivado_xsim",
+      "target": "run_np7_vivado_xsim.cosim_stimulus",
+      "type": "contains"
+    },
+    {
+      "source": "run_np7_vivado_xsim",
+      "target": "run_np7_vivado_xsim.make_cases",
+      "type": "contains"
+    },
+    {
+      "source": "run_np7_vivado_xsim",
+      "target": "run_np7_vivado_xsim.source_identity",
+      "type": "contains"
+    },
+    {
+      "source": "run_np7_vivado_xsim",
+      "target": "run_np7_vivado_xsim.write_outputs",
+      "type": "contains"
+    },
+    {
+      "source": "run_np7_vivado_xsim",
+      "target": "run_np7_vivado_xsim.tool_lines",
+      "type": "contains"
+    },
+    {
+      "source": "run_np7_vivado_xsim",
+      "target": "run_np7_vivado_xsim.main",
+      "type": "contains"
+    },
+    {
+      "source": "run_np7_vivado_xsim",
+      "target": "run_np7_vivado_xsim.git_head_text",
+      "type": "contains"
+    },
+    {
+      "source": "run_np7_vivado_xsim",
+      "target": "run_np7_vivado_xsim.git_status_porcelain_text",
+      "type": "contains"
+    },
+    {
+      "source": "run_np7_vivado_xsim",
+      "target": "argparse",
+      "type": "imports"
+    },
+    {
+      "source": "run_np7_vivado_xsim",
+      "target": "hashlib",
+      "type": "imports"
+    },
+    {
+      "source": "run_np7_vivado_xsim",
+      "target": "json",
+      "type": "imports"
+    },
+    {
+      "source": "run_np7_vivado_xsim",
+      "target": "os",
+      "type": "imports"
+    },
+    {
+      "source": "run_np7_vivado_xsim",
+      "target": "pathlib",
+      "type": "imports"
+    },
+    {
+      "source": "run_np7_vivado_xsim",
+      "target": "platform",
+      "type": "imports"
+    },
+    {
+      "source": "run_np7_vivado_xsim",
+      "target": "re",
+      "type": "imports"
+    },
+    {
+      "source": "run_np7_vivado_xsim",
+      "target": "shutil",
+      "type": "imports"
+    },
+    {
+      "source": "run_np7_vivado_xsim",
+      "target": "subprocess",
+      "type": "imports"
+    },
+    {
+      "source": "run_np7_vivado_xsim",
+      "target": "sys",
+      "type": "imports"
+    },
+    {
+      "source": "run_np7_vivado_xsim",
+      "target": "tempfile",
+      "type": "imports"
+    },
+    {
+      "source": "run_np7_vivado_xsim",
+      "target": "time",
+      "type": "imports"
+    },
+    {
+      "source": "run_np7_vivado_xsim",
+      "target": "np7_ledger_reconstruction",
+      "type": "imports"
+    },
+    {
+      "source": "run_np7_vivado_xsim",
+      "target": "np7_shared_lane_oracle",
+      "type": "imports"
+    },
+    {
       "source": "run_pulse_pruned_network_signoff",
       "target": "run_pulse_pruned_network_signoff._run",
       "type": "contains"
@@ -23375,6 +26855,41 @@
     },
     {
       "source": "test_host_bridge_xpm_wrapper",
+      "target": "test_host_bridge_xpm_wrapper.unsigned_return_code",
+      "type": "contains"
+    },
+    {
+      "source": "test_host_bridge_xpm_wrapper",
+      "target": "test_host_bridge_xpm_wrapper.is_silent_abnormal_exit",
+      "type": "contains"
+    },
+    {
+      "source": "test_host_bridge_xpm_wrapper",
+      "target": "test_host_bridge_xpm_wrapper.toolchain_unavailability",
+      "type": "contains"
+    },
+    {
+      "source": "test_host_bridge_xpm_wrapper",
+      "target": "test_host_bridge_xpm_wrapper.toolchain_notice",
+      "type": "contains"
+    },
+    {
+      "source": "test_host_bridge_xpm_wrapper",
+      "target": "test_host_bridge_xpm_wrapper.log_toolchain_notice",
+      "type": "contains"
+    },
+    {
+      "source": "test_host_bridge_xpm_wrapper",
+      "target": "test_host_bridge_xpm_wrapper.require_windows_msys2_toolchain",
+      "type": "contains"
+    },
+    {
+      "source": "test_host_bridge_xpm_wrapper",
+      "target": "test_host_bridge_xpm_wrapper.toolchain_defect",
+      "type": "contains"
+    },
+    {
+      "source": "test_host_bridge_xpm_wrapper",
       "target": "test_host_bridge_xpm_wrapper.compile_and_run",
       "type": "contains"
     },
@@ -23385,7 +26900,17 @@
     },
     {
       "source": "test_host_bridge_xpm_wrapper.HostBridgeXpmWrapperTests",
+      "target": "test_host_bridge_xpm_wrapper.HostBridgeXpmWrapperTests.test_windows_msys2_toolchain_dependency_is_declared",
+      "type": "contains"
+    },
+    {
+      "source": "test_host_bridge_xpm_wrapper.HostBridgeXpmWrapperTests",
       "target": "test_host_bridge_xpm_wrapper.HostBridgeXpmWrapperTests.test_xpm_configuration_is_frozen",
+      "type": "contains"
+    },
+    {
+      "source": "test_host_bridge_xpm_wrapper.HostBridgeXpmWrapperTests",
+      "target": "test_host_bridge_xpm_wrapper.HostBridgeXpmWrapperTests.test_model_declares_every_signal_before_use",
       "type": "contains"
     },
     {
@@ -23411,6 +26936,11 @@
     {
       "source": "test_host_bridge_xpm_wrapper",
       "target": "subprocess",
+      "type": "imports"
+    },
+    {
+      "source": "test_host_bridge_xpm_wrapper",
+      "target": "sys",
       "type": "imports"
     },
     {
@@ -24510,6 +28040,471 @@
     },
     {
       "source": "test_np6_verifier_mutations",
+      "target": "tempfile",
+      "type": "imports"
+    },
+    {
+      "source": "test_np7_physical_mutations",
+      "target": "test_np7_physical_mutations.git_at",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_physical_mutations",
+      "target": "test_np7_physical_mutations.clone",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_physical_mutations",
+      "target": "test_np7_physical_mutations.run_verifier",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_physical_mutations",
+      "target": "test_np7_physical_mutations.read_json",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_physical_mutations",
+      "target": "test_np7_physical_mutations.write_json",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_physical_mutations",
+      "target": "test_np7_physical_mutations.commit_all",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_physical_mutations",
+      "target": "test_np7_physical_mutations.rebind_report",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_physical_mutations",
+      "target": "test_np7_physical_mutations.edit_signoff",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_physical_mutations",
+      "target": "test_np7_physical_mutations.m_summary_only_edit",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_physical_mutations",
+      "target": "test_np7_physical_mutations.m_tamper_signoff_rehash",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_physical_mutations",
+      "target": "test_np7_physical_mutations.m_tamper_wns_sign",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_physical_mutations",
+      "target": "test_np7_physical_mutations.m_drop_report",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_physical_mutations",
+      "target": "test_np7_physical_mutations.m_uncommitted_report",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_physical_mutations",
+      "target": "test_np7_physical_mutations.m_drop_config",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_physical_mutations",
+      "target": "test_np7_physical_mutations.m_bogus_code_head",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_physical_mutations",
+      "target": "test_np7_physical_mutations.m_blank_execution_host",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_physical_mutations",
+      "target": "test_np7_physical_mutations.m_post_freeze_rtl_edit",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_physical_mutations",
+      "target": "test_np7_physical_mutations.m_wrapper_rewritten",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_physical_mutations",
+      "target": "test_np7_physical_mutations.m_lane_lut_regression",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_physical_mutations",
+      "target": "test_np7_physical_mutations.m_no_converged_dense",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_physical_mutations",
+      "target": "test_np7_physical_mutations.m_not_met_config_forge",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_physical_mutations",
+      "target": "test_np7_physical_mutations.main",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_physical_mutations",
+      "target": "json",
+      "type": "imports"
+    },
+    {
+      "source": "test_np7_physical_mutations",
+      "target": "pathlib",
+      "type": "imports"
+    },
+    {
+      "source": "test_np7_physical_mutations",
+      "target": "re",
+      "type": "imports"
+    },
+    {
+      "source": "test_np7_physical_mutations",
+      "target": "shutil",
+      "type": "imports"
+    },
+    {
+      "source": "test_np7_physical_mutations",
+      "target": "subprocess",
+      "type": "imports"
+    },
+    {
+      "source": "test_np7_physical_mutations",
+      "target": "sys",
+      "type": "imports"
+    },
+    {
+      "source": "test_np7_physical_mutations",
+      "target": "tempfile",
+      "type": "imports"
+    },
+    {
+      "source": "test_np7_shared_lane_oracle",
+      "target": "test_np7_shared_lane_oracle.build",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_shared_lane_oracle",
+      "target": "test_np7_shared_lane_oracle.expected_cycles",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_shared_lane_oracle",
+      "target": "test_np7_shared_lane_oracle.RecordFormatTests",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_shared_lane_oracle.RecordFormatTests",
+      "target": "test_np7_shared_lane_oracle.RecordFormatTests.test_dense_round_trip_and_reserved_bits",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_shared_lane_oracle.RecordFormatTests",
+      "target": "test_np7_shared_lane_oracle.RecordFormatTests.test_six_legal_structures_enumerated",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_shared_lane_oracle.RecordFormatTests",
+      "target": "test_np7_shared_lane_oracle.RecordFormatTests.test_illegal_indices_rejected_at_config",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_shared_lane_oracle.RecordFormatTests",
+      "target": "test_np7_shared_lane_oracle.RecordFormatTests.test_stored_illegal_indices_rejected_on_decode",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_shared_lane_oracle.RecordFormatTests",
+      "target": "test_np7_shared_lane_oracle.RecordFormatTests.test_ram_is_read_only_after_config",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_shared_lane_oracle",
+      "target": "test_np7_shared_lane_oracle.CycleLedgerTests",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_shared_lane_oracle.CycleLedgerTests",
+      "target": "test_np7_shared_lane_oracle.CycleLedgerTests.test_all_masks_all_structures_all_lanes_exact_ledger",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_shared_lane_oracle.CycleLedgerTests",
+      "target": "test_np7_shared_lane_oracle.CycleLedgerTests.test_zero_fast_path_contract",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_shared_lane_oracle.CycleLedgerTests",
+      "target": "test_np7_shared_lane_oracle.CycleLedgerTests.test_backpressure_is_counted_as_stall_only",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_shared_lane_oracle.CycleLedgerTests",
+      "target": "test_np7_shared_lane_oracle.CycleLedgerTests.test_saturation_and_tree_semantics",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_shared_lane_oracle.CycleLedgerTests",
+      "target": "test_np7_shared_lane_oracle.CycleLedgerTests.test_v1_zero_path_under_backpressure_latches_one_result",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_shared_lane_oracle.CycleLedgerTests",
+      "target": "test_np7_shared_lane_oracle.CycleLedgerTests.test_v2_gapless_stream_folds_accept_into_retire",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_shared_lane_oracle.CycleLedgerTests",
+      "target": "test_np7_shared_lane_oracle.CycleLedgerTests.test_v2_lane_stall_blocks_completion_and_accept",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_shared_lane_oracle.CycleLedgerTests",
+      "target": "test_np7_shared_lane_oracle.CycleLedgerTests.test_one_result_per_accept_over_random_backpressure",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_shared_lane_oracle.CycleLedgerTests",
+      "target": "test_np7_shared_lane_oracle.CycleLedgerTests.test_cold_start_and_tail_drain_are_counted",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_shared_lane_oracle.CycleLedgerTests",
+      "target": "test_np7_shared_lane_oracle.CycleLedgerTests.test_dense_sparse_bit_exact_over_random_streams",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_shared_lane_oracle.CycleLedgerTests",
+      "target": "test_np7_shared_lane_oracle.CycleLedgerTests.test_ledger_conservation_across_trace",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_shared_lane_oracle",
+      "target": "test_np7_shared_lane_oracle.LanePipelineTests",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_shared_lane_oracle.LanePipelineTests",
+      "target": "test_np7_shared_lane_oracle.LanePipelineTests.setUp",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_shared_lane_oracle.LanePipelineTests",
+      "target": "test_np7_shared_lane_oracle.LanePipelineTests._single",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_shared_lane_oracle.LanePipelineTests",
+      "target": "test_np7_shared_lane_oracle.LanePipelineTests.test_result_lags_last_batch_issue_by_exactly_one_cycle",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_shared_lane_oracle.LanePipelineTests",
+      "target": "test_np7_shared_lane_oracle.LanePipelineTests.test_zero_path_does_not_enter_lane_pipeline",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_shared_lane_oracle.LanePipelineTests",
+      "target": "test_np7_shared_lane_oracle.LanePipelineTests.test_drain_stage_respects_lane_stall",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_shared_lane_oracle.LanePipelineTests",
+      "target": "test_np7_shared_lane_oracle.LanePipelineTests.test_drain_fold_latches_on_backpressure",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_shared_lane_oracle",
+      "target": "random",
+      "type": "imports"
+    },
+    {
+      "source": "test_np7_shared_lane_oracle",
+      "target": "unittest",
+      "type": "imports"
+    },
+    {
+      "source": "test_np7_shared_lane_oracle",
+      "target": "np7_shared_lane_oracle",
+      "type": "imports"
+    },
+    {
+      "source": "test_np7_verifier_mutations",
+      "target": "test_np7_verifier_mutations.git_at",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_verifier_mutations",
+      "target": "test_np7_verifier_mutations.clone",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_verifier_mutations",
+      "target": "test_np7_verifier_mutations.run_verifier",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_verifier_mutations",
+      "target": "test_np7_verifier_mutations.read_json",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_verifier_mutations",
+      "target": "test_np7_verifier_mutations.write_json",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_verifier_mutations",
+      "target": "test_np7_verifier_mutations.touch",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_verifier_mutations",
+      "target": "test_np7_verifier_mutations.rebind",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_verifier_mutations",
+      "target": "test_np7_verifier_mutations.commit_all",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_verifier_mutations",
+      "target": "test_np7_verifier_mutations.m_missing_log",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_verifier_mutations",
+      "target": "test_np7_verifier_mutations.m_tamper_gate_status",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_verifier_mutations",
+      "target": "test_np7_verifier_mutations.m_tamper_rtl_ledger",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_verifier_mutations",
+      "target": "test_np7_verifier_mutations.m_fake_cycle_gain",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_verifier_mutations",
+      "target": "test_np7_verifier_mutations.m_lower_threshold",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_verifier_mutations",
+      "target": "test_np7_verifier_mutations.m_accept_negative_control",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_verifier_mutations",
+      "target": "test_np7_verifier_mutations.m_weaken_formal_verdict",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_verifier_mutations",
+      "target": "test_np7_verifier_mutations.m_leak_escapes",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_verifier_mutations",
+      "target": "test_np7_verifier_mutations.m_tamper_frozen_accuracy",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_verifier_mutations",
+      "target": "test_np7_verifier_mutations.m_post_freeze_rtl",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_verifier_mutations",
+      "target": "test_np7_verifier_mutations.m_post_freeze_tool",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_verifier_mutations",
+      "target": "test_np7_verifier_mutations.m_bogus_frozen_head",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_verifier_mutations",
+      "target": "test_np7_verifier_mutations.m_integrity_not_empty",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_verifier_mutations",
+      "target": "test_np7_verifier_mutations.m_fake_xsim_evidence",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_verifier_mutations",
+      "target": "test_np7_verifier_mutations.m_fake_xsim_ledger",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_verifier_mutations",
+      "target": "test_np7_verifier_mutations.m_drop_xsim_case",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_verifier_mutations",
+      "target": "test_np7_verifier_mutations.m_legacy_identity_only",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_verifier_mutations",
+      "target": "test_np7_verifier_mutations.m_tamper_ledger_coverage",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_verifier_mutations",
+      "target": "test_np7_verifier_mutations.m_drop_forced_rtl_mutation",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_verifier_mutations",
+      "target": "test_np7_verifier_mutations.main",
+      "type": "contains"
+    },
+    {
+      "source": "test_np7_verifier_mutations",
+      "target": "json",
+      "type": "imports"
+    },
+    {
+      "source": "test_np7_verifier_mutations",
+      "target": "pathlib",
+      "type": "imports"
+    },
+    {
+      "source": "test_np7_verifier_mutations",
+      "target": "shutil",
+      "type": "imports"
+    },
+    {
+      "source": "test_np7_verifier_mutations",
+      "target": "subprocess",
+      "type": "imports"
+    },
+    {
+      "source": "test_np7_verifier_mutations",
+      "target": "sys",
+      "type": "imports"
+    },
+    {
+      "source": "test_np7_verifier_mutations",
       "target": "tempfile",
       "type": "imports"
     },
@@ -25925,6 +29920,16 @@
     },
     {
       "source": "verify_formal_local_prune_commit_barrier",
+      "target": "verify_formal_local_prune_commit_barrier.find_tool",
+      "type": "contains"
+    },
+    {
+      "source": "verify_formal_local_prune_commit_barrier",
+      "target": "verify_formal_local_prune_commit_barrier.compile_top",
+      "type": "contains"
+    },
+    {
+      "source": "verify_formal_local_prune_commit_barrier",
       "target": "verify_formal_local_prune_commit_barrier.require",
       "type": "contains"
     },
@@ -25945,12 +29950,22 @@
     },
     {
       "source": "verify_formal_local_prune_commit_barrier",
+      "target": "shutil",
+      "type": "imports"
+    },
+    {
+      "source": "verify_formal_local_prune_commit_barrier",
       "target": "subprocess",
       "type": "imports"
     },
     {
       "source": "verify_formal_local_prune_commit_barrier",
       "target": "tempfile",
+      "type": "imports"
+    },
+    {
+      "source": "verify_formal_local_prune_commit_barrier",
+      "target": "unittest",
       "type": "imports"
     },
     {
@@ -26481,6 +30496,231 @@
     {
       "source": "verify_np6_physical_cost",
       "target": "time",
+      "type": "imports"
+    },
+    {
+      "source": "verify_np7_physical_cost",
+      "target": "verify_np7_physical_cost.canonical_bytes",
+      "type": "contains"
+    },
+    {
+      "source": "verify_np7_physical_cost",
+      "target": "verify_np7_physical_cost.sha256_bytes",
+      "type": "contains"
+    },
+    {
+      "source": "verify_np7_physical_cost",
+      "target": "verify_np7_physical_cost.sha256_file",
+      "type": "contains"
+    },
+    {
+      "source": "verify_np7_physical_cost",
+      "target": "verify_np7_physical_cost.git",
+      "type": "contains"
+    },
+    {
+      "source": "verify_np7_physical_cost",
+      "target": "verify_np7_physical_cost.read_text",
+      "type": "contains"
+    },
+    {
+      "source": "verify_np7_physical_cost",
+      "target": "verify_np7_physical_cost.parse_kv",
+      "type": "contains"
+    },
+    {
+      "source": "verify_np7_physical_cost",
+      "target": "verify_np7_physical_cost.grab",
+      "type": "contains"
+    },
+    {
+      "source": "verify_np7_physical_cost",
+      "target": "verify_np7_physical_cost.recompute_reports",
+      "type": "contains"
+    },
+    {
+      "source": "verify_np7_physical_cost",
+      "target": "verify_np7_physical_cost.short_version",
+      "type": "contains"
+    },
+    {
+      "source": "verify_np7_physical_cost",
+      "target": "verify_np7_physical_cost.normalize_bram",
+      "type": "contains"
+    },
+    {
+      "source": "verify_np7_physical_cost",
+      "target": "verify_np7_physical_cost.timing_met",
+      "type": "contains"
+    },
+    {
+      "source": "verify_np7_physical_cost",
+      "target": "verify_np7_physical_cost.check_binding",
+      "type": "contains"
+    },
+    {
+      "source": "verify_np7_physical_cost",
+      "target": "verify_np7_physical_cost.check_config",
+      "type": "contains"
+    },
+    {
+      "source": "verify_np7_physical_cost",
+      "target": "verify_np7_physical_cost.main",
+      "type": "contains"
+    },
+    {
+      "source": "verify_np7_physical_cost",
+      "target": "verify_np7_physical_cost.finish",
+      "type": "contains"
+    },
+    {
+      "source": "verify_np7_physical_cost",
+      "target": "hashlib",
+      "type": "imports"
+    },
+    {
+      "source": "verify_np7_physical_cost",
+      "target": "json",
+      "type": "imports"
+    },
+    {
+      "source": "verify_np7_physical_cost",
+      "target": "pathlib",
+      "type": "imports"
+    },
+    {
+      "source": "verify_np7_physical_cost",
+      "target": "re",
+      "type": "imports"
+    },
+    {
+      "source": "verify_np7_physical_cost",
+      "target": "subprocess",
+      "type": "imports"
+    },
+    {
+      "source": "verify_np7_physical_cost",
+      "target": "sys",
+      "type": "imports"
+    },
+    {
+      "source": "verify_np7_software_cost",
+      "target": "verify_np7_software_cost.canonical_bytes",
+      "type": "contains"
+    },
+    {
+      "source": "verify_np7_software_cost",
+      "target": "verify_np7_software_cost.sha256_bytes",
+      "type": "contains"
+    },
+    {
+      "source": "verify_np7_software_cost",
+      "target": "verify_np7_software_cost.sha256_file",
+      "type": "contains"
+    },
+    {
+      "source": "verify_np7_software_cost",
+      "target": "verify_np7_software_cost.git",
+      "type": "contains"
+    },
+    {
+      "source": "verify_np7_software_cost",
+      "target": "verify_np7_software_cost.load_json",
+      "type": "contains"
+    },
+    {
+      "source": "verify_np7_software_cost",
+      "target": "verify_np7_software_cost.reduction",
+      "type": "contains"
+    },
+    {
+      "source": "verify_np7_software_cost",
+      "target": "verify_np7_software_cost.fixed",
+      "type": "contains"
+    },
+    {
+      "source": "verify_np7_software_cost",
+      "target": "verify_np7_software_cost.legacy_identity_total",
+      "type": "contains"
+    },
+    {
+      "source": "verify_np7_software_cost",
+      "target": "verify_np7_software_cost.ledger_identity",
+      "type": "contains"
+    },
+    {
+      "source": "verify_np7_software_cost",
+      "target": "verify_np7_software_cost.tick_class",
+      "type": "contains"
+    },
+    {
+      "source": "verify_np7_software_cost",
+      "target": "verify_np7_software_cost.visible_tick_classes",
+      "type": "contains"
+    },
+    {
+      "source": "verify_np7_software_cost",
+      "target": "verify_np7_software_cost.check_rtl_evidence",
+      "type": "contains"
+    },
+    {
+      "source": "verify_np7_software_cost",
+      "target": "verify_np7_software_cost.check_manifest_environment",
+      "type": "contains"
+    },
+    {
+      "source": "verify_np7_software_cost",
+      "target": "verify_np7_software_cost.check_formal_evidence",
+      "type": "contains"
+    },
+    {
+      "source": "verify_np7_software_cost",
+      "target": "verify_np7_software_cost.check_xsim_evidence",
+      "type": "contains"
+    },
+    {
+      "source": "verify_np7_software_cost",
+      "target": "verify_np7_software_cost.gates_from_b21",
+      "type": "contains"
+    },
+    {
+      "source": "verify_np7_software_cost",
+      "target": "verify_np7_software_cost.compute_all",
+      "type": "contains"
+    },
+    {
+      "source": "verify_np7_software_cost",
+      "target": "verify_np7_software_cost.main",
+      "type": "contains"
+    },
+    {
+      "source": "verify_np7_software_cost",
+      "target": "hashlib",
+      "type": "imports"
+    },
+    {
+      "source": "verify_np7_software_cost",
+      "target": "json",
+      "type": "imports"
+    },
+    {
+      "source": "verify_np7_software_cost",
+      "target": "pathlib",
+      "type": "imports"
+    },
+    {
+      "source": "verify_np7_software_cost",
+      "target": "re",
+      "type": "imports"
+    },
+    {
+      "source": "verify_np7_software_cost",
+      "target": "subprocess",
+      "type": "imports"
+    },
+    {
+      "source": "verify_np7_software_cost",
+      "target": "sys",
       "type": "imports"
     },
     {

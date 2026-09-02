@@ -348,7 +348,7 @@ NP4 V1 六项决定已于 2026-08-29 获用户批准并冻结：隐藏层和输�
 
 NP4A 公共控制器已于 2026-08-29 通过：四拍扫描、原子双位 mask、固定 gain 适配器、读取前 `issue_mask` 和层级分账均已实现。NP4B 正式接入仍未完成，因为 ENeuron 尚无可综合 snapshot evidence 输出，Pulse 尚需在 FEEDBACK 清除前锁存 evidence，现有 `4→2→2` 输出层也不是四输入组。完整边界见 `docs/reports/LOCAL_PRUNE_RTL_REPORT.md`。
 
-NP4B 八项实现决定已于 2026-08-29 获用户批准并完成实施。NP6 也已完成并合并：7 个配置均实现完成、route/DRC error 为 0，但只有 gate 与 ENeuron 剪枝封装通过 100 MHz，因此状态为 `NP6_PHYSICAL_COST_PARTIAL / NP7_REVIEW_REQUIRED`。
+NP4B 八项实现决定已于 2026-08-29 获用户批准并完成实施。NP6 也已完成并合并：7 个配置均实现完成、route/DRC error 为 0，但只有 gate 与 ENeuron 剪枝封装通过 100 MHz，因此 NP6 保持 `NP6_PHYSICAL_COST_PARTIAL`。NP7 随后已合并，具体共享 lane 证据以 `docs/reports/LOCAL_PRUNE_NP7_SHARED_LANE_REPORT.md` 为准。
 
 ### NP5：协同仿真和形式检查
 
