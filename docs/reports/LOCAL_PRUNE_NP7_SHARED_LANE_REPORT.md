@@ -36,9 +36,9 @@
 | NP7.3 逐拍协同仿真 | `python -X utf8 np7_shared_lane_cosim.py` | 0 | `artifacts/results/np7_cosim_ledgers.json`（schema `np7-cosim-ledgers-v2`，日志头 `code_git_head=0dbdf59`）+ `artifacts/logs/np73_cosim.txt`：**160 配置**（dense+sparse × L=1/2/4/8 × 20 seed）、**160,000 事务**、逐拍 oracle 失败 **0**、自报账本不可重建配置 **0**（含新增 S_DRAIN 折叠拍的逐观测全等） |
 | NP7.4 三模型接入 | `python -X utf8 np7_three_model_integration_cosim.py` | 0 | `np7_three_model_integration.json`（schema `np7-three-model-integration-v2`）+ `np74_three_model.txt`：模型数=3 **问题数=0**；每模型 `v2_evidence`（L1）`overlap_cycles=270`、`folded_cycles_saved=700`、`solo_segment_cycles=1700 > stream_cycles=1000`、`zero_single_cycles=330`（后两项各比 round 3 多 100 拍，正好等于 100 笔非零事务 × 1 拍 DRAIN） |
 | NP7.5 形式与负向 | `python -X utf8 np7_formal_and_mutations.py` | 0 | `np7_formal_and_mutations.json`（round 5 在 gate 适配后重跑，`git_head=a197ab9`）+ `np75_formal_mutations.txt`：**形式检查 90/90 PASS、问题数 0**（新增 P11 三组断言）；3 个 proof（sparse/dense 协议 `sat -seq 16 -verify`、CONFIG 拒绝 `-seq 14`）+ 3 个 witness（`zero_path_reach` seq 10、`sparse_reach`/`dense_reach` seq 18）；**12 个 RTL mutation 全部 counterexample**（新增 `lane_hold_ignored`、`sparse/dense_fold_last_early`）；8 个负向实现运行全部被拒；3 个泄漏 mutation 全部被状态等价抓到 |
-| NP7.6 软件签核 | `python -X utf8 generate_np7_manifest.py` → `python -X utf8 verify_np7_software_cost.py <HEAD>` | 0 / 0 | 清单 `np7_software_cost_manifest.json`：`frozen_git_head=0a40da5`、绑定 **28 输入 + 3 工具 + 26 证据**、`overall=PASS`、`integrity=[]`；验证器日志 `np76_verify.txt`：**rejects=0 / blocking=- / overall=PASS** |
+| NP7.6 软件签核 | `python -X utf8 generate_np7_manifest.py` → `python -X utf8 verify_np7_software_cost.py <HEAD>` | 0 / 0 | 清单 `np7_software_cost_manifest.json`：`frozen_git_head=6d7739c`（round 8 重绑到合并后 XSim 证据，见 §13.2）、绑定 **28 输入 + 3 工具 + 26 证据**、`overall=PASS`、`integrity=[]`；验证器日志 `np76_verify.txt`：**rejects=0 / blocking=- / overall=PASS** |
 | NP7.6 变异 | `python -X utf8 test_np7_verifier_mutations.py`；同命令在 `chcp 936` 默认代码页下再跑一遍 | 0 / 0 | `np76_mutations.txt`、`np76_mutations_defaultcp.txt`：**MUTATION_SUITE PASS checks=19**（两轮一致） |
-| Vivado 行为仿真 | `python -X utf8 run_np7_vivado_xsim.py --vivado-root C:/Users/MGL/Documents/Codex/Vivado2024_2 --transactions 120` | 0 | `np7_vivado_xsim_summary.json`（schema `np7-vivado-xsim-v2`，round 5 重跑后 `code_git_head=d56f4fc`、`worktree_dirty=[]`）+ `vivado_np7_xsim_reports/`：**16 用例 PASS、problems=0**、xsim 与 Icarus 观测流逐字节相同 **16/16**（见 §5）；在 head `d56f4fc` 上按 gate 适配后再复跑一次（`tb_np7_negative.sv` 的 EOF 空行修复后必须重跑：XSim 证据绑定它的 sha256），逐用例 CYC 行数与首跑完全相同 |
+| Vivado 行为仿真 | `python -X utf8 run_np7_vivado_xsim.py --vivado-root C:/Users/MGL/Documents/Codex/Vivado2024_2 --transactions 120` | 0 | `np7_vivado_xsim_summary.json`（schema `np7-vivado-xsim-v2`，round 8 重跑到合并后的 `code_git_head=70ab557`、`worktree_dirty=[]`，见 §13.1）+ `vivado_np7_xsim_reports/`：**16 用例 PASS、problems=0**、xsim 与 Icarus 观测流逐字节相同 **16/16**（见 §5）；在 head `d56f4fc` 上按 gate 适配后再复跑一次（`tb_np7_negative.sv` 的 EOF 空行修复后必须重跑：XSim 证据绑定它的 sha256），逐用例 CYC 行数与首跑完全相同 |
 | NP7.7 变异 | `python -X utf8 test_np7_physical_mutations.py`；同命令在默认代码页(936)下再跑一遍 | 0 / 0 | `np77_mutations.txt`、`np77_mutations_defaultcp.txt`：**NP77_MUTATION_SUITE PASS checks=13**（基线干净克隆 rejects=0；13 个变异全部被对应判据拦下，含新增 `not_met_config_forge`，见 §6） |
 | NP7.7 物理门（P1 后重跑） | `python -X utf8 run_np7_vivado_ooc.py --vivado-root C:/Users/MGL/Documents/Codex/Vivado2024_2 --jobs 4` → `python -X utf8 verify_np7_physical_cost.py <HEAD>` | 0 / 0 | `np7_vivado_ooc_summary.json`（`code_git_head=9d07b99`、`worktree_dirty=[]`）+ 8 个 `vivado_np7_ooc_<fmt>_L<n>_reports/`（各 9 份报告 + OOC 封装）+ `np77_ooc.txt`、`np77_verify.txt`：**8/8 RESULT=ROUTED、DRC=0、route errors=0、hold 全收敛**，100 MHz **8/8 MET**（`NP7_PHYSICAL_GATE verdict=8/8`、`EXCLUDED none`、`rejects=0 overall=PASS`）；同 head 复跑一次，8 个配置的 LUT/WNS/WHS 逐项相同 |
 
@@ -130,7 +130,7 @@ formal witness（`formal_np7_exec_unit_zero.ys` seq 10 强制 `saw_zero_single=1
 ## 5. Vivado 行为仿真对照（2024.2，逐拍重建）
 
 执行机 `Chan-an`（Windows 11 AMD64），Vivado Simulator **v2024.2.0**，**SW Build 5239630**，
-`C:/Users/MGL/Documents/Codex/Vivado2024_2`，XSim 汇总 `code_git_head=d56f4fc`（OOC 汇总仍是 `9d07b99`，理由见 §11.4）且
+`C:/Users/MGL/Documents/Codex/Vivado2024_2`，XSim 汇总 `code_git_head=70ab557`（round 8 起；此前 `d56f4fc`；OOC 汇总仍是 `9d07b99`，理由见 §11.4）且
 `worktree_dirty=[]`（干净工作树），每用例 `--transactions 120`，
 `xvlog -> xelab -> xsim` 与同一激励目录下的 Icarus 重跑**逐字节相同**（16/16）。
 P1 流水化后每台仿真器的观测流都新增了 `st=6`（S_DRAIN）的拍，两侧同步变化才能全等，
@@ -338,6 +338,8 @@ P1 裁定的内容。软件侧同理：round 3 的 G1–G6 与每 tick 绝对周
 - 下一步（等复审）：(1) 按 §一 7 项 + §二 6 判据复核本轮全量重跑证据；(2) 若接受，NP7 才进入
   签核收口，是否合并由维护者决定；(3) 2024.1 跨版本复跑仍待有该版本的环境时执行，本轮不外推；
   (4) 真实权重活动分布、BRAM 端口竞争、系统级时序仍属 NP8+ 范围，本轮不主张。
+- PR #6 已由维护者合并为 `70ab557`（review `5088757894` = APPROVED）；round 8 之后新增的 Vivado 证据推进
+  与真实 XPM 复跑记在 §13，不再回写到本节的批准链叙述里。
 
 ## 11. PR gate（main `724a5dc`）适配与本地复刻结果
 
@@ -429,8 +431,9 @@ d56f4fc  data(np7): Vivado XSim 重跑到该 head（16/16、problems=0）
 DUT 输入**（`np7_shared_synapse_lane.sv`、`np7_exec_unit_*.sv`、`np7_weight_ram.sv`、`tb_np7_exec_unit.sv`、
 `tb_np7_config_negative.sv`、`np7_negative_controls.sv` 字节全部未变），`vivado_np7_ooc_*_reports/` 的
 `GIT_HEAD` 与汇总 `code_git_head` 自洽，`verify_np7_physical_cost.py` 在新 head 下仍 `rejects=0 / 8-8`。
-XSim 证据已推进到 `d56f4fc`（因为它绑定 `tb_np7_negative.sv` 的 sha256）。若管理员要求物理门也重跑到最终
-head，按新裁定执行一次 8 配置 OOC 即可（约 25–35 分钟）。
+XSim 证据已推进到合并后的 `70ab557`（round 8，见 §13.1）。OOC 的 8 份报告仍绑 `9d07b99`：round 8 没有任何
+参与综合的输入变化，重跑只是换时间戳。若管理员要求物理门也重跑到最终 head，按裁定执行一次 8 配置 OOC 即可
+（约 25–35 分钟）。
 ## 12. 裁定 P2b（`5506790489`）：固定 MSYS2 路径显式注明 + PR Gate 分平台执行（round 6）
 
 本轮**不改动任何 NP7 输入**：NP7 的 RTL、testbench、清单、日志与综合报告全部未变，
@@ -495,3 +498,114 @@ head，按新裁定执行一次 8 配置 OOC 即可（约 25–35 分钟）。
    `git diff --check origin/main...HEAD` rc=0，两个 verifier 都不改写跟踪文件。
    CI 侧 4 项要求（固定路径版本打印、5 条用例真实执行、Ubuntu 明确跳过且其余通过、
    whitespace 步骤真实执行）在 push 后的新 run 上复核，结论以 PR 内追评为准。
+
+## 13. round 8：把 Vivado 证据推进到合并后的 `main`，并在本机 2024.2 复跑真实 XPM 流程
+
+PR #6 合并（merge commit `70ab557`，2026-09-02T11:48:38Z）之后，本 round 只做两件仓库内 TODO
+已授权的事：把随 head 变化的 Vivado 证据推进到新的 `main`，以及把此前**只有评审机 2024.1 证据**的
+真实 XPM wrapper 流程在本机 Vivado 2024.2 上复跑一次。没有新增功能、没有改 RTL、没有改测试判据。
+仓库外的口头指令不作为 NP7.7 的批准凭据（`docs/planning/NPU_PRUNING_NP7_FREEZE_DECISIONS.md` § 前言）。
+
+### 13.1 NP7.7 Vivado 行为仿真（XSim）复跑到 `70ab557`
+
+```powershell
+python -X utf8 run_np7_vivado_xsim.py --vivado-root C:/Users/MGL/Documents/Codex/Vivado2024_2 --transactions 120
+# rc=0  NP7_XSIM_SUMMARY cases=16 problems=0 overall=PASS
+```
+
+- 新汇总：`code_git_head=70ab557…`、`worktree_dirty=[]`、`transactions_per_case=120`、`seed=1`、
+  `vivado=Vivado Simulator v2024.2.0 / SW Build 5239630`、host `Chan-an`、Icarus `12.0 (devel) s20150603-1539`。
+- 与 `git show HEAD:` 的旧汇总做**字段级对比**：顶层只有 `code_git_head` 与 `commands_log_sha256`
+  变化（`commands.log` 内嵌绝对路径与时间戳）；**16 个用例的实质字段差异为 0**
+  （`cyc_rows`、`LEDGER` 行、`tb_params`、`compiled_sources`、`stimulus`、两个 `observed_sha256` 全同）。
+- xsim 与 Icarus 观测流仍然**逐字节相同 16/16**。`cyc_rows`：
+  `golden_dense_L1..L8`=827/729/677/682、`golden_sparse_L1..L8`=527/510/456/502、
+  `neg0_L1/L4`=704/642、`neg1_L1/L4`=821/456、`cfgneg`=0（与 §5 表格一致）。
+- 提交 `6d7739c`（19 个跟踪证据文件）。
+
+### 13.2 NP7.6 清单重绑与两个 verifier
+
+`generate_np7_manifest.py` 是 fail-closed 的：它要求每个被绑定文件**磁盘字节 == HEAD 提交字节**，
+所以证据与清单必须分成两个提交。清单 diff 恰好等于 **19 条 XSim evidence 哈希 + `frozen_git_head`
+`0a40da5 → 6d7739c`**，28 个输入、3 个工具、其余证据与环境字段不变。
+
+| 命令 | rc | 结论 |
+|---|---|---|
+| `python -X utf8 generate_np7_manifest.py` | 0 | `NP7_MANIFEST_WRITTEN frozen_head=6d7739c inputs=28 tools=3 evidence=26 overall=PASS blocking=-` |
+| `python -X utf8 verify_np7_software_cost.py 02e347d…` | 0 | `rejects=0 blocking_gates=- overall=PASS`，G1–G6 全 PASS，160 配置 / 160000 事务 |
+| `python -X utf8 test_np7_verifier_mutations.py` | 0 | `MUTATION_SUITE PASS checks=19`（含 `baseline`：干净克隆无拒绝理由） |
+| `python -X utf8 verify_np7_physical_cost.py 6d7739c…` | 0 | `verdict=8/8`、`rejects=0 overall=PASS`，binding `code_head=9d07b99c7`、`xc7z020clg400-1`、100 MHz、Vivado 2024.2 |
+| `python -X utf8 test_np7_physical_mutations.py` | 0 | `NP77_MUTATION_SUITE PASS checks=13` |
+
+如实记录一次**顺序造成的假失败**：清单提交之前以 `6d7739c` 为参数跑软件验证器会得到
+`NP7_VERIFY_REJECT: 清单磁盘字节与 6d7739c 提交字节不一致`（`rejects=1`），
+`test_np7_verifier_mutations.py` 的 `baseline` 用例随之失败（`checks=19 failures=1`）。
+这不是门槛不达标，而是 fail-closed 设计在“清单尚未提交”这一时点的正确行为；
+清单提交（`02e347d`）后两者均为 `rejects=0 / failures=0`。
+
+### 13.3 真实 XPM wrapper 流程在本机 Vivado 2024.2 上复跑（round 8 新增）
+
+此前仓库里的 `vivado_xpm_wrapper_sim/` 四份证据全部产自**评审机**：
+`vivado_version=2024.1`、`Host LAPTOP-AJQHFMKI`、`cdc_report=D:/Documents/Code/ENeuron/…`，
+本机不可复现，因此**不覆盖**它们，只新增独立归档 `artifacts/logs/xpm_wrapper_real_xpm_vivado2024p2.txt`。
+
+```powershell
+# 干净工作树 C:\Users\MGL\wt_prhead @ 02e347d
+C:/Users/MGL/Documents/Codex/Vivado2024_2/bin/vivado.bat -mode batch -nojournal -source vivado_xpm_wrapper_sim.tcl
+# rc=0，elapsed 42.3 s，host Chan-an，Vivado v2024.2 (64-bit) Build 5239630
+```
+
+- 判据（全部在 tcl 内以 `error` 强制）：`test_passed=1`、`simulate.log` 含
+  `VIVADO_XPM_WRAPPER_PASS command_capacity=17 response_capacity=17`、不含
+  `Fatal:` / `RESET_REENTRY_ERROR` / `XPM_FIFO 20-`、综合后网list 中 `reset_cycle_active` 为 0、
+  `synth_design completed successfully`（71 Infos / 106 Warnings / **0 Critical Warnings / 0 Errors**）、
+  `VIVADO_XPM_WRAPPER_SIGNOFF_PASS`。CDC 报告 4 行全为 `CDC-3 Info  1-bit synchronized with
+  ASYNC_REG property`（depth 2，异常类别 `Asynch Clock Groups`）；资源
+  LUT 151 / FF 243 / BRAM 4（RAMB36E1，RAMB18 0）/ DSP 0 / BUFGCTRL 2。
+- 与评审机 2024.1 证据**逐字段对比**：summary 10 行差 2 行（版本号、`cdc_report` 绝对路径）；
+  `cdc_post_synth.rpt` 37 行差 4 行、`utilization_post_synth.rpt` 187 行差 4 行，**差异全在报告头**
+  （Tool Version / Date / Host / 命令行路径），**正文逐行相同**；`simulate.log` 20 行差 5 行，
+  差异只是 XPM 源文件与 testbench 的绝对路径，`$finish` 时刻同为 9870 ns。
+- 意义：真实 XPM 行为仿真与综合后网表**在第二个 Vivado 版本、第二台主机上被独立复现**，
+  这是对已合并证据的旁证，不替换原证据，也不构成对其它环节 2024.1 结果的推断。
+
+### 13.4 三模型真实 Vivado 短回归（CI 永远跑不到的那条）首次在本机复跑
+
+`test_local_prune_gate_vivado.VivadoRegressionTest` 需要 `VIVADO_ROOT`，两个 runner 上都没有 Vivado，
+所以它在每一次 PR Gate 里都是 skip；仓库里的 `VIVADO_LOCAL_PRUNE_GATE_SUMMARY.json` 是评审机证据。
+本轮在干净工作树 `wt_prhead @ 02e347d` 上连跑 **6 次**（`--seeds 1 --transactions 140
+--models eneuron,pulse_mini_l,pulse_mini_l2 --skip-mutants`）：
+
+| run | rc | 墙钟 | 通过用例 | 结论 |
+|---:|---:|---:|---|---|
+| 1 | 1 | 130.8 s | 20/24 | `VIVADO_LOCAL_PRUNE_GATE_FAIL xsim exited 3221225477` |
+| 2 | 1 | 128.5 s | 20/24 | 同上（同一用例） |
+| 3 | 0 | 141.7 s | 24/24 | `Ran 1 test ... OK` |
+| 4 | 0 | 142.1 s | 24/24 | `models=3 transactions_compared=723 cases=24` |
+| 5 | 0 | 140.0 s | 24/24 | 同上 |
+| 6 | 0 | 149.2 s | 24/24 | 同上 |
+
+两次失败都停在同一个用例（有向用例 `two_lane_mask_and_low_score_exact_two` × `pulse_mini_l2`，24 项中的
+第 21 项），且 xsim 是先打印 `TB_COMPLETE transactions=11`、`$finish ... 266 ns` 之后才在内核退出路径抛出
+`Abnormal program termination (EXCEPTION_ACCESS_VIOLATION)`（3221225477 = 0xC0000005）。把崩溃那次**实际
+打印出的 11 行 ROW** 拿回去与 Python oracle 的同一事务表对比：**11 行 × 24 列逐行相同（差异 0）**，
+该用例的 `verify(rows, "pulse_mini_l2")` 与 2:4 结构不变式都 OK。所以缺陷在仿真器进程退出阶段，
+不在这条路径的 RTL 行为；但 6 次里 2 次的比率意味着**这条作业在本机还不能当作可靠 gate**。
+`run_local_prune_gate_vivado.py` 保持“非零退出即 FAIL”的 fail-closed 语义：加重试或放行 3221225477
+都会削弱门，属于要维护者裁定的事，本轮只如实记录数字（详见
+`artifacts/logs/local_prune_gate_vivado_three_model_flakiness.txt`）。这与 `task_plan.md`
+里已经记过一次的同症状条目（“单独重跑通过、判为工具进程稳定性”）一致，本轮补上频次统计。
+
+### 13.5 round 8 未做与不能主张的
+
+1. 本机只有 Vivado **2024.2**（`D:/download software/vivado/Vivado` 下无 2024.1，`C:\Xilinx` 不存在，
+   评审机的 `G:/Xilinx/Vivado/2024.1` 不在本机），所以 §10(3) 的“2024.1 跨版本复跑”仍不可执行；
+   §13.3 是反方向（在 2024.2 上复跑 2024.1 产出的流程），不等同于跨版本复跑。
+2. 未重跑 NP7.7 的 8 配置 OOC：参与综合的输入字节未变，重跑不产生新信息（见 §11.4）。
+3. 不主张任何 BRAM/DSP 节省、墙钟收益或系统级时序收敛；本机固定路径
+   `C:\msys64\ucrt64\bin\vvp.exe`（12.0 stable 局部拷贝）崩溃缺陷仍在，XPM 的本地复现只能引用
+   scratch 的 13.0 或 CI 作业。
+4. 未勾选仓库内 TODO 的任何复选框，未改 `WORKFLOW_STATE.md`、`task_plan.md`、`progress.md`、
+   `findings.md`、`.nexus-map/` 与任何已签核的 NP4B/NP6 产物。
+5. 三模型真实 Vivado 短回归只在本机可跑（CI 无 Vivado ⇒ 永远 skip），而本机 xsim 2024.2 的退出阶段
+   崩溃率为 2/6：本轮**没有**把它写成通过，也没有为了通过去改 runner 语义。
