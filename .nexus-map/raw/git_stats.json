@@ -1,18 +1,18 @@
 {
   "analysis_period_days": 90,
   "stats": {
-    "total_commits": 210,
+    "total_commits": 213,
     "total_authors": 5
   },
   "hotspots": [
     {
       "path": "progress.md",
-      "changes": 67,
+      "changes": 69,
       "risk": "high"
     },
     {
       "path": "task_plan.md",
-      "changes": 57,
+      "changes": 59,
       "risk": "high"
     },
     {
@@ -26,19 +26,19 @@
       "risk": "high"
     },
     {
+      "path": "WORKFLOW_STATE.md",
+      "changes": 18,
+      "risk": "high"
+    },
+    {
       "path": "TODO.md",
       "changes": 16,
       "risk": "high"
     },
     {
-      "path": "WORKFLOW_STATE.md",
+      "path": "artifacts/results/np7_software_cost_manifest.json",
       "changes": 15,
       "risk": "high"
-    },
-    {
-      "path": "artifacts/results/np7_software_cost_manifest.json",
-      "changes": 14,
-      "risk": "medium"
     },
     {
       "path": "docs/reports/LOCAL_PRUNE_NP7_SHARED_LANE_REPORT.md",
@@ -110,8 +110,8 @@
     {
       "file_a": "progress.md",
       "file_b": "task_plan.md",
-      "co_changes": 55,
-      "coupling_score": 0.965
+      "co_changes": 57,
+      "coupling_score": 0.966
     },
     {
       "file_a": "findings.md",
@@ -162,6 +162,18 @@
       "coupling_score": 1.0
     },
     {
+      "file_a": "WORKFLOW_STATE.md",
+      "file_b": "progress.md",
+      "co_changes": 14,
+      "coupling_score": 0.778
+    },
+    {
+      "file_a": "WORKFLOW_STATE.md",
+      "file_b": "task_plan.md",
+      "co_changes": 14,
+      "coupling_score": 0.778
+    },
+    {
       "file_a": "NPU_PRUNING_TODO.md",
       "file_b": "findings.md",
       "co_changes": 13,
@@ -172,18 +184,6 @@
       "file_b": "progress.md",
       "co_changes": 13,
       "coupling_score": 1.0
-    },
-    {
-      "file_a": "WORKFLOW_STATE.md",
-      "file_b": "progress.md",
-      "co_changes": 12,
-      "coupling_score": 0.8
-    },
-    {
-      "file_a": "WORKFLOW_STATE.md",
-      "file_b": "task_plan.md",
-      "co_changes": 12,
-      "coupling_score": 0.8
     },
     {
       "file_a": "NPU_PRUNING_TODO.md",

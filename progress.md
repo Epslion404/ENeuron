@@ -871,3 +871,11 @@
 - 提交 `5a6825f` 已推送；本地 `verify_np7_software_cost.py HEAD` 返回 `rejects=0 / overall=PASS`。
 - GitHub Actions run `33659017501` 已成功：Python 全量测试、XPM CDC、NP7 功能/证据和物理完整性全部通过；Webhook 已收到对应终态事件。
 - PR #10 当前为 `OPEN / CLEAN`，未自动批准或合并；后续仍需管理员决定是否合并文档/证据修复，再进入传统 NPU + 神经元集成审核。
+
+## 2026-09-03 PR #10 CI 与 Webhook 收口
+
+- 继续等待既有 CI run `33660700397`，没有因观察超时而重启任务。
+- GitHub Actions 四项检查最终全部成功；NP7 形式/突变、软件清单重算和物理证据完整性均在当前 PR HEAD 上闭环。
+- 本机仓库外 Webhook 服务在 `127.0.0.1:2355` 保持监听，并收到对应 `workflow_run`、`workflow_job` 和 `check_run` 事件；本地测试 POST 也返回 HTTP 200。
+- Nexus 子代理完成增量刷新，更新索引、架构、测试覆盖和原始 git 统计；刷新临时目录已清理。
+- 当前仓库仍无业务 RTL 改动，PR #10 未自动批准或合并；状态回到“等待管理员合并后重新审核传统 NPU + 神经元集成”。

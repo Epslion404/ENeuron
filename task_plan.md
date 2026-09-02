@@ -818,3 +818,12 @@
 - [x] 增加 NP7 文件适用性检测，普通非 NP7 PR 不会因缺少专项脚本而失败。
 - [x] 新增 `docs/CI_PR_GATE.md` 配置教程并加入 `docs/README.md` 索引。
 - [x] 本地 YAML 解析、Python compileall、git diff --check 全部通过；未调用 Vivado。
+
+## 2026-09-03 PR #10 CI 收口与本地 Webhook
+
+- [x] 轮询 GitHub Actions run `33660700397` 至终态。
+- [x] 确认四道 CI 门全部成功：Python/语法、XPM CDC、NP7 功能/证据、NP7 物理证据完整性。
+- [x] 通过仓库外接收器 `C:\Users\Epsilon\ENeuronWebhook` 收到并核对 GitHub 终态事件。
+- [x] 复核仓库工作树，删除 `.nexus-map/.refresh` 临时产物，不引入 Webhook 服务文件。
+- [x] 完成 Nexus 增量刷新并核对 PR #10、NP7 合并状态和传统 NPU + 神经元集成下一步。
+- [ ] 等待管理员决定是否合并 PR #10；合并前不启动新的集成 RTL 或 Vivado 任务。

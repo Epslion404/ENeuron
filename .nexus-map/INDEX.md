@@ -16,7 +16,7 @@ ENeuron 是以 Python 黄金模型、SystemVerilog RTL、Icarus/Yosys/Vivado 验
 
 ## 当前状态
 
-NP4B 已签核；NP6 已合并并收口为 `NP6_PHYSICAL_COST_PARTIAL`：7 个实现 route/DRC error 为 0，但只有 gate 与 ENeuron 剪枝封装通过 100 MHz。当前活动门是 NP7 共享 BRAM/lane 方案审核；未经批准不得修改其 RTL 或运行新的 Vivado 实现。NP6 不证明真实 BRAM 跳读、板级加速或功耗收益。当前仓库 HEAD 为 2026-09-03 复核时的最新提交，原始探测统计见 `.nexus-map/raw/`。
+NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`。NP7 共享 BRAM/lane 已合并，PR #10 的清单绑定修复与 CI 已成功；当前活动门转为传统 NPU + 神经元集成审核。原始探测统计见 `.nexus-map/raw/`，当前 HEAD/工作树状态以 `WORKFLOW_STATE.md` 为准。
 
 ## 必读路由
 
