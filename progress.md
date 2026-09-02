@@ -861,3 +861,29 @@
 - 管理员裁定：允许在 lane 内插入一拍流水，以解决 L4/L8 的 100 MHz 关键路径问题。
 - 管理员裁定：NP7.7 必须要求 dense/sparse × L=1/2/4/8 共 8/8 配置全部 100 MHz 收敛，不接受当前 4/8 部分通过口径。
 - 已向 PR #6 提交 OWNER `CHANGES_REQUESTED` review，review id `PRR_kwDOUIH1ms8AAAABLx8fCg`；要求流水化后全量重跑 NP7.1–NP7.7，PR 暂不得合并。
+
+## 2026-09-02 主线切换：传统 NPU + 神经元
+
+- 用户要求修正 TODO；结合 NP7 已合并事实，确认项目主线从 Pulse-Mini 单独扩展转为 FPGA 上同时部署传统 INT8 NPU 与神经元控制平面。
+- 新建 `docs/planning/NPU_NEURON_AUGMENTED_TODO.md`，冻结 N0-N7：接口审核、dense 基线、软件闭环、读取前门控、shadow/commit/rollback、协同仿真、XC7Z020 物理成本和网口/板级闭环。
+- 更新 `docs/planning/TODO.md`：P9/P10 标记暂停并由 N0-N7 替代，P11-P13 保留为 Pulse-Mini 后续支线；历史 P0-P8 和 NP7 证据未删除或改写。
+- 更新 `WORKFLOW_STATE.md`：状态改为 `ACTIVE / NP7_MERGED / NPU_NEURON_INTEGRATION_REVIEW_REQUIRED`，活动合同指向新 TODO。
+- 更新 `docs/README.md`、`task_plan.md` 和 `findings.md`，完成持久规划同步；尚未修改业务 RTL，也未运行新的 Vivado。
+- `git diff --check` 通过。全仓回归运行 406 项后为 12 failures、20 errors、1 skip；首个明确环境错误为临时文件写入时 `No space left on device`，后续多个 Icarus/vvp 临时产物出现 syntax/unresolved reference，不能据此归因于纯 Markdown 修改。
+- 回归刷新过的两个签核 JSON 已恢复为 HEAD 原始内容；本轮只保留规划和状态文档变更。
+- 同步修正 `docs/reports/PROJECT_REPORT.md` 的当前阶段指针；未修改 2026-08-31 历史阶段报告。
+
+## 2026-09-02 N1 软件 dense INT8 NPU 黄金模型
+
+- 新增 `npu_dense_reference.py`：固定 `64 -> 32 -> 10` 拓扑，signed INT8 权重/激活，signed INT24 累加器逐次饱和，隐藏层 ReLU+INT8 饱和，输出层保留 INT24 logits，并提供 one-hot/abstain 结果。
+- 周期合同固定为：一个 lane 每拍处理一个四连接组；每组稠密权重占两个逻辑字并发出四次乘加；同一输出神经元的组和输出神经元均按编号顺序处理。故 `cycles = output_features * ceil(groups_per_output / lane_count)`，读取与发射量不随 lane 改变。
+- 新增 `test_npu_dense_reference.py`，覆盖四种 lane、读取/发射/周期账本、INT24 饱和、ReLU、signed 输入、确定性 argmax、abstain 和 lane 数值等价，共 6 项。
+- 定向命令 `python -m unittest -v test_npu_dense_reference.py`：6/6 通过。
+- 典型 `64 -> 32 -> 10` 稠密账本（L=8）：1184 个逻辑权重字读取、2368 次乘加发射、74 个计算周期；这些是 Python 逻辑合同，不是 RTL、Vivado 或板级吞吐结果。
+- N1 当前仅完成软件黄金模型和测试；RTL、逐 tick 协同仿真、资源/时序仍未开始，不能宣称 N1 整体完成。
+
+## 2026-09-02 N1 定向增强验证
+
+- 在不改模型语义的前提下补充随机 signed 向量、INT24 边界、lane 周期闭式和无神经元十分类 codebook smoke task。
+- `python -X utf8 -m unittest -v test_npu_dense_reference.py`：9/9 通过；`py_compile` 和 `git diff --check` 通过。
+- N1 软件阶段可称 `SOFTWARE_PASS`；N1 的 RTL 逐 tick、共享 BRAM、Vivado 资源/时序和真实任务泛化仍未完成。
