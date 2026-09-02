@@ -888,6 +888,11 @@
 - 已核对差异与报告：16/16 XSim 对照有效，但工具版本为 Vivado 2024.2；OOC 报告绑定旧 code head，作为未变输入的历史证据使用。
 - 已向 PR #8 发布中文反馈，要求保持版本、提交绑定和 `xsim` 偶发崩溃的边界声明；没有自动批准或合并。
 
+## 2026-09-02 后续基线正式切换
+
+- 在 `WORKFLOW_STATE.md`、`docs/README.md`、`docs/planning/NPU_NEURON_AUGMENTED_TODO.md`、`docs/planning/TODO.md`、`docs/reports/PROJECT_REPORT.md` 和 `task_plan.md` 中明确：自本日起，项目后续统一以传统 INT8 NPU + 神经元控制平面集成为基线。
+- ENeuron 1.0、Pulse-Mini 系列与 NP4B/NP6/NP7 的定位统一为前置资产、历史对照或可复用组件；新的实现、测试和性能结论必须映射到集成基线。
+
 ## 2026-09-02 N1 定向增强验证
 
 - 在不改模型语义的前提下补充随机 signed 向量、INT24 边界、lane 周期闭式和无神经元十分类 codebook smoke task。

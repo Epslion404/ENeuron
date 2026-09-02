@@ -4,7 +4,13 @@
 
 最后更新：2026-09-02
 
-状态：`ACTIVE / NP7_MERGED / NPU_NEURON_INTEGRATION_REVIEW_REQUIRED`
+状态：`ACTIVE / BASELINE_NPU_NEURON_INTEGRATION / NPU_NEURON_INTEGRATION_REVIEW_REQUIRED`
+
+## 后续项目基线（自 2026-09-02 起）
+
+项目后续统一以**传统 INT8 NPU + 神经元控制平面集成**作为开发、验证和性能比较基线：传统 NPU 负责数据通路、乘加和推理；神经元负责局部活动观察、结构化剪枝建议与动态门控；PS/Host 负责标签、奖励、训练调度、DMA/网口和日志。
+
+ENeuron 1.0、Pulse-Mini 系列及 NP4B/NP6/NP7 均保留为已完成的历史证据或可复用组件，不再单独代表后续主线目标。以后新增功能、测试和性能结论，除非明确标注为历史复现，否则必须映射到该集成基线。
 
 ## 当前活动目标
 

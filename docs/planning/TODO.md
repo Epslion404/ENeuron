@@ -1,10 +1,10 @@
 # Pulse-Mini 开发计划
 
 日期：2026-08-19  
-状态：`REVIEWED`；实施状态：`P8_NETWORK_SIGNED_OFF / NPU_NEURON_INTEGRATION_REVIEW_REQUIRED`
+状态：`ARCHIVED_HISTORICAL_PLAN`；实施状态：`P8_NETWORK_SIGNED_OFF / SUPERSEDED_BY_NPU_NEURON_INTEGRATION`
 基线：`ENeuron 1.0`，提交 `499fc8a`，标签 `v1.0`；当前 Pulse-Mini 工作基线：`64aff70`
 
-本文件是 `v1.0` 之后的 Pulse-Mini 规划，不回写或扩大 ENeuron 1.0 的声明。当前工作树已提交；后续修改应以本文件的阶段门为准，不能把“逻辑容量估算”写成“已 routed 的硬件容量”。
+本文件是 `v1.0` 之后的 Pulse-Mini 历史规划，不回写或扩大 ENeuron 1.0 的声明。自 2026-09-02 起，它不再是项目后续开发基线；后续功能、验证和性能比较统一以 [`NPU_NEURON_AUGMENTED_TODO.md`](NPU_NEURON_AUGMENTED_TODO.md) 为准。保留本文件仅用于复现 Pulse-Mini 历史结果，不能把“逻辑容量估算”写成“已 routed 的硬件容量”。
 
 ## 路线变更（2026-09-02）
 
