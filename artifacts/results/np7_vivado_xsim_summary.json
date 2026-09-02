@@ -13,7 +13,7 @@
       "kind": "cfgneg",
       "lanes": 1,
       "logs": {
-        "cfgneg_dense_L1.log": "e54806f02011c5f9f157944085334a39b039e025a9fe1a714d3d072fe33e008e"
+        "cfgneg_dense_L1.log": "5d432483483b6214d909a417ab3c9b5d8e78808562c82392b09c6643513c2636"
       },
       "metrics": {
         "cyc_rows": 0,
@@ -52,7 +52,7 @@
       "kind": "cfgneg",
       "lanes": 4,
       "logs": {
-        "cfgneg_dense_L4.log": "f135bb9d878591a73b0ad5433b3e19e3dd4dabf6685643dd6004ca444cdc06fe"
+        "cfgneg_dense_L4.log": "715169a7dccb69a2ff74d664cb61310d94a61fa4d45ae33bdc05b3d369f1af49"
       },
       "metrics": {
         "cyc_rows": 0,
@@ -91,7 +91,7 @@
       "kind": "cfgneg",
       "lanes": 1,
       "logs": {
-        "cfgneg_sparse_L1.log": "98af31b8b1f7d2478d32fc38194e9e4c6083c37bbc8c45a7ab42fabd5b677596"
+        "cfgneg_sparse_L1.log": "8e435cf4d07e0ce872aab438b1e0c4687333e0016d1ff22cc6a9a0032de00677"
       },
       "metrics": {
         "cyc_rows": 0,
@@ -130,7 +130,7 @@
       "kind": "cfgneg",
       "lanes": 4,
       "logs": {
-        "cfgneg_sparse_L4.log": "c17442a0d177b3fafca84018b2bca32c074c6859c0981b6082624685cf49d4f4"
+        "cfgneg_sparse_L4.log": "ce5a368de40b736ab169ce199874247f8fdda5db36c2ca71b507ee9cea9664d7"
       },
       "metrics": {
         "cyc_rows": 0,
@@ -169,7 +169,7 @@
       "kind": "golden",
       "lanes": 1,
       "logs": {
-        "golden_dense_L1.log": "0ebac519a7c0af168d3a6c616db27d49c510661402f2c88708b9f43f687290e6"
+        "golden_dense_L1.log": "e613674bb97cdf8af0b41a13f85288ab7782165c3a2c47071b7877387dc17563"
       },
       "metrics": {
         "cyc_rows": 827,
@@ -237,7 +237,7 @@
       "kind": "golden",
       "lanes": 2,
       "logs": {
-        "golden_dense_L2.log": "1ad921de5eaeadb1629b3e16409f44a0df132b4ff45b52f98bc1c35a22926287"
+        "golden_dense_L2.log": "3f6b55536b6b7947b22c3fb5f3ce44c6cfa3ec186766aeef36010988a7380bac"
       },
       "metrics": {
         "cyc_rows": 729,
@@ -305,7 +305,7 @@
       "kind": "golden",
       "lanes": 4,
       "logs": {
-        "golden_dense_L4.log": "2dc865ef0d3e9f842569dee5127421db59ff2f7161013001d3280eab51a430d7"
+        "golden_dense_L4.log": "8447dad664bbff641d05033c659e45cb570ce5371ff767460780985edbd75dd2"
       },
       "metrics": {
         "cyc_rows": 677,
@@ -373,7 +373,7 @@
       "kind": "golden",
       "lanes": 8,
       "logs": {
-        "golden_dense_L8.log": "afb8dc415888c296a539ccf6c3c3e01776bb4cbd13085225b4cd6dd7ab446d7e"
+        "golden_dense_L8.log": "710b895c8308e5d991d7c6c89d1bf0fa5b9e2cb47ba07bca0db902ad40f59a2f"
       },
       "metrics": {
         "cyc_rows": 682,
@@ -441,7 +441,7 @@
       "kind": "golden",
       "lanes": 1,
       "logs": {
-        "golden_sparse_L1.log": "e749f740fbc72dd6e507510f3b4d2791f0b83eb73bd890265f355f739b903d73"
+        "golden_sparse_L1.log": "757a305446914859e74d7c1a11a125f3e8f0f92f9aa7cf8e4cd42a76c043fb8e"
       },
       "metrics": {
         "cyc_rows": 527,
@@ -509,7 +509,7 @@
       "kind": "golden",
       "lanes": 2,
       "logs": {
-        "golden_sparse_L2.log": "015f267b808655dbce89fd701d46cb59df74c742c104e0f2b918471630a323d2"
+        "golden_sparse_L2.log": "b1a62a91f1bfbe46c762d0439a807b9d3d675c166a79efaa81aa12a7c8221f85"
       },
       "metrics": {
         "cyc_rows": 510,
@@ -577,7 +577,7 @@
       "kind": "golden",
       "lanes": 4,
       "logs": {
-        "golden_sparse_L4.log": "f306e587ef80d3f970ac23f7647201eff213b22fb5e12074faff62ce4932e056"
+        "golden_sparse_L4.log": "94427d5575061242358010e4115e1ec7165205b8367975be5f583c9a5fb70743"
       },
       "metrics": {
         "cyc_rows": 456,
@@ -645,7 +645,7 @@
       "kind": "golden",
       "lanes": 8,
       "logs": {
-        "golden_sparse_L8.log": "0e19718b5e173480cce419e9ec2bc8d9ade768b8f0127d3fe080304be57a6f34"
+        "golden_sparse_L8.log": "e73f4d98598e795c67153a9c069a564936f89ba49f8d24d3170eeeaea8deefe7"
       },
       "metrics": {
         "cyc_rows": 502,
@@ -714,7 +714,7 @@
       "kind": "negative",
       "lanes": 1,
       "logs": {
-        "neg0_L1.log": "4ca875c07c2c0d66338ff66c9922b9df4ebf8ebe9e664e20ee6f12b56d6563ca"
+        "neg0_L1.log": "5b7c62c6a897bcac0af8f74023ee581d294d9ecf0a1ca100bfa9321c4f5558a4"
       },
       "metrics": {
         "cyc_rows": 704,
@@ -783,7 +783,7 @@
       "kind": "negative",
       "lanes": 4,
       "logs": {
-        "neg0_L4.log": "84bd588e136e0e830b0b4ab4bca6d1673e09d2c128db9e47c9832d1e49113cea"
+        "neg0_L4.log": "a6a970e25b793aa0c6ae45ec8cb5e2a3b9bdf384a45a212a400ef8c69b1c276b"
       },
       "metrics": {
         "cyc_rows": 642,
@@ -852,7 +852,7 @@
       "kind": "negative",
       "lanes": 1,
       "logs": {
-        "neg1_L1.log": "2655bfb5daae86f75c85a22dfd63803f38d5fa814753c2a8109ac583f4182ecb"
+        "neg1_L1.log": "b0e1c36c9f26c9b46c233bbe2eebdd471c9588b345e6f50cdb9dbc1faf85b9ca"
       },
       "metrics": {
         "cyc_rows": 821,
@@ -921,7 +921,7 @@
       "kind": "negative",
       "lanes": 4,
       "logs": {
-        "neg1_L4.log": "740c9474dd7dcfba5634409196ea7c7de8b0a4b6d82cc690f27ba9c8b941b43f"
+        "neg1_L4.log": "80719ab4dadb04ab48f9af66215f1ce6318aebe6660eec831f53ac9526d395f5"
       },
       "metrics": {
         "cyc_rows": 456,
@@ -977,8 +977,8 @@
       "work_dir": "work/neg1_L4"
     }
   },
-  "code_git_head": "537eb7a95408466bb836707fa0bb346c56f22c56",
-  "commands_log_sha256": "2897e4528e0cec4328887ec2a99ad957c1a32ca9e97c03be7fbce6b4702e2187",
+  "code_git_head": "8a564a9a3d0d08a16fe5d44f0a29d0b54559535d",
+  "commands_log_sha256": "c98998e801bfa4ceacc1b94e6a7b4d83ab2bd560cd460a1f0723486067aa81a7",
   "groups": [
     "golden",
     "negative",
@@ -1014,24 +1014,5 @@
     "version": "Vivado Simulator v2024.2.0",
     "version_note": "证据只绑定本机 Vivado 版本，不外推到评审者使用的 2024.1（NP6 决策 9 同口径）"
   },
-  "worktree_dirty": [
-    " M formal_np7_exec_unit.sv",
-    " M formal_np7_exec_unit.ys",
-    " M formal_np7_exec_unit_dense.ys",
-    " M formal_np7_exec_unit_dense_reach.ys",
-    " M formal_np7_exec_unit_reach.ys",
-    " M generate_np7_manifest.py",
-    " M np7_exec_unit_dense.sv",
-    " M np7_exec_unit_sparse.sv",
-    " M np7_formal_and_mutations.py",
-    " M np7_ledger_reconstruction.py",
-    " M np7_negative_controls.sv",
-    " M np7_shared_lane_oracle.py",
-    " M np7_shared_synapse_lane.sv",
-    " M np7_three_model_integration_cosim.py",
-    " M test_np7_physical_mutations.py",
-    " M test_np7_shared_lane_oracle.py",
-    " M verify_np7_physical_cost.py",
-    " M verify_np7_software_cost.py"
-  ]
+  "worktree_dirty": []
 }
