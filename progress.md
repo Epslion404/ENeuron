@@ -888,6 +888,12 @@
 - 已核对差异与报告：16/16 XSim 对照有效，但工具版本为 Vivado 2024.2；OOC 报告绑定旧 code head，作为未变输入的历史证据使用。
 - 已向 PR #8 发布中文反馈，要求保持版本、提交绑定和 `xsim` 偶发崩溃的边界声明；没有自动批准或合并。
 
+### 最终复审
+
+- CI 已完成：NP7 功能、NP7 物理证据、Python/语法、XPM CDC 四项全部 PASS。
+- 最新 head `6b65a6f` 与 main 同步，manifest 已针对唯一变化的输入重新绑定；报告边界、旧 OOC head 和 fail-closed 语义均保持一致。
+- PR #8 当前可合并，已在 PR 留下最终复审意见；未自动批准或合并。
+
 ## 2026-09-02 后续基线正式切换
 
 - 在 `WORKFLOW_STATE.md`、`docs/README.md`、`docs/planning/NPU_NEURON_AUGMENTED_TODO.md`、`docs/planning/TODO.md`、`docs/reports/PROJECT_REPORT.md` 和 `task_plan.md` 中明确：自本日起，项目后续统一以传统 INT8 NPU + 神经元控制平面集成为基线。
