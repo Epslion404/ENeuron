@@ -35,10 +35,10 @@
 | NP7.1 oracle | `python -X utf8 -m unittest test_np7_shared_lane_oracle -v` | 0 | **20 tests OK**（新增 `LanePipelineTests` 四条 P1 性质：结果恰晚最后一批发射 1 拍、零路径不进流水、DRAIN 拍受 `lane_stall` 背压、DRAIN 折叠拍遇 `result_ready=0` 锁存）；`expected_cycles()` 已改成 P1 闭式（非零事务各 +1 拍，零路径仍 1 拍），旧 B-V1+V2 闭式用例同步更新 |
 | NP7.3 逐拍协同仿真 | `python -X utf8 np7_shared_lane_cosim.py` | 0 | `artifacts/results/np7_cosim_ledgers.json`（schema `np7-cosim-ledgers-v2`，日志头 `code_git_head=0dbdf59`）+ `artifacts/logs/np73_cosim.txt`：**160 配置**（dense+sparse × L=1/2/4/8 × 20 seed）、**160,000 事务**、逐拍 oracle 失败 **0**、自报账本不可重建配置 **0**（含新增 S_DRAIN 折叠拍的逐观测全等） |
 | NP7.4 三模型接入 | `python -X utf8 np7_three_model_integration_cosim.py` | 0 | `np7_three_model_integration.json`（schema `np7-three-model-integration-v2`）+ `np74_three_model.txt`：模型数=3 **问题数=0**；每模型 `v2_evidence`（L1）`overlap_cycles=270`、`folded_cycles_saved=700`、`solo_segment_cycles=1700 > stream_cycles=1000`、`zero_single_cycles=330`（后两项各比 round 3 多 100 拍，正好等于 100 笔非零事务 × 1 拍 DRAIN） |
-| NP7.5 形式与负向 | `python -X utf8 np7_formal_and_mutations.py` | 0 | `np7_formal_and_mutations.json`（`git_head=0dbdf59`）+ `np75_formal_mutations.txt`：**形式检查 90/90 PASS、问题数 0**（新增 P11 三组断言）；3 个 proof（sparse/dense 协议 `sat -seq 16 -verify`、CONFIG 拒绝 `-seq 14`）+ 3 个 witness（`zero_path_reach` seq 10、`sparse_reach`/`dense_reach` seq 18）；**12 个 RTL mutation 全部 counterexample**（新增 `lane_hold_ignored`、`sparse/dense_fold_last_early`）；8 个负向实现运行全部被拒；3 个泄漏 mutation 全部被状态等价抓到 |
-| NP7.6 软件签核 | `python -X utf8 generate_np7_manifest.py` → `python -X utf8 verify_np7_software_cost.py <HEAD>` | 0 / 0 | 清单 `np7_software_cost_manifest.json`：`frozen_git_head=9369981`、绑定 **28 输入 + 3 工具 + 26 证据**、`overall=PASS`、`integrity=[]`；验证器日志 `np76_verify.txt`：**rejects=0 / blocking=- / overall=PASS** |
+| NP7.5 形式与负向 | `python -X utf8 np7_formal_and_mutations.py` | 0 | `np7_formal_and_mutations.json`（round 5 在 gate 适配后重跑，`git_head=a197ab9`）+ `np75_formal_mutations.txt`：**形式检查 90/90 PASS、问题数 0**（新增 P11 三组断言）；3 个 proof（sparse/dense 协议 `sat -seq 16 -verify`、CONFIG 拒绝 `-seq 14`）+ 3 个 witness（`zero_path_reach` seq 10、`sparse_reach`/`dense_reach` seq 18）；**12 个 RTL mutation 全部 counterexample**（新增 `lane_hold_ignored`、`sparse/dense_fold_last_early`）；8 个负向实现运行全部被拒；3 个泄漏 mutation 全部被状态等价抓到 |
+| NP7.6 软件签核 | `python -X utf8 generate_np7_manifest.py` → `python -X utf8 verify_np7_software_cost.py <HEAD>` | 0 / 0 | 清单 `np7_software_cost_manifest.json`：`frozen_git_head=0a40da5`、绑定 **28 输入 + 3 工具 + 26 证据**、`overall=PASS`、`integrity=[]`；验证器日志 `np76_verify.txt`：**rejects=0 / blocking=- / overall=PASS** |
 | NP7.6 变异 | `python -X utf8 test_np7_verifier_mutations.py`；同命令在 `chcp 936` 默认代码页下再跑一遍 | 0 / 0 | `np76_mutations.txt`、`np76_mutations_defaultcp.txt`：**MUTATION_SUITE PASS checks=19**（两轮一致） |
-| Vivado 行为仿真 | `python -X utf8 run_np7_vivado_xsim.py --vivado-root C:/Users/MGL/Documents/Codex/Vivado2024_2 --transactions 120` | 0 | `np7_vivado_xsim_summary.json`（schema `np7-vivado-xsim-v2`，`code_git_head=9d07b99`、`worktree_dirty=[]`）+ `vivado_np7_xsim_reports/`：**16 用例 PASS、problems=0**、xsim 与 Icarus 观测流逐字节相同 **16/16**（见 §5）；在 head `9369981` 上复跑一次，逐用例 CYC 行数与首跑完全相同 |
+| Vivado 行为仿真 | `python -X utf8 run_np7_vivado_xsim.py --vivado-root C:/Users/MGL/Documents/Codex/Vivado2024_2 --transactions 120` | 0 | `np7_vivado_xsim_summary.json`（schema `np7-vivado-xsim-v2`，round 5 重跑后 `code_git_head=d56f4fc`、`worktree_dirty=[]`）+ `vivado_np7_xsim_reports/`：**16 用例 PASS、problems=0**、xsim 与 Icarus 观测流逐字节相同 **16/16**（见 §5）；在 head `d56f4fc` 上按 gate 适配后再复跑一次（`tb_np7_negative.sv` 的 EOF 空行修复后必须重跑：XSim 证据绑定它的 sha256），逐用例 CYC 行数与首跑完全相同 |
 | NP7.7 变异 | `python -X utf8 test_np7_physical_mutations.py`；同命令在默认代码页(936)下再跑一遍 | 0 / 0 | `np77_mutations.txt`、`np77_mutations_defaultcp.txt`：**NP77_MUTATION_SUITE PASS checks=13**（基线干净克隆 rejects=0；13 个变异全部被对应判据拦下，含新增 `not_met_config_forge`，见 §6） |
 | NP7.7 物理门（P1 后重跑） | `python -X utf8 run_np7_vivado_ooc.py --vivado-root C:/Users/MGL/Documents/Codex/Vivado2024_2 --jobs 4` → `python -X utf8 verify_np7_physical_cost.py <HEAD>` | 0 / 0 | `np7_vivado_ooc_summary.json`（`code_git_head=9d07b99`、`worktree_dirty=[]`）+ 8 个 `vivado_np7_ooc_<fmt>_L<n>_reports/`（各 9 份报告 + OOC 封装）+ `np77_ooc.txt`、`np77_verify.txt`：**8/8 RESULT=ROUTED、DRC=0、route errors=0、hold 全收敛**，100 MHz **8/8 MET**（`NP7_PHYSICAL_GATE verdict=8/8`、`EXCLUDED none`、`rejects=0 overall=PASS`）；同 head 复跑一次，8 个配置的 LUT/WNS/WHS 逐项相同 |
 
@@ -130,7 +130,7 @@ formal witness（`formal_np7_exec_unit_zero.ys` seq 10 强制 `saw_zero_single=1
 ## 5. Vivado 行为仿真对照（2024.2，逐拍重建）
 
 执行机 `Chan-an`（Windows 11 AMD64），Vivado Simulator **v2024.2.0**，**SW Build 5239630**，
-`C:/Users/MGL/Documents/Codex/Vivado2024_2`，汇总里 `code_git_head=9d07b99` 且
+`C:/Users/MGL/Documents/Codex/Vivado2024_2`，XSim 汇总 `code_git_head=d56f4fc`（OOC 汇总仍是 `9d07b99`，理由见 §11.4）且
 `worktree_dirty=[]`（干净工作树），每用例 `--transactions 120`，
 `xvlog -> xelab -> xsim` 与同一激励目录下的 Icarus 重跑**逐字节相同**（16/16）。
 P1 流水化后每台仿真器的观测流都新增了 `st=6`（S_DRAIN）的拍，两侧同步变化才能全等，
@@ -403,3 +403,31 @@ NP7 步骤用的是 `C:\iverilog\bin` 的 Icarus 12.0（同一份 RTL 手工编�
 **与 PR #6 的改动无关**。可选处置：(a) 把该测试改用仓库既有 `find_tool()` 并在工具缺失时 `skipUnless`；
 (b) 让 gate 的 discover 步骤只跑与改动相关的测试；(c) 维持现状，把它记为已知红。按
 `docs/CI_PR_GATE.md` 的“出现门槛或范围选择必须回到 PR 请求裁定”，本方**不擅自修改他人的测试与工作流**。
+
+### 11.3 第二、三轮 gate 复刻（适配后）
+
+第二轮（HEAD `29728c1`，隔离工作树）：`compileall` rc=0、`unittest discover` rc=1（`Ran 407 tests ... FAILED (errors=2, skipped=1)`，两条都是 §11.2 的 `test_host_bridge_xpm_wrapper`，`test_artifact_layout` 已恢复 PASS）、oracle rc=0、NP7.3 rc=0、NP7.4 rc=0、**NP7.5 rc=0 且不再改写证据字节**、`verify_np7_software_cost.py <HEAD>` **rc=0**（第一轮是 1）、`verify_np7_physical_cost.py <HEAD>` rc=0、`test_np7_physical_mutations.py` rc=0；`git diff --check` 仍剩 1 处 `tb_np7_negative.sv:211: new blank line at EOF`（我的扫描脚本当时只匹配 trailing whitespace，漏了这一类）。
+
+第三轮处置：删掉该空行（提交 `a197ab9`）。因为 XSim 证据按 sha256 绑定 `tb_np7_negative.sv`（负向对照用例用它的 testbench），改这个文件必须重跑 Vivado XSim——已在 `d56f4fc` 重跑 **16/16 PASS、problems=0、worktree_dirty=[]**；两次汇总除 `code_git_head` 与逐用例日志 sha256（xsim 日志内含时间戳）外**逐字段相同**（`icarus_observed_sha256`、`cyc_rows`、golden 对照全部不变）。随后 `git diff --check origin/main...HEAD` **rc=0、0 处命中**。
+
+### 11.4 本轮提交链与证据 head 归属
+
+```text
+aef6b1a  docs(np7): 报告 §0 改成 P1 口径
+27bd388  Merge main@724a5dc（PR gate + 管理员 DP-NP7-001 文档），冲突取 main 原文
+a0987e1  ci(np7): gate 适配（工具发现、字节稳定、空白 lint、归档清单）
+fe48e9d  data(np7): NP7.5 在适配后重跑（90/90、12/12 counterexample）
+06d7f38  data(np7): 重绑 NP7.6 清单（28+3+26，overall=PASS）
+29728c1  data(np7): 冻结 6 份验证/变异日志 + 报告增补
+a197ab9  style(np7): 删 tb_np7_negative.sv 结尾空行（gate 的 git diff --check）
+d56f4fc  data(np7): Vivado XSim 重跑到该 head（16/16、problems=0）
+0a40da5  data(np7): 重绑 NP7.6 清单（frozen_git_head=0a40da5）
+```
+
+证据 head 归属：**OOC 8/8 仍绑 `9d07b99`**（round 4 两次复跑逐项相同）。round 5 只改了 planning 文档、
+形式检查 wrapper 的一行空白、日志排版、CI 工具与负向 testbench 的 EOF 空行，**没有触及任何参与综合的
+DUT 输入**（`np7_shared_synapse_lane.sv`、`np7_exec_unit_*.sv`、`np7_weight_ram.sv`、`tb_np7_exec_unit.sv`、
+`tb_np7_config_negative.sv`、`np7_negative_controls.sv` 字节全部未变），`vivado_np7_ooc_*_reports/` 的
+`GIT_HEAD` 与汇总 `code_git_head` 自洽，`verify_np7_physical_cost.py` 在新 head 下仍 `rejects=0 / 8-8`。
+XSim 证据已推进到 `d56f4fc`（因为它绑定 `tb_np7_negative.sv` 的 sha256）。若管理员要求物理门也重跑到最终
+head，按新裁定执行一次 8 配置 OOC 即可（约 25–35 分钟）。
