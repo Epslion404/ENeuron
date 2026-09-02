@@ -21,5 +21,12 @@
 | `results/local_prune_np3_results.json` | `python run_local_prune_np3.py` |
 | `results/pulse_mini_protocol_experiments.json` | `python pulse_mini_protocol_experiments.py` |
 | `results/rtl_smoke_results.json` | `python rtl_smoke.py` |
+| `results/np6_physical_cost_manifest.json` | `python -X utf8 generate_np6_manifest.py`（NP6 物理清单） |
+| `results/np7_cosim_ledgers.json` | `python -X utf8 np7_shared_lane_cosim.py` |
+| `results/np7_three_model_integration.json` | `python -X utf8 np7_three_model_integration_cosim.py` |
+| `results/np7_formal_and_mutations.json` | `python -X utf8 np7_formal_and_mutations.py` |
+| `results/np7_software_cost_manifest.json` | `python -X utf8 generate_np7_manifest.py` |
+| `results/np7_vivado_xsim_summary.json` | `python -X utf8 run_np7_vivado_xsim.py`（需 Vivado 2024.2 受控机） |
+| `results/np7_vivado_ooc_summary.json` | `python -X utf8 run_np7_vivado_ooc.py`（需 Vivado 2024.2 受控机） |
 
 所有路径均以仓库根目录为基准。除明确标注为标准输出的 B0 摘要外，生成器应直接写入 `artifacts/results/`；调用方保存 B0 摘要时也应使用表中路径。不得在根目录创建兼容副本。

@@ -567,7 +567,7 @@ module formal_np7_exec_unit_dense(input logic clk);
             saw_backpressure <= 1'b0; saw_lane_stall <= 1'b0;
             phase <= 4'd1;
         end else begin
-            
+
             activity <= $anyseq;
             request_now <= $anyseq;
             stall_seq <= $anyseq;

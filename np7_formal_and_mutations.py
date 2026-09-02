@@ -27,9 +27,27 @@ from np7_ledger_reconstruction import (accepted_issue_masks, observe,
                                        reconstruct_violations, reduction,
                                        result_sums, parse_rows)
 
-YOSYS = r"C:\msys64\ucrt64\bin\yosys.exe"
-IVERILOG = r"C:\iverilog\bin\iverilog.exe"
-VVP = r"C:\iverilog\bin\vvp.exe"
+# 工具发现顺序：NP7_YOSYS/NP7_IVEROLOG/NP7_VVP 环境变量 > PATH 中的同名工具 >
+# 本机已知 Windows 安装路径 > 裸命令名。CI runner（ubuntu + apt iverilog/yosys）与本机
+# （Windows 绝对路径）用同一份代码，避免把某台机器的安装位置写死进证据链。
+def resolve_tool(env_var, exe_names, windows_fallbacks):
+    override = os.environ.get(env_var, "").strip()
+    if override:
+        return override
+    for name in exe_names:
+        found = shutil.which(name)
+        if found:
+            return found
+    for candidate in windows_fallbacks:
+        if os.path.isfile(candidate):
+            return candidate
+    return exe_names[0]
+
+
+YOSYS = resolve_tool("NP7_YOSYS", ("yosys",), (r"C:\msys64\ucrt64\bin\yosys.exe",))
+IVERILOG = resolve_tool("NP7_IVEROLOG", ("iverilog",),
+                        (r"C:\iverilog\bin\iverilog.exe",))
+VVP = resolve_tool("NP7_VVP", ("vvp",), (r"C:\iverilog\bin\vvp.exe",))
 NEG_SOURCES = ["np7_weight_ram.sv", "np7_shared_synapse_lane.sv",
                "np7_exec_unit_dense.sv", "np7_exec_unit_sparse.sv",
                "np7_negative_controls.sv", "tb_np7_negative.sv"]
@@ -58,7 +76,9 @@ def check(name, ok, detail=""):
     CHECKS.append({"name": name, "ok": bool(ok), "detail": str(detail)[:400]})
     if not ok:
         PROBLEMS.append("%s: %s" % (name, detail))
-    print("%-46s %s %s" % (name, "PASS" if ok else "FAIL", str(detail)[:120]))
+    # 空 detail 时不留行尾空白：这些日志会提交进仓库，PR gate 的 git diff --check 会拦。
+    print(" ".join([name.ljust(46), "PASS" if ok else "FAIL",
+                    str(detail)[:120]]).rstrip())
     return bool(ok)
 
 def sha256_text(text):
@@ -90,6 +110,9 @@ def formal_verdict(output):
     #   证明被推翻 -> "Status: FAILED"（并给出反例）
     #   可达性 witness -> "SAT solving finished - model found:"
     if "SAT proof finished - no model found: SUCCESS!" in output:
+        return "proof"
+    # 其它 yosys 版本的等价 proof 措辞；匹配不到仍返回 unknown，检查照样 FAIL。
+    if "Successfully proved" in output or "Proof succeeded" in output:
         return "proof"
     if "proof did fail" in output or "Status: FAILED" in output:
         return "counterexample"
@@ -533,15 +556,68 @@ def main(argv=None):
     out = ROOT / "artifacts" / "results"
     out.mkdir(parents=True, exist_ok=True)
     target = out / "np7_formal_and_mutations.json"
-    target.write_text(json.dumps(report, indent=2, ensure_ascii=False,
-                                 sort_keys=True) + "\n", encoding="utf-8")
+    evidence_rc = keep_or_freeze_evidence(report, target)
     passed = sum(1 for c in CHECKS if c["ok"])
     print("NP7.5 形式=%d/%d 负向拒绝=%d 泄漏mutation=%d 问题数=%d 证据=%s"
           % (passed, len(CHECKS), len(negatives), len(leak), len(PROBLEMS),
              target.relative_to(ROOT)))
     for problem in PROBLEMS[:10]:
         print("  FAIL " + problem[:200])
-    return 1 if PROBLEMS else 0
+    return 1 if (PROBLEMS or evidence_rc) else 0
+
+
+# 只有这两个字段是"本次运行"的标记，其余字段必须由冻结证据逐字节复现。
+VOLATILE_EVIDENCE_KEYS = ("git_head", "tool_versions")
+
+
+def _semantic_view(obj):
+    return json.dumps({k: v for k, v in obj.items()
+                       if k not in VOLATILE_EVIDENCE_KEYS},
+                      sort_keys=True, ensure_ascii=False)
+
+
+def keep_or_freeze_evidence(report, target):
+    """默认保留已提交证据的字节，只有显式 NP7_FREEZE_EVIDENCE=1 才重绑。
+
+    pr-gate.yml 的顺序是"先重跑 NP7.3/NP7.5，再用 PR HEAD 校验 NP7.6 清单绑定"。
+    清单把本脚本的输出 JSON 作为证据按 sha256 绑定，若这里无条件改写
+    git_head/tool_versions，校验必然报"磁盘字节偏离清单"——那是复现门的假失败，
+    不是证据失效。语义字段（formal/mutation/negative/ledger）真的变化时同样不改写，
+    而是打印差异并返回失败，逼着显式重绑 NP7.6 清单。
+    """
+    payload = json.dumps(report, indent=2, ensure_ascii=False, sort_keys=True) + "\n"
+    rel = target.name
+    if not target.exists():
+        target.write_text(payload, encoding="utf-8")
+        print("NP7.5 证据首次写入 %s" % rel)
+        return 0
+    try:
+        frozen = json.loads(target.read_text(encoding="utf-8"))
+    except ValueError:
+        print("NP7.5 冻结证据不是合法 JSON，改写为本次结果：%s" % rel)
+        target.write_text(payload, encoding="utf-8")
+        return 1
+    if _semantic_view(frozen) == _semantic_view(report):
+        if os.environ.get("NP7_FREEZE_EVIDENCE", "") == "1":
+            target.write_text(payload, encoding="utf-8")
+            print("NP7.5 NP7_FREEZE_EVIDENCE=1：语义一致，按本次运行重绑 %s "
+                  "（head %s -> %s）"
+                  % (rel, str(frozen.get("git_head"))[:9],
+                     report["git_head"][:9]))
+            return 0
+        print("NP7.5 冻结证据逐字段复现一致，保留原字节（git_head/tool_versions 只是运行标记）")
+        print("NP7.5   冻结 head=%s 本次 head=%s 本次 yosys=%s"
+              % (str(frozen.get("git_head"))[:9], report["git_head"][:9],
+                 str(report["tool_versions"].get("yosys", "?"))[:64]))
+        return 0
+    changed = [k for k in sorted(set(frozen) | set(report))
+               if k not in VOLATILE_EVIDENCE_KEYS
+               and json.dumps(frozen.get(k), sort_keys=True) !=
+               json.dumps(report.get(k), sort_keys=True)]
+    fields = ",".join(changed) or "若干字段"
+    print("NP7.5 严重：本次结果与冻结证据在 %s 上不一致，未改写证据；"
+          "请复核后显式设 NP7_FREEZE_EVIDENCE=1 重跑并重绑 NP7.6 清单" % fields)
+    return 1
 
 
 if __name__ == "__main__":

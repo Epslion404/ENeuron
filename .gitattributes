@@ -17,3 +17,12 @@
 *.gz binary
 *.pdf binary
 *.xcf binary
+
+# Third-party tool output is frozen byte-for-byte: the trailing blanks belong to Vivado/xsim
+# report formatting, and rewriting them would falsify the evidence.  The PR gate runs
+# `git diff --check`, so these generated paths opt out of whitespace linting only -- line
+# endings, hashing and the manifest bindings are unaffected.
+*.rpt -whitespace
+vivado_np7_ooc_*_reports/** -whitespace
+vivado_np7_xsim_reports/** -whitespace
+artifacts/logs/np7_vivado_xsim.txt -whitespace

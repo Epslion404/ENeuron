@@ -26,6 +26,15 @@ EXPECTED_RESULTS = {
     "rtl_smoke_results.json",
     "simulation_results.json",
     "sweep_results.json",
+    # PR #5（NP6）与 PR #6（NP7）新增的清单/证据；归档布局测试要求逐名登记，
+    # 且 artifacts/README.md 的索引里必须能检索到同一批文件名。
+    "np6_physical_cost_manifest.json",
+    "np7_cosim_ledgers.json",
+    "np7_formal_and_mutations.json",
+    "np7_software_cost_manifest.json",
+    "np7_three_model_integration.json",
+    "np7_vivado_ooc_summary.json",
+    "np7_vivado_xsim_summary.json",
 }
 
 
