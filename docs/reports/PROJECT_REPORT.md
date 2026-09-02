@@ -266,9 +266,9 @@ D2 状态为 `D2_FAIL_GENERALIZATION`，部分种子同时属于 `D2_FAIL_ACTIVI
 
 ## 11. 建议下一阶段
 
-### 当前人工门：NP7 审核
+### 当前人工门：传统 NPU + 神经元集成审核
 
-NP6 已完成并以 PR #5 合并。7 个配置均完成 Vivado 2024.2 实现且 route/DRC error 为 0，但只有独立 gate 与 ENeuron 剪枝封装通过 100 MHz，因此状态为 `NP6_PHYSICAL_COST_PARTIAL / NP7_REVIEW_REQUIRED`。NP7 审核稿见 `docs/planning/NPU_PRUNING_NP7_TODO.md`；它才负责共享 BRAM 格式、真实读请求跳过和共享 lane 周期下降。
+NP6 已完成并以 PR #5 合并，状态保持 `NP6_PHYSICAL_COST_PARTIAL`。NP7 已合并，报告了 dense/sparse 共享执行单元、`1/2/4/8 lane` 和 8/8 物理收敛证据；这些结果仍不是完整传统 INT8 NPU 的端到端性能证明。当前活动合同改为 `docs/planning/NPU_NEURON_AUGMENTED_TODO.md`，先审核 N0，再建立 `64 -> 32 -> 10` dense INT8 NPU 基线。
 
 ### 优先级 1：D2.1 输出信用修正
 

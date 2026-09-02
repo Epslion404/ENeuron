@@ -17,6 +17,7 @@
 ## 专项计划
 
 - [Pulse-Mini 开发计划](planning/TODO.md)
+- [传统 NPU + 神经元局部剪枝与动态门控计划](planning/NPU_NEURON_AUGMENTED_TODO.md)
 - [NPU 局部剪枝与动态门控计划](planning/NPU_PRUNING_TODO.md)
 - [NP4B 正式集成 TODO](planning/NPU_PRUNING_NP4B_TODO.md)
 - [NP6 物理成本评估 TODO](planning/NPU_PRUNING_NP6_TODO.md)
@@ -42,6 +43,7 @@
 - [局部剪枝 NP2](reports/LOCAL_PRUNE_NP2_REPORT.md)
 - [局部剪枝 NP3](reports/LOCAL_PRUNE_NP3_REPORT.md)
 - [局部剪枝 NP4/NP5 RTL](reports/LOCAL_PRUNE_RTL_REPORT.md)
+- [N1 Dense INT8 NPU 软件基线](reports/NPU_N1_DENSE_BASELINE_REPORT.md)
 
 ## 验证与签核
 
