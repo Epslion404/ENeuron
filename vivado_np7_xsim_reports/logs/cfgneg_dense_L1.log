@@ -22,12 +22,12 @@ Starting static elaboration
 Pass Through NonSizing Optimizer
 Completed static elaboration
 Starting simulation data flow analysis
-WARNING: [XSIM 43-4099] "C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/np7_exec_unit_dense.sv" Line 13. Module np7_exec_unit_dense(LANES=1) doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/np7_exec_unit_dense.sv" Line 15. Module np7_exec_unit_dense(LANES=1) doesn't have a timescale but at least one module in design has a timescale.
 WARNING: [XSIM 43-4099] "C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/np7_weight_ram.sv" Line 18. Module np7_weight_ram doesn't have a timescale but at least one module in design has a timescale.
-WARNING: [XSIM 43-4099] "C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/np7_shared_synapse_lane.sv" Line 7. Module np7_shared_synapse_lane(LANES=1) doesn't have a timescale but at least one module in design has a timescale.
-WARNING: [XSIM 43-4099] "C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/np7_exec_unit_dense.sv" Line 13. Module np7_exec_unit_dense(LANES=1) doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/np7_shared_synapse_lane.sv" Line 18. Module np7_shared_synapse_lane(LANES=1) doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/np7_exec_unit_dense.sv" Line 15. Module np7_exec_unit_dense(LANES=1) doesn't have a timescale but at least one module in design has a timescale.
 WARNING: [XSIM 43-4099] "C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/np7_weight_ram.sv" Line 18. Module np7_weight_ram doesn't have a timescale but at least one module in design has a timescale.
-WARNING: [XSIM 43-4099] "C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/np7_shared_synapse_lane.sv" Line 7. Module np7_shared_synapse_lane(LANES=1) doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/np7_shared_synapse_lane.sv" Line 18. Module np7_shared_synapse_lane(LANES=1) doesn't have a timescale but at least one module in design has a timescale.
 Completed simulation data flow analysis
 Time Resolution for simulation is 1ps
 Compiling module work.np7_weight_ram
@@ -43,7 +43,7 @@ Built simulation snapshot np7sim
   **** SW Build 5239630 on Fri Nov 08 22:35:27 MST 2024
   **** IP Build 5239520 on Sun Nov 10 16:12:51 MST 2024
   **** SharedData Build 5239561 on Fri Nov 08 14:39:27 MST 2024
-  **** Start of session at: Wed Sep  2 05:06:07 2026
+  **** Start of session at: Wed Sep  2 13:23:27 2026
     ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
     ** Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
 
@@ -51,10 +51,10 @@ source xsim.dir/np7sim/xsim_script.tcl
 # xsim {np7sim} -autoloadwcfg -runall
 Time resolution is 1 ps
 run -all
-CFGNEG PHASE 0 err_after_cfg=0 err_final=0 proto=0 strobes=0 sums=18 done=18 total=93
-CFGNEG PHASE 1 err_after_cfg=1 err_final=1 proto=0 strobes=1 sums=18 done=18 total=93
-CFGNEG PHASE 2 err_after_cfg=1 err_final=1 proto=0 strobes=1 sums=18 done=18 total=93
-CFGNEG PHASE 3 err_after_cfg=0 err_final=1 proto=0 strobes=0 sums=36 done=36 total=186
+CFGNEG PHASE 0 err_after_cfg=0 err_final=0 proto=0 strobes=0 sums=18 done=18 total=105
+CFGNEG PHASE 1 err_after_cfg=1 err_final=1 proto=0 strobes=1 sums=18 done=18 total=105
+CFGNEG PHASE 2 err_after_cfg=1 err_final=1 proto=0 strobes=1 sums=18 done=18 total=105
+CFGNEG PHASE 3 err_after_cfg=0 err_final=1 proto=0 strobes=0 sums=36 done=36 total=210
 CFGNEG CHECK clean_load_no_error PASS
 CFGNEG CHECK illegal_strobe_only_on_illegal_word PASS
 CFGNEG CHECK poison_after_legal_ram_unchanged PASS
@@ -64,17 +64,17 @@ CFGNEG CHECK error_latched_sticky PASS
 CFGNEG CHECK no_protocol_error_any_phase PASS
 CFGNEG CHECK legal_words_still_execute PASS
 CFGNEG SUMMARY FORMAT=dense LANES=1 CHECKS=8 FAILED=0 RESULT=PASS
-$finish called at time : 6536 ns : File "C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/tb_np7_config_negative.sv" Line 380
+$finish called at time : 7136 ns : File "C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/tb_np7_config_negative.sv" Line 380
 exit
-INFO: [Common 17-206] Exiting xsim at Wed Sep  2 05:06:09 2026...
+INFO: [Common 17-206] Exiting xsim at Wed Sep  2 13:23:29 2026...
 
 #### iverilog (exit 0) ####
 
 #### icarus (exit 0) ####
-CFGNEG PHASE 0 err_after_cfg=0 err_final=0 proto=0 strobes=0 sums=18 done=18 total=93
-CFGNEG PHASE 1 err_after_cfg=1 err_final=1 proto=0 strobes=1 sums=18 done=18 total=93
-CFGNEG PHASE 2 err_after_cfg=1 err_final=1 proto=0 strobes=1 sums=18 done=18 total=93
-CFGNEG PHASE 3 err_after_cfg=0 err_final=1 proto=0 strobes=0 sums=36 done=36 total=186
+CFGNEG PHASE 0 err_after_cfg=0 err_final=0 proto=0 strobes=0 sums=18 done=18 total=105
+CFGNEG PHASE 1 err_after_cfg=1 err_final=1 proto=0 strobes=1 sums=18 done=18 total=105
+CFGNEG PHASE 2 err_after_cfg=1 err_final=1 proto=0 strobes=1 sums=18 done=18 total=105
+CFGNEG PHASE 3 err_after_cfg=0 err_final=1 proto=0 strobes=0 sums=36 done=36 total=210
 CFGNEG CHECK clean_load_no_error PASS
 CFGNEG CHECK illegal_strobe_only_on_illegal_word PASS
 CFGNEG CHECK poison_after_legal_ram_unchanged PASS
@@ -84,4 +84,4 @@ CFGNEG CHECK error_latched_sticky PASS
 CFGNEG CHECK no_protocol_error_any_phase PASS
 CFGNEG CHECK legal_words_still_execute PASS
 CFGNEG SUMMARY FORMAT=dense LANES=1 CHECKS=8 FAILED=0 RESULT=PASS
-C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/tb_np7_config_negative.sv:380: $finish called at 6536000 (1ps)
+C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/tb_np7_config_negative.sv:380: $finish called at 7136000 (1ps)
