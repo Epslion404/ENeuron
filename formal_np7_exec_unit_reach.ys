@@ -1,0 +1,7 @@
+# NP7.5 共享突触执行单元可达性 witness（稀疏顶层，LANES=1）。
+read_verilog -formal -sv np7_weight_ram.sv np7_shared_synapse_lane.sv np7_exec_unit_sparse.sv np7_exec_unit_dense.sv formal_np7_exec_unit.sv
+prep -top formal_np7_exec_unit -flatten
+async2sync
+memory_map
+opt_clean
+sat -seq 18 -set-assumes -set-init-zero -set-at 18 saw_fold 1 -set-at 18 saw_lane_stall 1 -set-at 18 saw_backpressure 1 -set-at 18 lane_ops_issued_state 2 -set-at 18 completed_groups_state 1 -show completed_groups_state,lane_ops_issued_state,zero_fast_paths_state,group_read_requests_state,saw_zero_single,saw_zero_hold,saw_fold,saw_backpressure,saw_lane_stall -dump_vcd formal_np7_exec_unit_success.vcd

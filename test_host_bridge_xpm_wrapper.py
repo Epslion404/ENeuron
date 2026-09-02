@@ -1,49 +1,188 @@
-"""Host Bridge XPM CDC wrapper 的双时钟定向回归。"""
+r"""Host Bridge XPM CDC 包装层双向回归 —— Windows + MSYS2 UCRT64 专项测试。
+
+本文件对固定工具路径的依赖是仓库 admin 在 PR #6 中明确裁定保留的（review
+5087208884、issue comment 5506790489，2026-09-02），裁定同时要求把该依赖在代码和
+文档里显式注明。下面 4 点与裁定条目逐条对应，判断本文件的失败/跳过原因之前请先读完：
+
+1. 专用路径，不是跨平台默认。``MSYS2_UCRT64_BIN`` / ``IVERILOG`` / ``VVP`` 常量指向
+   ``C:\msys64\ucrt64\bin`` 下的可执行文件。该目录只存在于 Windows 上 MSYS2 的
+   UCRT64 子系统安装布局中；Linux/macOS 上没有任何理由出现同名路径。仓库其余测试改用
+   ``find_tool()``/PATH 发现工具，本测试保留固定路径属于裁定明确允许的例外，不应被
+   误读成“工程代码硬编码了个人机器环境”。
+2. 依赖的工具名称、安装布局和用途：
+   * MSYS2 UCRT64 包 ``mingw-w64-ucrt-x86_64-iverilog`` 提供 ``iverilog.exe`` 与
+     ``vvp.exe``，安装布局为 ``<msys2>/ucrt64/{bin,include,lib,share}``；本机核对过
+     的版本是 Icarus Verilog 12.0 (stable)，CI 使用同包（上游当前 13.0-2）；
+   * ``iverilog.exe`` 把 ``xpm_fifo_async_sim.sv``（``xpm_fifo_async`` 的接口等价模型，
+     因此本测试不需要 Vivado 及其 XPM 库）、``digital_snn_host_bridge.sv`` 和内联
+     SystemVerilog testbench 编译成 ``.vvp`` 网表；
+   * ``vvp.exe`` 运行该网表，用两条互不同源的时钟驱动 FIFO，检查命令/响应双向传输、
+     fwft 读时序、满与背压、读写指针回绕、复位清空，以及非法复位重入必须以非 0 结束并
+     报 ``RESET_REENTRY_ERROR``。
+3. Ubuntu runner 不能直接执行本测试。Linux 上 ``C:\msys64\...`` 必然不存在，若继续
+   ``raise RuntimeError`` 就会把“路径不存在”误报成“代码功能失败”。因此
+   ``require_windows_msys2_toolchain()`` 在非 Windows 或工具缺失时抛
+   ``unittest.SkipTest``，消息以 ``SKIPPED/NOT APPLICABLE:`` 开头并给出具体原因；
+   ``test_illegal_reset_reentry_is_rejected`` 之类需要仿真的用例同理。
+   ``test_xpm_configuration_is_frozen`` 和 ``test_windows_msys2_toolchain_dependency_is_declared``
+   只读源码，不依赖仿真工具，在所有平台照常执行。
+4. PR Gate 已相应调整：``.github/workflows/pr-gate.yml`` 的 ``windows-xpm-cdc`` 作业
+   （``windows-latest`` + ``msys2/setup-msys2@v2`` + ``msystem: UCRT64`` +
+   ``mingw-w64-ucrt-x86_64-iverilog``）是本测试的真实执行环境，并带守卫步骤——一旦被
+   跳过就判定该作业失败；``python-and-syntax``（ubuntu-latest）只负责显示明确的
+   SKIPPED/NOT APPLICABLE 并把该 notice 打印到作业日志。完整说明见
+   ``docs/WINDOWS_MSYS2_XPM_TOOLCHAIN.md``。
+
+工具链缺陷的处理原则（复现矩阵见同一文档）：本机 ``C:\msys64\ucrt64`` 只是 UCRT64
+bin 的局部拷贝、并非完整 MSYS2 安装，实测特征有两条——带 ``-Wall`` 编译本设计时
+``iverilog.exe`` 以 0xC0000005 立即失败且 stdout/stderr 全空（去掉 ``-Wall`` 即 rc=0），
+而 ``vvp.exe`` 连空 testbench 都以 0xC0000005 无输出崩溃。这类“非 0 退出 + 完全无输出”
+的崩溃属于工具链缺陷，不是 RTL 行为，因此转成 SKIPPED/NOT APPLICABLE 并打印
+``TOOLCHAIN_DEFECT=...``；``compile_and_run()`` 仍优先使用 ``-Wall``，只在命中该特征时去掉
+``-Wall`` 重试一次。任何**有输出**的非 0 结果（真实语法错误、断言失败）一律照常抛出或
+判定失败，不掩盖问题；Windows 作业的守卫保证“跳过”不能被当成通过。
+"""
 
 from __future__ import annotations
 
 import os
 import re
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent
-IVERILOG = Path(r"C:\msys64\ucrt64\bin\iverilog.exe")
-VVP = Path(r"C:\msys64\ucrt64\bin\vvp.exe")
+
+# 以下常量是裁定允许保留的 Windows + MSYS2 UCRT64 专用固定路径，不是跨平台默认路径；
+# 非 Windows 平台必须走 SKIPPED/NOT APPLICABLE 分支，而不是报成代码功能失败。
+MSYS2_UCRT64_BIN = Path(r"C:\msys64\ucrt64\bin")
+IVERILOG = MSYS2_UCRT64_BIN / "iverilog.exe"
+VVP = MSYS2_UCRT64_BIN / "vvp.exe"
+MSYS2_IVERILOG_PACKAGE = "mingw-w64-ucrt-x86_64-iverilog"
+REQUIRED_TOOLS = (IVERILOG, VVP)
+SKIPPED_PREFIX = "SKIPPED/NOT APPLICABLE: "
+# Windows 上进程异常终止的 NTSTATUS（低 32 位），且完全没有 stdout/stderr。
+CRASH_RETURN_CODES = (0xC0000005, 0xC0000409)
+_NOTICE_LOGGED = False
+
+
+def unsigned_return_code(returncode: int) -> int:
+    return returncode & 0xFFFFFFFF
+
+
+def is_silent_abnormal_exit(process: subprocess.CompletedProcess[str]) -> bool:
+    """“非 0 退出 + 输出全空 + 崩溃状态码”——工具链缺陷特征，而非 RTL 行为。"""
+    return (
+        process.returncode != 0
+        and unsigned_return_code(process.returncode) in CRASH_RETURN_CODES
+        and not (process.stdout or "").strip()
+        and not (process.stderr or "").strip()
+    )
+
+
+def toolchain_unavailability() -> str | None:
+    """返回“本测试为何无法在此机器上真实执行”的原因；None 表示可以执行。"""
+    if sys.platform != "win32":
+        return (
+            f"host platform is {sys.platform!r}, not win32; this test drives the Windows + MSYS2 "
+            f"UCRT64 layout {MSYS2_UCRT64_BIN} and cannot run on an Ubuntu runner"
+        )
+    missing = [str(path) for path in REQUIRED_TOOLS if not path.exists()]
+    if missing:
+        return (
+            "missing tool(s): " + ", ".join(missing)
+            + f"; install the MSYS2 UCRT64 package {MSYS2_IVERILOG_PACKAGE}"
+        )
+    return None
+
+
+def toolchain_notice() -> str:
+    version = "unreadable"
+    try:
+        probe = subprocess.run(
+            [str(IVERILOG), "-V"], capture_output=True, text=True, timeout=60, check=False
+        )
+        lines = (probe.stdout or "").splitlines()
+        version = lines[0].strip() if lines else "no -V output"
+    except OSError as error:
+        version = f"error: {error}"
+    return (
+        f"XPM_TOOLCHAIN platform={sys.platform} python={sys.version.split()[0]} "
+        f"package={MSYS2_IVERILOG_PACKAGE} iverilog={IVERILOG} vvp={VVP} "
+        f"iverilog_version={version!r}"
+    )
+
+
+def log_toolchain_notice() -> None:
+    global _NOTICE_LOGGED
+    if not _NOTICE_LOGGED:
+        print(toolchain_notice(), flush=True)
+        _NOTICE_LOGGED = True
+
+
+def require_windows_msys2_toolchain() -> None:
+    """非 Windows 或工具缺失 => 跳过（NOT APPLICABLE），不是失败。"""
+    log_toolchain_notice()
+    reason = toolchain_unavailability()
+    if reason is not None:
+        raise unittest.SkipTest(SKIPPED_PREFIX + reason)
+
+
+def toolchain_defect(tool: str, process: subprocess.CompletedProcess[str], stage: str) -> unittest.SkipTest:
+    print(
+        f"TOOLCHAIN_DEFECT={tool}_{stage}_silent_crash "
+        f"return_code=0x{unsigned_return_code(process.returncode):08X}",
+        flush=True,
+    )
+    return unittest.SkipTest(
+        SKIPPED_PREFIX
+        + f"toolchain_defect: {tool} exited with 0x{unsigned_return_code(process.returncode):08X} "
+        + "and produced no output at all, so this is an incomplete/faulty MSYS2 UCRT64 install "
+        + f"on this host, not an RTL failure; install {MSYS2_IVERILOG_PACKAGE} properly"
+    )
 
 
 def compile_and_run(testbench: str) -> subprocess.CompletedProcess[str]:
-    """用接口等价 FIFO 模型编译并运行一个临时双时钟 testbench。"""
-    if not IVERILOG.exists() or not VVP.exists():
-        raise RuntimeError("需要 C:/msys64/ucrt64/bin 下的 iverilog 和 vvp")
+    """用接口等价 FIFO 模型编译并运行一个双时钟 testbench。"""
+    require_windows_msys2_toolchain()
 
     with tempfile.TemporaryDirectory(prefix="eneuron_xpm_wrapper_") as temp_dir:
         temp = Path(temp_dir)
         tb_path = temp / "tb.sv"
         sim_path = temp / "tb.vvp"
         tb_path.write_text(testbench, encoding="utf-8")
+        command = [
+            str(IVERILOG),
+            "-g2012",
+            "-Wall",
+            "-s",
+            "tb",
+            "-o",
+            str(sim_path),
+            str(ROOT / "xpm_fifo_async_sim.sv"),
+            str(ROOT / "digital_snn_host_bridge.sv"),
+            str(tb_path),
+        ]
         compile_result = subprocess.run(
-            [
-                str(IVERILOG),
-                "-g2012",
-                "-Wall",
-                "-s",
-                "tb",
-                "-o",
-                str(sim_path),
-                str(ROOT / "xpm_fifo_async_sim.sv"),
-                str(ROOT / "digital_snn_host_bridge.sv"),
-                str(tb_path),
-            ],
-            cwd=ROOT,
-            capture_output=True,
-            text=True,
-            check=False,
+            command, cwd=ROOT, capture_output=True, text=True, check=False
         )
+        if compile_result.returncode != 0 and is_silent_abnormal_exit(compile_result):
+            # 已知缺陷特征：iverilog.exe + -Wall 无输出崩溃；去掉 -Wall 重试一次。
+            print(
+                "TOOLCHAIN_DEFECT=iverilog_compile_silent_crash "
+                f"return_code=0x{unsigned_return_code(compile_result.returncode):08X} retry_without=-Wall",
+                flush=True,
+            )
+            command.remove("-Wall")
+            compile_result = subprocess.run(
+                command, cwd=ROOT, capture_output=True, text=True, check=False
+            )
         if compile_result.returncode != 0:
+            if is_silent_abnormal_exit(compile_result):
+                raise toolchain_defect("iverilog.exe", compile_result, "compile")
             raise RuntimeError(
                 "iverilog failed:\n"
                 f"{compile_result.stdout}\n{compile_result.stderr}"
@@ -51,7 +190,7 @@ def compile_and_run(testbench: str) -> subprocess.CompletedProcess[str]:
 
         env = os.environ.copy()
         env["PATH"] = f"{VVP.parent}{os.pathsep}{env.get('PATH', '')}"
-        return subprocess.run(
+        run_result = subprocess.run(
             [str(VVP), str(sim_path)],
             cwd=temp,
             capture_output=True,
@@ -59,6 +198,9 @@ def compile_and_run(testbench: str) -> subprocess.CompletedProcess[str]:
             check=False,
             env=env,
         )
+        if is_silent_abnormal_exit(run_result):
+            raise toolchain_defect("vvp.exe", run_result, "run")
+        return run_result
 
 
 COMMON_DECLARATIONS = r"""
@@ -294,6 +436,54 @@ endmodule
 
 
 class HostBridgeXpmWrapperTests(unittest.TestCase):
+    def test_windows_msys2_toolchain_dependency_is_declared(self) -> None:
+        """平台无关：核对裁定要求的 4 点注明与 CI 调整确实写在仓库里。"""
+        module_doc = Path(__file__).read_text(encoding="utf-8").split('"""')[1]
+        for marker in (
+            "Windows + MSYS2 UCRT64",
+            str(MSYS2_UCRT64_BIN),
+            MSYS2_IVERILOG_PACKAGE,
+            "iverilog.exe",
+            "vvp.exe",
+            "Ubuntu runner",
+            SKIPPED_PREFIX.strip(),
+            "windows-xpm-cdc",
+        ):
+            self.assertIn(marker, module_doc, f"模块 docstring 缺少注明: {marker}")
+
+        # Path 的分隔符语义随平台变化，因此这里断言“目录 + 文件名”而不是整串字面量。
+        self.assertEqual(str(MSYS2_UCRT64_BIN).replace("\\", "/"), "C:/msys64/ucrt64/bin")
+        self.assertEqual(IVERILOG.parent, MSYS2_UCRT64_BIN)
+        self.assertEqual(VVP.parent, MSYS2_UCRT64_BIN)
+        self.assertEqual(IVERILOG.name, "iverilog.exe")
+        self.assertEqual(VVP.name, "vvp.exe")
+
+        workflow = (ROOT / ".github" / "workflows" / "pr-gate.yml").read_text(encoding="utf-8")
+        for marker in (
+            "windows-xpm-cdc:",
+            "runs-on: windows-latest",
+            "msys2/setup-msys2@v2",
+            "msystem: UCRT64",
+            MSYS2_IVERILOG_PACKAGE,
+            "test_host_bridge_xpm_wrapper",
+            "NOT APPLICABLE",
+        ):
+            self.assertIn(marker, workflow, f"pr-gate.yml 缺少调整: {marker}")
+
+        barrier = (ROOT / "verify_formal_local_prune_commit_barrier.py").read_text(encoding="utf-8")
+        self.assertIn("def find_tool", barrier, "barrier verifier 仍在使用硬编码固定路径")
+        self.assertIn("NOT APPLICABLE", barrier, "barrier verifier 缺少非 Windows 说明")
+
+        guide = (ROOT / "docs" / "WINDOWS_MSYS2_XPM_TOOLCHAIN.md").read_text(encoding="utf-8")
+        for marker in (
+            "Windows + MSYS2 UCRT64",
+            MSYS2_IVERILOG_PACKAGE,
+            "test_host_bridge_xpm_wrapper.py",
+            "SKIPPED/NOT APPLICABLE",
+            "windows-xpm-cdc",
+        ):
+            self.assertIn(marker, guide, f"工具链文档缺少注明: {marker}")
+
     def test_xpm_configuration_is_frozen(self) -> None:
         source = (ROOT / "digital_snn_host_bridge.sv").read_text(encoding="utf-8")
         self.assertEqual(len(re.findall(r"xpm_fifo_async\s*#", source)), 2)
@@ -306,6 +496,39 @@ class HostBridgeXpmWrapperTests(unittest.TestCase):
             r"\.CDC_SYNC_STAGES\s*\(\s*2\s*\)",
         ):
             self.assertEqual(len(re.findall(setting, source)), 2, setting)
+
+    # 只匹配“独立成句”的线网/寄存器声明；端口段以 input/output 开头，因此不会被误判。
+    DECLARATION = re.compile(r"^\s*(?:wire|reg|logic)\s+(?:\[[^\]]*\]\s*)?(\w+)")
+
+    def test_model_declares_every_signal_before_use(self) -> None:
+        """平台无关静态守卫：模型内不得出现“声明晚于使用”的信号。
+
+        ``windows-xpm-cdc`` 作业安装的 ``mingw-w64-ucrt-x86_64-iverilog`` 13.0 会在
+        elaborate 阶段拒绝模块内的前向引用（``error: Unable to bind
+        wire/reg/memory 'ram_empty' ... Check for declaration after use.``，见
+        ``artifacts/logs/xpm_wrapper_ci_run_33615563208.txt``），而 2015 快照的
+        ``Icarus Verilog 12.0 (devel)`` 会静默 elaborate 通过。本守卫只读源码、不调用任何
+        外部工具，因此在 Windows 与 Ubuntu runner 上都会真实执行。
+        """
+        lines = [
+            re.sub(r"//.*$", "", line)
+            for line in (ROOT / "xpm_fifo_async_sim.sv").read_text(encoding="utf-8").splitlines()
+        ]
+        declared: dict[str, int] = {}
+        for index, line in enumerate(lines, 1):
+            match = self.DECLARATION.match(line)
+            if match:
+                declared.setdefault(match.group(1), index)
+        self.assertTrue(declared, "声明扫描正则失效：一个信号都没匹配到")
+        late = []
+        for name, declaration_line in sorted(declared.items()):
+            for index, line in enumerate(lines, 1):
+                if index >= declaration_line:
+                    break
+                if re.search(r"\b" + re.escape(name) + r"\b", line):
+                    late.append((name, index, declaration_line))
+                    break
+        self.assertEqual(late, [], "xpm_fifo_async_sim.sv 存在使用前未声明的信号: " + str(late))
 
     def test_bidirectional_transport_backpressure_wrap_and_reset(self) -> None:
         result = compile_and_run(TRANSPORT_TESTBENCH)

@@ -1,12 +1,12 @@
 {
   "binding_refresh": {
-    "date": "2026-08-31",
-    "generated_on_top_of_commit": "e5bbbc5",
+    "date": "2026-09-02",
+    "generated_on_top_of_commit": "1844d74",
     "reason": "recomputed file_sha256 and formal.witness_bytes with the EOL-independent canonical policy (CRLF/CR folded to LF, identical to verify_local_prune_rtl.canonical_sha256) after pinning *.vcd bytes with '.gitattributes: *.vcd -text -eol'; the date/regression/tools blocks above are the inherited frozen record of the original 2026-08-29 sign-off run, not results re-measured by this refresh",
     "tools": {
-      "iverilog": "Icarus Verilog version 12.0 (stable) ()",
-      "python": "Python 3.14.2",
-      "yosys": "Yosys 0.56 (git sha1 9c447ad9d4b1ea589369364eea38b4d70da2c599, x86_64-w64-mingw32-g++ 15.2.0 -march=nocona -msahf -mtune=generic -O2 -fstack-protector-strong -O3)"
+      "iverilog": "Icarus Verilog version 12.0 (devel) (s20150603-1539-g2693dd32b)",
+      "python": "Python 3.14.7",
+      "yosys": "Yosys 0.68 (git sha1 38e001a6f, Release, Clang /workspace/YoWASP/yosys/wasi-sdk-33.0-x86_64-linux/share/cmake/../..//bin/clang++ 22.1.0)"
     }
   },
   "commands": {
@@ -31,7 +31,7 @@
     "warnings_as_reported": "-Wall"
   },
   "date": "2026-08-29",
-  "evidence_base_commit": "e5bbbc5",
+  "evidence_base_commit": "1844d74",
   "file_groups": {
     "formal": [
       "formal_eneuron_prune_wrapper.sv",
@@ -215,7 +215,7 @@
     "test_verify_np4b_signoff.py": "193dcac4566734747e5eef1076f9b845cf8d466a8a5c4c98067b69de82b4a066",
     "verify_eneuron_pruned_network_summary.py": "a2fa7db03d08f3032dbdc67e262b8bd6fc64a8df8b71a09e3e72a03a7a194e01",
     "verify_formal_eneuron_prune_wrapper.py": "8bf7b50930a4876b820c8d6c2410de06c448e2ae60b5437e76affc7e7ec047d6",
-    "verify_formal_local_prune_commit_barrier.py": "8afaeb19d3be035e241da1541a708f64c3a634f6577d753ca450fee2a2b3cb61",
+    "verify_formal_local_prune_commit_barrier.py": "6fb38c529be58df198490ac2c01e45fbb435f28d7f395ba4baa20992baa14b13",
     "verify_formal_local_prune_gate.py": "64e33950af99024b869cc20273c8eb53e0f434811d89020793506a5ea505b80d",
     "verify_formal_pulse_mini_l2_prune_wrapper.py": "4b43af4f9d675291c6fbecb7113c3dcefadf71b1d412a1b3b64dab1cf91d4b6a",
     "verify_formal_pulse_mini_prune_wrapper.py": "5b7814464ec2b092e8af7e05bb0ec3e50a7de200a739f4873dfc89ef30997854",

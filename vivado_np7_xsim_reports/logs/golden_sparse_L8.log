@@ -1,0 +1,228 @@
+#### xvlog (exit 0) ####
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/np7_weight_ram.sv" into library work
+INFO: [VRFC 10-311] analyzing module np7_weight_ram
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/np7_shared_synapse_lane.sv" into library work
+INFO: [VRFC 10-311] analyzing module np7_shared_synapse_lane
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/np7_exec_unit_dense.sv" into library work
+INFO: [VRFC 10-311] analyzing module np7_exec_unit_dense
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/np7_exec_unit_sparse.sv" into library work
+INFO: [VRFC 10-311] analyzing module np7_exec_unit_sparse
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/tb_np7_exec_unit.sv" into library work
+INFO: [VRFC 10-311] analyzing module tb
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/vivado_np7_xsim_reports/work/golden_sparse_L8/xsim_top.sv" into library work
+INFO: [VRFC 10-311] analyzing module xsim_top
+
+#### xelab (exit 0) ####
+Vivado Simulator v2024.2.0
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+Running: C:/Users/MGL/Documents/Codex/Vivado2024_2/bin/unwrapped/win64.o/xelab.exe --relax --debug typical --snapshot np7sim work.xsim_top 
+Multi-threading is on. Using 30 slave threads.
+Starting static elaboration
+Pass Through NonSizing Optimizer
+Completed static elaboration
+Starting simulation data flow analysis
+WARNING: [XSIM 43-4099] "C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/np7_exec_unit_sparse.sv" Line 15. Module np7_exec_unit_sparse(LANES=8) doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/np7_weight_ram.sv" Line 18. Module np7_weight_ram doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/np7_shared_synapse_lane.sv" Line 18. Module np7_shared_synapse_lane(LANES=8) doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/np7_exec_unit_sparse.sv" Line 15. Module np7_exec_unit_sparse(LANES=8) doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/np7_weight_ram.sv" Line 18. Module np7_weight_ram doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/np7_shared_synapse_lane.sv" Line 18. Module np7_shared_synapse_lane(LANES=8) doesn't have a timescale but at least one module in design has a timescale.
+Completed simulation data flow analysis
+Time Resolution for simulation is 1ps
+Compiling module work.np7_weight_ram
+Compiling module work.np7_shared_synapse_lane(LANES=8)
+Compiling module work.np7_exec_unit_sparse(LANES=8)
+Compiling module work.tb(LANES=8,NTXN=120,NWORD=10,SPA...
+Compiling module work.xsim_top
+Built simulation snapshot np7sim
+
+#### xsim (exit 0) ####
+
+****** xsim v2024.2 (64-bit)
+  **** SW Build 5239630 on Fri Nov 08 22:35:27 MST 2024
+  **** IP Build 5239520 on Sun Nov 10 16:12:51 MST 2024
+  **** SharedData Build 5239561 on Fri Nov 08 14:39:27 MST 2024
+  **** Start of session at: Wed Sep  2 15:37:17 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+
+source xsim.dir/np7sim/xsim_script.tcl
+# xsim {np7sim} -autoloadwcfg -runall
+Time resolution is 1 ps
+run -all
+CYC 3 st=0 ce=0 ad=0 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=0
+CYC 4 st=0 ce=0 ad=0 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=0
+CYC 5 st=0 ce=0 ad=0 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=0
+CYC 6 st=0 ce=0 ad=0 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=0
+CYC 7 st=0 ce=0 ad=0 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=0
+CYC 8 st=0 ce=0 ad=0 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=0
+CYC 9 st=0 ce=0 ad=0 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=0
+CYC 10 st=0 ce=0 ad=0 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=0
+CYC 11 st=0 ce=0 ad=0 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=0
+CYC 12 st=0 ce=0 ad=0 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=0
+CYC 13 st=0 ce=0 ad=0 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=0
+CYC 14 st=0 ce=0 ad=0 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=0
+CYC 15 st=0 ce=0 ad=0 lf=0 bm=0 rv=0 rr=1 ap=1 zp=0 sum=0 ls=0 cmp=0
+CYC 16 st=1 ce=1 ad=7 lf=0 bm=1 rv=0 rr=0 ap=0 zp=0 sum=0 ls=0 cmp=0
+CYC 17 st=3 ce=0 ad=7 lf=0 bm=1 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=0
+CYC 18 st=4 ce=0 ad=7 lf=1 bm=1 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=0
+CYC 19 st=6 ce=0 ad=7 lf=0 bm=0 rv=0 rr=0 ap=0 zp=0 sum=0 ls=1 cmp=0
+CYC 20 st=6 ce=0 ad=7 lf=0 bm=0 rv=1 rr=1 ap=1 zp=0 sum=-102 ls=0 cmp=0
+CYC 21 st=1 ce=1 ad=9 lf=0 bm=6 rv=0 rr=0 ap=0 zp=0 sum=0 ls=1 cmp=1
+CYC 22 st=3 ce=0 ad=9 lf=0 bm=6 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=1
+CYC 23 st=4 ce=0 ad=9 lf=2 bm=6 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=1
+CYC 24 st=6 ce=0 ad=9 lf=0 bm=0 rv=1 rr=1 ap=1 zp=0 sum=32 ls=0 cmp=1
+CYC 25 st=1 ce=1 ad=5 lf=0 bm=8 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=2
+CYC 26 st=3 ce=0 ad=5 lf=0 bm=8 rv=0 rr=0 ap=0 zp=0 sum=0 ls=0 cmp=2
+CYC 27 st=4 ce=0 ad=5 lf=1 bm=8 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=2
+CYC 28 st=6 ce=0 ad=5 lf=0 bm=0 rv=1 rr=0 ap=0 zp=0 sum=117 ls=0 cmp=2
+CYC 29 st=5 ce=0 ad=5 lf=0 bm=0 rv=1 rr=0 ap=0 zp=0 sum=117 ls=1 cmp=2
+CYC 30 st=5 ce=0 ad=5 lf=0 bm=0 rv=1 rr=1 ap=1 zp=0 sum=117 ls=0 cmp=2
+CYC 31 st=1 ce=1 ad=6 lf=0 bm=5 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=3
+CYC 32 st=3 ce=0 ad=6 lf=0 bm=5 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=3
+CYC 33 st=4 ce=0 ad=6 lf=2 bm=5 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=3
+CYC 34 st=6 ce=0 ad=6 lf=0 bm=0 rv=1 rr=1 ap=1 zp=0 sum=38 ls=0 cmp=3
+CYC 35 st=5 ce=0 ad=4 lf=0 bm=0 rv=1 rr=0 ap=0 zp=1 sum=0 ls=0 cmp=4
+CYC 36 st=5 ce=0 ad=4 lf=0 bm=0 rv=1 rr=1 ap=1 zp=1 sum=0 ls=0 cmp=4
+CYC 37 st=1 ce=1 ad=4 lf=0 bm=2 rv=0 rr=0 ap=0 zp=0 sum=0 ls=0 cmp=5
+CYC 38 st=3 ce=0 ad=4 lf=0 bm=2 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=5
+CYC 39 st=4 ce=0 ad=4 lf=0 bm=2 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=5
+CYC 40 st=4 ce=0 ad=4 lf=1 bm=2 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=5
+CYC 41 st=6 ce=0 ad=4 lf=0 bm=0 rv=1 rr=1 ap=1 zp=0 sum=-94 ls=0 cmp=5
+CYC 42 st=1 ce=1 ad=1 lf=0 bm=4 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=6
+[NP7_XSIM_OMITTED cyc_rows=422 of 502 full_stream_sha256=24a3a31dabcce8318bbff200fcc70aa52a1e5675f52c12c29888b3f307dcc6f8]
+CYC 465 st=4 ce=0 ad=5 lf=2 bm=a rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=110
+CYC 466 st=6 ce=0 ad=5 lf=0 bm=0 rv=1 rr=1 ap=1 zp=0 sum=-2 ls=0 cmp=110
+CYC 467 st=5 ce=0 ad=4 lf=0 bm=0 rv=1 rr=1 ap=1 zp=1 sum=0 ls=0 cmp=111
+CYC 468 st=1 ce=1 ad=0 lf=0 bm=4 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=112
+CYC 469 st=3 ce=0 ad=0 lf=0 bm=4 rv=0 rr=0 ap=0 zp=0 sum=0 ls=0 cmp=112
+CYC 470 st=4 ce=0 ad=0 lf=1 bm=4 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=112
+CYC 471 st=6 ce=0 ad=0 lf=0 bm=0 rv=1 rr=1 ap=1 zp=0 sum=97 ls=0 cmp=112
+CYC 472 st=1 ce=1 ad=8 lf=0 bm=8 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=113
+CYC 473 st=3 ce=0 ad=8 lf=0 bm=8 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=113
+CYC 474 st=4 ce=0 ad=8 lf=0 bm=8 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=113
+CYC 475 st=4 ce=0 ad=8 lf=1 bm=8 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=113
+CYC 476 st=6 ce=0 ad=8 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=113
+CYC 477 st=6 ce=0 ad=8 lf=0 bm=0 rv=1 rr=1 ap=1 zp=0 sum=41 ls=0 cmp=113
+CYC 478 st=1 ce=1 ad=4 lf=0 bm=6 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=114
+CYC 479 st=3 ce=0 ad=4 lf=0 bm=6 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=114
+CYC 480 st=4 ce=0 ad=4 lf=2 bm=6 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=114
+CYC 481 st=6 ce=0 ad=4 lf=0 bm=0 rv=1 rr=1 ap=1 zp=0 sum=-84 ls=0 cmp=114
+CYC 482 st=5 ce=0 ad=7 lf=0 bm=0 rv=1 rr=1 ap=1 zp=1 sum=0 ls=1 cmp=115
+CYC 483 st=1 ce=1 ad=8 lf=0 bm=8 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=116
+CYC 484 st=3 ce=0 ad=8 lf=0 bm=8 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=116
+CYC 485 st=4 ce=0 ad=8 lf=0 bm=8 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=116
+CYC 486 st=4 ce=0 ad=8 lf=1 bm=8 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=116
+CYC 487 st=6 ce=0 ad=8 lf=0 bm=0 rv=1 rr=0 ap=0 zp=0 sum=41 ls=0 cmp=116
+CYC 488 st=5 ce=0 ad=8 lf=0 bm=0 rv=1 rr=1 ap=1 zp=0 sum=41 ls=1 cmp=116
+CYC 489 st=1 ce=1 ad=9 lf=0 bm=2 rv=0 rr=0 ap=0 zp=0 sum=0 ls=0 cmp=117
+CYC 490 st=3 ce=0 ad=9 lf=0 bm=2 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=117
+CYC 491 st=4 ce=0 ad=9 lf=1 bm=2 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=117
+CYC 492 st=6 ce=0 ad=9 lf=0 bm=0 rv=1 rr=1 ap=1 zp=0 sum=118 ls=0 cmp=117
+CYC 493 st=1 ce=1 ad=2 lf=0 bm=1 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=118
+CYC 494 st=3 ce=0 ad=2 lf=0 bm=1 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=118
+CYC 495 st=4 ce=0 ad=2 lf=1 bm=1 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=118
+CYC 496 st=6 ce=0 ad=2 lf=0 bm=0 rv=1 rr=1 ap=1 zp=0 sum=9 ls=0 cmp=118
+CYC 497 st=1 ce=1 ad=3 lf=0 bm=4 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=119
+CYC 498 st=3 ce=0 ad=3 lf=0 bm=4 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=119
+CYC 499 st=4 ce=0 ad=3 lf=0 bm=4 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=119
+CYC 500 st=4 ce=0 ad=3 lf=0 bm=4 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=119
+CYC 501 st=4 ce=0 ad=3 lf=1 bm=4 rv=0 rr=0 ap=0 zp=0 sum=0 ls=0 cmp=119
+CYC 502 st=6 ce=0 ad=3 lf=0 bm=0 rv=0 rr=0 ap=0 zp=0 sum=0 ls=1 cmp=119
+CYC 503 st=6 ce=0 ad=3 lf=0 bm=0 rv=1 rr=1 ap=0 zp=0 sum=67 ls=0 cmp=119
+CYC 504 st=0 ce=0 ad=3 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=120
+LEDGER req=94 val=188 ops=125 zero=26 busy=188 stall=74 done=120 skip=112 inzero=6 azero=20 sat=0 total=489 proto=0 cfgerr=0 completed=120
+$finish called at time : 5045 ns : File "C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/tb_np7_exec_unit.sv" Line 171
+exit
+INFO: [Common 17-206] Exiting xsim at Wed Sep  2 15:37:19 2026...
+
+#### iverilog (exit 0) ####
+
+#### icarus (exit 0) ####
+WARNING: C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/tb_np7_exec_unit.sv:131: $readmemh(np7_cfg.hex): Not enough words in the file for the requested range [0:63].
+WARNING: C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/tb_np7_exec_unit.sv:132: $readmemh(np7_txn.hex): Not enough words in the file for the requested range [0:2047].
+WARNING: C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/tb_np7_exec_unit.sv:133: $readmemh(np7_bp.hex): Not enough words in the file for the requested range [0:59999].
+CYC 3 st=0 ce=0 ad=0 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=0
+CYC 4 st=0 ce=0 ad=0 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=0
+CYC 5 st=0 ce=0 ad=0 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=0
+CYC 6 st=0 ce=0 ad=0 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=0
+CYC 7 st=0 ce=0 ad=0 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=0
+CYC 8 st=0 ce=0 ad=0 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=0
+CYC 9 st=0 ce=0 ad=0 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=0
+CYC 10 st=0 ce=0 ad=0 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=0
+CYC 11 st=0 ce=0 ad=0 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=0
+CYC 12 st=0 ce=0 ad=0 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=0
+CYC 13 st=0 ce=0 ad=0 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=0
+CYC 14 st=0 ce=0 ad=0 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=0
+CYC 15 st=0 ce=0 ad=0 lf=0 bm=0 rv=0 rr=1 ap=1 zp=0 sum=0 ls=0 cmp=0
+CYC 16 st=1 ce=1 ad=7 lf=0 bm=1 rv=0 rr=0 ap=0 zp=0 sum=0 ls=0 cmp=0
+CYC 17 st=3 ce=0 ad=7 lf=0 bm=1 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=0
+CYC 18 st=4 ce=0 ad=7 lf=1 bm=1 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=0
+CYC 19 st=6 ce=0 ad=7 lf=0 bm=0 rv=0 rr=0 ap=0 zp=0 sum=0 ls=1 cmp=0
+CYC 20 st=6 ce=0 ad=7 lf=0 bm=0 rv=1 rr=1 ap=1 zp=0 sum=-102 ls=0 cmp=0
+CYC 21 st=1 ce=1 ad=9 lf=0 bm=6 rv=0 rr=0 ap=0 zp=0 sum=0 ls=1 cmp=1
+CYC 22 st=3 ce=0 ad=9 lf=0 bm=6 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=1
+CYC 23 st=4 ce=0 ad=9 lf=2 bm=6 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=1
+CYC 24 st=6 ce=0 ad=9 lf=0 bm=0 rv=1 rr=1 ap=1 zp=0 sum=32 ls=0 cmp=1
+CYC 25 st=1 ce=1 ad=5 lf=0 bm=8 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=2
+CYC 26 st=3 ce=0 ad=5 lf=0 bm=8 rv=0 rr=0 ap=0 zp=0 sum=0 ls=0 cmp=2
+CYC 27 st=4 ce=0 ad=5 lf=1 bm=8 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=2
+CYC 28 st=6 ce=0 ad=5 lf=0 bm=0 rv=1 rr=0 ap=0 zp=0 sum=117 ls=0 cmp=2
+CYC 29 st=5 ce=0 ad=5 lf=0 bm=0 rv=1 rr=0 ap=0 zp=0 sum=117 ls=1 cmp=2
+CYC 30 st=5 ce=0 ad=5 lf=0 bm=0 rv=1 rr=1 ap=1 zp=0 sum=117 ls=0 cmp=2
+CYC 31 st=1 ce=1 ad=6 lf=0 bm=5 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=3
+CYC 32 st=3 ce=0 ad=6 lf=0 bm=5 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=3
+CYC 33 st=4 ce=0 ad=6 lf=2 bm=5 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=3
+CYC 34 st=6 ce=0 ad=6 lf=0 bm=0 rv=1 rr=1 ap=1 zp=0 sum=38 ls=0 cmp=3
+CYC 35 st=5 ce=0 ad=4 lf=0 bm=0 rv=1 rr=0 ap=0 zp=1 sum=0 ls=0 cmp=4
+CYC 36 st=5 ce=0 ad=4 lf=0 bm=0 rv=1 rr=1 ap=1 zp=1 sum=0 ls=0 cmp=4
+CYC 37 st=1 ce=1 ad=4 lf=0 bm=2 rv=0 rr=0 ap=0 zp=0 sum=0 ls=0 cmp=5
+CYC 38 st=3 ce=0 ad=4 lf=0 bm=2 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=5
+CYC 39 st=4 ce=0 ad=4 lf=0 bm=2 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=5
+CYC 40 st=4 ce=0 ad=4 lf=1 bm=2 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=5
+CYC 41 st=6 ce=0 ad=4 lf=0 bm=0 rv=1 rr=1 ap=1 zp=0 sum=-94 ls=0 cmp=5
+CYC 42 st=1 ce=1 ad=1 lf=0 bm=4 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=6
+[NP7_XSIM_OMITTED cyc_rows=422 of 502 full_stream_sha256=24a3a31dabcce8318bbff200fcc70aa52a1e5675f52c12c29888b3f307dcc6f8]
+CYC 465 st=4 ce=0 ad=5 lf=2 bm=a rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=110
+CYC 466 st=6 ce=0 ad=5 lf=0 bm=0 rv=1 rr=1 ap=1 zp=0 sum=-2 ls=0 cmp=110
+CYC 467 st=5 ce=0 ad=4 lf=0 bm=0 rv=1 rr=1 ap=1 zp=1 sum=0 ls=0 cmp=111
+CYC 468 st=1 ce=1 ad=0 lf=0 bm=4 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=112
+CYC 469 st=3 ce=0 ad=0 lf=0 bm=4 rv=0 rr=0 ap=0 zp=0 sum=0 ls=0 cmp=112
+CYC 470 st=4 ce=0 ad=0 lf=1 bm=4 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=112
+CYC 471 st=6 ce=0 ad=0 lf=0 bm=0 rv=1 rr=1 ap=1 zp=0 sum=97 ls=0 cmp=112
+CYC 472 st=1 ce=1 ad=8 lf=0 bm=8 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=113
+CYC 473 st=3 ce=0 ad=8 lf=0 bm=8 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=113
+CYC 474 st=4 ce=0 ad=8 lf=0 bm=8 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=113
+CYC 475 st=4 ce=0 ad=8 lf=1 bm=8 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=113
+CYC 476 st=6 ce=0 ad=8 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=113
+CYC 477 st=6 ce=0 ad=8 lf=0 bm=0 rv=1 rr=1 ap=1 zp=0 sum=41 ls=0 cmp=113
+CYC 478 st=1 ce=1 ad=4 lf=0 bm=6 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=114
+CYC 479 st=3 ce=0 ad=4 lf=0 bm=6 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=114
+CYC 480 st=4 ce=0 ad=4 lf=2 bm=6 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=114
+CYC 481 st=6 ce=0 ad=4 lf=0 bm=0 rv=1 rr=1 ap=1 zp=0 sum=-84 ls=0 cmp=114
+CYC 482 st=5 ce=0 ad=7 lf=0 bm=0 rv=1 rr=1 ap=1 zp=1 sum=0 ls=1 cmp=115
+CYC 483 st=1 ce=1 ad=8 lf=0 bm=8 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=116
+CYC 484 st=3 ce=0 ad=8 lf=0 bm=8 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=116
+CYC 485 st=4 ce=0 ad=8 lf=0 bm=8 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=116
+CYC 486 st=4 ce=0 ad=8 lf=1 bm=8 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=116
+CYC 487 st=6 ce=0 ad=8 lf=0 bm=0 rv=1 rr=0 ap=0 zp=0 sum=41 ls=0 cmp=116
+CYC 488 st=5 ce=0 ad=8 lf=0 bm=0 rv=1 rr=1 ap=1 zp=0 sum=41 ls=1 cmp=116
+CYC 489 st=1 ce=1 ad=9 lf=0 bm=2 rv=0 rr=0 ap=0 zp=0 sum=0 ls=0 cmp=117
+CYC 490 st=3 ce=0 ad=9 lf=0 bm=2 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=117
+CYC 491 st=4 ce=0 ad=9 lf=1 bm=2 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=117
+CYC 492 st=6 ce=0 ad=9 lf=0 bm=0 rv=1 rr=1 ap=1 zp=0 sum=118 ls=0 cmp=117
+CYC 493 st=1 ce=1 ad=2 lf=0 bm=1 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=118
+CYC 494 st=3 ce=0 ad=2 lf=0 bm=1 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=118
+CYC 495 st=4 ce=0 ad=2 lf=1 bm=1 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=118
+CYC 496 st=6 ce=0 ad=2 lf=0 bm=0 rv=1 rr=1 ap=1 zp=0 sum=9 ls=0 cmp=118
+CYC 497 st=1 ce=1 ad=3 lf=0 bm=4 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=119
+CYC 498 st=3 ce=0 ad=3 lf=0 bm=4 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=119
+CYC 499 st=4 ce=0 ad=3 lf=0 bm=4 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=119
+CYC 500 st=4 ce=0 ad=3 lf=0 bm=4 rv=0 rr=1 ap=0 zp=0 sum=0 ls=1 cmp=119
+CYC 501 st=4 ce=0 ad=3 lf=1 bm=4 rv=0 rr=0 ap=0 zp=0 sum=0 ls=0 cmp=119
+CYC 502 st=6 ce=0 ad=3 lf=0 bm=0 rv=0 rr=0 ap=0 zp=0 sum=0 ls=1 cmp=119
+CYC 503 st=6 ce=0 ad=3 lf=0 bm=0 rv=1 rr=1 ap=0 zp=0 sum=67 ls=0 cmp=119
+CYC 504 st=0 ce=0 ad=3 lf=0 bm=0 rv=0 rr=1 ap=0 zp=0 sum=0 ls=0 cmp=120
+LEDGER req=94 val=188 ops=125 zero=26 busy=188 stall=74 done=120 skip=112 inzero=6 azero=20 sat=0 total=489 proto=0 cfgerr=0 completed=120
+C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/tb_np7_exec_unit.sv:171: $finish called at 5045000 (1ps)

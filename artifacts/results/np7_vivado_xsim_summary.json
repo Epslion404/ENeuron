@@ -1,0 +1,1018 @@
+{
+  "cases": {
+    "cfgneg_dense_L1": {
+      "compiled_sources": [
+        "np7_weight_ram.sv",
+        "np7_shared_synapse_lane.sv",
+        "np7_exec_unit_dense.sv",
+        "np7_exec_unit_sparse.sv",
+        "tb_np7_config_negative.sv",
+        "work/cfgneg_dense_L1/xsim_top.sv"
+      ],
+      "fmt": "dense",
+      "kind": "cfgneg",
+      "lanes": 1,
+      "logs": {
+        "cfgneg_dense_L1.log": "2dd31984317db57eba55aecc3a87248ad3c29b0c320fb64ed7e82b5514b72fc6"
+      },
+      "metrics": {
+        "cyc_rows": 0,
+        "icarus_observed_sha256": "2521daebb4ee5146ccf8dcbe8f282a18b3d9c99340ce416e80249177a9d50889",
+        "ledger": "",
+        "log_file": "logs/cfgneg_dense_L1.log",
+        "observed_rows": 13,
+        "observed_sha256": "2521daebb4ee5146ccf8dcbe8f282a18b3d9c99340ce416e80249177a9d50889",
+        "raw_ledger": {},
+        "summary": "CFGNEG SUMMARY FORMAT=dense LANES=1 CHECKS=8 FAILED=0 RESULT=PASS",
+        "visible_class": "",
+        "visible_rows": 0
+      },
+      "neg": -1,
+      "ntxn": 0,
+      "problems": [],
+      "seed": 0,
+      "status": "PASS",
+      "stimulus": {},
+      "tb_params": [
+        ".LANES(1)",
+        ".SPARSE(1'b0)"
+      ],
+      "work_dir": "work/cfgneg_dense_L1"
+    },
+    "cfgneg_dense_L4": {
+      "compiled_sources": [
+        "np7_weight_ram.sv",
+        "np7_shared_synapse_lane.sv",
+        "np7_exec_unit_dense.sv",
+        "np7_exec_unit_sparse.sv",
+        "tb_np7_config_negative.sv",
+        "work/cfgneg_dense_L4/xsim_top.sv"
+      ],
+      "fmt": "dense",
+      "kind": "cfgneg",
+      "lanes": 4,
+      "logs": {
+        "cfgneg_dense_L4.log": "a5ff835f4959a235296f93eab35ae4c106fc1ff10557545b025ac1c7dd16e584"
+      },
+      "metrics": {
+        "cyc_rows": 0,
+        "icarus_observed_sha256": "637cbb0d69697553ab982d6700dce5efcb488bb4c83ea668799c9e8bae7fc62d",
+        "ledger": "",
+        "log_file": "logs/cfgneg_dense_L4.log",
+        "observed_rows": 13,
+        "observed_sha256": "637cbb0d69697553ab982d6700dce5efcb488bb4c83ea668799c9e8bae7fc62d",
+        "raw_ledger": {},
+        "summary": "CFGNEG SUMMARY FORMAT=dense LANES=4 CHECKS=8 FAILED=0 RESULT=PASS",
+        "visible_class": "",
+        "visible_rows": 0
+      },
+      "neg": -1,
+      "ntxn": 0,
+      "problems": [],
+      "seed": 0,
+      "status": "PASS",
+      "stimulus": {},
+      "tb_params": [
+        ".LANES(4)",
+        ".SPARSE(1'b0)"
+      ],
+      "work_dir": "work/cfgneg_dense_L4"
+    },
+    "cfgneg_sparse_L1": {
+      "compiled_sources": [
+        "np7_weight_ram.sv",
+        "np7_shared_synapse_lane.sv",
+        "np7_exec_unit_dense.sv",
+        "np7_exec_unit_sparse.sv",
+        "tb_np7_config_negative.sv",
+        "work/cfgneg_sparse_L1/xsim_top.sv"
+      ],
+      "fmt": "sparse",
+      "kind": "cfgneg",
+      "lanes": 1,
+      "logs": {
+        "cfgneg_sparse_L1.log": "6435ce812c340112f4623da5f353309a899ef7a7037595e0f91e91c052d3b4e5"
+      },
+      "metrics": {
+        "cyc_rows": 0,
+        "icarus_observed_sha256": "d0944084b4592877792e3124515efbed3616cb5517332feb3a930a2077ee838c",
+        "ledger": "",
+        "log_file": "logs/cfgneg_sparse_L1.log",
+        "observed_rows": 13,
+        "observed_sha256": "d0944084b4592877792e3124515efbed3616cb5517332feb3a930a2077ee838c",
+        "raw_ledger": {},
+        "summary": "CFGNEG SUMMARY FORMAT=sparse LANES=1 CHECKS=8 FAILED=0 RESULT=PASS",
+        "visible_class": "",
+        "visible_rows": 0
+      },
+      "neg": -1,
+      "ntxn": 0,
+      "problems": [],
+      "seed": 0,
+      "status": "PASS",
+      "stimulus": {},
+      "tb_params": [
+        ".LANES(1)",
+        ".SPARSE(1'b1)"
+      ],
+      "work_dir": "work/cfgneg_sparse_L1"
+    },
+    "cfgneg_sparse_L4": {
+      "compiled_sources": [
+        "np7_weight_ram.sv",
+        "np7_shared_synapse_lane.sv",
+        "np7_exec_unit_dense.sv",
+        "np7_exec_unit_sparse.sv",
+        "tb_np7_config_negative.sv",
+        "work/cfgneg_sparse_L4/xsim_top.sv"
+      ],
+      "fmt": "sparse",
+      "kind": "cfgneg",
+      "lanes": 4,
+      "logs": {
+        "cfgneg_sparse_L4.log": "b21e0e291c19d09068242324106cb5ed99b80691e3cef34aeeb207f51b6d7748"
+      },
+      "metrics": {
+        "cyc_rows": 0,
+        "icarus_observed_sha256": "9f29cc2c020a01e18ea41d1ca4779f428405085ff007d97f1d97544267852a31",
+        "ledger": "",
+        "log_file": "logs/cfgneg_sparse_L4.log",
+        "observed_rows": 13,
+        "observed_sha256": "9f29cc2c020a01e18ea41d1ca4779f428405085ff007d97f1d97544267852a31",
+        "raw_ledger": {},
+        "summary": "CFGNEG SUMMARY FORMAT=sparse LANES=4 CHECKS=8 FAILED=0 RESULT=PASS",
+        "visible_class": "",
+        "visible_rows": 0
+      },
+      "neg": -1,
+      "ntxn": 0,
+      "problems": [],
+      "seed": 0,
+      "status": "PASS",
+      "stimulus": {},
+      "tb_params": [
+        ".LANES(4)",
+        ".SPARSE(1'b1)"
+      ],
+      "work_dir": "work/cfgneg_sparse_L4"
+    },
+    "golden_dense_L1": {
+      "compiled_sources": [
+        "np7_weight_ram.sv",
+        "np7_shared_synapse_lane.sv",
+        "np7_exec_unit_dense.sv",
+        "np7_exec_unit_sparse.sv",
+        "tb_np7_exec_unit.sv",
+        "work/golden_dense_L1/xsim_top.sv"
+      ],
+      "fmt": "dense",
+      "kind": "golden",
+      "lanes": 1,
+      "logs": {
+        "golden_dense_L1.log": "9984d7963d5ce7acb2f20a9cc9ad7872fd17b8745ec807d38e57e4c5598519f1"
+      },
+      "metrics": {
+        "cyc_rows": 827,
+        "icarus_observed_sha256": "2b398d71c988833baf115402a7a04e1576d9eefc602b7ec554c1526406976a0c",
+        "ledger": "LEDGER req=224 val=448 ops=242 zero=8 busy=466 stall=90 done=120 skip=0 inzero=8 azero=0 sat=0 total=804 proto=0 cfgerr=0 completed=120",
+        "log_file": "logs/golden_dense_L1.log",
+        "observed_rows": 828,
+        "observed_sha256": "2b398d71c988833baf115402a7a04e1576d9eefc602b7ec554c1526406976a0c",
+        "raw_ledger": {
+          "accept_events": 120,
+          "accept_own_cycles": 1,
+          "backpressure_cycles": 4,
+          "busy_cycles": 466,
+          "completed_groups": 120,
+          "drain_cycles": 0,
+          "group_read_requests": 224,
+          "hold_retire_cycles": 23,
+          "lane_ops_issued": 242,
+          "lane_stall_cycles": 86,
+          "latency_cycles": 224,
+          "overlap_cycles": 119,
+          "retire_events": 120,
+          "retire_latch_cycles": 15,
+          "stall_cycles": 90,
+          "startup_cycles": 1,
+          "total_cycles": 804,
+          "weight_values_fetched": 448,
+          "window_cycles": 804,
+          "zero_single_cycles": 0
+        },
+        "summary": "",
+        "visible_class": "88888888888888888888887002331133200213111200211120021200231111320021312002131128",
+        "visible_rows": 80
+      },
+      "neg": -1,
+      "ntxn": 120,
+      "problems": [],
+      "seed": 1,
+      "status": "PASS",
+      "stimulus": {
+        "cfg_words": 20,
+        "np7_bp.hex": "2ef951431fdab7a7124b1072d90863b7306b65a6a1c64727c75fe6e5e7bdc957",
+        "np7_cfg.hex": "244c0688905ff8caa4c95debae14eeab5bc1ec95a42dd10f1b5c4aff9b1ba7c1",
+        "np7_txn.hex": "f5fd546d17697aa50ac264d61f067ee28d3ffbfa2e48aae5128659fb7851bed4",
+        "txns": 120
+      },
+      "tb_params": [
+        ".LANES(1)",
+        ".SPARSE(1'b0)",
+        ".NTXN(120)",
+        ".NWORD(20)"
+      ],
+      "work_dir": "work/golden_dense_L1"
+    },
+    "golden_dense_L2": {
+      "compiled_sources": [
+        "np7_weight_ram.sv",
+        "np7_shared_synapse_lane.sv",
+        "np7_exec_unit_dense.sv",
+        "np7_exec_unit_sparse.sv",
+        "tb_np7_exec_unit.sv",
+        "work/golden_dense_L2/xsim_top.sv"
+      ],
+      "fmt": "dense",
+      "kind": "golden",
+      "lanes": 2,
+      "logs": {
+        "golden_dense_L2.log": "b2ff59caa9c240f0172e10705fc287b3f2e553a18c92a8b9f563b110c88a0fb2"
+      },
+      "metrics": {
+        "cyc_rows": 729,
+        "icarus_observed_sha256": "7e1f6cc63ab7b19a3d8049ad0c148d66ca2649383568b2ebb2c6357194aa517c",
+        "ledger": "LEDGER req=224 val=448 ops=238 zero=8 busy=372 stall=88 done=120 skip=0 inzero=8 azero=0 sat=0 total=706 proto=0 cfgerr=0 completed=120",
+        "log_file": "logs/golden_dense_L2.log",
+        "observed_rows": 730,
+        "observed_sha256": "7e1f6cc63ab7b19a3d8049ad0c148d66ca2649383568b2ebb2c6357194aa517c",
+        "raw_ledger": {
+          "accept_events": 120,
+          "accept_own_cycles": 1,
+          "backpressure_cycles": 3,
+          "busy_cycles": 372,
+          "completed_groups": 120,
+          "drain_cycles": 0,
+          "group_read_requests": 224,
+          "hold_retire_cycles": 21,
+          "lane_ops_issued": 238,
+          "lane_stall_cycles": 85,
+          "latency_cycles": 224,
+          "overlap_cycles": 119,
+          "retire_events": 120,
+          "retire_latch_cycles": 13,
+          "stall_cycles": 88,
+          "startup_cycles": 1,
+          "total_cycles": 706,
+          "weight_values_fetched": 448,
+          "window_cycles": 706,
+          "zero_single_cycles": 0
+        },
+        "summary": "",
+        "visible_class": "88888888888888888888887002133200213200210021250021312002132002133200213332002128",
+        "visible_rows": 80
+      },
+      "neg": -1,
+      "ntxn": 120,
+      "problems": [],
+      "seed": 1,
+      "status": "PASS",
+      "stimulus": {
+        "cfg_words": 20,
+        "np7_bp.hex": "de4f240560c14de49496791e80b89824f46815cad458bbc70a8a443f989dc819",
+        "np7_cfg.hex": "ec985a2167400308a8f10e5f9ccaf87e8604c2a12875b4411551d91868ca13e7",
+        "np7_txn.hex": "717fef6b1bcdab22b0faf2c19d423b58afe816eb5d500861b3846df0d05b91c6",
+        "txns": 120
+      },
+      "tb_params": [
+        ".LANES(2)",
+        ".SPARSE(1'b0)",
+        ".NTXN(120)",
+        ".NWORD(20)"
+      ],
+      "work_dir": "work/golden_dense_L2"
+    },
+    "golden_dense_L4": {
+      "compiled_sources": [
+        "np7_weight_ram.sv",
+        "np7_shared_synapse_lane.sv",
+        "np7_exec_unit_dense.sv",
+        "np7_exec_unit_sparse.sv",
+        "tb_np7_exec_unit.sv",
+        "work/golden_dense_L4/xsim_top.sv"
+      ],
+      "fmt": "dense",
+      "kind": "golden",
+      "lanes": 4,
+      "logs": {
+        "golden_dense_L4.log": "810b4cefebd583fae708aceb3575f3fccb3a8a05e599009d9e4d32dc68db923b"
+      },
+      "metrics": {
+        "cyc_rows": 677,
+        "icarus_observed_sha256": "5a245a91fa7053282e30b1b7b2cb8b3daaff2401662fddafa50a7581f429048c",
+        "ledger": "LEDGER req=226 val=452 ops=221 zero=7 busy=339 stall=63 done=120 skip=0 inzero=7 azero=0 sat=0 total=654 proto=0 cfgerr=0 completed=120",
+        "log_file": "logs/golden_dense_L4.log",
+        "observed_rows": 678,
+        "observed_sha256": "5a245a91fa7053282e30b1b7b2cb8b3daaff2401662fddafa50a7581f429048c",
+        "raw_ledger": {
+          "accept_events": 120,
+          "accept_own_cycles": 1,
+          "backpressure_cycles": 5,
+          "busy_cycles": 339,
+          "completed_groups": 120,
+          "drain_cycles": 1,
+          "group_read_requests": 226,
+          "hold_retire_cycles": 25,
+          "lane_ops_issued": 221,
+          "lane_stall_cycles": 58,
+          "latency_cycles": 226,
+          "overlap_cycles": 119,
+          "retire_events": 120,
+          "retire_latch_cycles": 18,
+          "stall_cycles": 63,
+          "startup_cycles": 1,
+          "total_cycles": 654,
+          "weight_values_fetched": 452,
+          "window_cycles": 654,
+          "zero_single_cycles": 0
+        },
+        "summary": "",
+        "visible_class": "88888888888888888888887002313200212550020021200212500212002120023132002120021258",
+        "visible_rows": 80
+      },
+      "neg": -1,
+      "ntxn": 120,
+      "problems": [],
+      "seed": 1,
+      "status": "PASS",
+      "stimulus": {
+        "cfg_words": 20,
+        "np7_bp.hex": "4f6bbdca97b942978cb40f5453519a701f166643ebab57e05c7abb824afaf918",
+        "np7_cfg.hex": "f69ffd271c96a49bf33011c34da136f3d17948e2bee7bd99c261a8164aa4b5f9",
+        "np7_txn.hex": "613714b162364dd46da729570397acd56d5dd2df8f2791884f167fa31f3559a7",
+        "txns": 120
+      },
+      "tb_params": [
+        ".LANES(4)",
+        ".SPARSE(1'b0)",
+        ".NTXN(120)",
+        ".NWORD(20)"
+      ],
+      "work_dir": "work/golden_dense_L4"
+    },
+    "golden_dense_L8": {
+      "compiled_sources": [
+        "np7_weight_ram.sv",
+        "np7_shared_synapse_lane.sv",
+        "np7_exec_unit_dense.sv",
+        "np7_exec_unit_sparse.sv",
+        "tb_np7_exec_unit.sv",
+        "work/golden_dense_L8/xsim_top.sv"
+      ],
+      "fmt": "dense",
+      "kind": "golden",
+      "lanes": 8,
+      "logs": {
+        "golden_dense_L8.log": "4dc91d43430f91697c21aedf8901cac6639d2980629752cf83a5d2e370530f5b"
+      },
+      "metrics": {
+        "cyc_rows": 682,
+        "icarus_observed_sha256": "0753c99f9dde1a50d60cf959cbf3370558286e7bf519a34d1c3b452d078d44a2",
+        "ledger": "LEDGER req=228 val=456 ops=237 zero=6 busy=342 stall=65 done=120 skip=0 inzero=6 azero=0 sat=0 total=659 proto=0 cfgerr=0 completed=120",
+        "log_file": "logs/golden_dense_L8.log",
+        "observed_rows": 683,
+        "observed_sha256": "0753c99f9dde1a50d60cf959cbf3370558286e7bf519a34d1c3b452d078d44a2",
+        "raw_ledger": {
+          "accept_events": 120,
+          "accept_own_cycles": 1,
+          "backpressure_cycles": 5,
+          "busy_cycles": 342,
+          "completed_groups": 120,
+          "drain_cycles": 0,
+          "group_read_requests": 228,
+          "hold_retire_cycles": 23,
+          "lane_ops_issued": 237,
+          "lane_stall_cycles": 60,
+          "latency_cycles": 228,
+          "overlap_cycles": 119,
+          "retire_events": 120,
+          "retire_latch_cycles": 17,
+          "stall_cycles": 65,
+          "startup_cycles": 1,
+          "total_cycles": 659,
+          "weight_values_fetched": 456,
+          "window_cycles": 659,
+          "zero_single_cycles": 0
+        },
+        "summary": "",
+        "visible_class": "88888888888888888888887002312002120021202125002312500212450021320021200212002128",
+        "visible_rows": 80
+      },
+      "neg": -1,
+      "ntxn": 120,
+      "problems": [],
+      "seed": 1,
+      "status": "PASS",
+      "stimulus": {
+        "cfg_words": 20,
+        "np7_bp.hex": "814cdc16b613ac37d1354b720c5fec7303aaaa559b0ca5b261c0d4812a35f91c",
+        "np7_cfg.hex": "da181840ec8e49a58805fd2d16a1222feea913e7242cdff218ce3c5883b5f5c6",
+        "np7_txn.hex": "d8974206eb1d74631cdf3437893ef23685aaf91f73bffc209573c8a15cd7085b",
+        "txns": 120
+      },
+      "tb_params": [
+        ".LANES(8)",
+        ".SPARSE(1'b0)",
+        ".NTXN(120)",
+        ".NWORD(20)"
+      ],
+      "work_dir": "work/golden_dense_L8"
+    },
+    "golden_sparse_L1": {
+      "compiled_sources": [
+        "np7_weight_ram.sv",
+        "np7_shared_synapse_lane.sv",
+        "np7_exec_unit_dense.sv",
+        "np7_exec_unit_sparse.sv",
+        "tb_np7_exec_unit.sv",
+        "work/golden_sparse_L1/xsim_top.sv"
+      ],
+      "fmt": "sparse",
+      "kind": "golden",
+      "lanes": 1,
+      "logs": {
+        "golden_sparse_L1.log": "d0484f72b5132ba0af3747dd2808bd0d797cad8fba3ab346068a48a7872e4d2a"
+      },
+      "metrics": {
+        "cyc_rows": 527,
+        "icarus_observed_sha256": "87f9dc9b9364fc036c8b91f0e90ee81dd2a841227c0e4a66200b672c65959d2d",
+        "ledger": "LEDGER req=93 val=186 ops=124 zero=27 busy=217 stall=69 done=120 skip=118 inzero=8 azero=19 sat=0 total=514 proto=0 cfgerr=0 completed=120",
+        "log_file": "logs/golden_sparse_L1.log",
+        "observed_rows": 528,
+        "observed_sha256": "87f9dc9b9364fc036c8b91f0e90ee81dd2a841227c0e4a66200b672c65959d2d",
+        "raw_ledger": {
+          "accept_events": 120,
+          "accept_own_cycles": 1,
+          "backpressure_cycles": 8,
+          "busy_cycles": 217,
+          "completed_groups": 120,
+          "drain_cycles": 0,
+          "group_read_requests": 93,
+          "hold_retire_cycles": 41,
+          "lane_ops_issued": 124,
+          "lane_stall_cycles": 61,
+          "latency_cycles": 186,
+          "overlap_cycles": 119,
+          "retire_events": 120,
+          "retire_latch_cycles": 14,
+          "stall_cycles": 69,
+          "startup_cycles": 1,
+          "total_cycles": 514,
+          "weight_values_fetched": 186,
+          "window_cycles": 514,
+          "zero_single_cycles": 0
+        },
+        "summary": "",
+        "visible_class": "88888888888870213202312021332023120213200231202120213325021202311250211325021128",
+        "visible_rows": 80
+      },
+      "neg": -1,
+      "ntxn": 120,
+      "problems": [],
+      "seed": 1,
+      "status": "PASS",
+      "stimulus": {
+        "cfg_words": 10,
+        "np7_bp.hex": "2ef951431fdab7a7124b1072d90863b7306b65a6a1c64727c75fe6e5e7bdc957",
+        "np7_cfg.hex": "1017275d3969b11dfd4d7ce2a3071160060db168b6a0ddf771761d4e89da8223",
+        "np7_txn.hex": "869d78ec63d5d489400ed0cb0630e9ef87b544256a377e23e93cc4491da90941",
+        "txns": 120
+      },
+      "tb_params": [
+        ".LANES(1)",
+        ".SPARSE(1'b1)",
+        ".NTXN(120)",
+        ".NWORD(10)"
+      ],
+      "work_dir": "work/golden_sparse_L1"
+    },
+    "golden_sparse_L2": {
+      "compiled_sources": [
+        "np7_weight_ram.sv",
+        "np7_shared_synapse_lane.sv",
+        "np7_exec_unit_dense.sv",
+        "np7_exec_unit_sparse.sv",
+        "tb_np7_exec_unit.sv",
+        "work/golden_sparse_L2/xsim_top.sv"
+      ],
+      "fmt": "sparse",
+      "kind": "golden",
+      "lanes": 2,
+      "logs": {
+        "golden_sparse_L2.log": "3091381265a4130ce804e8e4557a27e4592e099b4bb196f75edf14d095867396"
+      },
+      "metrics": {
+        "cyc_rows": 510,
+        "icarus_observed_sha256": "b2cad8255736722b3e3b24cda29cd44f34742e432048a607d134d79645be5fe4",
+        "ledger": "LEDGER req=95 val=190 ops=126 zero=25 busy=190 stall=79 done=120 skip=112 inzero=8 azero=17 sat=0 total=497 proto=0 cfgerr=0 completed=120",
+        "log_file": "logs/golden_sparse_L2.log",
+        "observed_rows": 511,
+        "observed_sha256": "b2cad8255736722b3e3b24cda29cd44f34742e432048a607d134d79645be5fe4",
+        "raw_ledger": {
+          "accept_events": 120,
+          "accept_own_cycles": 1,
+          "backpressure_cycles": 8,
+          "busy_cycles": 190,
+          "completed_groups": 120,
+          "drain_cycles": 2,
+          "group_read_requests": 95,
+          "hold_retire_cycles": 35,
+          "lane_ops_issued": 126,
+          "lane_stall_cycles": 71,
+          "latency_cycles": 190,
+          "overlap_cycles": 117,
+          "retire_events": 120,
+          "retire_latch_cycles": 12,
+          "stall_cycles": 79,
+          "startup_cycles": 0,
+          "total_cycles": 497,
+          "weight_values_fetched": 190,
+          "window_cycles": 497,
+          "zero_single_cycles": 2
+        },
+        "summary": "",
+        "visible_class": "88888888888866702132021202133202313202121202120233120213202125021320213202132558",
+        "visible_rows": 80
+      },
+      "neg": -1,
+      "ntxn": 120,
+      "problems": [],
+      "seed": 1,
+      "status": "PASS",
+      "stimulus": {
+        "cfg_words": 10,
+        "np7_bp.hex": "de4f240560c14de49496791e80b89824f46815cad458bbc70a8a443f989dc819",
+        "np7_cfg.hex": "c32b7f3f98b05933162c6c8284f1035dd9205490c84852571068ff943594a7a8",
+        "np7_txn.hex": "46128e01a32957f8c99f26f98b747dba5d67b84d9616965fb0f47e70d98ed590",
+        "txns": 120
+      },
+      "tb_params": [
+        ".LANES(2)",
+        ".SPARSE(1'b1)",
+        ".NTXN(120)",
+        ".NWORD(10)"
+      ],
+      "work_dir": "work/golden_sparse_L2"
+    },
+    "golden_sparse_L4": {
+      "compiled_sources": [
+        "np7_weight_ram.sv",
+        "np7_shared_synapse_lane.sv",
+        "np7_exec_unit_dense.sv",
+        "np7_exec_unit_sparse.sv",
+        "tb_np7_exec_unit.sv",
+        "work/golden_sparse_L4/xsim_top.sv"
+      ],
+      "fmt": "sparse",
+      "kind": "golden",
+      "lanes": 4,
+      "logs": {
+        "golden_sparse_L4.log": "a9cbe04e75340e6a4c6cb3a7f435be34ebe670f38c47d78bd73244cbf06488bd"
+      },
+      "metrics": {
+        "cyc_rows": 456,
+        "icarus_observed_sha256": "485c8c91381b4418a16a65bbeca0c8ef91cd29dd436b36b7784d99add5f0d690",
+        "ledger": "LEDGER req=84 val=168 ops=112 zero=36 busy=168 stall=59 done=120 skip=109 inzero=7 azero=29 sat=0 total=443 proto=0 cfgerr=0 completed=120",
+        "log_file": "logs/golden_sparse_L4.log",
+        "observed_rows": 457,
+        "observed_sha256": "485c8c91381b4418a16a65bbeca0c8ef91cd29dd436b36b7784d99add5f0d690",
+        "raw_ledger": {
+          "accept_events": 120,
+          "accept_own_cycles": 1,
+          "backpressure_cycles": 10,
+          "busy_cycles": 168,
+          "completed_groups": 120,
+          "drain_cycles": 0,
+          "group_read_requests": 84,
+          "hold_retire_cycles": 46,
+          "lane_ops_issued": 112,
+          "lane_stall_cycles": 49,
+          "latency_cycles": 168,
+          "overlap_cycles": 118,
+          "retire_events": 120,
+          "retire_latch_cycles": 11,
+          "stall_cycles": 59,
+          "startup_cycles": 0,
+          "total_cycles": 443,
+          "weight_values_fetched": 168,
+          "window_cycles": 443,
+          "zero_single_cycles": 1
+        },
+        "summary": "",
+        "visible_class": "88888888888867021324550212023125021202122450213202133202133250231325021250231328",
+        "visible_rows": 80
+      },
+      "neg": -1,
+      "ntxn": 120,
+      "problems": [],
+      "seed": 1,
+      "status": "PASS",
+      "stimulus": {
+        "cfg_words": 10,
+        "np7_bp.hex": "4f6bbdca97b942978cb40f5453519a701f166643ebab57e05c7abb824afaf918",
+        "np7_cfg.hex": "88df03dd50645b3daae6874c0a327a45af842b8cfb484538504f076805215730",
+        "np7_txn.hex": "dc02edf7e2be9c41d1e9985f4d6ac6ad5a77407f9413f1d05455d4156945aa94",
+        "txns": 120
+      },
+      "tb_params": [
+        ".LANES(4)",
+        ".SPARSE(1'b1)",
+        ".NTXN(120)",
+        ".NWORD(10)"
+      ],
+      "work_dir": "work/golden_sparse_L4"
+    },
+    "golden_sparse_L8": {
+      "compiled_sources": [
+        "np7_weight_ram.sv",
+        "np7_shared_synapse_lane.sv",
+        "np7_exec_unit_dense.sv",
+        "np7_exec_unit_sparse.sv",
+        "tb_np7_exec_unit.sv",
+        "work/golden_sparse_L8/xsim_top.sv"
+      ],
+      "fmt": "sparse",
+      "kind": "golden",
+      "lanes": 8,
+      "logs": {
+        "golden_sparse_L8.log": "0267192d9fbac57284382e24b954d605188e5b6968c4601a62b312773cffcfc3"
+      },
+      "metrics": {
+        "cyc_rows": 502,
+        "icarus_observed_sha256": "24a3a31dabcce8318bbff200fcc70aa52a1e5675f52c12c29888b3f307dcc6f8",
+        "ledger": "LEDGER req=94 val=188 ops=125 zero=26 busy=188 stall=74 done=120 skip=112 inzero=6 azero=20 sat=0 total=489 proto=0 cfgerr=0 completed=120",
+        "log_file": "logs/golden_sparse_L8.log",
+        "observed_rows": 503,
+        "observed_sha256": "24a3a31dabcce8318bbff200fcc70aa52a1e5675f52c12c29888b3f307dcc6f8",
+        "raw_ledger": {
+          "accept_events": 120,
+          "accept_own_cycles": 1,
+          "backpressure_cycles": 6,
+          "busy_cycles": 188,
+          "completed_groups": 120,
+          "drain_cycles": 0,
+          "group_read_requests": 94,
+          "hold_retire_cycles": 38,
+          "lane_ops_issued": 125,
+          "lane_stall_cycles": 68,
+          "latency_cycles": 188,
+          "overlap_cycles": 119,
+          "retire_events": 120,
+          "retire_latch_cycles": 12,
+          "stall_cycles": 74,
+          "startup_cycles": 1,
+          "total_cycles": 489,
+          "weight_values_fetched": 188,
+          "window_cycles": 489,
+          "zero_single_cycles": 0
+        },
+        "summary": "",
+        "visible_class": "88888888888870213202120212450212450231201250212023132021250231250212021202331328",
+        "visible_rows": 80
+      },
+      "neg": -1,
+      "ntxn": 120,
+      "problems": [],
+      "seed": 1,
+      "status": "PASS",
+      "stimulus": {
+        "cfg_words": 10,
+        "np7_bp.hex": "814cdc16b613ac37d1354b720c5fec7303aaaa559b0ca5b261c0d4812a35f91c",
+        "np7_cfg.hex": "db0d736b2bc3ca5486cef9af551675a4db71a72b2a4634d3bba84eeae9499421",
+        "np7_txn.hex": "fea0a6a72ddbd6141a91d315f3243e2139c848f4547b7f54651a01941912c5a3",
+        "txns": 120
+      },
+      "tb_params": [
+        ".LANES(8)",
+        ".SPARSE(1'b1)",
+        ".NTXN(120)",
+        ".NWORD(10)"
+      ],
+      "work_dir": "work/golden_sparse_L8"
+    },
+    "neg0_L1": {
+      "compiled_sources": [
+        "np7_weight_ram.sv",
+        "np7_shared_synapse_lane.sv",
+        "np7_exec_unit_dense.sv",
+        "np7_exec_unit_sparse.sv",
+        "np7_negative_controls.sv",
+        "tb_np7_negative.sv",
+        "work/neg0_L1/xsim_top.sv"
+      ],
+      "fmt": "sparse",
+      "kind": "negative",
+      "lanes": 1,
+      "logs": {
+        "neg0_L1.log": "ac07e862fa1778c356910e7c794ddd05df5baea6334b9246ee82ca760d232fa8"
+      },
+      "metrics": {
+        "cyc_rows": 704,
+        "icarus_observed_sha256": "7c17a844aa88b7f967e29f000b00482a43b03598ab7d23ecf2b5cb08c4f48920",
+        "ledger": "LEDGER req=93 val=186 ops=124 zero=27 busy=364 stall=62 done=120 skip=118 inzero=8 azero=19 sat=0 total=681 proto=0 cfgerr=0 completed=120",
+        "log_file": "logs/neg0_L1.log",
+        "observed_rows": 705,
+        "observed_sha256": "7c17a844aa88b7f967e29f000b00482a43b03598ab7d23ecf2b5cb08c4f48920",
+        "raw_ledger": {
+          "accept_events": 120,
+          "accept_own_cycles": 1,
+          "backpressure_cycles": 12,
+          "busy_cycles": 364,
+          "completed_groups": 120,
+          "drain_cycles": 0,
+          "group_read_requests": 240,
+          "hold_retire_cycles": 41,
+          "lane_ops_issued": 124,
+          "lane_stall_cycles": 50,
+          "latency_cycles": 213,
+          "overlap_cycles": 119,
+          "retire_events": 120,
+          "retire_latch_cycles": 14,
+          "stall_cycles": 62,
+          "startup_cycles": 1,
+          "total_cycles": 681,
+          "weight_values_fetched": 480,
+          "window_cycles": 681,
+          "zero_single_cycles": 0
+        },
+        "summary": "",
+        "visible_class": "88888888888888888888887002331200212002122133200213320021120025002131200250021128",
+        "visible_rows": 80
+      },
+      "neg": 0,
+      "ntxn": 120,
+      "problems": [],
+      "seed": 1,
+      "status": "PASS",
+      "stimulus": {
+        "cfg_words": 20,
+        "np7_bp.hex": "2ef951431fdab7a7124b1072d90863b7306b65a6a1c64727c75fe6e5e7bdc957",
+        "np7_cfg.hex": "244c0688905ff8caa4c95debae14eeab5bc1ec95a42dd10f1b5c4aff9b1ba7c1",
+        "np7_txn.hex": "869d78ec63d5d489400ed0cb0630e9ef87b544256a377e23e93cc4491da90941",
+        "txns": 120
+      },
+      "tb_params": [
+        ".LANES(1)",
+        ".NEG(0)",
+        ".NTXN(120)",
+        ".NWORD(20)"
+      ],
+      "work_dir": "work/neg0_L1"
+    },
+    "neg0_L4": {
+      "compiled_sources": [
+        "np7_weight_ram.sv",
+        "np7_shared_synapse_lane.sv",
+        "np7_exec_unit_dense.sv",
+        "np7_exec_unit_sparse.sv",
+        "np7_negative_controls.sv",
+        "tb_np7_negative.sv",
+        "work/neg0_L4/xsim_top.sv"
+      ],
+      "fmt": "sparse",
+      "kind": "negative",
+      "lanes": 4,
+      "logs": {
+        "neg0_L4.log": "6ff37c7d05ed5b82a718f11ae7d74ae52d068bdaf62e632b9a6ed2bfd56ffbab"
+      },
+      "metrics": {
+        "cyc_rows": 642,
+        "icarus_observed_sha256": "e38d18916b0affdd9ae8f9e71c037f0614b03e32e845c675b05b6607b675d6c9",
+        "ledger": "LEDGER req=84 val=168 ops=112 zero=36 busy=324 stall=45 done=120 skip=109 inzero=7 azero=29 sat=0 total=619 proto=0 cfgerr=0 completed=120",
+        "log_file": "logs/neg0_L4.log",
+        "observed_rows": 643,
+        "observed_sha256": "e38d18916b0affdd9ae8f9e71c037f0614b03e32e845c675b05b6607b675d6c9",
+        "raw_ledger": {
+          "accept_events": 120,
+          "accept_own_cycles": 1,
+          "backpressure_cycles": 7,
+          "busy_cycles": 324,
+          "completed_groups": 120,
+          "drain_cycles": 0,
+          "group_read_requests": 240,
+          "hold_retire_cycles": 45,
+          "lane_ops_issued": 112,
+          "lane_stall_cycles": 38,
+          "latency_cycles": 204,
+          "overlap_cycles": 119,
+          "retire_events": 120,
+          "retire_latch_cycles": 9,
+          "stall_cycles": 45,
+          "startup_cycles": 1,
+          "total_cycles": 619,
+          "weight_values_fetched": 480,
+          "window_cycles": 619,
+          "zero_single_cycles": 0
+        },
+        "summary": "",
+        "visible_class": "88888888888888888888887002500212002500255002120021200212002500212002120025002128",
+        "visible_rows": 80
+      },
+      "neg": 0,
+      "ntxn": 120,
+      "problems": [],
+      "seed": 1,
+      "status": "PASS",
+      "stimulus": {
+        "cfg_words": 20,
+        "np7_bp.hex": "4f6bbdca97b942978cb40f5453519a701f166643ebab57e05c7abb824afaf918",
+        "np7_cfg.hex": "f69ffd271c96a49bf33011c34da136f3d17948e2bee7bd99c261a8164aa4b5f9",
+        "np7_txn.hex": "dc02edf7e2be9c41d1e9985f4d6ac6ad5a77407f9413f1d05455d4156945aa94",
+        "txns": 120
+      },
+      "tb_params": [
+        ".LANES(4)",
+        ".NEG(0)",
+        ".NTXN(120)",
+        ".NWORD(20)"
+      ],
+      "work_dir": "work/neg0_L4"
+    },
+    "neg1_L1": {
+      "compiled_sources": [
+        "np7_weight_ram.sv",
+        "np7_shared_synapse_lane.sv",
+        "np7_exec_unit_dense.sv",
+        "np7_exec_unit_sparse.sv",
+        "np7_negative_controls.sv",
+        "tb_np7_negative.sv",
+        "work/neg1_L1/xsim_top.sv"
+      ],
+      "fmt": "sparse",
+      "kind": "negative",
+      "lanes": 1,
+      "logs": {
+        "neg1_L1.log": "00bc3cf2c29f69b76dcb094dcdddd7bb39b5daa4e628a753231916f9b902f33d"
+      },
+      "metrics": {
+        "cyc_rows": 821,
+        "icarus_observed_sha256": "fc4618c80bdf8feab3953106379405d06f5ec3c0c1d0385cf170212712e5c548",
+        "ledger": "LEDGER req=93 val=186 ops=124 zero=27 busy=465 stall=114 done=120 skip=118 inzero=8 azero=19 sat=0 total=808 proto=0 cfgerr=0 completed=120",
+        "log_file": "logs/neg1_L1.log",
+        "observed_rows": 822,
+        "observed_sha256": "fc4618c80bdf8feab3953106379405d06f5ec3c0c1d0385cf170212712e5c548",
+        "raw_ledger": {
+          "accept_events": 120,
+          "accept_own_cycles": 1,
+          "backpressure_cycles": 5,
+          "busy_cycles": 465,
+          "completed_groups": 120,
+          "drain_cycles": 0,
+          "group_read_requests": 93,
+          "hold_retire_cycles": 42,
+          "lane_ops_issued": 372,
+          "lane_stall_cycles": 109,
+          "latency_cycles": 186,
+          "overlap_cycles": 119,
+          "retire_events": 120,
+          "retire_latch_cycles": 15,
+          "stall_cycles": 114,
+          "startup_cycles": 1,
+          "total_cycles": 808,
+          "weight_values_fetched": 186,
+          "window_cycles": 808,
+          "zero_single_cycles": 0
+        },
+        "summary": "",
+        "visible_class": "88888888888870213111320211331133202113112111120211112021131125021111325021311128",
+        "visible_rows": 80
+      },
+      "neg": 1,
+      "ntxn": 120,
+      "problems": [],
+      "seed": 1,
+      "status": "PASS",
+      "stimulus": {
+        "cfg_words": 10,
+        "np7_bp.hex": "2ef951431fdab7a7124b1072d90863b7306b65a6a1c64727c75fe6e5e7bdc957",
+        "np7_cfg.hex": "1017275d3969b11dfd4d7ce2a3071160060db168b6a0ddf771761d4e89da8223",
+        "np7_txn.hex": "869d78ec63d5d489400ed0cb0630e9ef87b544256a377e23e93cc4491da90941",
+        "txns": 120
+      },
+      "tb_params": [
+        ".LANES(1)",
+        ".NEG(1)",
+        ".NTXN(120)",
+        ".NWORD(10)"
+      ],
+      "work_dir": "work/neg1_L1"
+    },
+    "neg1_L4": {
+      "compiled_sources": [
+        "np7_weight_ram.sv",
+        "np7_shared_synapse_lane.sv",
+        "np7_exec_unit_dense.sv",
+        "np7_exec_unit_sparse.sv",
+        "np7_negative_controls.sv",
+        "tb_np7_negative.sv",
+        "work/neg1_L4/xsim_top.sv"
+      ],
+      "fmt": "sparse",
+      "kind": "negative",
+      "lanes": 4,
+      "logs": {
+        "neg1_L4.log": "cb99f57742c31c64d796700cd6993245de9bab84c50336134fb6d04069d69719"
+      },
+      "metrics": {
+        "cyc_rows": 456,
+        "icarus_observed_sha256": "1f75fc0cdebe2e29fc1cda9df6980e74cf5f5cf28a150d61ca4c667d0a4ef6ae",
+        "ledger": "LEDGER req=84 val=168 ops=112 zero=36 busy=168 stall=59 done=120 skip=109 inzero=7 azero=29 sat=0 total=443 proto=0 cfgerr=0 completed=120",
+        "log_file": "logs/neg1_L4.log",
+        "observed_rows": 457,
+        "observed_sha256": "1f75fc0cdebe2e29fc1cda9df6980e74cf5f5cf28a150d61ca4c667d0a4ef6ae",
+        "raw_ledger": {
+          "accept_events": 120,
+          "accept_own_cycles": 1,
+          "backpressure_cycles": 10,
+          "busy_cycles": 168,
+          "completed_groups": 120,
+          "drain_cycles": 0,
+          "group_read_requests": 84,
+          "hold_retire_cycles": 46,
+          "lane_ops_issued": 336,
+          "lane_stall_cycles": 49,
+          "latency_cycles": 168,
+          "overlap_cycles": 118,
+          "retire_events": 120,
+          "retire_latch_cycles": 11,
+          "stall_cycles": 59,
+          "startup_cycles": 0,
+          "total_cycles": 443,
+          "weight_values_fetched": 168,
+          "window_cycles": 443,
+          "zero_single_cycles": 1
+        },
+        "summary": "",
+        "visible_class": "88888888888867021324550212023125021202122450213202133202133250231325021250231328",
+        "visible_rows": 80
+      },
+      "neg": 1,
+      "ntxn": 120,
+      "problems": [],
+      "seed": 1,
+      "status": "PASS",
+      "stimulus": {
+        "cfg_words": 10,
+        "np7_bp.hex": "4f6bbdca97b942978cb40f5453519a701f166643ebab57e05c7abb824afaf918",
+        "np7_cfg.hex": "88df03dd50645b3daae6874c0a327a45af842b8cfb484538504f076805215730",
+        "np7_txn.hex": "dc02edf7e2be9c41d1e9985f4d6ac6ad5a77407f9413f1d05455d4156945aa94",
+        "txns": 120
+      },
+      "tb_params": [
+        ".LANES(4)",
+        ".NEG(1)",
+        ".NTXN(120)",
+        ".NWORD(10)"
+      ],
+      "work_dir": "work/neg1_L4"
+    }
+  },
+  "code_git_head": "d56f4fca9df3b6641dcb23536114dc042e6791ef",
+  "commands_log_sha256": "eff1226a6f3211ab57848cc030dd24d3928c4cc293a8d6854a0f5d238ba37bc0",
+  "groups": [
+    "golden",
+    "negative",
+    "config"
+  ],
+  "overall_status": "PASS",
+  "problems": [],
+  "runner": "run_np7_vivado_xsim.py",
+  "schema": "np7-vivado-xsim-v2",
+  "seed": 1,
+  "source_sha256": {
+    "np7_exec_unit_dense.sv": "81ca260866da6c36c7247b2b9b773c8dcb31912bdba365b04229258a7ce354b0",
+    "np7_exec_unit_sparse.sv": "17e3982a5e5e645f073d876c2a3baef905bd5ecda7d189e4a7e8feacb648f858",
+    "np7_negative_controls.sv": "3f6b79e5ac9fb89a59206936b337bae3eee0073095e369f7c4c65fcce9fcbbcd",
+    "np7_shared_synapse_lane.sv": "7a7efaa73f7d797537a9ec5f56330fa7bdb594efc1512449db5544dbde7b0fcb",
+    "np7_weight_ram.sv": "e979e4a07dc069e077f5c14e6f6001a73b6f4cfd6518493fe81323850cbb9b60",
+    "run_np7_vivado_xsim.py": "0f928a3fc6dfbd2eaa0c16fea3815e4de1c16c59c3551e307a18814eb6b655d6",
+    "tb_np7_config_negative.sv": "14c715680dbc3b283e45e5a0e10884cafcb1126ae6002533f661528eddc3e82c",
+    "tb_np7_exec_unit.sv": "5de9c9fb6a723747b6b90974a297e13f41955e29f0c82121d7e12b219bdec4e1",
+    "tb_np7_negative.sv": "f65e6f3a6c7e75bc729f122f401b0cf1f870c31924147075c0ce4eea3e340461"
+  },
+  "tools": {
+    "iverilog_line": "Icarus Verilog version 12.0 (devel) (s20150603-1539-g2693dd32b)",
+    "vvp_line": "Icarus Verilog runtime version 12.0 (devel) (s20150603-1539-g2693dd32b)"
+  },
+  "transactions_per_case": 120,
+  "vivado": {
+    "host": "Chan-an",
+    "machine": "Windows 11 AMD64",
+    "python": "3.14.7",
+    "root": "C:/Users/MGL/Documents/Codex/Vivado2024_2",
+    "sw_build": "SW Build 5239630",
+    "version": "Vivado Simulator v2024.2.0",
+    "version_note": "证据只绑定本机 Vivado 版本，不外推到评审者使用的 2024.1（NP6 决策 9 同口径）"
+  },
+  "worktree_dirty": []
+}

@@ -1,0 +1,80 @@
+# source: gh api repos/Epslion404/ENeuron/actions/jobs/<id>/logs (ANSI + timestamps stripped)
+# run: https://github.com/Epslion404/ENeuron/actions/runs/33615563208  head: ddb24fc531b4f9499675f0dfbf048a048124621e
+# git_head_of_this_archive: f525bf6da1ae15302651d4cfda3d079909607e53
+# local_time: 2026-09-02 18:09:20
+# note: PR #6 round 7 证据 —— 裁定 P2b 之后第一次 “固定路径真的被 provision 成功” 的 CI 实跑。
+#        Windows 作业 100200540345 (XPM CDC wrapper) 结论 failure；ubuntu 作业 100200540238 结论 failure；
+#        NP7 两个作业 100200540024 = success。
+#        Windows 侧新暴露的是真实 RTL 缺陷（xpm_fifo_async_sim.sv 使用前未声明 ram_empty），
+#        ubuntu 侧的 2 条失败全部是 NP4B 字节绑定失效（已由 rebind 提交刷新）。
+
+## Windows job 100200540345 —— 步骤结论（gh api runs/33615563208/jobs）
+  Install Icarus Verilog with MSYS2 UCRT64 ................ success
+  Provision and verify the fixed C:/msys64/ucrt64/bin toolchain ... success   <- P2b 要求的固定路径已真正可用
+  Run XPM CDC wrapper tests on Windows .................... failure          <- 4 条用例真的执行了，2 条因 RTL 缺陷 ERROR
+
+## Windows job 100200540345 —— 关键日志行
+echo "fixed_path_source=direct_install"
+echo "fixed_path_source=redirected_from=${WIN_SRC}"
+fixed_path_source=redirected_from=C:\msys64\msys64\ucrt64
+Icarus Verilog version 13.0 (stable) (v13_0)
+Icarus Verilog runtime version 13.0 (stable) (v13_0)
+Icarus Verilog version 13.0 (stable) (v13_0)
+echo "XPM_WINDOWS_GATE=FAIL exit_code=${xpm_status}"
+grep -n "^Ran \|^OK" "${RUNNER_TEMP}/xpm_windows.log" || true
+echo "XPM_WINDOWS_GATE=PASS"
+test_bidirectional_transport_backpressure_wrap_and_reset (test_host_bridge_xpm_wrapper.HostBridgeXpmWrapperTests.test_bidirectional_transport_backpressure_wrap_and_reset) ... XPM_TOOLCHAIN platform=win32 python=3.12.10 package=mingw-w64-ucrt-x86_64-iverilog iverilog=C:\msys64\ucrt64\bin\iverilog.exe vvp=C:\msys64\ucrt64\bin\vvp.exe iverilog_version='Icarus Verilog version 13.0 (stable) (v13_0)'
+D:\a\ENeuron\ENeuron\xpm_fifo_async_sim.sv:77: error: Unable to bind wire/reg/memory `ram_empty' in `tb.dut.command_fifo'
+D:\a\ENeuron\ENeuron\xpm_fifo_async_sim.sv:77: error: Unable to elaborate r-value: ((!(rd_rst_busy))&&(!(ram_empty)))&&((!(fwft_valid))o(read_accept))
+D:\a\ENeuron\ENeuron\xpm_fifo_async_sim.sv:77: error: Unable to bind wire/reg/memory `ram_empty' in `tb.dut.response_fifo'
+D:\a\ENeuron\ENeuron\xpm_fifo_async_sim.sv:77: error: Unable to elaborate r-value: ((!(rd_rst_busy))&&(!(ram_empty)))&&((!(fwft_valid))o(read_accept))
+D:\a\ENeuron\ENeuron\xpm_fifo_async_sim.sv:77: error: Unable to bind wire/reg/memory `ram_empty' in `tb.dut.command_fifo'
+D:\a\ENeuron\ENeuron\xpm_fifo_async_sim.sv:77: error: Unable to elaborate r-value: ((!(rd_rst_busy))&&(!(ram_empty)))&&((!(fwft_valid))o(read_accept))
+D:\a\ENeuron\ENeuron\xpm_fifo_async_sim.sv:77: error: Unable to bind wire/reg/memory `ram_empty' in `tb.dut.response_fifo'
+D:\a\ENeuron\ENeuron\xpm_fifo_async_sim.sv:77: error: Unable to elaborate r-value: ((!(rd_rst_busy))&&(!(ram_empty)))&&((!(fwft_valid))o(read_accept))
+Ran 4 tests in 0.169s
+FAILED (errors=2)
+XPM_WINDOWS_GATE=FAIL exit_code=1
+##[error]Process completed with exit code 1.
+
+## ubuntu job 100200540238 (Python and syntax) —— 关键日志行
+##[group]GITHUB_TOKEN Permissions
+sudo apt-get install --no-install-recommends -y iverilog yosys
+echo "APT_ICARUS_VERSION=$(iverilog -V | head -n 1)"
+echo "APT_YOSYS_VERSION=$(yosys --version || true)"
+yosys-abc
+iverilog yosys yosys-abc
+Get:3 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 yosys-abc amd64 0.33-5build2 [5829 kB]
+Get:4 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 yosys amd64 0.33-5build2 [3222 kB]
+Selecting previously unselected package yosys-abc.
+Preparing to unpack .../yosys-abc_0.33-5build2_amd64.deb ...
+Unpacking yosys-abc (0.33-5build2) ...
+Selecting previously unselected package yosys.
+Preparing to unpack .../yosys_0.33-5build2_amd64.deb ...
+Unpacking yosys (0.33-5build2) ...
+Setting up yosys-abc (0.33-5build2) ...
+Setting up yosys (0.33-5build2) ...
+APT_ICARUS_VERSION=Icarus Verilog version 12.0 (stable) ()
+APT_YOSYS_VERSION=Yosys 0.33 (git sha1 2584903a060)
+echo "UBUNTU_XPM_NOTICE_BEGIN"
+grep -n "NOT APPLICABLE" "${RUNNER_TEMP}/discover.log" \
+|| echo "no SKIPPED/NOT APPLICABLE notice was emitted on Ubuntu"
+echo "UBUNTU_XPM_NOTICE_END"
+grep -n "^Ran \|^OK\|^FAILED" "${RUNNER_TEMP}/discover.log" || true
+UBUNTU_XPM_NOTICE_BEGIN
+167:skipped "SKIPPED/NOT APPLICABLE: host platform is 'linux', not win32; this test drives the Windows + MSYS2 UCRT64 layout C:\\msys64\\ucrt64\\bin and cannot run on an Ubuntu runner"
+168:test_illegal_reset_reentry_is_rejected (test_host_bridge_xpm_wrapper.HostBridgeXpmWrapperTests.test_illegal_reset_reentry_is_rejected) ... skipped "SKIPPED/NOT APPLICABLE: host platform is 'linux', not win32; this test drives the Windows + MSYS2 UCRT64 layout C:\\msys64\\ucrt64\\bin and cannot run on an Ubuntu runner"
+UBUNTU_XPM_NOTICE_END
+487:Ran 408 tests in 686.704s
+489:FAILED (failures=2, skipped=3)
+skipped "SKIPPED/NOT APPLICABLE: host platform is 'linux', not win32; this test drives the Windows + MSYS2 UCRT64 layout C:\\msys64\\ucrt64\\bin and cannot run on an Ubuntu runner"
+test_illegal_reset_reentry_is_rejected (test_host_bridge_xpm_wrapper.HostBridgeXpmWrapperTests.test_illegal_reset_reentry_is_rejected) ... skipped "SKIPPED/NOT APPLICABLE: host platform is 'linux', not win32; this test drives the Windows + MSYS2 UCRT64 layout C:\\msys64\\ucrt64\\bin and cannot run on an Ubuntu runner"
+test_rejects_duplicate_keys_after_whitespace_normalization (test_verify_goal.ReadKeyValuesTests.test_rejects_duplicate_keys_after_whitespace_normalization) ... ok
+A machine without Icarus/Yosys must not crash the metadata path nor fake tools. ... ok
+FAIL: test_official_reverify_keeps_np4b_signoff_verifiable (test_verify_local_prune_rtl.VerifyLocalPruneRtlTest.test_official_reverify_keeps_np4b_signoff_verifiable)
+FAIL: test_current_summary_and_file_hashes_pass (test_verify_np4b_signoff.VerifyNp4bSignoffTests.test_current_summary_and_file_hashes_pass)
+Ran 408 tests in 686.704s
+FAILED (failures=2, skipped=3)
+
+# conclusion: 固定路径 provisioning 已符合裁定 P2b；剩余阻断是 xpm_fifo_async_sim.sv 的
+#             declaration-after-use（Icarus 13.0 拒绝，12.0 快照静默通过）与 NP4B 绑定刷新。

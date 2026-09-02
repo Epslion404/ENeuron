@@ -1,0 +1,84 @@
+# command: python -X utf8 probe_both_iv.py ; python -X utf8 probe_neg.py (驱动脚本全文见本文件末尾)
+# git_head: 187d9707da4e40f777ec8868d85652c41eb0ab56
+# python: 3.14.7 (-X utf8)
+# note: PR #6 round 6 / P2b: docs/WINDOWS_MSYS2_XPM_TOOLCHAIN.md 第 3 节缺陷矩阵的原始测量输出：A=C:/msys64/ucrt64/bin 12.0(stable) vs B=C:/iverilog/bin 12.0(devel)
+# local_time: 2026-09-02 17:09:32
+# note: probe output was line-wise rstripped (7 lines had trailing blanks) so git diff --check stays clean; no other byte changed
+
+## probe_both_iv.py
+==  msys64 ver: Icarus Verilog version 12.0 (stable) ()
+   trivial -Wall compile rc= 0 err= ''
+   trivial vvp rc= 3221225477 out= '' err= ''
+   xpm compile ['-Wall'] rc= 3221225477 out= 0 err= 0 head=
+   xpm compile [] rc= 0 out= 0 err= 0 head=
+     vvp rc= 3221225477 tail:
+     vvp err:
+==  C:/iverilog ver: Icarus Verilog version 12.0 (devel) (s20150603-1539-g2693dd32b)
+   trivial -Wall compile rc= 0 err= ''
+   trivial vvp rc= 0 out= 'TRIVIAL_OK 42\nC:\\Users\\MGL\\AppData\\Local\\Temp\\complete_2sz9_' err= ''
+   xpm compile ['-Wall'] rc= 0 out= 0 err= 447 head= warning: Some design elements have no explicit time unit and/or
+       : time pr
+     vvp rc= 0 tail: XPM_WRAPPER_TRANSPORT_PASS|C:\Users\MGL\AppData\Local\Temp\complete_2sz9_axy\tb.sv:192: $finish called at 4790000 (1ps)
+     vvp err:
+   xpm compile [] rc= 0 out= 0 err= 0 head=
+     vvp rc= 0 tail: XPM_WRAPPER_TRANSPORT_PASS|C:\Users\MGL\AppData\Local\Temp\complete_2sz9_axy\tb.sv:192: $finish called at 4790000 (1ps)
+     vvp err:
+
+# exit_code: 0
+
+## probe_neg.py
+compile rc= 0 out= 0 err= 447
+run rc= 1 out= 'mpletion\nFATAL: C:\\Users\\MGL\\Documents\\Codex\\2026-08-29\\vivado\\github_pr\\digital_snn_host_bridge.sv:196: RESET_REENTRY_ERROR\n       Time: 316000  Scope: tb.dut\n' err= ''
+contains RESET_REENTRY_ERROR: True
+
+# exit_code: 0
+
+### probe_both_iv.py (测量驱动脚本，全文固化以便复现)
+```python
+import subprocess, os, tempfile, importlib.util
+os.chdir(r"C:\Users\MGL\Documents\Codex\2026-08-29\vivado\github_pr")
+spec = importlib.util.spec_from_file_location("x", "test_host_bridge_xpm_wrapper.py")
+m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+d = tempfile.mkdtemp(prefix="complete_")
+open(os.path.join(d,"t.v"),"w").write("module tb; initial begin $display(\"TRIVIAL_OK %0d\", 42); $finish; end\nendmodule\n")
+for tag, iv, vv in (("msys64", r"C:\msys64\ucrt64\bin\iverilog.exe", r"C:\msys64\ucrt64\bin\vvp.exe"),
+                    ("C:/iverilog", r"C:\iverilog\bin\iverilog.exe", r"C:\iverilog\bin\vvp.exe")):
+    env = os.environ.copy(); env["PATH"] = os.path.dirname(iv) + os.pathsep + env.get("PATH","")
+    print("== ", tag, "ver:", subprocess.run([iv,"-V"],capture_output=True,text=True).stdout.split("\n")[0])
+    c = subprocess.run([iv,"-g2012","-Wall","-s","tb","-o",os.path.join(d,"t.vvp"),os.path.join(d,"t.v")],cwd=d,capture_output=True,text=True)
+    print("   trivial -Wall compile rc=", c.returncode, "err=", repr((c.stderr or "")[:80]))
+    r = subprocess.run([vv, os.path.join(d,"t.vvp")], cwd=d, capture_output=True, text=True, env=env)
+    print("   trivial vvp rc=", r.returncode, "out=", repr(r.stdout[:60]), "err=", repr(r.stderr[:60]))
+    tb = os.path.join(d,"tb.sv"); open(tb,"w",encoding="utf-8").write(m.TRANSPORT_TESTBENCH)
+    for flags in (["-Wall"], []):
+        c2 = subprocess.run([iv,"-g2012",*flags,"-s","tb","-o",os.path.join(d,"x.vvp"),
+                             str(m.ROOT/"xpm_fifo_async_sim.sv"), str(m.ROOT/"digital_snn_host_bridge.sv"), tb],
+                            cwd=str(m.ROOT), capture_output=True, text=True)
+        print("   xpm compile", flags, "rc=", c2.returncode, "out=", len(c2.stdout), "err=", len(c2.stderr), "head=", (c2.stderr or "")[:80])
+        if c2.returncode == 0:
+            rr = subprocess.run([vv, os.path.join(d,"x.vvp")], cwd=d, capture_output=True, text=True, env=env)
+            print("     vvp rc=", rr.returncode, "tail:", (rr.stdout or "").strip().replace("\n","|")[-160:])
+            print("     vvp err:", (rr.stderr or "").strip().replace("\n","|")[:160])
+```
+
+### probe_neg.py (测量驱动脚本，全文固化以便复现)
+```python
+import subprocess, os, tempfile, importlib.util
+REPO = r"C:\Users\MGL\Documents\Codex\2026-08-29\vivado\github_pr"
+os.chdir(REPO)
+spec = importlib.util.spec_from_file_location("m", "test_host_bridge_xpm_wrapper.py")
+m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+d = tempfile.mkdtemp(prefix="neg_")
+tb = os.path.join(d,"tb.sv"); open(tb,"w",encoding="utf-8").write(m.ILLEGAL_RESET_TESTBENCH)
+env = os.environ.copy(); env["PATH"] = r"C:\iverilog\bin" + os.pathsep + env.get("PATH","")
+c = subprocess.run([r"C:\iverilog\bin\iverilog.exe","-g2012","-Wall","-s","tb","-o",os.path.join(d,"n.vvp"),
+                    os.path.join(REPO,"xpm_fifo_async_sim.sv"), os.path.join(REPO,"digital_snn_host_bridge.sv"), tb],
+                   cwd=REPO, capture_output=True, text=True)
+print("compile rc=", c.returncode, "out=", len(c.stdout), "err=", len(c.stderr))
+r = subprocess.run([r"C:\iverilog\bin\vvp.exe", os.path.join(d,"n.vvp")], cwd=d, capture_output=True, text=True, env=env)
+print("run rc=", r.returncode, "out=", repr(r.stdout[-160:]), "err=", repr(r.stderr[-200:]))
+print("contains RESET_REENTRY_ERROR:", "RESET_REENTRY_ERROR" in (r.stdout + r.stderr))
+open(r"C:\Users\MGL\scratch_np7_round3\illegal_tb_probe.log","w",encoding="utf-8").write(
+  "iverilog 12.0 devel compile rc=%d (stderr %d bytes)\nvvp rc=%d\nstdout_tail=%s\nstderr=%s\ncontains RESET_REENTRY_ERROR=%s\n" %
+  (c.returncode, len(c.stderr), r.returncode, r.stdout[-200:], r.stderr[-300:], "RESET_REENTRY_ERROR" in (r.stdout+r.stderr)))
+```

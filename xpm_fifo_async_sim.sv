@@ -72,6 +72,10 @@ module xpm_fifo_async #(
     wire write_accept = wr_en && !full && !wr_rst_busy;
     wire read_accept = rd_en && fwft_valid && !rd_rst_busy;
     wire [PTR_BITS-1:0] wr_binary_next = wr_binary + write_accept;
+    // Declared before every use: Icarus Verilog 13.0 (the MSYS2 UCRT64 package used
+    // by the PR Gate windows-xpm-cdc job) rejects a forward reference to an
+    // undeclared identifier, while older snapshot builds silently elaborated it.
+    wire ram_empty;
     // The RAM read pointer advances when a word moves into the FWFT slot.
     // That move is distinct from the external valid/ready consumption event.
     wire ram_read_advance = !rd_rst_busy && !ram_empty
@@ -85,7 +89,7 @@ module xpm_fifo_async #(
     };
 
     assign full = full_reg;
-    wire ram_empty = rd_gray == wr_gray_sync2;
+    assign ram_empty = rd_gray == wr_gray_sync2;  // driven here; declared above every use
     assign empty = !fwft_valid;
     assign dout = fwft_valid ? fwft_data : {READ_DATA_WIDTH{1'b0}};
     assign data_valid = fwft_valid && !rd_rst_busy;

@@ -1,0 +1,15 @@
+# command: python -X utf8 run_np7_vivado_ooc.py --vivado-root C:/Users/MGL/Documents/Codex/Vivado2024_2 --jobs 4
+# code_git_head: 9d07b99
+# full_git_head: 9d07b99c70cd61836980930862938fc38f1e71da
+# python: 3.14.7 (-X utf8, PYTHONIOENCODING=utf-8)
+# local_time: 2026-09-02 14:03:25
+# toolchain: iverilog 12.0 (C:\iverilog\bin), yosys 0.68 (C:\msys64\ucrt64\bin), Vivado 2024.2 (SW Build 5239630)
+sparse/L1      PASS rc=0 lut=133 ff=471 bram36=0 dsp=0 wns=3.727 whs=0.159
+sparse/L2      PASS rc=0 lut=143 ff=472 bram36=0 dsp=0 wns=3.445 whs=0.176
+sparse/L4      PASS rc=0 lut=193 ff=475 bram36=0 dsp=0 wns=0.230 whs=0.184
+sparse/L8      PASS rc=0 lut=193 ff=475 bram36=0 dsp=0 wns=0.353 whs=0.174
+dense/L2       PASS rc=0 lut=152 ff=486 bram36=0 dsp=0 wns=3.512 whs=0.194
+dense/L1       PASS rc=0 lut=134 ff=485 bram36=0 dsp=0 wns=3.041 whs=0.177
+dense/L4       PASS rc=0 lut=198 ff=489 bram36=0 dsp=0 wns=0.138 whs=0.205
+dense/L8       PASS rc=0 lut=198 ff=489 bram36=0 dsp=0 wns=0.155 whs=0.192
+NP7_OOC_SUMMARY configs=8 problems=0 overall=PASS json=C:\Users\MGL\Documents\Codex\2026-08-29\vivado\github_pr\artifacts\results\np7_vivado_ooc_summary.json

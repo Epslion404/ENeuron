@@ -1,0 +1,27 @@
+# command: python test_np7_verifier_mutations.py  (默认 Windows 代码页，不设 PYTHONUTF8)
+# git_head: 05b48fff9a6fd864e4112164aeadb61a893617ac
+# python: 3.14.7 (默认代码页，PYTHONUTF8/PYTHONIOENCODING 未设置)
+# note: 复现评审阻断 4 的口径：默认代码页（936）下套件必须完整跑完且结论一致
+# local_time: 2026-09-02 15:44:10
+
+baseline clone head=05b48ff rc=0 baseline_rejects=0 NP7_VERIFY_SUMMARY rejects=0 blocking_gates=- overall=PASS
+delete_run_log               rc=1 new_rejects=1 CAUGHT
+tamper_gate_status           rc=1 new_rejects=2 CAUGHT
+tamper_rtl_ledger            rc=1 new_rejects=3 CAUGHT
+fake_cycle_gain              rc=1 new_rejects=26 CAUGHT
+lower_gate_threshold         rc=1 new_rejects=2 CAUGHT
+accept_negative_control      rc=1 new_rejects=9 CAUGHT
+weaken_formal_verdict        rc=1 new_rejects=2 CAUGHT
+leak_mutation_escapes        rc=1 new_rejects=2 CAUGHT
+tamper_frozen_accuracy       rc=1 new_rejects=2 CAUGHT
+post_freeze_rtl_rebind       rc=1 new_rejects=2 CAUGHT
+post_freeze_tool_rebind      rc=1 new_rejects=1 CAUGHT
+bogus_frozen_head            rc=1 new_rejects=68 CAUGHT
+manifest_integrity_flagged   rc=1 new_rejects=2 CAUGHT
+fake_xsim_behavioral_evidence rc=1 new_rejects=2 CAUGHT
+fake_xsim_ledger_markers     rc=1 new_rejects=5 CAUGHT
+drop_xsim_case               rc=1 new_rejects=2 CAUGHT
+legacy_identity_only_evidence rc=1 new_rejects=3 CAUGHT
+tamper_ledger_coverage       rc=1 new_rejects=2 CAUGHT
+drop_forced_rtl_mutation     rc=1 new_rejects=4 CAUGHT
+MUTATION_SUITE PASS checks=19

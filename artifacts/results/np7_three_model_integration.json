@@ -1,0 +1,1837 @@
+{
+  "candidate": "output_2of4",
+  "models": {
+    "eneuron": {
+      "frozen_consistency_problems": [],
+      "frozen_task": {
+        "b21_joint_gate_pass": true,
+        "balanced_accuracy": 1.0,
+        "candidate": "output_2of4",
+        "channel_enable": 255,
+        "coverage": 1.0,
+        "dense_network_reads": 240,
+        "hidden_masks": [
+          5,
+          5,
+          5,
+          5,
+          10,
+          10,
+          10,
+          10
+        ],
+        "joint_gate_pass": true,
+        "output_masks": [
+          3,
+          3
+        ]
+      },
+      "groups_seen": 640,
+      "integration_problems": [],
+      "ledgers": {
+        "1": {
+          "dense_baseline": {
+            "accept_cycles": 40,
+            "accept_events": 640,
+            "accept_own_cycles": 40,
+            "backpressure_cycles": 0,
+            "busy_cycles": 600,
+            "completed_groups": 640,
+            "cycles_per_group": 2.28125,
+            "cycles_per_logical_tick": 18.25,
+            "drain_cycles": 410,
+            "format": "dense",
+            "group_read_requests": 360,
+            "groups_per_cycle": 0.4383561643835616,
+            "hold_retire_cycles": 170,
+            "idle_cycles": 0,
+            "lane_count": 1,
+            "lane_ops_issued": 240,
+            "lane_stall_cycles": 0,
+            "latency_cycles": 360,
+            "overlap_cycles": 310,
+            "retire_events": 640,
+            "retire_latch_cycles": 0,
+            "stall_cycles": 0,
+            "startup_cycles": 10,
+            "total_cycles": 1460,
+            "weight_values_fetched": 720,
+            "zero_cycles": 290,
+            "zero_fast_paths": 460,
+            "zero_single_cycles": 290
+          },
+          "dense_format": {
+            "accept_cycles": 40,
+            "accept_events": 640,
+            "accept_own_cycles": 40,
+            "backpressure_cycles": 0,
+            "busy_cycles": 320,
+            "completed_groups": 640,
+            "cycles_per_group": 1.71875,
+            "cycles_per_logical_tick": 13.75,
+            "drain_cycles": 450,
+            "format": "dense",
+            "group_read_requests": 200,
+            "groups_per_cycle": 0.5818181818181818,
+            "hold_retire_cycles": 210,
+            "idle_cycles": 0,
+            "lane_count": 1,
+            "lane_ops_issued": 120,
+            "lane_stall_cycles": 0,
+            "latency_cycles": 200,
+            "overlap_cycles": 270,
+            "retire_events": 640,
+            "retire_latch_cycles": 0,
+            "stall_cycles": 0,
+            "startup_cycles": 10,
+            "total_cycles": 1100,
+            "weight_values_fetched": 400,
+            "zero_cycles": 330,
+            "zero_fast_paths": 540,
+            "zero_single_cycles": 330
+          },
+          "sparse_format": {
+            "accept_cycles": 40,
+            "accept_events": 640,
+            "accept_own_cycles": 40,
+            "backpressure_cycles": 0,
+            "busy_cycles": 220,
+            "completed_groups": 640,
+            "cycles_per_group": 1.5625,
+            "cycles_per_logical_tick": 12.5,
+            "drain_cycles": 450,
+            "format": "sparse",
+            "group_read_requests": 100,
+            "groups_per_cycle": 0.64,
+            "hold_retire_cycles": 210,
+            "idle_cycles": 0,
+            "lane_count": 1,
+            "lane_ops_issued": 120,
+            "lane_stall_cycles": 0,
+            "latency_cycles": 200,
+            "overlap_cycles": 270,
+            "retire_events": 640,
+            "retire_latch_cycles": 0,
+            "stall_cycles": 0,
+            "startup_cycles": 10,
+            "total_cycles": 1000,
+            "weight_values_fetched": 200,
+            "zero_cycles": 330,
+            "zero_fast_paths": 540,
+            "zero_single_cycles": 330
+          }
+        },
+        "2": {
+          "dense_baseline": {
+            "accept_cycles": 40,
+            "accept_events": 640,
+            "accept_own_cycles": 40,
+            "backpressure_cycles": 0,
+            "busy_cycles": 560,
+            "completed_groups": 640,
+            "cycles_per_group": 2.21875,
+            "cycles_per_logical_tick": 17.75,
+            "drain_cycles": 410,
+            "format": "dense",
+            "group_read_requests": 360,
+            "groups_per_cycle": 0.4507042253521127,
+            "hold_retire_cycles": 170,
+            "idle_cycles": 0,
+            "lane_count": 2,
+            "lane_ops_issued": 240,
+            "lane_stall_cycles": 0,
+            "latency_cycles": 360,
+            "overlap_cycles": 310,
+            "retire_events": 640,
+            "retire_latch_cycles": 0,
+            "stall_cycles": 0,
+            "startup_cycles": 10,
+            "total_cycles": 1420,
+            "weight_values_fetched": 720,
+            "zero_cycles": 290,
+            "zero_fast_paths": 460,
+            "zero_single_cycles": 290
+          },
+          "dense_format": {
+            "accept_cycles": 40,
+            "accept_events": 640,
+            "accept_own_cycles": 40,
+            "backpressure_cycles": 0,
+            "busy_cycles": 300,
+            "completed_groups": 640,
+            "cycles_per_group": 1.6875,
+            "cycles_per_logical_tick": 13.5,
+            "drain_cycles": 450,
+            "format": "dense",
+            "group_read_requests": 200,
+            "groups_per_cycle": 0.5925925925925926,
+            "hold_retire_cycles": 210,
+            "idle_cycles": 0,
+            "lane_count": 2,
+            "lane_ops_issued": 120,
+            "lane_stall_cycles": 0,
+            "latency_cycles": 200,
+            "overlap_cycles": 270,
+            "retire_events": 640,
+            "retire_latch_cycles": 0,
+            "stall_cycles": 0,
+            "startup_cycles": 10,
+            "total_cycles": 1080,
+            "weight_values_fetched": 400,
+            "zero_cycles": 330,
+            "zero_fast_paths": 540,
+            "zero_single_cycles": 330
+          },
+          "sparse_format": {
+            "accept_cycles": 40,
+            "accept_events": 640,
+            "accept_own_cycles": 40,
+            "backpressure_cycles": 0,
+            "busy_cycles": 200,
+            "completed_groups": 640,
+            "cycles_per_group": 1.53125,
+            "cycles_per_logical_tick": 12.25,
+            "drain_cycles": 450,
+            "format": "sparse",
+            "group_read_requests": 100,
+            "groups_per_cycle": 0.6530612244897959,
+            "hold_retire_cycles": 210,
+            "idle_cycles": 0,
+            "lane_count": 2,
+            "lane_ops_issued": 120,
+            "lane_stall_cycles": 0,
+            "latency_cycles": 200,
+            "overlap_cycles": 270,
+            "retire_events": 640,
+            "retire_latch_cycles": 0,
+            "stall_cycles": 0,
+            "startup_cycles": 10,
+            "total_cycles": 980,
+            "weight_values_fetched": 200,
+            "zero_cycles": 330,
+            "zero_fast_paths": 540,
+            "zero_single_cycles": 330
+          }
+        },
+        "4": {
+          "dense_baseline": {
+            "accept_cycles": 40,
+            "accept_events": 640,
+            "accept_own_cycles": 40,
+            "backpressure_cycles": 0,
+            "busy_cycles": 540,
+            "completed_groups": 640,
+            "cycles_per_group": 2.1875,
+            "cycles_per_logical_tick": 17.5,
+            "drain_cycles": 410,
+            "format": "dense",
+            "group_read_requests": 360,
+            "groups_per_cycle": 0.45714285714285713,
+            "hold_retire_cycles": 170,
+            "idle_cycles": 0,
+            "lane_count": 4,
+            "lane_ops_issued": 240,
+            "lane_stall_cycles": 0,
+            "latency_cycles": 360,
+            "overlap_cycles": 310,
+            "retire_events": 640,
+            "retire_latch_cycles": 0,
+            "stall_cycles": 0,
+            "startup_cycles": 10,
+            "total_cycles": 1400,
+            "weight_values_fetched": 720,
+            "zero_cycles": 290,
+            "zero_fast_paths": 460,
+            "zero_single_cycles": 290
+          },
+          "dense_format": {
+            "accept_cycles": 40,
+            "accept_events": 640,
+            "accept_own_cycles": 40,
+            "backpressure_cycles": 0,
+            "busy_cycles": 300,
+            "completed_groups": 640,
+            "cycles_per_group": 1.6875,
+            "cycles_per_logical_tick": 13.5,
+            "drain_cycles": 450,
+            "format": "dense",
+            "group_read_requests": 200,
+            "groups_per_cycle": 0.5925925925925926,
+            "hold_retire_cycles": 210,
+            "idle_cycles": 0,
+            "lane_count": 4,
+            "lane_ops_issued": 120,
+            "lane_stall_cycles": 0,
+            "latency_cycles": 200,
+            "overlap_cycles": 270,
+            "retire_events": 640,
+            "retire_latch_cycles": 0,
+            "stall_cycles": 0,
+            "startup_cycles": 10,
+            "total_cycles": 1080,
+            "weight_values_fetched": 400,
+            "zero_cycles": 330,
+            "zero_fast_paths": 540,
+            "zero_single_cycles": 330
+          },
+          "sparse_format": {
+            "accept_cycles": 40,
+            "accept_events": 640,
+            "accept_own_cycles": 40,
+            "backpressure_cycles": 0,
+            "busy_cycles": 200,
+            "completed_groups": 640,
+            "cycles_per_group": 1.53125,
+            "cycles_per_logical_tick": 12.25,
+            "drain_cycles": 450,
+            "format": "sparse",
+            "group_read_requests": 100,
+            "groups_per_cycle": 0.6530612244897959,
+            "hold_retire_cycles": 210,
+            "idle_cycles": 0,
+            "lane_count": 4,
+            "lane_ops_issued": 120,
+            "lane_stall_cycles": 0,
+            "latency_cycles": 200,
+            "overlap_cycles": 270,
+            "retire_events": 640,
+            "retire_latch_cycles": 0,
+            "stall_cycles": 0,
+            "startup_cycles": 10,
+            "total_cycles": 980,
+            "weight_values_fetched": 200,
+            "zero_cycles": 330,
+            "zero_fast_paths": 540,
+            "zero_single_cycles": 330
+          }
+        },
+        "8": {
+          "dense_baseline": {
+            "accept_cycles": 40,
+            "accept_events": 640,
+            "accept_own_cycles": 40,
+            "backpressure_cycles": 0,
+            "busy_cycles": 540,
+            "completed_groups": 640,
+            "cycles_per_group": 2.1875,
+            "cycles_per_logical_tick": 17.5,
+            "drain_cycles": 410,
+            "format": "dense",
+            "group_read_requests": 360,
+            "groups_per_cycle": 0.45714285714285713,
+            "hold_retire_cycles": 170,
+            "idle_cycles": 0,
+            "lane_count": 8,
+            "lane_ops_issued": 240,
+            "lane_stall_cycles": 0,
+            "latency_cycles": 360,
+            "overlap_cycles": 310,
+            "retire_events": 640,
+            "retire_latch_cycles": 0,
+            "stall_cycles": 0,
+            "startup_cycles": 10,
+            "total_cycles": 1400,
+            "weight_values_fetched": 720,
+            "zero_cycles": 290,
+            "zero_fast_paths": 460,
+            "zero_single_cycles": 290
+          },
+          "dense_format": {
+            "accept_cycles": 40,
+            "accept_events": 640,
+            "accept_own_cycles": 40,
+            "backpressure_cycles": 0,
+            "busy_cycles": 300,
+            "completed_groups": 640,
+            "cycles_per_group": 1.6875,
+            "cycles_per_logical_tick": 13.5,
+            "drain_cycles": 450,
+            "format": "dense",
+            "group_read_requests": 200,
+            "groups_per_cycle": 0.5925925925925926,
+            "hold_retire_cycles": 210,
+            "idle_cycles": 0,
+            "lane_count": 8,
+            "lane_ops_issued": 120,
+            "lane_stall_cycles": 0,
+            "latency_cycles": 200,
+            "overlap_cycles": 270,
+            "retire_events": 640,
+            "retire_latch_cycles": 0,
+            "stall_cycles": 0,
+            "startup_cycles": 10,
+            "total_cycles": 1080,
+            "weight_values_fetched": 400,
+            "zero_cycles": 330,
+            "zero_fast_paths": 540,
+            "zero_single_cycles": 330
+          },
+          "sparse_format": {
+            "accept_cycles": 40,
+            "accept_events": 640,
+            "accept_own_cycles": 40,
+            "backpressure_cycles": 0,
+            "busy_cycles": 200,
+            "completed_groups": 640,
+            "cycles_per_group": 1.53125,
+            "cycles_per_logical_tick": 12.25,
+            "drain_cycles": 450,
+            "format": "sparse",
+            "group_read_requests": 100,
+            "groups_per_cycle": 0.6530612244897959,
+            "hold_retire_cycles": 210,
+            "idle_cycles": 0,
+            "lane_count": 8,
+            "lane_ops_issued": 120,
+            "lane_stall_cycles": 0,
+            "latency_cycles": 200,
+            "overlap_cycles": 270,
+            "retire_events": 640,
+            "retire_latch_cycles": 0,
+            "stall_cycles": 0,
+            "startup_cycles": 10,
+            "total_cycles": 980,
+            "weight_values_fetched": 200,
+            "zero_cycles": 330,
+            "zero_fast_paths": 540,
+            "zero_single_cycles": 330
+          }
+        }
+      },
+      "logical_ticks": 80,
+      "max_cycle_reduction": 0.31506849315068497,
+      "model": "eneuron",
+      "np7_counts": [
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          2
+        ]
+      ],
+      "reference_counts": [
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          2
+        ]
+      ],
+      "reference_work": {
+        "hidden_actual": 80,
+        "hidden_after_structure": 80,
+        "hidden_dense_active": 160,
+        "output_actual": 40,
+        "output_pre_mask": 80
+      },
+      "samples": 20,
+      "state_digest_mismatch_samples": 0,
+      "state_digest_samples": 20,
+      "ticks_per_sample": 4,
+      "v2_evidence": {
+        "1": {
+          "folded_cycles_saved": 700,
+          "overlap_cycles": 270,
+          "solo_segment_cycles": 1700,
+          "stream_cycles": 1000,
+          "ticks": 80,
+          "zero_single_cycles": 330
+        },
+        "2": {
+          "folded_cycles_saved": 700,
+          "overlap_cycles": 270,
+          "solo_segment_cycles": 1680,
+          "stream_cycles": 980,
+          "ticks": 80,
+          "zero_single_cycles": 330
+        },
+        "4": {
+          "folded_cycles_saved": 700,
+          "overlap_cycles": 270,
+          "solo_segment_cycles": 1680,
+          "stream_cycles": 980,
+          "ticks": 80,
+          "zero_single_cycles": 330
+        },
+        "8": {
+          "folded_cycles_saved": 700,
+          "overlap_cycles": 270,
+          "solo_segment_cycles": 1680,
+          "stream_cycles": 980,
+          "ticks": 80,
+          "zero_single_cycles": 330
+        }
+      }
+    },
+    "pulse_mini_l": {
+      "frozen_consistency_problems": [],
+      "frozen_task": {
+        "b21_joint_gate_pass": true,
+        "balanced_accuracy": 1.0,
+        "candidate": "output_2of4",
+        "channel_enable": 255,
+        "coverage": 1.0,
+        "dense_network_reads": 240,
+        "hidden_masks": [
+          5,
+          5,
+          5,
+          5,
+          10,
+          10,
+          10,
+          10
+        ],
+        "joint_gate_pass": true,
+        "output_masks": [
+          3,
+          3
+        ]
+      },
+      "groups_seen": 640,
+      "integration_problems": [],
+      "ledgers": {
+        "1": {
+          "dense_baseline": {
+            "accept_cycles": 40,
+            "accept_events": 640,
+            "accept_own_cycles": 40,
+            "backpressure_cycles": 0,
+            "busy_cycles": 600,
+            "completed_groups": 640,
+            "cycles_per_group": 2.28125,
+            "cycles_per_logical_tick": 18.25,
+            "drain_cycles": 410,
+            "format": "dense",
+            "group_read_requests": 360,
+            "groups_per_cycle": 0.4383561643835616,
+            "hold_retire_cycles": 170,
+            "idle_cycles": 0,
+            "lane_count": 1,
+            "lane_ops_issued": 240,
+            "lane_stall_cycles": 0,
+            "latency_cycles": 360,
+            "overlap_cycles": 310,
+            "retire_events": 640,
+            "retire_latch_cycles": 0,
+            "stall_cycles": 0,
+            "startup_cycles": 10,
+            "total_cycles": 1460,
+            "weight_values_fetched": 720,
+            "zero_cycles": 290,
+            "zero_fast_paths": 460,
+            "zero_single_cycles": 290
+          },
+          "dense_format": {
+            "accept_cycles": 40,
+            "accept_events": 640,
+            "accept_own_cycles": 40,
+            "backpressure_cycles": 0,
+            "busy_cycles": 320,
+            "completed_groups": 640,
+            "cycles_per_group": 1.71875,
+            "cycles_per_logical_tick": 13.75,
+            "drain_cycles": 450,
+            "format": "dense",
+            "group_read_requests": 200,
+            "groups_per_cycle": 0.5818181818181818,
+            "hold_retire_cycles": 210,
+            "idle_cycles": 0,
+            "lane_count": 1,
+            "lane_ops_issued": 120,
+            "lane_stall_cycles": 0,
+            "latency_cycles": 200,
+            "overlap_cycles": 270,
+            "retire_events": 640,
+            "retire_latch_cycles": 0,
+            "stall_cycles": 0,
+            "startup_cycles": 10,
+            "total_cycles": 1100,
+            "weight_values_fetched": 400,
+            "zero_cycles": 330,
+            "zero_fast_paths": 540,
+            "zero_single_cycles": 330
+          },
+          "sparse_format": {
+            "accept_cycles": 40,
+            "accept_events": 640,
+            "accept_own_cycles": 40,
+            "backpressure_cycles": 0,
+            "busy_cycles": 220,
+            "completed_groups": 640,
+            "cycles_per_group": 1.5625,
+            "cycles_per_logical_tick": 12.5,
+            "drain_cycles": 450,
+            "format": "sparse",
+            "group_read_requests": 100,
+            "groups_per_cycle": 0.64,
+            "hold_retire_cycles": 210,
+            "idle_cycles": 0,
+            "lane_count": 1,
+            "lane_ops_issued": 120,
+            "lane_stall_cycles": 0,
+            "latency_cycles": 200,
+            "overlap_cycles": 270,
+            "retire_events": 640,
+            "retire_latch_cycles": 0,
+            "stall_cycles": 0,
+            "startup_cycles": 10,
+            "total_cycles": 1000,
+            "weight_values_fetched": 200,
+            "zero_cycles": 330,
+            "zero_fast_paths": 540,
+            "zero_single_cycles": 330
+          }
+        },
+        "2": {
+          "dense_baseline": {
+            "accept_cycles": 40,
+            "accept_events": 640,
+            "accept_own_cycles": 40,
+            "backpressure_cycles": 0,
+            "busy_cycles": 560,
+            "completed_groups": 640,
+            "cycles_per_group": 2.21875,
+            "cycles_per_logical_tick": 17.75,
+            "drain_cycles": 410,
+            "format": "dense",
+            "group_read_requests": 360,
+            "groups_per_cycle": 0.4507042253521127,
+            "hold_retire_cycles": 170,
+            "idle_cycles": 0,
+            "lane_count": 2,
+            "lane_ops_issued": 240,
+            "lane_stall_cycles": 0,
+            "latency_cycles": 360,
+            "overlap_cycles": 310,
+            "retire_events": 640,
+            "retire_latch_cycles": 0,
+            "stall_cycles": 0,
+            "startup_cycles": 10,
+            "total_cycles": 1420,
+            "weight_values_fetched": 720,
+            "zero_cycles": 290,
+            "zero_fast_paths": 460,
+            "zero_single_cycles": 290
+          },
+          "dense_format": {
+            "accept_cycles": 40,
+            "accept_events": 640,
+            "accept_own_cycles": 40,
+            "backpressure_cycles": 0,
+            "busy_cycles": 300,
+            "completed_groups": 640,
+            "cycles_per_group": 1.6875,
+            "cycles_per_logical_tick": 13.5,
+            "drain_cycles": 450,
+            "format": "dense",
+            "group_read_requests": 200,
+            "groups_per_cycle": 0.5925925925925926,
+            "hold_retire_cycles": 210,
+            "idle_cycles": 0,
+            "lane_count": 2,
+            "lane_ops_issued": 120,
+            "lane_stall_cycles": 0,
+            "latency_cycles": 200,
+            "overlap_cycles": 270,
+            "retire_events": 640,
+            "retire_latch_cycles": 0,
+            "stall_cycles": 0,
+            "startup_cycles": 10,
+            "total_cycles": 1080,
+            "weight_values_fetched": 400,
+            "zero_cycles": 330,
+            "zero_fast_paths": 540,
+            "zero_single_cycles": 330
+          },
+          "sparse_format": {
+            "accept_cycles": 40,
+            "accept_events": 640,
+            "accept_own_cycles": 40,
+            "backpressure_cycles": 0,
+            "busy_cycles": 200,
+            "completed_groups": 640,
+            "cycles_per_group": 1.53125,
+            "cycles_per_logical_tick": 12.25,
+            "drain_cycles": 450,
+            "format": "sparse",
+            "group_read_requests": 100,
+            "groups_per_cycle": 0.6530612244897959,
+            "hold_retire_cycles": 210,
+            "idle_cycles": 0,
+            "lane_count": 2,
+            "lane_ops_issued": 120,
+            "lane_stall_cycles": 0,
+            "latency_cycles": 200,
+            "overlap_cycles": 270,
+            "retire_events": 640,
+            "retire_latch_cycles": 0,
+            "stall_cycles": 0,
+            "startup_cycles": 10,
+            "total_cycles": 980,
+            "weight_values_fetched": 200,
+            "zero_cycles": 330,
+            "zero_fast_paths": 540,
+            "zero_single_cycles": 330
+          }
+        },
+        "4": {
+          "dense_baseline": {
+            "accept_cycles": 40,
+            "accept_events": 640,
+            "accept_own_cycles": 40,
+            "backpressure_cycles": 0,
+            "busy_cycles": 540,
+            "completed_groups": 640,
+            "cycles_per_group": 2.1875,
+            "cycles_per_logical_tick": 17.5,
+            "drain_cycles": 410,
+            "format": "dense",
+            "group_read_requests": 360,
+            "groups_per_cycle": 0.45714285714285713,
+            "hold_retire_cycles": 170,
+            "idle_cycles": 0,
+            "lane_count": 4,
+            "lane_ops_issued": 240,
+            "lane_stall_cycles": 0,
+            "latency_cycles": 360,
+            "overlap_cycles": 310,
+            "retire_events": 640,
+            "retire_latch_cycles": 0,
+            "stall_cycles": 0,
+            "startup_cycles": 10,
+            "total_cycles": 1400,
+            "weight_values_fetched": 720,
+            "zero_cycles": 290,
+            "zero_fast_paths": 460,
+            "zero_single_cycles": 290
+          },
+          "dense_format": {
+            "accept_cycles": 40,
+            "accept_events": 640,
+            "accept_own_cycles": 40,
+            "backpressure_cycles": 0,
+            "busy_cycles": 300,
+            "completed_groups": 640,
+            "cycles_per_group": 1.6875,
+            "cycles_per_logical_tick": 13.5,
+            "drain_cycles": 450,
+            "format": "dense",
+            "group_read_requests": 200,
+            "groups_per_cycle": 0.5925925925925926,
+            "hold_retire_cycles": 210,
+            "idle_cycles": 0,
+            "lane_count": 4,
+            "lane_ops_issued": 120,
+            "lane_stall_cycles": 0,
+            "latency_cycles": 200,
+            "overlap_cycles": 270,
+            "retire_events": 640,
+            "retire_latch_cycles": 0,
+            "stall_cycles": 0,
+            "startup_cycles": 10,
+            "total_cycles": 1080,
+            "weight_values_fetched": 400,
+            "zero_cycles": 330,
+            "zero_fast_paths": 540,
+            "zero_single_cycles": 330
+          },
+          "sparse_format": {
+            "accept_cycles": 40,
+            "accept_events": 640,
+            "accept_own_cycles": 40,
+            "backpressure_cycles": 0,
+            "busy_cycles": 200,
+            "completed_groups": 640,
+            "cycles_per_group": 1.53125,
+            "cycles_per_logical_tick": 12.25,
+            "drain_cycles": 450,
+            "format": "sparse",
+            "group_read_requests": 100,
+            "groups_per_cycle": 0.6530612244897959,
+            "hold_retire_cycles": 210,
+            "idle_cycles": 0,
+            "lane_count": 4,
+            "lane_ops_issued": 120,
+            "lane_stall_cycles": 0,
+            "latency_cycles": 200,
+            "overlap_cycles": 270,
+            "retire_events": 640,
+            "retire_latch_cycles": 0,
+            "stall_cycles": 0,
+            "startup_cycles": 10,
+            "total_cycles": 980,
+            "weight_values_fetched": 200,
+            "zero_cycles": 330,
+            "zero_fast_paths": 540,
+            "zero_single_cycles": 330
+          }
+        },
+        "8": {
+          "dense_baseline": {
+            "accept_cycles": 40,
+            "accept_events": 640,
+            "accept_own_cycles": 40,
+            "backpressure_cycles": 0,
+            "busy_cycles": 540,
+            "completed_groups": 640,
+            "cycles_per_group": 2.1875,
+            "cycles_per_logical_tick": 17.5,
+            "drain_cycles": 410,
+            "format": "dense",
+            "group_read_requests": 360,
+            "groups_per_cycle": 0.45714285714285713,
+            "hold_retire_cycles": 170,
+            "idle_cycles": 0,
+            "lane_count": 8,
+            "lane_ops_issued": 240,
+            "lane_stall_cycles": 0,
+            "latency_cycles": 360,
+            "overlap_cycles": 310,
+            "retire_events": 640,
+            "retire_latch_cycles": 0,
+            "stall_cycles": 0,
+            "startup_cycles": 10,
+            "total_cycles": 1400,
+            "weight_values_fetched": 720,
+            "zero_cycles": 290,
+            "zero_fast_paths": 460,
+            "zero_single_cycles": 290
+          },
+          "dense_format": {
+            "accept_cycles": 40,
+            "accept_events": 640,
+            "accept_own_cycles": 40,
+            "backpressure_cycles": 0,
+            "busy_cycles": 300,
+            "completed_groups": 640,
+            "cycles_per_group": 1.6875,
+            "cycles_per_logical_tick": 13.5,
+            "drain_cycles": 450,
+            "format": "dense",
+            "group_read_requests": 200,
+            "groups_per_cycle": 0.5925925925925926,
+            "hold_retire_cycles": 210,
+            "idle_cycles": 0,
+            "lane_count": 8,
+            "lane_ops_issued": 120,
+            "lane_stall_cycles": 0,
+            "latency_cycles": 200,
+            "overlap_cycles": 270,
+            "retire_events": 640,
+            "retire_latch_cycles": 0,
+            "stall_cycles": 0,
+            "startup_cycles": 10,
+            "total_cycles": 1080,
+            "weight_values_fetched": 400,
+            "zero_cycles": 330,
+            "zero_fast_paths": 540,
+            "zero_single_cycles": 330
+          },
+          "sparse_format": {
+            "accept_cycles": 40,
+            "accept_events": 640,
+            "accept_own_cycles": 40,
+            "backpressure_cycles": 0,
+            "busy_cycles": 200,
+            "completed_groups": 640,
+            "cycles_per_group": 1.53125,
+            "cycles_per_logical_tick": 12.25,
+            "drain_cycles": 450,
+            "format": "sparse",
+            "group_read_requests": 100,
+            "groups_per_cycle": 0.6530612244897959,
+            "hold_retire_cycles": 210,
+            "idle_cycles": 0,
+            "lane_count": 8,
+            "lane_ops_issued": 120,
+            "lane_stall_cycles": 0,
+            "latency_cycles": 200,
+            "overlap_cycles": 270,
+            "retire_events": 640,
+            "retire_latch_cycles": 0,
+            "stall_cycles": 0,
+            "startup_cycles": 10,
+            "total_cycles": 980,
+            "weight_values_fetched": 200,
+            "zero_cycles": 330,
+            "zero_fast_paths": 540,
+            "zero_single_cycles": 330
+          }
+        }
+      },
+      "logical_ticks": 80,
+      "max_cycle_reduction": 0.31506849315068497,
+      "model": "pulse_mini_l",
+      "np7_counts": [
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ]
+      ],
+      "reference_counts": [
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ]
+      ],
+      "reference_work": {
+        "hidden_actual": 80,
+        "hidden_after_structure": 80,
+        "hidden_dense_active": 160,
+        "output_actual": 40,
+        "output_pre_mask": 80
+      },
+      "samples": 20,
+      "state_digest_mismatch_samples": 0,
+      "state_digest_samples": 20,
+      "ticks_per_sample": 4,
+      "v2_evidence": {
+        "1": {
+          "folded_cycles_saved": 700,
+          "overlap_cycles": 270,
+          "solo_segment_cycles": 1700,
+          "stream_cycles": 1000,
+          "ticks": 80,
+          "zero_single_cycles": 330
+        },
+        "2": {
+          "folded_cycles_saved": 700,
+          "overlap_cycles": 270,
+          "solo_segment_cycles": 1680,
+          "stream_cycles": 980,
+          "ticks": 80,
+          "zero_single_cycles": 330
+        },
+        "4": {
+          "folded_cycles_saved": 700,
+          "overlap_cycles": 270,
+          "solo_segment_cycles": 1680,
+          "stream_cycles": 980,
+          "ticks": 80,
+          "zero_single_cycles": 330
+        },
+        "8": {
+          "folded_cycles_saved": 700,
+          "overlap_cycles": 270,
+          "solo_segment_cycles": 1680,
+          "stream_cycles": 980,
+          "ticks": 80,
+          "zero_single_cycles": 330
+        }
+      }
+    },
+    "pulse_mini_l2": {
+      "frozen_consistency_problems": [],
+      "frozen_task": {
+        "b21_joint_gate_pass": true,
+        "balanced_accuracy": 1.0,
+        "candidate": "output_2of4",
+        "channel_enable": 255,
+        "coverage": 1.0,
+        "dense_network_reads": 240,
+        "hidden_masks": [
+          5,
+          5,
+          5,
+          5,
+          10,
+          10,
+          10,
+          10
+        ],
+        "joint_gate_pass": true,
+        "output_masks": [
+          3,
+          3
+        ]
+      },
+      "groups_seen": 640,
+      "integration_problems": [],
+      "ledgers": {
+        "1": {
+          "dense_baseline": {
+            "accept_cycles": 40,
+            "accept_events": 640,
+            "accept_own_cycles": 40,
+            "backpressure_cycles": 0,
+            "busy_cycles": 600,
+            "completed_groups": 640,
+            "cycles_per_group": 2.28125,
+            "cycles_per_logical_tick": 18.25,
+            "drain_cycles": 410,
+            "format": "dense",
+            "group_read_requests": 360,
+            "groups_per_cycle": 0.4383561643835616,
+            "hold_retire_cycles": 170,
+            "idle_cycles": 0,
+            "lane_count": 1,
+            "lane_ops_issued": 240,
+            "lane_stall_cycles": 0,
+            "latency_cycles": 360,
+            "overlap_cycles": 310,
+            "retire_events": 640,
+            "retire_latch_cycles": 0,
+            "stall_cycles": 0,
+            "startup_cycles": 10,
+            "total_cycles": 1460,
+            "weight_values_fetched": 720,
+            "zero_cycles": 290,
+            "zero_fast_paths": 460,
+            "zero_single_cycles": 290
+          },
+          "dense_format": {
+            "accept_cycles": 40,
+            "accept_events": 640,
+            "accept_own_cycles": 40,
+            "backpressure_cycles": 0,
+            "busy_cycles": 320,
+            "completed_groups": 640,
+            "cycles_per_group": 1.71875,
+            "cycles_per_logical_tick": 13.75,
+            "drain_cycles": 450,
+            "format": "dense",
+            "group_read_requests": 200,
+            "groups_per_cycle": 0.5818181818181818,
+            "hold_retire_cycles": 210,
+            "idle_cycles": 0,
+            "lane_count": 1,
+            "lane_ops_issued": 120,
+            "lane_stall_cycles": 0,
+            "latency_cycles": 200,
+            "overlap_cycles": 270,
+            "retire_events": 640,
+            "retire_latch_cycles": 0,
+            "stall_cycles": 0,
+            "startup_cycles": 10,
+            "total_cycles": 1100,
+            "weight_values_fetched": 400,
+            "zero_cycles": 330,
+            "zero_fast_paths": 540,
+            "zero_single_cycles": 330
+          },
+          "sparse_format": {
+            "accept_cycles": 40,
+            "accept_events": 640,
+            "accept_own_cycles": 40,
+            "backpressure_cycles": 0,
+            "busy_cycles": 220,
+            "completed_groups": 640,
+            "cycles_per_group": 1.5625,
+            "cycles_per_logical_tick": 12.5,
+            "drain_cycles": 450,
+            "format": "sparse",
+            "group_read_requests": 100,
+            "groups_per_cycle": 0.64,
+            "hold_retire_cycles": 210,
+            "idle_cycles": 0,
+            "lane_count": 1,
+            "lane_ops_issued": 120,
+            "lane_stall_cycles": 0,
+            "latency_cycles": 200,
+            "overlap_cycles": 270,
+            "retire_events": 640,
+            "retire_latch_cycles": 0,
+            "stall_cycles": 0,
+            "startup_cycles": 10,
+            "total_cycles": 1000,
+            "weight_values_fetched": 200,
+            "zero_cycles": 330,
+            "zero_fast_paths": 540,
+            "zero_single_cycles": 330
+          }
+        },
+        "2": {
+          "dense_baseline": {
+            "accept_cycles": 40,
+            "accept_events": 640,
+            "accept_own_cycles": 40,
+            "backpressure_cycles": 0,
+            "busy_cycles": 560,
+            "completed_groups": 640,
+            "cycles_per_group": 2.21875,
+            "cycles_per_logical_tick": 17.75,
+            "drain_cycles": 410,
+            "format": "dense",
+            "group_read_requests": 360,
+            "groups_per_cycle": 0.4507042253521127,
+            "hold_retire_cycles": 170,
+            "idle_cycles": 0,
+            "lane_count": 2,
+            "lane_ops_issued": 240,
+            "lane_stall_cycles": 0,
+            "latency_cycles": 360,
+            "overlap_cycles": 310,
+            "retire_events": 640,
+            "retire_latch_cycles": 0,
+            "stall_cycles": 0,
+            "startup_cycles": 10,
+            "total_cycles": 1420,
+            "weight_values_fetched": 720,
+            "zero_cycles": 290,
+            "zero_fast_paths": 460,
+            "zero_single_cycles": 290
+          },
+          "dense_format": {
+            "accept_cycles": 40,
+            "accept_events": 640,
+            "accept_own_cycles": 40,
+            "backpressure_cycles": 0,
+            "busy_cycles": 300,
+            "completed_groups": 640,
+            "cycles_per_group": 1.6875,
+            "cycles_per_logical_tick": 13.5,
+            "drain_cycles": 450,
+            "format": "dense",
+            "group_read_requests": 200,
+            "groups_per_cycle": 0.5925925925925926,
+            "hold_retire_cycles": 210,
+            "idle_cycles": 0,
+            "lane_count": 2,
+            "lane_ops_issued": 120,
+            "lane_stall_cycles": 0,
+            "latency_cycles": 200,
+            "overlap_cycles": 270,
+            "retire_events": 640,
+            "retire_latch_cycles": 0,
+            "stall_cycles": 0,
+            "startup_cycles": 10,
+            "total_cycles": 1080,
+            "weight_values_fetched": 400,
+            "zero_cycles": 330,
+            "zero_fast_paths": 540,
+            "zero_single_cycles": 330
+          },
+          "sparse_format": {
+            "accept_cycles": 40,
+            "accept_events": 640,
+            "accept_own_cycles": 40,
+            "backpressure_cycles": 0,
+            "busy_cycles": 200,
+            "completed_groups": 640,
+            "cycles_per_group": 1.53125,
+            "cycles_per_logical_tick": 12.25,
+            "drain_cycles": 450,
+            "format": "sparse",
+            "group_read_requests": 100,
+            "groups_per_cycle": 0.6530612244897959,
+            "hold_retire_cycles": 210,
+            "idle_cycles": 0,
+            "lane_count": 2,
+            "lane_ops_issued": 120,
+            "lane_stall_cycles": 0,
+            "latency_cycles": 200,
+            "overlap_cycles": 270,
+            "retire_events": 640,
+            "retire_latch_cycles": 0,
+            "stall_cycles": 0,
+            "startup_cycles": 10,
+            "total_cycles": 980,
+            "weight_values_fetched": 200,
+            "zero_cycles": 330,
+            "zero_fast_paths": 540,
+            "zero_single_cycles": 330
+          }
+        },
+        "4": {
+          "dense_baseline": {
+            "accept_cycles": 40,
+            "accept_events": 640,
+            "accept_own_cycles": 40,
+            "backpressure_cycles": 0,
+            "busy_cycles": 540,
+            "completed_groups": 640,
+            "cycles_per_group": 2.1875,
+            "cycles_per_logical_tick": 17.5,
+            "drain_cycles": 410,
+            "format": "dense",
+            "group_read_requests": 360,
+            "groups_per_cycle": 0.45714285714285713,
+            "hold_retire_cycles": 170,
+            "idle_cycles": 0,
+            "lane_count": 4,
+            "lane_ops_issued": 240,
+            "lane_stall_cycles": 0,
+            "latency_cycles": 360,
+            "overlap_cycles": 310,
+            "retire_events": 640,
+            "retire_latch_cycles": 0,
+            "stall_cycles": 0,
+            "startup_cycles": 10,
+            "total_cycles": 1400,
+            "weight_values_fetched": 720,
+            "zero_cycles": 290,
+            "zero_fast_paths": 460,
+            "zero_single_cycles": 290
+          },
+          "dense_format": {
+            "accept_cycles": 40,
+            "accept_events": 640,
+            "accept_own_cycles": 40,
+            "backpressure_cycles": 0,
+            "busy_cycles": 300,
+            "completed_groups": 640,
+            "cycles_per_group": 1.6875,
+            "cycles_per_logical_tick": 13.5,
+            "drain_cycles": 450,
+            "format": "dense",
+            "group_read_requests": 200,
+            "groups_per_cycle": 0.5925925925925926,
+            "hold_retire_cycles": 210,
+            "idle_cycles": 0,
+            "lane_count": 4,
+            "lane_ops_issued": 120,
+            "lane_stall_cycles": 0,
+            "latency_cycles": 200,
+            "overlap_cycles": 270,
+            "retire_events": 640,
+            "retire_latch_cycles": 0,
+            "stall_cycles": 0,
+            "startup_cycles": 10,
+            "total_cycles": 1080,
+            "weight_values_fetched": 400,
+            "zero_cycles": 330,
+            "zero_fast_paths": 540,
+            "zero_single_cycles": 330
+          },
+          "sparse_format": {
+            "accept_cycles": 40,
+            "accept_events": 640,
+            "accept_own_cycles": 40,
+            "backpressure_cycles": 0,
+            "busy_cycles": 200,
+            "completed_groups": 640,
+            "cycles_per_group": 1.53125,
+            "cycles_per_logical_tick": 12.25,
+            "drain_cycles": 450,
+            "format": "sparse",
+            "group_read_requests": 100,
+            "groups_per_cycle": 0.6530612244897959,
+            "hold_retire_cycles": 210,
+            "idle_cycles": 0,
+            "lane_count": 4,
+            "lane_ops_issued": 120,
+            "lane_stall_cycles": 0,
+            "latency_cycles": 200,
+            "overlap_cycles": 270,
+            "retire_events": 640,
+            "retire_latch_cycles": 0,
+            "stall_cycles": 0,
+            "startup_cycles": 10,
+            "total_cycles": 980,
+            "weight_values_fetched": 200,
+            "zero_cycles": 330,
+            "zero_fast_paths": 540,
+            "zero_single_cycles": 330
+          }
+        },
+        "8": {
+          "dense_baseline": {
+            "accept_cycles": 40,
+            "accept_events": 640,
+            "accept_own_cycles": 40,
+            "backpressure_cycles": 0,
+            "busy_cycles": 540,
+            "completed_groups": 640,
+            "cycles_per_group": 2.1875,
+            "cycles_per_logical_tick": 17.5,
+            "drain_cycles": 410,
+            "format": "dense",
+            "group_read_requests": 360,
+            "groups_per_cycle": 0.45714285714285713,
+            "hold_retire_cycles": 170,
+            "idle_cycles": 0,
+            "lane_count": 8,
+            "lane_ops_issued": 240,
+            "lane_stall_cycles": 0,
+            "latency_cycles": 360,
+            "overlap_cycles": 310,
+            "retire_events": 640,
+            "retire_latch_cycles": 0,
+            "stall_cycles": 0,
+            "startup_cycles": 10,
+            "total_cycles": 1400,
+            "weight_values_fetched": 720,
+            "zero_cycles": 290,
+            "zero_fast_paths": 460,
+            "zero_single_cycles": 290
+          },
+          "dense_format": {
+            "accept_cycles": 40,
+            "accept_events": 640,
+            "accept_own_cycles": 40,
+            "backpressure_cycles": 0,
+            "busy_cycles": 300,
+            "completed_groups": 640,
+            "cycles_per_group": 1.6875,
+            "cycles_per_logical_tick": 13.5,
+            "drain_cycles": 450,
+            "format": "dense",
+            "group_read_requests": 200,
+            "groups_per_cycle": 0.5925925925925926,
+            "hold_retire_cycles": 210,
+            "idle_cycles": 0,
+            "lane_count": 8,
+            "lane_ops_issued": 120,
+            "lane_stall_cycles": 0,
+            "latency_cycles": 200,
+            "overlap_cycles": 270,
+            "retire_events": 640,
+            "retire_latch_cycles": 0,
+            "stall_cycles": 0,
+            "startup_cycles": 10,
+            "total_cycles": 1080,
+            "weight_values_fetched": 400,
+            "zero_cycles": 330,
+            "zero_fast_paths": 540,
+            "zero_single_cycles": 330
+          },
+          "sparse_format": {
+            "accept_cycles": 40,
+            "accept_events": 640,
+            "accept_own_cycles": 40,
+            "backpressure_cycles": 0,
+            "busy_cycles": 200,
+            "completed_groups": 640,
+            "cycles_per_group": 1.53125,
+            "cycles_per_logical_tick": 12.25,
+            "drain_cycles": 450,
+            "format": "sparse",
+            "group_read_requests": 100,
+            "groups_per_cycle": 0.6530612244897959,
+            "hold_retire_cycles": 210,
+            "idle_cycles": 0,
+            "lane_count": 8,
+            "lane_ops_issued": 120,
+            "lane_stall_cycles": 0,
+            "latency_cycles": 200,
+            "overlap_cycles": 270,
+            "retire_events": 640,
+            "retire_latch_cycles": 0,
+            "stall_cycles": 0,
+            "startup_cycles": 10,
+            "total_cycles": 980,
+            "weight_values_fetched": 200,
+            "zero_cycles": 330,
+            "zero_fast_paths": 540,
+            "zero_single_cycles": 330
+          }
+        }
+      },
+      "logical_ticks": 80,
+      "max_cycle_reduction": 0.31506849315068497,
+      "model": "pulse_mini_l2",
+      "np7_counts": [
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ]
+      ],
+      "reference_counts": [
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ]
+      ],
+      "reference_work": {
+        "hidden_actual": 80,
+        "hidden_after_structure": 80,
+        "hidden_dense_active": 160,
+        "output_actual": 40,
+        "output_pre_mask": 80
+      },
+      "samples": 20,
+      "state_digest_mismatch_samples": 0,
+      "state_digest_samples": 20,
+      "ticks_per_sample": 4,
+      "v2_evidence": {
+        "1": {
+          "folded_cycles_saved": 700,
+          "overlap_cycles": 270,
+          "solo_segment_cycles": 1700,
+          "stream_cycles": 1000,
+          "ticks": 80,
+          "zero_single_cycles": 330
+        },
+        "2": {
+          "folded_cycles_saved": 700,
+          "overlap_cycles": 270,
+          "solo_segment_cycles": 1680,
+          "stream_cycles": 980,
+          "ticks": 80,
+          "zero_single_cycles": 330
+        },
+        "4": {
+          "folded_cycles_saved": 700,
+          "overlap_cycles": 270,
+          "solo_segment_cycles": 1680,
+          "stream_cycles": 980,
+          "ticks": 80,
+          "zero_single_cycles": 330
+        },
+        "8": {
+          "folded_cycles_saved": 700,
+          "overlap_cycles": 270,
+          "solo_segment_cycles": 1680,
+          "stream_cycles": 980,
+          "ticks": 80,
+          "zero_single_cycles": 330
+        }
+      }
+    }
+  },
+  "problems": [],
+  "schema": "np7-three-model-integration-v2"
+}

@@ -1,0 +1,7 @@
+# NP7.5 共享突触执行单元有限深度形式检查（稀疏顶层，LANES=1）。
+read_verilog -formal -sv np7_weight_ram.sv np7_shared_synapse_lane.sv np7_exec_unit_sparse.sv np7_exec_unit_dense.sv formal_np7_exec_unit.sv
+prep -top formal_np7_exec_unit -flatten
+async2sync
+memory_map
+opt_clean
+sat -seq 16 -set-assumes -set-init-zero -prove-asserts -verify

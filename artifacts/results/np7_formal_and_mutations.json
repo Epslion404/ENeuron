@@ -1,0 +1,2339 @@
+{
+  "checks": [
+    {
+      "detail": "verdict=proof rc=0",
+      "name": "formal_sparse_protocol(proof)",
+      "ok": true
+    },
+    {
+      "detail": "verdict=proof rc=0",
+      "name": "formal_dense_protocol(proof)",
+      "ok": true
+    },
+    {
+      "detail": "verdict=proof rc=0",
+      "name": "formal_config_reject(proof)",
+      "ok": true
+    },
+    {
+      "detail": "verdict=model rc=0",
+      "name": "formal_zero_path_reach(model)",
+      "ok": true
+    },
+    {
+      "detail": "verdict=model rc=0",
+      "name": "formal_sparse_reach(model)",
+      "ok": true
+    },
+    {
+      "detail": "verdict=model rc=0",
+      "name": "formal_dense_reach(model)",
+      "ok": true
+    },
+    {
+      "detail": "verdict=counterexample rc=1 note=自报权重槽减半但读请求不变",
+      "name": "mutation_fake_weight_slots_caught",
+      "ok": true
+    },
+    {
+      "detail": "verdict=counterexample rc=1 note=发射后不清 pending，掩码可重复发射",
+      "name": "mutation_fake_lane_ops_caught",
+      "ok": true
+    },
+    {
+      "detail": "verdict=counterexample rc=1 note=BATCH 期多发读请求",
+      "name": "mutation_extra_read_burst_caught",
+      "ok": true
+    },
+    {
+      "detail": "verdict=counterexample rc=1 note=稠密自报权重槽与读请求脱钩",
+      "name": "mutation_dense_fake_val_caught",
+      "ok": true
+    },
+    {
+      "detail": "verdict=counterexample rc=1 note=写使能不受 cfg_wr_ok 门控：非法字可进 RAM",
+      "name": "mutation_config_rejection_bypass_caught",
+      "ok": true
+    },
+    {
+      "detail": "verdict=counterexample rc=1 note=同拍覆盖：退出结果的 zero_path 标志被新事务覆盖",
+      "name": "mutation_sparse_same_edge_metadata_overwrite_caught",
+      "ok": true
+    },
+    {
+      "detail": "verdict=counterexample rc=1 note=同拍覆盖（稠密基线）",
+      "name": "mutation_dense_same_edge_metadata_overwrite_caught",
+      "ok": true
+    },
+    {
+      "detail": "verdict=counterexample rc=1 note=背压时错误接受：hold/在途期间 issue_ready 仍为 1",
+      "name": "mutation_sparse_accept_under_backpressure_caught",
+      "ok": true
+    },
+    {
+      "detail": "verdict=counterexample rc=1 note=背压时错误接受（稠密基线）",
+      "name": "mutation_dense_accept_under_backpressure_caught",
+      "ok": true
+    },
+    {
+      "detail": "verdict=counterexample rc=1 note=lane 无视 hold，被停住的折叠拍提前完成",
+      "name": "mutation_lane_hold_ignored_caught",
+      "ok": true
+    },
+    {
+      "detail": "verdict=counterexample rc=1 note=sparse 在发射拍就出结果，比 Stage B 折叠早 1 拍",
+      "name": "mutation_sparse_fold_last_early_caught",
+      "ok": true
+    },
+    {
+      "detail": "verdict=counterexample rc=1 note=dense 在发射拍就出结果，比 Stage B 折叠早 1 拍",
+      "name": "mutation_dense_fold_last_early_caught",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "reconstruct_dense_L1_s1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "reconstruct_sparse_L1_s1",
+      "ok": true
+    },
+    {
+      "detail": "dense=1000 sparse=1000 done",
+      "name": "bitexact_sums_L1_s1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "reconstruct_dense_L1_s2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "reconstruct_sparse_L1_s2",
+      "ok": true
+    },
+    {
+      "detail": "dense=1000 sparse=1000 done",
+      "name": "bitexact_sums_L1_s2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "reconstruct_dense_L1_s3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "reconstruct_sparse_L1_s3",
+      "ok": true
+    },
+    {
+      "detail": "dense=1000 sparse=1000 done",
+      "name": "bitexact_sums_L1_s3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "reconstruct_dense_L2_s1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "reconstruct_sparse_L2_s1",
+      "ok": true
+    },
+    {
+      "detail": "dense=1000 sparse=1000 done",
+      "name": "bitexact_sums_L2_s1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "reconstruct_dense_L2_s2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "reconstruct_sparse_L2_s2",
+      "ok": true
+    },
+    {
+      "detail": "dense=1000 sparse=1000 done",
+      "name": "bitexact_sums_L2_s2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "reconstruct_dense_L2_s3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "reconstruct_sparse_L2_s3",
+      "ok": true
+    },
+    {
+      "detail": "dense=1000 sparse=1000 done",
+      "name": "bitexact_sums_L2_s3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "reconstruct_dense_L4_s1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "reconstruct_sparse_L4_s1",
+      "ok": true
+    },
+    {
+      "detail": "dense=1000 sparse=1000 done",
+      "name": "bitexact_sums_L4_s1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "reconstruct_dense_L4_s2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "reconstruct_sparse_L4_s2",
+      "ok": true
+    },
+    {
+      "detail": "dense=1000 sparse=1000 done",
+      "name": "bitexact_sums_L4_s2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "reconstruct_dense_L4_s3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "reconstruct_sparse_L4_s3",
+      "ok": true
+    },
+    {
+      "detail": "dense=1000 sparse=1000 done",
+      "name": "bitexact_sums_L4_s3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "reconstruct_dense_L8_s1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "reconstruct_sparse_L8_s1",
+      "ok": true
+    },
+    {
+      "detail": "dense=1000 sparse=1000 done",
+      "name": "bitexact_sums_L8_s1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "reconstruct_dense_L8_s2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "reconstruct_sparse_L8_s2",
+      "ok": true
+    },
+    {
+      "detail": "dense=1000 sparse=1000 done",
+      "name": "bitexact_sums_L8_s2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "reconstruct_dense_L8_s3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "reconstruct_sparse_L8_s3",
+      "ok": true
+    },
+    {
+      "detail": "dense=1000 sparse=1000 done",
+      "name": "bitexact_sums_L8_s3",
+      "ok": true
+    },
+    {
+      "detail": "负向实现必须与 golden 逐笔同和，才能证明功能测试不足以拒绝",
+      "name": "negA_read_all_then_gate_L1_s1_functionally_identical",
+      "ok": true
+    },
+    {
+      "detail": "自报账本应无法由逐拍观测重建；violations=2",
+      "name": "negA_read_all_then_gate_L1_s1_rejected_by_reconstruction",
+      "ok": true
+    },
+    {
+      "detail": "obs reads=-7.3% ops=49.7% cycles=16.7% (任一未达门即拒绝)",
+      "name": "negA_read_all_then_gate_L1_s1_rejected_by_gates",
+      "ok": true
+    },
+    {
+      "detail": "负向实现必须与 golden 逐笔同和，才能证明功能测试不足以拒绝",
+      "name": "negB_mac_then_clear_L1_s1_functionally_identical",
+      "ok": true
+    },
+    {
+      "detail": "自报账本应无法由逐拍观测重建；violations=1",
+      "name": "negB_mac_then_clear_L1_s1_rejected_by_reconstruction",
+      "ok": true
+    },
+    {
+      "detail": "obs reads=59.8% ops=-50.8% cycles=1.6% (任一未达门即拒绝)",
+      "name": "negB_mac_then_clear_L1_s1_rejected_by_gates",
+      "ok": true
+    },
+    {
+      "detail": "负向实现必须与 golden 逐笔同和，才能证明功能测试不足以拒绝",
+      "name": "negA_read_all_then_gate_L1_s3_functionally_identical",
+      "ok": true
+    },
+    {
+      "detail": "自报账本应无法由逐拍观测重建；violations=2",
+      "name": "negA_read_all_then_gate_L1_s3_rejected_by_reconstruction",
+      "ok": true
+    },
+    {
+      "detail": "obs reads=-6.4% ops=50.4% cycles=15.8% (任一未达门即拒绝)",
+      "name": "negA_read_all_then_gate_L1_s3_rejected_by_gates",
+      "ok": true
+    },
+    {
+      "detail": "负向实现必须与 golden 逐笔同和，才能证明功能测试不足以拒绝",
+      "name": "negB_mac_then_clear_L1_s3_functionally_identical",
+      "ok": true
+    },
+    {
+      "detail": "自报账本应无法由逐拍观测重建；violations=1",
+      "name": "negB_mac_then_clear_L1_s3_rejected_by_reconstruction",
+      "ok": true
+    },
+    {
+      "detail": "obs reads=60.9% ops=-49.7% cycles=2.5% (任一未达门即拒绝)",
+      "name": "negB_mac_then_clear_L1_s3_rejected_by_gates",
+      "ok": true
+    },
+    {
+      "detail": "负向实现必须与 golden 逐笔同和，才能证明功能测试不足以拒绝",
+      "name": "negA_read_all_then_gate_L4_s1_functionally_identical",
+      "ok": true
+    },
+    {
+      "detail": "自报账本应无法由逐拍观测重建；violations=2",
+      "name": "negA_read_all_then_gate_L4_s1_rejected_by_reconstruction",
+      "ok": true
+    },
+    {
+      "detail": "obs reads=-7.9% ops=50.9% cycles=2.4% (任一未达门即拒绝)",
+      "name": "negA_read_all_then_gate_L4_s1_rejected_by_gates",
+      "ok": true
+    },
+    {
+      "detail": "负向实现必须与 golden 逐笔同和，才能证明功能测试不足以拒绝",
+      "name": "negB_mac_then_clear_L4_s1_functionally_identical",
+      "ok": true
+    },
+    {
+      "detail": "自报账本应无法由逐拍观测重建；violations=1",
+      "name": "negB_mac_then_clear_L4_s1_rejected_by_reconstruction",
+      "ok": true
+    },
+    {
+      "detail": "obs reads=61.1% ops=-47.3% cycles=30.3% (任一未达门即拒绝)",
+      "name": "negB_mac_then_clear_L4_s1_rejected_by_gates",
+      "ok": true
+    },
+    {
+      "detail": "负向实现必须与 golden 逐笔同和，才能证明功能测试不足以拒绝",
+      "name": "negA_read_all_then_gate_L4_s3_functionally_identical",
+      "ok": true
+    },
+    {
+      "detail": "自报账本应无法由逐拍观测重建；violations=2",
+      "name": "negA_read_all_then_gate_L4_s3_rejected_by_reconstruction",
+      "ok": true
+    },
+    {
+      "detail": "obs reads=-7.6% ops=49.5% cycles=1.6% (任一未达门即拒绝)",
+      "name": "negA_read_all_then_gate_L4_s3_rejected_by_gates",
+      "ok": true
+    },
+    {
+      "detail": "负向实现必须与 golden 逐笔同和，才能证明功能测试不足以拒绝",
+      "name": "negB_mac_then_clear_L4_s3_functionally_identical",
+      "ok": true
+    },
+    {
+      "detail": "自报账本应无法由逐拍观测重建；violations=1",
+      "name": "negB_mac_then_clear_L4_s3_rejected_by_reconstruction",
+      "ok": true
+    },
+    {
+      "detail": "obs reads=59.8% ops=-48.3% cycles=28.6% (任一未达门即拒绝)",
+      "name": "negB_mac_then_clear_L4_s3_rejected_by_gates",
+      "ok": true
+    },
+    {
+      "detail": "CFGNEG SUMMARY FORMAT=sparse LANES=1 CHECKS=8 FAILED=0 RESULT=PASS fails=[]",
+      "name": "config_rejection_tb_sparse_L1",
+      "ok": true
+    },
+    {
+      "detail": "CFGNEG SUMMARY FORMAT=sparse LANES=4 CHECKS=8 FAILED=0 RESULT=PASS fails=[]",
+      "name": "config_rejection_tb_sparse_L4",
+      "ok": true
+    },
+    {
+      "detail": "CFGNEG SUMMARY FORMAT=dense LANES=1 CHECKS=8 FAILED=0 RESULT=PASS fails=[]",
+      "name": "config_rejection_tb_dense_L1",
+      "ok": true
+    },
+    {
+      "detail": "CFGNEG SUMMARY FORMAT=dense LANES=4 CHECKS=8 FAILED=0 RESULT=PASS fails=[]",
+      "name": "config_rejection_tb_dense_L4",
+      "ok": true
+    },
+    {
+      "detail": "CFGNEG SUMMARY FORMAT=sparse LANES=4 CHECKS=8 FAILED=3 RESULT=FAIL fails=['poison_after_legal_ram_unchanged', 'error_latched_sticky', 'no_protocol_error_any_phase']",
+      "name": "config_rejection_bypass_caught_sparse",
+      "ok": true
+    },
+    {
+      "detail": "CFGNEG SUMMARY FORMAT=dense LANES=4 CHECKS=8 FAILED=3 RESULT=FAIL fails=['poison_after_legal_ram_unchanged', 'error_latched_sticky', 'no_protocol_error_any_phase']",
+      "name": "config_rejection_bypass_caught_dense",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "leak_control_model_clean_eneuron",
+      "ok": true
+    },
+    {
+      "detail": "eneuron 样本 0 输出计数不一致 ref=(2, 0) np7=(1, 0); eneuron 样本 0 膜状态摘要与未共享实现不一致",
+      "name": "leak_mutation_detected_eneuron",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "leak_control_model_clean_pulse_mini_l",
+      "ok": true
+    },
+    {
+      "detail": "pulse_mini_l 样本 0 膜状态摘要与未共享实现不一致",
+      "name": "leak_mutation_detected_pulse_mini_l",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "leak_control_model_clean_pulse_mini_l2",
+      "ok": true
+    },
+    {
+      "detail": "pulse_mini_l2 样本 0 膜状态摘要与未共享实现不一致",
+      "name": "leak_mutation_detected_pulse_mini_l2",
+      "ok": true
+    }
+  ],
+  "config_rejection": {
+    "bypass_mutation": {
+      "dense": {
+        "fail_checks": [
+          "poison_after_legal_ram_unchanged",
+          "error_latched_sticky",
+          "no_protocol_error_any_phase"
+        ],
+        "file": "np7_exec_unit_dense.sv",
+        "note": "wire cfg_wr_ok = 1'b1; // MUTATION bypass",
+        "summary": "CFGNEG SUMMARY FORMAT=dense LANES=4 CHECKS=8 FAILED=3 RESULT=FAIL"
+      },
+      "sparse": {
+        "fail_checks": [
+          "poison_after_legal_ram_unchanged",
+          "error_latched_sticky",
+          "no_protocol_error_any_phase"
+        ],
+        "file": "np7_exec_unit_sparse.sv",
+        "note": "wire cfg_wr_ok = 1'b1; // MUTATION bypass",
+        "summary": "CFGNEG SUMMARY FORMAT=sparse LANES=4 CHECKS=8 FAILED=3 RESULT=FAIL"
+      }
+    },
+    "runs": {
+      "dense_L1": {
+        "fail_checks": [],
+        "phases": [
+          "CFGNEG PHASE 0 err_after_cfg=0 err_final=0 proto=0 strobes=0 sums=18 done=18 total=105",
+          "CFGNEG PHASE 1 err_after_cfg=1 err_final=1 proto=0 strobes=1 sums=18 done=18 total=105",
+          "CFGNEG PHASE 2 err_after_cfg=1 err_final=1 proto=0 strobes=1 sums=18 done=18 total=105",
+          "CFGNEG PHASE 3 err_after_cfg=0 err_final=1 proto=0 strobes=0 sums=36 done=36 total=210"
+        ],
+        "rc": 0,
+        "summary": "CFGNEG SUMMARY FORMAT=dense LANES=1 CHECKS=8 FAILED=0 RESULT=PASS"
+      },
+      "dense_L4": {
+        "fail_checks": [],
+        "phases": [
+          "CFGNEG PHASE 0 err_after_cfg=0 err_final=0 proto=0 strobes=0 sums=18 done=18 total=69",
+          "CFGNEG PHASE 1 err_after_cfg=1 err_final=1 proto=0 strobes=1 sums=18 done=18 total=69",
+          "CFGNEG PHASE 2 err_after_cfg=1 err_final=1 proto=0 strobes=1 sums=18 done=18 total=69",
+          "CFGNEG PHASE 3 err_after_cfg=0 err_final=1 proto=0 strobes=0 sums=36 done=36 total=138"
+        ],
+        "rc": 0,
+        "summary": "CFGNEG SUMMARY FORMAT=dense LANES=4 CHECKS=8 FAILED=0 RESULT=PASS"
+      },
+      "sparse_L1": {
+        "fail_checks": [],
+        "phases": [
+          "CFGNEG PHASE 0 err_after_cfg=0 err_final=0 proto=0 strobes=0 sums=18 done=18 total=70",
+          "CFGNEG PHASE 1 err_after_cfg=1 err_final=1 proto=0 strobes=1 sums=18 done=18 total=70",
+          "CFGNEG PHASE 2 err_after_cfg=1 err_final=1 proto=0 strobes=1 sums=18 done=18 total=70",
+          "CFGNEG PHASE 3 err_after_cfg=0 err_final=1 proto=0 strobes=0 sums=36 done=36 total=140"
+        ],
+        "rc": 0,
+        "summary": "CFGNEG SUMMARY FORMAT=sparse LANES=1 CHECKS=8 FAILED=0 RESULT=PASS"
+      },
+      "sparse_L4": {
+        "fail_checks": [],
+        "phases": [
+          "CFGNEG PHASE 0 err_after_cfg=0 err_final=0 proto=0 strobes=0 sums=18 done=18 total=58",
+          "CFGNEG PHASE 1 err_after_cfg=1 err_final=1 proto=0 strobes=1 sums=18 done=18 total=58",
+          "CFGNEG PHASE 2 err_after_cfg=1 err_final=1 proto=0 strobes=1 sums=18 done=18 total=58",
+          "CFGNEG PHASE 3 err_after_cfg=0 err_final=1 proto=0 strobes=0 sums=36 done=36 total=116"
+        ],
+        "rc": 0,
+        "summary": "CFGNEG SUMMARY FORMAT=sparse LANES=4 CHECKS=8 FAILED=0 RESULT=PASS"
+      }
+    }
+  },
+  "formal": {
+    "config_reject": {
+      "expected": "proof",
+      "returncode": 0,
+      "script": "formal_np7_config_reject.ys",
+      "sha256": "4e4bf75eb56ecd5e0b9ca29370c94c6a8f9bb644efebdbf618ab053f8143333e",
+      "verdict": "proof"
+    },
+    "dense_protocol": {
+      "expected": "proof",
+      "returncode": 0,
+      "script": "formal_np7_exec_unit_dense.ys",
+      "sha256": "b26e2e99a5fe96a7065d95ab96951184b920828e2b7130b3a939416371b47060",
+      "verdict": "proof"
+    },
+    "dense_reach": {
+      "expected": "model",
+      "returncode": 0,
+      "script": "formal_np7_exec_unit_dense_reach.ys",
+      "sha256": "b249a6e042c8f06d87c516a37069434d7e74a43b6ca4b11f6db18ca1e04ae0d5",
+      "verdict": "model"
+    },
+    "sparse_protocol": {
+      "expected": "proof",
+      "returncode": 0,
+      "script": "formal_np7_exec_unit.ys",
+      "sha256": "9910cb7d36321dadd148da78a8a34076d8d9c76ef92b561d3d1f62861b8dd60b",
+      "verdict": "proof"
+    },
+    "sparse_reach": {
+      "expected": "model",
+      "returncode": 0,
+      "script": "formal_np7_exec_unit_reach.ys",
+      "sha256": "33aa9a14e7fd2fc37aec210ecb7b85e1bf05c674e2d533e8b5c427ed23705a57",
+      "verdict": "model"
+    },
+    "zero_path_reach": {
+      "expected": "model",
+      "returncode": 0,
+      "script": "formal_np7_exec_unit_zero.ys",
+      "sha256": "d25410e8fd4e591934e50d78978d6aea191e397ace9289b6823878796d07ee0e",
+      "verdict": "model"
+    }
+  },
+  "git_head": "a197ab96544cbd25f8a1e797178eabc6e3dd649a",
+  "leak_mutation": {
+    "eneuron": {
+      "clean_problems": [],
+      "mutant_cycle_reduction_max": null,
+      "mutant_problems": [
+        "eneuron 样本 0 输出计数不一致 ref=(2, 0) np7=(1, 0)",
+        "eneuron 样本 0 膜状态摘要与未共享实现不一致"
+      ],
+      "samples": 20
+    },
+    "pulse_mini_l": {
+      "clean_problems": [],
+      "mutant_cycle_reduction_max": null,
+      "mutant_problems": [
+        "pulse_mini_l 样本 0 膜状态摘要与未共享实现不一致"
+      ],
+      "samples": 20
+    },
+    "pulse_mini_l2": {
+      "clean_problems": [],
+      "mutant_cycle_reduction_max": null,
+      "mutant_problems": [
+        "pulse_mini_l2 样本 0 膜状态摘要与未共享实现不一致"
+      ],
+      "samples": 20
+    }
+  },
+  "ledger_matrix": {
+    "dense_L1_s1": {
+      "claimed": {
+        "activity_zero_after_structure": 0,
+        "busy_cycles": 3854,
+        "completed": 1000,
+        "completed_groups": 1000,
+        "config_error": 0,
+        "group_read_requests": 1864,
+        "input_zero_groups": 68,
+        "lane_ops_issued": 1990,
+        "protocol_error": 0,
+        "saturation_events": 0,
+        "stall_cycles": 811,
+        "structural_skips": 0,
+        "total_cycles": 6731,
+        "weight_values_fetched": 3728,
+        "zero_fast_paths": 68
+      },
+      "lanes": 1,
+      "observed": {
+        "accept_cycles": 1,
+        "accept_events": 1000,
+        "accept_own_cycles": 1,
+        "activity_zero_after_structure": 0,
+        "backpressure_cycles": 32,
+        "busy_cycles": 3854,
+        "completed_groups": 1000,
+        "drain_cycles": 0,
+        "group_read_requests": 1864,
+        "hold_retire_cycles": 201,
+        "input_zero_groups": 0,
+        "lane_ops_issued": 1990,
+        "lane_stall_cycles": 779,
+        "latency_cycles": 1864,
+        "overlap_cycles": 999,
+        "retire_events": 1000,
+        "retire_latch_cycles": 133,
+        "saturation_events": 0,
+        "stall_cycles": 811,
+        "startup_cycles": 1,
+        "structural_skips": 0,
+        "total_cycles": 6731,
+        "weight_values_fetched": 3728,
+        "window_cycles": 6731,
+        "zero_fast_paths": 68,
+        "zero_single_cycles": 0
+      },
+      "seed": 1,
+      "txns": 1000,
+      "violations": []
+    },
+    "dense_L1_s2": {
+      "claimed": {
+        "activity_zero_after_structure": 0,
+        "busy_cycles": 3874,
+        "completed": 1000,
+        "completed_groups": 1000,
+        "config_error": 0,
+        "group_read_requests": 1876,
+        "input_zero_groups": 62,
+        "lane_ops_issued": 1998,
+        "protocol_error": 0,
+        "saturation_events": 0,
+        "stall_cycles": 798,
+        "structural_skips": 0,
+        "total_cycles": 6750,
+        "weight_values_fetched": 3752,
+        "zero_fast_paths": 62
+      },
+      "lanes": 1,
+      "observed": {
+        "accept_cycles": 1,
+        "accept_events": 1000,
+        "accept_own_cycles": 1,
+        "activity_zero_after_structure": 0,
+        "backpressure_cycles": 35,
+        "busy_cycles": 3874,
+        "completed_groups": 1000,
+        "drain_cycles": 0,
+        "group_read_requests": 1876,
+        "hold_retire_cycles": 201,
+        "input_zero_groups": 0,
+        "lane_ops_issued": 1998,
+        "lane_stall_cycles": 763,
+        "latency_cycles": 1876,
+        "overlap_cycles": 999,
+        "retire_events": 1000,
+        "retire_latch_cycles": 139,
+        "saturation_events": 0,
+        "stall_cycles": 798,
+        "startup_cycles": 1,
+        "structural_skips": 0,
+        "total_cycles": 6750,
+        "weight_values_fetched": 3752,
+        "window_cycles": 6750,
+        "zero_fast_paths": 62,
+        "zero_single_cycles": 0
+      },
+      "seed": 2,
+      "txns": 1000,
+      "violations": []
+    },
+    "dense_L1_s3": {
+      "claimed": {
+        "activity_zero_after_structure": 0,
+        "busy_cycles": 3846,
+        "completed": 1000,
+        "completed_groups": 1000,
+        "config_error": 0,
+        "group_read_requests": 1880,
+        "input_zero_groups": 60,
+        "lane_ops_issued": 1966,
+        "protocol_error": 0,
+        "saturation_events": 0,
+        "stall_cycles": 753,
+        "structural_skips": 0,
+        "total_cycles": 6671,
+        "weight_values_fetched": 3760,
+        "zero_fast_paths": 60
+      },
+      "lanes": 1,
+      "observed": {
+        "accept_cycles": 1,
+        "accept_events": 1000,
+        "accept_own_cycles": 1,
+        "activity_zero_after_structure": 0,
+        "backpressure_cycles": 29,
+        "busy_cycles": 3846,
+        "completed_groups": 1000,
+        "drain_cycles": 0,
+        "group_read_requests": 1880,
+        "hold_retire_cycles": 191,
+        "input_zero_groups": 0,
+        "lane_ops_issued": 1966,
+        "lane_stall_cycles": 724,
+        "latency_cycles": 1880,
+        "overlap_cycles": 999,
+        "retire_events": 1000,
+        "retire_latch_cycles": 131,
+        "saturation_events": 0,
+        "stall_cycles": 753,
+        "startup_cycles": 1,
+        "structural_skips": 0,
+        "total_cycles": 6671,
+        "weight_values_fetched": 3760,
+        "window_cycles": 6671,
+        "zero_fast_paths": 60,
+        "zero_single_cycles": 0
+      },
+      "seed": 3,
+      "txns": 1000,
+      "violations": []
+    },
+    "dense_L2_s1": {
+      "claimed": {
+        "activity_zero_after_structure": 0,
+        "busy_cycles": 3098,
+        "completed": 1000,
+        "completed_groups": 1000,
+        "config_error": 0,
+        "group_read_requests": 1860,
+        "input_zero_groups": 70,
+        "lane_ops_issued": 1988,
+        "protocol_error": 0,
+        "saturation_events": 0,
+        "stall_cycles": 598,
+        "structural_skips": 0,
+        "total_cycles": 5765,
+        "weight_values_fetched": 3720,
+        "zero_fast_paths": 70
+      },
+      "lanes": 2,
+      "observed": {
+        "accept_cycles": 1,
+        "accept_events": 1000,
+        "accept_own_cycles": 1,
+        "activity_zero_after_structure": 0,
+        "backpressure_cycles": 36,
+        "busy_cycles": 3098,
+        "completed_groups": 1000,
+        "drain_cycles": 0,
+        "group_read_requests": 1860,
+        "hold_retire_cycles": 208,
+        "input_zero_groups": 0,
+        "lane_ops_issued": 1988,
+        "lane_stall_cycles": 562,
+        "latency_cycles": 1860,
+        "overlap_cycles": 999,
+        "retire_events": 1000,
+        "retire_latch_cycles": 138,
+        "saturation_events": 0,
+        "stall_cycles": 598,
+        "startup_cycles": 1,
+        "structural_skips": 0,
+        "total_cycles": 5765,
+        "weight_values_fetched": 3720,
+        "window_cycles": 5765,
+        "zero_fast_paths": 70,
+        "zero_single_cycles": 0
+      },
+      "seed": 1,
+      "txns": 1000,
+      "violations": []
+    },
+    "dense_L2_s2": {
+      "claimed": {
+        "activity_zero_after_structure": 0,
+        "busy_cycles": 3140,
+        "completed": 1000,
+        "completed_groups": 1000,
+        "config_error": 0,
+        "group_read_requests": 1880,
+        "input_zero_groups": 60,
+        "lane_ops_issued": 1983,
+        "protocol_error": 0,
+        "saturation_events": 0,
+        "stall_cycles": 578,
+        "structural_skips": 0,
+        "total_cycles": 5807,
+        "weight_values_fetched": 3760,
+        "zero_fast_paths": 60
+      },
+      "lanes": 2,
+      "observed": {
+        "accept_cycles": 1,
+        "accept_events": 1000,
+        "accept_own_cycles": 1,
+        "activity_zero_after_structure": 0,
+        "backpressure_cycles": 35,
+        "busy_cycles": 3140,
+        "completed_groups": 1000,
+        "drain_cycles": 0,
+        "group_read_requests": 1880,
+        "hold_retire_cycles": 208,
+        "input_zero_groups": 0,
+        "lane_ops_issued": 1983,
+        "lane_stall_cycles": 543,
+        "latency_cycles": 1880,
+        "overlap_cycles": 999,
+        "retire_events": 1000,
+        "retire_latch_cycles": 148,
+        "saturation_events": 0,
+        "stall_cycles": 578,
+        "startup_cycles": 1,
+        "structural_skips": 0,
+        "total_cycles": 5807,
+        "weight_values_fetched": 3760,
+        "window_cycles": 5807,
+        "zero_fast_paths": 60,
+        "zero_single_cycles": 0
+      },
+      "seed": 2,
+      "txns": 1000,
+      "violations": []
+    },
+    "dense_L2_s3": {
+      "claimed": {
+        "activity_zero_after_structure": 0,
+        "busy_cycles": 3125,
+        "completed": 1000,
+        "completed_groups": 1000,
+        "config_error": 0,
+        "group_read_requests": 1886,
+        "input_zero_groups": 57,
+        "lane_ops_issued": 1963,
+        "protocol_error": 0,
+        "saturation_events": 0,
+        "stall_cycles": 605,
+        "structural_skips": 0,
+        "total_cycles": 5821,
+        "weight_values_fetched": 3772,
+        "zero_fast_paths": 57
+      },
+      "lanes": 2,
+      "observed": {
+        "accept_cycles": 1,
+        "accept_events": 1000,
+        "accept_own_cycles": 1,
+        "activity_zero_after_structure": 0,
+        "backpressure_cycles": 37,
+        "busy_cycles": 3125,
+        "completed_groups": 1000,
+        "drain_cycles": 0,
+        "group_read_requests": 1886,
+        "hold_retire_cycles": 204,
+        "input_zero_groups": 0,
+        "lane_ops_issued": 1963,
+        "lane_stall_cycles": 568,
+        "latency_cycles": 1886,
+        "overlap_cycles": 999,
+        "retire_events": 1000,
+        "retire_latch_cycles": 147,
+        "saturation_events": 0,
+        "stall_cycles": 605,
+        "startup_cycles": 1,
+        "structural_skips": 0,
+        "total_cycles": 5821,
+        "weight_values_fetched": 3772,
+        "window_cycles": 5821,
+        "zero_fast_paths": 57,
+        "zero_single_cycles": 0
+      },
+      "seed": 3,
+      "txns": 1000,
+      "violations": []
+    },
+    "dense_L4_s1": {
+      "claimed": {
+        "activity_zero_after_structure": 0,
+        "busy_cycles": 2781,
+        "completed": 1000,
+        "completed_groups": 1000,
+        "config_error": 0,
+        "group_read_requests": 1854,
+        "input_zero_groups": 73,
+        "lane_ops_issued": 1961,
+        "protocol_error": 0,
+        "saturation_events": 0,
+        "stall_cycles": 497,
+        "structural_skips": 0,
+        "total_cycles": 5360,
+        "weight_values_fetched": 3708,
+        "zero_fast_paths": 73
+      },
+      "lanes": 4,
+      "observed": {
+        "accept_cycles": 1,
+        "accept_events": 1000,
+        "accept_own_cycles": 1,
+        "activity_zero_after_structure": 0,
+        "backpressure_cycles": 44,
+        "busy_cycles": 2781,
+        "completed_groups": 1000,
+        "drain_cycles": 0,
+        "group_read_requests": 1854,
+        "hold_retire_cycles": 227,
+        "input_zero_groups": 0,
+        "lane_ops_issued": 1961,
+        "lane_stall_cycles": 453,
+        "latency_cycles": 1854,
+        "overlap_cycles": 999,
+        "retire_events": 1000,
+        "retire_latch_cycles": 154,
+        "saturation_events": 0,
+        "stall_cycles": 497,
+        "startup_cycles": 1,
+        "structural_skips": 0,
+        "total_cycles": 5360,
+        "weight_values_fetched": 3708,
+        "window_cycles": 5360,
+        "zero_fast_paths": 73,
+        "zero_single_cycles": 0
+      },
+      "seed": 1,
+      "txns": 1000,
+      "violations": []
+    },
+    "dense_L4_s2": {
+      "claimed": {
+        "activity_zero_after_structure": 0,
+        "busy_cycles": 2790,
+        "completed": 1000,
+        "completed_groups": 1000,
+        "config_error": 0,
+        "group_read_requests": 1860,
+        "input_zero_groups": 70,
+        "lane_ops_issued": 2023,
+        "protocol_error": 0,
+        "saturation_events": 0,
+        "stall_cycles": 558,
+        "structural_skips": 0,
+        "total_cycles": 5420,
+        "weight_values_fetched": 3720,
+        "zero_fast_paths": 70
+      },
+      "lanes": 4,
+      "observed": {
+        "accept_cycles": 1,
+        "accept_events": 1000,
+        "accept_own_cycles": 1,
+        "activity_zero_after_structure": 0,
+        "backpressure_cycles": 51,
+        "busy_cycles": 2790,
+        "completed_groups": 1000,
+        "drain_cycles": 0,
+        "group_read_requests": 1860,
+        "hold_retire_cycles": 211,
+        "input_zero_groups": 0,
+        "lane_ops_issued": 2023,
+        "lane_stall_cycles": 507,
+        "latency_cycles": 1860,
+        "overlap_cycles": 999,
+        "retire_events": 1000,
+        "retire_latch_cycles": 141,
+        "saturation_events": 0,
+        "stall_cycles": 558,
+        "startup_cycles": 1,
+        "structural_skips": 0,
+        "total_cycles": 5420,
+        "weight_values_fetched": 3720,
+        "window_cycles": 5420,
+        "zero_fast_paths": 70,
+        "zero_single_cycles": 0
+      },
+      "seed": 2,
+      "txns": 1000,
+      "violations": []
+    },
+    "dense_L4_s3": {
+      "claimed": {
+        "activity_zero_after_structure": 0,
+        "busy_cycles": 2787,
+        "completed": 1000,
+        "completed_groups": 1000,
+        "config_error": 0,
+        "group_read_requests": 1858,
+        "input_zero_groups": 71,
+        "lane_ops_issued": 2015,
+        "protocol_error": 0,
+        "saturation_events": 0,
+        "stall_cycles": 512,
+        "structural_skips": 0,
+        "total_cycles": 5369,
+        "weight_values_fetched": 3716,
+        "zero_fast_paths": 71
+      },
+      "lanes": 4,
+      "observed": {
+        "accept_cycles": 1,
+        "accept_events": 1000,
+        "accept_own_cycles": 1,
+        "activity_zero_after_structure": 0,
+        "backpressure_cycles": 42,
+        "busy_cycles": 2787,
+        "completed_groups": 1000,
+        "drain_cycles": 0,
+        "group_read_requests": 1858,
+        "hold_retire_cycles": 211,
+        "input_zero_groups": 0,
+        "lane_ops_issued": 2015,
+        "lane_stall_cycles": 470,
+        "latency_cycles": 1858,
+        "overlap_cycles": 999,
+        "retire_events": 1000,
+        "retire_latch_cycles": 140,
+        "saturation_events": 0,
+        "stall_cycles": 512,
+        "startup_cycles": 1,
+        "structural_skips": 0,
+        "total_cycles": 5369,
+        "weight_values_fetched": 3716,
+        "window_cycles": 5369,
+        "zero_fast_paths": 71,
+        "zero_single_cycles": 0
+      },
+      "seed": 3,
+      "txns": 1000,
+      "violations": []
+    },
+    "dense_L8_s1": {
+      "claimed": {
+        "activity_zero_after_structure": 0,
+        "busy_cycles": 2808,
+        "completed": 1000,
+        "completed_groups": 1000,
+        "config_error": 0,
+        "group_read_requests": 1872,
+        "input_zero_groups": 64,
+        "lane_ops_issued": 1956,
+        "protocol_error": 0,
+        "saturation_events": 0,
+        "stall_cycles": 469,
+        "structural_skips": 0,
+        "total_cycles": 5340,
+        "weight_values_fetched": 3744,
+        "zero_fast_paths": 64
+      },
+      "lanes": 8,
+      "observed": {
+        "accept_cycles": 1,
+        "accept_events": 1000,
+        "accept_own_cycles": 1,
+        "activity_zero_after_structure": 0,
+        "backpressure_cycles": 35,
+        "busy_cycles": 2808,
+        "completed_groups": 1000,
+        "drain_cycles": 0,
+        "group_read_requests": 1872,
+        "hold_retire_cycles": 190,
+        "input_zero_groups": 0,
+        "lane_ops_issued": 1956,
+        "lane_stall_cycles": 434,
+        "latency_cycles": 1872,
+        "overlap_cycles": 999,
+        "retire_events": 1000,
+        "retire_latch_cycles": 126,
+        "saturation_events": 0,
+        "stall_cycles": 469,
+        "startup_cycles": 1,
+        "structural_skips": 0,
+        "total_cycles": 5340,
+        "weight_values_fetched": 3744,
+        "window_cycles": 5340,
+        "zero_fast_paths": 64,
+        "zero_single_cycles": 0
+      },
+      "seed": 1,
+      "txns": 1000,
+      "violations": []
+    },
+    "dense_L8_s2": {
+      "claimed": {
+        "activity_zero_after_structure": 0,
+        "busy_cycles": 2826,
+        "completed": 1000,
+        "completed_groups": 1000,
+        "config_error": 0,
+        "group_read_requests": 1884,
+        "input_zero_groups": 58,
+        "lane_ops_issued": 2031,
+        "protocol_error": 0,
+        "saturation_events": 0,
+        "stall_cycles": 477,
+        "structural_skips": 0,
+        "total_cycles": 5410,
+        "weight_values_fetched": 3768,
+        "zero_fast_paths": 58
+      },
+      "lanes": 8,
+      "observed": {
+        "accept_cycles": 1,
+        "accept_events": 1000,
+        "accept_own_cycles": 1,
+        "activity_zero_after_structure": 0,
+        "backpressure_cycles": 40,
+        "busy_cycles": 2826,
+        "completed_groups": 1000,
+        "drain_cycles": 0,
+        "group_read_requests": 1884,
+        "hold_retire_cycles": 222,
+        "input_zero_groups": 0,
+        "lane_ops_issued": 2031,
+        "lane_stall_cycles": 437,
+        "latency_cycles": 1884,
+        "overlap_cycles": 999,
+        "retire_events": 1000,
+        "retire_latch_cycles": 164,
+        "saturation_events": 0,
+        "stall_cycles": 477,
+        "startup_cycles": 1,
+        "structural_skips": 0,
+        "total_cycles": 5410,
+        "weight_values_fetched": 3768,
+        "window_cycles": 5410,
+        "zero_fast_paths": 58,
+        "zero_single_cycles": 0
+      },
+      "seed": 2,
+      "txns": 1000,
+      "violations": []
+    },
+    "dense_L8_s3": {
+      "claimed": {
+        "activity_zero_after_structure": 0,
+        "busy_cycles": 2844,
+        "completed": 1000,
+        "completed_groups": 1000,
+        "config_error": 0,
+        "group_read_requests": 1896,
+        "input_zero_groups": 52,
+        "lane_ops_issued": 1995,
+        "protocol_error": 0,
+        "saturation_events": 0,
+        "stall_cycles": 492,
+        "structural_skips": 0,
+        "total_cycles": 5442,
+        "weight_values_fetched": 3792,
+        "zero_fast_paths": 52
+      },
+      "lanes": 8,
+      "observed": {
+        "accept_cycles": 1,
+        "accept_events": 1000,
+        "accept_own_cycles": 1,
+        "activity_zero_after_structure": 0,
+        "backpressure_cycles": 35,
+        "busy_cycles": 2844,
+        "completed_groups": 1000,
+        "drain_cycles": 0,
+        "group_read_requests": 1896,
+        "hold_retire_cycles": 209,
+        "input_zero_groups": 0,
+        "lane_ops_issued": 1995,
+        "lane_stall_cycles": 457,
+        "latency_cycles": 1896,
+        "overlap_cycles": 999,
+        "retire_events": 1000,
+        "retire_latch_cycles": 157,
+        "saturation_events": 0,
+        "stall_cycles": 492,
+        "startup_cycles": 1,
+        "structural_skips": 0,
+        "total_cycles": 5442,
+        "weight_values_fetched": 3792,
+        "window_cycles": 5442,
+        "zero_fast_paths": 52,
+        "zero_single_cycles": 0
+      },
+      "seed": 3,
+      "txns": 1000,
+      "violations": []
+    },
+    "sparse_L1_s1": {
+      "claimed": {
+        "activity_zero_after_structure": 182,
+        "busy_cycles": 1751,
+        "completed": 1000,
+        "completed_groups": 1000,
+        "config_error": 0,
+        "group_read_requests": 750,
+        "input_zero_groups": 68,
+        "lane_ops_issued": 1001,
+        "protocol_error": 0,
+        "saturation_events": 0,
+        "stall_cycles": 518,
+        "structural_skips": 989,
+        "total_cycles": 4127,
+        "weight_values_fetched": 1500,
+        "zero_fast_paths": 250
+      },
+      "lanes": 1,
+      "observed": {
+        "accept_cycles": 1,
+        "accept_events": 1000,
+        "accept_own_cycles": 1,
+        "activity_zero_after_structure": 0,
+        "backpressure_cycles": 69,
+        "busy_cycles": 1751,
+        "completed_groups": 1000,
+        "drain_cycles": 4,
+        "group_read_requests": 750,
+        "hold_retire_cycles": 357,
+        "input_zero_groups": 0,
+        "lane_ops_issued": 1001,
+        "lane_stall_cycles": 449,
+        "latency_cycles": 1500,
+        "overlap_cycles": 999,
+        "retire_events": 1000,
+        "retire_latch_cycles": 107,
+        "saturation_events": 0,
+        "stall_cycles": 518,
+        "startup_cycles": 1,
+        "structural_skips": 0,
+        "total_cycles": 4127,
+        "weight_values_fetched": 1500,
+        "window_cycles": 4127,
+        "zero_fast_paths": 250,
+        "zero_single_cycles": 0
+      },
+      "seed": 1,
+      "txns": 1000,
+      "violations": []
+    },
+    "sparse_L1_s2": {
+      "claimed": {
+        "activity_zero_after_structure": 193,
+        "busy_cycles": 1735,
+        "completed": 1000,
+        "completed_groups": 1000,
+        "config_error": 0,
+        "group_read_requests": 745,
+        "input_zero_groups": 62,
+        "lane_ops_issued": 990,
+        "protocol_error": 0,
+        "saturation_events": 0,
+        "stall_cycles": 508,
+        "structural_skips": 1008,
+        "total_cycles": 4093,
+        "weight_values_fetched": 1490,
+        "zero_fast_paths": 255
+      },
+      "lanes": 1,
+      "observed": {
+        "accept_cycles": 1,
+        "accept_events": 1000,
+        "accept_own_cycles": 1,
+        "activity_zero_after_structure": 0,
+        "backpressure_cycles": 65,
+        "busy_cycles": 1735,
+        "completed_groups": 1000,
+        "drain_cycles": 0,
+        "group_read_requests": 745,
+        "hold_retire_cycles": 359,
+        "input_zero_groups": 0,
+        "lane_ops_issued": 990,
+        "lane_stall_cycles": 443,
+        "latency_cycles": 1490,
+        "overlap_cycles": 999,
+        "retire_events": 1000,
+        "retire_latch_cycles": 104,
+        "saturation_events": 0,
+        "stall_cycles": 508,
+        "startup_cycles": 1,
+        "structural_skips": 0,
+        "total_cycles": 4093,
+        "weight_values_fetched": 1490,
+        "window_cycles": 4093,
+        "zero_fast_paths": 255,
+        "zero_single_cycles": 0
+      },
+      "seed": 2,
+      "txns": 1000,
+      "violations": []
+    },
+    "sparse_L1_s3": {
+      "claimed": {
+        "activity_zero_after_structure": 204,
+        "busy_cycles": 1711,
+        "completed": 1000,
+        "completed_groups": 1000,
+        "config_error": 0,
+        "group_read_requests": 736,
+        "input_zero_groups": 60,
+        "lane_ops_issued": 975,
+        "protocol_error": 0,
+        "saturation_events": 0,
+        "stall_cycles": 464,
+        "structural_skips": 991,
+        "total_cycles": 4034,
+        "weight_values_fetched": 1472,
+        "zero_fast_paths": 264
+      },
+      "lanes": 1,
+      "observed": {
+        "accept_cycles": 1,
+        "accept_events": 1000,
+        "accept_own_cycles": 1,
+        "activity_zero_after_structure": 0,
+        "backpressure_cycles": 67,
+        "busy_cycles": 1711,
+        "completed_groups": 1000,
+        "drain_cycles": 0,
+        "group_read_requests": 736,
+        "hold_retire_cycles": 386,
+        "input_zero_groups": 0,
+        "lane_ops_issued": 975,
+        "lane_stall_cycles": 397,
+        "latency_cycles": 1472,
+        "overlap_cycles": 999,
+        "retire_events": 1000,
+        "retire_latch_cycles": 122,
+        "saturation_events": 0,
+        "stall_cycles": 464,
+        "startup_cycles": 1,
+        "structural_skips": 0,
+        "total_cycles": 4034,
+        "weight_values_fetched": 1472,
+        "window_cycles": 4034,
+        "zero_fast_paths": 264,
+        "zero_single_cycles": 0
+      },
+      "seed": 3,
+      "txns": 1000,
+      "violations": []
+    },
+    "sparse_L2_s1": {
+      "claimed": {
+        "activity_zero_after_structure": 160,
+        "busy_cycles": 1540,
+        "completed": 1000,
+        "completed_groups": 1000,
+        "config_error": 0,
+        "group_read_requests": 770,
+        "input_zero_groups": 70,
+        "lane_ops_issued": 1032,
+        "protocol_error": 0,
+        "saturation_events": 0,
+        "stall_cycles": 445,
+        "structural_skips": 956,
+        "total_cycles": 3878,
+        "weight_values_fetched": 1540,
+        "zero_fast_paths": 230
+      },
+      "lanes": 2,
+      "observed": {
+        "accept_cycles": 1,
+        "accept_events": 1000,
+        "accept_own_cycles": 1,
+        "activity_zero_after_structure": 0,
+        "backpressure_cycles": 57,
+        "busy_cycles": 1540,
+        "completed_groups": 1000,
+        "drain_cycles": 0,
+        "group_read_requests": 770,
+        "hold_retire_cycles": 350,
+        "input_zero_groups": 0,
+        "lane_ops_issued": 1032,
+        "lane_stall_cycles": 388,
+        "latency_cycles": 1540,
+        "overlap_cycles": 997,
+        "retire_events": 1000,
+        "retire_latch_cycles": 122,
+        "saturation_events": 0,
+        "stall_cycles": 445,
+        "startup_cycles": 0,
+        "structural_skips": 0,
+        "total_cycles": 3878,
+        "weight_values_fetched": 1540,
+        "window_cycles": 3878,
+        "zero_fast_paths": 230,
+        "zero_single_cycles": 2
+      },
+      "seed": 1,
+      "txns": 1000,
+      "violations": []
+    },
+    "sparse_L2_s2": {
+      "claimed": {
+        "activity_zero_after_structure": 194,
+        "busy_cycles": 1492,
+        "completed": 1000,
+        "completed_groups": 1000,
+        "config_error": 0,
+        "group_read_requests": 746,
+        "input_zero_groups": 60,
+        "lane_ops_issued": 974,
+        "protocol_error": 0,
+        "saturation_events": 0,
+        "stall_cycles": 444,
+        "structural_skips": 1009,
+        "total_cycles": 3813,
+        "weight_values_fetched": 1492,
+        "zero_fast_paths": 254
+      },
+      "lanes": 2,
+      "observed": {
+        "accept_cycles": 1,
+        "accept_events": 1000,
+        "accept_own_cycles": 1,
+        "activity_zero_after_structure": 0,
+        "backpressure_cycles": 75,
+        "busy_cycles": 1492,
+        "completed_groups": 1000,
+        "drain_cycles": 0,
+        "group_read_requests": 746,
+        "hold_retire_cycles": 383,
+        "input_zero_groups": 0,
+        "lane_ops_issued": 974,
+        "lane_stall_cycles": 369,
+        "latency_cycles": 1492,
+        "overlap_cycles": 998,
+        "retire_events": 1000,
+        "retire_latch_cycles": 130,
+        "saturation_events": 0,
+        "stall_cycles": 444,
+        "startup_cycles": 0,
+        "structural_skips": 0,
+        "total_cycles": 3813,
+        "weight_values_fetched": 1492,
+        "window_cycles": 3813,
+        "zero_fast_paths": 254,
+        "zero_single_cycles": 1
+      },
+      "seed": 2,
+      "txns": 1000,
+      "violations": []
+    },
+    "sparse_L2_s3": {
+      "claimed": {
+        "activity_zero_after_structure": 198,
+        "busy_cycles": 1490,
+        "completed": 1000,
+        "completed_groups": 1000,
+        "config_error": 0,
+        "group_read_requests": 745,
+        "input_zero_groups": 57,
+        "lane_ops_issued": 997,
+        "protocol_error": 0,
+        "saturation_events": 0,
+        "stall_cycles": 483,
+        "structural_skips": 966,
+        "total_cycles": 3832,
+        "weight_values_fetched": 1490,
+        "zero_fast_paths": 255
+      },
+      "lanes": 2,
+      "observed": {
+        "accept_cycles": 1,
+        "accept_events": 1000,
+        "accept_own_cycles": 1,
+        "activity_zero_after_structure": 0,
+        "backpressure_cycles": 83,
+        "busy_cycles": 1490,
+        "completed_groups": 1000,
+        "drain_cycles": 0,
+        "group_read_requests": 745,
+        "hold_retire_cycles": 368,
+        "input_zero_groups": 0,
+        "lane_ops_issued": 997,
+        "lane_stall_cycles": 400,
+        "latency_cycles": 1490,
+        "overlap_cycles": 999,
+        "retire_events": 1000,
+        "retire_latch_cycles": 113,
+        "saturation_events": 0,
+        "stall_cycles": 483,
+        "startup_cycles": 1,
+        "structural_skips": 0,
+        "total_cycles": 3832,
+        "weight_values_fetched": 1490,
+        "window_cycles": 3832,
+        "zero_fast_paths": 255,
+        "zero_single_cycles": 0
+      },
+      "seed": 3,
+      "txns": 1000,
+      "violations": []
+    },
+    "sparse_L4_s1": {
+      "claimed": {
+        "activity_zero_after_structure": 205,
+        "busy_cycles": 1444,
+        "completed": 1000,
+        "completed_groups": 1000,
+        "config_error": 0,
+        "group_read_requests": 722,
+        "input_zero_groups": 73,
+        "lane_ops_issued": 962,
+        "protocol_error": 0,
+        "saturation_events": 0,
+        "stall_cycles": 449,
+        "structural_skips": 999,
+        "total_cycles": 3736,
+        "weight_values_fetched": 1444,
+        "zero_fast_paths": 278
+      },
+      "lanes": 4,
+      "observed": {
+        "accept_cycles": 1,
+        "accept_events": 1000,
+        "accept_own_cycles": 1,
+        "activity_zero_after_structure": 0,
+        "backpressure_cycles": 73,
+        "busy_cycles": 1444,
+        "completed_groups": 1000,
+        "drain_cycles": 0,
+        "group_read_requests": 722,
+        "hold_retire_cycles": 397,
+        "input_zero_groups": 0,
+        "lane_ops_issued": 962,
+        "lane_stall_cycles": 376,
+        "latency_cycles": 1444,
+        "overlap_cycles": 998,
+        "retire_events": 1000,
+        "retire_latch_cycles": 120,
+        "saturation_events": 0,
+        "stall_cycles": 449,
+        "startup_cycles": 0,
+        "structural_skips": 0,
+        "total_cycles": 3736,
+        "weight_values_fetched": 1444,
+        "window_cycles": 3736,
+        "zero_fast_paths": 278,
+        "zero_single_cycles": 1
+      },
+      "seed": 1,
+      "txns": 1000,
+      "violations": []
+    },
+    "sparse_L4_s2": {
+      "claimed": {
+        "activity_zero_after_structure": 200,
+        "busy_cycles": 1460,
+        "completed": 1000,
+        "completed_groups": 1000,
+        "config_error": 0,
+        "group_read_requests": 730,
+        "input_zero_groups": 70,
+        "lane_ops_issued": 979,
+        "protocol_error": 0,
+        "saturation_events": 0,
+        "stall_cycles": 432,
+        "structural_skips": 1044,
+        "total_cycles": 3742,
+        "weight_values_fetched": 1460,
+        "zero_fast_paths": 270
+      },
+      "lanes": 4,
+      "observed": {
+        "accept_cycles": 1,
+        "accept_events": 1000,
+        "accept_own_cycles": 1,
+        "activity_zero_after_structure": 0,
+        "backpressure_cycles": 75,
+        "busy_cycles": 1460,
+        "completed_groups": 1000,
+        "drain_cycles": 1,
+        "group_read_requests": 730,
+        "hold_retire_cycles": 389,
+        "input_zero_groups": 0,
+        "lane_ops_issued": 979,
+        "lane_stall_cycles": 357,
+        "latency_cycles": 1460,
+        "overlap_cycles": 999,
+        "retire_events": 1000,
+        "retire_latch_cycles": 119,
+        "saturation_events": 0,
+        "stall_cycles": 432,
+        "startup_cycles": 1,
+        "structural_skips": 0,
+        "total_cycles": 3742,
+        "weight_values_fetched": 1460,
+        "window_cycles": 3742,
+        "zero_fast_paths": 270,
+        "zero_single_cycles": 0
+      },
+      "seed": 2,
+      "txns": 1000,
+      "violations": []
+    },
+    "sparse_L4_s3": {
+      "claimed": {
+        "activity_zero_after_structure": 182,
+        "busy_cycles": 1494,
+        "completed": 1000,
+        "completed_groups": 1000,
+        "config_error": 0,
+        "group_read_requests": 747,
+        "input_zero_groups": 71,
+        "lane_ops_issued": 1017,
+        "protocol_error": 0,
+        "saturation_events": 0,
+        "stall_cycles": 467,
+        "structural_skips": 998,
+        "total_cycles": 3831,
+        "weight_values_fetched": 1494,
+        "zero_fast_paths": 253
+      },
+      "lanes": 4,
+      "observed": {
+        "accept_cycles": 1,
+        "accept_events": 1000,
+        "accept_own_cycles": 1,
+        "activity_zero_after_structure": 0,
+        "backpressure_cycles": 76,
+        "busy_cycles": 1494,
+        "completed_groups": 1000,
+        "drain_cycles": 1,
+        "group_read_requests": 747,
+        "hold_retire_cycles": 375,
+        "input_zero_groups": 0,
+        "lane_ops_issued": 1017,
+        "lane_stall_cycles": 391,
+        "latency_cycles": 1494,
+        "overlap_cycles": 999,
+        "retire_events": 1000,
+        "retire_latch_cycles": 122,
+        "saturation_events": 0,
+        "stall_cycles": 467,
+        "startup_cycles": 1,
+        "structural_skips": 0,
+        "total_cycles": 3831,
+        "weight_values_fetched": 1494,
+        "window_cycles": 3831,
+        "zero_fast_paths": 253,
+        "zero_single_cycles": 0
+      },
+      "seed": 3,
+      "txns": 1000,
+      "violations": []
+    },
+    "sparse_L8_s1": {
+      "claimed": {
+        "activity_zero_after_structure": 210,
+        "busy_cycles": 1452,
+        "completed": 1000,
+        "completed_groups": 1000,
+        "config_error": 0,
+        "group_read_requests": 726,
+        "input_zero_groups": 64,
+        "lane_ops_issued": 964,
+        "protocol_error": 0,
+        "saturation_events": 0,
+        "stall_cycles": 447,
+        "structural_skips": 992,
+        "total_cycles": 3733,
+        "weight_values_fetched": 1452,
+        "zero_fast_paths": 274
+      },
+      "lanes": 8,
+      "observed": {
+        "accept_cycles": 1,
+        "accept_events": 1000,
+        "accept_own_cycles": 1,
+        "activity_zero_after_structure": 0,
+        "backpressure_cycles": 56,
+        "busy_cycles": 1452,
+        "completed_groups": 1000,
+        "drain_cycles": 1,
+        "group_read_requests": 726,
+        "hold_retire_cycles": 381,
+        "input_zero_groups": 0,
+        "lane_ops_issued": 964,
+        "lane_stall_cycles": 391,
+        "latency_cycles": 1452,
+        "overlap_cycles": 999,
+        "retire_events": 1000,
+        "retire_latch_cycles": 107,
+        "saturation_events": 0,
+        "stall_cycles": 447,
+        "startup_cycles": 1,
+        "structural_skips": 0,
+        "total_cycles": 3733,
+        "weight_values_fetched": 1452,
+        "window_cycles": 3733,
+        "zero_fast_paths": 274,
+        "zero_single_cycles": 0
+      },
+      "seed": 1,
+      "txns": 1000,
+      "violations": []
+    },
+    "sparse_L8_s2": {
+      "claimed": {
+        "activity_zero_after_structure": 180,
+        "busy_cycles": 1524,
+        "completed": 1000,
+        "completed_groups": 1000,
+        "config_error": 0,
+        "group_read_requests": 762,
+        "input_zero_groups": 58,
+        "lane_ops_issued": 1038,
+        "protocol_error": 0,
+        "saturation_events": 0,
+        "stall_cycles": 423,
+        "structural_skips": 993,
+        "total_cycles": 3825,
+        "weight_values_fetched": 1524,
+        "zero_fast_paths": 238
+      },
+      "lanes": 8,
+      "observed": {
+        "accept_cycles": 1,
+        "accept_events": 1000,
+        "accept_own_cycles": 1,
+        "activity_zero_after_structure": 0,
+        "backpressure_cycles": 59,
+        "busy_cycles": 1524,
+        "completed_groups": 1000,
+        "drain_cycles": 0,
+        "group_read_requests": 762,
+        "hold_retire_cycles": 353,
+        "input_zero_groups": 0,
+        "lane_ops_issued": 1038,
+        "lane_stall_cycles": 364,
+        "latency_cycles": 1524,
+        "overlap_cycles": 999,
+        "retire_events": 1000,
+        "retire_latch_cycles": 115,
+        "saturation_events": 0,
+        "stall_cycles": 423,
+        "startup_cycles": 1,
+        "structural_skips": 0,
+        "total_cycles": 3825,
+        "weight_values_fetched": 1524,
+        "window_cycles": 3825,
+        "zero_fast_paths": 238,
+        "zero_single_cycles": 0
+      },
+      "seed": 2,
+      "txns": 1000,
+      "violations": []
+    },
+    "sparse_L8_s3": {
+      "claimed": {
+        "activity_zero_after_structure": 208,
+        "busy_cycles": 1480,
+        "completed": 1000,
+        "completed_groups": 1000,
+        "config_error": 0,
+        "group_read_requests": 740,
+        "input_zero_groups": 52,
+        "lane_ops_issued": 964,
+        "protocol_error": 0,
+        "saturation_events": 0,
+        "stall_cycles": 453,
+        "structural_skips": 1031,
+        "total_cycles": 3786,
+        "weight_values_fetched": 1480,
+        "zero_fast_paths": 260
+      },
+      "lanes": 8,
+      "observed": {
+        "accept_cycles": 1,
+        "accept_events": 1000,
+        "accept_own_cycles": 1,
+        "activity_zero_after_structure": 0,
+        "backpressure_cycles": 69,
+        "busy_cycles": 1480,
+        "completed_groups": 1000,
+        "drain_cycles": 0,
+        "group_read_requests": 740,
+        "hold_retire_cycles": 372,
+        "input_zero_groups": 0,
+        "lane_ops_issued": 964,
+        "lane_stall_cycles": 384,
+        "latency_cycles": 1480,
+        "overlap_cycles": 999,
+        "retire_events": 1000,
+        "retire_latch_cycles": 112,
+        "saturation_events": 0,
+        "stall_cycles": 453,
+        "startup_cycles": 1,
+        "structural_skips": 0,
+        "total_cycles": 3786,
+        "weight_values_fetched": 1480,
+        "window_cycles": 3786,
+        "zero_fast_paths": 260,
+        "zero_single_cycles": 0
+      },
+      "seed": 3,
+      "txns": 1000,
+      "violations": []
+    }
+  },
+  "negative_controls": {
+    "negA_read_all_then_gate_L1_s1": {
+      "claimed": {
+        "activity_zero_after_structure": 182,
+        "busy_cycles": 3001,
+        "completed": 1000,
+        "completed_groups": 1000,
+        "config_error": 0,
+        "group_read_requests": 750,
+        "input_zero_groups": 68,
+        "lane_ops_issued": 1001,
+        "protocol_error": 0,
+        "saturation_events": 0,
+        "stall_cycles": 490,
+        "structural_skips": 989,
+        "total_cycles": 5609,
+        "weight_values_fetched": 1500,
+        "zero_fast_paths": 250
+      },
+      "observed": {
+        "accept_cycles": 1,
+        "accept_events": 1000,
+        "accept_own_cycles": 1,
+        "activity_zero_after_structure": 0,
+        "backpressure_cycles": 55,
+        "busy_cycles": 3001,
+        "completed_groups": 1000,
+        "drain_cycles": 1,
+        "group_read_requests": 2000,
+        "hold_retire_cycles": 367,
+        "input_zero_groups": 0,
+        "lane_ops_issued": 1001,
+        "lane_stall_cycles": 435,
+        "latency_cycles": 1750,
+        "overlap_cycles": 999,
+        "retire_events": 1000,
+        "retire_latch_cycles": 117,
+        "saturation_events": 0,
+        "stall_cycles": 490,
+        "startup_cycles": 1,
+        "structural_skips": 0,
+        "total_cycles": 5609,
+        "weight_values_fetched": 4000,
+        "window_cycles": 5609,
+        "zero_fast_paths": 250,
+        "zero_single_cycles": 0
+      },
+      "sums_match_golden": true,
+      "violations": [
+        "negA_read_all_then_gate_L1_s1 group_read_requests 自报 750 与逐拍观测 2000 不一致",
+        "negA_read_all_then_gate_L1_s1 weight_values_fetched 自报 1500 与逐拍观测 4000 不一致"
+      ]
+    },
+    "negA_read_all_then_gate_L1_s3": {
+      "claimed": {
+        "activity_zero_after_structure": 204,
+        "busy_cycles": 2975,
+        "completed": 1000,
+        "completed_groups": 1000,
+        "config_error": 0,
+        "group_read_requests": 736,
+        "input_zero_groups": 60,
+        "lane_ops_issued": 975,
+        "protocol_error": 0,
+        "saturation_events": 0,
+        "stall_cycles": 519,
+        "structural_skips": 991,
+        "total_cycles": 5616,
+        "weight_values_fetched": 1472,
+        "zero_fast_paths": 264
+      },
+      "observed": {
+        "accept_cycles": 1,
+        "accept_events": 1000,
+        "accept_own_cycles": 1,
+        "activity_zero_after_structure": 0,
+        "backpressure_cycles": 71,
+        "busy_cycles": 2975,
+        "completed_groups": 1000,
+        "drain_cycles": 1,
+        "group_read_requests": 2000,
+        "hold_retire_cycles": 385,
+        "input_zero_groups": 0,
+        "lane_ops_issued": 975,
+        "lane_stall_cycles": 448,
+        "latency_cycles": 1736,
+        "overlap_cycles": 999,
+        "retire_events": 1000,
+        "retire_latch_cycles": 121,
+        "saturation_events": 0,
+        "stall_cycles": 519,
+        "startup_cycles": 1,
+        "structural_skips": 0,
+        "total_cycles": 5616,
+        "weight_values_fetched": 4000,
+        "window_cycles": 5616,
+        "zero_fast_paths": 264,
+        "zero_single_cycles": 0
+      },
+      "sums_match_golden": true,
+      "violations": [
+        "negA_read_all_then_gate_L1_s3 group_read_requests 自报 736 与逐拍观测 2000 不一致",
+        "negA_read_all_then_gate_L1_s3 weight_values_fetched 自报 1472 与逐拍观测 4000 不一致"
+      ]
+    },
+    "negA_read_all_then_gate_L4_s1": {
+      "claimed": {
+        "activity_zero_after_structure": 205,
+        "busy_cycles": 2722,
+        "completed": 1000,
+        "completed_groups": 1000,
+        "config_error": 0,
+        "group_read_requests": 722,
+        "input_zero_groups": 73,
+        "lane_ops_issued": 962,
+        "protocol_error": 0,
+        "saturation_events": 0,
+        "stall_cycles": 407,
+        "structural_skips": 999,
+        "total_cycles": 5232,
+        "weight_values_fetched": 1444,
+        "zero_fast_paths": 278
+      },
+      "observed": {
+        "accept_cycles": 1,
+        "accept_events": 1000,
+        "accept_own_cycles": 1,
+        "activity_zero_after_structure": 0,
+        "backpressure_cycles": 74,
+        "busy_cycles": 2722,
+        "completed_groups": 1000,
+        "drain_cycles": 0,
+        "group_read_requests": 2000,
+        "hold_retire_cycles": 380,
+        "input_zero_groups": 0,
+        "lane_ops_issued": 962,
+        "lane_stall_cycles": 333,
+        "latency_cycles": 1722,
+        "overlap_cycles": 999,
+        "retire_events": 1000,
+        "retire_latch_cycles": 102,
+        "saturation_events": 0,
+        "stall_cycles": 407,
+        "startup_cycles": 1,
+        "structural_skips": 0,
+        "total_cycles": 5232,
+        "weight_values_fetched": 4000,
+        "window_cycles": 5232,
+        "zero_fast_paths": 278,
+        "zero_single_cycles": 0
+      },
+      "sums_match_golden": true,
+      "violations": [
+        "negA_read_all_then_gate_L4_s1 group_read_requests 自报 722 与逐拍观测 2000 不一致",
+        "negA_read_all_then_gate_L4_s1 weight_values_fetched 自报 1444 与逐拍观测 4000 不一致"
+      ]
+    },
+    "negA_read_all_then_gate_L4_s3": {
+      "claimed": {
+        "activity_zero_after_structure": 182,
+        "busy_cycles": 2747,
+        "completed": 1000,
+        "completed_groups": 1000,
+        "config_error": 0,
+        "group_read_requests": 747,
+        "input_zero_groups": 71,
+        "lane_ops_issued": 1017,
+        "protocol_error": 0,
+        "saturation_events": 0,
+        "stall_cycles": 427,
+        "structural_skips": 998,
+        "total_cycles": 5283,
+        "weight_values_fetched": 1494,
+        "zero_fast_paths": 253
+      },
+      "observed": {
+        "accept_cycles": 1,
+        "accept_events": 1000,
+        "accept_own_cycles": 1,
+        "activity_zero_after_structure": 0,
+        "backpressure_cycles": 60,
+        "busy_cycles": 2747,
+        "completed_groups": 1000,
+        "drain_cycles": 0,
+        "group_read_requests": 2000,
+        "hold_retire_cycles": 361,
+        "input_zero_groups": 0,
+        "lane_ops_issued": 1017,
+        "lane_stall_cycles": 367,
+        "latency_cycles": 1747,
+        "overlap_cycles": 999,
+        "retire_events": 1000,
+        "retire_latch_cycles": 108,
+        "saturation_events": 0,
+        "stall_cycles": 427,
+        "startup_cycles": 1,
+        "structural_skips": 0,
+        "total_cycles": 5283,
+        "weight_values_fetched": 4000,
+        "window_cycles": 5283,
+        "zero_fast_paths": 253,
+        "zero_single_cycles": 0
+      },
+      "sums_match_golden": true,
+      "violations": [
+        "negA_read_all_then_gate_L4_s3 group_read_requests 自报 747 与逐拍观测 2000 不一致",
+        "negA_read_all_then_gate_L4_s3 weight_values_fetched 自报 1494 与逐拍观测 4000 不一致"
+      ]
+    },
+    "negB_mac_then_clear_L1_s1": {
+      "claimed": {
+        "activity_zero_after_structure": 182,
+        "busy_cycles": 3750,
+        "completed": 1000,
+        "completed_groups": 1000,
+        "config_error": 0,
+        "group_read_requests": 750,
+        "input_zero_groups": 68,
+        "lane_ops_issued": 1001,
+        "protocol_error": 0,
+        "saturation_events": 0,
+        "stall_cycles": 1012,
+        "structural_skips": 989,
+        "total_cycles": 6622,
+        "weight_values_fetched": 1500,
+        "zero_fast_paths": 250
+      },
+      "observed": {
+        "accept_cycles": 1,
+        "accept_events": 1000,
+        "accept_own_cycles": 1,
+        "activity_zero_after_structure": 0,
+        "backpressure_cycles": 53,
+        "busy_cycles": 3750,
+        "completed_groups": 1000,
+        "drain_cycles": 3,
+        "group_read_requests": 750,
+        "hold_retire_cycles": 359,
+        "input_zero_groups": 0,
+        "lane_ops_issued": 3000,
+        "lane_stall_cycles": 959,
+        "latency_cycles": 1500,
+        "overlap_cycles": 999,
+        "retire_events": 1000,
+        "retire_latch_cycles": 109,
+        "saturation_events": 0,
+        "stall_cycles": 1012,
+        "startup_cycles": 1,
+        "structural_skips": 0,
+        "total_cycles": 6622,
+        "weight_values_fetched": 1500,
+        "window_cycles": 6622,
+        "zero_fast_paths": 250,
+        "zero_single_cycles": 0
+      },
+      "sums_match_golden": true,
+      "violations": [
+        "negB_mac_then_clear_L1_s1 lane_ops_issued 自报 1001 与逐拍观测 3000 不一致"
+      ]
+    },
+    "negB_mac_then_clear_L1_s3": {
+      "claimed": {
+        "activity_zero_after_structure": 204,
+        "busy_cycles": 3680,
+        "completed": 1000,
+        "completed_groups": 1000,
+        "config_error": 0,
+        "group_read_requests": 736,
+        "input_zero_groups": 60,
+        "lane_ops_issued": 975,
+        "protocol_error": 0,
+        "saturation_events": 0,
+        "stall_cycles": 974,
+        "structural_skips": 991,
+        "total_cycles": 6501,
+        "weight_values_fetched": 1472,
+        "zero_fast_paths": 264
+      },
+      "observed": {
+        "accept_cycles": 1,
+        "accept_events": 1000,
+        "accept_own_cycles": 1,
+        "activity_zero_after_structure": 0,
+        "backpressure_cycles": 57,
+        "busy_cycles": 3680,
+        "completed_groups": 1000,
+        "drain_cycles": 0,
+        "group_read_requests": 736,
+        "hold_retire_cycles": 374,
+        "input_zero_groups": 0,
+        "lane_ops_issued": 2944,
+        "lane_stall_cycles": 917,
+        "latency_cycles": 1472,
+        "overlap_cycles": 999,
+        "retire_events": 1000,
+        "retire_latch_cycles": 110,
+        "saturation_events": 0,
+        "stall_cycles": 974,
+        "startup_cycles": 1,
+        "structural_skips": 0,
+        "total_cycles": 6501,
+        "weight_values_fetched": 1472,
+        "window_cycles": 6501,
+        "zero_fast_paths": 264,
+        "zero_single_cycles": 0
+      },
+      "sums_match_golden": true,
+      "violations": [
+        "negB_mac_then_clear_L1_s3 lane_ops_issued 自报 975 与逐拍观测 2944 不一致"
+      ]
+    },
+    "negB_mac_then_clear_L4_s1": {
+      "claimed": {
+        "activity_zero_after_structure": 205,
+        "busy_cycles": 1444,
+        "completed": 1000,
+        "completed_groups": 1000,
+        "config_error": 0,
+        "group_read_requests": 722,
+        "input_zero_groups": 73,
+        "lane_ops_issued": 962,
+        "protocol_error": 0,
+        "saturation_events": 0,
+        "stall_cycles": 449,
+        "structural_skips": 999,
+        "total_cycles": 3736,
+        "weight_values_fetched": 1444,
+        "zero_fast_paths": 278
+      },
+      "observed": {
+        "accept_cycles": 1,
+        "accept_events": 1000,
+        "accept_own_cycles": 1,
+        "activity_zero_after_structure": 0,
+        "backpressure_cycles": 73,
+        "busy_cycles": 1444,
+        "completed_groups": 1000,
+        "drain_cycles": 0,
+        "group_read_requests": 722,
+        "hold_retire_cycles": 397,
+        "input_zero_groups": 0,
+        "lane_ops_issued": 2888,
+        "lane_stall_cycles": 376,
+        "latency_cycles": 1444,
+        "overlap_cycles": 998,
+        "retire_events": 1000,
+        "retire_latch_cycles": 120,
+        "saturation_events": 0,
+        "stall_cycles": 449,
+        "startup_cycles": 0,
+        "structural_skips": 0,
+        "total_cycles": 3736,
+        "weight_values_fetched": 1444,
+        "window_cycles": 3736,
+        "zero_fast_paths": 278,
+        "zero_single_cycles": 1
+      },
+      "sums_match_golden": true,
+      "violations": [
+        "negB_mac_then_clear_L4_s1 lane_ops_issued 自报 962 与逐拍观测 2888 不一致"
+      ]
+    },
+    "negB_mac_then_clear_L4_s3": {
+      "claimed": {
+        "activity_zero_after_structure": 182,
+        "busy_cycles": 1494,
+        "completed": 1000,
+        "completed_groups": 1000,
+        "config_error": 0,
+        "group_read_requests": 747,
+        "input_zero_groups": 71,
+        "lane_ops_issued": 1017,
+        "protocol_error": 0,
+        "saturation_events": 0,
+        "stall_cycles": 467,
+        "structural_skips": 998,
+        "total_cycles": 3831,
+        "weight_values_fetched": 1494,
+        "zero_fast_paths": 253
+      },
+      "observed": {
+        "accept_cycles": 1,
+        "accept_events": 1000,
+        "accept_own_cycles": 1,
+        "activity_zero_after_structure": 0,
+        "backpressure_cycles": 76,
+        "busy_cycles": 1494,
+        "completed_groups": 1000,
+        "drain_cycles": 1,
+        "group_read_requests": 747,
+        "hold_retire_cycles": 375,
+        "input_zero_groups": 0,
+        "lane_ops_issued": 2988,
+        "lane_stall_cycles": 391,
+        "latency_cycles": 1494,
+        "overlap_cycles": 999,
+        "retire_events": 1000,
+        "retire_latch_cycles": 122,
+        "saturation_events": 0,
+        "stall_cycles": 467,
+        "startup_cycles": 1,
+        "structural_skips": 0,
+        "total_cycles": 3831,
+        "weight_values_fetched": 1494,
+        "window_cycles": 3831,
+        "zero_fast_paths": 253,
+        "zero_single_cycles": 0
+      },
+      "sums_match_golden": true,
+      "violations": [
+        "negB_mac_then_clear_L4_s3 lane_ops_issued 自报 1017 与逐拍观测 2988 不一致"
+      ]
+    }
+  },
+  "observed_random_traffic_reductions": {
+    "lanes_1": {
+      "cycle_reduction": 38.69,
+      "op_reduction": 49.7,
+      "read_reduction": 59.76
+    },
+    "lanes_2": {
+      "cycle_reduction": 32.73,
+      "op_reduction": 48.09,
+      "read_reduction": 58.6
+    },
+    "lanes_4": {
+      "cycle_reduction": 30.3,
+      "op_reduction": 50.94,
+      "read_reduction": 61.06
+    },
+    "lanes_8": {
+      "cycle_reduction": 30.09,
+      "op_reduction": 50.72,
+      "read_reduction": 61.22
+    }
+  },
+  "problems": [],
+  "rtl_mutations": {
+    "config_rejection_bypass": {
+      "file": "np7_weight_ram.sv",
+      "note": "写使能不受 cfg_wr_ok 门控：非法字可进 RAM",
+      "script": "formal_np7_config_reject.ys",
+      "verdict": "counterexample"
+    },
+    "dense_accept_under_backpressure": {
+      "file": "np7_exec_unit_dense.sv",
+      "note": "背压时错误接受（稠密基线）",
+      "script": "formal_np7_exec_unit_dense.ys",
+      "verdict": "counterexample"
+    },
+    "dense_fake_val": {
+      "file": "np7_exec_unit_dense.sv",
+      "note": "稠密自报权重槽与读请求脱钩",
+      "script": "formal_np7_exec_unit_dense.ys",
+      "verdict": "counterexample"
+    },
+    "dense_fold_last_early": {
+      "file": "np7_exec_unit_dense.sv",
+      "note": "dense 在发射拍就出结果，比 Stage B 折叠早 1 拍",
+      "script": "formal_np7_exec_unit_dense.ys",
+      "verdict": "counterexample"
+    },
+    "dense_same_edge_metadata_overwrite": {
+      "file": "np7_exec_unit_dense.sv",
+      "note": "同拍覆盖（稠密基线）",
+      "script": "formal_np7_exec_unit_dense.ys",
+      "verdict": "counterexample"
+    },
+    "extra_read_burst": {
+      "file": "np7_exec_unit_sparse.sv",
+      "note": "BATCH 期多发读请求",
+      "script": "formal_np7_exec_unit.ys",
+      "verdict": "counterexample"
+    },
+    "fake_lane_ops": {
+      "file": "np7_exec_unit_sparse.sv",
+      "note": "发射后不清 pending，掩码可重复发射",
+      "script": "formal_np7_exec_unit.ys",
+      "verdict": "counterexample"
+    },
+    "fake_weight_slots": {
+      "file": "np7_exec_unit_sparse.sv",
+      "note": "自报权重槽减半但读请求不变",
+      "script": "formal_np7_exec_unit.ys",
+      "verdict": "counterexample"
+    },
+    "lane_hold_ignored": {
+      "file": "np7_shared_synapse_lane.sv",
+      "note": "lane 无视 hold，被停住的折叠拍提前完成",
+      "script": "formal_np7_exec_unit.ys",
+      "verdict": "counterexample"
+    },
+    "sparse_accept_under_backpressure": {
+      "file": "np7_exec_unit_sparse.sv",
+      "note": "背压时错误接受：hold/在途期间 issue_ready 仍为 1",
+      "script": "formal_np7_exec_unit.ys",
+      "verdict": "counterexample"
+    },
+    "sparse_fold_last_early": {
+      "file": "np7_exec_unit_sparse.sv",
+      "note": "sparse 在发射拍就出结果，比 Stage B 折叠早 1 拍",
+      "script": "formal_np7_exec_unit.ys",
+      "verdict": "counterexample"
+    },
+    "sparse_same_edge_metadata_overwrite": {
+      "file": "np7_exec_unit_sparse.sv",
+      "note": "同拍覆盖：退出结果的 zero_path 标志被新事务覆盖",
+      "script": "formal_np7_exec_unit.ys",
+      "verdict": "counterexample"
+    }
+  },
+  "schema": "np7-formal-mutations-v1",
+  "tool_versions": {
+    "iverilog": "Icarus Verilog version 12.0 (devel) (s20150603-1539-g2693dd32b)",
+    "vvp": "Icarus Verilog version 12.0 (devel) (s20150603-1539-g2693dd32b) (same install)",
+    "yosys": "Yosys 0.68 (git sha1 38e001a6f, Release, Clang /workspace/YoWASP/yosys/wasi-sdk-33.0-x86_64-linux/share/cmake/../..//bin/clang++ 22.1.0)"
+  }
+}

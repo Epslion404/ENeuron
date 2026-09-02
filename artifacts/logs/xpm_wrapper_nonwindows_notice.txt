@@ -1,0 +1,19 @@
+# command: C:\Users\MGL\AppData\Local\Python\pythoncore-3.14-64\python.exe -X utf8 -c import sys, unittest; sys.platform="linux"; import test_host_bridge_xpm_wrapper as m; unittest.main(module=m, argv=["x","-v"], exit=False)
+# git_head: 187d9707da4e40f777ec8868d85652c41eb0ab56
+# python: 3.14.7 (-X utf8)
+# note: PR #6 round 6 / P2b: 本机模拟非 Windows 平台(sys.platform=linux) 的跳过文案，等价于 Ubuntu runner 上 Python and syntax 作业将看到的 notice
+# local_time: 2026-09-02 17:09:32
+
+XPM_TOOLCHAIN platform=linux python=3.14.7 package=mingw-w64-ucrt-x86_64-iverilog iverilog=C:\msys64\ucrt64\bin\iverilog.exe vvp=C:\msys64\ucrt64\bin\vvp.exe iverilog_version='Icarus Verilog version 12.0 (stable) ()'
+test_bidirectional_transport_backpressure_wrap_and_reset (test_host_bridge_xpm_wrapper.HostBridgeXpmWrapperTests.test_bidirectional_transport_backpressure_wrap_and_reset) ... skipped "SKIPPED/NOT APPLICABLE: host platform is 'linux', not win32; this test drives the Windows + MSYS2 UCRT64 layout C:\\msys64\\ucrt64\\bin and cannot run on an Ubuntu runner"
+test_illegal_reset_reentry_is_rejected (test_host_bridge_xpm_wrapper.HostBridgeXpmWrapperTests.test_illegal_reset_reentry_is_rejected) ... skipped "SKIPPED/NOT APPLICABLE: host platform is 'linux', not win32; this test drives the Windows + MSYS2 UCRT64 layout C:\\msys64\\ucrt64\\bin and cannot run on an Ubuntu runner"
+test_windows_msys2_toolchain_dependency_is_declared (test_host_bridge_xpm_wrapper.HostBridgeXpmWrapperTests.test_windows_msys2_toolchain_dependency_is_declared)
+平台无关：核对裁定要求的 4 点注明与 CI 调整确实写在仓库里。 ... ok
+test_xpm_configuration_is_frozen (test_host_bridge_xpm_wrapper.HostBridgeXpmWrapperTests.test_xpm_configuration_is_frozen) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 3.904s
+
+OK (skipped=2)
+
+# exit_code: 0

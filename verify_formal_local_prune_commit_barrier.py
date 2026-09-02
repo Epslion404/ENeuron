@@ -1,12 +1,46 @@
-"""验证真实 barrier proof/reach，并绑定 gate 合同与三个真实网络顶层。"""
+"""验证真实 barrier proof/reach，并绑定 gate 合同与三个真实网络顶层。
+
+工具发现遵循 `docs/WINDOWS_MSYS2_XPM_TOOLCHAIN.md`：优先使用 PATH 上的 `iverilog`，
+其次兼容 Windows + MSYS2 UCRT64 专用固定路径 `C:/msys64/ucrt64/bin/iverilog.exe`
+（仓库 admin 在 PR #6 issue comment 5506790489 裁定允许保留该路径，但它不是跨平台默认路径）。
+两者都找不到时打印 `SKIPPED/NOT APPLICABLE` 并跳过编译绑定，不把“环境没装工具”
+误报成 RTL 功能失败；`iverilog.exe` 带 `-Wall` 静默崩溃（非 0 退出且完全无输出）时
+去掉 `-Wall` 重试一次，任何有输出的错误仍按失败处理。
+"""
 
 from pathlib import Path
+import shutil
 import subprocess
 import tempfile
+import unittest
 
 import verify_formal_local_prune_gate
 
 ROOT = Path(__file__).resolve().parent
+MSYS2_UCRT64_BIN = Path("C:/msys64/ucrt64/bin")  # Windows + MSYS2 UCRT64 专用，非跨平台默认路径
+SILENT_CRASH_CODES = (0xC0000005, 0xC0000409)
+
+
+def find_tool(name: str) -> Path | None:
+    """优先使用 PATH，再兼容本机 MSYS2 UCRT64 安装。"""
+    discovered = shutil.which(name)
+    if discovered:
+        return Path(discovered)
+    for candidate in (MSYS2_UCRT64_BIN / f"{name}.exe", Path("C:/msys64/mingw64/bin") / f"{name}.exe"):
+        if candidate.exists():
+            return candidate
+    return None
+
+
+def compile_top(iverilog: Path, top: str, sources: list[str], tmp: str) -> subprocess.CompletedProcess[str]:
+    command = [str(iverilog), "-g2012", "-Wall", "-s", top, "-o", str(Path(tmp) / "a.vvp"), *[str(ROOT / s) for s in sources]]
+    run = subprocess.run(command, capture_output=True, text=True)
+    if (run.returncode and (run.returncode & 0xFFFFFFFF) in SILENT_CRASH_CODES
+            and not (run.stdout or "").strip() and not (run.stderr or "").strip()):
+        print(f"TOOLCHAIN_DEFECT=iverilog_compile_silent_crash return_code=0x{(run.returncode & 0xFFFFFFFF):08X} retry_without=-Wall")
+        command.remove("-Wall")
+        run = subprocess.run(command, capture_output=True, text=True)
+    return run
 
 def require(text: str, needle: str, name: str) -> None:
     if needle not in text: raise AssertionError(f"{name} 缺少 {needle}")
@@ -47,6 +81,13 @@ def verify() -> dict[str, int]:
         contract = (ROOT / name).read_text(encoding="utf-8")
         require(contract, "if (tick_ready || route_flush_ready", name)
         require(contract, "host_cmd_ready", name)
+    iverilog = find_tool("iverilog")
+    if iverilog is None:
+        raise unittest.SkipTest(
+            "SKIPPED/NOT APPLICABLE: 三顶层编译绑定需要 iverilog，PATH 与 Windows + MSYS2 UCRT64"
+            f" 固定路径 {MSYS2_UCRT64_BIN} 都未提供；环境缺工具不作为 RTL 功能失败"
+        )
+    print(f"COMMIT_BARRIER_COMPILE_TOOL={iverilog}")
     for top in tops:
         text = (ROOT / f"{top}.sv").read_text(encoding="utf-8")
         if top.startswith("eneuron"):
@@ -55,7 +96,7 @@ def verify() -> dict[str, int]:
         else:
             require(text, "pulse_mini_pruned_network_4x8x2", top)
         with tempfile.TemporaryDirectory() as tmp:
-            run = subprocess.run([r"C:\msys64\ucrt64\bin\iverilog.exe","-g2012","-Wall","-s",top,"-o",str(Path(tmp)/"a.vvp"),*[str(ROOT/s) for s in sources]],capture_output=True,text=True)
+            run = compile_top(iverilog, top, sources, tmp)
             if run.returncode: raise AssertionError(run.stdout + run.stderr)
     return {"formal_depth": 32, "participants": 10, "real_tops": 3}
 

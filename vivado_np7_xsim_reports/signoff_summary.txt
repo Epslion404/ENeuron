@@ -1,0 +1,40 @@
+NP7_VIVADO_XSIM_SIGNOFF schema=np7-vivado-xsim-v2
+RESULT=PASS
+VIVADO_VERSION=Vivado Simulator v2024.2.0
+VIVADO_SW_BUILD=SW Build 5239630
+EXECUTION_HOST=Chan-an
+VIVADO_ROOT=C:/Users/MGL/Documents/Codex/Vivado2024_2
+VERSION_NOTE=证据只绑定本机 Vivado 版本，不外推到评审者使用的 2024.1（NP6 决策 9 同口径）
+CODE_GIT_HEAD=d56f4fca9df3b6641dcb23536114dc042e6791ef
+RUNNER=run_np7_vivado_xsim.py
+ICARUS=Icarus Verilog version 12.0 (devel) (s20150603-1539-g2693dd32b)
+VVP=Icarus Verilog runtime version 12.0 (devel) (s20150603-1539-g2693dd32b)
+CASES=16 PASS=16 FAIL=0
+XSIM_VS_ICARUS_EQUAL=16/16
+SOURCE_BYTES
+  81ca260866da6c36c7247b2b9b773c8dcb31912bdba365b04229258a7ce354b0 np7_exec_unit_dense.sv
+  17e3982a5e5e645f073d876c2a3baef905bd5ecda7d189e4a7e8feacb648f858 np7_exec_unit_sparse.sv
+  3f6b79e5ac9fb89a59206936b337bae3eee0073095e369f7c4c65fcce9fcbbcd np7_negative_controls.sv
+  7a7efaa73f7d797537a9ec5f56330fa7bdb594efc1512449db5544dbde7b0fcb np7_shared_synapse_lane.sv
+  e979e4a07dc069e077f5c14e6f6001a73b6f4cfd6518493fe81323850cbb9b60 np7_weight_ram.sv
+  0f928a3fc6dfbd2eaa0c16fea3815e4de1c16c59c3551e307a18814eb6b655d6 run_np7_vivado_xsim.py
+  14c715680dbc3b283e45e5a0e10884cafcb1126ae6002533f661528eddc3e82c tb_np7_config_negative.sv
+  5de9c9fb6a723747b6b90974a297e13f41955e29f0c82121d7e12b219bdec4e1 tb_np7_exec_unit.sv
+  f65e6f3a6c7e75bc729f122f401b0cf1f870c31924147075c0ce4eea3e340461 tb_np7_negative.sv
+CASE cfgneg_dense_L1 PASS kind=cfgneg fmt=dense lanes=1 ntxn=0 rows=13 observed_sha256=2521daebb4ee5146 icarus_sha256=2521daebb4ee5146 logs=cfgneg_dense_L1.log:2dd31984
+CASE cfgneg_dense_L4 PASS kind=cfgneg fmt=dense lanes=4 ntxn=0 rows=13 observed_sha256=637cbb0d69697553 icarus_sha256=637cbb0d69697553 logs=cfgneg_dense_L4.log:a5ff835f
+CASE cfgneg_sparse_L1 PASS kind=cfgneg fmt=sparse lanes=1 ntxn=0 rows=13 observed_sha256=d0944084b4592877 icarus_sha256=d0944084b4592877 logs=cfgneg_sparse_L1.log:6435ce81
+CASE cfgneg_sparse_L4 PASS kind=cfgneg fmt=sparse lanes=4 ntxn=0 rows=13 observed_sha256=9f29cc2c020a01e1 icarus_sha256=9f29cc2c020a01e1 logs=cfgneg_sparse_L4.log:b21e0e29
+CASE golden_dense_L1 PASS kind=golden fmt=dense lanes=1 ntxn=120 rows=828 observed_sha256=2b398d71c988833b icarus_sha256=2b398d71c988833b logs=golden_dense_L1.log:9984d796
+CASE golden_dense_L2 PASS kind=golden fmt=dense lanes=2 ntxn=120 rows=730 observed_sha256=7e1f6cc63ab7b19a icarus_sha256=7e1f6cc63ab7b19a logs=golden_dense_L2.log:b2ff59ca
+CASE golden_dense_L4 PASS kind=golden fmt=dense lanes=4 ntxn=120 rows=678 observed_sha256=5a245a91fa705328 icarus_sha256=5a245a91fa705328 logs=golden_dense_L4.log:810b4cef
+CASE golden_dense_L8 PASS kind=golden fmt=dense lanes=8 ntxn=120 rows=683 observed_sha256=0753c99f9dde1a50 icarus_sha256=0753c99f9dde1a50 logs=golden_dense_L8.log:4dc91d43
+CASE golden_sparse_L1 PASS kind=golden fmt=sparse lanes=1 ntxn=120 rows=528 observed_sha256=87f9dc9b9364fc03 icarus_sha256=87f9dc9b9364fc03 logs=golden_sparse_L1.log:d0484f72
+CASE golden_sparse_L2 PASS kind=golden fmt=sparse lanes=2 ntxn=120 rows=511 observed_sha256=b2cad8255736722b icarus_sha256=b2cad8255736722b logs=golden_sparse_L2.log:30913812
+CASE golden_sparse_L4 PASS kind=golden fmt=sparse lanes=4 ntxn=120 rows=457 observed_sha256=485c8c91381b4418 icarus_sha256=485c8c91381b4418 logs=golden_sparse_L4.log:a9cbe04e
+CASE golden_sparse_L8 PASS kind=golden fmt=sparse lanes=8 ntxn=120 rows=503 observed_sha256=24a3a31dabcce831 icarus_sha256=24a3a31dabcce831 logs=golden_sparse_L8.log:0267192d
+CASE neg0_L1 PASS kind=negative fmt=sparse lanes=1 ntxn=120 rows=705 observed_sha256=7c17a844aa88b7f9 icarus_sha256=7c17a844aa88b7f9 logs=neg0_L1.log:ac07e862
+CASE neg0_L4 PASS kind=negative fmt=sparse lanes=4 ntxn=120 rows=643 observed_sha256=e38d18916b0affdd icarus_sha256=e38d18916b0affdd logs=neg0_L4.log:6ff37c7d
+CASE neg1_L1 PASS kind=negative fmt=sparse lanes=1 ntxn=120 rows=822 observed_sha256=fc4618c80bdf8fea icarus_sha256=fc4618c80bdf8fea logs=neg1_L1.log:00bc3cf2
+CASE neg1_L4 PASS kind=negative fmt=sparse lanes=4 ntxn=120 rows=457 observed_sha256=1f75fc0cdebe2e29 icarus_sha256=1f75fc0cdebe2e29 logs=neg1_L4.log:cb99f577
+DURATION_S=104.0

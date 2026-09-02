@@ -1,0 +1,315 @@
+{
+  "bindings": {
+    "evidence_files": {
+      "artifacts/logs/np73_cosim.txt": "e08dc5ae9852399e2cc5132c69453f5629c682a41d291f073df55027ff0726e7",
+      "artifacts/logs/np74_three_model.txt": "80c6846d65043c790866ae06c0c3dd23aad6101e0690fe6902b5edc6ed5a91c1",
+      "artifacts/logs/np75_formal_mutations.txt": "ea062a5cbc5be21be0e395e0fbbe58ed6a7381f84aea93b179d8d591fefc04f2",
+      "artifacts/results/local_prune_b21_results.json": "c9e6492973ccb97271418af7802a340fdb431775872d5c1c1c3c5287518d3d89",
+      "artifacts/results/np7_cosim_ledgers.json": "5fd09d7f71d6008a4d703c13d2d931bc4b2cdad51b349b3843da92669b5e2519",
+      "artifacts/results/np7_formal_and_mutations.json": "50f56f90a6119e6245c8cc55cbac847763947ab512ab9341a4443afc13b14986",
+      "artifacts/results/np7_three_model_integration.json": "ce7a5f355eb585d2bc1e7f421f8540431c2a7ffbbb5beb29350893b2e7795cdf",
+      "artifacts/results/np7_vivado_xsim_summary.json": "6358befde340d47a79ea469c968de12d36a9021e1aeb57ec60f74b8df27b2592",
+      "vivado_np7_xsim_reports/commands.log": "eff1226a6f3211ab57848cc030dd24d3928c4cc293a8d6854a0f5d238ba37bc0",
+      "vivado_np7_xsim_reports/logs/cfgneg_dense_L1.log": "2dd31984317db57eba55aecc3a87248ad3c29b0c320fb64ed7e82b5514b72fc6",
+      "vivado_np7_xsim_reports/logs/cfgneg_dense_L4.log": "a5ff835f4959a235296f93eab35ae4c106fc1ff10557545b025ac1c7dd16e584",
+      "vivado_np7_xsim_reports/logs/cfgneg_sparse_L1.log": "6435ce812c340112f4623da5f353309a899ef7a7037595e0f91e91c052d3b4e5",
+      "vivado_np7_xsim_reports/logs/cfgneg_sparse_L4.log": "b21e0e291c19d09068242324106cb5ed99b80691e3cef34aeeb207f51b6d7748",
+      "vivado_np7_xsim_reports/logs/golden_dense_L1.log": "9984d7963d5ce7acb2f20a9cc9ad7872fd17b8745ec807d38e57e4c5598519f1",
+      "vivado_np7_xsim_reports/logs/golden_dense_L2.log": "b2ff59caa9c240f0172e10705fc287b3f2e553a18c92a8b9f563b110c88a0fb2",
+      "vivado_np7_xsim_reports/logs/golden_dense_L4.log": "810b4cefebd583fae708aceb3575f3fccb3a8a05e599009d9e4d32dc68db923b",
+      "vivado_np7_xsim_reports/logs/golden_dense_L8.log": "4dc91d43430f91697c21aedf8901cac6639d2980629752cf83a5d2e370530f5b",
+      "vivado_np7_xsim_reports/logs/golden_sparse_L1.log": "d0484f72b5132ba0af3747dd2808bd0d797cad8fba3ab346068a48a7872e4d2a",
+      "vivado_np7_xsim_reports/logs/golden_sparse_L2.log": "3091381265a4130ce804e8e4557a27e4592e099b4bb196f75edf14d095867396",
+      "vivado_np7_xsim_reports/logs/golden_sparse_L4.log": "a9cbe04e75340e6a4c6cb3a7f435be34ebe670f38c47d78bd73244cbf06488bd",
+      "vivado_np7_xsim_reports/logs/golden_sparse_L8.log": "0267192d9fbac57284382e24b954d605188e5b6968c4601a62b312773cffcfc3",
+      "vivado_np7_xsim_reports/logs/neg0_L1.log": "ac07e862fa1778c356910e7c794ddd05df5baea6334b9246ee82ca760d232fa8",
+      "vivado_np7_xsim_reports/logs/neg0_L4.log": "6ff37c7d05ed5b82a718f11ae7d74ae52d068bdaf62e632b9a6ed2bfd56ffbab",
+      "vivado_np7_xsim_reports/logs/neg1_L1.log": "00bc3cf2c29f69b76dcb094dcdddd7bb39b5daa4e628a753231916f9b902f33d",
+      "vivado_np7_xsim_reports/logs/neg1_L4.log": "cb99f57742c31c64d796700cd6993245de9bab84c50336134fb6d04069d69719",
+      "vivado_np7_xsim_reports/signoff_summary.txt": "e2fee20c447a8f395dab5cb0fa3ac5a8db659fcc5bbcd38c33c0e7303715bd23"
+    },
+    "input_files": {
+      "docs/planning/NPU_PRUNING_NP7_DECISION_B_V1_V2.md": "4eae65018fcf96f4824ffccc9bcbe7a39028d4855a8218b02d696438ac539661",
+      "docs/planning/NPU_PRUNING_NP7_DECISION_LANE_PIPELINE_P1.md": "10f99cff3334874dd5af65b175f249ee6ce4feace8db1a86b8253fae90129fb9",
+      "docs/planning/NPU_PRUNING_NP7_FREEZE_DECISIONS.md": "6ce02eaf2a59764c9cc23058171ec4ef5afc853189695427d275f127876bfce1",
+      "docs/planning/NPU_PRUNING_NP7_TODO.md": "e18b7d3223fc872b9249911aec1f0ff3506b0ea3fe0a32e697ad045955aba3ac",
+      "formal_np7_config_reject.sv": "2e8685639ab008e6af437c1f3b6f5e89a49e0b05799067175518de6339a49bf4",
+      "formal_np7_config_reject.ys": "4e4bf75eb56ecd5e0b9ca29370c94c6a8f9bb644efebdbf618ab053f8143333e",
+      "formal_np7_exec_unit.sv": "426041d8873cb82ac262498b87d967f6c740e491bb12104f40474fda66fbd112",
+      "formal_np7_exec_unit.ys": "9910cb7d36321dadd148da78a8a34076d8d9c76ef92b561d3d1f62861b8dd60b",
+      "formal_np7_exec_unit_dense.ys": "b26e2e99a5fe96a7065d95ab96951184b920828e2b7130b3a939416371b47060",
+      "formal_np7_exec_unit_dense_reach.ys": "b249a6e042c8f06d87c516a37069434d7e74a43b6ca4b11f6db18ca1e04ae0d5",
+      "formal_np7_exec_unit_reach.ys": "33aa9a14e7fd2fc37aec210ecb7b85e1bf05c674e2d533e8b5c427ed23705a57",
+      "formal_np7_exec_unit_zero.ys": "d25410e8fd4e591934e50d78978d6aea191e397ace9289b6823878796d07ee0e",
+      "local_prune_b21.py": "f1450d4637f380d4b6d919be766e736cdef4470982a14218aa82b1501e373dd3",
+      "np7_exec_unit_dense.sv": "81ca260866da6c36c7247b2b9b773c8dcb31912bdba365b04229258a7ce354b0",
+      "np7_exec_unit_sparse.sv": "17e3982a5e5e645f073d876c2a3baef905bd5ecda7d189e4a7e8feacb648f858",
+      "np7_formal_and_mutations.py": "cd43958c9ee2fed24645964062536f2486586d8d3e9075945348e7a30c62ca80",
+      "np7_ledger_reconstruction.py": "f10783fce2fd016b9adb0cf88a7255bd37262ff430ecfe64a99e4c23666952bd",
+      "np7_negative_controls.sv": "3f6b79e5ac9fb89a59206936b337bae3eee0073095e369f7c4c65fcce9fcbbcd",
+      "np7_shared_lane_cosim.py": "4d9b0dabb2527067625306579ca2d5c1fc7b5054f8b1515011c1bfe29265bad9",
+      "np7_shared_lane_oracle.py": "e55ef133d448c8ee06eee5aefef9a7c5a327a02b958bfffb599380cda7ffefd1",
+      "np7_shared_synapse_lane.sv": "7a7efaa73f7d797537a9ec5f56330fa7bdb594efc1512449db5544dbde7b0fcb",
+      "np7_three_model_integration_cosim.py": "feee539f2740ff225c2d39e1b43ba2e1a9742d3941532a10583e3cfcef85ec5a",
+      "np7_weight_ram.sv": "e979e4a07dc069e077f5c14e6f6001a73b6f4cfd6518493fe81323850cbb9b60",
+      "run_np7_vivado_xsim.py": "0f928a3fc6dfbd2eaa0c16fea3815e4de1c16c59c3551e307a18814eb6b655d6",
+      "tb_np7_config_negative.sv": "14c715680dbc3b283e45e5a0e10884cafcb1126ae6002533f661528eddc3e82c",
+      "tb_np7_exec_unit.sv": "5de9c9fb6a723747b6b90974a297e13f41955e29f0c82121d7e12b219bdec4e1",
+      "tb_np7_negative.sv": "f65e6f3a6c7e75bc729f122f401b0cf1f870c31924147075c0ce4eea3e340461",
+      "test_np7_shared_lane_oracle.py": "fff81ea3c17926c3b2a7738369421b4ab27021f3c7490b77d6681b1c7c878146"
+    },
+    "tool_files": {
+      "generate_np7_manifest.py": "59aa5eaafa0b5a7c23cb9712f5afc2b6ecdde0155119df0e8dbd09eebc29d9a9",
+      "test_np7_verifier_mutations.py": "d84f0c14e3c27b542a00c18329d88978e082cf239b34b06a7061c04c851c7728",
+      "verify_np7_software_cost.py": "7a0155f86440d9dfba1bc33d0e897838a4e5bc9b5a56e83d90a4372aa7f8c448"
+    }
+  },
+  "blocking_gates": [],
+  "claim_boundary": "仅证明冻结 B2.1 任务上的逻辑周期模型与 RTL 逐拍账本；不证明 DDR/DMA/PS 端到端吞吐、真实功耗或板级表现",
+  "environment": {
+    "host": "Chan-an",
+    "os": "Windows-11-10.0.26200-SP0",
+    "python": "3.14.7"
+  },
+  "frozen_git_head": "0a40da5594a0ee780782687366cd483e12e6ec31",
+  "gate_thresholds": {
+    "G1_reads": 0.45,
+    "G2_ops": 0.45,
+    "G3_cycles": 0.25
+  },
+  "gates": {
+    "G1": {
+      "failures": [],
+      "label": "实际权重槽读取下降",
+      "status": "PASS",
+      "threshold": 0.45,
+      "values": {
+        "eneuron/L1": 0.722222,
+        "eneuron/L2": 0.722222,
+        "eneuron/L4": 0.722222,
+        "eneuron/L8": 0.722222,
+        "pulse_mini_l/L1": 0.722222,
+        "pulse_mini_l/L2": 0.722222,
+        "pulse_mini_l/L4": 0.722222,
+        "pulse_mini_l/L8": 0.722222,
+        "pulse_mini_l2/L1": 0.722222,
+        "pulse_mini_l2/L2": 0.722222,
+        "pulse_mini_l2/L4": 0.722222,
+        "pulse_mini_l2/L8": 0.722222
+      }
+    },
+    "G2": {
+      "failures": [],
+      "label": "共享 lane 操作数下降",
+      "status": "PASS",
+      "threshold": 0.45,
+      "values": {
+        "eneuron/L1": 0.5,
+        "eneuron/L2": 0.5,
+        "eneuron/L4": 0.5,
+        "eneuron/L8": 0.5,
+        "pulse_mini_l/L1": 0.5,
+        "pulse_mini_l/L2": 0.5,
+        "pulse_mini_l/L4": 0.5,
+        "pulse_mini_l/L8": 0.5,
+        "pulse_mini_l2/L1": 0.5,
+        "pulse_mini_l2/L2": 0.5,
+        "pulse_mini_l2/L4": 0.5,
+        "pulse_mini_l2/L8": 0.5
+      }
+    },
+    "G3": {
+      "failures": [],
+      "label": "每逻辑 tick 周期下降",
+      "status": "PASS",
+      "threshold": 0.25,
+      "values": {
+        "eneuron/L1": 0.315068,
+        "eneuron/L2": 0.309859,
+        "eneuron/L4": 0.3,
+        "eneuron/L8": 0.3,
+        "pulse_mini_l/L1": 0.315068,
+        "pulse_mini_l/L2": 0.309859,
+        "pulse_mini_l/L4": 0.3,
+        "pulse_mini_l/L8": 0.3,
+        "pulse_mini_l2/L1": 0.315068,
+        "pulse_mini_l2/L2": 0.309859,
+        "pulse_mini_l2/L4": 0.3,
+        "pulse_mini_l2/L8": 0.3
+      }
+    },
+    "G4": {
+      "failures": [],
+      "label": "stall 单列且未抵消吞吐",
+      "status": "PASS",
+      "threshold": null,
+      "values": {
+        "eneuron/L1": {
+          "delta": 0,
+          "dense_stall": 0,
+          "sparse_stall": 0
+        },
+        "eneuron/L2": {
+          "delta": 0,
+          "dense_stall": 0,
+          "sparse_stall": 0
+        },
+        "eneuron/L4": {
+          "delta": 0,
+          "dense_stall": 0,
+          "sparse_stall": 0
+        },
+        "eneuron/L8": {
+          "delta": 0,
+          "dense_stall": 0,
+          "sparse_stall": 0
+        },
+        "pulse_mini_l/L1": {
+          "delta": 0,
+          "dense_stall": 0,
+          "sparse_stall": 0
+        },
+        "pulse_mini_l/L2": {
+          "delta": 0,
+          "dense_stall": 0,
+          "sparse_stall": 0
+        },
+        "pulse_mini_l/L4": {
+          "delta": 0,
+          "dense_stall": 0,
+          "sparse_stall": 0
+        },
+        "pulse_mini_l/L8": {
+          "delta": 0,
+          "dense_stall": 0,
+          "sparse_stall": 0
+        },
+        "pulse_mini_l2/L1": {
+          "delta": 0,
+          "dense_stall": 0,
+          "sparse_stall": 0
+        },
+        "pulse_mini_l2/L2": {
+          "delta": 0,
+          "dense_stall": 0,
+          "sparse_stall": 0
+        },
+        "pulse_mini_l2/L4": {
+          "delta": 0,
+          "dense_stall": 0,
+          "sparse_stall": 0
+        },
+        "pulse_mini_l2/L8": {
+          "delta": 0,
+          "dense_stall": 0,
+          "sparse_stall": 0
+        }
+      }
+    },
+    "G5": {
+      "failures": [],
+      "label": "膜状态/突触和 bit-exact",
+      "status": "PASS",
+      "threshold": null,
+      "values": {}
+    },
+    "G6": {
+      "failures": [],
+      "label": "三模型精度维持冻结门槛",
+      "status": "PASS",
+      "threshold": null,
+      "values": {
+        "eneuron": {
+          "b21_joint_gate_pass": true,
+          "balanced_accuracy": 1.0,
+          "coverage": 1.0,
+          "joint_gate_pass": true
+        },
+        "pulse_mini_l": {
+          "b21_joint_gate_pass": true,
+          "balanced_accuracy": 1.0,
+          "coverage": 1.0,
+          "joint_gate_pass": true
+        },
+        "pulse_mini_l2": {
+          "b21_joint_gate_pass": true,
+          "balanced_accuracy": 1.0,
+          "coverage": 1.0,
+          "joint_gate_pass": true
+        }
+      }
+    }
+  },
+  "integrity": [],
+  "ledger_coverage": {
+    "backpressure_cycles": 7914,
+    "by_format": {
+      "dense": {
+        "backpressure_cycles": 2780,
+        "drain_cycles": 21,
+        "hold_retire_cycles": 16277,
+        "lane_stall_cycles": 44296,
+        "overlap_cycles": 79915,
+        "retire_latch_cycles": 11206,
+        "startup_cycles": 75,
+        "zero_single_cycles": 5
+      },
+      "sparse": {
+        "backpressure_cycles": 5134,
+        "drain_cycles": 50,
+        "hold_retire_cycles": 29185,
+        "lane_stall_cycles": 31489,
+        "overlap_cycles": 79902,
+        "retire_latch_cycles": 8998,
+        "startup_cycles": 63,
+        "zero_single_cycles": 18
+      }
+    },
+    "configs": 160,
+    "drain_cycles": 71,
+    "hold_retire_cycles": 45462,
+    "lane_stall_cycles": 75785,
+    "overlap_cycles": 159817,
+    "retire_latch_cycles": 20204,
+    "startup_cycles": 138,
+    "transactions": 160000,
+    "zero_single_cycles": 23
+  },
+  "overall_status": "PASS",
+  "rtl_observed_reductions": {
+    "1": {
+      "cycles": 0.386412,
+      "ops": 0.499298,
+      "reads": 0.600112,
+      "seeds": 20,
+      "slot_reads": 0.600112
+    },
+    "2": {
+      "cycles": 0.341122,
+      "ops": 0.499498,
+      "reads": 0.599936,
+      "seeds": 20,
+      "slot_reads": 0.599936
+    },
+    "4": {
+      "cycles": 0.298122,
+      "ops": 0.504982,
+      "reads": 0.602458,
+      "seeds": 20,
+      "slot_reads": 0.602458
+    },
+    "8": {
+      "cycles": 0.296195,
+      "ops": 0.501837,
+      "reads": 0.601342,
+      "seeds": 20,
+      "slot_reads": 0.601342
+    }
+  },
+  "schema": "np7-software-cost-manifest-v1",
+  "tool_versions": {
+    "iverilog": "Icarus Verilog version 12.0 (devel) (s20150603-1539-g2693dd32b)",
+    "vvp": "Icarus Verilog version 12.0 (devel) (s20150603-1539-g2693dd32b)",
+    "yosys": "Yosys 0.68 (git sha1 38e001a6f, Release, Clang /workspace/YoWASP/yosys/wasi-sdk-33.0-x86_64-linux/share/cmake/../..//bin"
+  }
+}

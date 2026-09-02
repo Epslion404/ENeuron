@@ -1,0 +1,49 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2024.2 (win64) Build 5239630 Fri Nov 08 22:35:27 MST 2024
+| Date         : Wed Sep  2 14:03:22 2026
+| Host         : Chan-an running 64-bit major release  (build 9200)
+| Command      : report_drc -file C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/vivado_np7_ooc_dense_L1_reports/drc_impl.rpt
+| Design       : np7_ooc_dense_L1
+| Device       : xc7z020clg400-1
+| Speed File   : -1
+| Design State : Fully Routed
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Report DRC
+
+Table of Contents
+-----------------
+1. REPORT SUMMARY
+2. REPORT DETAILS
+
+1. REPORT SUMMARY
+-----------------
+            Netlist: np7_ooc_dense_L1
+          Floorplan: design_1
+      Design limits: <entire design considered>
+           Ruledeck: default
+             Max checks: <unlimited>
+             Checks found: 2
++-----------+----------+--------------------+--------+
+| Rule      | Severity | Description        | Checks |
++-----------+----------+--------------------+--------+
+| RTSTAT-10 | Warning  | No routable loads  | 1      |
+| ZPS7-1    | Warning  | PS7 block required | 1      |
++-----------+----------+--------------------+--------+
+
+2. REPORT DETAILS
+-----------------
+RTSTAT-10#1 Warning
+No routable loads  
+18 net(s) have no routable loads. The problem bus(es) and/or net(s) are cfg_illegal_index, dut/batch_mask[0], dut/batch_mask[1],
+dut/lanes/issue_ready, dut/lanes/result_sum[11:0], dut/lanes/result_valid
+dut/lanes/result_zero_path.
+Related violations: <none>
+
+ZPS7-1#1 Warning
+PS7 block required  
+The PS7 cell must be used in this Zynq design in order to enable correct default configuration.
+Related violations: <none>
+
+

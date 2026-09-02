@@ -1,0 +1,23 @@
+# command: python -X utf8 run_np7_vivado_xsim.py --vivado-root C:/Users/MGL/Documents/Codex/Vivado2024_2 --transactions 120
+# code_git_head: d56f4fc
+# full_git_head: d56f4fca9df3b6641dcb23536114dc042e6791ef
+# python: 3.14.7 (-X utf8, PYTHONIOENCODING=utf-8)
+# local_time: 2026-09-02 15:38:34
+# toolchain: iverilog 12.0 (C:\iverilog\bin), yosys 0.68 (C:\msys64\ucrt64\bin), Vivado 2024.2 (SW Build 5239630)
+golden_sparse_L1         PASS rows=528 
+golden_sparse_L2         PASS rows=511 
+golden_sparse_L4         PASS rows=457 
+golden_sparse_L8         PASS rows=503 
+golden_dense_L1          PASS rows=828 
+golden_dense_L2          PASS rows=730 
+golden_dense_L4          PASS rows=678 
+golden_dense_L8          PASS rows=683 
+neg0_L1                  PASS rows=705 
+neg0_L4                  PASS rows=643 
+neg1_L1                  PASS rows=822 
+neg1_L4                  PASS rows=457 
+cfgneg_sparse_L1         PASS rows=13 
+cfgneg_sparse_L4         PASS rows=13 
+cfgneg_dense_L1          PASS rows=13 
+cfgneg_dense_L4          PASS rows=13 
+NP7_XSIM_SUMMARY cases=16 problems=0 overall=PASS json=C:\Users\MGL\Documents\Codex\2026-08-29\vivado\github_pr\artifacts\results\np7_vivado_xsim_summary.json

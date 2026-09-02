@@ -1,0 +1,17 @@
+# command: python -X utf8 verify_np7_software_cost.py 05b48fff9a6fd864e4112164aeadb61a893617ac
+# git_head: 05b48fff9a6fd864e4112164aeadb61a893617ac
+# python: 3.14.7 (-X utf8)
+# note: NP7.6 软件签核最终复验：G1-G6 从原始逐拍账本重算，rejects 必须为 0
+# local_time: 2026-09-02 15:41:01
+
+GATE G1 PASS 实际权重槽读取下降 阈值=0.45 失败项=0
+GATE G2 PASS 共享 lane 操作数下降 阈值=0.45 失败项=0
+GATE G3 PASS 每逻辑 tick 周期下降 阈值=0.25 失败项=0
+GATE G4 PASS stall 单列且未抵消吞吐 阈值=None 失败项=0
+GATE G5 PASS 膜状态/突触和 bit-exact 阈值=None 失败项=0
+GATE G6 PASS 三模型精度维持冻结门槛 阈值=None 失败项=0
+LEDGER_COVERAGE all startup_cycles=138 drain_cycles=71 overlap_cycles=159817 backpressure_cycles=7914 lane_stall_cycles=75785 hold_retire_cycles=45462 retire_latch_cycles=20204 zero_single_cycles=23
+LEDGER_COVERAGE dense startup_cycles=75 drain_cycles=21 overlap_cycles=79915 backpressure_cycles=2780 lane_stall_cycles=44296 hold_retire_cycles=16277 retire_latch_cycles=11206 zero_single_cycles=5
+LEDGER_COVERAGE sparse startup_cycles=63 drain_cycles=50 overlap_cycles=79902 backpressure_cycles=5134 lane_stall_cycles=31489 hold_retire_cycles=29185 retire_latch_cycles=8998 zero_single_cycles=18
+LEDGER_COVERAGE size configs=160 transactions=160000
+NP7_VERIFY_SUMMARY rejects=0 blocking_gates=- overall=PASS
