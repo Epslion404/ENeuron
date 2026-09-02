@@ -21,6 +21,7 @@
 - [NP4B 正式集成 TODO](planning/NPU_PRUNING_NP4B_TODO.md)
 - [NP6 物理成本评估 TODO](planning/NPU_PRUNING_NP6_TODO.md)
 - [NP7 共享 BRAM 与共享 lane TODO](planning/NPU_PRUNING_NP7_TODO.md)
+- [NP7 B-V1+V2 管理员决策点](planning/NPU_PRUNING_NP7_DECISION_B_V1_V2.md)
 - [NP6 Runner 静态审计](planning/NPU_PRUNING_NP6_RUNNER_AUDIT.md)
 
 ## 报告
@@ -46,6 +47,10 @@
 
 - [原始 Goal 完成审计](verification/goal_audit.md)
 - [NPU 局部剪枝原始 Goal 签核](verification/NPU_PRUNING_GOAL_SIGNOFF.md)
+
+## 持续集成
+
+- [PR 自动检查与分支保护配置](CI_PR_GATE.md)
 
 ## 根目录保留文件
 

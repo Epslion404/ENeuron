@@ -1,0 +1,151 @@
+name: ENeuron PR Gate
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-gate-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python-and-syntax:
+    name: Python and syntax
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Compile Python sources
+        run: python -X utf8 -m compileall -q .
+
+      - name: Run repository unit tests
+        run: python -X utf8 -m unittest discover -v
+
+      - name: Check PR diff whitespace
+        if: github.event_name == 'pull_request'
+        run: git diff --check "${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}"
+
+  np7-functional:
+    name: NP7 functional and evidence gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Detect NP7 scope
+        id: detect
+        shell: bash
+        run: |
+          if [[ -f np7_shared_lane_cosim.py && -f verify_np7_software_cost.py && -f verify_np7_physical_cost.py ]]; then
+            echo 'enabled=true' >> "$GITHUB_OUTPUT"
+            echo 'NP7_SCOPE=enabled'
+          else
+            echo 'enabled=false' >> "$GITHUB_OUTPUT"
+            echo 'NP7_SCOPE=not-applicable'
+          fi
+
+      - name: Install open-source HDL tools
+        if: steps.detect.outputs.enabled == 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y iverilog yosys
+
+      - name: Run NP7 oracle tests
+        if: steps.detect.outputs.enabled == 'true'
+        run: python -X utf8 -m unittest -v test_np7_shared_lane_oracle
+
+      - name: Run NP7 cycle-accurate cosimulation
+        if: steps.detect.outputs.enabled == 'true'
+        run: python -X utf8 np7_shared_lane_cosim.py
+
+      - name: Run three-model integration
+        if: steps.detect.outputs.enabled == 'true'
+        run: python -X utf8 np7_three_model_integration_cosim.py
+
+      - name: Run formal and mutation checks
+        if: steps.detect.outputs.enabled == 'true'
+        run: python -X utf8 np7_formal_and_mutations.py
+
+      - name: Verify software evidence against PR HEAD
+        if: steps.detect.outputs.enabled == 'true'
+        run: python -X utf8 verify_np7_software_cost.py "${{ github.event.pull_request.head.sha || github.sha }}"
+
+      - name: Upload NP7 software evidence on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: np7-software-failure-${{ github.run_id }}
+          if-no-files-found: ignore
+          path: |
+            artifacts/logs/**
+            artifacts/results/**
+
+  np7-physical-evidence:
+    name: NP7 physical evidence integrity
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Detect NP7 physical scope
+        id: detect
+        shell: bash
+        run: |
+          if [[ -f verify_np7_physical_cost.py && -f test_np7_physical_mutations.py ]]; then
+            echo 'enabled=true' >> "$GITHUB_OUTPUT"
+            echo 'NP7_PHYSICAL_SCOPE=enabled'
+          else
+            echo 'enabled=false' >> "$GITHUB_OUTPUT"
+            echo 'NP7_PHYSICAL_SCOPE=not-applicable'
+          fi
+
+      - name: Run physical evidence verifier
+        if: steps.detect.outputs.enabled == 'true'
+        run: python -X utf8 verify_np7_physical_cost.py "${{ github.event.pull_request.head.sha || github.sha }}"
+
+      - name: Run physical-evidence mutation checks
+        if: steps.detect.outputs.enabled == 'true'
+        run: python -X utf8 test_np7_physical_mutations.py
+
+      - name: Upload physical evidence on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: np7-physical-failure-${{ github.run_id }}
+          if-no-files-found: ignore
+          path: |
+            artifacts/logs/**
+            artifacts/results/**
+            vivado_np7_ooc_*_reports/**
