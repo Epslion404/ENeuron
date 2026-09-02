@@ -26,3 +26,4 @@
 vivado_np7_ooc_*_reports/** -whitespace
 vivado_np7_xsim_reports/** -whitespace
 artifacts/logs/np7_vivado_xsim.txt -whitespace
+artifacts/logs/xpm_wrapper_real_xpm_vivado2024p2.txt -whitespace
