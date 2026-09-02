@@ -2,15 +2,15 @@
 
 模式：`PERSISTENT_WORKFLOW_V1`
 
-最后更新：2026-09-02
+最后更新：2026-09-01
 
-状态：`ACTIVE / NP7_MERGED / NPU_NEURON_INTEGRATION_REVIEW_REQUIRED`
+状态：`ACTIVE / NP6_PHYSICAL_COST_PARTIAL / NP7_REVIEW_REQUIRED`
 
 ## 当前活动目标
 
-NP6 物理成本证据已经合并并完成阶段收口，NP7 共享 BRAM 与共享 lane 已合并。当前主线转为传统 INT8 NPU 与神经元控制平面的集成方案审核。
+NP6 物理成本证据已经合并并完成阶段收口；当前进入 NP7 共享 BRAM 与共享 lane 的方案审核门。
 
-活动合同：`docs/planning/NPU_NEURON_AUGMENTED_TODO.md`（N0-N7 审核稿）。NP7 历史合同见 `docs/planning/NPU_PRUNING_NP7_TODO.md`，NP6 结果见 `docs/planning/NPU_PRUNING_NP6_TODO.md` 与 `docs/reports/LOCAL_PRUNE_NP6_PHYSICAL_COST_REPORT.md`。
+活动合同：`docs/planning/NPU_PRUNING_NP7_TODO.md`（NP7 审核稿）；NP6 结果见 `docs/planning/NPU_PRUNING_NP6_TODO.md` 与 `docs/reports/LOCAL_PRUNE_NP6_PHYSICAL_COST_REPORT.md`。
 
 ## 当前事实
 
@@ -24,25 +24,24 @@ NP6 物理成本证据已经合并并完成阶段收口，NP7 共享 BRAM 与共
 - NP6 九项冻结决策已获批准；PR #5 已合并为 `241b1d0`。
 - NP6 fail-closed verifier 正向通过，12 项 mutation 全部通过；冻结证据 HEAD 为 `7023b15`。
 - 7 个 NP6 实现均完成且 route/DRC error 为 0；只有 gate 与 ENeuron 剪枝封装通过 100 MHz，正式状态为 `NP6_PHYSICAL_COST_PARTIAL`。
-- NP7 已合并：当前结果证明共享 dense/sparse 执行单元、`1/2/4/8 lane` 协议和既定验证范围；它仍不是完整传统 INT8 NPU 的端到端性能证明。
 - 根目录结果归档、当前 RTL Vivado 证据重建和 Goal 审计已推送：提交 `9465142`；随后 NP6 规划提交 `cbff013`，nexus 知识库提交 `c7c5c5b`；文档入口为 `docs/README.md`，知识库入口为 `.nexus-map/INDEX.md`。
 
 ## 允许动作
 
-- 只读恢复、状态核对、工作流维护和 `NPU_NEURON_AUGMENTED_TODO.md` 审核准备。
-- N0 获批准后，先实现 dense INT8 NPU Python/RTL 基线，再接入神经元控制平面。
-- 新的 Vivado 阶段必须在 N1-N5 功能门全部通过后单独执行。
+- 只读恢复、状态核对、工作流维护和 NP7 方案审核。
+- 在 NP7 决策获批后，实现 Python 周期 oracle、RTL 共享 lane、协同仿真、形式检查和软件性能计数。
+- NP7 的 Vivado 阶段必须在前述功能门全部通过后单独执行。
 
 ## 禁止动作
 
-- 在 N0 审核前修改传统 NPU/神经元集成 RTL，或在 N1-N5 功能门通过前运行新的 Vivado 实现。
+- 在 NP7 审核前修改共享 lane/BRAM RTL，或在 NP7 功能门通过前运行新的 Vivado 实现。
 - 把 NP6 的逻辑资源和 vector-less 功耗解释成真实加速、BRAM 跳读或功耗收益。
 - 将 cex、tmp 日志或来源不明的历史产物纳入正式证据。
 - 清理、覆盖或混入当前工作树中的已有改动。
 
 ## 下一动作
 
-等待用户审核并批准 `docs/planning/NPU_NEURON_AUGMENTED_TODO.md` 的 N0 决策。批准前只做静态审计、知识库更新和文档维护；批准后先推进 N1 dense INT8 NPU 基线。
+等待用户审核并批准 `docs/planning/NPU_PRUNING_NP7_TODO.md` 第 8 节。批准前只做静态审计、Nexus 更新和文档维护；批准后推进到 NP7 Vivado 门前停止。
 
 ## 恢复检查
 
