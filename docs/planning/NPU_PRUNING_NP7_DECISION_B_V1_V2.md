@@ -1,108 +1,182 @@
-# NP7 周期合同 B-V1+V2 冻结决策（PR #6 管理员裁定）
-> **[P1 revision 2026-09-02]** PR #6 管理员 review 5085536010 允许在 lane 的饱和加法/
-> 事件计数路径插入一拍流水寄存器。本文件的 V1/V2 语义、8 项裁定与门槛全部维持，但
-> **lane 结果返回时刻与周期账本口径已被 `NPU_PRUNING_NP7_DECISION_LANE_PIPELINE_P1.md`
-> 修订**：非零事务多 1 个 `S_DRAIN` 折叠拍（计入 `latency_cycles`），V1 零路径不变；
-> 按该裁定 §三，本文件引用的旧周期数字/账本/形式证明/物理结论降级为历史证据。
+# NP7 决策点 DP-NP7-001：采用 B-V1+V2 周期合同
 
-- 裁定来源：**PR #6 仓库管理员评论 5498372499**（Epslion404，2026-09-01T18:16:30Z），
-  即本仓库既有的"批准链必须出现在 PR 内"口径下的正式授权凭据。本文是该裁定的仓库内副本，
-  任何与评论原文的冲突以评论为准，并需在下一份 PR 回复中显式更正。
-- 生效范围：替换 `NPU_PRUNING_NP7_FREEZE_DECISIONS.md` 决策 5 的旧周期合同（ACCEPT+READ+LAT+
-  BATCH+DONE 五段式）；决策 1/2/3/4/6/7/8 由管理员逐项批准维持，决策 8 追加"允许
-  Vivado 2024.1 或 2024.2，但每份证据必须绑定准确 version/build/执行机，不得跨版本外推"。
-- 本文同时冻结 B-V1+V2 的**逐拍账本口径**（§3），oracle、RTL、testbench、验证器四方必须
-  与之一致；旧账本恒等式 `total = accept + latency + busy + stall + done` 自本文起作废。
+- 状态：ACCEPTED
+- 日期：2026-09-01
+- 决策者：仓库管理员 Epslion404
+- 适用范围：PR #6 及其后续 NP7 共享 RAM/共享 lane 实现
+- 取代内容：NP7 原冻结决定 5 的“零路径两拍 + 独立 DONE/下一 ACCEPT”周期合同
+- 不改变内容：冻结 B2.1 任务、G1/G2 至少 45%、G3 至少 25%、三模型一致性门和“软件门全绿后才进入 Vivado”
 
-## 1. 八项裁定的仓库内记录
+## 1. 决策背景
 
-| # | 管理员裁定 | 实现落点 |
+PR #6 的 V0 实现已证明读取与有效操作显著下降，但冻结 B2.1 任务下的 G3 只有 22.33% / 21.78% / 21.00% / 21.00%，未达到 25%。L1 账本中固定控制开销占总周期 70.9%，主要来自大量零突触事务仍消耗 ACCEPT 和 DONE，以及非零事务在最后一批之后还需要独立 DONE、下一事务再需要独立 ACCEPT。
+
+管理员审阅 A/B/C/D 后选择 B，并明确采用 V1+V2。该选择的目标不是降低门槛或更换流量，而是修改真实微架构，使冻结任务在同一比较口径下获得更短绝对周期。
+
+当前反事实账本只用于说明方向：L1 下 dense/sparse 可由 2060/1600 周期下降到约 1240/860 周期，预计同协议 G3 为 30.65%。这些数字不是实现后的签核结论；冷启动、尾部排空、背压和同时握手必须由新 oracle 与 RTL 逐拍重算。
+
+## 2. 八项冻结决定的管理员裁定
+
+| # | 裁定 | 状态 |
 |---|---|---|
-| 1 | 批准"独立共享突触执行单元，再接三模型网络"两阶段边界 | np7_exec_unit_{dense,sparse}.sv 与 np7_three_model_integration_cosim.py 分层不变 |
-| 2 | 批准"两权重 + 两个 2-bit 位置索引"，不保存第二份结构掩码 | 掩码仅由索引组合重建；非规范索引在 CONFIG 写入侧硬件拒绝（`cfg_wr_ok`） |
-| 3 | 批准 CONFIG 写入、运行期只读，无训练期权重写回 | np7_weight_ram.sv 只有 CONFIG 写端口；运行期写被丢弃并锁存 cfg_error |
-| 4 | 批准扫描 1/2/4/8 lane，与同 lane 数 dense 基线比较 | LANE_COUNTS=(1,2,4,8)，G1-G6 按 lane 分别报告 |
-| 5 | **原周期合同不批准继续沿用，正式修订为 B-V1+V2** | 本文 §2；oracle 的 run_stream 与两个 RTL 顶层同步改造 |
-| 6 | 批准三模型全部使用冻结 4->8->2 B2.1 任务，不允许单模型或随机流量代偿 | NP7.4 保持三模型独立签核，随机流量只作为 NP7.3 压力测试，不用于 G1-G6 |
-| 7 | 保持 G1/G2 >=45%、G3 >=25%，**不把 G3 降到 20%** | 验证器阈值不变 |
-| 8 | 保持 NP7.0-NP7.6 全绿后才允许进入 Vivado；允许 2024.1 或 2024.2，证据必须绑定准确 version/build/执行机 | verify_np7_software_cost.py 强制 tool_versions 非空且绑定 frozen_head |
+| 1 | 保持“独立共享突触执行单元，再接三模型网络”的两阶段边界 | 批准 |
+| 2 | 保持“两权重 + 两个 2-bit 位置索引”，不保存第二份结构掩码 | 批准 |
+| 3 | 保持 CONFIG 写入、运行期只读，不加入训练期权重写回 | 批准 |
+| 4 | 保持扫描 1/2/4/8 lane，并与同 lane 数 dense 基线比较 | 批准 |
+| 5 | 原合同作废，改为本文件定义的 B-V1+V2 单槽弹性流水合同 | 修订后批准 |
+| 6 | 保持三个模型全部使用冻结 4→8→2 B2.1 任务 | 批准 |
+| 7 | 保持 G1/G2 至少 45%、G3 至少 25%，不降到 20% | 批准 |
+| 8 | 保持 NP7.0–NP7.6 全绿后才进入 Vivado；允许 2024.1 或 2024.2，但证据必须绑定准确版本、build 和执行机，不跨版本外推 | 修订说明后批准 |
 
-A（阈值降到 20%）、C（维持 25% 停在功能阶段）、D（随机流量口径）均不采用；选择 B 且明确
-V1+V2，不是 V1-only。
+A、C、D 不采用：不降低 G3 门槛，不接受停在当前失败状态作为最终交付，也不把随机流量替代冻结 B2.1 性能口径。
 
-## 2. B-V1+V2 合同原文（管理员裁定 §二）
+## 3. V1：零突触单拍完成
 
-### V1：零路径单拍
+当 issue_valid、issue_ready 同时为 1 且 issue_mask 为 0 时：
 
-当 `issue_valid && issue_ready && issue_mask==0`：不得产生 RAM 请求或 lane 操作；结果为 0，
-`result_zero_path=1`；`result_ready=1` 时，accept 与 result 必须在同一边沿完成，只计 1 个周期；
-`result_ready=0` 时必须锁存并稳定保持结果，不能丢失、重复或覆盖；上层神经元仍须推进泄放、
-阈值、睡眠和时间状态，不能把零突触解释成跳过整个神经元 tick。
+1. 不产生 RAM 请求。
+2. 不产生 lane 操作。
+3. 突触和为 0，result_zero_path 为 1。
+4. 若 result_ready 为 1，接受请求和完成响应必须在同一时钟边沿发生；该事务只计一个总周期。
+5. 若 result_ready 为 0，必须锁存零结果和事务状态，持续保持 result_valid，直到完成握手；期间不得丢失、重复或覆盖结果。
+6. 上层神经元仍必须在同一逻辑 tick 推进泄放、阈值、睡眠和时间状态；V1 只压缩突触执行器控制周期，不允许跳过神经元状态更新。
 
-### V2：结果退出与下一事务接受重叠
+V1 不能通过组合环依赖要求上游或下游“猜测”对方信号。若外部 ready/valid 连接产生组合环，RTL 必须以最小结果保持寄存器切断，并把额外等待诚实计入周期。
 
-非零事务最后一个 BATCH 成功发射并得到最终 `acc_next` 时，若 `result_ready=1`，允许当拍完成
-当前结果，不再进入独立 DONE 拍；同一边沿允许 `issue_ready=1` 并接受下一事务；当前结果和下一
-事务元数据必须严格分离，不能串数据；任意时刻最多保存一个未退出结果，属于单槽弹性流水，不是
-多事务队列；若结果背压，则锁存旧结果并停止接收，只有旧结果退出的同一边沿才可接收下一事务；
-`lane_stall=1` 时不得提前完成或接受下一事务。
+## 4. V2：完成与下一事务接受重叠
 
-Dense 与 sparse 必须采用完全相同的 V1+V2 协议、输入流和背压口径。
+V2 把执行器定义为最多保存一个未退出结果的单槽弹性流水，而不是多事务队列。
 
-## 3. B-V1+V2 逐拍账本规范（oracle / RTL / testbench / 验证器四方一致）
+### 4.1 非零事务最后一批
 
-账本的唯一事实来源是 testbench 每拍打印的一行观测：
+当最后一个 BATCH 成功发射且可得到最终 acc_next 时：
 
-```text
-CYC <n> st=<0..5> ce=<0|1> ad=<addr> lf=<n> bm=<hex> rv=<0|1> rr=<0|1>
-    ap=<0|1> zp=<0|1> sum=<-?n> ls=<0|1> cmp=<0|1>
-```
+- 若 result_ready 为 1，允许在该边沿完成当前结果；不再强制进入独立 DONE 拍。
+- 同一边沿允许 issue_ready 为 1，从而接受下一事务。
+- 当前事务的结果必须来自旧事务的 acc_next；下一事务的 group、activity、mask、skip 元数据必须独立锁存，不能覆盖当前结果。
+- 若没有下一事务，完成后进入空闲。
 
-`tb_np7_exec_unit.sv`（golden）与 `tb_np7_negative.sv`（两个负向实现）用**完全相同**的格式；
-`np7_ledger_reconstruction.py` 只解析这些行重建账本，**不引用 RTL 内部计数器**。
-RTL 计数器只作为"自报"副本参与交叉比对。
+### 4.2 背压
 
-1. **流水窗**：第一次 `ap=1` 的拍到最后一次 `rv&&rr=1` 的拍（含端点）。窗口之外的
-   冷启动前/排空后空闲拍不计入 `total_cycles`。
-2. **互斥类别与优先级**（`classify_row`，与 `np7_shared_lane_oracle.classify` 一致）：
-   `RAM(ce) > LANE(lf) > LAT(st=3) > LANE_STALL(st=4 && ls) > BACKPRESSURE(rv && !rr)`
-   `> HOLD_RETIRE(st=5 && rv && rr) > ZERO(ap && zp && rv && rr) > ACCEPT(ap) > IDLE`。
-   每一拍恰好落进一个类别，因此各类之和等于该窗口内非 IDLE 拍数。
-3. **派生字段**：
-   `busy_cycles = RAM + LANE`；`stall_cycles = LANE_STALL + BACKPRESSURE`；
-   `total_cycles = 窗口拍数 - IDLE 拍数`；`completed_groups = #(rv&&rr)`；
-   `accept_events = #ap`；`overlap_cycles = #(ap && rv && rr)` 且排除 V1 单拍零路径
-   （零路径的 accept/result 同拍是 V1 语义，不得重复记为 V2 收益）；
-   `retire_latch_cycles = #(lf && rv && !rr)`；`zero_single_cycles = ZERO 类拍数`；
-   `startup_cycles` = 窗口首拍为纯 ACCEPT 时为 1；`drain_cycles` = 最后一个
-   `ce|lf|LAT` 拍到窗口末拍的间隔；`weight_values_fetched = #(ce) x 槽/字`（2）。
-4. **必须闭合的恒等式**（验证器逐配置重算）：
-   - `total = busy + latency + lane_stall + backpressure + hold_retire + zero_single + accept_own`
-   - `stall = lane_stall + backpressure`
-   - `accept_events = retire_events = completed_groups`（每 accept 恰好一个 result）
-   - `zero_single_cycles <= zero_fast_paths`、`overlap_cycles <= accept_events`
-5. **作废口径**：旧恒等式 `total = busy + stall + 3*(completed-zero) + 2*zero`（独立 DONE 拍、
-   零路径两拍）自本裁定起不再成立。验证器对"新口径不闭合、只在旧口径闭合"的账本直接判为
-   **裁定之前的旧证据**并拒绝，而不是当成算术错误。
-6. **真实路径覆盖**：证据必须真的出现过 `startup / drain / overlap / backpressure /
-   lane_stall / hold_retire / retire_latch / zero_single` 全部 8 类非零计数，且 dense 与
-   sparse **各自**的 `zero_single_cycles > 0`；否则相应形式性质可能只在空真（vacuous）上通过。
-   formal 侧另设 5 个可达性见证寄存器 `saw_zero_single / saw_zero_hold / saw_fold /
-   saw_backpressure / saw_lane_stall`，并要求它们与软件计数一致。
-7. **单槽不变量**：任意时刻最多一个未退出结果；背压期间 `hold_sum`/`hold_zero` 必须稳定保持，
-   不得丢失、重复或被下一事务覆盖；`lane_stall=1` 时不得提前完成或接受下一事务。
+- 若最后一批完成时 result_ready 为 0，必须锁存最终结果并进入结果保持状态。
+- 结果保持期间 result_valid 必须稳定；只有旧结果退出的同一边沿才允许接受下一事务。
+- lane_stall 为 1 时不得伪造最后一批、结果完成或下一事务接受。
 
-## 4. 全量重跑范围与判据（裁定 §三）
+### 4.3 原子性
 
-旧 NP7.1-NP7.6 证据（HEAD `398dc1a` 及其之前）全部作废，本轮从新 HEAD 重跑下列全部项目：
+任意时刻最多存在一个未退出结果。允许同一边沿执行“旧事务 retire + 新事务 accept”，但边沿前后的事务身份必须可区分。每个被接受事务必须恰好产生一个完成响应，不能丢失、重复、乱序或把旧累加值泄漏到新事务。
 
-| 步骤 | 命令 | 判据（不满足即验证器拒绝） |
-|------|------|------|
-| NP7.1 | `python -m unittest test_np7_shared_lane_oracle -v` | oracle 逐拍模型覆盖零路径 ready/背压、最后一批、连续请求、同拍 retire/accept、冷启动、尾部排空 |
-| NP7.3 | `python np7_shared_lane_cosim.py` | dense+sparse x {1,2,4,8} x >=20 seed = >=160 配置、>=160000 事务、连续无气泡流 + 随机背压、逐拍三方一致、恒等式闭合、8 类覆盖非零 |
-| NP7.4 | `python np7_three_model_integration_cosim.py` | 三模型逐样本输出+完整膜状态比对，且每模型每 lane 的 `overlap_cycles>0`、`folded_cycles_saved>0`、`solo_segment_cycles>stream_cycles`、`zero_single_cycles>0`（证明上游确实利用 V2） |
-| NP7.5 | `python np7_formal_and_mutations.py` | 每 accept 恰好一个 result、背压稳定、同拍不覆盖元数据、`lane_stall` 不提前完成；>=9 个 RTL mutation 全部给出反例，含新增"同拍覆盖旧元数据""背压时错误接受下一事务"两类 x dense/sparse |
-| NP7.6 | `python generate_np7_manifest.py` 后 `python verify_np7_software_cost.py <head>` | 从原始逐拍账本重算 G1-G6；拒绝旧恒等式与只改摘要；清单绑定 version/build/执行机与逐拍日志字节 |
+## 5. 新周期与账本口径
 
-停止条件：若重跑后 G3 仍 <25%，**立即停止**，不自动改选 A（降阈值）或 D（随机流量口径），
-也不得静默退回 V1-only；NP7.7 的 8 配置 Vivado 综合只在 NP7.0-NP7.6 全绿后运行。
+旧的固定恒等式不能继续使用。新账本必须从逐拍事件重建，而不是按事务数量直接减常数。
+
+必须分别记录：
+
+- accept_events：实际请求握手数。
+- result_events：实际结果握手数。
+- overlap_retire_accept_cycles：同拍 retire/accept 次数。
+- zero_single_cycle_events：零路径同拍 accept/result 次数。
+- result_backpressure_cycles：结果有效但下游未接受的周期。
+- RAM 请求、lane 发射、lane stall、总周期和完成事务数。
+
+总周期以真实时间线为准，冷启动第一事务、连续稳态和最后排空必须单列。dense 与 sparse 必须使用完全相同的 V1+V2 协议、输入流、背压序列和 lane 数比较，不能只优化 sparse。
+
+G3 仍以冻结 B2.1 网络中每逻辑 tick 的总周期下降计算，阈值保持 25%。同时必须报告绝对周期和绝对吞吐，避免“同时加速 baseline 后相对百分比下降”掩盖真实收益。
+
+## 6. 预期实际影响
+
+### 6.1 性能
+
+L1 反事实估计中：
+
+- sparse 从当前 1600 周期降到约 860，绝对时间预计再减少 46.25%。
+- 同协议 dense 为约 1240，sparse 相对 dense 预计减少 30.65%。
+- 100 MHz 串行模型下，sparse 约从 26.667 cycles/tick 降到 14.333 cycles/tick。
+- sparse 相对当前 sparse 的理论吞吐约提高 86%；相对同协议 dense 的理论吞吐约提高 44%。
+
+这些是理想反事实，不包含真实 Vivado 时序、网络供数间隙、以太网、DMA、PS 调度和神经元状态更新。实现后必须以新证据替换。
+
+### 6.2 资源与时序
+
+预计不增加权重存储容量、BRAM 或 DSP。可能增加：
+
+- 最后一批结果旁路与结果保持选择逻辑。
+- 同拍 retire/accept 的事务元数据选择器。
+- 少量状态与计数寄存器。
+- issue_valid/activity/mask、result_ready、lane 加法结果与 issue_ready/result_valid 之间的组合路径。
+
+主要风险是关键路径变长和 ready/valid 组合环。即使功能证据全绿，WNS/WHS 不通过也不能宣称可部署。更高瞬时吞吐可能提高瞬时动态功耗，因此后续应同时报告每事务能量，而不只比较总功率。
+
+### 6.3 上游调度
+
+V2 的收益要求上游能在 retire 边沿提供下一有效事务。若 Host/网络调度器仍固定插入空拍，RTL 虽支持重叠，实际吞吐也不会达到反事实值。NP7.4 必须加入连续请求覆盖，证明三模型网络能利用该接口。
+
+## 7. 必须修复的既有审查阻断
+
+B-V1+V2 不豁免 PR #6 已有问题。全量重跑前必须修复：
+
+1. Vivado 2024.1 拒绝 testbench 中 run_phase 先使用后声明。
+2. 非法 sparse 索引和 dense 保留位目前仍会写入 RAM；必须在硬件握手处真正拒绝。
+3. sparse 的 checked_lat 必须复位并逐事务初始化，或由更简单、可证明的校验路径取代。
+4. Windows 默认代码页下突变套件必须由脚本自身固定 UTF-8，不能依赖调用者环境。
+5. NP7 冻结决策表格第 2/3 项必须修复。
+
+## 8. 验证与重跑范围
+
+本决策属于周期合同和微架构变更，NP7.1–NP7.6 的旧证据全部失效，必须从新冻结 HEAD 全量重建。
+
+### NP7.1 周期 oracle
+
+至少覆盖零路径 ready/背压、非零最后一批、无下一事务、连续下一事务、lane stall、结果背压、retire/accept 同拍、冷启动和尾部排空。
+
+### NP7.2 RTL
+
+dense 与 sparse 必须共用同一 V1+V2 协议语义；不能只给 sparse 增加旁路。非法配置拒绝应在这一阶段闭环。
+
+### NP7.3 协同仿真
+
+重新执行 1/2/4/8 lane × dense/sparse × 至少 20 seeds × 1000 事务。逐拍比较 accept、RAM、lane、结果、重叠事件和全部账本；增加连续无气泡流量与随机背压。
+
+### NP7.4 三模型
+
+三个模型必须继续逐样本比较输出和完整状态摘要。零路径仍推进神经元状态；连续事务应证明上游能够利用 V2。
+
+### NP7.5 形式与负向控制
+
+必须证明：
+
+- 每个 accept 恰好一个 result。
+- 同拍 retire/accept 不丢失、不重复、不串数据。
+- 背压期间结果稳定。
+- 零路径无 RAM/lane 请求。
+- lane stall 时不提前完成。
+- 冷启动与排空边界计数正确。
+
+必须新增至少一个“同拍覆盖旧元数据”和一个“背压时错误接受下一事务”的 RTL mutation，并确保被反证。
+
+### NP7.6 fail-closed 签核
+
+验证器必须从原始逐拍账本重算新周期口径，拒绝沿用旧恒等式、伪造 overlap、遗漏启动/排空或仅修改摘要的证据。manifest、验证器和 mutation 全部重新冻结。
+
+### NP7.7 Vivado
+
+只有新 NP7.1–NP7.6 全部通过且 G3 至少 25% 后才允许启动。继续比较 dense/sparse × 1/2/4/8 lane 的 8 个配置，报告 LUT/FF/RAM/DSP、WNS/WHS、路由/DRC、绝对周期和吞吐。Vivado 2024.1 与 2024.2 均可作为证据来源，但每份证据只能支持其实际版本和执行机。
+
+## 9. 停止与回退规则
+
+- 新实现若 G3 仍低于 25%，停止，不自动改选 A 或 D。
+- 功能、形式、账本或三模型状态任一失败，停止，不运行 NP7.7。
+- Vivado 时序失败时如实记录，不以软件周期覆盖物理失败。
+- 不允许静默退回 V1-only；若 V2 无法满足功能或时序，需要新的管理员决策点。
+- 不因当前决策自动解除 PR 的 CHANGES_REQUESTED；只有新 HEAD 完成修复和全量证据后重新审核。
+
+## 10. 未采用方案及原因
+
+- A：只降低门槛，不改变硬件实际效果。
+- C：保留失败结论但不产生可部署物理证据。
+- D：更换评测分布，不能回答冻结 B2.1 是否加速。
+- V1-only：相对 G3 数字更高且实现更简单，但绝对周期高于 V1+V2；管理员本次明确优先最终绝对吞吐，因此选择 V1+V2。
+
+## 11. 后续交付要求
+
+协作者应在 PR #6 中更新冻结决策、TODO、报告和实现，提交新的冻结 HEAD。每轮回复至少列出：修复提交、完整复跑命令、退出码、证据路径、G1–G6 重算结果、Vivado 是否因门槛被允许启动。任何估计数字必须标记为估计，不能替代新实测。

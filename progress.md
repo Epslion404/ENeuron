@@ -824,3 +824,40 @@
 - Nexus 子代理完成增量更新；主代理将 AST 上限从 500 提高到 2500 后重建，最终 155 文件、1682 节点、2310 边、parse errors=0、无截断，并恢复 INDEX 的完整强制路由块。
 - 发现并修复 NP6 mutation 测试夹具问题：复制仓库会让受跟踪 VCD 产生假脏状态；改用 `git clone --no-hardlinks` 后，干净提交态 `MUTATION_SUITE PASS checks=12`。该修复尚未提交，待最后 commit/push。
 - 最终干净提交态（HEAD `03bb19c`）复验完成：NP6 verifier `PASS configs=7`、mutation `PASS checks=12`、manifest/工作树不变；Resume、compile、diff-check、Markdown 链接和 Nexus 检查均通过。当前停在 NP7 八项用户审核门，未运行新的 Vivado。
+
+## 2026-09-01 PR #6 NP7 审查启动
+
+- 发现开放 PR #6，HEAD `398dc1a`，标题声明 NP7.1–NP7.6 完成、G3 未达标、NP7.7 停在功能阶段。
+- 用户称协作者完成了 Vivado 仿真；需核对是否为 NP7 Vivado、已有 Vivado 回归或仅标题表述差异。
+- 已锁定隔离 worktree 并完成静态/动态复核：Python 编译、11 项 oracle 单测和三模型集成通过；软件 verifier 无完整性拒绝，但因 G3 全部 12 项低于 25% 正确退出 1。
+- Windows 默认编码下突变套件复现失败并崩溃；显式启用 UTF-8 后 13/13 PASS，定位为测试入口的编码环境缺陷。
+- 本机 Vivado 2024.1 真实 `xvlog` 检查证明 RTL 文件可分析，但主 testbench 因变量声明顺序报 `VRFC 10-3380`，负向 testbench 有同类源代码问题；PR 当前没有可运行的 Vivado 仿真链。
+- RTL 审查确认非法 CONFIG 数据仍会写入 RAM，且 sparse 的 `checked_lat` 未初始化/未逐事务清零；现有正向测试和形式假设没有覆盖。
+- 已向 PR #6 提交 `CHANGES_REQUESTED` 并回读确认，远端 `reviewDecision=CHANGES_REQUESTED`；未修改协作者分支、未合并、未运行 NP7.7 综合。
+- 已完成两类裁定的依赖分析：确认八项只关闭授权链，A/B/D 分别会改写决策 7、决策 5、决策 6/7；只有 C 保持八项原文不变。
+- 已按工程量、全量重跑范围、G3 余量、硬件风险和结论可信度比较 A/B/C/D；推荐坚持原目标时选择 B-V1，快速取得物理数据时才考虑 A，不建议 D。
+- 已进一步把软件周期数字映射为实际效果：当前 100 MHz 串行模型约节省 70–77 ns/tick；1→2 lane 仅再改善约 1.25%，4/8 lane 无额外收益；A/D 不改变硬件，B 才改变真实周期。
+- 已记录端到端边界：局部 22.3% 改善只有在共享执行单元占主要系统时间时才能接近整机 22%；BRAM 映射、功耗、网络吞吐仍需 Vivado 与系统级测量。
+- 用户以仓库管理员身份正式选择 B-V1+V2；已新建 DP-NP7-001 决策文档，更新文档索引和 NP7 TODO 状态。
+- 已向 PR #6 提交管理员裁定评论 `5498372499` 并回读确认：G3 保持 25%，A/C/D 不采用，旧 NP7.1–NP7.6 证据失效，修复后全量重跑。
+- PR 仍保持 `CHANGES_REQUESTED`，HEAD 仍为 `398dc1a`；本轮未提交、未推送、未合并，也未运行 NP7.7 Vivado。
+
+## 2026-09-02 PR 自动检查工作流
+
+- 新增 `.github/workflows/pr-gate.yml`：只读 `pull_request` 触发，包含 Python/语法、NP7 软件/形式、物理证据完整性三道状态门；不自动 approve、不自动 merge、不使用 `pull_request_target`。
+- 新增 `docs/CI_PR_GATE.md`：记录工作流设计、状态含义、本地复现命令和 main 分支保护配置教程；`docs/README.md` 已加入索引。
+- 本地 YAML 解析、Python compileall、git diff --check 均通过；NP7 job 对尚未包含 NP7 文件的普通 PR 显式跳过专项门，避免误报。
+
+## 2026-09-02 PR #6 持续监控
+
+- 03:00:43.486（UTC+8）按真实墙钟完成管理员裁定后的首次 10 分钟远端读取。
+- PR HEAD 仍为 `398dc1aedc401ede04b9ec8a6b79e4c740cb2d1d`，最后活动仍是 OWNER 评论 `5498372499`；无协作者新提交、无协作者新回复、无 checks。
+- PR 仍为 `OPEN / MERGEABLE / CHANGES_REQUESTED`。本周期不重复测试、不重复评论，Goal 保持 active；下一次读取锚定为 03:10:43.486（UTC+8）。
+- 03:10:44.249（UTC+8）完成第二次精确轮询：HEAD、最后评论、reviews、checks 和合并状态均未变化；继续执行已验证等待，下一次读取锚定为 03:20:44.249（UTC+8）。
+- 03:20:44.557（UTC+8）完成第三次精确轮询：HEAD 仍为 `398dc1a`，无协作者新提交/回复、无 checks，状态仍为 `OPEN / MERGEABLE / CHANGES_REQUESTED`；下一次读取锚定为 03:30:44.557（UTC+8）。
+
+## 2026-09-02 管理员追加裁定
+
+- 管理员裁定：允许在 lane 内插入一拍流水，以解决 L4/L8 的 100 MHz 关键路径问题。
+- 管理员裁定：NP7.7 必须要求 dense/sparse × L=1/2/4/8 共 8/8 配置全部 100 MHz 收敛，不接受当前 4/8 部分通过口径。
+- 已向 PR #6 提交 OWNER `CHANGES_REQUESTED` review，review id `PRR_kwDOUIH1ms8AAAABLx8fCg`；要求流水化后全量重跑 NP7.1–NP7.7，PR 暂不得合并。
