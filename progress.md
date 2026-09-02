@@ -894,6 +894,12 @@
 - 最新 head `6b65a6f` 与 main 同步，manifest 已针对唯一变化的输入重新绑定；报告边界、旧 OOC head 和 fail-closed 语义均保持一致。
 - PR #8 当前可合并，已在 PR 留下最终复审意见；未自动批准或合并。
 
+## 2026-09-02 PR #7 合并适配性复审
+
+- PR #7 已合并为 `9d1feb4`；N1 软件模型和 9/9 定向测试仍有效，适合作为新的传统 NPU + 神经元集成基线的第一步。
+- 合并后 NP7 功能门失败的唯一明确原因是 main 更新 manifest-bound 输入而未立即重绑，属于证据维护问题，不是 N1 算法/软件基线失败。
+- 已在 PR #7 留下复盘意见；PR #8 已完成重绑和边界修复，当前 main 的相关 CI 已通过。
+
 ## 2026-09-02 后续基线正式切换
 
 - 在 `WORKFLOW_STATE.md`、`docs/README.md`、`docs/planning/NPU_NEURON_AUGMENTED_TODO.md`、`docs/planning/TODO.md`、`docs/reports/PROJECT_REPORT.md` 和 `task_plan.md` 中明确：自本日起，项目后续统一以传统 INT8 NPU + 神经元控制平面集成为基线。

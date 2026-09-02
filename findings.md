@@ -912,3 +912,9 @@
 - 差异仍只包含 NP7.7 证据、原始工具日志、manifest 更新和报告文字；无业务 RTL、无 runner 判据放宽。
 - XSim 绑定 Vivado 2024.2/`70ab557`；OOC 绑定 `9d07b99`，仅作为输入未变化的历史物理证据；短回归的 `0xC0000005` 仍 fail-closed。
 - 未发现阻断合并的问题，建议管理员合并；本次不自动 approve 或 merge。
+
+## 2026-09-02 PR #7 复盘
+
+- PR #7 已于 2026-09-02 合并为 `9d1feb4`；其 N1 软件基线内容适合进入传统 NPU + 神经元集成主线。
+- 合并后补跑的 NP7 功能门因 `docs/planning/NPU_PRUNING_NP7_TODO.md` 更新而出现 manifest 字节不匹配，验证器按 fail-closed 返回 `rejects=1`。这不是 N1 模型测试失败，但说明合并当时不应宣称所有合并后门禁已通过。
+- PR #8 已重新绑定该 manifest 输入并通过全部 CI，当前 main 已消除该证据绑定问题。
