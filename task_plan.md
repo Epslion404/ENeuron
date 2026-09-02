@@ -808,6 +808,7 @@
 - [x] 用当前提交重新生成 NP7 软件成本 manifest。
 - [x] 显式使用 `C:\msys64\ucrt64\bin` 探测本机 Icarus/Yosys，排除旧路径缺失假象。
 - [ ] 提交、推送并等待 Webhook/CI 回报。
+- [x] 提交 `5a6825f`、推送到 PR #10，并用 Webhook 与 GitHub 双重确认 CI 全部成功。
 
 ## 2026-09-02 PR 自动检查工作流
 
