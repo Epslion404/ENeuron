@@ -50,6 +50,7 @@ INPUT_FILES = [
     "formal_np7_config_reject.ys",
     "run_np7_vivado_xsim.py",
     "docs/planning/NPU_PRUNING_NP7_DECISION_B_V1_V2.md",
+    "docs/planning/NPU_PRUNING_NP7_DECISION_LANE_PIPELINE_P1.md",
 ]
 EVIDENCE_FILES = [
     "artifacts/results/np7_cosim_ledgers.json",

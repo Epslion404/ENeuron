@@ -6,8 +6,11 @@
 #      signoff_summary.txt 与汇总 JSON 都只是"必须等于重算值"的自报副本；
 #   3) RTL / tcl / runner / 本验证器都做"冻结提交 blob == 磁盘 == 汇总哈希"三方比对；
 #   4) 报告与封装必须在被验证提交的 git 树里（未提交的二进制/临时产物不算证据）；
-#   5) 100 MHz 未收敛的配置一律列入 excluded，物理收益只在收敛配置上主张，
-#      且禁止用软件周期收益去补偿（TODO NP7.7 第 3 条）。
+#   5) P1 裁定 §二（PR #6 管理员 review 5085536010，2026-09-02）：不接受
+#      "L1/L2 收敛、L4/L8 排除"的部分通过口径。sparse/dense x L=1/2/4/8 共
+#      8/8 配置必须在 xc7z020clg400-1 @100MHz 同时满足 WNS>0、WHS>0、
+#      setup 失败端点=0、hold 失败端点=0、DRC error=0、route error=0；
+#      任一配置 not-MET 或缺证据即 reject，且禁止用软件周期收益补偿。
 import hashlib
 import json
 import pathlib
@@ -318,9 +321,20 @@ def finish(rejects, results, summary, frozen_head, current, version_want=""):
         recomputed = results.get(name)
         if not recomputed:
             excluded.append(name)
+            rejects.append("%s 缺原始报告/无重算结果：P1 裁定 §二 要求 8/8 收敛，"
+                           "缺证据即拒绝，不得用软件周期收益补偿" % name)
             continue
         met = timing_met(recomputed)
         (clean if met else excluded).append(name)
+        if not met:
+            rejects.append(
+                "%s 100MHz 未收敛 wns=%s whs=%s setup_fail=%s hold_fail=%s "
+                "drc_err=%s route_err=%s：P1 裁定 §二 不接受部分通过口径"
+                % (name, recomputed.get("WNS_NS"), recomputed.get("WHS_NS"),
+                   recomputed.get("SETUP_FAILING_ENDPOINTS"),
+                   recomputed.get("HOLD_FAILING_ENDPOINTS"),
+                   recomputed.get("DRC_ERRORS"),
+                   recomputed.get("ROUTE_ERRORS")))
         print("NP7_PHYSICAL_CONFIG %s lut=%s ff=%s bram36=%s bram18=%s dsp=%s "
               "wns=%s tns=%s whs=%s ths=%s setup_fail=%s hold_fail=%s drc_err=%s "
               "route_err=%s timing_100MHz=%s"
@@ -340,10 +354,12 @@ def finish(rejects, results, summary, frozen_head, current, version_want=""):
              (summary.get("vivado") or {}).get("sw_build"),
              (summary.get("vivado") or {}).get("host")))
     print("NP7_PHYSICAL_EXCLUDED " + (",".join(excluded) or "none"))
+    print("NP7_PHYSICAL_GATE required=%d met=%d verdict=%s"
+          % (len(CONFIGS), len(clean),
+             "8/8" if len(clean) == len(CONFIGS) else "NOT-8/8"))
     if excluded:
-        print("NP7_PHYSICAL_NOTE excluded 配置在 100MHz 未收敛，不主张其物理周期收益，"
-              "且禁止用软件周期收益补偿（TODO NP7.7 第 3 条）；"
-              "流水化改动属于周期合同变更，需管理员新裁定")
+        print("NP7_PHYSICAL_NOTE P1 裁定 §二：未达 8/8 收敛前不得宣称 NP7.7 完成，"
+              "也不得用软件周期收益补偿未收敛配置；excluded 列表仅作诊断用途。")
     for fmt in FORMATS:
         if not any(name.startswith(fmt + "/") for name in clean):
             rejects.append("%s 没有任何 100MHz 收敛配置，物理结论无法在该格式主张" % fmt)

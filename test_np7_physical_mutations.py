@@ -7,9 +7,11 @@
 # 覆盖的攻击面（都是评审者点名过的类别）：
 #   只改摘要不改原始报告 / 改完原始报告还顺手更新清单哈希 / 删证据文件 /
 #   伪造 HEAD 绑定 / 伪造工具版本 / 事后偷改 RTL / 事后偷改 OOC 封装 /
-#   删配置 / 报告未提交 / 用另一种格式全灭来绕过"每格式至少一个收敛"。
+#   删配置 / 报告未提交 / 用另一种格式全灭来绕过"每格式至少一个收敛" /
+#   把某个配置自洽地伪造成 100MHz 未收敛来绕过 P1 裁定 §二 的 8/8 硬判据。
 import json
 import pathlib
+import re
 import shutil
 import subprocess
 import sys
@@ -116,8 +118,9 @@ def m_tamper_signoff_rehash(root, head):
 
 
 def m_tamper_wns_sign(root, head):
-    # 把一个未收敛配置的 WNS 符号伪造成正数（同样同步 sha256）。
-    edit_signoff(root, "sparse/L4", "WNS_NS", "4.627")
+    # 篡改某个配置的 WNS 符号（P1 §二 后 8/8 本应全为正 slack，这里写一个明显的
+    # 假值；同步 signoff 哈希也救不回来，必须由原始报告重算判据挡下）。
+    edit_signoff(root, "sparse/L4", "WNS_NS", "-9.876")
     rebind_report(root, "sparse/L4", "signoff_summary.txt")
     return commit_all(root), "WNS"
 
@@ -212,6 +215,34 @@ def m_no_converged_dense(root, head):
     return commit_all(root), "运行未通过"
 
 
+def m_not_met_config_forge(root, head):
+    # 自洽地把 sparse/L8 伪造成 100MHz 未收敛：原始报告 + signoff + 汇总三处同改，
+    # 让"重算值一致"这条判据挑不出毛病，只能由 P1 §二 的 8/8 硬判据挡下。
+    rpt = pathlib.Path(root) / "vivado_np7_ooc_sparse_L8_reports" / "timing_impl.rpt"
+    text = rpt.read_text(encoding="utf-8")
+    pattern = re.compile(r"Setup\s*:\s*(\d+)\s+Failing Endpoints,\s*Worst Slack\s+"
+                         r"(-?[0-9.]+)ns,\s*Total Violation\s+(-?[0-9.]+)ns")
+    found = pattern.search(text)
+    if not found:
+        raise AssertionError("报告里找不到 Setup 汇总行，变异未施加")
+    forged = ("Setup : 17 Failing Endpoints,  Worst Slack        -0.482ns,  "
+              "Total Violation        -5.310ns")
+    rpt.write_text(text[:found.start()] + forged + text[found.end():],
+                   encoding="utf-8")
+    edit_signoff(root, "sparse/L8", "WNS_NS", "-0.482")
+    edit_signoff(root, "sparse/L8", "TNS_NS", "-5.310")
+    edit_signoff(root, "sparse/L8", "SETUP_FAILING_ENDPOINTS", "17")
+    rebind_report(root, "sparse/L8", "timing_impl.rpt")
+    rebind_report(root, "sparse/L8", "signoff_summary.txt")
+    data = read_json(root, SUMMARY)
+    slot = data["configs"]["sparse/L8"]["summary"]
+    slot["WNS_NS"] = "-0.482"
+    slot["TNS_NS"] = "-5.310"
+    slot["SETUP_FAILING_ENDPOINTS"] = "17"
+    write_json(root, SUMMARY, data)
+    return commit_all(root), "100MHz 未收敛"
+
+
 MUTATIONS = [
     ("summary_only_edit", m_summary_only_edit),
     ("tamper_signoff_rehash", m_tamper_signoff_rehash),
@@ -225,6 +256,7 @@ MUTATIONS = [
     ("ooc_wrapper_rewritten", m_wrapper_rewritten),
     ("lane_lut_regression", m_lane_lut_regression),
     ("no_converged_dense", m_no_converged_dense),
+    ("not_met_config_forge", m_not_met_config_forge),
 ]
 
 
