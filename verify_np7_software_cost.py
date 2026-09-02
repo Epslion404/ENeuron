@@ -202,14 +202,17 @@ def ledger_identity(entry, name, integrity):
 
 def tick_class(row):
     # 与 RTL/oracle/np7_ledger_reconstruction 同一优先级的逐拍互斥分类。
+    # P1 周期合同（review 5085536010）：状态码 6 = S_DRAIN，lane Stage B 的折叠拍。
+    # 非 stall 的 DRAIN 拍是一拍 latency（结果当拍可用），stall 的 DRAIN 拍归
+    # LANE_STALL；因此结果锁存也发生在那一拍上，仍排在 BACKPRESSURE 之前。
     st, ce, lf, rv, rr, ap, zp, ls = row
     if ce:
         return "RAM"
     if lf:
         return "LANE"
-    if st == 3:
+    if st == 3 or (st == 6 and not ls):
         return "LAT"
-    if st == 4 and ls:
+    if st in (4, 6) and ls:
         return "LANE_STALL"
     if rv and not rr:
         return "BACKPRESSURE"
