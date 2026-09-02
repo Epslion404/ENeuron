@@ -1,8 +1,8 @@
-# command: python -X utf8 verify_np7_software_cost.py 06d7f38f987a8412a27fa90bd27e4cfe13d6d350
-# git_head: 06d7f38f987a8412a27fa90bd27e4cfe13d6d350
+# command: python -X utf8 verify_np7_software_cost.py 05b48fff9a6fd864e4112164aeadb61a893617ac
+# git_head: 05b48fff9a6fd864e4112164aeadb61a893617ac
 # python: 3.14.7 (-X utf8)
 # note: NP7.6 软件签核最终复验：G1-G6 从原始逐拍账本重算，rejects 必须为 0
-# local_time: 2026-09-02 15:03:08
+# local_time: 2026-09-02 15:41:01
 
 GATE G1 PASS 实际权重槽读取下降 阈值=0.45 失败项=0
 GATE G2 PASS 共享 lane 操作数下降 阈值=0.45 失败项=0

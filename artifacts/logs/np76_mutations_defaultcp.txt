@@ -1,10 +1,10 @@
 # command: python test_np7_verifier_mutations.py  (默认 Windows 代码页，不设 PYTHONUTF8)
-# git_head: 06d7f38f987a8412a27fa90bd27e4cfe13d6d350
+# git_head: 05b48fff9a6fd864e4112164aeadb61a893617ac
 # python: 3.14.7 (默认代码页，PYTHONUTF8/PYTHONIOENCODING 未设置)
 # note: 复现评审阻断 4 的口径：默认代码页（936）下套件必须完整跑完且结论一致
-# local_time: 2026-09-02 15:06:19
+# local_time: 2026-09-02 15:44:10
 
-baseline clone head=06d7f38 rc=0 baseline_rejects=0 NP7_VERIFY_SUMMARY rejects=0 blocking_gates=- overall=PASS
+baseline clone head=05b48ff rc=0 baseline_rejects=0 NP7_VERIFY_SUMMARY rejects=0 blocking_gates=- overall=PASS
 delete_run_log               rc=1 new_rejects=1 CAUGHT
 tamper_gate_status           rc=1 new_rejects=2 CAUGHT
 tamper_rtl_ledger            rc=1 new_rejects=3 CAUGHT
