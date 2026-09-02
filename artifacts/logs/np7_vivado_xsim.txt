@@ -1,19 +1,21 @@
-# command: python run_np7_vivado_xsim.py --vivado-root C:/Users/MGL/Documents/Codex/Vivado2024_2 --transactions 120
-# code_git_head: bed4216
-# local_time: 2026-09-02 05:06:15
-# toolchain: iverilog 12.0 (C:\iverilog\bin), yosys 0.68 (C:\msys64\ucrt64\bin)
-golden_sparse_L1         PASS rows=412 
-golden_sparse_L2         PASS rows=377 
-golden_sparse_L4         PASS rows=346 
-golden_sparse_L8         PASS rows=366 
-golden_dense_L1          PASS rows=694 
-golden_dense_L2          PASS rows=589 
-golden_dense_L4          PASS rows=535 
-golden_dense_L8          PASS rows=546 
-neg0_L1                  PASS rows=587 
-neg0_L4                  PASS rows=554 
-neg1_L1                  PASS rows=705 
-neg1_L4                  PASS rows=346 
+# command: python -X utf8 run_np7_vivado_xsim.py --vivado-root C:/Users/MGL/Documents/Codex/Vivado2024_2 --transactions 120
+# code_git_head: 9d07b99
+# full_git_head: 9d07b99c70cd61836980930862938fc38f1e71da
+# python: 3.14.7 (-X utf8, PYTHONIOENCODING=utf-8)
+# local_time: 2026-09-02 14:05:08
+# toolchain: iverilog 12.0 (C:\iverilog\bin), yosys 0.68 (C:\msys64\ucrt64\bin), Vivado 2024.2 (SW Build 5239630)
+golden_sparse_L1         PASS rows=528 
+golden_sparse_L2         PASS rows=511 
+golden_sparse_L4         PASS rows=457 
+golden_sparse_L8         PASS rows=503 
+golden_dense_L1          PASS rows=828 
+golden_dense_L2          PASS rows=730 
+golden_dense_L4          PASS rows=678 
+golden_dense_L8          PASS rows=683 
+neg0_L1                  PASS rows=705 
+neg0_L4                  PASS rows=643 
+neg1_L1                  PASS rows=822 
+neg1_L4                  PASS rows=457 
 cfgneg_sparse_L1         PASS rows=13 
 cfgneg_sparse_L4         PASS rows=13 
 cfgneg_dense_L1          PASS rows=13 
