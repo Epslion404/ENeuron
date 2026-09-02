@@ -2,15 +2,15 @@
 
 模式：`PERSISTENT_WORKFLOW_V1`
 
-最后更新：2026-09-01
+最后更新：2026-09-03
 
-状态：`ACTIVE / NP6_PHYSICAL_COST_PARTIAL / NP7_REVIEW_REQUIRED`
+状态：`ACTIVE / NP7_MERGED / NPU_NEURON_INTEGRATION_REVIEW_REQUIRED`
 
 ## 当前活动目标
 
-NP6 物理成本证据已经合并并完成阶段收口；当前进入 NP7 共享 BRAM 与共享 lane 的方案审核门。
+NP6 物理成本证据已经合并并完成阶段收口；NP7 共享 BRAM 与共享 lane 已完成并合并。PR #9 随后回滚了 PR #7 的 N1 集成基线，下一步重新审核传统 NPU + 神经元集成路线。
 
-活动合同：`docs/planning/NPU_PRUNING_NP7_TODO.md`（NP7 审核稿）；NP6 结果见 `docs/planning/NPU_PRUNING_NP6_TODO.md` 与 `docs/reports/LOCAL_PRUNE_NP6_PHYSICAL_COST_REPORT.md`。
+活动合同：`docs/planning/NPU_PRUNING_NP7_TODO.md`（NP7 已合并签核，后续进入集成审核）；NP6 结果见 `docs/planning/NPU_PRUNING_NP6_TODO.md` 与 `docs/reports/LOCAL_PRUNE_NP6_PHYSICAL_COST_REPORT.md`。
 
 ## 当前事实
 
@@ -41,7 +41,7 @@ NP6 物理成本证据已经合并并完成阶段收口；当前进入 NP7 共�
 
 ## 下一动作
 
-等待用户审核并批准 `docs/planning/NPU_PRUNING_NP7_TODO.md` 第 8 节。批准前只做静态审计、Nexus 更新和文档维护；批准后推进到 NP7 Vivado 门前停止。
+NP7 已完成；下一步是重新审核并批准传统 NPU + 神经元集成计划。批准前只做静态审计、Nexus 更新和文档维护。
 
 ## 恢复检查
 

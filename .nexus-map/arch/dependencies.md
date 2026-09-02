@@ -1,7 +1,7 @@
 # 依赖关系
 
 generated_by: nexus-mapper v2 / manual synthesis
-verified_at: 2026-09-01
+verified_at: 2026-09-03
 provenance: `.nexus-map/raw/ast_nodes.json` hub analysis and static imports
 
 ```mermaid

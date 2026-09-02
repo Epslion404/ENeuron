@@ -1,23 +1,23 @@
 {
   "analysis_period_days": 90,
   "stats": {
-    "total_commits": 115,
-    "total_authors": 4
+    "total_commits": 210,
+    "total_authors": 5
   },
   "hotspots": [
     {
       "path": "progress.md",
-      "changes": 60,
+      "changes": 67,
       "risk": "high"
     },
     {
       "path": "task_plan.md",
-      "changes": 52,
+      "changes": 57,
       "risk": "high"
     },
     {
       "path": "findings.md",
-      "changes": 47,
+      "changes": 53,
       "risk": "high"
     },
     {
@@ -31,13 +31,38 @@
       "risk": "high"
     },
     {
+      "path": "WORKFLOW_STATE.md",
+      "changes": 15,
+      "risk": "high"
+    },
+    {
+      "path": "artifacts/results/np7_software_cost_manifest.json",
+      "changes": 14,
+      "risk": "medium"
+    },
+    {
+      "path": "docs/reports/LOCAL_PRUNE_NP7_SHARED_LANE_REPORT.md",
+      "changes": 14,
+      "risk": "medium"
+    },
+    {
       "path": "NPU_PRUNING_TODO.md",
       "changes": 13,
       "risk": "medium"
     },
     {
-      "path": "WORKFLOW_STATE.md",
-      "changes": 12,
+      "path": "artifacts/results/np7_vivado_xsim_summary.json",
+      "changes": 9,
+      "risk": "medium"
+    },
+    {
+      "path": "vivado_np7_xsim_reports/signoff_summary.txt",
+      "changes": 9,
+      "risk": "medium"
+    },
+    {
+      "path": "artifacts/logs/np76_verify.txt",
+      "changes": 9,
       "risk": "medium"
     },
     {
@@ -46,84 +71,59 @@
       "risk": "medium"
     },
     {
-      "path": "local_prune_rtl_results.json",
+      "path": "docs/README.md",
       "changes": 8,
       "risk": "medium"
     },
     {
-      "path": ".gitignore",
-      "changes": 6,
+      "path": "vivado_np7_xsim_reports/commands.log",
+      "changes": 8,
       "risk": "medium"
     },
     {
-      "path": "verify_local_prune_rtl.py",
-      "changes": 6,
+      "path": "vivado_np7_xsim_reports/logs/cfgneg_dense_L1.log",
+      "changes": 8,
       "risk": "medium"
     },
     {
-      "path": "artifacts/results/np6_physical_cost_manifest.json",
-      "changes": 5,
+      "path": "vivado_np7_xsim_reports/logs/cfgneg_dense_L4.log",
+      "changes": 8,
       "risk": "medium"
     },
     {
-      "path": "verify_np6_physical_cost.py",
-      "changes": 5,
+      "path": "vivado_np7_xsim_reports/logs/cfgneg_sparse_L1.log",
+      "changes": 8,
       "risk": "medium"
     },
     {
-      "path": "vivado_pulse_mini_l2_synth.tcl",
-      "changes": 5,
+      "path": "vivado_np7_xsim_reports/logs/cfgneg_sparse_L4.log",
+      "changes": 8,
       "risk": "medium"
     },
     {
-      "path": "vivado_pulse_mini_synth.tcl",
-      "changes": 5,
+      "path": "vivado_np7_xsim_reports/logs/golden_dense_L1.log",
+      "changes": 8,
       "risk": "medium"
-    },
-    {
-      "path": "README.md",
-      "changes": 5,
-      "risk": "medium"
-    },
-    {
-      "path": "compare_simulation.py",
-      "changes": 5,
-      "risk": "medium"
-    },
-    {
-      "path": "np4b_signoff_summary.json",
-      "changes": 5,
-      "risk": "medium"
-    },
-    {
-      "path": "vivado_pulse_mini_l2_reports/drc_impl.rpt",
-      "changes": 4,
-      "risk": "low"
-    },
-    {
-      "path": "vivado_pulse_mini_l2_reports/drc_synth.rpt",
-      "changes": 4,
-      "risk": "low"
     }
   ],
   "coupling_pairs": [
     {
       "file_a": "progress.md",
       "file_b": "task_plan.md",
-      "co_changes": 50,
-      "coupling_score": 0.962
+      "co_changes": 55,
+      "coupling_score": 0.965
     },
     {
       "file_a": "findings.md",
       "file_b": "progress.md",
-      "co_changes": 47,
+      "co_changes": 53,
       "coupling_score": 1.0
     },
     {
       "file_a": "findings.md",
       "file_b": "task_plan.md",
-      "co_changes": 42,
-      "coupling_score": 0.894
+      "co_changes": 47,
+      "coupling_score": 0.887
     },
     {
       "file_a": "NPU_PRUNING_NP4B_TODO.md",
@@ -174,6 +174,18 @@
       "coupling_score": 1.0
     },
     {
+      "file_a": "WORKFLOW_STATE.md",
+      "file_b": "progress.md",
+      "co_changes": 12,
+      "coupling_score": 0.8
+    },
+    {
+      "file_a": "WORKFLOW_STATE.md",
+      "file_b": "task_plan.md",
+      "co_changes": 12,
+      "coupling_score": 0.8
+    },
+    {
       "file_a": "NPU_PRUNING_TODO.md",
       "file_b": "TODO.md",
       "co_changes": 12,
@@ -186,45 +198,33 @@
       "coupling_score": 0.923
     },
     {
-      "file_a": "WORKFLOW_STATE.md",
-      "file_b": "task_plan.md",
+      "file_a": "artifacts/results/np7_vivado_xsim_summary.json",
+      "file_b": "vivado_np7_xsim_reports/signoff_summary.txt",
       "co_changes": 9,
-      "coupling_score": 0.75
-    },
-    {
-      "file_a": "WORKFLOW_STATE.md",
-      "file_b": "progress.md",
-      "co_changes": 9,
-      "coupling_score": 0.75
-    },
-    {
-      "file_a": "NPU_PRUNING_NP4B_TODO.md",
-      "file_b": "WORKFLOW_STATE.md",
-      "co_changes": 6,
-      "coupling_score": 0.5
-    },
-    {
-      "file_a": "compare_simulation.py",
-      "file_b": "progress.md",
-      "co_changes": 5,
       "coupling_score": 1.0
     },
     {
-      "file_a": "artifacts/results/np6_physical_cost_manifest.json",
-      "file_b": "verify_np6_physical_cost.py",
-      "co_changes": 4,
-      "coupling_score": 0.8
-    },
-    {
-      "file_a": "vivado_pulse_mini_l2_reports/drc_impl.rpt",
-      "file_b": "vivado_pulse_mini_l2_reports/drc_synth.rpt",
-      "co_changes": 4,
+      "file_a": "artifacts/results/np7_vivado_xsim_summary.json",
+      "file_b": "vivado_np7_xsim_reports/commands.log",
+      "co_changes": 8,
       "coupling_score": 1.0
     },
     {
-      "file_a": "vivado_pulse_mini_l2_reports/drc_impl.rpt",
-      "file_b": "vivado_pulse_mini_l2_reports/power_impl.rpt",
-      "co_changes": 4,
+      "file_a": "artifacts/results/np7_vivado_xsim_summary.json",
+      "file_b": "vivado_np7_xsim_reports/logs/cfgneg_dense_L1.log",
+      "co_changes": 8,
+      "coupling_score": 1.0
+    },
+    {
+      "file_a": "artifacts/results/np7_vivado_xsim_summary.json",
+      "file_b": "vivado_np7_xsim_reports/logs/cfgneg_dense_L4.log",
+      "co_changes": 8,
+      "coupling_score": 1.0
+    },
+    {
+      "file_a": "artifacts/results/np7_vivado_xsim_summary.json",
+      "file_b": "vivado_np7_xsim_reports/logs/cfgneg_sparse_L1.log",
+      "co_changes": 8,
       "coupling_score": 1.0
     }
   ]
