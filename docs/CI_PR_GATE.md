@@ -100,3 +100,16 @@ Windows 默认代码页下也应保留 `-X utf8`，以避免 mutation 日志因�
 维护要求：新增“只能在某个 OS/特定安装布局上跑”的测试时，必须同时提供
 （1）代码与文档里的显式注明、（2）非该环境的 `SKIPPED/NOT APPLICABLE` 原因、
 （3）对应 OS 的专用作业与“跳过即失败”守卫、（4）一条平台无关的用例断言前 3 项仍然存在。
+
+补充（round 7，run `33615563208` @ `ddb24fc`）：Windows 作业显式
+`location: C:\msys64`，并在 action 把 UCRT64 树装到别处时以联接/复制兜底，作业日志用
+`fixed_path_source=` 记录最终来源。该 run 里固定路径 provisioning 与
+`Show fixed toolchain paths and tool versions` 均成功（`iverilog.exe`/`vvp.exe` 都是
+Icarus 13.0 (stable) v13_0），5 条用例真实执行，但 2 条仿真用例在 **elaborate** 阶段暴露
+模型自身的缺陷：`xpm_fifo_async_sim.sv` 的 `ram_empty` 在 :77 使用、:88 才声明；MSYS2 13.0
+拒绝“声明晚于使用”，而本机 `C:\iverilog` 的 12.0 (devel) 快照会静默通过。因此修复放在 RTL
+侧，并新增不依赖任何外部工具的平台无关静态守卫
+`test_model_declares_every_signal_before_use`（把修复前的文件放回去会立刻失败）。
+三个 Icarus 构建的行为差异与修复前/后证据见 `docs/WINDOWS_MSYS2_XPM_TOOLCHAIN.md` 第 8 节、
+`artifacts/logs/xpm_wrapper_icarus130_before_after.txt`、
+`artifacts/logs/xpm_wrapper_ci_run_33615563208.txt`。

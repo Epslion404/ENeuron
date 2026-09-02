@@ -1,0 +1,230 @@
+# PR #6 round 7: 用 CI 同版本 Icarus 13.0 复现 ddb24fc 失败并验证最小修复（before/after 全量矩阵）
+# git_head_of_this_archive: f525bf6da1ae15302651d4cfda3d079909607e53
+# local_time: 2026-09-02 18:09:53
+# python: Python 3.14.7
+#
+# 工具来源（诚实说明）：这不是裁定保留的固定路径 C:/msys64/ucrt64/bin（那里是 12.0 (stable) 且 vvp.exe 崩溃），
+# 而是把 CI windows-xpm-cdc 作业安装的同一个 MSYS2 包解压到本机 scratch 目录，用来逐字节复现 CI 的 elaborate 行为：
+#   https://mirrors.tuna.tsinghua.edu.cn/msys2/mingw/ucrt64/mingw-w64-ucrt-x86_64-iverilog-1~13.0-2-any.pkg.tar.zst
+#   sha256(fd4d7d7cb60cda1eb437f5476673503d92964cf47ce6c11b460eb3bd05c43582)
+#   解压到 C:/Users/MGL/scratch_np7_round3/iv13/ucrt64/bin（未安装、未改动 C:/msys64 的任何文件）
+#   iverilog.exe -V -> Icarus Verilog version 13.0 (stable) (v13_0)
+#   vvp.exe     -V -> Icarus Verilog runtime version 13.0 (stable) (v13_0)  —— 本机 scratch 版不崩溃，可真实跑完仿真
+
+## A. 静态守卫 test_model_declares_every_signal_before_use（不依赖外部工具，两个平台都执行）
+
+### guard on HEAD blob (before fix) sha256=eff19fabf1e1e464  (rc=1)
+
+F
+======================================================================
+FAIL: test_model_declares_every_signal_before_use (test_host_bridge_xpm_wrapper.HostBridgeXpmWrapperTests.test_model_declares_every_signal_before_use)
+平台无关静态守卫：模型内不得出现“声明晚于使用”的信号。
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\MGL\Documents\Codex\2026-08-29\vivado\github_pr\test_host_bridge_xpm_wrapper.py", line 531, in test_model_declares_every_signal_before_use
+    self.assertEqual(late, [], "xpm_fifo_async_sim.sv 存在使用前未声明的信号: " + str(late))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [('ram_empty', 77, 88)] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+('ram_empty', 77, 88)
+
+- [('ram_empty', 77, 88)]
++ [] : xpm_fifo_async_sim.sv 存在使用前未声明的信号: [('ram_empty', 77, 88)]
+
+----------------------------------------------------------------------
+Ran 1 test in 0.005s
+
+FAILED (failures=1)
+
+### guard on working tree (after fix) sha256=2a2c68efdd229904  (rc=0)
+
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.003s
+
+OK
+
+## B. iverilog 13.0 编译 + vvp 13.0 运行：修复前 vs 修复后（两条 testbench）
+
+Reproduction with the same Icarus package the CI windows-xpm-cdc job installs
+iverilog: C:/Users/MGL/scratch_np7_round3/iv13/ucrt64/bin/iverilog.exe  Icarus Verilog version 13.0 (stable) (v13_0)
+vvp     : C:/Users/MGL/scratch_np7_round3/iv13/ucrt64/bin/vvp.exe  Icarus Verilog runtime version 13.0 (stable) (v13_0)
+
+### BEFORE-fix (HEAD blob) TRANSPORT_TESTBENCH
+$ C:\Users\MGL\scratch_np7_round3\iv13\ucrt64\bin\iverilog.exe -g2012 -Wall -s tb -o C:\Users\MGL\AppData\Local\Temp\iv13_5ba9vjpc\tb.vvp C:\Users\MGL\AppData\Local\Temp\iv13_5ba9vjpc\xpm_fifo_async_sim.sv C:\Users\MGL\Documents\Codex\2026-08-29\vivado\github_pr\digital_snn_host_bridge.sv C:\Users\MGL\AppData\Local\Temp\iv13_5ba9vjpc\tb.sv
+rc=4
+--stdout--
+--stderr--
+warning: Some design elements have no explicit time unit and/or
+       : time precision. This may cause confusing timing results.
+       : Affected design elements are:
+       :   -- module digital_snn_host_bridge declared here: C:\Users\MGL\Documents\Codex\2026-08-29\vivado\github_pr\digital_snn_host_bridge.sv:2
+       :   -- module xpm_fifo_async declared here: C:\Users\MGL\AppData\Local\Temp\iv13_5ba9vjpc\xpm_fifo_async_sim.sv:3
+C:\Users\MGL\AppData\Local\Temp\iv13_5ba9vjpc\xpm_fifo_async_sim.sv:77: error: Unable to bind wire/reg/memory `ram_empty' in `tb.dut.command_fifo'
+C:\Users\MGL\AppData\Local\Temp\iv13_5ba9vjpc\xpm_fifo_async_sim.sv:88:      : A symbol with that name was declared here. Check for declaration after use.
+C:\Users\MGL\AppData\Local\Temp\iv13_5ba9vjpc\xpm_fifo_async_sim.sv:77: error: Unable to elaborate r-value: ((!(rd_rst_busy))&&(!(ram_empty)))&&((!(fwft_valid))o(read_accept))
+C:\Users\MGL\AppData\Local\Temp\iv13_5ba9vjpc\xpm_fifo_async_sim.sv:77: error: Unable to bind wire/reg/memory `ram_empty' in `tb.dut.response_fifo'
+C:\Users\MGL\AppData\Local\Temp\iv13_5ba9vjpc\xpm_fifo_async_sim.sv:88:      : A symbol with that name was declared here. Check for declaration after use.
+C:\Users\MGL\AppData\Local\Temp\iv13_5ba9vjpc\xpm_fifo_async_sim.sv:77: error: Unable to elaborate r-value: ((!(rd_rst_busy))&&(!(ram_empty)))&&((!(fwft_valid))o(read_accept))
+4 error(s) during elaboration.
+
+vvp NOT RUN (compile failed)
+
+### AFTER-fix (working tree) TRANSPORT_TESTBENCH
+$ C:\Users\MGL\scratch_np7_round3\iv13\ucrt64\bin\iverilog.exe -g2012 -Wall -s tb -o C:\Users\MGL\AppData\Local\Temp\iv13_y8ykedyk\tb.vvp C:\Users\MGL\AppData\Local\Temp\iv13_y8ykedyk\xpm_fifo_async_sim.sv C:\Users\MGL\Documents\Codex\2026-08-29\vivado\github_pr\digital_snn_host_bridge.sv C:\Users\MGL\AppData\Local\Temp\iv13_y8ykedyk\tb.sv
+rc=0
+--stdout--
+--stderr--
+warning: Some design elements have no explicit time unit and/or
+       : time precision. This may cause confusing timing results.
+       : Affected design elements are:
+       :   -- module digital_snn_host_bridge declared here: C:\Users\MGL\Documents\Codex\2026-08-29\vivado\github_pr\digital_snn_host_bridge.sv:2
+       :   -- module xpm_fifo_async declared here: C:\Users\MGL\AppData\Local\Temp\iv13_y8ykedyk\xpm_fifo_async_sim.sv:3
+
+vvp rc=0
+--vvp stdout--
+XPM_WRAPPER_TRANSPORT_PASS
+C:\Users\MGL\AppData\Local\Temp\iv13_y8ykedyk\tb.sv:192: $finish called at 4790000 (1ps)
+--vvp stderr--
+
+
+### BEFORE-fix (HEAD blob) ILLEGAL_RESET_TESTBENCH
+$ C:\Users\MGL\scratch_np7_round3\iv13\ucrt64\bin\iverilog.exe -g2012 -Wall -s tb -o C:\Users\MGL\AppData\Local\Temp\iv13_gp4kv1xw\tb.vvp C:\Users\MGL\AppData\Local\Temp\iv13_gp4kv1xw\xpm_fifo_async_sim.sv C:\Users\MGL\Documents\Codex\2026-08-29\vivado\github_pr\digital_snn_host_bridge.sv C:\Users\MGL\AppData\Local\Temp\iv13_gp4kv1xw\tb.sv
+rc=4
+--stdout--
+--stderr--
+warning: Some design elements have no explicit time unit and/or
+       : time precision. This may cause confusing timing results.
+       : Affected design elements are:
+       :   -- module digital_snn_host_bridge declared here: C:\Users\MGL\Documents\Codex\2026-08-29\vivado\github_pr\digital_snn_host_bridge.sv:2
+       :   -- module xpm_fifo_async declared here: C:\Users\MGL\AppData\Local\Temp\iv13_gp4kv1xw\xpm_fifo_async_sim.sv:3
+C:\Users\MGL\AppData\Local\Temp\iv13_gp4kv1xw\xpm_fifo_async_sim.sv:77: error: Unable to bind wire/reg/memory `ram_empty' in `tb.dut.command_fifo'
+C:\Users\MGL\AppData\Local\Temp\iv13_gp4kv1xw\xpm_fifo_async_sim.sv:88:      : A symbol with that name was declared here. Check for declaration after use.
+C:\Users\MGL\AppData\Local\Temp\iv13_gp4kv1xw\xpm_fifo_async_sim.sv:77: error: Unable to elaborate r-value: ((!(rd_rst_busy))&&(!(ram_empty)))&&((!(fwft_valid))o(read_accept))
+C:\Users\MGL\AppData\Local\Temp\iv13_gp4kv1xw\xpm_fifo_async_sim.sv:77: error: Unable to bind wire/reg/memory `ram_empty' in `tb.dut.response_fifo'
+C:\Users\MGL\AppData\Local\Temp\iv13_gp4kv1xw\xpm_fifo_async_sim.sv:88:      : A symbol with that name was declared here. Check for declaration after use.
+C:\Users\MGL\AppData\Local\Temp\iv13_gp4kv1xw\xpm_fifo_async_sim.sv:77: error: Unable to elaborate r-value: ((!(rd_rst_busy))&&(!(ram_empty)))&&((!(fwft_valid))o(read_accept))
+4 error(s) during elaboration.
+
+vvp NOT RUN (compile failed)
+
+### AFTER-fix (working tree) ILLEGAL_RESET_TESTBENCH
+$ C:\Users\MGL\scratch_np7_round3\iv13\ucrt64\bin\iverilog.exe -g2012 -Wall -s tb -o C:\Users\MGL\AppData\Local\Temp\iv13_uuq54tkx\tb.vvp C:\Users\MGL\AppData\Local\Temp\iv13_uuq54tkx\xpm_fifo_async_sim.sv C:\Users\MGL\Documents\Codex\2026-08-29\vivado\github_pr\digital_snn_host_bridge.sv C:\Users\MGL\AppData\Local\Temp\iv13_uuq54tkx\tb.sv
+rc=0
+--stdout--
+--stderr--
+warning: Some design elements have no explicit time unit and/or
+       : time precision. This may cause confusing timing results.
+       : Affected design elements are:
+       :   -- module digital_snn_host_bridge declared here: C:\Users\MGL\Documents\Codex\2026-08-29\vivado\github_pr\digital_snn_host_bridge.sv:2
+       :   -- module xpm_fifo_async declared here: C:\Users\MGL\AppData\Local\Temp\iv13_uuq54tkx\xpm_fifo_async_sim.sv:3
+
+vvp rc=1
+--vvp stdout--
+RESET_REENTRY_ERROR: bridge_rst asserted before write-side reset completion
+FATAL: C:\Users\MGL\Documents\Codex\2026-08-29\vivado\github_pr\digital_snn_host_bridge.sv:196: RESET_REENTRY_ERROR
+       Time: 316000  Scope: tb.dut
+--vvp stderr--
+
+
+## C. 修复后整个模块在 Icarus 13.0（CI 同版本）下真实执行：5 条用例全跑、0 skip
+
+��S U B S T I T U T E _ T O O L C H A I N   ( s a m e   p a c k a g e / v e r s i o n   a s   C I ,   e x t r a c t e d   t o   s c r a t c h ,   N O T   t h e   r u l e d   p a t h ) :   C : \ U s e r s \ M G L \ s c r a t c h _ n p 7 _ r o u n d 3 \ i v 1 3 \ u c r t 6 4 \ b i n \ i v e r i l o g . e x e 
+ 
+ t e s t _ b i d i r e c t i o n a l _ t r a n s p o r t _ b a c k p r e s s u r e _ w r a p _ a n d _ r e s e t   ( t x p m 1 3 . H o s t B r i d g e X p m W r a p p e r T e s t s . t e s t _ b i d i r e c t i o n a l _ t r a n s p o r t _ b a c k p r e s s u r e _ w r a p _ a n d _ r e s e t )   . . .   X P M _ T O O L C H A I N   p l a t f o r m = w i n 3 2   p y t h o n = 3 . 1 4 . 7   p a c k a g e = m i n g w - w 6 4 - u c r t - x 8 6 _ 6 4 - i v e r i l o g   i v e r i l o g = C : \ U s e r s \ M G L \ s c r a t c h _ n p 7 _ r o u n d 3 \ i v 1 3 \ u c r t 6 4 \ b i n \ i v e r i l o g . e x e   v v p = C : \ U s e r s \ M G L \ s c r a t c h _ n p 7 _ r o u n d 3 \ i v 1 3 \ u c r t 6 4 \ b i n \ v v p . e x e   i v e r i l o g _ v e r s i o n = ' I c a r u s   V e r i l o g   v e r s i o n   1 3 . 0   ( s t a b l e )   ( v 1 3 _ 0 ) ' 
+ 
+ o k 
+ 
+ t e s t _ i l l e g a l _ r e s e t _ r e e n t r y _ i s _ r e j e c t e d   ( t x p m 1 3 . H o s t B r i d g e X p m W r a p p e r T e s t s . t e s t _ i l l e g a l _ r e s e t _ r e e n t r y _ i s _ r e j e c t e d )   . . .   o k 
+ 
+ t e s t _ m o d e l _ d e c l a r e s _ e v e r y _ s i g n a l _ b e f o r e _ u s e   ( t x p m 1 3 . H o s t B r i d g e X p m W r a p p e r T e s t s . t e s t _ m o d e l _ d e c l a r e s _ e v e r y _ s i g n a l _ b e f o r e _ u s e ) 
+ 
+ s^�S�esQY�`�[kS�!j�W�Q
+N�_�Q�s
+ �XfZf�NO(u
+ �v�O�S0  . . .   o k 
+ 
+ t e s t _ w i n d o w s _ m s y s 2 _ t o o l c h a i n _ d e p e n d e n c y _ i s _ d e c l a r e d   ( t x p m 1 3 . H o s t B r i d g e X p m W r a p p e r T e s t s . t e s t _ w i n d o w s _ m s y s 2 _ t o o l c h a i n _ d e p e n d e n c y _ i s _ d e c l a r e d ) 
+ 
+ s^�S�esQ�8h�[���[��Bl�v  4   �p�lfN  C I   �tenx�[�Q(W�N�^̑0  . . .   o k 
+ 
+ t e s t _ x p m _ c o n f i g u r a t i o n _ i s _ f r o z e n   ( t x p m 1 3 . H o s t B r i d g e X p m W r a p p e r T e s t s . t e s t _ x p m _ c o n f i g u r a t i o n _ i s _ f r o z e n )   . . .   o k 
+ 
+ 
+ 
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+ 
+ R a n   5   t e s t s   i n   0 . 2 7 5 s 
+ 
+ 
+ 
+ O K 
+ 
+ I C A R U S 1 3 0 _ S U M M A R Y   t e s t s = 5   f a i l u r e s = 0   e r r o r s = 0   s k i p p e d = 0 
+ 
+ 
+## D. 修复后整个模块在裁定保留的固定路径 C:/msys64/ucrt64/bin（12.0 stable + 崩溃的 vvp）下的结果：
+##    3 条平台无关用例 ok、2 条仿真用例 SKIPPED/NOT APPLICABLE（工具链缺陷，与本轮 RTL 修复无关）
+
+��X P M _ T O O L C H A I N   p l a t f o r m = w i n 3 2   p y t h o n = 3 . 1 4 . 7   p a c k a g e = m i n g w - w 6 4 - u c r t - x 8 6 _ 6 4 - i v e r i l o g   i v e r i l o g = C : \ m s y s 6 4 \ u c r t 6 4 \ b i n \ i v e r i l o g . e x e   v v p = C : \ m s y s 6 4 \ u c r t 6 4 \ b i n \ v v p . e x e   i v e r i l o g _ v e r s i o n = ' I c a r u s   V e r i l o g   v e r s i o n   1 2 . 0   ( s t a b l e )   ( ) ' 
+ 
+ T O O L C H A I N _ D E F E C T = i v e r i l o g _ c o m p i l e _ s i l e n t _ c r a s h   r e t u r n _ c o d e = 0 x C 0 0 0 0 0 0 5   r e t r y _ w i t h o u t = - W a l l 
+ 
+ T O O L C H A I N _ D E F E C T = v v p . e x e _ r u n _ s i l e n t _ c r a s h   r e t u r n _ c o d e = 0 x C 0 0 0 0 0 0 5 
+ 
+ p y t h o n   :   t e s t _ b i d i r e c t i o n a l _ t r a n s p o r t _ b a c k p r e s s u r e _ w r a p _ a n d _ r e s e t   ( t e s t _ h o s t _ b r i d g e _ x p m _ w r a p p e r . H o s t B r i d g e X p m W r a p p e r T e s t s . t e s t _ b i d i r e c t i o n a l _ t r a n s p o r t _ b a c k p r e s s u r e _ w r a p _ a n d _ r e s e t 
+ 
+ )   . . .   s k i p p e d   ' S K I P P E D / N O T   A P P L I C A B L E :   t o o l c h a i n _ d e f e c t :   v v p . e x e   e x i t e d   w i t h   0 x C 0 0 0 0 0 0 5   a n d   p r o d u c e d   n o   o u t p u t   a t   a l l ,   s o   t h i s   i s   a n   i n c o m p l e t e / f a u l t y   M S Y S 2   U C R T 6 4   i n s t a l l   o n   t h i 
+ 
+ s   h o s t ,   n o t   a n   R T L   f a i l u r e ;   i n s t a l l   m i n g w - w 6 4 - u c r t - x 8 6 _ 6 4 - i v e r i l o g   p r o p e r l y ' 
+ 
+ A t   l i n e : 2   c h a r : 6 2 
+ 
+ +   . . .   \ g i t h u b _ p r ;   p y t h o n   - X   u t f 8   - m   u n i t t e s t   - v   t e s t _ h o s t _ b r i d g e _ x p m _ w r a p p e   . . . 
+ 
+ +                                   ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ 
+ 
+         +   C a t e g o r y I n f o                     :   N o t S p e c i f i e d :   ( t e s t _ b i d i r e c t i o . . . r i l o g   p r o p e r l y ' : S t r i n g )   [ ] ,   R e m o t e E x c e p t i o n 
+ 
+         +   F u l l y Q u a l i f i e d E r r o r I d   :   N a t i v e C o m m a n d E r r o r 
+ 
+   
+ 
+ T O O L C H A I N _ D E F E C T = i v e r i l o g _ c o m p i l e _ s i l e n t _ c r a s h   r e t u r n _ c o d e = 0 x C 0 0 0 0 0 0 5   r e t r y _ w i t h o u t = - W a l l 
+ 
+ T O O L C H A I N _ D E F E C T = v v p . e x e _ r u n _ s i l e n t _ c r a s h   r e t u r n _ c o d e = 0 x C 0 0 0 0 0 0 5 
+ 
+ t e s t _ i l l e g a l _ r e s e t _ r e e n t r y _ i s _ r e j e c t e d   ( t e s t _ h o s t _ b r i d g e _ x p m _ w r a p p e r . H o s t B r i d g e X p m W r a p p e r T e s t s . t e s t _ i l l e g a l _ r e s e t _ r e e n t r y _ i s _ r e j e c t e d )   . . .   s k i p p e d   ' S K I P P E D / N O T   A P P L I C A B L E :   t o o l c h 
+ 
+ a i n _ d e f e c t :   v v p . e x e   e x i t e d   w i t h   0 x C 0 0 0 0 0 0 5   a n d   p r o d u c e d   n o   o u t p u t   a t   a l l ,   s o   t h i s   i s   a n   i n c o m p l e t e / f a u l t y   M S Y S 2   U C R T 6 4   i n s t a l l   o n   t h i s   h o s t ,   n o t   a n   R T L   f a i l u r e ;   i n s t a l l   m i n g w - w 6 4 
+ 
+ - u c r t - x 8 6 _ 6 4 - i v e r i l o g   p r o p e r l y ' 
+ 
+ t e s t _ m o d e l _ d e c l a r e s _ e v e r y _ s i g n a l _ b e f o r e _ u s e   ( t e s t _ h o s t _ b r i d g e _ x p m _ w r a p p e r . H o s t B r i d g e X p m W r a p p e r T e s t s . t e s t _ m o d e l _ d e c l a r e s _ e v e r y _ s i g n a l _ b e f o r e _ u s e ) 
+ 
+ s^�S�esQY�`�[kS�!j�W�Q
+N�_�Q�s
+ �XfZf�NO(u
+ �v�O�S0  . . .   o k 
+ 
+ t e s t _ w i n d o w s _ m s y s 2 _ t o o l c h a i n _ d e p e n d e n c y _ i s _ d e c l a r e d   ( t e s t _ h o s t _ b r i d g e _ x p m _ w r a p p e r . H o s t B r i d g e X p m W r a p p e r T e s t s . t e s t _ w i n d o w s _ m s y s 2 _ t o o l c h a i n _ d e p e n d e n c y _ i s _ d e c l a r e d ) 
+ 
+ s^�S�esQ�8h�[���[��Bl�v  4   �p�lfN  C I   �tenx�[�Q(W�N�^̑0  . . .   o k 
+ 
+ t e s t _ x p m _ c o n f i g u r a t i o n _ i s _ f r o z e n   ( t e s t _ h o s t _ b r i d g e _ x p m _ w r a p p e r . H o s t B r i d g e X p m W r a p p e r T e s t s . t e s t _ x p m _ c o n f i g u r a t i o n _ i s _ f r o z e n )   . . .   o k 
+ 
+ 
+ 
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+ 
+ R a n   5   t e s t s   i n   1 9 . 5 1 6 s 
+ 
+ 
+ 
+ O K   ( s k i p p e d = 2 ) 
+ 
+ 
+# conclusion: 唯一缺陷是 xpm_fifo_async_sim.sv 的 ram_empty 声明晚于使用；把声明前移并改用 assign 后，
+#             Icarus 13.0 elaborate rc=0、vvp 13.0 两条 testbench 分别按预期 PASS / 触发 RESET_REENTRY_ERROR。

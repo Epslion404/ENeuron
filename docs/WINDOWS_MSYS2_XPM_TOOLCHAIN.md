@@ -34,9 +34,9 @@
 都会执行，逐项断言上面 4 点确实写在 docstring、workflow 和本文档里。任何人删掉注明、删掉
 Windows 作业或漏掉 `msys2` 包名，CI 会直接失败，而不是靠人工 review 记忆。
 
-不依赖仿真工具、因此在任何平台都真实执行的用例：`:487`、`:439`。
-只有两条需要跑仿真的用例才可能跳过：`:500`、`:505`（合计 `:513` 行文件里
-的 2/4）。
+不依赖仿真工具、因此在任何平台都真实执行的用例：`:487`、`:439`、
+`:503`（第 8 节的前向引用守卫）。只有两条需要跑仿真的用例才可能跳过：
+`:533`、`:538`（合计 5 条用例，见 `:546` 行文件）。
 
 ## 3. 本机（Windows）实测的工具链缺陷矩阵
 
@@ -79,8 +79,8 @@ Windows 作业或漏掉 `msys2` 包名，CI 会直接失败，而不是靠人工
 
 | 作业 | runner / Python | 工具来源 | 本测试的结果 |
 | --- | --- | --- | --- |
-| `Python and syntax` | ubuntu-latest / 3.12 | apt `iverilog` + `yosys`（`:32`） | `:487`、`:439` 真实执行；`:500`、`:505` 显示 `skipped "SKIPPED/NOT APPLICABLE: host platform is ...not win32...cannot run on an Ubuntu runner"`，notice 由 `:50` 打印到作业日志 |
-| `XPM CDC wrapper (Windows MSYS2 UCRT64)` | windows-latest / 3.12 | `msys2/setup-msys2@v2`（`msystem: UCRT64`，`install: mingw-w64-ucrt-x86_64-iverilog`）→ 落到固定路径 | 4 条用例全部真实执行，0 跳过；作业日志含 `XPM_TOOLCHAIN platform=win32 ...` 与 `XPM_WINDOWS_GATE=PASS` |
+| `Python and syntax` | ubuntu-latest / 3.12 | apt `iverilog` + `yosys`（`:32`） | `:487`、`:439` 真实执行；`:533`、`:538` 显示 `skipped "SKIPPED/NOT APPLICABLE: host platform is ...not win32...cannot run on an Ubuntu runner"`，notice 由 `:50` 打印到作业日志 |
+| `XPM CDC wrapper (Windows MSYS2 UCRT64)` | windows-latest / 3.12 | `msys2/setup-msys2@v2`（`msystem: UCRT64`，`install: mingw-w64-ucrt-x86_64-iverilog`）→ 落到固定路径 | 5 条用例全部真实执行，0 跳过；作业日志含 `XPM_TOOLCHAIN platform=win32 ...` 与 `XPM_WINDOWS_GATE=PASS` |
 | `NP7 functional and evidence gate` | ubuntu-latest / 3.12 | apt `iverilog` + `yosys` | 与本文件无关，不受影响 |
 | `NP7 physical evidence integrity` | ubuntu-latest / 3.12 | 纯 Python 校验 | 与本文件无关 |
 
@@ -148,10 +148,37 @@ Ubuntu 侧的跳过原因由 `toolchain_unavailability()`（`:86`）的第一个
      `verify_np4b_signoff.py` 触发）。此前该作业没装 Icarus，这条用例直接抛
      `FileNotFoundError` 被埋在 40 个 error 里；装上工具后才暴露。处理方式见下一节。
 
+### 4.3 run `33615563208`（head `ddb24fc`）：固定路径 provisioning 成功，但暴露模型的真实 RTL 缺陷
+
+- `Install Icarus Verilog with MSYS2 UCRT64` 与 `Provision and verify the fixed
+  C:/msys64/ucrt64/bin toolchain`（`:87`）**两步 success**；作业日志打印
+  `fixed_path_source=redirected_from=C:\msys64\msys64\ucrt64`，并列出
+  `C:/msys64/ucrt64/bin/iverilog.exe` = `Icarus Verilog version 13.0 (stable) (v13_0)`、
+  `vvp.exe` = `Icarus Verilog runtime version 13.0 (stable) (v13_0)` —— 裁定保留的固定路径
+  在 CI 里第一次被真实使用，`Show fixed toolchain paths and tool versions` 的诉求已满足。
+- `Run XPM CDC wrapper tests on Windows`（`:131`）失败，但**既不是** `NOT APPLICABLE`
+  **也不是** `TOOLCHAIN_DEFECT`：5 条用例 3 条 ok、2 条仿真用例在 elaborate 阶段 ERROR：
+
+  ```text
+  xpm_fifo_async_sim.sv:77: error: Unable to bind wire/reg/memory `ram_empty' in `tb.dut.command_fifo'
+  xpm_fifo_async_sim.sv:88: : A symbol with that name was declared here. Check for declaration after use.
+  ```
+
+- 根因在**本仓库自带的接口等价模型**，不在工具链：`ram_empty` 在 `:81` 被使用，
+  原先的声明却在文件更后面。`12.0 (devel) s20150603` 快照静默接受这种前向引用，MSYS2 的
+  13.0 明确拒绝。因此本轮按裁定 P2 修 RTL（声明前移 + `assign` 驱动），而不是放宽测试。
+- 完整日志切片：`artifacts/logs/xpm_wrapper_ci_run_33615563208.txt`。
+- 同一 run 的 `Python and syntax`（ubuntu）`Ran 408 tests in 686.704s →
+  FAILED (failures=2, skipped=3)`：两条失败是 `1844d74` 改动 barrier verifier 后 NP4B
+  `file_sha256` 未刷新（`test_current_summary_and_file_hashes_pass`、
+  `test_official_reverify_keeps_np4b_signoff_verifiable`），由本轮 rebind 提交处理；两条
+  XPM 仿真用例仍正确显示 `SKIPPED/NOT APPLICABLE`；`Check PR diff whitespace` 因前一步失败
+  被跳过，需在修复后的 run 中确认真实执行。
+
 ## 5. 本地复现命令（Windows，仓库根目录）
 
 ```powershell
-# 固定路径工具链缺陷 => 2 ok + 2 skipped(NOT APPLICABLE)，并打印 TOOLCHAIN_DEFECT= 行
+# 固定路径工具链缺陷 => 3 ok + 2 skipped(NOT APPLICABLE)，并打印 TOOLCHAIN_DEFECT= 行
 python -X utf8 -m unittest -v test_host_bridge_xpm_wrapper
 
 # 单跑平台无关的源码检查
@@ -165,7 +192,7 @@ python -X utf8 -c 'import sys, unittest; sys.platform="linux"; import test_host_
 ```
 
 
-上面这条命令实测输出 2 条 `skipped "SKIPPED/NOT APPLICABLE: host platform is 'linux' ..."` 与 2 条 `ok`，与 Ubuntu runner 上 `Python and syntax` 作业看到的行为一致（本机 Windows 固定路径运行结果见 `artifacts/logs/xpm_wrapper_windows_fixed_path.txt`）。
+上面这条命令实测输出 2 条 `skipped "SKIPPED/NOT APPLICABLE: host platform is 'linux' ..."` 与 3 条 `ok`，与 Ubuntu runner 上 `Python and syntax` 作业看到的行为一致（本机 Windows 固定路径运行结果见 `artifacts/logs/xpm_wrapper_windows_fixed_path.txt`）。
 仓库内固化的三份证据日志：
 
 | 文件 | 内容 |
@@ -173,6 +200,8 @@ python -X utf8 -c 'import sys, unittest; sys.platform="linux"; import test_host_
 | `artifacts/logs/xpm_wrapper_windows_fixed_path.txt` | 本机固定路径下 `python -X utf8 -m unittest -v test_host_bridge_xpm_wrapper` 的完整输出：`Ran 4 tests ... OK (skipped=2)`，含 `XPM_TOOLCHAIN ...` 与 4 条 `TOOLCHAIN_DEFECT=...` |
 | `artifacts/logs/xpm_wrapper_nonwindows_notice.txt` | 本机模拟非 Windows 平台（`sys.platform='linux'`）的输出：2 条 `skipped "SKIPPED/NOT APPLICABLE: host platform is ..."` + 2 条 `ok`，即 Ubuntu runner 应看到的行为 |
 | `artifacts/logs/xpm_toolchain_defect_matrix.txt` | 第 3 节缺陷矩阵的原始测量输出（A/B 两套 Icarus 的编译/仿真退出码与字节数） |
+| `artifacts/logs/xpm_wrapper_ci_run_33615563208.txt` | run `33615563208`（head `ddb24fc`）两条作业的日志切片：固定路径 provisioning 成功、`fixed_path_source=`、13.0 版本号、elaborate 报错、ubuntu 侧 2 条 NP4B 失败 |
+| `artifacts/logs/xpm_wrapper_icarus130_before_after.txt` | 用 CI 同版本 Icarus 13.0 做的修复前/后矩阵：守卫 FAIL(修复前)/OK(修复后)、elaborate rc=4→0、`vvp` 真实跑完并给出 `XPM_WRAPPER_TRANSPORT_PASS` 与 `RESET_REENTRY_ERROR`、整模块 `Ran 5 tests / OK / 0 skip` |
 
 ## 6. 维护规则
 
@@ -182,6 +211,9 @@ python -X utf8 -c 'import sys, unittest; sys.platform="linux"; import test_host_
 2. 不得把固定路径改写成跨平台默认，也不得用 `self.fail()` / `RuntimeError` 表达“工具没装”。
 3. 不得反向利用本机制：`TOOLCHAIN_DEFECT` 只在“无输出崩溃”时出现，任何有诊断输出的错误都必须失败。
 4. 若 CI 的 MSYS2 包版本升级导致 `-Wall` 行为变化，应更新本文第 3 节矩阵并注明版本与日期。
+5. 专用路径/专用安装的测试**不得**只靠“本机跑得通”的旧版本工具判断正确性：CI 与本机可能不是同一个
+   Icarus 版本（本机固定路径 12.0 (stable)、`C:\iverilog` 12.0 (devel) 快照、CI 13.0）。凡是被版本
+   严格性掩盖的写法（如第 8 节的“声明晚于使用”），必须补一条不依赖外部工具的静态守卫用例。
 
 ## 7. 同一固定路径的其他出现点（本轮一并处理）
 
@@ -203,3 +235,32 @@ verifier 一个文件：`iverilog` 既不在 PATH 也不在 UCRT64 固定路径�
 
 这两处规定由 `test_windows_msys2_toolchain_dependency_is_declared`（`:439`）在**每个平台**
 断言：barrier 文件必须同时含 `def find_tool` 与 `NOT APPLICABLE`，否则 CI 直接失败。
+
+## 8. Icarus 版本矩阵与“声明晚于使用”静态守卫（round 7 新增）
+
+本机与 CI 一共出现过 3 个 Icarus 构建，行为不同，必须区分记录，否则会把工具严格性差异误读成
+“仿真结果不一致”：
+
+| 构建 | 版本 | 位置 | `-Wall` 编译 | `vvp` 运行 | 前向引用（声明晚于使用） |
+| --- | --- | --- | --- | --- | --- |
+| A | 12.0 (stable) | 裁定保留的 `C:\msys64\ucrt64\bin`（本机 pacman 旧包） | 崩溃 0xC0000005（去 `-Wall` 后 rc=0） | 任意网表都崩溃 0xC0000005、无输出 | 静默接受 |
+| B | 12.0 (devel) s20150603-1539 | `C:\iverilog\bin`（本机另一套完整安装） | rc=0 | rc=0 | **静默接受**（因此本机历史上没发现该缺陷） |
+| C | 13.0 (stable) v13_0 | CI `windows-xpm-cdc` 安装的 `mingw-w64-ucrt-x86_64-iverilog`；本轮把**同一个包**（`...-1~13.0-2-any.pkg.tar.zst`，sha256 `fd4d7d7cb60cda1eb437f5476673503d92964cf47ce6c11b460eb3bd05c43582`）解压到 scratch 目录用于复现，**未安装、未改动 A** | rc=0 | rc=0 | **报错拒绝** |
+
+修复内容与验证：
+
+- `xpm_fifo_async_sim.sv`：在使用点之前 `wire ram_empty;`（`:78`），原位置改为
+  `assign ram_empty = rd_gray == wr_gray_sync2;`（`:92`）。纯声明位置前移，
+  表达式与位宽完全不变，因此不改变任何已验证行为。
+- 新增**平台无关**静态守卫 `test_model_declares_every_signal_before_use`（`:503`）：
+  扫描模型文件里的线网/寄存器声明，断言不存在“先使用后声明”。它不调用任何外部工具，
+  所以 Windows 与 Ubuntu 作业都会真实执行；把修复前的文件放回去，该用例立刻以
+  `[('ram_empty', 77, 88)]`（修复前的“使用行/声明行”）失败——用它做回归闸门，
+  不依赖某个 Icarus 版本。
+- 用构建 C（CI 同版本）实测：`Ran 5 tests ... OK`、**0 跳过**、无 `TOOLCHAIN_DEFECT`；
+  `TRANSPORT_TESTBENCH` 打印 `XPM_WRAPPER_TRANSPORT_PASS`，`ILLEGAL_RESET_TESTBENCH`
+  按预期以 `RESET_REENTRY_ERROR` 非 0 退出。原始输出见
+  `artifacts/logs/xpm_wrapper_icarus130_before_after.txt`。
+- 用构建 A（裁定保留的固定路径）实测：`Ran 5 tests ... OK (skipped=2)`，两条仿真用例仍因
+  `vvp.exe` 0xC0000005 崩溃转 `SKIPPED/NOT APPLICABLE` —— 本机固定路径依旧不能作为
+  “跑过仿真”的证据，真实执行证据来自构建 C 的复现与 CI `windows-xpm-cdc` 作业。
