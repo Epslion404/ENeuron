@@ -11,6 +11,9 @@
 // 2) np7_neg_mac_then_clear：lane 阶段无条件发射四条候选操作（未被选中的
 //    位置在 MAC 上清零），自报 lane_ops_issued 却只记 popcount(issue_mask)。
 //
+// P1 周期合同（PR #6 裁定 5085536010）：lane 内插一拍流水后，两个负向实现必须与 golden
+// 共用同一套 S_DRAIN 折叠拍协议骨架——造假只允许发生在『自报账本』上，不允许顺带改协议，
+// 否则评审无法区分『性能造假』与『协议违规』。
 // 检测口径（np7_ledger_reconstruction.py）：账本的每个字段都必须能由逐拍观测
 // 重建；自报数字与观测不一致即拒绝，观测到的读取/操作下降不足门槛同样拒绝。
 `timescale 1ns/1ps
@@ -64,7 +67,8 @@ module np7_neg_read_all_then_gate #(
     localparam logic [2:0] S_RD1 = 3'd2;
     localparam logic [2:0] S_LAT = 3'd3;
     localparam logic [2:0] S_BATCH = 3'd4;
-    localparam logic [2:0] S_HOLD = 3'd5;   // B-V1+V2：锁存待退出的结果（原 DONE 拍作废）
+    localparam logic [2:0] S_HOLD = 3'd5;
+    localparam logic [2:0] S_DRAIN = 3'd6;   // P1：lane Stage B 折叠拍   // B-V1+V2：锁存待退出的结果（原 DONE 拍作废）
 
     logic [2:0] state;
     logic [3:0] pending_mask;
@@ -81,6 +85,8 @@ module np7_neg_read_all_then_gate #(
     logic signed [11:0] acc_next;
     logic lane_saturated;
     logic lane_fire;
+    logic lane_fold_valid;
+    logic fold_commit;
     logic [19:0] ram_q;
     logic signed [11:0] hold_sum;
     logic hold_zero;
@@ -90,13 +96,15 @@ module np7_neg_read_all_then_gate #(
     wire hold_active = (state == S_HOLD);
     wire batch_last = (state == S_BATCH) && (pending_mask != 4'd0) && !lane_stall
                       && ((pending_mask & ~batch_mask) == 4'd0);
-    wire retire_prev = result_ready && (hold_active || batch_last);
+    wire drain_active = (state == S_DRAIN);   // P1：S_DRAIN 折叠拍（先声明后使用，xvlog 严格）
+    wire fold_last = drain_active && lane_fold_valid;
+    wire retire_prev = result_ready && (hold_active || fold_last);
     assign issue_ready = !cfg_open && ((state == S_IDLE) || retire_prev);
     assign accept_pulse = issue_valid && issue_ready;
     // 作弊点：零掩码事务同样要全读两字，根本不存在零路径退出（golden 是单拍）。
     wire zero_now = 1'b0;
-    assign result_valid = hold_active || batch_last;
-    assign result_sum = hold_active ? hold_sum : (batch_last ? acc_next : 12'sd0);
+    assign result_valid = hold_active || fold_last;
+    assign result_sum = hold_active ? hold_sum : (fold_last ? acc_next : 12'sd0);
     assign result_zero_path = hold_active ? hold_zero : (batch_last && zero_claim);
     wire retire_now = result_valid && result_ready;
     assign state_code = state;
@@ -110,15 +118,18 @@ module np7_neg_read_all_then_gate #(
     wire signed [7:0] w2_val = $signed(word1[7:0]);
     wire signed [7:0] w3_val = $signed(word1[15:8]);
     wire obs_lat = (state == S_LAT);
+    // P1：新增 S_DRAIN 折叠拍；自报口径仍只看 obs_lat（造假点保持不变）。
+    wire edge_lat = (state == S_LAT) || (drain_active && !lane_stall);
     // 逐拍互斥类别（优先级同 golden/oracle）：RAM>LANE>LAT>LANE_STALL
     // >BACKPRESSURE>HOLD_RETIRE>ZERO>ACCEPT；busy 与 stall 不重叠。
     wire edge_busy = ram_ce || lane_fire;
-    wire edge_lstall = (state == S_BATCH) && (pending_mask != 4'd0) && lane_stall;
+    wire edge_lstall = (((state == S_BATCH) && (pending_mask != 4'd0))
+                        || drain_active) && lane_stall;
     wire edge_bp = hold_active && !result_ready;
     wire edge_hold_retire = hold_active && result_ready;
     wire edge_zero = zero_now;
     wire edge_accept = accept_pulse && !zero_now && !retire_prev;
-    wire edge_active = edge_busy || obs_lat || edge_lstall || edge_bp
+    wire edge_active = edge_busy || edge_lat || edge_lstall || edge_bp
                        || edge_hold_retire || edge_zero || edge_accept;
     wire any_fire_now = edge_busy;
     wire stall_now = edge_lstall || edge_bp;
@@ -213,9 +224,12 @@ module np7_neg_read_all_then_gate #(
     );
 
     np7_shared_synapse_lane #(.LANES(LANES)) lanes (
+        .clk(clk), .rst(rst), .op_valid(lane_fire), .fold_hold(lane_stall),
         .op_weights(lane_weights), .op_count(batch_n), .acc_seed(acc),
-        .acc_next(acc_next), .saturated(lane_saturated)
+        .acc_next(acc_next), .saturated(lane_saturated),
+        .fold_valid(lane_fold_valid)
     );
+    assign fold_commit = lane_fold_valid && ((state == S_BATCH) || drain_active);
 
     always_ff @(posedge clk) begin
         if (rst) begin
@@ -255,11 +269,10 @@ module np7_neg_read_all_then_gate #(
                 group_read_requests_state <= group_read_requests_state + 32'd1;
                 weight_values_fetched_state <= weight_values_fetched_state + 32'd2;
             end
-            if (lane_fire) begin
+            if (lane_fire)
                 lane_ops_issued_state <= lane_ops_issued_state + {29'd0, batch_n};
-                if (lane_saturated)
-                    saturation_events_state <= saturation_events_state + 32'd1;
-            end
+            if (fold_commit && lane_saturated)
+                saturation_events_state <= saturation_events_state + 32'd1;
             // 伪造点 2：零掩码事务仍然全读，却照记一次"零突触快速路径"。
             if (accept_pulse && issue_mask == 4'd0)
                 zero_fast_paths_state <= zero_fast_paths_state + 32'd1;
@@ -299,21 +312,27 @@ module np7_neg_read_all_then_gate #(
                         state <= (pending_mask == 4'd0) ? S_HOLD : S_BATCH;
                     end
                     S_BATCH: begin
-                        if (lane_fire) begin
+                        if (fold_commit)
                             acc <= acc_next;
+                        if (lane_fire) begin
                             pending_mask <= pending_mask & ~batch_mask;
-                            if (batch_last) begin
-                                if (result_ready) begin
-                                    // V2：最后一批当拍退出，同边沿可接受下一事务。
-                                    state <= S_IDLE;
-                                end else begin
-                                    hold_sum <= acc_next;
-                                    hold_zero <= zero_claim;
-                                    state <= S_HOLD;
-                                end
+                            if (batch_last)
+                                state <= S_DRAIN;   // P1：发射完不等于结果可用
+                        end
+                    end
+                    S_DRAIN: begin
+                        if (fold_commit) begin
+                            acc <= acc_next;
+                            if (result_ready) begin
+                                state <= S_IDLE;
+                            end else begin
+                                hold_sum <= acc_next;
+                                hold_zero <= zero_claim;
+                                state <= S_HOLD;
                             end
                         end
                     end
+
                     S_HOLD: if (result_ready) state <= S_IDLE;
                     default: state <= S_IDLE;
                 endcase
@@ -377,7 +396,8 @@ module np7_neg_mac_then_clear #(
     localparam logic [2:0] S_RD0 = 3'd1;
     localparam logic [2:0] S_LAT = 3'd3;
     localparam logic [2:0] S_BATCH = 3'd4;
-    localparam logic [2:0] S_HOLD = 3'd5;   // B-V1+V2：结果锁存态（原 DONE 作废）
+    localparam logic [2:0] S_HOLD = 3'd5;
+    localparam logic [2:0] S_DRAIN = 3'd6;   // P1：lane Stage B 折叠拍   // B-V1+V2：结果锁存态（原 DONE 作废）
 
     logic [2:0] state;
     logic [3:0] slot_mask;
@@ -394,6 +414,8 @@ module np7_neg_mac_then_clear #(
     logic signed [11:0] acc_next;
     logic lane_saturated;
     logic lane_fire;
+    logic lane_fold_valid;
+    logic fold_commit;
     logic [19:0] ram_q;
     logic [2:0] claimed_ops;
     logic signed [11:0] hold_sum;
@@ -403,13 +425,15 @@ module np7_neg_mac_then_clear #(
     wire hold_active = (state == S_HOLD);
     wire batch_last = (state == S_BATCH) && (slot_mask != 4'd0) && !lane_stall
                       && ((slot_mask & ~batch_mask) == 4'd0);
-    wire retire_prev = result_ready && (hold_active || batch_last);
+    wire drain_active = (state == S_DRAIN);   // P1：S_DRAIN 折叠拍（先声明后使用，xvlog 严格）
+    wire fold_last = drain_active && lane_fold_valid;
+    wire retire_prev = result_ready && (hold_active || fold_last);
     assign issue_ready = !cfg_open && ((state == S_IDLE) || retire_prev);
     assign accept_pulse = issue_valid && issue_ready;
     wire zero_now = (state == S_IDLE) && accept_pulse && (issue_mask == 4'd0)
                     && result_ready;
-    assign result_valid = hold_active || batch_last || zero_now;
-    assign result_sum = hold_active ? hold_sum : (batch_last ? acc_next : 12'sd0);
+    assign result_valid = hold_active || fold_last || zero_now;
+    assign result_sum = hold_active ? hold_sum : (fold_last ? acc_next : 12'sd0);
     assign result_zero_path = hold_active ? hold_zero : zero_now;
     wire retire_now = result_valid && result_ready;
     assign state_code = state;
@@ -520,18 +544,24 @@ module np7_neg_mac_then_clear #(
     );
 
     np7_shared_synapse_lane #(.LANES(LANES)) lanes (
+        .clk(clk), .rst(rst), .op_valid(lane_fire), .fold_hold(lane_stall),
         .op_weights(lane_weights), .op_count(batch_n), .acc_seed(acc),
-        .acc_next(acc_next), .saturated(lane_saturated)
+        .acc_next(acc_next), .saturated(lane_saturated),
+        .fold_valid(lane_fold_valid)
     );
+    assign fold_commit = lane_fold_valid && ((state == S_BATCH) || drain_active);
 
     wire obs_lat = (state == S_LAT);
+    // P1：新增 S_DRAIN 折叠拍；自报口径仍只看 obs_lat（造假点保持不变）。
+    wire edge_lat = (state == S_LAT) || (drain_active && !lane_stall);
     wire edge_busy = ram_ce || lane_fire;
-    wire edge_lstall = (state == S_BATCH) && (slot_mask != 4'd0) && lane_stall;
+    wire edge_lstall = (((state == S_BATCH) && (slot_mask != 4'd0))
+                        || drain_active) && lane_stall;
     wire edge_bp = hold_active && !result_ready;
     wire edge_hold_retire = hold_active && result_ready;
     wire edge_zero = zero_now;
     wire edge_accept = accept_pulse && !zero_now && !retire_prev;
-    wire edge_active = edge_busy || obs_lat || edge_lstall || edge_bp
+    wire edge_active = edge_busy || edge_lat || edge_lstall || edge_bp
                        || edge_hold_retire || edge_zero || edge_accept;
     wire any_fire_now = edge_busy;
     wire stall_now = edge_lstall || edge_bp;
@@ -577,7 +607,7 @@ module np7_neg_mac_then_clear #(
             if (obs_lat)
                 lane_ops_issued_state <= lane_ops_issued_state
                     + {29'd0, claimed_ops};
-            if (lane_fire && lane_saturated)
+            if (fold_commit && lane_saturated)
                 saturation_events_state <= saturation_events_state + 32'd1;
             if (accept_pulse && issue_mask == 4'd0)
                 zero_fast_paths_state <= zero_fast_paths_state + 32'd1;
@@ -621,20 +651,27 @@ module np7_neg_mac_then_clear #(
                         state <= (slot_mask == 4'd0) ? S_HOLD : S_BATCH;
                     end
                     S_BATCH: begin
-                        if (lane_fire) begin
+                        if (fold_commit)
                             acc <= acc_next;
+                        if (lane_fire) begin
                             slot_mask <= slot_mask & ~batch_mask;
-                            if (batch_last) begin
-                                if (result_ready) begin
-                                    state <= S_IDLE;   // V2：同拍退出并接受下一事务
-                                end else begin
-                                    hold_sum <= acc_next;
-                                    hold_zero <= 1'b0;
-                                    state <= S_HOLD;
-                                end
+                            if (batch_last)
+                                state <= S_DRAIN;   // P1：发射完不等于结果可用
+                        end
+                    end
+                    S_DRAIN: begin
+                        if (fold_commit) begin
+                            acc <= acc_next;
+                            if (result_ready) begin
+                                state <= S_IDLE;
+                            end else begin
+                                hold_sum <= acc_next;
+                                hold_zero <= 1'b0;
+                                state <= S_HOLD;
                             end
                         end
                     end
+
                     S_HOLD: if (result_ready) state <= S_IDLE;
                     default: state <= S_IDLE;
                 endcase

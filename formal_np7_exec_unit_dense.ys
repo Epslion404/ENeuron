@@ -4,4 +4,4 @@ prep -top formal_np7_exec_unit_dense -flatten
 async2sync
 memory_map
 opt_clean
-sat -seq 14 -set-assumes -set-init-zero -prove-asserts -verify
+sat -seq 16 -set-assumes -set-init-zero -prove-asserts -verify

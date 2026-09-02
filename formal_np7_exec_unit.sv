@@ -13,7 +13,9 @@
 //   P7 上游门控一致性：protocol_error/cfg_error/cfg_illegal_index 恒 0；
 //   P8 背压稳定性：锁存期间 result_valid/result_sum/result_zero_path 逐拍保持；
 //   P9 同拍元数据分离：retire 与 accept 同边沿时退出的结果属于上一事务；
-//   P10 lane_stall 不提前完成：被挡住的 BATCH 拍不得给出结果，也不得接受下一事务。
+//   P11 lane 一拍流水时序：result_valid 只来自 HOLD/DRAIN 折叠拍/V1 零路径，
+//       最后一批发射后的下一拍恰好是 S_DRAIN（正好晚 1 拍，见 P1 裁定）。
+ //   P10 lane_stall 不提前完成：被挡住的 BATCH 拍不得给出结果，也不得接受下一事务。
 //
 // 与上一轮的差别：形式输入不再假设"无反压"，lane_stall 与 result_ready 逐拍自由，
 // 因为背压稳定性与同拍不覆盖正是本轮裁定要求证明的性质；影子账本按 B-V1+V2 的
@@ -104,6 +106,8 @@ module formal_np7_exec_unit(input logic clk);
     //   saw_fold         V2 旧结果退出与下一事务接受同一边沿
     //   saw_backpressure 结果背压保持拍（S_HOLD 且 result_ready=0）
     //   saw_lane_stall   lane_stall 挡住 BATCH 的拍
+    // P11（P1 流水时序）影子：上一拍是否发射了本事务的最后一批
+    logic       prev_last_fire;
     logic        saw_zero_single;
     logic        saw_zero_hold;
     logic        saw_fold;
@@ -143,8 +147,15 @@ module formal_np7_exec_unit(input logic clk);
     wire raw_bp = result_valid && !result_ready;
     wire e_ram = ram_ce;
     wire e_lane = (lane_fire_count != 3'd0);
-    wire e_lat = (state_code == 3'd3);
-    wire e_lstall = (state_code == 3'd4) && lane_stall;
+    // P1 周期合同（PR #6 裁定 5085536010）：新增 state_code=6 即 S_DRAIN，lane 的
+    // Stage B 在该拍折叠最后一批。折叠拍归 LAT 类（latency_cycles），被 lane_stall
+    // 停住的折叠拍归 LANE_STALL 类；但权重读取仍只发生在真正的 S_LAT 拍，所以把两件事
+    // 拆成 e_lat_val（权重口径）与 e_lat（账本分类口径），与 RTL 逐拍计数器一一对应。
+    wire hold_st = (state_code == 3'd5);
+    wire drain_st = (state_code == 3'd6);
+    wire e_lat_val = (state_code == 3'd3);
+    wire e_lat = e_lat_val || (drain_st && !lane_stall);
+    wire e_lstall = ((state_code == 3'd4) || drain_st) && lane_stall;
     wire e_bp = (state_code == 3'd5) && raw_bp;
     wire e_hr = (state_code == 3'd5) && result_valid && result_ready;
     wire e_zero = accept_pulse && (issue_mask == 4'd0) && done_now
@@ -153,6 +164,9 @@ module formal_np7_exec_unit(input logic clk);
     // 旧结果已退出、且本拍接受的零路径事务同拍完成 -> 该事务不留下在途结果。
     wire v1_single_done = accept_pulse && !outstanding && done_now
                           && (issue_mask == 4'd0);
+    // P11：本拍发射的批次是否覆盖掉事务剩下的全部槽位（= 最后一批发射拍）
+    wire last_fire_now = e_lane && outstanding
+                         && ((fired | batch_mask) == txn_mask);
     wire e_active = e_ram || e_lane || e_lat || e_lstall || e_bp || e_hr
                     || e_zero || e_own;
 
@@ -184,6 +198,7 @@ module formal_np7_exec_unit(input logic clk);
             prev_bp <= 1'b0;
             prev_sum <= 12'sd0;
             prev_zero_flag <= 1'b0;
+            prev_last_fire <= 1'b0;
             s_total <= 32'd0; s_busy <= 32'd0; s_stall <= 32'd0; s_lat <= 32'd0;
             s_lstall <= 32'd0; s_bp <= 32'd0; s_hr <= 32'd0; s_zero <= 32'd0;
             s_own <= 32'd0; s_accepts <= 32'd0; s_retires <= 32'd0;
@@ -249,6 +264,18 @@ module formal_np7_exec_unit(input logic clk);
                 assert(!result_valid);
                 assert(!accept_pulse);
             end
+            // P11 lane 一拍流水的时序合同（PR #6 裁定 5085536010 §一第 3 项）：
+            //   (a) result_valid 只可能来自 S_HOLD、S_DRAIN 折叠拍或 V1 零路径；
+            //   (b) 最后一批发射后的『下一拍』恰好落在 S_DRAIN（不迟不早，正好 1 拍）；
+            //   (c) S_DRAIN 的非 stall 拍一定给出 result_valid（配合 P10 的反向保证）。
+            if (result_valid)
+                assert(hold_st || (drain_st && !lane_stall) || e_zero);
+            if (prev_last_fire)
+                assert(state_code == 3'd6);
+            if (drain_st && !lane_stall) begin
+                assert(result_valid);
+                assert(!accept_pulse || done_now);
+            end
             // P7 上游门控一致性
             assert(!protocol_error);
             assert(!cfg_error);
@@ -281,7 +308,7 @@ module formal_np7_exec_unit(input logic clk);
                 s_accepts <= s_accepts + {31'd0, accept_pulse};
                 s_retires <= s_retires + {31'd0, done_now};
                 s_reads <= s_reads + {31'd0, e_ram};
-                s_vals <= s_vals + (e_lat ? VALS_PER_LAT : 32'd0);
+                s_vals <= s_vals + (e_lat_val ? VALS_PER_LAT : 32'd0);
                 s_ops <= s_ops + {29'd0, lane_fire_count};
                 s_zero_paths <= s_zero_paths + {31'd0,
                               (accept_pulse && (issue_mask == 4'd0))};
@@ -309,6 +336,7 @@ module formal_np7_exec_unit(input logic clk);
                 assert(!(saw_backpressure && !(s_bp > 32'd0)));
                 assert(!(saw_lane_stall && !(s_lstall > 32'd0)));
             end
+            prev_last_fire <= last_fire_now;
             prev_bp <= raw_bp;
             prev_sum <= result_sum;
             prev_zero_flag <= result_zero_path;
@@ -436,6 +464,8 @@ module formal_np7_exec_unit_dense(input logic clk);
     //   saw_fold         V2 旧结果退出与下一事务接受同一边沿
     //   saw_backpressure 结果背压保持拍（S_HOLD 且 result_ready=0）
     //   saw_lane_stall   lane_stall 挡住 BATCH 的拍
+    // P11（P1 流水时序）影子：上一拍是否发射了本事务的最后一批
+    logic       prev_last_fire;
     logic        saw_zero_single;
     logic        saw_zero_hold;
     logic        saw_fold;
@@ -475,8 +505,15 @@ module formal_np7_exec_unit_dense(input logic clk);
     wire raw_bp = result_valid && !result_ready;
     wire e_ram = ram_ce;
     wire e_lane = (lane_fire_count != 3'd0);
-    wire e_lat = (state_code == 3'd3);
-    wire e_lstall = (state_code == 3'd4) && lane_stall;
+    // P1 周期合同（PR #6 裁定 5085536010）：新增 state_code=6 即 S_DRAIN，lane 的
+    // Stage B 在该拍折叠最后一批。折叠拍归 LAT 类（latency_cycles），被 lane_stall
+    // 停住的折叠拍归 LANE_STALL 类；但权重读取仍只发生在真正的 S_LAT 拍，所以把两件事
+    // 拆成 e_lat_val（权重口径）与 e_lat（账本分类口径），与 RTL 逐拍计数器一一对应。
+    wire hold_st = (state_code == 3'd5);
+    wire drain_st = (state_code == 3'd6);
+    wire e_lat_val = (state_code == 3'd3);
+    wire e_lat = e_lat_val || (drain_st && !lane_stall);
+    wire e_lstall = ((state_code == 3'd4) || drain_st) && lane_stall;
     wire e_bp = (state_code == 3'd5) && raw_bp;
     wire e_hr = (state_code == 3'd5) && result_valid && result_ready;
     wire e_zero = accept_pulse && (issue_mask == 4'd0) && done_now
@@ -485,6 +522,9 @@ module formal_np7_exec_unit_dense(input logic clk);
     // 旧结果已退出、且本拍接受的零路径事务同拍完成 -> 该事务不留下在途结果。
     wire v1_single_done = accept_pulse && !outstanding && done_now
                           && (issue_mask == 4'd0);
+    // P11：本拍发射的批次是否覆盖掉事务剩下的全部槽位（= 最后一批发射拍）
+    wire last_fire_now = e_lane && outstanding
+                         && ((fired | batch_mask) == txn_mask);
     wire e_active = e_ram || e_lane || e_lat || e_lstall || e_bp || e_hr
                     || e_zero || e_own;
 
@@ -517,6 +557,7 @@ module formal_np7_exec_unit_dense(input logic clk);
             prev_bp <= 1'b0;
             prev_sum <= 12'sd0;
             prev_zero_flag <= 1'b0;
+            prev_last_fire <= 1'b0;
             s_total <= 32'd0; s_busy <= 32'd0; s_stall <= 32'd0; s_lat <= 32'd0;
             s_lstall <= 32'd0; s_bp <= 32'd0; s_hr <= 32'd0; s_zero <= 32'd0;
             s_own <= 32'd0; s_accepts <= 32'd0; s_retires <= 32'd0;
@@ -582,6 +623,18 @@ module formal_np7_exec_unit_dense(input logic clk);
                 assert(!result_valid);
                 assert(!accept_pulse);
             end
+            // P11 lane 一拍流水的时序合同（PR #6 裁定 5085536010 §一第 3 项）：
+            //   (a) result_valid 只可能来自 S_HOLD、S_DRAIN 折叠拍或 V1 零路径；
+            //   (b) 最后一批发射后的『下一拍』恰好落在 S_DRAIN（不迟不早，正好 1 拍）；
+            //   (c) S_DRAIN 的非 stall 拍一定给出 result_valid（配合 P10 的反向保证）。
+            if (result_valid)
+                assert(hold_st || (drain_st && !lane_stall) || e_zero);
+            if (prev_last_fire)
+                assert(state_code == 3'd6);
+            if (drain_st && !lane_stall) begin
+                assert(result_valid);
+                assert(!accept_pulse || done_now);
+            end
             // P7 上游门控一致性
             assert(!protocol_error);
             assert(!cfg_error);
@@ -614,7 +667,7 @@ module formal_np7_exec_unit_dense(input logic clk);
                 s_accepts <= s_accepts + {31'd0, accept_pulse};
                 s_retires <= s_retires + {31'd0, done_now};
                 s_reads <= s_reads + {31'd0, e_ram};
-                s_vals <= s_vals + (e_lat ? VALS_PER_LAT : 32'd0);
+                s_vals <= s_vals + (e_lat_val ? VALS_PER_LAT : 32'd0);
                 s_ops <= s_ops + {29'd0, lane_fire_count};
                 s_zero_paths <= s_zero_paths + {31'd0,
                               (accept_pulse && (issue_mask == 4'd0))};
@@ -642,6 +695,7 @@ module formal_np7_exec_unit_dense(input logic clk);
                 assert(!(saw_backpressure && !(s_bp > 32'd0)));
                 assert(!(saw_lane_stall && !(s_lstall > 32'd0)));
             end
+            prev_last_fire <= last_fire_now;
             prev_bp <= raw_bp;
             prev_sum <= result_sum;
             prev_zero_flag <= result_zero_path;

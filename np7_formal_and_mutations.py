@@ -155,6 +155,22 @@ RTL_MUTATIONS = [
      '    assign issue_ready = !cfg_open && ((state == S_IDLE) || retire_prev);',
      '    assign issue_ready = !cfg_open; // MUTATION 在途/背压时仍接受下一事务',
      "dense_protocol", "背压时错误接受（稠密基线）"),
+    # P1 周期合同（PR #6 裁定 5085536010 §一第 5 项）：lane 一拍流水的三个造假点。
+    #   lane_hold_ignored  —— lane 无视 lane_stall，被停住的折叠拍照样出结果；
+    #   *_fold_last_early  —— 顶层回到"发射拍即出结果"的旧口径，比流水真实时刻早 1 拍。
+    # 三者都必须被 P10/P11（或 P9 的 result_sum 对照）抓住，否则流水时序证明是空的。
+    ("lane_hold_ignored", "np7_shared_synapse_lane.sv",
+     "    assign fold_valid = valid_q && !fold_hold;",
+     "    assign fold_valid = valid_q; // MUTATION lane_stall 期间照样折叠出结果",
+     "sparse_protocol", "lane 无视 hold，被停住的折叠拍提前完成"),
+    ("sparse_fold_last_early", "np7_exec_unit_sparse.sv",
+     "    wire fold_last = drain_active && lane_fold_valid;",
+     "    wire fold_last = (state == S_BATCH) && lane_fire && batch_last; // MUTATION",
+     "sparse_protocol", "sparse 在发射拍就出结果，比 Stage B 折叠早 1 拍"),
+    ("dense_fold_last_early", "np7_exec_unit_dense.sv",
+     "    wire fold_last = drain_active && lane_fold_valid;",
+     "    wire fold_last = (state == S_BATCH) && lane_fire && batch_last; // MUTATION",
+     "dense_protocol", "dense 在发射拍就出结果，比 Stage B 折叠早 1 拍"),
 ]
 
 

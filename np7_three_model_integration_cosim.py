@@ -167,15 +167,22 @@ class SharedLaneIntegrator:
     @staticmethod
     def _solo_total(unit: SharedLaneUnit,
                     stream: Sequence[tuple[int, int]]) -> int:
-        """不使用 V1/V2 时的周期和：非零 3+words+ceil(k/L)、零路径 2 拍，逐段相加。"""
+        """不使用折叠时的周期和（P1 闭式：4+words+ceil(k/L)；零路径 2 拍），逐笔相加。
+
+        P1 周期合同（PR #6 裁定 5085536010）把 lane 切成两级流水：最后一批发射之后还要
+        一拍 S_DRAIN 才由 Stage B 折叠出结果，所以每个非零事务的闭式多 1 拍；V1 零路径
+        不进 lane，保持 2 拍不变。本式与 run_stream 的逐拍仿真相互独立，两者一致才算
+        证明（NP7.4 的 solo_vs_stream 折叠收益、G3 的绝对周期都据此复核）。
+        """
         total = 0
         for group_id, activity in stream:
             plan = unit._plan(group_id, activity)
             if plan.issue == 0:
                 total += 2
             else:
-                total += 3 + plan.words + len(plan.batches)
+                total += 4 + plan.words + len(plan.batches)
         return total
+
 
     def v2_evidence(self) -> dict[str, Any]:
         """上游是否真的吃到 V2：折叠节省的周期与同拍 retire/accept 次数。"""

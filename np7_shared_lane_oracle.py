@@ -29,6 +29,12 @@ WEIGHT_PAD_BITS = WORD_BITS - WEIGHTS_PER_WORD * WEIGHT_BITS
 RAM_DEPTH = 32
 ADDR_BITS = 5
 LANE_COUNTS = (1, 2, 4, 8)
+# P1 周期合同（PR #6 管理员裁定 5085536010，2026-09-02）：lane 的饱和加法/事件计数
+# 路径插入一拍流水寄存器，Stage A（gate+饱和树）与 Stage B（根节点+acc 折叠+饱和判定）
+# 之间寄存。后果：每个非零事务多 1 个 S_DRAIN 折叠拍（计入 latency_cycles），lane 吞吐
+# 仍是 1 batch/拍，V1 零路径仍是单拍完成。旧 B-V1+V2 闭式周期降级为历史证据。
+CYCLE_CONTRACT = "P1-lane-pipeline-v1"
+DRAIN_CYCLES_PER_NONZERO_TXN = 1
 DENSE_WORDS_PER_GROUP = 2
 SPARSE_WORDS_PER_GROUP = 1
 
@@ -530,12 +536,14 @@ class SharedLaneUnit:
         hold_index = -1
         next_index = 0
         last_work_cycle = -1
+        inflight: tuple[int, int] | None = None   # P1：(部分和, 是否最后一批)
         while not (next_index == total and cur is None and not hold_active):
             if cycle > 64 * total + 4096:
                 raise AssertionError("run_stream 未在有限拍内收敛")
             ls = 1 if stall_fn(cycle) else 0
             rr = 1 if ready_fn(cycle) else 0
             ce = ad = lf = lat = lstall = 0
+            issue_tree = None      # P1 Stage A 本拍产出，下一拍由 Stage B 折叠
             lpos: tuple[int, ...] = ()
             rv = zp = sum_out = 0
             acc_next = acc
@@ -556,25 +564,20 @@ class SharedLaneUnit:
                 if ls:
                     lstall = 1
                 else:
+                    # P1 Stage A：gate + 饱和加法树，不碰 acc；折叠在下一拍的 Stage B。
                     batch = cur.batches[batch_index]
                     lf = len(batch)
                     lpos = tuple(batch)
-                    total_now = tree_sum([cur.values[position] for position in batch])
-                    acc_next = sat_add(acc, total_now)
+                    issue_tree = tree_sum([cur.values[position] for position in batch])
                     batch_last = (batch_index + 1 == len(cur.batches))
-                    if acc_next != acc + total_now:
-                        led.saturation_events += 1
-                        sat_cycles.add(cycle)
-                    if batch_last:
-                        rv = 1
-                        sum_out = acc_next
-                        if rr:
-                            retire_index = cur_index
-                            retire_val = acc_next
-                        else:
-                            latch_now = 1
-                    if ce or lf or lat:
-                        last_work_cycle = cycle
+            elif state == "DRAIN":
+                # P1 Stage B 折叠拍：非 stall 时是一拍 latency（DRAIN 拍归 LAT 类）；
+                # lane_stall=1 时停在 DRAIN，既不折叠也不出结果、不接受下一笔。
+                if ls:
+                    lstall = 1
+                else:
+                    lat = 1
+                    last_work_cycle = cycle
             elif state == "READ" and cur is not None:
                 ce = 1
                 ad = cur.base + word_index
@@ -584,6 +587,32 @@ class SharedLaneUnit:
                 last_work_cycle = cycle
             elif state == "IDLE":
                 pass
+            # ---- P1 Stage B：折叠上一拍寄存的部分和（与发射整整解耦 1 拍）----
+            fold_now = 0
+            fold_last = 0
+            if inflight is not None and state not in ("BATCH", "DRAIN"):
+                raise AssertionError("P1 lane 流水：in-flight 只能存在于 BATCH/DRAIN")
+            if inflight is not None and not ls:
+                fold_now = 1
+                tree_q, is_last_batch = inflight
+                acc_next = sat_add(acc, tree_q)
+                if acc_next != acc + tree_q:
+                    led.saturation_events += 1
+                    sat_cycles.add(cycle)
+                if is_last_batch:
+                    fold_last = 1
+                    rv = 1
+                    sum_out = acc_next
+                    if rr:
+                        retire_index = cur_index
+                        retire_val = acc_next
+                    else:
+                        latch_now = 1
+                inflight = None
+            if issue_tree is not None:
+                inflight = (issue_tree, 1 if batch_last else 0)
+            if ce or lf or lat:
+                last_work_cycle = cycle
             retired_before = retire_index >= 0
             accept_index = -1
             plan = plans[next_index] if next_index < total else None
@@ -634,7 +663,7 @@ class SharedLaneUnit:
                 led.group_read_requests += 1
             if lf:
                 led.lane_ops_issued += lf
-            if batch_last and not rr:
+            if fold_last and not rr:
                 led.retire_latch_cycles += 1
             if accept_index >= 0:
                 new_plan = plans[accept_index]
@@ -678,18 +707,21 @@ class SharedLaneUnit:
                      (retire_index if retire_index >= 0 else cur_index))))
             if retire_from_hold:
                 hold_active = False
+            if fold_now:
+                acc = acc_next          # P1 Stage B 写回累加器
             if lf:
-                acc = acc_next
                 batch_index += 1
                 if batch_last:
-                    if latch_now:
-                        hold_active = True
-                        hold_val = acc_next
-                        hold_zero = 0
-                        hold_index = cur_index
-                    cur = None
-                    cur_index = -1
-                    state = "IDLE"
+                    state = "DRAIN"     # P1：最后一批发射完，下一拍才折叠出结果
+            elif state == "DRAIN" and fold_last:
+                if latch_now:
+                    hold_active = True
+                    hold_val = acc_next
+                    hold_zero = 0
+                    hold_index = cur_index
+                cur = None
+                cur_index = -1
+                state = "IDLE"
             elif state == "READ" and ce:
                 word_index += 1
                 if word_index == cur.words:

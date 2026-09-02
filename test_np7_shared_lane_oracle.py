@@ -2,6 +2,12 @@
 
 覆盖 16 种活动掩码、6 种合法 2:4 结构、三类非法索引，以及 1/2/4/8 lane
 的精确请求、操作、周期与突触和账本。
+
+P1 周期合同（PR #6 管理员裁定 5085536010，2026-09-02）：lane 的饱和加法/事件计数
+路径插入一拍流水寄存器，最后一批发射之后还要一拍 Stage B 折叠才出结果，因此每笔
+非零事务的闭式周期各 +1；V1 零路径不进流水，仍是单拍 accept+result 同边沿。
+LanePipelineTests 直接钉住『晚一拍』『DRAIN 拍受 lane_stall 背压』『DRAIN 折叠拍
+遇 result_ready=0 锁存』三条新性质。
 """
 
 from __future__ import annotations
@@ -11,7 +17,9 @@ import unittest
 
 from np7_shared_lane_oracle import (
     ACC_MAX,
+    CYCLE_CONTRACT,
     ConfigError,
+    DRAIN_CYCLES_PER_NONZERO_TXN,
     FORMAT_DENSE,
     FORMAT_SPARSE,
     GROUP_WIDTH,
@@ -45,15 +53,17 @@ def build(fmt: str, lane_count: int, weights, indices) -> SharedLaneUnit:
 
 
 def expected_cycles(fmt: str, lane_count: int, ops: int) -> int:
-    """B-V1+V2 单笔（冷启动）事务的闭式周期：1(ACCEPT) + READ + 1(LAT) + batches。
+    """P1 单笔（冷启动）非零事务的闭式周期。
 
+    1(ACCEPT) + READ + 1(LAT) + batches(Stage A 发射) + DRAIN(Stage B 折叠)。
     旧合同的独立 DONE 拍已作废；冷启动时 accept 无法折叠，仍占 1 拍。
+    V1 零路径不进 lane 流水，保持单拍。
     """
     if ops == 0:
         return ZERO_CYCLES
     batches = (ops + lane_count - 1) // lane_count
     base = 4 if fmt == FORMAT_DENSE else 3
-    return base + batches
+    return base + batches + DRAIN_CYCLES_PER_NONZERO_TXN
 
 
 class RecordFormatTests(unittest.TestCase):
@@ -281,7 +291,8 @@ class CycleLedgerTests(unittest.TestCase):
                 want_words = 2 if fmt == FORMAT_DENSE else 1
                 self.assertEqual(
                     unit.ledger.total_cycles,
-                    1 + 8 * (want_words + 1 + want_batches))
+                    1 + 8 * (want_words + 1 + want_batches
+                             + DRAIN_CYCLES_PER_NONZERO_TXN))
                 self.assertLess(unit.ledger.total_cycles, 8 * solo)
                 self.assertEqual(unit.ledger.identity_violations(), [])
 
@@ -306,7 +317,8 @@ class CycleLedgerTests(unittest.TestCase):
             self.assertTrue(all(not event.accepted for event in stall_edges))
             self.assertTrue(all(not event.retire for event in stall_edges))
             # 完成被精确推后两拍：既没有提前完成，也没有提前接受。
-            self.assertEqual(results[0].retire_cycle, max(stalled) + 1)
+            self.assertEqual(results[0].retire_cycle,
+                             max(stalled) + 1 + DRAIN_CYCLES_PER_NONZERO_TXN)
             self.assertEqual(results[1].accept_cycle, results[0].retire_cycle)
             self.assertEqual(unit.ledger.retire_events, 2)
             self.assertEqual(unit.ledger.lane_stall_cycles, 2)
@@ -359,7 +371,8 @@ class CycleLedgerTests(unittest.TestCase):
         self.assertEqual(unit.ledger.startup_cycles, 1)
         self.assertEqual(unit.ledger.accept_cycles, 1)
         self.assertEqual(unit.ledger.drain_cycles, 0)
-        self.assertEqual(results[0].cycles, 3 + 1)
+        self.assertEqual(results[0].cycles,
+                         3 + 1 + DRAIN_CYCLES_PER_NONZERO_TXN)
         stalled = build(FORMAT_SPARSE, 4, [1, 2, 3, 4], (0, 2))
         # 结果一直背压：退出后仍要等 result_ready，排空拍单独可数。
         stalled.run_stream([(0, 0b1111)], result_ready=lambda c: 1 if c >= 9 else 0)
@@ -428,6 +441,98 @@ class CycleLedgerTests(unittest.TestCase):
         self.assertEqual(led.lane_ops_issued,
                          sum(len(r.ops) for r in results))
         self.assertEqual(led.weight_values_fetched // 2 + led.zero_fast_paths, 500)
+
+
+
+class LanePipelineTests(unittest.TestCase):
+    """P1 lane 内插一拍流水的合同性质（PR #6 裁定 5085536010 §一）。
+
+    算术语义逐 bit 不变，只有结果返回时刻改变：Stage A（gate+饱和树）在发射拍
+    产出部分和并寄存，Stage B（根节点+acc 折叠+饱和判定）在下一拍折叠出结果。
+    """
+
+    def setUp(self) -> None:
+        self.assertEqual(CYCLE_CONTRACT, "P1-lane-pipeline-v1")
+
+    def _single(self, fmt, lane_count=4, activity=0b1111, **kw):
+        unit = build(fmt, lane_count, [1, 2, 3, 4], (0, 2))
+        results = unit.run_stream([(0, activity)], **kw)
+        return unit, results[0]
+
+    def test_result_lags_last_batch_issue_by_exactly_one_cycle(self) -> None:
+        for fmt in (FORMAT_DENSE, FORMAT_SPARSE):
+            for lane_count in LANE_COUNTS:
+                unit, result = self._single(fmt, lane_count)
+                issued = [e.cycle for e in unit.stream_events if e.cls == "LANE"]
+                self.assertTrue(issued)
+                self.assertEqual(result.retire_cycle,
+                                 max(issued) + DRAIN_CYCLES_PER_NONZERO_TXN)
+                fold = unit.stream_events[result.retire_cycle]
+                self.assertEqual(fold.state, "DRAIN")
+                self.assertEqual(fold.cls, "LAT")
+                self.assertEqual(fold.lane_count, 0)
+                self.assertEqual(fold.result_valid, 1)
+                self.assertEqual(fold.result_sum, result.synapse_sum)
+                issue_edge = unit.stream_events[max(issued)]
+                self.assertEqual(issue_edge.state, "BATCH")
+                self.assertEqual(issue_edge.result_valid, 0)
+                self.assertEqual(result.cycles,
+                                 expected_cycles(fmt, lane_count, len(result.ops)))
+                self.assertEqual(unit.ledger.identity_violations(), [])
+
+    def test_zero_path_does_not_enter_lane_pipeline(self) -> None:
+        for fmt in (FORMAT_DENSE, FORMAT_SPARSE):
+            for lane_count in LANE_COUNTS:
+                unit, result = self._single(fmt, lane_count, activity=0b0000)
+                self.assertEqual(result.zero_path, 1)
+                self.assertEqual(result.cycles, ZERO_CYCLES)
+                self.assertEqual(result.retire_cycle, result.accept_cycle)
+                self.assertEqual([e for e in unit.stream_events
+                                  if e.cls == "LANE"], [])
+                self.assertEqual([e for e in unit.stream_events
+                                  if e.state == "DRAIN"], [])
+                self.assertEqual(unit.ledger.latency_cycles, 0)
+                self.assertEqual(unit.ledger.retire_latch_cycles, 0)
+                self.assertEqual(unit.ledger.zero_single_cycles, 1)
+                self.assertEqual(unit.ledger.identity_violations(), [])
+
+    def test_drain_stage_respects_lane_stall(self) -> None:
+        stall_at = {4, 5, 6}
+        unit, result = self._single(
+            FORMAT_SPARSE, 4,
+            lane_stall=lambda cycle: 1 if cycle in stall_at else 0)
+        self.assertEqual(result.retire_cycle, 4 + len(stall_at))
+        self.assertEqual(unit.ledger.lane_stall_cycles, len(stall_at))
+        self.assertEqual(unit.ledger.latency_cycles,
+                         1 + DRAIN_CYCLES_PER_NONZERO_TXN)
+        for cycle in sorted(stall_at):
+            edge = unit.stream_events[cycle]
+            self.assertEqual(edge.state, "DRAIN")
+            self.assertEqual(edge.cls, "LANE_STALL")
+            self.assertEqual(edge.result_valid, 0)
+            self.assertEqual(edge.accepted, 0)
+            self.assertEqual(edge.retire, 0)
+        self.assertEqual(unit.ledger.identity_violations(), [])
+
+    def test_drain_fold_latches_on_backpressure(self) -> None:
+        unit, result = self._single(
+            FORMAT_SPARSE, 4,
+            result_ready=lambda cycle: 0 if cycle in (4, 5) else 1)
+        fold = unit.stream_events[4]
+        self.assertEqual(fold.state, "DRAIN")
+        self.assertEqual(fold.cls, "LAT")
+        self.assertEqual(fold.result_valid, 1)
+        self.assertEqual(fold.backpressure, 1)
+        self.assertEqual(fold.retire, 0)
+        self.assertEqual(unit.ledger.retire_latch_cycles, 1)
+        # 折叠拍的背压计入 latency 类（与重建侧同一口径），hold 保持拍才是 BACKPRESSURE。
+        self.assertEqual(unit.ledger.latency_cycles,
+                         1 + DRAIN_CYCLES_PER_NONZERO_TXN)
+        self.assertEqual(unit.ledger.backpressure_cycles, 1)
+        self.assertEqual(result.retire_cycle, 6)
+        self.assertEqual(result.synapse_sum, fold.result_sum)
+        self.assertEqual(unit.stream_events[6].cls, "HOLD_RETIRE")
+        self.assertEqual(unit.ledger.identity_violations(), [])
 
 
 if __name__ == "__main__":

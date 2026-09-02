@@ -4,4 +4,4 @@ prep -top formal_np7_exec_unit_dense -flatten
 async2sync
 memory_map
 opt_clean
-sat -seq 16 -set-assumes -set-init-zero -set-at 16 saw_fold 1 -set-at 16 saw_lane_stall 1 -set-at 16 saw_backpressure 1 -set-at 16 lane_ops_issued_state 2 -set-at 16 completed_groups_state 1 -show completed_groups_state,lane_ops_issued_state,zero_fast_paths_state,group_read_requests_state,saw_zero_single,saw_zero_hold,saw_fold,saw_backpressure,saw_lane_stall -dump_vcd formal_np7_exec_unit_dense_success.vcd
+sat -seq 18 -set-assumes -set-init-zero -set-at 18 saw_fold 1 -set-at 18 saw_lane_stall 1 -set-at 18 saw_backpressure 1 -set-at 18 lane_ops_issued_state 2 -set-at 18 completed_groups_state 1 -show completed_groups_state,lane_ops_issued_state,zero_fast_paths_state,group_read_requests_state,saw_zero_single,saw_zero_hold,saw_fold,saw_backpressure,saw_lane_stall -dump_vcd formal_np7_exec_unit_dense_success.vcd

@@ -6,12 +6,17 @@
 
     RAM > LANE > LAT > LANE_STALL > BACKPRESSURE > HOLD_RETIRE > ZERO > ACCEPT > IDLE
 
+P1 周期合同（PR #6 裁定 5085536010）：lane 内插一拍流水后新增 S_DRAIN（state_code=6）。
+该拍的折叠（lane_stall=0）归 LAT 类、被 stall 的那拍归 LANE_STALL 类；结果退出、V2 同拍
+retire/accept 与"锁存待退出"都改在 DRAIN 拍发生。下面的分类与 retire_latch/work 口径必须
+同步，否则逐拍重建会与 RTL/oracle 三方不一致（NP7.6 验证器直接拒绝）。
+
     total_cycles = busy(RAM+LANE) + latency + lane_stall + backpressure
                  + hold_retire + zero_single + accept_own
 
 逐拍观测来自 tb_np7_exec_unit.sv / tb_np7_negative.sv 的 CYC 行：
 
-    st  状态机编码（0=IDLE 1=RD0 2=RD1 3=LAT 4=BATCH 5=HOLD 结果锁存待退出）
+    st  状态机编码（0=IDLE 1=RD0 2=RD1 3=LAT 4=BATCH 5=HOLD 6=DRAIN(P1 折叠拍) 结果锁存待退出）
     ce  当拍 RAM 读请求        lf  当拍占用的 lane 槽位数
     rv/rr 结果 valid/ready     ap  当拍接受新事务（V2 允许与退出同拍）
     zp  结果来自零路径         ls  lane_stall
@@ -29,6 +34,7 @@ STATE_RD1 = 2
 STATE_LAT = 3
 STATE_BATCH = 4
 STATE_HOLD = 5
+STATE_DRAIN = 6   # P1：lane Stage B 折叠最后一批的拍
 CLASS_ORDER = ("RAM", "LANE", "LAT", "LANE_STALL", "BACKPRESSURE", "HOLD_RETIRE",
                "ZERO", "ACCEPT", "IDLE")
 
@@ -81,9 +87,9 @@ def classify_row(row):
         return "RAM"
     if row["lf"]:
         return "LANE"
-    if row["st"] == STATE_LAT:
+    if row["st"] == STATE_LAT or (row["st"] == STATE_DRAIN and not row["ls"]):
         return "LAT"
-    if row["st"] == STATE_BATCH and row["ls"]:
+    if row["st"] in (STATE_BATCH, STATE_DRAIN) and row["ls"]:
         return "LANE_STALL"
     if row["rv"] and not row["rr"]:
         return "BACKPRESSURE"
@@ -139,12 +145,15 @@ def observe(rows, accepted_masks=None, slots_per_word=SLOTS_PER_WORD):
                               if row["ap"] and row["rv"] and row["rr"]
                               and not (row["zp"] and row["st"] == STATE_IDLE)),
         "accept_cycles": counts["ACCEPT"],
+        # P1：锁存发生在 DRAIN 折叠拍（那一拍 lf 已经归 0），不再是发射拍
         "retire_latch_cycles": sum(1 for row in window
-                                   if row["lf"] and row["rv"] and not row["rr"]),
+                                   if row["st"] == STATE_DRAIN and row["rv"]
+                                   and not row["rr"]),
         "window_cycles": len(window),
     }
     work = [index for index, row in enumerate(window)
-            if row["ce"] or row["lf"] or row["st"] == STATE_LAT]
+            if row["ce"] or row["lf"] or row["st"] == STATE_LAT
+            or (row["st"] == STATE_DRAIN and not row["ls"])]
     observed["startup_cycles"] = 1 if window and classify_row(window[0]) == "ACCEPT" else 0
     observed["drain_cycles"] = (len(window) - 1 - work[-1]) if work else 0
     if accepted_masks is not None:
@@ -220,7 +229,8 @@ def reduction(claimed_baseline, candidate, field):
 
 
 __all__ = ["CYC_RE", "CLASS_ORDER", "LEDGER_RE", "LEDGER_FIELDS", "OBSERVABLE_FIELDS",
-           "SLOTS_PER_WORD", "STATE_HOLD", "STATE_LAT", "accepted_issue_masks",
+           "SLOTS_PER_WORD", "STATE_DRAIN", "STATE_HOLD", "STATE_LAT",
+           "accepted_issue_masks",
            "classify_row",
            "identity_violations", "observe", "parse_rows", "reconstruct_violations",
            "reduction", "result_sums", "stream_window"]

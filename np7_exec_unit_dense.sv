@@ -10,6 +10,8 @@
 // 只有首事务额外计 1 拍冷启动；issue_mask=0 走 V1 零路径，恰好 1 拍（accept 与 result
 // 同一边沿完成），不发 RAM 请求、不发 lane 操作。不存在独立 DONE 拍：结果退出与下一
 // 事务接受允许同边沿重叠（V2），但任意时刻最多保存一个未退出结果（单槽弹性流水）。
+// P1 周期合同（PR #6 裁定 5085536010）：lane 内插一拍流水，最后一批发射后进 S_DRAIN，
+// 折叠拍才产生 result_valid；每个非零事务因此多 1 拍（归 latency_cycles），V1 零路径不变。
 module np7_exec_unit_dense #(
     parameter int LANES = 4
 ) (
@@ -59,6 +61,7 @@ module np7_exec_unit_dense #(
     localparam logic [2:0] S_LAT = 3'd3;
     localparam logic [2:0] S_BATCH = 3'd4;
     localparam logic [2:0] S_HOLD = 3'd5;
+    localparam logic [2:0] S_DRAIN = 3'd6;   // P1：lane Stage B 折叠最后一批的拍
     logic [2:0] state;
     logic [3:0] pending_mask;
     logic [3:0] group_reg;
@@ -77,6 +80,8 @@ module np7_exec_unit_dense #(
     logic signed [11:0] acc_next;
     logic lane_saturated;
     logic lane_fire;
+    logic lane_fold_valid;
+    logic fold_commit;
     logic [19:0] ram_q;
 
     // dense 记录无位置索引；CONFIG 拒绝保留位非零的字（PR #6 评审意见 2）。
@@ -97,14 +102,18 @@ module np7_exec_unit_dense #(
     //   lane_stall=1 时 batch_last 不成立，因此既不会提前完成也不会提前接受。
     // 元数据分离：正在退出的结果走组合 acc_next / 寄存器 hold_sum，accept 只写新事务寄存器。
     wire hold_active = (state == S_HOLD);
+    // P1 合同（PR #6 裁定 5085536010）：batch_last 只代表"最后一批已发射"，结果要等
+    // 下一拍由 Stage B 折叠；fold_last 才是真正可退出的折叠拍（S_DRAIN 且 fold_valid）。
+    wire drain_active = (state == S_DRAIN);
     wire batch_last = (state == S_BATCH) && (pending_mask != 4'd0) && !lane_stall
                       && ((pending_mask & ~batch_mask) == 4'd0);
-    wire retire_prev = result_ready && (hold_active || batch_last);
+    wire fold_last = drain_active && lane_fold_valid;
+    wire retire_prev = result_ready && (hold_active || fold_last);
     assign issue_ready = !cfg_open && ((state == S_IDLE) || retire_prev);
     assign accept_pulse = issue_valid && issue_ready;
     wire zero_now = (state == S_IDLE) && accept_pulse && (issue_mask == 4'd0) && result_ready;
-    assign result_valid = hold_active || batch_last || zero_now;
-    assign result_sum = hold_active ? hold_sum : (batch_last ? acc_next : 12'sd0);
+    assign result_valid = hold_active || fold_last || zero_now;
+    assign result_sum = hold_active ? hold_sum : (fold_last ? acc_next : 12'sd0);
     assign result_zero_path = hold_active ? hold_zero : zero_now;
     wire retire_now = result_valid && result_ready;
     assign ram_ce = (state == S_RD0) || (state == S_RD1);
@@ -217,17 +226,23 @@ module np7_exec_unit_dense #(
     );
 
     np7_shared_synapse_lane #(.LANES(LANES)) lanes (
+        .clk(clk), .rst(rst), .op_valid(lane_fire), .fold_hold(lane_stall),
         .op_weights(lane_weights), .op_count(batch_n), .acc_seed(acc),
-        .acc_next(acc_next), .saturated(lane_saturated)
+        .acc_next(acc_next), .saturated(lane_saturated),
+        .fold_valid(lane_fold_valid)
     );
+    // P1：Stage B 折叠只在 BATCH/DRAIN 期间写回累加器与事件计数器。
+    assign fold_commit = lane_fold_valid && ((state == S_BATCH) || drain_active);
 
     wire word_reserved_nonzero = (word0[19:16] != 4'b0000) || (ram_q[19:16] != 4'b0000);
 
     // 逐拍互斥类别（与 oracle/验证器同一优先级：RAM>LANE>LAT>LANE_STALL>BACKPRESSURE
     // >HOLD_RETIRE>ZERO>ACCEPT），busy 与 stall 不重叠。
     wire edge_busy = ram_ce || lane_fire;
-    wire edge_lat = (state == S_LAT);
-    wire edge_lstall = (state == S_BATCH) && (pending_mask != 4'd0) && lane_stall;
+    // P1：S_DRAIN 的折叠拍归 LAT 类，lane_stall 拍归 LANE_STALL 类（两者互斥）。
+    wire edge_lat = (state == S_LAT) || (drain_active && !lane_stall);
+    wire edge_lstall = (((state == S_BATCH) && (pending_mask != 4'd0))
+                        || drain_active) && lane_stall;
     wire edge_bp = hold_active && !result_ready;
     wire edge_hold_retire = hold_active && result_ready;
     wire edge_zero = zero_now;
@@ -276,7 +291,7 @@ module np7_exec_unit_dense #(
             if (lane_fire)
                 lane_ops_issued_state <= lane_ops_issued_state
                     + {29'd0, batch_n};
-            if (lane_fire && lane_saturated)
+            if (fold_commit && lane_saturated)
                 saturation_events_state <= saturation_events_state + 32'd1;
             if (accept_pulse && issue_mask == 4'd0)
                 zero_fast_paths_state <= zero_fast_paths_state + 32'd1;
@@ -334,20 +349,30 @@ module np7_exec_unit_dense #(
                         state <= S_BATCH;
                     end
                     S_BATCH: begin
-                        if (lane_fire) begin
+                        // P1：发射侧只推进 pending_mask；累加器由 Stage B 折叠拍写回。
+                        if (fold_commit)
                             acc <= acc_next;
+                        if (lane_fire) begin
                             pending_mask <= pending_mask & ~batch_mask;
                             if (batch_last) begin
-                                if (result_ready) begin
-                                    // V2：最后一批当拍退出，不再进独立 DONE 拍。
-                                    state <= S_IDLE;
-                                end else begin
-                                    hold_sum <= acc_next;
-                                    hold_zero <= 1'b0;
-                                    state <= S_HOLD;
-                                end
+                                // P1：最后一批"发射完成"不等于结果可用，下一拍才折叠。
+                                state <= S_DRAIN;
                             end
                         end
+                    end
+                    S_DRAIN: begin
+                        if (fold_commit) begin
+                            // Stage B 折叠最后一批：这一拍才是 result_valid / V2 退出拍。
+                            acc <= acc_next;
+                            if (result_ready) begin
+                                state <= S_IDLE;
+                            end else begin
+                                hold_sum <= acc_next;
+                                hold_zero <= 1'b0;
+                                state <= S_HOLD;
+                            end
+                        end
+                        // lane_stall=1 时停在 S_DRAIN：不折叠、不出结果、不接受下一笔。
                     end
                     S_HOLD: begin
                         if (result_ready)

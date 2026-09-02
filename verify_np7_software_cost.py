@@ -81,11 +81,15 @@ CLASS_CODES = ("RAM", "LANE", "LAT", "LANE_STALL", "BACKPRESSURE", "HOLD_RETIRE"
 MIN_CONFIGS = 160
 MIN_TRANSACTIONS = 160000
 MIN_SEEDS_PER_FORMAT_LANES = 20
-MIN_RTL_MUTATIONS = 9
+MIN_RTL_MUTATIONS = 12
 REQUIRED_RTL_MUTATIONS = ("sparse_same_edge_metadata_overwrite",
                           "dense_same_edge_metadata_overwrite",
                           "sparse_accept_under_backpressure",
-                          "dense_accept_under_backpressure")
+                          "dense_accept_under_backpressure",
+                          # P1 周期合同（lane 一拍流水）新增，见 review 5085536010 §一⑤
+                          "lane_hold_ignored",
+                          "sparse_fold_last_early",
+                          "dense_fold_last_early")
 GATE_READS = 0.45
 GATE_OPS = 0.45
 GATE_CYCLES = 0.25
