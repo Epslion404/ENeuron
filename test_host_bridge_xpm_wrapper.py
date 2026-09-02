@@ -451,8 +451,12 @@ class HostBridgeXpmWrapperTests(unittest.TestCase):
         ):
             self.assertIn(marker, module_doc, f"模块 docstring 缺少注明: {marker}")
 
-        self.assertEqual(str(IVERILOG), r"C:\msys64\ucrt64\bin\iverilog.exe")
-        self.assertEqual(str(VVP), r"C:\msys64\ucrt64\bin\vvp.exe")
+        # Path 的分隔符语义随平台变化，因此这里断言“目录 + 文件名”而不是整串字面量。
+        self.assertEqual(str(MSYS2_UCRT64_BIN).replace("\\", "/"), "C:/msys64/ucrt64/bin")
+        self.assertEqual(IVERILOG.parent, MSYS2_UCRT64_BIN)
+        self.assertEqual(VVP.parent, MSYS2_UCRT64_BIN)
+        self.assertEqual(IVERILOG.name, "iverilog.exe")
+        self.assertEqual(VVP.name, "vvp.exe")
 
         workflow = (ROOT / ".github" / "workflows" / "pr-gate.yml").read_text(encoding="utf-8")
         for marker in (
@@ -465,6 +469,10 @@ class HostBridgeXpmWrapperTests(unittest.TestCase):
             "NOT APPLICABLE",
         ):
             self.assertIn(marker, workflow, f"pr-gate.yml 缺少调整: {marker}")
+
+        barrier = (ROOT / "verify_formal_local_prune_commit_barrier.py").read_text(encoding="utf-8")
+        self.assertIn("def find_tool", barrier, "barrier verifier 仍在使用硬编码固定路径")
+        self.assertIn("NOT APPLICABLE", barrier, "barrier verifier 缺少非 Windows 说明")
 
         guide = (ROOT / "docs" / "WINDOWS_MSYS2_XPM_TOOLCHAIN.md").read_text(encoding="utf-8")
         for marker in (

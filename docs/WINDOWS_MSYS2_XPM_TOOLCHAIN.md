@@ -28,14 +28,14 @@
 | ① 声明这是 Windows + MSYS2 UCRT64 专用路径、非跨平台默认 | 模块 docstring 第 1 点；常量上方注释；常量本体 | `test_host_bridge_xpm_wrapper.py:1-44`、`:59`、`:61-65` |
 | ② 声明工具名称、安装布局与用途 | 模块 docstring 第 2 点（包名/布局/`iverilog`+`vvp` 各自职责）；包名常量；环境通告函数 | `:1-44`、`:64`、`:102`（打印 `XPM_TOOLCHAIN ...`） |
 | ③ Ubuntu runner 不得把“路径不存在”误报成代码功能失败 | `toolchain_unavailability()` 返回原因（平台分支 + 工具缺失分支）、`require_windows_msys2_toolchain()` 抛 `unittest.SkipTest`、前缀常量 `SKIPPED/NOT APPLICABLE: ` | `:86`、`:126`、`:66` |
-| ④ PR Gate 相应调整（Windows 执行 / 非 Windows 明确跳过） | 新增 `windows-xpm-cdc` 作业：`windows-latest` + `msys2/setup-msys2@v2` + `msystem: UCRT64` + 安装该包 + 执行测试 + 守卫；ubuntu 作业安装 apt `iverilog`/`yosys` 并打印 NOT APPLICABLE notice | `.github/workflows/pr-gate.yml:62`、`:64`、`:79`、`:81`、`:83`、`:85`、`:94`、`:103`、`:106`；ubuntu 侧 `:32`、`:42`、`:50` |
+| ④ PR Gate 相应调整（Windows 执行 / 非 Windows 明确跳过） | 新增 `windows-xpm-cdc` 作业：`windows-latest` + `msys2/setup-msys2@v2`（`msystem: UCRT64`、`location: C:\msys64`、安装 `mingw-w64-ucrt-x86_64-iverilog`）+ “落地到裁定路径并校验”的步骤 + 执行测试 + 守卫；ubuntu 作业安装 apt `iverilog`/`yosys` 并打印 NOT APPLICABLE notice | `.github/workflows/pr-gate.yml:62`、`:64`、`:80`、`:82`、`:83`、`:85`、`:87`、`:103`、`:111`、`:120`、`:123`；ubuntu 侧 `:32`、`:42`、`:50` |
 
 补充：`test_windows_msys2_toolchain_dependency_is_declared`（`:439`）在**所有平台**
 都会执行，逐项断言上面 4 点确实写在 docstring、workflow 和本文档里。任何人删掉注明、删掉
 Windows 作业或漏掉 `msys2` 包名，CI 会直接失败，而不是靠人工 review 记忆。
 
-不依赖仿真工具、因此在任何平台都真实执行的用例：`:479`、`:439`。
-只有两条需要跑仿真的用例才可能跳过：`:492`、`:497`（合计 `:505` 行文件里
+不依赖仿真工具、因此在任何平台都真实执行的用例：`:487`、`:439`。
+只有两条需要跑仿真的用例才可能跳过：`:500`、`:505`（合计 `:513` 行文件里
 的 2/4）。
 
 ## 3. 本机（Windows）实测的工具链缺陷矩阵
@@ -72,21 +72,62 @@ Windows 作业或漏掉 `msys2` 包名，CI 会直接失败，而不是靠人工
    编译或仿真仍无输出崩溃时转成 SkipTest（`:185`、`:202`），
    消息同时包含 `SKIPPED/NOT APPLICABLE:` 与 `toolchain_defect`。
 3. 为防止“用跳过冒充通过”：`windows-xpm-cdc` 作业的输出里只要出现 `NOT APPLICABLE` 或
-   `TOOLCHAIN_DEFECT` 就判定失败（`:103`、`:106`）。也就是说在 Windows
+   `TOOLCHAIN_DEFECT` 就判定失败（`:120`、`:123`）。也就是说在 Windows
    runner 上，本测试要么真实跑过，要么让 PR Gate 变红。
 
 ## 4. CI 执行环境与工具版本
 
 | 作业 | runner / Python | 工具来源 | 本测试的结果 |
 | --- | --- | --- | --- |
-| `Python and syntax` | ubuntu-latest / 3.12 | apt `iverilog` + `yosys`（`:32`） | `:479`、`:439` 真实执行；`:492`、`:497` 显示 `skipped "SKIPPED/NOT APPLICABLE: host platform is ...not win32...cannot run on an Ubuntu runner"`，notice 由 `:50` 打印到作业日志 |
+| `Python and syntax` | ubuntu-latest / 3.12 | apt `iverilog` + `yosys`（`:32`） | `:487`、`:439` 真实执行；`:500`、`:505` 显示 `skipped "SKIPPED/NOT APPLICABLE: host platform is ...not win32...cannot run on an Ubuntu runner"`，notice 由 `:50` 打印到作业日志 |
 | `XPM CDC wrapper (Windows MSYS2 UCRT64)` | windows-latest / 3.12 | `msys2/setup-msys2@v2`（`msystem: UCRT64`，`install: mingw-w64-ucrt-x86_64-iverilog`）→ 落到固定路径 | 4 条用例全部真实执行，0 跳过；作业日志含 `XPM_TOOLCHAIN platform=win32 ...` 与 `XPM_WINDOWS_GATE=PASS` |
 | `NP7 functional and evidence gate` | ubuntu-latest / 3.12 | apt `iverilog` + `yosys` | 与本文件无关，不受影响 |
 | `NP7 physical evidence integrity` | ubuntu-latest / 3.12 | 纯 Python 校验 | 与本文件无关 |
 
+### 4.1 首轮 CI 实跑的发现（run `33612907380`，head `538cbee`，2026-09-02T09:13Z）
+
+`XPM CDC wrapper (Windows MSYS2 UCRT64)` 作业在那一轮是 **failure**，但不是测试跑红：
+失败发生在“显示固定路径”步骤，日志原文是
+
+```text
+ls: cannot access '/c/msys64/ucrt64/bin/iverilog.exe': No such file or directory
+ls: cannot access '/c/msys64/ucrt64/bin/vvp.exe': No such file or directory
+##[error]Process completed with exit code 2.
+```
+
+原因是 `msys2/setup-msys2@v2` 在当前 `windows-2025-vs2026` runner 镜像上的默认安装位置
+**不是** `C:\msys64`（pacman 命令实际经 `D:\a\_temp\setup-msys2\msys2.cmd` 调用），所以包
+`mingw-w64-ucrt-x86_64-iverilog-1~13.0-2` 装成功了，但裁定允许的固定路径上什么都没有。
+修正方式：作业显式传 `location: C:\msys64`，并增加“若仍不在此路径就从
+`steps.msys2.outputs.msys2-location` 复制 UCRT64 bin 树”的兜底；校验不通过时用
+`::error title=Fixed toolchain path not provisioned::` 明确写成 **CI 环境问题**
+（`:103`），而不是让测试去承担“路径不存在”的失败语义。
+
 Ubuntu 侧的跳过原因由 `toolchain_unavailability()`（`:86`）的第一个分支生成，内容指向
 `C:\msys64\ucrt64\bin` 这个 Windows-only 布局；它不再抛 `RuntimeError`，因此必需检查
 不会再因为“路径不存在”而失败。
+
+### 4.2 Ubuntu 首轮实跑（同一 run `33612907380`，job `Python and syntax`）
+
+工具：apt `Icarus Verilog version 12.0 (stable)`、`Yosys 0.33`，Python 3.12.14。
+结果：`Ran 408 tests in 814.632s` → `FAILED (failures=2, errors=1, skipped=3)`。
+
+- **达成目标的部分**：原先 40 errors + 1 failure 全部消失；两条 XPM 仿真用例输出
+  `skipped "SKIPPED/NOT APPLICABLE: host platform is 'linux', not win32; this test drives the
+  Windows + MSYS2 UCRT64 layout C:\msys64\ucrt64\bin and cannot run on an Ubuntu runner"`，
+  并被 `UBUNTU_XPM_NOTICE_BEGIN/END` 打印到作业日志——即裁定第 ③④ 点要求的行为。
+- **暴露的 3 个问题（本轮已全部修复，都不是 NP7 证据问题）**：
+  1. `FAIL: test_windows_msys2_toolchain_dependency_is_declared` —— 我本轮新写的断言
+     `str(IVERILOG) == r"C:\...\iverilog.exe"` 在 POSIX 上不成立：Linux 的 `Path` 不把 `\`
+     当分隔符，`C:\msys64\ucrt64\bin` 会被当成单个文件名，拼出来是
+     `C:\msys64\ucrt64\bin/iverilog.exe`。已改成断言 `IVERILOG.parent/.name` 与
+     `str(MSYS2_UCRT64_BIN).replace("\\", "/") == "C:/msys64/ucrt64/bin"`（平台无关）。
+  2. `ERROR: test_proof_reach_and_real_top_binding` 与
+     3. `FAIL: test_official_reverify_keeps_np4b_signoff_verifiable` —— 同一个根因：
+     `verify_formal_local_prune_commit_barrier.py` 的三顶层编译**也**硬编码了
+     `C:\msys64\ucrt64\bin\iverilog.exe`（第 2、3 条只是同一处缺陷的两种表现，其中一个经由
+     `verify_np4b_signoff.py` 触发）。此前该作业没装 Icarus，这条用例直接抛
+     `FileNotFoundError` 被埋在 40 个 error 里；装上工具后才暴露。处理方式见下一节。
 
 ## 5. 本地复现命令（Windows，仓库根目录）
 
@@ -112,7 +153,7 @@ python -X utf8 -c 'import sys, unittest; sys.platform="linux"; import test_host_
 | --- | --- |
 | `artifacts/logs/xpm_wrapper_windows_fixed_path.txt` | 本机固定路径下 `python -X utf8 -m unittest -v test_host_bridge_xpm_wrapper` 的完整输出：`Ran 4 tests ... OK (skipped=2)`，含 `XPM_TOOLCHAIN ...` 与 4 条 `TOOLCHAIN_DEFECT=...` |
 | `artifacts/logs/xpm_wrapper_nonwindows_notice.txt` | 本机模拟非 Windows 平台（`sys.platform='linux'`）的输出：2 条 `skipped "SKIPPED/NOT APPLICABLE: host platform is ..."` + 2 条 `ok`，即 Ubuntu runner 应看到的行为 |
-| `artifacts/logs/xpm_toolchain_defect_matrix.txt` | 第 3 节缺陷矩阵的原始测量输出（A/B 两套 Icarus 的编译/仿真退出码与字节数） |。
+| `artifacts/logs/xpm_toolchain_defect_matrix.txt` | 第 3 节缺陷矩阵的原始测量输出（A/B 两套 Icarus 的编译/仿真退出码与字节数） |
 
 ## 6. 维护规则
 
@@ -122,3 +163,21 @@ python -X utf8 -c 'import sys, unittest; sys.platform="linux"; import test_host_
 2. 不得把固定路径改写成跨平台默认，也不得用 `self.fail()` / `RuntimeError` 表达“工具没装”。
 3. 不得反向利用本机制：`TOOLCHAIN_DEFECT` 只在“无输出崩溃”时出现，任何有诊断输出的错误都必须失败。
 4. 若 CI 的 MSYS2 包版本升级导致 `-Wall` 行为变化，应更新本文第 3 节矩阵并注明版本与日期。
+
+## 7. 同一固定路径的其他出现点（本轮一并处理）
+
+`rg -n "msys64.*iverilog.exe" --glob '*.py'` 在仓库里只有两处直接点名可执行文件：
+
+| 位置 | 处置 | 理由 |
+| --- | --- | --- |
+| `test_host_bridge_xpm_wrapper.py:61-63` | **保留固定路径** + 四点注明 + 非 Windows `SKIPPED/NOT APPLICABLE` | admin 裁定 5506790489 只针对这个被点名的测试 |
+| `verify_formal_local_prune_commit_barrier.py:23` | 改为 `find_tool()`：PATH 优先 → `19` 的 UCRT64 固定路径兜底（`28`）；找不到工具时打印 `6` 的 `SKIPPED/NOT APPLICABLE` 并跳过编译；`34` 命中“非 0 退出 + 无输出”崩溃特征时去掉 `-Wall` 重试一次 | 该文件是历史遗留的**第二处**同样毛病，裁定没有点名它，但第 ③④ 点要求“不能把路径不存在误报成功能失败、不能无说明地让必需检查失败”是仓库级 CI 门槛；且 `rtl_cosim.py`/`rtl_multicycle_cosim.py`/`rtl_tile_cosim.py` 早已用同一 `find_tool()` 写法，这次是向既有约定收敛 |
+
+调用方 `test_formal_local_prune_commit_barrier.py:14` 加了与同目录
+`test_verify_local_prune_rtl.py` 一致的守卫：`iverilog` 彻底不可得时
+`raise unittest.SkipTest("SKIPPED/NOT APPLICABLE: ...")`，`verify()` 返回的
+`real_tops` 改为“真实编译成功的顶层数”（有工具=3，无工具=0），不再让环境缺失冒烟成
+`real_tops==3` 的假通过或无解释的红灯。
+
+这两处规定由 `test_windows_msys2_toolchain_dependency_is_declared`（`:439`）在**每个平台**
+断言：barrier 文件必须同时含 `def find_tool` 与 `NOT APPLICABLE`，否则 CI 直接失败。

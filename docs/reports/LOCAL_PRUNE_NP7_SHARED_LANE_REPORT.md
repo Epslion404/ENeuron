@@ -431,3 +431,30 @@ DUT 输入**（`np7_shared_synapse_lane.sv`、`np7_exec_unit_*.sv`、`np7_weight
 `GIT_HEAD` 与汇总 `code_git_head` 自洽，`verify_np7_physical_cost.py` 在新 head 下仍 `rejects=0 / 8-8`。
 XSim 证据已推进到 `d56f4fc`（因为它绑定 `tb_np7_negative.sv` 的 sha256）。若管理员要求物理门也重跑到最终
 head，按新裁定执行一次 8 配置 OOC 即可（约 25–35 分钟）。
+## 12. 裁定 P2b（`5506790489`）：固定 MSYS2 路径显式注明 + PR Gate 分平台执行（round 6）
+
+本轮**不改动任何 NP7 输入**：NP7 的 RTL、testbench、清单、日志与综合报告全部未变，
+`verify_np7_software_cost.py` / `verify_np7_physical_cost.py` 在新的 gate 适配 head 上仍
+`rejects=0 / G1-G6 全 PASS / 8-8 MET`（见 §11.4 的 head 归属说明）。本轮处理的是 CI/测试口径：
+
+1. `test_host_bridge_xpm_wrapper.py` 的模块 docstring 按裁定逐条写明 4 点（Windows + MSYS2
+   UCRT64 专用路径、包名与安装布局与用途、Ubuntu 不可执行、PR Gate 分平台），固定路径常量
+   保留在 `:61-63`；非 Windows 或工具缺失改为 `unittest.SkipTest("SKIPPED/NOT APPLICABLE: ...")`，
+   不再抛 `RuntimeError`。
+2. 新增平台无关用例 `test_windows_msys2_toolchain_dependency_is_declared`，在所有平台断言
+   注明、Windows 作业与文档确实存在。
+3. `pr-gate.yml`：`python-and-syntax` 先 `apt-get install iverilog yosys`（原 40 errors + 1 failure
+   的真因是**没装工具**，不是代码坏了）并打印 NOT APPLICABLE notice；新增 `windows-xpm-cdc`
+   （`windows-latest` + `msys2/setup-msys2@v2`，`location: C:\msys64`）在裁定允许的固定路径上真实执行
+   该测试，且“被跳过或命中工具链缺陷即失败”。
+4. 首轮 CI（run `33612907380`）暴露并修掉 3 个问题：setup-msys2 默认位置不是 `C:\msys64`；
+   我的 `str(Path)` 断言在 POSIX 不成立；`verify_formal_local_prune_commit_barrier.py` 也硬编码了
+   同一固定路径（改为 `find_tool()`：PATH 优先 + UCRT64 兜底 + 无工具时 NOT APPLICABLE 跳过）。
+   细节与实测矩阵见 `docs/WINDOWS_MSYS2_XPM_TOOLCHAIN.md`（§3、§4.1、§4.2、§7）。
+5. 本机证据：`artifacts/logs/xpm_wrapper_windows_fixed_path.txt`（`Ran 4 tests / OK (skipped=2)`）、
+   `xpm_wrapper_nonwindows_notice.txt`（非 Windows 文案）、`xpm_toolchain_defect_matrix.txt`
+   （A=`C:\msys64\ucrt64\bin` 12.0 stable 局部拷贝、B=`C:\iverilog\bin` 12.0 devel 完整安装的
+   退出码矩阵；A 的 `vvp.exe` 连空 testbench 都 0xC0000005 无输出，故本机固定路径**不能**充当
+   “跑过仿真”的证据，真实执行环境是 CI 的 Windows 作业）。
+6. 全仓回归（干净 worktree，非 Windows 语义等价检查由 CI 提供）：`Ran 408 tests in 420.604s`
+   → `OK (skipped=3)`，`git diff --check origin/main...HEAD` rc=0。

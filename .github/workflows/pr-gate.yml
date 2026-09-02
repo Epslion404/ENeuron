@@ -75,21 +75,38 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install Icarus Verilog into the fixed MSYS2 UCRT64 path
+      - name: Install Icarus Verilog with MSYS2 UCRT64
+        id: msys2
         uses: msys2/setup-msys2@v2
         with:
           msystem: UCRT64
+          location: C:\msys64
           update: true
           install: mingw-w64-ucrt-x86_64-iverilog
 
-      - name: Show fixed toolchain paths and tool versions
-        shell: msys2 {0}
+      - name: Provision and verify the fixed C:/msys64/ucrt64/bin toolchain
+        shell: bash
+        env:
+          MSYS2_LOCATION: ${{ steps.msys2.outputs.msys2-location }}
         run: |
-          echo "WINDOWS_MSYS2_UCRT64_PATH=/c/msys64/ucrt64/bin"
-          ls -l /c/msys64/ucrt64/bin/iverilog.exe /c/msys64/ucrt64/bin/vvp.exe
-          /c/msys64/ucrt64/bin/iverilog.exe -V | head -n 1
-          /c/msys64/ucrt64/bin/vvp.exe -V | head -n 1 || echo "vvp -V not supported"
-          pacman -Q mingw-w64-ucrt-x86_64-iverilog || true
+          echo "setup_msys2_location=${MSYS2_LOCATION:-unset}"
+          echo "ruled_fixed_path=C:/msys64/ucrt64/bin (Windows + MSYS2 UCRT64 only)"
+          if [ ! -x "C:/msys64/ucrt64/bin/iverilog.exe" ] && [ -n "${MSYS2_LOCATION:-}" ]; then
+            SRC="$(cygpath -u "${MSYS2_LOCATION}")/ucrt64/bin"
+            if [ -x "${SRC}/iverilog.exe" ]; then
+              echo "MSYS2 was installed elsewhere; copying the UCRT64 bin tree into the ruled fixed path"
+              mkdir -p /c/msys64/ucrt64
+              cp -r "${SRC}" /c/msys64/ucrt64/bin
+            fi
+          fi
+          if [ ! -x "C:/msys64/ucrt64/bin/iverilog.exe" ] || [ ! -x "C:/msys64/ucrt64/bin/vvp.exe" ]; then
+            echo "::error title=Fixed toolchain path not provisioned::C:/msys64/ucrt64/bin/iverilog.exe or vvp.exe is missing on the Windows runner. This is a CI environment problem, not an RTL functional failure."
+            ls -l /c/msys64/ucrt64/bin 2>/dev/null || echo "C:/msys64/ucrt64/bin does not exist"
+            exit 1
+          fi
+          ls -l "C:/msys64/ucrt64/bin/iverilog.exe" "C:/msys64/ucrt64/bin/vvp.exe"
+          "C:/msys64/ucrt64/bin/iverilog.exe" -V | head -n 1
+          "C:/msys64/ucrt64/bin/vvp.exe" -V | head -n 1 || echo "vvp -V is not supported by this build"
 
       - name: Run XPM CDC wrapper tests on Windows
         shell: bash
@@ -104,7 +121,7 @@ jobs:
             exit 1
           fi
           if grep -q "TOOLCHAIN_DEFECT" "${RUNNER_TEMP}/xpm_windows.log"; then
-            echo "::error title=toolchain defect::the MSYS2 UCRT64 Icarus build on the Windows runner hit a known toolchain defect"
+            echo "::error title=toolchain defect::the MSYS2 UCRT64 Icarus build on the Windows runner hit a silent-crash toolchain defect"
             exit 1
           fi
           if [ "${xpm_status}" -ne 0 ]; then
