@@ -12,6 +12,7 @@ from pathlib import Path
 import shutil
 import subprocess
 import tempfile
+import unittest
 
 import verify_formal_local_prune_gate
 
@@ -82,11 +83,11 @@ def verify() -> dict[str, int]:
         require(contract, "host_cmd_ready", name)
     iverilog = find_tool("iverilog")
     if iverilog is None:
-        print("SKIPPED/NOT APPLICABLE: 三顶层编译绑定需要 iverilog，PATH 与 Windows + MSYS2 UCRT64"
-              f" 固定路径 {MSYS2_UCRT64_BIN} 都未提供，跳过编译而不是报成 RTL 功能失败")
-    else:
-        print(f"COMMIT_BARRIER_COMPILE_TOOL={iverilog}")
-    compiled_tops = 0
+        raise unittest.SkipTest(
+            "SKIPPED/NOT APPLICABLE: 三顶层编译绑定需要 iverilog，PATH 与 Windows + MSYS2 UCRT64"
+            f" 固定路径 {MSYS2_UCRT64_BIN} 都未提供；环境缺工具不作为 RTL 功能失败"
+        )
+    print(f"COMMIT_BARRIER_COMPILE_TOOL={iverilog}")
     for top in tops:
         text = (ROOT / f"{top}.sv").read_text(encoding="utf-8")
         if top.startswith("eneuron"):
@@ -94,13 +95,10 @@ def verify() -> dict[str, int]:
             require(text, "!barrier_runtime_blocked", top)
         else:
             require(text, "pulse_mini_pruned_network_4x8x2", top)
-        if iverilog is None:
-            continue
         with tempfile.TemporaryDirectory() as tmp:
             run = compile_top(iverilog, top, sources, tmp)
             if run.returncode: raise AssertionError(run.stdout + run.stderr)
-            compiled_tops += 1
-    return {"formal_depth": 32, "participants": 10, "real_tops": compiled_tops}
+    return {"formal_depth": 32, "participants": 10, "real_tops": 3}
 
 if __name__ == "__main__":
     print("LOCAL_PRUNE_COMMIT_BARRIER_VERIFY_PASS", verify())
