@@ -191,10 +191,17 @@ def m_wrapper_rewritten(root, head):
 
 def m_lane_lut_regression(root, head):
     # 让 L2 的 LUT 比 L1 还小（改 .rpt + signoff + 汇总三处，制造"自洽假象"）。
+    # 数字用正则从真实报告里取，避免每次重新综合后面积漂移让变异静默失效。
     rpt = pathlib.Path(root) / "vivado_np7_ooc_sparse_L2_reports" / "utilization_impl.rpt"
-    rpt.write_text(rpt.read_text(encoding="utf-8").replace("| Slice LUTs                 |  132 |",
-                                                           "| Slice LUTs                 |  100 |"),
-                   encoding="utf-8")
+    text = rpt.read_text(encoding="utf-8")
+    pattern = re.compile(r"(Slice LUTs\s*\|\s*)(\d+)")
+    found = pattern.search(text)
+    if not found:
+        raise AssertionError("报告里找不到 Slice LUTs 行，变异未施加")
+    if int(found.group(2)) <= 100:
+        raise AssertionError("L2 现值 %s 已不大于 100，变异未施加" % found.group(2))
+    rpt.write_text(text[:found.start()] + found.group(1) + "100"
+                   + text[found.end():], encoding="utf-8")
     edit_signoff(root, "sparse/L2", "LUT", "100")
     rebind_report(root, "sparse/L2", "utilization_impl.rpt")
     rebind_report(root, "sparse/L2", "signoff_summary.txt")

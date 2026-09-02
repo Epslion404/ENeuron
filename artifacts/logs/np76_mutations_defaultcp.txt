@@ -1,10 +1,10 @@
 # command: python test_np7_verifier_mutations.py  (默认 Windows 代码页，不设 PYTHONUTF8)
-# git_head: 3bc35cc932b6f97fdd56fddc3e8b0c319f1cc292
+# git_head: 257b0acc1047ec06d959ee4ffdd2d9e4e35a24ff
 # python: 3.14.7 (默认代码页，PYTHONUTF8/PYTHONIOENCODING 未设置)
 # note: 复现评审阻断 4 的口径：默认代码页（936）下套件必须完整跑完且结论一致
-# local_time: 2026-09-02 06:06:19
+# local_time: 2026-09-02 13:51:43
 
-baseline clone head=3bc35cc rc=0 baseline_rejects=0 NP7_VERIFY_SUMMARY rejects=0 blocking_gates=- overall=PASS
+baseline clone head=257b0ac rc=0 baseline_rejects=0 NP7_VERIFY_SUMMARY rejects=0 blocking_gates=- overall=PASS
 delete_run_log               rc=1 new_rejects=1 CAUGHT
 tamper_gate_status           rc=1 new_rejects=2 CAUGHT
 tamper_rtl_ledger            rc=1 new_rejects=3 CAUGHT
@@ -16,7 +16,7 @@ leak_mutation_escapes        rc=1 new_rejects=2 CAUGHT
 tamper_frozen_accuracy       rc=1 new_rejects=2 CAUGHT
 post_freeze_rtl_rebind       rc=1 new_rejects=2 CAUGHT
 post_freeze_tool_rebind      rc=1 new_rejects=1 CAUGHT
-bogus_frozen_head            rc=1 new_rejects=67 CAUGHT
+bogus_frozen_head            rc=1 new_rejects=68 CAUGHT
 manifest_integrity_flagged   rc=1 new_rejects=2 CAUGHT
 fake_xsim_behavioral_evidence rc=1 new_rejects=2 CAUGHT
 fake_xsim_ledger_markers     rc=1 new_rejects=5 CAUGHT
