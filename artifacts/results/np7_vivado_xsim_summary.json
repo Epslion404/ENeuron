@@ -13,7 +13,7 @@
       "kind": "cfgneg",
       "lanes": 1,
       "logs": {
-        "cfgneg_dense_L1.log": "0ec6bbb23bd9f4ce6f57e8a6b960dca66b45d3b9a3767b3e7fbee01797f8328a"
+        "cfgneg_dense_L1.log": "2dd31984317db57eba55aecc3a87248ad3c29b0c320fb64ed7e82b5514b72fc6"
       },
       "metrics": {
         "cyc_rows": 0,
@@ -52,7 +52,7 @@
       "kind": "cfgneg",
       "lanes": 4,
       "logs": {
-        "cfgneg_dense_L4.log": "a81162c10ca682cd3c20d6fbe20e8c68c94f289055c5afa68965f61e84551f05"
+        "cfgneg_dense_L4.log": "a5ff835f4959a235296f93eab35ae4c106fc1ff10557545b025ac1c7dd16e584"
       },
       "metrics": {
         "cyc_rows": 0,
@@ -91,7 +91,7 @@
       "kind": "cfgneg",
       "lanes": 1,
       "logs": {
-        "cfgneg_sparse_L1.log": "a9df52757835193eccc2084b22e56ff5c0a624575368ac2640dc3b357d777979"
+        "cfgneg_sparse_L1.log": "6435ce812c340112f4623da5f353309a899ef7a7037595e0f91e91c052d3b4e5"
       },
       "metrics": {
         "cyc_rows": 0,
@@ -130,7 +130,7 @@
       "kind": "cfgneg",
       "lanes": 4,
       "logs": {
-        "cfgneg_sparse_L4.log": "7972faf5afa2e097c2eed1ff6c6047c880658bfa2e6edec55f82a0df9d58bedd"
+        "cfgneg_sparse_L4.log": "b21e0e291c19d09068242324106cb5ed99b80691e3cef34aeeb207f51b6d7748"
       },
       "metrics": {
         "cyc_rows": 0,
@@ -169,7 +169,7 @@
       "kind": "golden",
       "lanes": 1,
       "logs": {
-        "golden_dense_L1.log": "374d4d7cdd1c6d15a5dc2c7e2012d859398656bdb1e472478841f5f1eb232cbb"
+        "golden_dense_L1.log": "9984d7963d5ce7acb2f20a9cc9ad7872fd17b8745ec807d38e57e4c5598519f1"
       },
       "metrics": {
         "cyc_rows": 827,
@@ -237,7 +237,7 @@
       "kind": "golden",
       "lanes": 2,
       "logs": {
-        "golden_dense_L2.log": "bae8591043ffacd1344609ed50a5e3c04f80188dd27d61a51f859b792a9f9405"
+        "golden_dense_L2.log": "b2ff59caa9c240f0172e10705fc287b3f2e553a18c92a8b9f563b110c88a0fb2"
       },
       "metrics": {
         "cyc_rows": 729,
@@ -305,7 +305,7 @@
       "kind": "golden",
       "lanes": 4,
       "logs": {
-        "golden_dense_L4.log": "361bf7ff4caca08b8d03a33011725f6500fbdaba14ef4490230da16fec5f3989"
+        "golden_dense_L4.log": "810b4cefebd583fae708aceb3575f3fccb3a8a05e599009d9e4d32dc68db923b"
       },
       "metrics": {
         "cyc_rows": 677,
@@ -373,7 +373,7 @@
       "kind": "golden",
       "lanes": 8,
       "logs": {
-        "golden_dense_L8.log": "7de38c807e5a341a718cdd7383ad44e7e251c4de3860a4a029784435f0658923"
+        "golden_dense_L8.log": "4dc91d43430f91697c21aedf8901cac6639d2980629752cf83a5d2e370530f5b"
       },
       "metrics": {
         "cyc_rows": 682,
@@ -441,7 +441,7 @@
       "kind": "golden",
       "lanes": 1,
       "logs": {
-        "golden_sparse_L1.log": "03f6de58bad5485517f0e73a8690833b58ced13c17ac1882c19e04bbfa12c8ac"
+        "golden_sparse_L1.log": "d0484f72b5132ba0af3747dd2808bd0d797cad8fba3ab346068a48a7872e4d2a"
       },
       "metrics": {
         "cyc_rows": 527,
@@ -509,7 +509,7 @@
       "kind": "golden",
       "lanes": 2,
       "logs": {
-        "golden_sparse_L2.log": "c69582dc6d7ead24dcbf8ecebd3304d6fb6102ca6942c1dcfb5f8087be8de791"
+        "golden_sparse_L2.log": "3091381265a4130ce804e8e4557a27e4592e099b4bb196f75edf14d095867396"
       },
       "metrics": {
         "cyc_rows": 510,
@@ -577,7 +577,7 @@
       "kind": "golden",
       "lanes": 4,
       "logs": {
-        "golden_sparse_L4.log": "725e5aaf418fbcb0d8f2c9f640cc3f93f57831e5b888cebf7585b97735e0fb13"
+        "golden_sparse_L4.log": "a9cbe04e75340e6a4c6cb3a7f435be34ebe670f38c47d78bd73244cbf06488bd"
       },
       "metrics": {
         "cyc_rows": 456,
@@ -645,7 +645,7 @@
       "kind": "golden",
       "lanes": 8,
       "logs": {
-        "golden_sparse_L8.log": "f7670eac95b503ac3440fee55b37ca68e452c7da353e7a10ab988d6cab55394d"
+        "golden_sparse_L8.log": "0267192d9fbac57284382e24b954d605188e5b6968c4601a62b312773cffcfc3"
       },
       "metrics": {
         "cyc_rows": 502,
@@ -714,7 +714,7 @@
       "kind": "negative",
       "lanes": 1,
       "logs": {
-        "neg0_L1.log": "b816226e5f7002dae3095cb61f0aa922054a3f9faff4df5fe643ef15ff0553fb"
+        "neg0_L1.log": "ac07e862fa1778c356910e7c794ddd05df5baea6334b9246ee82ca760d232fa8"
       },
       "metrics": {
         "cyc_rows": 704,
@@ -783,7 +783,7 @@
       "kind": "negative",
       "lanes": 4,
       "logs": {
-        "neg0_L4.log": "3387a1641328503c05b2353c45f801403929570cf71e3c5d02ff2797d54b4d5d"
+        "neg0_L4.log": "6ff37c7d05ed5b82a718f11ae7d74ae52d068bdaf62e632b9a6ed2bfd56ffbab"
       },
       "metrics": {
         "cyc_rows": 642,
@@ -852,7 +852,7 @@
       "kind": "negative",
       "lanes": 1,
       "logs": {
-        "neg1_L1.log": "0339da40148fd283985474046baffd94cef2284918ef0423d30ff55db593ca5a"
+        "neg1_L1.log": "00bc3cf2c29f69b76dcb094dcdddd7bb39b5daa4e628a753231916f9b902f33d"
       },
       "metrics": {
         "cyc_rows": 821,
@@ -921,7 +921,7 @@
       "kind": "negative",
       "lanes": 4,
       "logs": {
-        "neg1_L4.log": "540c3cc4bb78ecb0a789adc278efe6e43862dc5d03fc2a39e4b97dec620017b4"
+        "neg1_L4.log": "cb99f57742c31c64d796700cd6993245de9bab84c50336134fb6d04069d69719"
       },
       "metrics": {
         "cyc_rows": 456,
@@ -977,8 +977,8 @@
       "work_dir": "work/neg1_L4"
     }
   },
-  "code_git_head": "9d07b99c70cd61836980930862938fc38f1e71da",
-  "commands_log_sha256": "243a718ab1cccb2e6e7de5dc2e75f4dfe7a2846881786be8cf6381ef6a86a94c",
+  "code_git_head": "d56f4fca9df3b6641dcb23536114dc042e6791ef",
+  "commands_log_sha256": "eff1226a6f3211ab57848cc030dd24d3928c4cc293a8d6854a0f5d238ba37bc0",
   "groups": [
     "golden",
     "negative",
@@ -998,7 +998,7 @@
     "run_np7_vivado_xsim.py": "0f928a3fc6dfbd2eaa0c16fea3815e4de1c16c59c3551e307a18814eb6b655d6",
     "tb_np7_config_negative.sv": "14c715680dbc3b283e45e5a0e10884cafcb1126ae6002533f661528eddc3e82c",
     "tb_np7_exec_unit.sv": "5de9c9fb6a723747b6b90974a297e13f41955e29f0c82121d7e12b219bdec4e1",
-    "tb_np7_negative.sv": "0baeaee5dd12bf7e114a6817e1e8e4a698ab08fa88d7b0470b5f11e352974623"
+    "tb_np7_negative.sv": "f65e6f3a6c7e75bc729f122f401b0cf1f870c31924147075c0ce4eea3e340461"
   },
   "tools": {
     "iverilog_line": "Icarus Verilog version 12.0 (devel) (s20150603-1539-g2693dd32b)",

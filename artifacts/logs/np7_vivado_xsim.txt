@@ -1,8 +1,8 @@
 # command: python -X utf8 run_np7_vivado_xsim.py --vivado-root C:/Users/MGL/Documents/Codex/Vivado2024_2 --transactions 120
-# code_git_head: 9d07b99
-# full_git_head: 9d07b99c70cd61836980930862938fc38f1e71da
+# code_git_head: d56f4fc
+# full_git_head: d56f4fca9df3b6641dcb23536114dc042e6791ef
 # python: 3.14.7 (-X utf8, PYTHONIOENCODING=utf-8)
-# local_time: 2026-09-02 14:05:08
+# local_time: 2026-09-02 15:38:34
 # toolchain: iverilog 12.0 (C:\iverilog\bin), yosys 0.68 (C:\msys64\ucrt64\bin), Vivado 2024.2 (SW Build 5239630)
 golden_sparse_L1         PASS rows=528 
 golden_sparse_L2         PASS rows=511 
