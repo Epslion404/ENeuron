@@ -60,7 +60,7 @@ NP7 已完成；下一步是重新审核并批准传统 NPU + 神经元集成计
 
 恢复脚本通过后，仍需读取活动 TODO 中当前阶段的完整合同，不能只凭本状态摘要实施。
 
-## 2026-09-03 PR #10 最终 CI 与知识库同步
+## 2026-09-02 PR #10 最终 CI 与知识库同步
 
 - GitHub Actions run `33660700397` 已完成并成功：Python and syntax、XPM CDC wrapper、NP7 functional and evidence gate、NP7 physical evidence integrity 四道门全部通过。
 - 本地 Webhook `C:\Users\Epsilon\ENeuronWebhook` 收到同一 run 的 `workflow_run`、`workflow_job` 和 `check_run` 事件；服务健康检查 `GET http://127.0.0.1:2355/healthz` 返回 200，接收器仍在仓库外运行。

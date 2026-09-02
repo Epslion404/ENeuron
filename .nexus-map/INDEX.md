@@ -1,7 +1,7 @@
 # ENeuron 知识库入口
 
 generated_by: nexus-mapper v2 / manual synthesis from raw probe
-verified_at: 2026-09-03
+verified_at: 2026-09-02
 provenance: `.nexus-map/raw/ast_nodes.json`, `git_stats.json`, `file_tree.txt`
 
 ENeuron 是以 Python 黄金模型、SystemVerilog RTL、Icarus/Yosys/Vivado 验证组成的数字脉冲神经元与 NPU 局部剪枝研究仓库。

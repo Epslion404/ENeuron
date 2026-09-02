@@ -1,7 +1,7 @@
 # 核心领域概念
 
 generated_by: nexus-mapper v2 / manual synthesis
-verified_at: 2026-09-03
+verified_at: 2026-09-02
 provenance: NP4B/NP6 TODO、工作流状态与 RTL 文件
 
 - `TICK`：推进一个样本或网络时刻。

@@ -819,7 +819,7 @@
 - [x] 新增 `docs/CI_PR_GATE.md` 配置教程并加入 `docs/README.md` 索引。
 - [x] 本地 YAML 解析、Python compileall、git diff --check 全部通过；未调用 Vivado。
 
-## 2026-09-03 PR #10 CI 收口与本地 Webhook
+## 2026-09-02 PR #10 CI 收口与本地 Webhook
 
 - [x] 轮询 GitHub Actions run `33660700397` 至终态。
 - [x] 确认四道 CI 门全部成功：Python/语法、XPM CDC、NP7 功能/证据、NP7 物理证据完整性。

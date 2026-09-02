@@ -1,7 +1,7 @@
 # 测试面与缺口
 
 generated_by: nexus-mapper v2 / manual synthesis
-verified_at: 2026-09-03
+verified_at: 2026-09-02
 provenance: repository test names, signoff summaries, workflow state
 
 已覆盖：Python/RTL 协同仿真、有限形式安全与可达性、负向 mutation、Tile/System Vivado OOC、XPM 仿真、NP4B 三模型 60000 事务签核。
