@@ -1,7 +1,7 @@
 Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
 | Tool Version     : Vivado v.2024.2 (win64) Build 5239630 Fri Nov 08 22:35:27 MST 2024
-| Date             : Wed Sep  2 05:21:35 2026
+| Date             : Wed Sep  2 13:25:55 2026
 | Host             : Chan-an running 64-bit major release  (build 9200)
 | Command          : report_power -file C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/vivado_np7_ooc_sparse_L1_reports/power_impl.rpt
 | Design           : np7_ooc_sparse_L1
@@ -53,13 +53,13 @@ Table of Contents
 | On-Chip                  | Power (W) | Used     | Available | Utilization (%) |
 +--------------------------+-----------+----------+-----------+-----------------+
 | Clocks                   |     0.004 |        3 |       --- |             --- |
-| Slice Logic              |    <0.001 |      720 |       --- |             --- |
-|   LUT as Logic           |    <0.001 |      101 |     53200 |            0.19 |
+| Slice Logic              |    <0.001 |      753 |       --- |             --- |
+|   LUT as Logic           |    <0.001 |      119 |     53200 |            0.22 |
 |   CARRY4                 |    <0.001 |      102 |     13300 |            0.77 |
 |   LUT as Distributed RAM |    <0.001 |       14 |     17400 |            0.08 |
-|   Register               |    <0.001 |      462 |    106400 |            0.43 |
+|   Register               |    <0.001 |      471 |    106400 |            0.44 |
 |   Others                 |     0.000 |        8 |       --- |             --- |
-| Signals                  |    <0.001 |      624 |       --- |             --- |
+| Signals                  |    <0.001 |      647 |       --- |             --- |
 | Static Power             |     0.103 |          |           |                 |
 | Total                    |     0.108 |          |           |                 |
 +--------------------------+-----------+----------+-----------+-----------------+

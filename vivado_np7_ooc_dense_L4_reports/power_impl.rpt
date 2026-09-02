@@ -1,7 +1,7 @@
 Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
 --------------------------------------------------------------------------------------------------------------------------------------------------------
 | Tool Version     : Vivado v.2024.2 (win64) Build 5239630 Fri Nov 08 22:35:27 MST 2024
-| Date             : Wed Sep  2 05:22:58 2026
+| Date             : Wed Sep  2 13:27:16 2026
 | Host             : Chan-an running 64-bit major release  (build 9200)
 | Command          : report_power -file C:/Users/MGL/Documents/Codex/2026-08-29/vivado/github_pr/vivado_np7_ooc_dense_L4_reports/power_impl.rpt
 | Design           : np7_ooc_dense_L4
@@ -33,7 +33,7 @@ Table of Contents
 | Total On-Chip Power (W)  | 0.108        |
 | Design Power Budget (W)  | Unspecified* |
 | Power Budget Margin (W)  | NA           |
-| Dynamic (W)              | 0.005        |
+| Dynamic (W)              | 0.006        |
 | Device Static (W)        | 0.103        |
 | Effective TJA (C/W)      | 11.5         |
 | Max Ambient (C)          | 83.8         |
@@ -53,13 +53,13 @@ Table of Contents
 | On-Chip                  | Power (W) | Used     | Available | Utilization (%) |
 +--------------------------+-----------+----------+-----------+-----------------+
 | Clocks                   |     0.004 |        3 |       --- |             --- |
-| Slice Logic              |    <0.001 |      823 |       --- |             --- |
-|   LUT as Logic           |    <0.001 |      178 |     53200 |            0.33 |
-|   CARRY4                 |    <0.001 |      117 |     13300 |            0.88 |
+| Slice Logic              |    <0.001 |      869 |       --- |             --- |
+|   LUT as Logic           |    <0.001 |      184 |     53200 |            0.35 |
+|   CARRY4                 |    <0.001 |      119 |     13300 |            0.89 |
 |   LUT as Distributed RAM |    <0.001 |       14 |     17400 |            0.08 |
-|   Register               |    <0.001 |      476 |    106400 |            0.45 |
+|   Register               |    <0.001 |      489 |    106400 |            0.46 |
 |   Others                 |     0.000 |        8 |       --- |             --- |
-| Signals                  |    <0.001 |      716 |       --- |             --- |
+| Signals                  |    <0.001 |      743 |       --- |             --- |
 | Static Power             |     0.103 |          |           |                 |
 | Total                    |     0.108 |          |           |                 |
 +--------------------------+-----------+----------+-----------+-----------------+
@@ -71,7 +71,7 @@ Table of Contents
 +-----------+-------------+-----------+-------------+------------+-------------+-------------+------------+
 | Source    | Voltage (V) | Total (A) | Dynamic (A) | Static (A) | Powerup (A) | Budget (A)  | Margin (A) |
 +-----------+-------------+-----------+-------------+------------+-------------+-------------+------------+
-| Vccint    |       1.000 |     0.013 |       0.005 |      0.007 |       NA    | Unspecified | NA         |
+| Vccint    |       1.000 |     0.013 |       0.006 |      0.007 |       NA    | Unspecified | NA         |
 | Vccaux    |       1.800 |     0.010 |       0.000 |      0.010 |       NA    | Unspecified | NA         |
 | Vcco33    |       3.300 |     0.000 |       0.000 |      0.000 |       NA    | Unspecified | NA         |
 | Vcco25    |       2.500 |     0.000 |       0.000 |      0.000 |       NA    | Unspecified | NA         |
@@ -147,8 +147,8 @@ Table of Contents
 +------------------+-----------+
 | Name             | Power (W) |
 +------------------+-----------+
-| np7_ooc_dense_L4 |     0.005 |
-|   dut            |     0.005 |
+| np7_ooc_dense_L4 |     0.006 |
+|   dut            |     0.006 |
 +------------------+-----------+
 
 
