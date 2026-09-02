@@ -432,7 +432,7 @@ DUT 输入**（`np7_shared_synapse_lane.sv`、`np7_exec_unit_*.sv`、`np7_weight
 `tb_np7_config_negative.sv`、`np7_negative_controls.sv` 字节全部未变），`vivado_np7_ooc_*_reports/` 的
 `GIT_HEAD` 与汇总 `code_git_head` 自洽，`verify_np7_physical_cost.py` 在新 head 下仍 `rejects=0 / 8-8`。
 XSim 证据已推进到合并后的 `70ab557`（round 8，见 §13.1）。OOC 的 8 份报告仍绑 `9d07b99`：round 8 没有任何
-参与综合的输入变化，重跑只是换时间戳。若管理员要求物理门也重跑到最终 head，按裁定执行一次 8 配置 OOC 即可
+参与综合的输入变化，重跑只是换时间戳。**所以 OOC 只能作为历史物理证据复用，不得表述为『在最终提交上重新综合得到的结果』**（review 5511786078 第 2 条）。若管理员要求物理门也重跑到最终 head，按裁定执行一次 8 配置 OOC 即可
 （约 25–35 分钟）。
 ## 12. 裁定 P2b（`5506790489`）：固定 MSYS2 路径显式注明 + PR Gate 分平台执行（round 6）
 
@@ -607,5 +607,27 @@ C:/Users/MGL/Documents/Codex/Vivado2024_2/bin/vivado.bat -mode batch -nojournal 
    scratch 的 13.0 或 CI 作业。
 4. 未勾选仓库内 TODO 的任何复选框，未改 `WORKFLOW_STATE.md`、`task_plan.md`、`progress.md`、
    `findings.md`、`.nexus-map/` 与任何已签核的 NP4B/NP6 产物。
+
 5. 三模型真实 Vivado 短回归只在本机可跑（CI 无 Vivado ⇒ 永远 skip），而本机 xsim 2024.2 的退出阶段
    崩溃率为 2/6：本轮**没有**把它写成通过，也没有为了通过去改 runner 语义。
+
+## 14. 每条 Vivado 证据绑定什么（回应 review `5511786078` 第 2、4 条）
+
+| 证据 | 绑定的代码 head | 工具与执行机 | 能否称作“最终提交上的结果” |
+|---|---|---|---|
+| NP7.7 XSim 行为仿真（16 用例） | `code_git_head=70ab557`（合并后的 main） | Vivado Simulator v2024.2.0 / SW Build 5239630 / `Chan-an` | 可以；但只绑定 2024.2，不外推 2024.1 |
+| NP7.7 OOC 8 配置（LUT/FF/BRAM/DSP/WNS/WHS） | `code_git_head=9d07b99`（round 3 冻结的综合 head） | 同机同版本 2024.2 | **只能作为历史物理证据复用**。综合输入字节自 `9d07b99` 起未变（§11.4），故 `verify_np7_physical_cost.py` 在 `58c2acf` 上仍 `rejects=0 / 8-8`；但**不得**表述成“在最终提交上重新综合得到的结果” |
+| 真实 XPM wrapper 的在库四份证据 | 评审机产物（`vivado_version=2024.1`、`Host LAPTOP-AJQHFMKI`、`cdc_report=D:/Documents/Code/ENeuron/…`） | Vivado 2024.1 / 评审机 | 字节保持原样，本轮不覆盖、不重签 |
+| 真实 XPM wrapper 本机复跑归档（§13.3） | head `02e347d` | Vivado v2024.2 Build 5239630 / `Chan-an` | 是 2024.2 上的**旁证复现**（两份报告正文逐行相同），不替换评审机证据，也不产出任何 2024.1 结论 |
+| 三模型真实 Vivado 短回归（§13.4） | head `02e347d`，本机 6 次 | Vivado Simulator v2024.2.0 / `Chan-an` | **不成立为稳定门**：6 次中 2 次 xsim 退出 0xC0000005；只报数字，不包装 |
+
+配套口径：
+
+- `verify_np7_physical_cost.py <HEAD>` 的 binding 里 `verify_head` 随提交前进、`code_head` 仍是 `9d07b99c7`，
+  这个不对称**就是**证据边界本身；报告与 PR 评论都按上表口径表述，不写“已在最终 head 重新综合”。
+- §13.4 的 2/6 崩溃**保持 fail-closed**：runner 语义未改、没有重试、没有放行退出码，
+  该作业在本机定位是“非稳定 + CI 不可达（runner 无 Vivado ⇒ 永远 skip）”。
+- 新增的 Vivado 原始日志（`artifacts/logs/xpm_wrapper_real_xpm_vivado2024p2.txt`）里行尾空格是 Vivado
+  表格排版的一部分，属生成物噪声。本轮按仓库既有做法（先例 `artifacts/logs/np7_vivado_xsim.txt -whitespace`）
+  **只关闭空白 lint、不改一个字节**：行尾策略、sha256、清单绑定都不受影响；如果维护者认为不该扩大豁免，
+  撤掉这一行 `.gitattributes` 即可，不需要动日志内容。
