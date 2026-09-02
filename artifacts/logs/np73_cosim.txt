@@ -1,7 +1,9 @@
-# command: python np7_shared_lane_cosim.py
-# code_git_head: 519232d
-# local_time: 2026-09-02 04:57:49
-# toolchain: iverilog 12.0 (C:\iverilog\bin), yosys 0.68 (C:\msys64\ucrt64\bin)
+# command: python -X utf8 np7_shared_lane_cosim.py
+# code_git_head: 0dbdf59
+# full_git_head: 0dbdf59d7c1a35915193d027da2faed58d70bb27
+# python: 3.14.7 (-X utf8, PYTHONIOENCODING=utf-8)
+# local_time: 2026-09-02 13:30:22
+# toolchain: iverilog 12.0 (C:\iverilog\bin), yosys 0.68 (C:\msys64\ucrt64\bin), Vivado 2024.2 (SW Build 5239630)
 [NP7.3] lanes=1 完成 20 seeds x 1000 txns 逐拍比对
 [NP7.3] lanes=2 完成 20 seeds x 1000 txns 逐拍比对
 [NP7.3] lanes=4 完成 20 seeds x 1000 txns 逐拍比对

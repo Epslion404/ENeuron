@@ -565,7 +565,7 @@
       "verdict": "model"
     }
   },
-  "git_head": "537eb7a95408466bb836707fa0bb346c56f22c56",
+  "git_head": "0dbdf59d7c1a35915193d027da2faed58d70bb27",
   "leak_mutation": {
     "eneuron": {
       "clean_problems": [],

@@ -1,17 +1,19 @@
-# command: python np7_three_model_integration_cosim.py
-# code_git_head: 519232d
-# local_time: 2026-09-02 04:57:55
-# toolchain: iverilog 12.0 (C:\iverilog\bin), yosys 0.68 (C:\msys64\ucrt64\bin)
-[NP7.4] eneuron lanes=1 每 tick 周期 dense基线=16.000 dense格式=12.500 sparse=11.250 降幅=29.7% (仅格式 21.9%)
-[NP7.4] eneuron lanes=2 每 tick 周期 dense基线=15.500 dense格式=12.250 sparse=11.000 降幅=29.0% (仅格式 21.0%)
-[NP7.4] eneuron lanes=4 每 tick 周期 dense基线=15.250 dense格式=12.250 sparse=11.000 降幅=27.9% (仅格式 19.7%)
-[NP7.4] eneuron lanes=8 每 tick 周期 dense基线=15.250 dense格式=12.250 sparse=11.000 降幅=27.9% (仅格式 19.7%)
-[NP7.4] pulse_mini_l lanes=1 每 tick 周期 dense基线=16.000 dense格式=12.500 sparse=11.250 降幅=29.7% (仅格式 21.9%)
-[NP7.4] pulse_mini_l lanes=2 每 tick 周期 dense基线=15.500 dense格式=12.250 sparse=11.000 降幅=29.0% (仅格式 21.0%)
-[NP7.4] pulse_mini_l lanes=4 每 tick 周期 dense基线=15.250 dense格式=12.250 sparse=11.000 降幅=27.9% (仅格式 19.7%)
-[NP7.4] pulse_mini_l lanes=8 每 tick 周期 dense基线=15.250 dense格式=12.250 sparse=11.000 降幅=27.9% (仅格式 19.7%)
-[NP7.4] pulse_mini_l2 lanes=1 每 tick 周期 dense基线=16.000 dense格式=12.500 sparse=11.250 降幅=29.7% (仅格式 21.9%)
-[NP7.4] pulse_mini_l2 lanes=2 每 tick 周期 dense基线=15.500 dense格式=12.250 sparse=11.000 降幅=29.0% (仅格式 21.0%)
-[NP7.4] pulse_mini_l2 lanes=4 每 tick 周期 dense基线=15.250 dense格式=12.250 sparse=11.000 降幅=27.9% (仅格式 19.7%)
-[NP7.4] pulse_mini_l2 lanes=8 每 tick 周期 dense基线=15.250 dense格式=12.250 sparse=11.000 降幅=27.9% (仅格式 19.7%)
+# command: python -X utf8 np7_three_model_integration_cosim.py
+# code_git_head: 0dbdf59
+# full_git_head: 0dbdf59d7c1a35915193d027da2faed58d70bb27
+# python: 3.14.7 (-X utf8, PYTHONIOENCODING=utf-8)
+# local_time: 2026-09-02 13:30:36
+# toolchain: iverilog 12.0 (C:\iverilog\bin), yosys 0.68 (C:\msys64\ucrt64\bin), Vivado 2024.2 (SW Build 5239630)
+[NP7.4] eneuron lanes=1 每 tick 周期 dense基线=18.250 dense格式=13.750 sparse=12.500 降幅=31.5% (仅格式 24.7%)
+[NP7.4] eneuron lanes=2 每 tick 周期 dense基线=17.750 dense格式=13.500 sparse=12.250 降幅=31.0% (仅格式 23.9%)
+[NP7.4] eneuron lanes=4 每 tick 周期 dense基线=17.500 dense格式=13.500 sparse=12.250 降幅=30.0% (仅格式 22.9%)
+[NP7.4] eneuron lanes=8 每 tick 周期 dense基线=17.500 dense格式=13.500 sparse=12.250 降幅=30.0% (仅格式 22.9%)
+[NP7.4] pulse_mini_l lanes=1 每 tick 周期 dense基线=18.250 dense格式=13.750 sparse=12.500 降幅=31.5% (仅格式 24.7%)
+[NP7.4] pulse_mini_l lanes=2 每 tick 周期 dense基线=17.750 dense格式=13.500 sparse=12.250 降幅=31.0% (仅格式 23.9%)
+[NP7.4] pulse_mini_l lanes=4 每 tick 周期 dense基线=17.500 dense格式=13.500 sparse=12.250 降幅=30.0% (仅格式 22.9%)
+[NP7.4] pulse_mini_l lanes=8 每 tick 周期 dense基线=17.500 dense格式=13.500 sparse=12.250 降幅=30.0% (仅格式 22.9%)
+[NP7.4] pulse_mini_l2 lanes=1 每 tick 周期 dense基线=18.250 dense格式=13.750 sparse=12.500 降幅=31.5% (仅格式 24.7%)
+[NP7.4] pulse_mini_l2 lanes=2 每 tick 周期 dense基线=17.750 dense格式=13.500 sparse=12.250 降幅=31.0% (仅格式 23.9%)
+[NP7.4] pulse_mini_l2 lanes=4 每 tick 周期 dense基线=17.500 dense格式=13.500 sparse=12.250 降幅=30.0% (仅格式 22.9%)
+[NP7.4] pulse_mini_l2 lanes=8 每 tick 周期 dense基线=17.500 dense格式=13.500 sparse=12.250 降幅=30.0% (仅格式 22.9%)
 [NP7.4] 模型数=3 问题数=0
