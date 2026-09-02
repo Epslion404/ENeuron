@@ -1,20 +1,20 @@
 {
   "$schema": "nexus-mapper/concept-model/v1",
-  "generated_at": "2026-09-02T00:00:00+08:00",
+  "generated_at": "2026-09-01T00:00:00Z",
   "repo_path": "D:/Documents/Code/ENeuron",
   "generator": "nexus-mapper v2",
   "nodes": [
-    {"id":"neuron-rtl","type":"System","label":"神经元与网络 RTL","responsibility":"实现多周期脉冲神经元、tile、Host Bridge 和双时钟数据通路","implementation_status":"implemented","code_path":"digital_snn_tile_4x2x2.sv","evidence_path":null,"evidence_gap":null,"tech_stack":["SystemVerilog","Vivado"],"related_reqs":[],"complexity":"high","hotspot":false},
-    {"id":"reference-simulation","type":"System","label":"参考模型与协同仿真","responsibility":"提供神经元状态、网络事务和 RTL 对照模型并驱动协同仿真","implementation_status":"implemented","code_path":"rtl_tile_cosim.py","evidence_path":null,"evidence_gap":null,"tech_stack":["Python","Icarus"],"related_reqs":[],"complexity":"high","hotspot":true},
-    {"id":"local-pruning","type":"System","label":"局部自动剪枝","responsibility":"实现 2-of-4 gate、资格证据、提交屏障及三种神经元 wrapper","implementation_status":"implemented","code_path":"local_prune_gate_2of4.sv","evidence_path":null,"evidence_gap":null,"tech_stack":["SystemVerilog","Python"],"related_reqs":[],"complexity":"high","hotspot":true},
-    {"id":"verification-signoff","type":"System","label":"验证与签核","responsibility":"聚合回归、形式、协同仿真和 Vivado 报告并执行 fail-closed 校验","implementation_status":"implemented","code_path":"verify_goal.py","evidence_path":null,"evidence_gap":null,"tech_stack":["Python","Yosys","Vivado"],"related_reqs":[],"complexity":"high","hotspot":true},
-    {"id":"np6-physical-cost","type":"System","label":"NP6 物理成本评估","responsibility":"比较剪枝与未剪枝配置的 FPGA 资源、时序、DRC 和报告新鲜度","implementation_status":"planned","code_path":null,"evidence_path":"docs/planning/NPU_PRUNING_NP6_TODO.md","evidence_gap":"阶段状态和报告需以当前工作流为准，Nexus 本身未执行 Vivado","tech_stack":["Vivado"],"related_reqs":[],"complexity":"high","hotspot":false}
+    {"id":"neuron-rtl","type":"System","label":"神经元 RTL 与参考模型","responsibility":"实现数字脉冲神经元状态更新并提供 Python 对照模型","implementation_status":"implemented","code_path":"digital_lif_engine.sv","evidence_path":null,"evidence_gap":null,"tech_stack":["SystemVerilog","Python"],"hotspot":true},
+    {"id":"tile-host-network","type":"System","label":"Tile 与 Host 网络","responsibility":"编排 TICK、快照、提交和主机桥接的网络级事务","implementation_status":"implemented","code_path":"digital_snn_tile_4x2x2.sv","evidence_path":null,"evidence_gap":null,"tech_stack":["SystemVerilog","Python"],"hotspot":true},
+    {"id":"local-prune","type":"System","label":"局部剪枝","responsibility":"执行 2:4 门控、证据提交、状态清理和剪枝参考验证","implementation_status":"implemented","code_path":"local_prune_gate_2of4.sv","evidence_path":null,"evidence_gap":null,"tech_stack":["SystemVerilog","Python"],"hotspot":true},
+    {"id":"np6-physical-cost","type":"System","label":"NP6 物理成本评估","responsibility":"针对 xc7z020 与 100 MHz 约束收集资源时序 DRC 证据并执行只读签核","implementation_status":"implemented","code_path":"verify_np6_physical_cost.py","evidence_path":"docs/reports/LOCAL_PRUNE_NP6_PHYSICAL_COST_REPORT.md","evidence_gap":"正式结论为 NP6_PHYSICAL_COST_PARTIAL；不是整体时序通过"},
+    {"id":"np7-shared-memory-lane","type":"System","label":"NP7 共享 BRAM 与 lane","responsibility":"设计并验证共享存储和计算 lane 的下一阶段方案","implementation_status":"planned","code_path":null,"evidence_path":"docs/planning/NPU_PRUNING_NP7_TODO.md","evidence_gap":"当前处于审核门，仓库尚无 NP7 RTL、协同仿真或 Vivado 证据"}
   ],
   "edges": [
-    {"source":"reference-simulation","target":"neuron-rtl","type":"depends_on","description":"参考模型驱动 RTL 协同仿真"},
-    {"source":"local-pruning","target":"reference-simulation","type":"depends_on","description":"剪枝模型复用事务和状态语义"},
-    {"source":"verification-signoff","target":"local-pruning","type":"depends_on","description":"签核校验剪枝证据"},
-    {"source":"verification-signoff","target":"neuron-rtl","type":"depends_on","description":"签核校验 RTL 与 Vivado 报告"}
+    {"source":"neuron-rtl","target":"tile-host-network","type":"depends_on"},
+    {"source":"local-prune","target":"tile-host-network","type":"depends_on"},
+    {"source":"tile-host-network","target":"np6-physical-cost","type":"depends_on"},
+    {"source":"np6-physical-cost","target":"np7-shared-memory-lane","type":"precedes"}
   ],
-  "metadata": {"total_files":168,"total_lines":39944,"languages":["python"],"git_commits_analyzed":195,"analysis_days":90}
+  "metadata":{"languages":["Python","SystemVerilog"],"analysis_days":90,"raw_probe":".nexus-map/raw/ast_nodes.json and git_stats.json"}
 }

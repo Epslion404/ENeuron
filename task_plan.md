@@ -1,22 +1,5 @@
 # 单神经元硬件基石模拟计划
 
-## 当前路线（2026-09-02）
-
-- [x] 确认 NP7 已合并，但其结果不是完整传统 INT8 NPU 的端到端证明
-- [x] 将旧 Pulse-Mini 数字识别/阵列计划标记为暂停或后续支线
-- [x] 新建 `docs/planning/NPU_NEURON_AUGMENTED_TODO.md`
-- [x] 更新 `WORKFLOW_STATE.md` 与 `docs/README.md` 的活动合同和索引
-- [ ] 等待用户审核 N0 接口与基线决策
-- [ ] N0 批准后实现 dense `64 -> 32 -> 10` INT8 NPU 基线
-
-当前硬门：N0 未批准前不修改传统 NPU/集成 RTL；dense 基线未通过前不做剪枝性能结论。
-
-### 本轮验证记录
-
-- `git diff --check`：通过。
-- 全仓 `python -X utf8 -m unittest discover -v`：406 项，12 failures、20 errors、1 skip；运行中出现 `OSError: [Errno 28] No space left on device`，随后多个临时 `.vvp` 报 syntax/unresolved reference。该结果不能作为代码回归结论，本轮不修改业务代码处理环境问题。
-- 验证器刷新 `local_prune_rtl_results.json` 与 `np4b_signoff_summary.json` 后已恢复原始字节，不纳入 TODO 修改。
-
 ## 目标
 
 在本项目中用本机 Python 模拟并比较几种单神经元候选，平衡硬件复杂度与“可构建 AI 自训练和推理”的能力，最终确定推荐的最小可塑神经元设计。
