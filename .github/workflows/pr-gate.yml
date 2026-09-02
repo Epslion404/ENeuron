@@ -16,7 +16,7 @@ jobs:
   python-and-syntax:
     name: Python and syntax
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     steps:
       - name: Checkout PR head
         uses: actions/checkout@v4
@@ -29,15 +29,90 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Install open-source HDL tools for portable tests
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y iverilog yosys
+          echo "APT_ICARUS_VERSION=$(iverilog -V | head -n 1)"
+          echo "APT_YOSYS_VERSION=$(yosys --version || true)"
+
       - name: Compile Python sources
         run: python -X utf8 -m compileall -q .
 
       - name: Run repository unit tests
-        run: python -X utf8 -m unittest discover -v
+        shell: bash
+        run: |
+          set +e
+          python -X utf8 -m unittest discover -v > "${RUNNER_TEMP}/discover.log" 2>&1
+          discover_status=$?
+          set -e
+          echo "discover_exit_code=${discover_status}"
+          echo "UBUNTU_XPM_NOTICE_BEGIN"
+          grep -n "NOT APPLICABLE" "${RUNNER_TEMP}/discover.log" \
+            || echo "no SKIPPED/NOT APPLICABLE notice was emitted on Ubuntu"
+          echo "UBUNTU_XPM_NOTICE_END"
+          grep -n "^Ran \|^OK\|^FAILED" "${RUNNER_TEMP}/discover.log" || true
+          cat "${RUNNER_TEMP}/discover.log"
+          exit "${discover_status}"
 
       - name: Check PR diff whitespace
         if: github.event_name == 'pull_request'
         run: git diff --check "${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}"
+
+  windows-xpm-cdc:
+    name: XPM CDC wrapper (Windows MSYS2 UCRT64)
+    runs-on: windows-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Icarus Verilog into the fixed MSYS2 UCRT64 path
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: mingw-w64-ucrt-x86_64-iverilog
+
+      - name: Show fixed toolchain paths and tool versions
+        shell: msys2 {0}
+        run: |
+          echo "WINDOWS_MSYS2_UCRT64_PATH=/c/msys64/ucrt64/bin"
+          ls -l /c/msys64/ucrt64/bin/iverilog.exe /c/msys64/ucrt64/bin/vvp.exe
+          /c/msys64/ucrt64/bin/iverilog.exe -V | head -n 1
+          /c/msys64/ucrt64/bin/vvp.exe -V | head -n 1 || echo "vvp -V not supported"
+          pacman -Q mingw-w64-ucrt-x86_64-iverilog || true
+
+      - name: Run XPM CDC wrapper tests on Windows
+        shell: bash
+        run: |
+          set +e
+          python -X utf8 -m unittest -v test_host_bridge_xpm_wrapper > "${RUNNER_TEMP}/xpm_windows.log" 2>&1
+          xpm_status=$?
+          set -e
+          cat "${RUNNER_TEMP}/xpm_windows.log"
+          if grep -q "NOT APPLICABLE" "${RUNNER_TEMP}/xpm_windows.log"; then
+            echo "::error title=XPM wrapper skipped::test_host_bridge_xpm_wrapper was SKIPPED on the Windows runner, so the fixed MSYS2 UCRT64 toolchain was not really exercised"
+            exit 1
+          fi
+          if grep -q "TOOLCHAIN_DEFECT" "${RUNNER_TEMP}/xpm_windows.log"; then
+            echo "::error title=toolchain defect::the MSYS2 UCRT64 Icarus build on the Windows runner hit a known toolchain defect"
+            exit 1
+          fi
+          if [ "${xpm_status}" -ne 0 ]; then
+            echo "XPM_WINDOWS_GATE=FAIL exit_code=${xpm_status}"
+            exit "${xpm_status}"
+          fi
+          grep -n "^Ran \|^OK" "${RUNNER_TEMP}/xpm_windows.log" || true
+          echo "XPM_WINDOWS_GATE=PASS"
 
   np7-functional:
     name: NP7 functional and evidence gate

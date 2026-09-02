@@ -51,6 +51,7 @@
 ## 持续集成
 
 - [PR 自动检查与分支保护配置](CI_PR_GATE.md)
+- [Windows + MSYS2 UCRT64 专项测试工具链注明](WINDOWS_MSYS2_XPM_TOOLCHAIN.md)
 
 ## 根目录保留文件
 

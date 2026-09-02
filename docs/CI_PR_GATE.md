@@ -78,3 +78,25 @@ Windows 默认代码页下也应保留 `-X utf8`，以避免 mutation 日志因�
 - 修改 gate 命令或阈值时，必须同时更新本文件和相关项目决策文档。
 - 工作流只能机械执行已冻结规则；出现产品、协议、门槛或范围选择时，必须回到 PR 请求仓库 admin 决策。
 - 不在工作流中写入 token、私钥、Vivado 许可证或其他 secrets。
+
+
+## Windows 专项测试与固定工具路径（PR #6 round 6）
+
+`test_host_bridge_xpm_wrapper.py` 依赖 Windows + MSYS2 UCRT64 专用固定路径
+`C:\msys64\ucrt64\bin\iverilog.exe` 与 `vvp.exe`（仓库 admin 在 issue comment
+`5506790489` 裁定允许保留，条件是所有四点注明）。因此本 gate 的平台分工是：
+
+- `Python and syntax`（ubuntu-latest）：先 `apt-get install --no-install-recommends -y iverilog yosys`，
+  让依赖 PATH 上 Icarus 的可移植测试真正执行；该 XPM 测试在 Linux 上显示
+  `skipped "SKIPPED/NOT APPLICABLE: host platform is ..." **并附原因**`，不再抛 `RuntimeError`，
+  作业日志里用 `UBUNTU_XPM_NOTICE_BEGIN/END` 标出这些 notice。
+- `XPM CDC wrapper (Windows MSYS2 UCRT64)`（新增 `windows-xpm-cdc` 作业，windows-latest）：用
+  `msys2/setup-msys2@v2`（`msystem: UCRT64`）安装 `mingw-w64-ucrt-x86_64-iverilog` 到固定路径后执行
+  `python -X utf8 -m unittest -v test_host_bridge_xpm_wrapper`；**守卫步骤**规定：日志出现
+  `NOT APPLICABLE` 或 `TOOLCHAIN_DEFECT` 即判该作业失败，所以“跳过”不能充当通过。
+- 固定路径下的已知工具链缺陷（`-Wall` 无输出崩溃、本机 `vvp.exe` 连空 testbench 都崩溃）以及
+  逐条行号对照表见 `docs/WINDOWS_MSYS2_XPM_TOOLCHAIN.md`。
+
+维护要求：新增“只能在某个 OS/特定安装布局上跑”的测试时，必须同时提供
+（1）代码与文档里的显式注明、（2）非该环境的 `SKIPPED/NOT APPLICABLE` 原因、
+（3）对应 OS 的专用作业与“跳过即失败”守卫、（4）一条平台无关的用例断言前 3 项仍然存在。
