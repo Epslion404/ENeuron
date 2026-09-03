@@ -67,6 +67,13 @@ NP7 已完成；下一步是重新审核并批准传统 NPU + 神经元集成计
 - 仓库外接收器 `C:\Users\Epsilon\ENeuronWebhook` 于 03:55:10 UTC 收到同一 SHA 的 `workflow_run completed/success`；本地 `/healthz` 返回 HTTP 200。
 - PR #10 仍为 `OPEN / CLEAN`，本轮只确认具备人工合并条件，不自动 approve 或 merge；合并前不启动新的集成 RTL/Vivado 工作。
 
+## 2026-09-03 PR #10 重跑终态确认
+
+- run `33714262900` 已对 HEAD `15940b5aed8cb1e4127fab8bd904db4b9ab35433` 完成并成功；Python、XPM、NP7 功能/证据和物理证据四道门全部通过。
+- NP7 功能门中的 oracle、周期协同仿真、三模型集成、形式与突变检查均成功；其中形式与突变检查于 04:44:35 UTC 完成。
+- GitHub PR 汇总状态为 `OPEN / CLEAN`。本机 Webhook 未落盘该次重跑事件，不能作为第二份终态证据；GitHub 结果已独立核实。
+- 当前阶段回到等待管理员人工合并；合并前不启动新的传统 NPU + 神经元集成 RTL 或 Vivado。
+
 ## 2026-09-02 PR #10 最终 CI 与知识库同步
 
 - GitHub Actions run `33660700397` 已完成并成功：Python and syntax、XPM CDC wrapper、NP7 functional and evidence gate、NP7 physical evidence integrity 四道门全部通过。

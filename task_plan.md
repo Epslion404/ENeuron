@@ -831,3 +831,5 @@
 - [x] 复核后续 HEAD `9cced26` 对应 run `33711162898` 成功，Webhook 收到 `workflow_run completed/success`。
 - [x] 复核当前 HEAD `90b7e414` 对应 run `33712261128` 成功，并用仓库外 Webhook 核对同一 SHA 的终态事件。
 - [ ] 等待管理员人工合并 PR #10；合并前仅进行静态审核、文档和 Nexus 维护，不启动新的集成 RTL/Vivado。
+- [x] 重跑 run `33714262900` 并确认 HEAD `15940b5` 的四道 CI 门、形式与突变检查全部成功。
+- [ ] 修复或重新验证仓库外 Webhook 对 workflow_run 重跑事件的接收，再进入传统 NPU + 神经元集成审核。

@@ -887,3 +887,9 @@
 - run `33712261128` 已完成成功，HEAD 为 `90b7e414da211985c7e8d83872ddc910e1706b18`；四道 CI 门全部成功。
 - Webhook `latest.json` 已记录同一 HEAD 的 `workflow_run` completed/success，时间为 03:55:10 UTC；与 GitHub run 结果一致。
 - PR #10 仍保持 `OPEN / CLEAN`，仅具备人工合并条件；下一步仍是等待管理员决定，合并前不实现新的集成业务 RTL。
+
+## 2026-09-03 PR #10 重跑完整成功
+
+- 重跑 run `33714262900` 对提交 `15940b5` 完整成功，四道 CI 门及 NP7 形式/突变检查均通过。
+- GitHub 结果证明当前提交的 NP7 软件、协同仿真和证据完整性闭环成立；Webhook 未收到重跑终态，已记录为接收器缺口。
+- PR #10 保持 `OPEN / CLEAN`，下一步等待管理员人工合并，不自动 approve/merge。
