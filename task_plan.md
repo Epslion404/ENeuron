@@ -856,3 +856,10 @@
 - [x] 用仓库外 Webhook 核对 HEAD `15d289e0` 的 `workflow_run completed/success`。
 - [x] 确认接收服务健康检查 HTTP 200，且服务文件与日志不在仓库。
 - [ ] 等待管理员批准 I1-I6；批准后再开展 INT8 NPU 参考模型与集成 RTL 任务。
+
+## 2026-09-03 PR #10 合并后入口
+
+- [x] 确认 PR #10 已合并，merge commit 为 `a076160`。
+- [x] 确认 run `33742796085` 与仓库外 Webhook 终态均为成功。
+- [x] 保留传统 NPU + 神经元集成审核门，未提前启动集成 RTL/Vivado。
+- [ ] 管理员批准 I1-I6 后，先实现 `64→32→10` INT8 MLP 的 Python 旁路/门控参考模型，再进入 RTL。

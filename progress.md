@@ -976,3 +976,10 @@
 - 仓库外接收服务 `C:\Users\Epsilon\ENeuronWebhook` 在 `127.0.0.1:2355` 保持监听，`/healthz` 返回 HTTP 200。
 - Webhook 已收到同一 SHA 的 `workflow_run completed/success`，与 GitHub 结果交叉一致；服务脚本、日志、PID 和事件摘要均不属于仓库。
 - 本轮未启动传统 NPU + 神经元集成 RTL 或 Vivado；该工作仍等待管理员批准 I1-I6。
+
+## 2026-09-03 PR #10 合并收口
+
+- PR #10 已于 `2026-09-03T10:32:24Z` 合并到 `main`，merge commit 为 `a076160d8c3d4378ed7ad71e14f53658d43a4d71`。
+- 合并前 HEAD `0f6b0ad9` 的 run `33742796085` 已完成成功，GitHub 与仓库外 Webhook 均已确认同一 SHA 的终态。
+- 合并只收口 NP7 文档/状态记录，不改变集成审核门；`NPU_NEURON_INTEGRATION_REVIEW.md` 仍为 `REVIEW_REQUIRED`，I1-I6 未批准前不实现集成业务 RTL、不运行新的 Vivado。
+- 仓库外接收服务仍固定于 `C:\Users\Epsilon\ENeuronWebhook`，监听 `127.0.0.1:2355`，不进入仓库。
