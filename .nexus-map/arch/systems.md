@@ -6,4 +6,4 @@ provenance: Python AST/file-tree probe plus SystemVerilog文件树和项目文�
 
 仓库分为五个边界：神经元 RTL 与 Python 参考模型、Tile/Host 网络、局部剪枝控制器、NP7 共享 BRAM/lane 执行器、验证与签核工具。传统 NPU + 神经元集成仍是规划边界，不是已实现系统。跨边界的主要合同是逐周期/逐位比较、原子提交、INFER 状态冻结和 fail-closed SHA-256 摘要。
 
-NP6 物理评估正式状态为 `NP6_PHYSICAL_COST_PARTIAL`；NP7 共享 BRAM/lane 已实现并合并，代码位置包括 `np7_weight_ram.sv`、`np7_exec_unit_dense.sv`、`np7_exec_unit_sparse.sv`、`np7_shared_synapse_lane.sv` 及其 Python oracle/cosim/runner。PR #18 merge commit 为 `1877140c`，HEAD `59bef59` 的 CI run `33758285464` 已由 GitHub 与仓库外 Webhook 双重确认 `completed/success`。当前边界进入传统 NPU + 神经元集成审核，I1-I6 仍为 `REVIEW_REQUIRED`；`WORKFLOW_STATE.md` 是状态权威来源，该阶段尚未形成集成业务 RTL 或新的 Vivado 集成证据。
+NP6 物理评估正式状态为 `NP6_PHYSICAL_COST_PARTIAL`；NP7 共享 BRAM/lane 已实现并合并，代码位置包括 `np7_weight_ram.sv`、`np7_exec_unit_dense.sv`、`np7_exec_unit_sparse.sv`、`np7_shared_synapse_lane.sv` 及其 Python oracle/cosim/runner。PR #19 merge commit 为 `63028d4`，HEAD `d6ca094` 的 CI run `33760749837` 四道门均成功；该次 Webhook 投递曾短暂失败，终态以 GitHub API 为权威。当前边界进入传统 NPU + 神经元集成审核，I1-I6 仍为 `REVIEW_REQUIRED`；`WORKFLOW_STATE.md` 是状态权威来源，该阶段尚未形成集成业务 RTL 或新的 Vivado 集成证据。

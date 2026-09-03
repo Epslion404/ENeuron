@@ -904,3 +904,5 @@
 - [x] 使用仓库外 Webhook 交叉确认 PR #18 同 SHA 的工作流终态
 - [ ] 等待管理员批准传统 NPU + ENeuron 集成审核 I1-I6 与材料包
 - [ ] 获批后实现 Python 旁路/门控 oracle，再进入集成 RTL、协同仿真和 Vivado 物理验证
+
+- [x] PR #19 合并后同步主线到 `63028d4`，记录 Webhook 短暂掉线与恢复

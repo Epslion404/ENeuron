@@ -147,3 +147,11 @@ NP7 已完成；下一步是重新审核并批准传统 NPU + 神经元集成计
 - 本地 `main` 已快进到 `1877140` 并与 `origin/main` 一致；工作树唯一条目仍是用户未跟踪文件 `np75_tmp_sparse_protocol.ys`，未修改、未提交、未纳入 Nexus。
 - PR #18 仅收口工作流状态与 Nexus 基线，没有新增传统 NPU + ENeuron 业务 RTL，也没有运行新的 Vivado。
 - 当前下一入口仍为 `docs/planning/NPU_NEURON_INTEGRATION_REVIEW.md` 的 `REVIEW_REQUIRED`：I1-I6 和材料包未获管理员批准前，只进行静态审计、文档和 Nexus 维护；不得创建集成 RTL 或运行新的 Vivado。
+
+## 2026-09-03 PR #19 合并与 Webhook 运维记录
+
+- PR #19 `docs: record post-PR18 workflow baseline` 已于本日合并到 `main`；当前 merge commit 为 `63028d4`，本地 `main` 已与 `origin/main` 一致。
+- PR #19 HEAD `d6ca09415eb857fc02d71131e962dd894fd58f3b` 对应 Actions run `33760749837`；Python/语法、XPM CDC、NP7 功能与证据、NP7 物理证据四道门均为 `SUCCESS`，PR 状态为 `CLEAN / MERGEABLE`。
+- 该次 CI 期间 Webhook 服务短暂掉线，GitHub delivery API 记录 `workflow_run`/相关事件因 EOF 投递失败；已从 `C:\Users\Epsilon\ENeuronWebhook\start_webhook.ps1` 恢复服务，本地与公网 `/healthz` 均返回 HTTP 200。当前 gh token 缺少 `admin:repo_hook`，因此未调用官方 redelivery；CI 终态以 GitHub API 为权威证据。
+- PR #19 只包含工作流、状态文档和 Nexus 更新，没有业务 RTL、Vivado 或板级测试；用户文件 `np75_tmp_sparse_protocol.ys` 仍未跟踪、未修改、未提交。
+- 下一动作不变：等待管理员批准传统 NPU + ENeuron 集成审核 I1-I6；批准前不实现集成业务 RTL，不运行新的 Vivado。
