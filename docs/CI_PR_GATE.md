@@ -78,8 +78,17 @@ Windows 默认代码页下也应保留 `-X utf8`，以避免 mutation 日志因�
 
 - 修改 gate 命令或阈值时，必须同时更新本文件和相关项目决策文档。
 - 修改路径分类规则时，必须更新 `test_ci_fast_v1.py` 的矩阵，并验证未选中的专项门不会成为合并阻塞。
+- GitHub 官方 JavaScript action 统一使用 Node 24 兼容主版本；当前基线为 `actions/checkout@v7`、`actions/setup-python@v7`。升级 action 主版本必须用 workflow 变更触发全量门，不允许只凭版本号替换直接合并。
 - 工作流只能机械执行已冻结规则；出现产品、协议、门槛或范围选择时，必须回到 PR 请求仓库 admin 决策。
 - 不在工作流中写入 token、私钥、Vivado 许可证或其他 secrets。
+
+## Node 24 action 基线（2026-09-03）
+
+PR #31 的 run `33789363607` 对 `actions/checkout@v4` 发出 Node.js 20 弃用警告。官方发布接口核对结果：`actions/checkout` 最新稳定版为 `v7.0.1`，`actions/setup-python` 最新稳定版为 `v7.0.0`；两者当前推荐主版本均为 `v7`。
+
+Node 24 action 要求 runner `v2.327.1` 或更高。核对时 GitHub 官方 runner 最新稳定版为 `v2.337.0`；本项目使用 `ubuntu-latest`/`windows-latest` 托管 runner，但仍必须由本仓库的真实 workflow 全量 run 证明兼容，不能用官方版本说明代替执行证据。
+
+`test_actions_use_node24_compatible_majors` 固定 checkout/setup-python 的使用次数并拒绝旧主版本回退。未来升级到新的主版本时，应同时更新该测试与本节记录。
 
 
 ## Windows 专项测试与固定工具路径（PR #6 round 6）

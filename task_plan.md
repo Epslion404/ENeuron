@@ -971,6 +971,15 @@
 - [ ] 管理员批准 OF1-OF6 V2。
 - [ ] 按 RED 测试 → 最小实现 → 手算 mask 向量 → 状态矩阵顺序完成冻结。
 - [ ] 冻结端口/地址/状态转移/逐拍测试计划后，才提交单时钟 RTL 设计审核。
+
+## 2026-09-03 CI Node 24 action 维护
+
+- [x] 从 PR #31 日志确认 checkout v4 的 Node.js 20 弃用警告。
+- [x] 通过 GitHub 官方发布接口核对 checkout `v7.0.1`、setup-python `v7.0.0` 和 runner 最低版本要求。
+- [x] 将 workflow 升级到 checkout/setup-python v7，并增加 action 主版本防回退测试。
+- [x] 更新 Nexus，并通过 action 版本单测、YAML/JSON 解析、compileall 和 diff-check。
+- [ ] 创建 PR，等待 workflow 变更触发的全量门和 Webhook 同 SHA 终态。
+- [ ] 全量门成功且 PR 可合并后自行合并。
 # 2026-09-03 持久工作流当前状态
 
 - [x] PR #18 文档与 Nexus 状态更新通过四道 CI，并合并到 `main` (`1877140c`)

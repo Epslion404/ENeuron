@@ -1,5 +1,6 @@
 """CI-Fast V1 路径分类矩阵。"""
 
+from pathlib import Path
 import unittest
 
 from tools.ci.classify_changes import classify_paths
@@ -37,6 +38,13 @@ class ClassifyChangesTest(unittest.TestCase):
         manual = classify_paths([], run_all=True)
         self.assertTrue(all(workflow[name] for name in workflow if name != "npu_oracle"))
         self.assertTrue(all(manual.values()))
+
+    def test_actions_use_node24_compatible_majors(self):
+        workflow = Path(".github/workflows/pr-gate.yml").read_text(encoding="utf-8")
+        self.assertEqual(workflow.count("uses: actions/checkout@v7"), 6)
+        self.assertEqual(workflow.count("uses: actions/setup-python@v7"), 5)
+        self.assertNotIn("uses: actions/checkout@v4", workflow)
+        self.assertNotIn("uses: actions/setup-python@v5", workflow)
 
 
 if __name__ == "__main__":

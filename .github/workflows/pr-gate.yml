@@ -24,7 +24,7 @@ jobs:
       np7_physical: ${{ steps.classify.outputs.np7_physical }}
     steps:
       - name: Checkout PR head
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
@@ -50,12 +50,12 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Checkout PR head
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: '3.12'
       - name: Compile Python sources
@@ -75,12 +75,12 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Checkout PR head
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: '3.12'
       - name: Install open-source HDL tools
@@ -98,12 +98,12 @@ jobs:
     timeout-minutes: 25
     steps:
       - name: Checkout PR head
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: '3.12'
       - name: Install Icarus Verilog with MSYS2 UCRT64
@@ -161,12 +161,12 @@ jobs:
     timeout-minutes: 45
     steps:
       - name: Checkout PR head
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: '3.12'
       - name: Install open-source HDL tools
@@ -192,12 +192,12 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout PR head
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: '3.12'
       - name: Run physical evidence verifier

@@ -42,7 +42,7 @@ NP6/NP7 已完成并合并；I1-I6 已批准。当前目标是冻结传统 `64�
 
 ## 下一动作
 
-提交 OF1-OF6 V2 反审计、成本推导和 Nexus 更新；用 CI-Fast docs-only 路径与仓库外 Webhook 完成同 SHA 验收。管理员批准 V2 后，立即进入 RED 测试与 Python oracle 最小修正。
+处理 PR #31 暴露的 Node.js 20 弃用警告：升级 checkout/setup-python 到 Node 24 兼容主版本，并用 workflow 变更触发一次全量门。完成后继续等待管理员批准 OF1-OF6 V2，再进入 RED 测试与 Python oracle 最小修正。
 
 ## 2026-09-03 PR #10 清单绑定修复
 
@@ -193,3 +193,10 @@ NP6/NP7 已完成并合并；I1-I6 已批准。当前目标是冻结传统 `64�
 - 模型配置改为 634-word 固定顺序一次装载，mask 改为 19-word 固定顺序和 active/staging 双 bank，避免 634/19-bit 完整性 bitmap 与双模型 RAM。
 - 明确核心只接受 uint4，外部灰度裁剪属于 Host；prediction/abstain 也由 Host 从 logits 计算。
 - 当前仍是审核稿，不修改 Python 业务语义，不创建 RTL，不运行 Vivado。
+
+## 2026-09-03 CI Node 24 action 维护
+
+- PR #31 run `33789363607` 成功，但 GitHub 对 `actions/checkout@v4` 发出 Node.js 20 弃用警告。
+- 官方发布接口确认 checkout `v7.0.1`、setup-python `v7.0.0` 为当前稳定版，Node 24 action 的最低 runner 要求为 `v2.327.1`。
+- 本切片将 workflow 主版本升级为 `actions/checkout@v7`、`actions/setup-python@v7`，并新增防回退单测。
+- workflow 自身变化必须执行全仓、Windows XPM、NP7 功能与 NP7 物理门；全部通过前不合并。

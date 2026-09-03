@@ -950,6 +950,12 @@
 - 固定长度配置应优先使用隐式顺序计数，而不是显式地址加完整性 bitmap：模型 634 word 用 10-bit counter，mask 19 word 用 5-bit counter。
 - mask 至少包含 loading/complete/published 三阶段；published 后只允许由后续样本首 beat 原子消费，不能继续覆盖。
 - hard reset 对 BRAM 的正确合同是“内容不可用、model_valid 清零”，不是“物理清零所有存储位”。
+
+## 2026-09-03 CI action 运行时发现
+
+- GitHub 已开始对 checkout v4 的 Node.js 20 运行时给出弃用 annotation；保持旧主版本虽然暂时能被强制放到 Node 24 执行，但会持续产生维护风险。
+- 官方当前稳定主版本为 checkout/setup-python v7，最低 runner 为 `v2.327.1`；GitHub 托管 runner 的实际兼容性仍必须由本仓库 workflow 全量 run 证明。
+- action 版本是 CI 证据生成环境的一部分；升级必须触发全仓、Windows、NP7 功能与物理完整性门，不能沿用升级前 run 代偿。
 # 2026-09-03 PR #18 状态核对
 
 - PR #18 的四道门均已成功：Python/语法、XPM CDC、NP7 功能与证据、NP7 物理证据；同一 HEAD `59bef59a` 的 `workflow_run completed/success` 已由仓库外 Webhook 记录。
