@@ -1125,3 +1125,12 @@
 - 将 6 处 checkout 和 5 处 setup-python 升级到 v7；新增单测固定数量并拒绝 v4/v5 回退。
 - 该改动触碰 workflow，CI-Fast 按设计必须运行所有重门；不能把本地语法检查替代真实 GitHub run。
 - 本地 `test_ci_fast_v1.py` 8/8、YAML/JSON 解析、compileall 和 `git diff --check` 均通过；分类结果为 full/XPM/NP7 功能/NP7 物理全部启用。
+
+## 2026-09-03 OF1-OF6 V3 审核稿
+
+- PR #32 的 workflow run `33790397482` 在同一 HEAD 上 7/7 成功，Webhook 收到 `completed/success`；已合并为 `1f9d3b7`。
+- 两路独立只读审计复核 V2 与当前 Python/测试，确认安全 bias、634/19-word 数量、epoch 回绕和 hard reset 方向正确，同时发现 6 个会造成实现分叉的合同空白。
+- 将审核稿升级为 V3：补齐模型 word 线性映射、非法配置错误响应与重试、mask 四态命令矩阵、运行中预装下一版本、freeze 切换、固定工作量计数和严格 Python 类型域。
+- 更新 `PROJECT_REPORT.md`，把陈旧的 NP7 人工门改为传统 NPU + ENeuron 集成基线及 OF1-OF6 V3 人工门。
+- 本切片只修改文档和持久状态；未修改 Python 业务语义、未创建 RTL、未运行 Vivado，且未触碰 `np75_tmp_sparse_protocol.ys`。
+- 本地分类器确认 `npu_oracle/full_repository/xpm_cdc/np7_functional/np7_physical` 全为 `false`，PR 应只运行 Fast check 与固定 `PR Gate`。

@@ -1,10 +1,10 @@
 # 传统 NPU + ENeuron 集成材料包草案
 
-状态：`SUPERSEDED / I1-I6_APPROVED / OF1-OF6_V2_REVIEW_REQUIRED`
+状态：`SUPERSEDED / I1-I6_APPROVED / OF1-OF6_V3_REVIEW_REQUIRED`
 
 日期：2026-09-03
 
-适用范围：I1-I6 批准前的历史材料包。当前冻结审核以 [NPU Oracle 冻结审核 V2](NPU_ORACLE_FREEZE_REVIEW.md) 为准；本文不再作为当前实现合同，也不授权业务 RTL、Vivado 或板级测试。
+适用范围：I1-I6 批准前的历史材料包。当前冻结审核以 [NPU Oracle 冻结审核 V3](NPU_ORACLE_FREEZE_REVIEW.md) 为准；本文不再作为当前实现合同，也不授权业务 RTL、Vivado 或板级测试。
 
 ## 1. 为什么要先补这份材料
 

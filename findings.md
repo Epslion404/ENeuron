@@ -964,3 +964,12 @@
 
 - PR #19 的 CI 四门均成功并已合并为 `63028d4`；Webhook delivery API 显示本次终态事件曾因 EOF 失败，服务恢复后 `/healthz` 内外均为 200。不能把“服务恢复”倒推成该历史 delivery 已补投，当前仍以 GitHub run/PR API 作为终态证据。
 - 本切片提交时误留在本地 `main`，但只产生了未推送的本地提交；通过从该提交创建专用分支恢复 PR 流程，没有强制推送或覆盖远端 `main`。
+
+## 2026-09-03 OF1-OF6 V3 二次反审计
+
+- V2 的 634-word 只给出段长度，没有冻结段内线性映射；必须固定层、输出、组和 byte 的对应关系，否则转置装载也可能被误判为合规。
+- “非法 beat 拒绝”不能通过数据相关 `ready=0` 实现，否则 Host 持有非法 `valid` 会死锁；V3 改为握手并返回错误、RAM/计数器零副作用、同索引可重试。
+- 双 mask bank 必须有 empty/loading/complete/published 四态命令矩阵；published 由下一样本首 beat 交换指针采用，不能复制 592 bit。
+- freeze 只允许在完全 idle、无结果且 staging empty 时切换；frozen 下拒绝全部模型/mask 写和 `STATE_CLEAR`，但允许正常样本输入/输出。
+- V1 不做数据相关零跳过：open group 即使激活全零也固定计一次读取和四次 MAC，避免 Python 与 RTL 性能账本分叉。
+- Python 核心输入和权重不允许借 `int()` 隐式转换；`bool`、浮点、字符串和越界值必须 fail-closed。`prediction/abstain` 只是 Host 派生诊断，不属于 RTL bit-exact 端口。
