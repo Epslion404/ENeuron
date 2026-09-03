@@ -938,3 +938,4 @@
 - `NPU_NEURON_INTEGRATION_REVIEW.md` 仍为 `REVIEW_REQUIRED`，I1-I6 未批准前不能实现传统 NPU + ENeuron 集成 RTL 或运行新的 Vivado。
 
 - PR #19 的 CI 四门均成功并已合并为 `63028d4`；Webhook delivery API 显示本次终态事件曾因 EOF 失败，服务恢复后 `/healthz` 内外均为 200。不能把“服务恢复”倒推成该历史 delivery 已补投，当前仍以 GitHub run/PR API 作为终态证据。
+- 本切片提交时误留在本地 `main`，但只产生了未推送的本地提交；通过从该提交创建专用分支恢复 PR 流程，没有强制推送或覆盖远端 `main`。
