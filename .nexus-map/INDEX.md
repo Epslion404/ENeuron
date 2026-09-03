@@ -1,7 +1,7 @@
 # ENeuron 知识库入口
 
 generated_by: nexus-mapper v2 / manual synthesis from raw probe
-verified_at: 2026-09-02
+verified_at: 2026-09-03
 provenance: `.nexus-map/raw/ast_nodes.json`, `git_stats.json`, `file_tree.txt`
 
 ENeuron 是以 Python 黄金模型、SystemVerilog RTL、Icarus/Yosys/Vivado 验证组成的数字脉冲神经元与 NPU 局部剪枝研究仓库。
@@ -16,7 +16,7 @@ ENeuron 是以 Python 黄金模型、SystemVerilog RTL、Icarus/Yosys/Vivado 验
 
 ## 当前状态
 
-NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`。NP7 共享 BRAM/lane 已合并，PR #10 的清单绑定修复与 CI 已成功；当前活动门转为传统 NPU + 神经元集成审核。当前 HEAD/工作树状态以 `WORKFLOW_STATE.md` 为准，最新原始探测统计见 `.nexus-map/raw/`。
+NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`。NP7 共享 BRAM/lane 已合并，PR #10 的清单绑定修复与 CI 已成功（当前文档 HEAD `6834664`）；当前活动门转为传统 NPU + 神经元集成审核。当前工作树状态以 `WORKFLOW_STATE.md` 为准，最新原始探测统计见 `.nexus-map/raw/`。
 
 ## 必读路由
 
