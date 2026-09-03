@@ -927,3 +927,10 @@
 - Python/语法、XPM CDC、NP7 功能与证据、NP7 物理证据完整性四道门全部通过；NP7 形式与突变检查也在该 HEAD 上成功。
 - 仓库外 Webhook `C:\Users\Epsilon\ENeuronWebhook` 已收到同一 SHA 的 `workflow_run completed/success`，本机 `/healthz` 返回 HTTP 200，GitHub 与本机事件形成双重终态证据。
 - PR #10 仍为 `OPEN / CLEAN`，具备人工合并条件；本轮不自动 approve/merge，合并前不启动传统 NPU + 神经元集成 RTL 或新的 Vivado。
+
+## 2026-09-03 Nexus 更新提交 CI 收口
+
+- run `33723437364` 已对 HEAD `d7f782451aecf4872eb875fa3900dd1e1c780f71` 完成并成功。
+- Python/语法、XPM CDC、NP7 功能与证据、NP7 物理证据完整性四道门全部通过；形式与突变检查、软件证据清单验证均成功。
+- 仓库外 Webhook 已收到同一 SHA 的 `workflow_run completed/success`，与 GitHub 结果一致。
+- PR #10 仍为 `OPEN / CLEAN`，等待管理员人工合并；不自动 approve/merge，也未启动集成 RTL/Vivado。
