@@ -21,7 +21,11 @@ def classify_paths(paths: Iterable[str], *, run_all: bool = False) -> dict[str, 
         if fnmatch.fnmatch(path, ".github/workflows/*"):
             for scope in SCOPES[1:]:
                 selected[scope] = True
-        elif path in {"npu_eneuron_reference.py", "test_npu_eneuron_reference.py"}:
+        elif path in {
+            "npu_eneuron_reference.py",
+            "test_npu_eneuron_reference.py",
+            "npu_eneuron_protocol.py",
+        }:
             selected["npu_oracle"] = True
         elif _matches(path, "host_bridge_xpm*", "test_host_bridge_xpm_wrapper.py", "xpm_fifo_async*"):
             selected["xpm_cdc"] = True

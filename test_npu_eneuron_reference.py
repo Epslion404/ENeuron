@@ -3,6 +3,7 @@
 import unittest
 
 from npu_eneuron_reference import NpuConfig, NpuReference, quantize_input
+from npu_eneuron_protocol import NpuEpochRuntime
 
 
 class NpuReferenceTest(unittest.TestCase):
@@ -88,6 +89,75 @@ class NpuReferenceTest(unittest.TestCase):
         result = model.infer(image)
 
         self.assertEqual(result.logits, [15 * config.hidden_size + index for index in range(config.output_size)])
+
+    def _runtime(self):
+        config = NpuConfig()
+        model = NpuReference(config)
+        model.load_weights(
+            [[1] * config.input_size for _ in range(config.hidden_size)],
+            [0] * config.hidden_size,
+            [[1] * config.hidden_size for _ in range(config.output_size)],
+            list(range(config.output_size)),
+        )
+        return config, NpuEpochRuntime(model, config)
+
+    def test_pending_epoch_switches_only_at_sample_boundary(self):
+        config, runtime = self._runtime()
+        closed0 = [False] * (config.hidden_size * (config.input_size // config.group_size))
+        closed1 = [False] * (config.output_size * (config.hidden_size // config.group_size))
+
+        old_epoch, old_result = runtime.begin_sample([1] * config.input_size)
+        runtime.stage_masks(1, closed0, closed1)
+        self.assertEqual(old_epoch, 0)
+        self.assertEqual(runtime.active_epoch, 0)
+        runtime.complete_sample(old_result)
+        self.assertEqual(runtime.active_epoch, 1)
+        runtime.accept_result()
+        new_epoch, new_result = runtime.begin_sample([1] * config.input_size)
+        self.assertEqual(new_epoch, 1)
+        self.assertNotEqual(new_result.logits, old_result.logits)
+        runtime.complete_sample(new_result)
+        runtime.accept_result()
+
+    def test_result_backpressure_blocks_overwrite_until_accept(self):
+        _, runtime = self._runtime()
+        _, result = runtime.begin_sample([1] * runtime.config.input_size)
+        runtime.complete_sample(result)
+        with self.assertRaisesRegex(RuntimeError, "result backpressure"):
+            runtime.begin_sample([1] * runtime.config.input_size)
+        self.assertIs(runtime.result, result)
+        self.assertIs(runtime.accept_result(), result)
+
+    def test_state_clear_preserves_committed_epoch_and_mask(self):
+        config, runtime = self._runtime()
+        closed0 = [False] * (config.hidden_size * (config.input_size // config.group_size))
+        closed1 = [False] * (config.output_size * (config.hidden_size // config.group_size))
+        _, result = runtime.begin_sample([1] * config.input_size)
+        runtime.stage_masks(1, closed0, closed1)
+        runtime.complete_sample(result)
+        runtime.accept_result()
+        runtime.state_clear()
+        self.assertEqual(runtime.active_epoch, 1)
+        self.assertEqual(runtime.clear_count, 1)
+
+    def test_infer_freeze_rejects_mask_update_and_clear(self):
+        config, runtime = self._runtime()
+        mask0 = [True] * (config.hidden_size * (config.input_size // config.group_size))
+        mask1 = [True] * (config.output_size * (config.hidden_size // config.group_size))
+        runtime.set_infer_freeze(True)
+        with self.assertRaisesRegex(RuntimeError, "infer freeze"):
+            runtime.stage_masks(1, mask0, mask1)
+        with self.assertRaisesRegex(RuntimeError, "infer freeze"):
+            runtime.state_clear()
+
+    def test_epoch_and_mask_validation_is_fail_closed(self):
+        config, runtime = self._runtime()
+        mask0 = [True] * (config.hidden_size * (config.input_size // config.group_size))
+        mask1 = [True] * (config.output_size * (config.hidden_size // config.group_size))
+        with self.assertRaisesRegex(ValueError, "complete masks"):
+            runtime.stage_masks(1, mask0[:-1], mask1)
+        with self.assertRaisesRegex(ValueError, "epoch"):
+            runtime.stage_masks(0, mask0, mask1)
 
 
 if __name__ == "__main__":

@@ -925,6 +925,12 @@
 - `msys2/setup-msys2@v2` 在 `update: false` 下仍可能把 UCRT64 树放在 action 临时位置；仅检查固定路径会造成假失败。正确优化是减少触发次数，同时保留路径探测与固定路径联接/复制，不牺牲 Windows 专项证据。
 - PR #25 的真实 GitHub 结果证明路径分类和固定汇总门可运行；workflow 变更会故意触发全量门，普通文档变更需单独 PR 验证轻量路径。
 - 当前私有仓库套餐不允许 branch protection/ruleset API，不能把 `PR Gate` 注册为真正 required check；任何“已设置保护分支”的文档表述都必须改为“待升级套餐或组织策略”。
+
+## 2026-09-03 NPU oracle 协议发现
+
+- 门控提交必须拆成 pending 与 active 两份；运行中的样本只读 active 快照，pending 不能组合穿透。
+- 单槽结果背压不仅保持结果稳定，还必须阻止下一样本启动，否则会覆盖尚未被下游接受的 logits。
+- `STATE_CLEAR` 可以增加动态清除计数，但不得回退已提交 mask epoch；`infer_freeze` 同时拒绝 mask 更新和动态清除。
 # 2026-09-03 PR #18 状态核对
 
 - PR #18 的四道门均已成功：Python/语法、XPM CDC、NP7 功能与证据、NP7 物理证据；同一 HEAD `59bef59a` 的 `workflow_run completed/success` 已由仓库外 Webhook 记录。
@@ -932,3 +938,4 @@
 - `NPU_NEURON_INTEGRATION_REVIEW.md` 仍为 `REVIEW_REQUIRED`，I1-I6 未批准前不能实现传统 NPU + ENeuron 集成 RTL 或运行新的 Vivado。
 
 - PR #19 的 CI 四门均成功并已合并为 `63028d4`；Webhook delivery API 显示本次终态事件曾因 EOF 失败，服务恢复后 `/healthz` 内外均为 200。不能把“服务恢复”倒推成该历史 delivery 已补投，当前仍以 GitHub run/PR API 作为终态证据。
+- 本切片提交时误留在本地 `main`，但只产生了未推送的本地提交；通过从该提交创建专用分支恢复 PR 流程，没有强制推送或覆盖远端 `main`。
