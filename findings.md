@@ -893,6 +893,11 @@
 - 持久工作流恢复检查、主线同步、开放 PR 检查、最近 CI 和仓库外 Webhook 健康检查均通过；这说明项目管理闭环可继续运行。
 - 这些检查不等价于传统 NPU + ENeuron 集成完成。当前缺口仍是 I1-I6 管理员裁定、Python bit-exact 旁路/门控 oracle、集成 RTL、协同仿真、形式验证和集成级 Vivado 证据。
 - 在审核门批准前继续实现业务 RTL 或运行 Vivado，会绕过已冻结的阶段边界；本轮仅更新可复核状态快照。
+
+## 2026-09-03 PR #21 合并后的事实
+
+- 静态审计 PR #21 已在 run `33765822606` 四门成功、Webhook 收到同 SHA 成功终态后合并为 `588e7d5`；状态与 Nexus 的主线锚点需要跟随该合并点更新。
+- 合并只改变文档/Nexus 和工作流记录，不扩展传统 NPU + ENeuron 的能力声明；I1-I6 仍是唯一实质人工门。
 # 2026-09-03 PR #18 状态核对
 
 - PR #18 的四道门均已成功：Python/语法、XPM CDC、NP7 功能与证据、NP7 物理证据；同一 HEAD `59bef59a` 的 `workflow_run completed/success` 已由仓库外 Webhook 记录。

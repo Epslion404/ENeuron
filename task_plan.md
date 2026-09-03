@@ -907,6 +907,14 @@
 - [x] 保持 `np75_tmp_sparse_protocol.ys` 未跟踪且不纳入 Nexus/提交。
 - [ ] 管理员批准 I1-I6；批准前继续保持“只做静态审计、文档和 Nexus 维护”的边界。
 - [ ] 获批后实现 `64→32→10` INT8 MLP Python 旁路/门控 oracle。
+
+## 2026-09-03 PR #21 合并后基线
+
+- [x] PR #21 四道 CI 门全部成功并合并到 `main`，merge commit 为 `588e7d5`。
+- [x] 用仓库外 Webhook 核对 PR #21 HEAD `bc546c0` 的 `workflow_run completed/success`。
+- [x] 同步状态文档和 Nexus 到 PR #21 合并点；保持用户未跟踪文件不变。
+- [ ] 管理员批准 I1-I6；批准前不创建集成业务 RTL、不运行新的 Vivado。
+- [ ] 获批后实现 `64→32→10` INT8 MLP Python 旁路/门控 oracle。
 # 2026-09-03 持久工作流当前状态
 
 - [x] PR #18 文档与 Nexus 状态更新通过四道 CI，并合并到 `main` (`1877140c`)

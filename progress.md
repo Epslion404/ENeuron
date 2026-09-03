@@ -1042,3 +1042,10 @@
 - 仓库外 Webhook `C:\Users\Epsilon\ENeuronWebhook` 的 `/healthz` 返回 HTTP 200。
 - `docs/planning/NPU_NEURON_INTEGRATION_REVIEW.md` 仍为 `REVIEW_REQUIRED`；I1-I6 未批准前不创建集成业务 RTL、不运行新的 Vivado。
 - 用户文件 `np75_tmp_sparse_protocol.ys` 仍保持未跟踪、未修改，未纳入本次文档提交。
+
+## 2026-09-03 PR #21 合并收口
+
+- PR #21 已合并到 `main`，merge commit 为 `588e7d5`；合并前 HEAD `bc546c0` 的 run `33765822606` 四道 CI 门全部成功。
+- 仓库外 Webhook 已收到同一 SHA 的 `workflow_run completed/success`；本地 `main` 与 `origin/main` 已同步，无开放 PR。
+- 本次仅收口集成审核静态审计和 Nexus 基线，没有创建传统 NPU + ENeuron 集成 RTL，也没有运行新的 Vivado。
+- 集成审核 I1-I6 仍待管理员批准；`np75_tmp_sparse_protocol.ys` 继续保持未跟踪、未修改和未纳入提交。
