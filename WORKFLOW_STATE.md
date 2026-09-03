@@ -129,3 +129,12 @@ NP7 已完成；下一步是重新审核并批准传统 NPU + 神经元集成计
 - PR #15 HEAD `fc6332597ac34905e2e4a102d92eaa582cb81ef0` 对应 run `33752156575`；四道 CI 门全部成功，仓库外 Webhook 已收到同一 SHA 的 `workflow_run completed/success`。
 - 本次合并只包含 PR #14 终态记录、仓库外接收器脚本修复记录和 Nexus 刷新；未修改业务 RTL，未启动新的 Vivado。
 - 当前活动门仍为 `NPU_NEURON_INTEGRATION_REVIEW_REQUIRED`；下一项实质工作必须等待管理员批准 I1-I6 与材料包。
+
+## 2026-09-03 PR #16/#17 合并后当前入口
+
+- PR #16 已合并为 `3850df77fd505b871acfc5a9c913aef25ff9bf78`；其 HEAD `46840e8c536b15068b55ae1324abd3a59f774f0a` 对应 run `33753869517`，四道 CI 门全部成功，仓库外 Webhook 已收到同一 SHA 的 `workflow_run completed/success`。
+- PR #17 已合并为 `0ca6a50d4b4724b75387188bb3321f27a69caa59`；其 HEAD `5a6b554200e42730674b8b4afe730ba37724b6b7` 对应 run `33755848063`，四道 CI 门全部成功，仓库外 Webhook 已收到同一 SHA 的 `workflow_run completed/success` 与 `pull_request closed`。
+- PR #16/#17 只包含文档、持久工作流和 Nexus 状态收口；没有传统 NPU + ENeuron 集成业务 RTL，也没有启动新的 Vivado。
+- 当前远端 `main` 为 `0ca6a50d4b4724b75387188bb3321f27a69caa59`，无开放 PR；工作树中的 `np75_tmp_sparse_protocol.ys` 是用户未跟踪文件，不得修改或提交。
+- 当前唯一实质入口仍是 `NPU_NEURON_INTEGRATION_REVIEW_REQUIRED`。`docs/planning/NPU_NEURON_INTEGRATION_REVIEW.md` 仍为 `REVIEW_REQUIRED`，I1-I6 尚未批准；批准前只能进行静态审计、文档和 Nexus 维护。
+- 仓库外接收服务固定在 `C:\Users\Epsilon\ENeuronWebhook`，监听 `127.0.0.1:2355`；服务文件、日志、PID 和事件摘要不进入本仓库。

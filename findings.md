@@ -877,3 +877,13 @@
 - 当前 NP7.1–NP7.6 证据因周期合同变化全部失效；需修复原 review 五项阻断后全量重跑，G3 保持 25%。
 - 知识库文件为 `docs/planning/NPU_PRUNING_NP7_DECISION_B_V1_V2.md`，并已加入 `docs/README.md` 与 NP7 TODO。
 - 管理员评论已提交到 PR #6：issue comment `5498372499`；回读作者为 `Epslion404`，PR 仍为 `CHANGES_REQUESTED`。
+
+## 2026-09-03 PR #17 合并后状态审计
+
+- 远端 `main` 当前为 `0ca6a50d4b4724b75387188bb3321f27a69caa59`，PR #17 已合并，当前无开放 PR。
+- PR #16 的 run `33753869517` 与 PR #17 的 run `33755848063` 均为四道 CI 全成功；仓库外接收器收到对应 SHA 的 `workflow_run completed/success`，PR #17 另收到 `pull_request closed`。
+- PR #17 只收口文档、持久工作流和 Nexus 状态，没有传统 NPU + ENeuron 集成业务 RTL，也没有启动新的 Vivado。
+- Nexus 已在 PR #17 中刷新到 PR #16 基线；合并后需要再更新验证头和主分支合并点到 `0ca6a50d`，否则知识库会落后一代。
+- `workflow_resume.ps1 -Mode Check` 返回 PASS，活动 TODO 未完成项为 0；这不等价于集成审核 I1-I6 已批准。
+- `docs/planning/NPU_NEURON_INTEGRATION_REVIEW.md` 仍为 `REVIEW_REQUIRED`，当前只能进行静态审计、文档与 Nexus 维护。
+- 用户未跟踪文件 `np75_tmp_sparse_protocol.ys` 仍保持原样，不纳入提交或 Nexus 文件树。
