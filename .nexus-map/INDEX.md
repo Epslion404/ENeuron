@@ -2,7 +2,7 @@
 
 generated_by: nexus-mapper v2 / manual synthesis from raw probe
 verified_at: 2026-09-03
-provenance: `.nexus-map/raw/ast_nodes.json`, `git_stats.json`, `file_tree.txt`
+provenance: `.nexus-map/raw/ast_nodes.json`, `git_stats.json`, `file_tree.txt`（文件树按版本化基线排除工作区未跟踪文件）；SystemVerilog边界由文件树与文档人工核对
 
 ENeuron 是以 Python 黄金模型、SystemVerilog RTL、Icarus/Yosys/Vivado 验证组成的数字脉冲神经元与 NPU 局部剪枝研究仓库。
 
@@ -11,13 +11,14 @@ ENeuron 是以 Python 黄金模型、SystemVerilog RTL、Icarus/Yosys/Vivado 验
 - 神经元与参考模型：`digital_lif_engine.sv`、`neuron_sim.py`、`pulse_mini_reference.py`
 - 网络/Tile/Host：`digital_snn_tile_4x2x2.sv`、`digital_snn_host_bridge_controller.sv`、`network_sim.py`
 - 局部剪枝：`local_prune_gate_2of4.sv`、`local_prune_reference.py`、`verify_np4b_signoff.py`
+- NP7 共享执行器：`np7_shared_synapse_lane.sv`、`np7_weight_ram.sv`、`np7_shared_lane_oracle.py`、`np7_shared_lane_cosim.py`
 - 验证入口：`verify_goal.py`、`verify_np4b_signoff.py`、`test_*.py`、formal `.ys/.sv`
 - 规划与状态：`WORKFLOW_STATE.md`、`docs/planning/NPU_NEURON_INTEGRATION_REVIEW.md`、`docs/planning/NPU_PRUNING_NP6_TODO.md`、`docs/planning/NPU_PRUNING_NP7_TODO.md`
 - 集成材料包：`docs/planning/NPU_NEURON_INTEGRATION_MATERIALS.md`（候选模型、INT8 格式、门控协议与进入实现前硬门）
 
 ## 当前状态
 
-NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`。NP7 共享 BRAM/lane 已合并；PR #10 已于 `2026-09-03` 合并，merge commit 为 `a076160`；其后 PR #11 已合并，merge commit 为 `f48f4b6`，PR #12 已合并，merge commit 为 `bc839b5`，PR #13 已合并，merge commit 为 `1a8d0f2`。PR #11/#12/#13 的四道 CI 门均成功，并由仓库外 Webhook 核对。当前活动门转为传统 NPU + 神经元集成审核，I1-I6 仍为 `REVIEW_REQUIRED`，尚未授权集成 RTL 或 Vivado。新增材料包提出待批准的 `64→32→10` INT8 MLP 首轮候选。当前工作树状态以 `WORKFLOW_STATE.md` 为准，最新原始探测统计见 `.nexus-map/raw/`。
+NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`。NP7 共享 BRAM/lane 的 NP7.0-NP7.7 已实现并签核；PR #10-#14 均已合并，最新 PR #14 merge commit 为 `b754498a`，其 HEAD `78062a7` 对应 run `33749767954` 的四道 CI 门均成功，Webhook 记录了同一 SHA 的 `workflow_run completed/success`。当前活动门仍是传统 NPU + 神经元集成审核，I1-I6 为 `REVIEW_REQUIRED`，尚未授权集成业务 RTL、Vivado 或板级测试。首轮候选为待批准的 `64→32→10` INT8 MLP。最新原始探测统计见 `.nexus-map/raw/`。
 
 ## 必读路由
 

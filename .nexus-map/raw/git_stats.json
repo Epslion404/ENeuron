@@ -1,18 +1,18 @@
 {
   "analysis_period_days": 90,
   "stats": {
-    "total_commits": 217,
+    "total_commits": 238,
     "total_authors": 5
   },
   "hotspots": [
     {
       "path": "progress.md",
-      "changes": 73,
+      "changes": 91,
       "risk": "high"
     },
     {
       "path": "task_plan.md",
-      "changes": 63,
+      "changes": 73,
       "risk": "high"
     },
     {
@@ -22,12 +22,17 @@
     },
     {
       "path": "WORKFLOW_STATE.md",
-      "changes": 22,
+      "changes": 32,
       "risk": "high"
     },
     {
       "path": "NPU_PRUNING_NP4B_TODO.md",
       "changes": 21,
+      "risk": "high"
+    },
+    {
+      "path": ".nexus-map/INDEX.md",
+      "changes": 16,
       "risk": "high"
     },
     {
@@ -51,6 +56,26 @@
       "risk": "medium"
     },
     {
+      "path": ".nexus-map/arch/systems.md",
+      "changes": 10,
+      "risk": "medium"
+    },
+    {
+      "path": ".nexus-map/arch/test_coverage.md",
+      "changes": 10,
+      "risk": "medium"
+    },
+    {
+      "path": ".nexus-map/concepts/domains.md",
+      "changes": 10,
+      "risk": "medium"
+    },
+    {
+      "path": "docs/README.md",
+      "changes": 9,
+      "risk": "medium"
+    },
+    {
       "path": "artifacts/results/np7_vivado_xsim_summary.json",
       "changes": 9,
       "risk": "medium"
@@ -71,37 +96,12 @@
       "risk": "medium"
     },
     {
-      "path": ".nexus-map/arch/test_coverage.md",
-      "changes": 8,
-      "risk": "medium"
-    },
-    {
-      "path": "docs/README.md",
+      "path": ".nexus-map/hotspots/git_forensics.md",
       "changes": 8,
       "risk": "medium"
     },
     {
       "path": "vivado_np7_xsim_reports/commands.log",
-      "changes": 8,
-      "risk": "medium"
-    },
-    {
-      "path": "vivado_np7_xsim_reports/logs/cfgneg_dense_L1.log",
-      "changes": 8,
-      "risk": "medium"
-    },
-    {
-      "path": "vivado_np7_xsim_reports/logs/cfgneg_dense_L4.log",
-      "changes": 8,
-      "risk": "medium"
-    },
-    {
-      "path": "vivado_np7_xsim_reports/logs/cfgneg_sparse_L1.log",
-      "changes": 8,
-      "risk": "medium"
-    },
-    {
-      "path": "vivado_np7_xsim_reports/logs/cfgneg_sparse_L4.log",
       "changes": 8,
       "risk": "medium"
     }
@@ -110,8 +110,8 @@
     {
       "file_a": "progress.md",
       "file_b": "task_plan.md",
-      "co_changes": 61,
-      "coupling_score": 0.968
+      "co_changes": 71,
+      "coupling_score": 0.973
     },
     {
       "file_a": "findings.md",
@@ -126,22 +126,22 @@
       "coupling_score": 0.887
     },
     {
-      "file_a": "NPU_PRUNING_NP4B_TODO.md",
-      "file_b": "progress.md",
-      "co_changes": 21,
-      "coupling_score": 1.0
-    },
-    {
       "file_a": "WORKFLOW_STATE.md",
       "file_b": "progress.md",
-      "co_changes": 18,
-      "coupling_score": 0.818
+      "co_changes": 28,
+      "coupling_score": 0.875
     },
     {
       "file_a": "WORKFLOW_STATE.md",
       "file_b": "task_plan.md",
-      "co_changes": 18,
-      "coupling_score": 0.818
+      "co_changes": 23,
+      "coupling_score": 0.719
+    },
+    {
+      "file_a": "NPU_PRUNING_NP4B_TODO.md",
+      "file_b": "progress.md",
+      "co_changes": 21,
+      "coupling_score": 1.0
     },
     {
       "file_a": "NPU_PRUNING_NP4B_TODO.md",
@@ -174,6 +174,12 @@
       "coupling_score": 1.0
     },
     {
+      "file_a": ".nexus-map/INDEX.md",
+      "file_b": "progress.md",
+      "co_changes": 13,
+      "coupling_score": 0.812
+    },
+    {
       "file_a": "NPU_PRUNING_TODO.md",
       "file_b": "findings.md",
       "co_changes": 13,
@@ -184,6 +190,12 @@
       "file_b": "progress.md",
       "co_changes": 13,
       "coupling_score": 1.0
+    },
+    {
+      "file_a": ".nexus-map/INDEX.md",
+      "file_b": "task_plan.md",
+      "co_changes": 12,
+      "coupling_score": 0.75
     },
     {
       "file_a": "NPU_PRUNING_TODO.md",
@@ -198,33 +210,21 @@
       "coupling_score": 0.923
     },
     {
-      "file_a": "artifacts/results/np7_vivado_xsim_summary.json",
-      "file_b": "vivado_np7_xsim_reports/signoff_summary.txt",
-      "co_changes": 9,
+      "file_a": ".nexus-map/INDEX.md",
+      "file_b": "WORKFLOW_STATE.md",
+      "co_changes": 10,
+      "coupling_score": 0.625
+    },
+    {
+      "file_a": ".nexus-map/INDEX.md",
+      "file_b": ".nexus-map/arch/systems.md",
+      "co_changes": 10,
       "coupling_score": 1.0
     },
     {
-      "file_a": "artifacts/results/np7_vivado_xsim_summary.json",
-      "file_b": "vivado_np7_xsim_reports/commands.log",
-      "co_changes": 8,
-      "coupling_score": 1.0
-    },
-    {
-      "file_a": "artifacts/results/np7_vivado_xsim_summary.json",
-      "file_b": "vivado_np7_xsim_reports/logs/cfgneg_dense_L1.log",
-      "co_changes": 8,
-      "coupling_score": 1.0
-    },
-    {
-      "file_a": "artifacts/results/np7_vivado_xsim_summary.json",
-      "file_b": "vivado_np7_xsim_reports/logs/cfgneg_dense_L4.log",
-      "co_changes": 8,
-      "coupling_score": 1.0
-    },
-    {
-      "file_a": "artifacts/results/np7_vivado_xsim_summary.json",
-      "file_b": "vivado_np7_xsim_reports/logs/cfgneg_sparse_L1.log",
-      "co_changes": 8,
+      "file_a": ".nexus-map/INDEX.md",
+      "file_b": ".nexus-map/concepts/domains.md",
+      "co_changes": 10,
       "coupling_score": 1.0
     }
   ]
