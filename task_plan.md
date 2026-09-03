@@ -898,3 +898,9 @@
 - [x] 将当前事实写入 `WORKFLOW_STATE.md` 与 `findings.md`；不纳入用户未跟踪文件。
 - [ ] 管理员批准传统 NPU + ENeuron 集成审核 I1-I6；批准前保持静态审计、文档和 Nexus 维护边界。
 - [ ] 批准后实现 `64→32→10` INT8 MLP Python 旁路/门控参考模型，再进入 RTL 和 Vivado 门。
+# 2026-09-03 持久工作流当前状态
+
+- [x] PR #18 文档与 Nexus 状态更新通过四道 CI，并合并到 `main` (`1877140c`)
+- [x] 使用仓库外 Webhook 交叉确认 PR #18 同 SHA 的工作流终态
+- [ ] 等待管理员批准传统 NPU + ENeuron 集成审核 I1-I6 与材料包
+- [ ] 获批后实现 Python 旁路/门控 oracle，再进入集成 RTL、协同仿真和 Vivado 物理验证

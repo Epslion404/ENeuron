@@ -138,3 +138,12 @@ NP7 已完成；下一步是重新审核并批准传统 NPU + 神经元集成计
 - 当前远端 `main` 为 `0ca6a50d4b4724b75387188bb3321f27a69caa59`，无开放 PR；工作树中的 `np75_tmp_sparse_protocol.ys` 是用户未跟踪文件，不得修改或提交。
 - 当前唯一实质入口仍是 `NPU_NEURON_INTEGRATION_REVIEW_REQUIRED`。`docs/planning/NPU_NEURON_INTEGRATION_REVIEW.md` 仍为 `REVIEW_REQUIRED`，I1-I6 尚未批准；批准前只能进行静态审计、文档和 Nexus 维护。
 - 仓库外接收服务固定在 `C:\Users\Epsilon\ENeuronWebhook`，监听 `127.0.0.1:2355`；服务文件、日志、PID 和事件摘要不进入本仓库。
+
+## 2026-09-03 PR #18 合并收口与下一入口
+
+- PR #18 `docs: refresh post-PR17 workflow baseline` 已于 `2026-09-03T13:12:29Z` 合并到 `main`，merge commit 为 `1877140c873f02a887c19b2a0cb5c903d4149ac7`。
+- PR #18 HEAD `59bef59a473fe2e808328827815c95c43cafb887` 对应 Actions run `33758285464`；Python/语法、XPM CDC、NP7 功能与证据、NP7 物理证据四道门全部为 `SUCCESS`。
+- 仓库外 Webhook 已收到同一 SHA 的四项 `check_run completed/success` 和 `workflow_run completed/success`；健康检查服务仍位于 `C:\Users\Epsilon\ENeuronWebhook`，不进入仓库。
+- 本地 `main` 已快进到 `1877140` 并与 `origin/main` 一致；工作树唯一条目仍是用户未跟踪文件 `np75_tmp_sparse_protocol.ys`，未修改、未提交、未纳入 Nexus。
+- PR #18 仅收口工作流状态与 Nexus 基线，没有新增传统 NPU + ENeuron 业务 RTL，也没有运行新的 Vivado。
+- 当前下一入口仍为 `docs/planning/NPU_NEURON_INTEGRATION_REVIEW.md` 的 `REVIEW_REQUIRED`：I1-I6 和材料包未获管理员批准前，只进行静态审计、文档和 Nexus 维护；不得创建集成 RTL 或运行新的 Vivado。
