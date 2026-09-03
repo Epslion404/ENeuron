@@ -15,3 +15,5 @@ provenance: NP4B/NP6/NP7 TODO、工作流状态与 RTL 文件；集成边界来�
 - `NP7`：已合并的共享 BRAM 与共享 lane 阶段；PR #21 HEAD `bc546c0`、merge commit `588e7d5`、CI run `33765822606` 已由 GitHub 与仓库外 Webhook 确认成功，后续转入传统 NPU + 神经元集成审核；I1-I6 仍为 `REVIEW_REQUIRED`，集成尚未实现。
 - `NPU_NEURON_INTEGRATION_REVIEW_REQUIRED`：当前工作流状态；传统 INT8 NPU 与 ENeuron 仍停在材料审查，尚无集成业务 RTL、Vivado 或板级证据。
 - `B-V1+V2`：NP7 已批准的单槽弹性流水合同，允许零路径同拍完成及非零结果退出与下一事务接受重叠；其收益只由逐拍账本证明。
+- `CI-Fast V1`：按变更路径选择验证范围的 Action 编排；未知代码触发全仓回归，手动运行触发全部专项门。
+- `PR Gate`：始终执行的汇总状态；只允许被选专项门 `success` 或 `skipped`，任何失败均拒绝合并。分支保护应只要求该状态。

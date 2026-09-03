@@ -4,11 +4,14 @@
 
 `.github/workflows/pr-gate.yml` 只做自动检查，不自动批准、不自动合并、不代替管理员做设计裁定。
 
-每次 PR 新建、重新打开或更新提交时，工作流运行三道门：
+每次 PR 新建、重新打开或更新提交时，工作流先分类变更，再运行固定的 `PR Gate` 汇总门。专项门按路径选择：
 
-1. **Python and syntax**：编译全部 Python、运行仓库单元测试、检查 Git 空白错误。
-2. **NP7 functional and evidence gate**：安装 Icarus/Yosys，运行 NP7 oracle、逐周期协同仿真、三模型接入、formal/mutation，并用 PR HEAD 重新验证软件证据。
-3. **NP7 physical evidence integrity**：只读检查已提交的 Vivado OOC 报告、摘要、哈希和物理 mutation；不会在 GitHub 托管 runner 上调用 Vivado。
+1. **Fast Python and diff check**：始终编译 Python、检查 Git 空白错误；只有 NPU oracle 文件变化时运行其定向单测。
+2. **Full repository regression**：未知代码、通用 RTL、脚本或 workflow 变化时运行全仓单元测试。
+3. **XPM CDC wrapper**：仅 XPM/异步 FIFO 相关文件变化时运行 Windows MSYS2 UCRT64 专项门。
+4. **NP7 functional and evidence gate**：仅 NP7 功能源、oracle 或软件证据变化时运行完整 NP7 验证。
+5. **NP7 physical evidence integrity**：仅 NP7 物理报告、manifest、物理验证器或绑定源变化时运行。
+6. **PR Gate**：始终执行；允许未选中的专项门为 `skipped`，拒绝任何选中门失败。分支保护只应要求这一项。
 
 工作流使用 `pull_request` 事件和 `contents: read` 权限。它检出 PR 的真实 head SHA，而不是 GitHub 为 PR 生成的临时 merge commit，避免证据验证出现 HEAD 不一致。
 
@@ -27,10 +30,7 @@
 2. 编辑 `main` 的 branch protection rule，或创建新的规则。
 3. 勾选 **Require a pull request before merging**。
 4. 勾选 **Require status checks to pass before merging**。
-5. 搜索并勾选以下三个检查名：
-   - `Python and syntax`
-   - `NP7 functional and evidence gate`
-   - `NP7 physical evidence integrity`
+5. 搜索并只勾选检查名 **`PR Gate`**。
 6. 建议勾选 **Require branches to be up to date before merging**，让检查基于最新 `main` 重跑。
 7. 保存规则。
 
@@ -61,6 +61,7 @@ GitHub 托管 runner 不包含项目所需的 Vivado。物理 job 只验证已�
 
 ```powershell
 python -X utf8 -m compileall -q .
+python -X utf8 -m unittest -v test_ci_fast_v1.py
 python -X utf8 -m unittest discover -v
 python -X utf8 -m unittest -v test_np7_shared_lane_oracle
 python -X utf8 np7_shared_lane_cosim.py
@@ -76,6 +77,7 @@ Windows 默认代码页下也应保留 `-X utf8`，以避免 mutation 日志因�
 ## 维护规则
 
 - 修改 gate 命令或阈值时，必须同时更新本文件和相关项目决策文档。
+- 修改路径分类规则时，必须更新 `test_ci_fast_v1.py` 的矩阵，并验证未选中的专项门不会成为合并阻塞。
 - 工作流只能机械执行已冻结规则；出现产品、协议、门槛或范围选择时，必须回到 PR 请求仓库 admin 决策。
 - 不在工作流中写入 token、私钥、Vivado 许可证或其他 secrets。
 

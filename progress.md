@@ -1062,6 +1062,14 @@
 - `python -X utf8 -m unittest -v test_npu_eneuron_reference.py`：4/4 通过；`git diff --check` 通过。
 - 当前硬门完成：Python oracle 的基础 bit-exact、全关门控、饱和边界已具备；下一步补齐 epoch 原子切换、背压/清除和非法索引合同，再进入 RTL。
 
+## 2026-09-03 CI-Fast V1 实施
+
+- 管理员批准 CI-Fast V1；将原四个独立必跑 job 改为路径分类、定向门和固定 `PR Gate` 汇总门。
+- 新增 `tools/ci/classify_changes.py` 与 `test_ci_fast_v1.py`，覆盖文档、NPU oracle、XPM、NP7、未知代码和 workflow 变更矩阵。
+- Windows MSYS2 专项不再每个 PR 强制启动，仍保留固定 `C:/msys64/ucrt64/bin` 检查；NP7 相关改动仍保留功能与物理门。
+- 本地分类/模型测试 10/10 通过，YAML 可解析，`compileall` 与 `git diff --check` 通过；尚未以 GitHub Action 验证分类结果。
+- PR #25 首轮发现 Windows 门在 `Verify fixed toolchain` 失败：`update: false` 时 action 输出目录不保证是 `C:/msys64/ucrt64`。已恢复原有 MSYS2 UCRT64 目录探测、联接/复制兜底，仅保留按需启动专项门的加速策略。
+
 ## 2026-09-03 PR #21 合并收口
 
 - PR #21 已合并到 `main`，merge commit 为 `588e7d5`；合并前 HEAD `bc546c0` 的 run `33765822606` 四道 CI 门全部成功。

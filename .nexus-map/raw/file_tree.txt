@@ -207,6 +207,7 @@ np7_shared_lane_oracle.py
 np7_shared_synapse_lane.sv
 np7_three_model_integration_cosim.py
 np7_weight_ram.sv
+npu_eneuron_reference.py
 progress.md
 pruned_network_tick_cosim.py
 pruned_network_tick_scheduler.sv
@@ -295,6 +296,7 @@ tb_pulse_mini_network_file.sv
 tb_pulse_original.sv
 tb_vivado_xpm_wrapper.sv
 test_artifact_layout.py
+test_ci_fast_v1.py
 test_compare_simulation.py
 test_cycle_transport.py
 test_digit8x8.py
@@ -339,6 +341,7 @@ test_np6_verifier_mutations.py
 test_np7_physical_mutations.py
 test_np7_shared_lane_oracle.py
 test_np7_verifier_mutations.py
+test_npu_eneuron_reference.py
 test_pruned_network_tick_scheduler.py
 test_pulse_mini_l2_reference.py
 test_pulse_mini_lane_model.py
@@ -365,6 +368,9 @@ test_verify_goal.py
 test_verify_goal_m3.py
 test_verify_local_prune_rtl.py
 test_verify_np4b_signoff.py
+tools/
+tools/ci/
+tools/ci/classify_changes.py
 verify_eneuron_pruned_network_summary.py
 verify_formal_eneuron_prune_wrapper.py
 verify_formal_local_prune_commit_barrier.py
