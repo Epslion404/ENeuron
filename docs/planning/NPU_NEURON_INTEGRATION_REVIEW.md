@@ -79,4 +79,4 @@ I1-I6 已获管理员批准。当前只允许实现 Python 旁路/门控参考�
 
 I1-I6 已批准，Python 函数级参考模型和 active/pending 协议已经实现基础纵向切片，但独立审计发现 INT32 溢出、固定参数域、mask 位序、不可变结果和逐拍 RTL 协议仍未冻结。
 
-当前门更新为 `OF1-OF6_REVIEW_REQUIRED`。详细证据和建议裁定见 [NPU Oracle 冻结审核](NPU_ORACLE_FREEZE_REVIEW.md)。OF1-OF6 批准并完成测试前，仍不创建集成业务 RTL、不运行新的 Vivado。
+当前门更新为 `OF1-OF6_V2_REVIEW_REQUIRED`。详细证据、反审计修订和建议裁定见 [NPU Oracle 冻结审核](NPU_ORACLE_FREEZE_REVIEW.md)。OF1-OF6 V2 批准并完成测试前，仍不创建集成业务 RTL、不运行新的 Vivado。

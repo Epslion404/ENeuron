@@ -1109,3 +1109,11 @@
 - 独立只读审计发现当前 oracle 仍使用 Python 无限精度累加，非整除配置会在推理中触发 `IndexError`，mask 位序和逐拍流协议也没有独立冻结证据。
 - 新增 `docs/planning/NPU_ORACLE_FREEZE_REVIEW.md`，把当前门更新为 `OF1-OF6_REVIEW_REQUIRED`；本切片不修改参考模型、不创建 RTL、不运行 Vivado。
 - 用户未跟踪文件 `np75_tmp_sparse_protocol.ys` 保持原样，不纳入提交或 Nexus。
+
+## 2026-09-03 OF1-OF6 V2 反审计
+
+- 独立计算固定拓扑最坏范围：第一层乘加贡献 `[-122880,121920]`，第二层 `[-520192,516128]`。
+- 原 OF1 的正常回绕建议会允许极端 bias 翻转 logit 排序；V2 改为配置期安全范围拒绝，逐拍饱和不进入 MAC 关键路径。
+- 原任意地址配置需要 19-bit mask bitmap 和 634-bit model bitmap；V2 改为固定顺序流，分别只需 5-bit/10-bit 计数器。
+- V2 明确 mask staging 与 published pending、commit/首 beat 互斥、partial staging 阻止 freeze、STATE_CLEAR 非 abort、hard reset 只使 RAM 失效而不承诺物理清零。
+- 本轮只修订审核材料；Python 业务代码、RTL 和 Vivado 均未改变。
