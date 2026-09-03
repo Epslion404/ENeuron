@@ -66,3 +66,4 @@ NP7 已完成；下一步是重新审核并批准传统 NPU + 神经元集成计
 - 本地 Webhook `C:\Users\Epsilon\ENeuronWebhook` 收到同一 run 的 `workflow_run`、`workflow_job` 和 `check_run` 事件；服务健康检查 `GET http://127.0.0.1:2355/healthz` 返回 200，接收器仍在仓库外运行。
 - `.nexus-map` 已按当前 HEAD `f418c28` 刷新：168 个 Python 文件、39,944 行、解析错误为 0；临时 `.nexus-map/.refresh` 已清理，未进入提交。
 - PR #10 仍为 `OPEN / CLEAN`，本轮不自动 approve、不自动 merge；下一步继续等待管理员合并决定，随后重新审核传统 NPU + 神经元集成计划。
+- 2026-09-03 复核时 Webhook 进程曾退出；已从 `C:\Users\Epsilon\ENeuronWebhook\start_webhook.ps1` 重启，健康检查恢复为 HTTP 200，继续作为后续 CI 通知接收器。
