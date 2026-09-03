@@ -17,7 +17,7 @@ ENeuron 是以 Python 黄金模型、SystemVerilog RTL、Icarus/Yosys/Vivado 验
 
 ## 当前状态
 
-NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`。NP7 共享 BRAM/lane 已合并；PR #10 已于 `2026-09-03` 合并，merge commit 为 `a076160`，其 HEAD `0f6b0ad9` 对应 run `33742796085` 已由 GitHub 与仓库外 Webhook 双重确认成功。当前活动门转为传统 NPU + 神经元集成审核，I1-I6 仍为 `REVIEW_REQUIRED`，尚未授权集成 RTL 或 Vivado。新增材料包提出待批准的 `64→32→10` INT8 MLP 首轮候选。当前工作树状态以 `WORKFLOW_STATE.md` 为准，最新原始探测统计见 `.nexus-map/raw/`。
+NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`。NP7 共享 BRAM/lane 已合并；PR #10 已于 `2026-09-03` 合并，merge commit 为 `a076160`；其后 PR #11 已合并，merge commit 为 `f48f4b6`。PR #11 HEAD `2153bfca` 的四道 CI 门已成功，并由仓库外 Webhook 核对。当前活动门转为传统 NPU + 神经元集成审核，I1-I6 仍为 `REVIEW_REQUIRED`，尚未授权集成 RTL 或 Vivado。新增材料包提出待批准的 `64→32→10` INT8 MLP 首轮候选。当前工作树状态以 `WORKFLOW_STATE.md` 为准，最新原始探测统计见 `.nexus-map/raw/`。
 
 ## 必读路由
 
