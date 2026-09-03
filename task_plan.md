@@ -889,3 +889,12 @@
 - [x] 清除 NP4B TODO 中已完成的“再次批准进入 NP6”历史残留，避免恢复脚本误报未完成项。
 - [ ] 管理员批准传统 NPU + ENeuron 集成审核 I1-I6；批准前不创建集成业务 RTL、不运行新的 Vivado。
 - [ ] 批准后先实现 `64→32→10` INT8 MLP Python 旁路/门控参考模型，并建立逐样本 bit-exact 与最坏情况矩阵。
+
+## 2026-09-03 PR #17 合并后状态刷新
+
+- [x] 确认远端 `main` 已包含 PR #17 merge `0ca6a50d`，当前无开放 PR。
+- [x] 确认 PR #17 run `33755848063` 四道 CI 成功，并由仓库外 Webhook 收到同一 SHA 的 workflow 完成与 PR closed 事件。
+- [x] 将 Nexus 验证头、主分支合并点和状态摘要更新到 PR #17 合并基线。
+- [x] 将当前事实写入 `WORKFLOW_STATE.md` 与 `findings.md`；不纳入用户未跟踪文件。
+- [ ] 管理员批准传统 NPU + ENeuron 集成审核 I1-I6；批准前保持静态审计、文档和 Nexus 维护边界。
+- [ ] 批准后实现 `64→32→10` INT8 MLP Python 旁路/门控参考模型，再进入 RTL 和 Vivado 门。
