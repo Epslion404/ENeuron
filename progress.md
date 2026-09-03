@@ -968,3 +968,11 @@
 - 第一阶段只做片上单时钟 OOC；网口、DMA、PS 和异步 FIFO 延后，避免把供数问题混入门控 bit-exact 证明。
 - 已列出全开、全关、零活动、频繁切换、背压、清除、推理冻结和非法配置矩阵及验收门槛。
 - PR #10 run `33730940941` 对 HEAD `b5165824` 已由 GitHub 和本机 Webhook 双重确认成功。
+
+## 2026-09-03 CI 与仓库外接收服务闭环
+
+- GitHub Actions run `33740218942` 对 HEAD `15d289e08bbd37f3c1dcc3e9eb9865153f6756fb` 已完成成功。
+- Python/语法、XPM CDC、NP7 功能与证据、NP7 物理证据四道门全部通过；形式与突变检查、仓库单元测试均成功。
+- 仓库外接收服务 `C:\Users\Epsilon\ENeuronWebhook` 在 `127.0.0.1:2355` 保持监听，`/healthz` 返回 HTTP 200。
+- Webhook 已收到同一 SHA 的 `workflow_run completed/success`，与 GitHub 结果交叉一致；服务脚本、日志、PID 和事件摘要均不属于仓库。
+- 本轮未启动传统 NPU + 神经元集成 RTL 或 Vivado；该工作仍等待管理员批准 I1-I6。

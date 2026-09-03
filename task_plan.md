@@ -849,3 +849,10 @@
 - [x] 明确第一阶段只做片上单时钟 OOC，网口/DMA/PS 延后；I1-I6 仍需管理员批准。
 - [x] 记录 PR #10 run `33730940941` 对 HEAD `b5165824` 已由 GitHub 与仓库外 Webhook 双重确认成功。
 - [ ] 管理员裁定集成材料包 I1-I6 后，才进入 Python INT8 旁路/门控参考模型。
+
+## 2026-09-03 CI 终态核对
+
+- [x] 读取 run `33740218942`，确认状态 `completed / success`。
+- [x] 用仓库外 Webhook 核对 HEAD `15d289e0` 的 `workflow_run completed/success`。
+- [x] 确认接收服务健康检查 HTTP 200，且服务文件与日志不在仓库。
+- [ ] 等待管理员批准 I1-I6；批准后再开展 INT8 NPU 参考模型与集成 RTL 任务。
