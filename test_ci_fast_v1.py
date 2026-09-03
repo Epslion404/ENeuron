@@ -14,6 +14,10 @@ class ClassifyChangesTest(unittest.TestCase):
         selected = classify_paths(["npu_eneuron_reference.py"])
         self.assertEqual([name for name, enabled in selected.items() if enabled], ["npu_oracle"])
 
+    def test_npu_protocol_change_runs_only_targeted_oracle(self):
+        selected = classify_paths(["npu_eneuron_protocol.py"])
+        self.assertEqual([name for name, enabled in selected.items() if enabled], ["npu_oracle"])
+
     def test_xpm_change_selects_windows_gate(self):
         selected = classify_paths(["host_bridge_xpm_fifo.sv"])
         self.assertTrue(selected["xpm_cdc"])

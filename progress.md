@@ -1082,6 +1082,12 @@
 - 新增 4-bit 输入边界测试：负值裁剪为 0，超过 15 的值裁剪为 15，并验证裁剪后的结果进入完整两层计算。
 - 该改动只触碰 `test_npu_eneuron_reference.py`，预期 CI 仅执行 NPU oracle 定向单测、快速门和 `PR Gate`。
 
+## 2026-09-03 NPU oracle epoch/背压协议
+
+- 新增 `npu_eneuron_protocol.py`：双版本门控（active/pending）和单槽结果运行时参考模型。
+- 新增样本边界切换、结果背压、状态清除、推理冻结、epoch/完整 mask 校验测试；与既有 NPU/CI 测试合计 17 项通过。
+- 将 `npu_eneuron_protocol.py` 纳入 NPU oracle 定向 CI 分类，避免该协议文件误触发全仓重门。
+
 ## 2026-09-03 PR #21 合并收口
 
 - PR #21 已合并到 `main`，merge commit 为 `588e7d5`；合并前 HEAD `bc546c0` 的 run `33765822606` 四道 CI 门全部成功。
