@@ -2,15 +2,15 @@
 
 模式：`PERSISTENT_WORKFLOW_V1`
 
-最后更新：2026-09-01
+最后更新：2026-09-03
 
-状态：`ACTIVE / NP6_PHYSICAL_COST_PARTIAL / NP7_REVIEW_REQUIRED`
+状态：`ACTIVE / NP7_MERGED / NPU_NEURON_INTEGRATION_REVIEW_REQUIRED`
 
 ## 当前活动目标
 
-NP6 物理成本证据已经合并并完成阶段收口；当前进入 NP7 共享 BRAM 与共享 lane 的方案审核门。
+NP6 物理成本证据已经合并并完成阶段收口；NP7 共享 BRAM 与共享 lane 已完成并合并。PR #9 随后回滚了 PR #7 的 N1 集成基线，下一步重新审核传统 NPU + 神经元集成路线。
 
-活动合同：`docs/planning/NPU_PRUNING_NP7_TODO.md`（NP7 审核稿）；NP6 结果见 `docs/planning/NPU_PRUNING_NP6_TODO.md` 与 `docs/reports/LOCAL_PRUNE_NP6_PHYSICAL_COST_REPORT.md`。
+活动合同：`docs/planning/NPU_PRUNING_NP7_TODO.md`（NP7 已合并签核，后续进入集成审核）；NP6 结果见 `docs/planning/NPU_PRUNING_NP6_TODO.md` 与 `docs/reports/LOCAL_PRUNE_NP6_PHYSICAL_COST_REPORT.md`。
 
 ## 当前事实
 
@@ -41,7 +41,16 @@ NP6 物理成本证据已经合并并完成阶段收口；当前进入 NP7 共�
 
 ## 下一动作
 
-等待用户审核并批准 `docs/planning/NPU_PRUNING_NP7_TODO.md` 第 8 节。批准前只做静态审计、Nexus 更新和文档维护；批准后推进到 NP7 Vivado 门前停止。
+NP7 已完成；下一步是重新审核并批准传统 NPU + 神经元集成计划。批准前只做静态审计、Nexus 更新和文档维护。
+
+## 2026-09-03 PR #10 清单绑定修复
+
+- PR #10 的 CI 失败仅来自 fail-closed 完整性门：`NPU_PRUNING_NP7_TODO.md` 已更新，但 NP7 软件清单仍绑定旧字节；G1-G6、账本覆盖和物理证据门均通过。
+- 已在当前提交 `61b694b` 上重新运行 `generate_np7_manifest.py`，仅更新 `artifacts/results/np7_software_cost_manifest.json` 的冻结提交、输入文件哈希和本机工具链记录。
+- 生成时显式使用管理员批准的 `C:\msys64\ucrt64\bin` 工具链；未把缺失的旧 `C:\iverilog\bin` 路径写入证据。
+- 本地独立验证已重算 G1-G6 全部通过；提交后需再次运行带提交 HEAD 的验证器并等待 Webhook/CI 结果。
+- 提交 `5a6825f` 已推送到 PR #10；CI run `33659017501` 的 Python、XPM、NP7 软件和物理证据四道门全部成功，PR 状态为 `OPEN / CLEAN`。
+- Webhook 接收器已落盘该 run 的 `workflow_run completed/success` 与四个 `check_run completed/success` 事件；该接收器只提供本机通知落盘，不改变评审权限。
 
 ## 恢复检查
 
@@ -50,3 +59,58 @@ NP6 物理成本证据已经合并并完成阶段收口；当前进入 NP7 共�
 ```
 
 恢复脚本通过后，仍需读取活动 TODO 中当前阶段的完整合同，不能只凭本状态摘要实施。
+
+## 2026-09-03 PR #10 当前 HEAD 终态确认
+
+- GitHub Actions run `33712261128` 对应 HEAD `90b7e414da211985c7e8d83872ddc910e1706b18`，已于 2026-09-03 03:55:08 UTC 完成并成功。
+- Python/语法、XPM CDC、NP7 功能与证据、NP7 物理证据完整性四道门全部为 `SUCCESS`；形式/突变检查和清单绑定也在当前 HEAD 上完成。
+- 仓库外接收器 `C:\Users\Epsilon\ENeuronWebhook` 于 03:55:10 UTC 收到同一 SHA 的 `workflow_run completed/success`；本地 `/healthz` 返回 HTTP 200。
+- PR #10 仍为 `OPEN / CLEAN`，本轮只确认具备人工合并条件，不自动 approve 或 merge；合并前不启动新的集成 RTL/Vivado 工作。
+
+## 2026-09-03 PR #10 重跑终态确认
+
+- run `33714262900` 已对 HEAD `15940b5aed8cb1e4127fab8bd904db4b9ab35433` 完成并成功；Python、XPM、NP7 功能/证据和物理证据四道门全部通过。
+- NP7 功能门中的 oracle、周期协同仿真、三模型集成、形式与突变检查均成功；其中形式与突变检查于 04:44:35 UTC 完成。
+- GitHub PR 汇总状态为 `OPEN / CLEAN`。本机 Webhook 未落盘该次重跑事件，不能作为第二份终态证据；GitHub 结果已独立核实。
+- 当前阶段回到等待管理员人工合并；合并前不启动新的传统 NPU + 神经元集成 RTL 或 Vivado。
+
+## 2026-09-02 PR #10 最终 CI 与知识库同步
+
+- GitHub Actions run `33660700397` 已完成并成功：Python and syntax、XPM CDC wrapper、NP7 functional and evidence gate、NP7 physical evidence integrity 四道门全部通过。
+- 本地 Webhook `C:\Users\Epsilon\ENeuronWebhook` 收到同一 run 的 `workflow_run`、`workflow_job` 和 `check_run` 事件；服务健康检查 `GET http://127.0.0.1:2355/healthz` 返回 200，接收器仍在仓库外运行。
+- `.nexus-map` 已按当前 HEAD `f418c28` 刷新：168 个 Python 文件、39,944 行、解析错误为 0；临时 `.nexus-map/.refresh` 已清理，未进入提交。
+- PR #10 仍为 `OPEN / CLEAN`，本轮不自动 approve、不自动 merge；下一步继续等待管理员合并决定，随后重新审核传统 NPU + 神经元集成计划。
+- 仓库外 Webhook 接收服务已复核可用：`C:\Users\Epsilon\ENeuronWebhook`，PID `42144`，本地健康检查 HTTP 200；服务文件和日志不属于仓库。
+- 2026-09-03 复核时 Webhook 进程曾退出；已从 `C:\Users\Epsilon\ENeuronWebhook\start_webhook.ps1` 重启，健康检查恢复为 HTTP 200，继续作为后续 CI 通知接收器。
+- 重启后的 HEAD `9cced26` 对应 run `33711162898` 已由 GitHub 与 Webhook 双重确认成功；四道门全部通过，PR #10 保持 `OPEN / CLEAN`。
+- run `33720890399` 对 HEAD `832c785` 已由 GitHub 与仓库外 Webhook 双重确认成功；四道门全部通过，PR #10 仍保持 `OPEN / CLEAN`，等待人工合并。
+- run `33723437364` 对 HEAD `d7f7824` 已由 GitHub 与仓库外 Webhook 双重确认成功；四道门全部通过，PR #10 仍保持 `OPEN / CLEAN`，等待人工合并。
+- 2026-09-03 发现 Webhook 服务短暂停止，已从 `C:\Users\Epsilon\ENeuronWebhook\start_webhook.ps1` 重启，PID `42136`，本地健康检查 HTTP 200；run `33726255349` 的终态仍以 GitHub 为准，恢复后的事件继续交叉核对。
+
+## 2026-09-03 仓库外接收服务与 PR #10 最新终态
+
+- 接收服务实际目录为 `C:\Users\Epsilon\ENeuronWebhook`，绑定 `127.0.0.1:2355`；该目录不属于仓库，服务文件、日志和运行时 PID 不进入 Git。
+- 本地 `GET /healthz` 返回 HTTP `200`；带完整 GitHub 事件标头的本地 `workflow_run` 模拟接收返回 HTTP `200`，事件摘要正确写入 `latest.json` 与 `events.jsonl`。
+- Webhook 已收到 run `33726377825`、HEAD `6893964a8a7c3c04e683dd8331c399f72df3440a` 的 `workflow_run completed/success`；CI 四道门均已完成成功，PR #10 仍为 `OPEN / CLEAN`。
+- 集成审核合同没有改变：`docs/planning/NPU_NEURON_INTEGRATION_REVIEW.md` 仍为 `REVIEW_REQUIRED`，I1-I6 尚未获得管理员批准；在批准前只做静态审计、文档和 Nexus 维护。
+
+## 2026-09-03 集成材料包草案与 CI 收口
+
+- 新增 `docs/planning/NPU_NEURON_INTEGRATION_MATERIALS.md`，给出待管理员裁定的首个传统 NPU 候选（8×8、`64→32→10` INT8 MLP）、定点格式、门控粒度、逐周期接口、最坏情况矩阵和实现顺序。
+- 材料包明确：现有 NP7 共享突触执行器不是完整传统 INT8 NPU；网口/DMA/PS 延后到片上单时钟功能闭环之后。
+- 集成审核仍为 `REVIEW_REQUIRED`；I1-I6 未批准前不创建集成业务 RTL、不运行新的 Vivado。
+- PR #10 HEAD `b5165824275a71008f8acaa820448f675c8df42a` 对应 run `33730940941` 已完成成功；GitHub 与仓库外 Webhook 均收到 `workflow_run completed/success`。
+- Nexus 子代理本轮因外部服务配额返回 403，未产生改动；本次状态由主代理按本地证据维护。
+
+## 2026-09-03 `da819cf` CI 与 Webhook 闭环
+
+- 文档与 Nexus 提交 `da819cfdb6b492cd4bcb426aba8af3d8490007f5` 已推送到 PR #10。
+- run `33728135382` 已完成成功；Python/语法、XPM CDC、NP7 功能与证据、NP7 物理证据四道门均为 `SUCCESS`。
+- 仓库外 Webhook 已收到同一 SHA 的 `workflow_run completed/success` 和四项检查成功事件；接收服务仍由 `C:\Users\Epsilon\ENeuronWebhook` 独立运行。
+- PR #10 仍为 `OPEN / CLEAN`，不自动 approve/merge；集成审核 I1-I6 仍为 `REVIEW_REQUIRED`。
+
+## 2026-09-03 `cadc3a8` CI 与 Webhook 最终确认
+
+- 当前文档状态提交 `cadc3a812ee614d7d9e07caf12a3c7e8bbd0eaad` 已推送到 PR #10。
+- run `33729657078` 已完成成功，四道 PR 门均为 `SUCCESS`；Webhook 已收到同一 SHA 的 `workflow_run completed/success` 和四项检查成功事件。
+- PR #10 仍为 `OPEN / CLEAN`，不自动 approve/merge；集成审核 I1-I6 未获批准，仍禁止集成 RTL/Vivado。

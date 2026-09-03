@@ -802,6 +802,14 @@
 | 索引/TODO 同步补丁被原文 Markdown 反引号截断，JavaScript 报语法错误 | 1 | 决策正文已成功；剩余同步改为纯行补丁，不回退正文 |
 | PowerShell 下 `rg` 通配符被当作非法 Windows 路径 | 1 | 改用 `rg -g '*.py'` 形式；未影响工作流文件，重新检查通过 |
 
+## PR #10 fail-closed 清单修复
+
+- [x] 读取 GitHub 失败日志并定位为 TODO 字节绑定失配。
+- [x] 用当前提交重新生成 NP7 软件成本 manifest。
+- [x] 显式使用 `C:\msys64\ucrt64\bin` 探测本机 Icarus/Yosys，排除旧路径缺失假象。
+- [ ] 提交、推送并等待 Webhook/CI 回报。
+- [x] 提交 `5a6825f`、推送到 PR #10，并用 Webhook 与 GitHub 双重确认 CI 全部成功。
+
 ## 2026-09-02 PR 自动检查工作流
 
 - [x] 读取 GitHub 官方 Actions、权限、分支保护与不可信 PR 代码安全文档。
@@ -810,3 +818,41 @@
 - [x] 增加 NP7 文件适用性检测，普通非 NP7 PR 不会因缺少专项脚本而失败。
 - [x] 新增 `docs/CI_PR_GATE.md` 配置教程并加入 `docs/README.md` 索引。
 - [x] 本地 YAML 解析、Python compileall、git diff --check 全部通过；未调用 Vivado。
+
+## 2026-09-02 PR #10 CI 收口与本地 Webhook
+
+- [x] 轮询 GitHub Actions run `33660700397` 至终态。
+- [x] 确认四道 CI 门全部成功：Python/语法、XPM CDC、NP7 功能/证据、NP7 物理证据完整性。
+- [x] 通过仓库外接收器 `C:\Users\Epsilon\ENeuronWebhook` 收到并核对 GitHub 终态事件。
+- [x] 复核仓库工作树，删除 `.nexus-map/.refresh` 临时产物，不引入 Webhook 服务文件。
+- [x] 完成 Nexus 增量刷新并核对 PR #10、NP7 合并状态和传统 NPU + 神经元集成下一步。
+- [ ] 等待管理员决定是否合并 PR #10；合并前不启动新的集成 RTL 或 Vivado 任务。
+- [x] 复核 `4d1a5cd` 对应 run `33663148479` 成功，并重启仓库外 Webhook 接收服务。
+- [x] 复核后续 HEAD `9cced26` 对应 run `33711162898` 成功，Webhook 收到 `workflow_run completed/success`。
+- [x] 复核当前 HEAD `90b7e414` 对应 run `33712261128` 成功，并用仓库外 Webhook 核对同一 SHA 的终态事件。
+- [ ] 等待管理员人工合并 PR #10；合并前仅进行静态审核、文档和 Nexus 维护，不启动新的集成 RTL/Vivado。
+- [x] 重跑 run `33714262900` 并确认 HEAD `15940b5` 的四道 CI 门、形式与突变检查全部成功。
+- [x] 修复或重新验证仓库外 Webhook 对 workflow_run 重跑事件的接收；`da819cf` 对应 run `33728135382` 已由 GitHub 与 Webhook 双重确认成功。
+
+## 2026-09-03 仓库外接收服务与集成审核续跑
+
+- [x] 复核仓库外接收服务 `C:\Users\Epsilon\ENeuronWebhook`：`/healthz` HTTP 200，带完整事件标头的本地 `workflow_run` 接收返回 HTTP 200。
+- [x] 用 Webhook 核对 PR #10 HEAD `6893964a`、run `33726377825` 的 `workflow_run completed/success`；GitHub PR 状态为 `OPEN / CLEAN`。
+- [x] 只读审计 `NPU_NEURON_INTEGRATION_REVIEW.md`，确认 I1-I6 与模型、协议、参考模型、最坏情况、资源门槛、顶层证据七类材料仍未冻结。
+- [x] 刷新 `.nexus-map` 摘要，使当前 HEAD、CI 终态和集成审核门状态一致。
+- [ ] 等待管理员批准 I1-I6 及最小材料包；批准前不实现传统 NPU + 神经元集成 RTL，不运行新的 Vivado。
+
+## 2026-09-03 集成材料包草案
+
+- [x] 静态审计现有代码，确认仓库尚无完整传统 INT8 NPU 数值数据通路，NP7 共享突触执行器不能冒充 NPU。
+- [x] 新增 `docs/planning/NPU_NEURON_INTEGRATION_MATERIALS.md`，提出 `64→32→10` INT8 MLP、定点格式、四权重组门控、样本边界提交和最坏情况矩阵。
+- [x] 明确第一阶段只做片上单时钟 OOC，网口/DMA/PS 延后；I1-I6 仍需管理员批准。
+- [x] 记录 PR #10 run `33730940941` 对 HEAD `b5165824` 已由 GitHub 与仓库外 Webhook 双重确认成功。
+- [ ] 管理员裁定集成材料包 I1-I6 后，才进入 Python INT8 旁路/门控参考模型。
+
+## 2026-09-03 CI 终态核对
+
+- [x] 读取 run `33740218942`，确认状态 `completed / success`。
+- [x] 用仓库外 Webhook 核对 HEAD `15d289e0` 的 `workflow_run completed/success`。
+- [x] 确认接收服务健康检查 HTTP 200，且服务文件与日志不在仓库。
+- [ ] 等待管理员批准 I1-I6；批准后再开展 INT8 NPU 参考模型与集成 RTL 任务。
