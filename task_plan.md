@@ -162,7 +162,9 @@
 - [x] 抽取可测试的 `tools/ci/classify_changes.py`
 - [x] 增加分类矩阵单测并通过本地验证
 - [x] 更新 `docs/CI_PR_GATE.md` 的分支保护配置说明
-- [ ] 推送 PR 并以 GitHub/Webhook 终态验证文档改动、NPU 改动和 NP7 改动三类路径
+- [x] 推送 PR #25 并以 GitHub/Webhook 终态验证 workflow 自身全量路径（run `33778976730`，merge `c46320e`）
+- [ ] 以独立文档 PR 验证轻量路径；以 NPU/NP7 改动 PR 验证各专项路径
+- [ ] 若仓库套餐允许，启用唯一 required check `PR Gate`；当前 API 返回私有仓库套餐 403
 
 #### CI-Fast V1 错误记录
 

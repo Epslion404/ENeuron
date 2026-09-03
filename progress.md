@@ -1070,6 +1070,13 @@
 - 本地分类/模型测试 10/10 通过，YAML 可解析，`compileall` 与 `git diff --check` 通过；尚未以 GitHub Action 验证分类结果。
 - PR #25 首轮发现 Windows 门在 `Verify fixed toolchain` 失败：`update: false` 时 action 输出目录不保证是 `C:/msys64/ucrt64`。已恢复原有 MSYS2 UCRT64 目录探测、联接/复制兜底，仅保留按需启动专项门的加速策略。
 
+## 2026-09-03 CI-Fast V1 GitHub 验收
+
+- PR #25（`381849d1`）已通过并合并为 `c46320e`；Webhook 收到同 SHA 的 `workflow_run completed/success`。
+- workflow 自身变更按预期启动全量门：分类、快速、全仓、Windows XPM、NP7 功能、NP7 物理和 `PR Gate` 均成功。
+- 实测作业耗时：分类 6 秒、快速 7 秒、Windows XPM 75 秒、物理门 17 秒、全仓 12 分 26 秒、NP7 功能约 14 分钟；重门由 workflow 变更触发，不能代表普通文档 PR 的耗时。
+- GitHub API 对私有仓库 ruleset/branch protection 返回 403（需升级套餐或公开仓库）；因此 `PR Gate` 目前只能作为统一状态和人工合并纪律，不能由服务端强制锁定。
+
 ## 2026-09-03 PR #21 合并收口
 
 - PR #21 已合并到 `main`，merge commit 为 `588e7d5`；合并前 HEAD `bc546c0` 的 run `33765822606` 四道 CI 门全部成功。
