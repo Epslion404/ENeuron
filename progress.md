@@ -1101,3 +1101,11 @@
 - 仓库外 Webhook 已收到同一 SHA 的 `workflow_run completed/success`；本地 `main` 与 `origin/main` 已同步，无开放 PR。
 - 本次仅收口集成审核静态审计和 Nexus 基线，没有创建传统 NPU + ENeuron 集成 RTL，也没有运行新的 Vivado。
 - 集成审核 I1-I6 仍待管理员批准；`np75_tmp_sparse_protocol.ys` 继续保持未跟踪、未修改和未纳入提交。
+
+## 2026-09-03 Python oracle 最坏情况测试与冻结复核
+
+- 新增三项不依赖后续协议裁定的测试：全关零活动不产生读取/MAC、epoch 1/2/3 连续切换不混用 mask、pending 单槽满时拒绝覆盖。
+- `test_npu_eneuron_reference.py` 当前 14/14 通过，`test_ci_fast_v1.py` 7/7 通过，`git diff --check` 通过。
+- 独立只读审计发现当前 oracle 仍使用 Python 无限精度累加，非整除配置会在推理中触发 `IndexError`，mask 位序和逐拍流协议也没有独立冻结证据。
+- 新增 `docs/planning/NPU_ORACLE_FREEZE_REVIEW.md`，把当前门更新为 `OF1-OF6_REVIEW_REQUIRED`；本切片不修改参考模型、不创建 RTL、不运行 Vivado。
+- 用户未跟踪文件 `np75_tmp_sparse_protocol.ys` 保持原样，不纳入提交或 Nexus。

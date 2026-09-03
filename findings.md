@@ -933,6 +933,15 @@
 - `STATE_CLEAR` 可以增加动态清除计数，但不得回退已提交 mask epoch；`infer_freeze` 同时拒绝 mask 更新和动态清除。
 - 样本输入校验必须先于所有状态提交；否则非法图片会把 runtime 卡在 busy，或错误消费 pending epoch。
 - 结果完成接口不能接受外部 `InferenceResult` 参数，否则调用者可把非当前样本结果注入输出槽；内部 `_inflight` 是更接近硬件事务所有权的最小表达。
+
+## 2026-09-03 NPU oracle 冻结审计发现
+
+- 14 项通过只证明当前函数级合同的已覆盖部分，不能替代逐位数值、地址映射和逐拍接口冻结。
+- INT32 必须定义 bias 合法域和溢出行为；当前 Python 无限精度会产生硬件 32-bit 累加器无法直接复现的 logits。
+- V1 若声明固定 `64→32→10/group=4`，就应在构造边界拒绝其他配置；不能让非整除参数以运行期 `IndexError` 失败。
+- mask 位序必须由单 bit 和跨层混合手算向量证明。全开、全关和整版 epoch 切换无法发现输出通道或组地址互换。
+- frozen dataclass 不会递归冻结其中的 list；背压结果要真正稳定，logits 需要不可变容器。
+- pending、freeze、clear 和 hard reset 是同一状态机的组合边界，必须在 RTL 前统一冻结，不能分别用几个函数测试拼出结论。
 # 2026-09-03 PR #18 状态核对
 
 - PR #18 的四道门均已成功：Python/语法、XPM CDC、NP7 功能与证据、NP7 物理证据；同一 HEAD `59bef59a` 的 `workflow_run completed/success` 已由仓库外 Webhook 记录。
