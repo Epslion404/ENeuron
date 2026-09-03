@@ -163,3 +163,10 @@ NP7 已完成；下一步是重新审核并批准传统 NPU + 神经元集成计
 - 仓库外 Webhook `C:\Users\Epsilon\ENeuronWebhook` 的 `/healthz` 返回 HTTP 200，服务仍不属于仓库。
 - `docs/planning/NPU_NEURON_INTEGRATION_REVIEW.md` 仍为 `REVIEW_REQUIRED`；I1-I6 未获管理员批准。
 - 用户文件 `np75_tmp_sparse_protocol.ys` 保持未跟踪、未修改、未纳入 Nexus；批准前继续只做静态审计、文档和 Nexus 维护。
+
+## 2026-09-03 PR #21 合并后基线
+
+- PR #21 `docs: audit integration review gate` 已在四道 CI 门和仓库外 Webhook 终态成功后合并，merge commit 为 `588e7d5`。
+- PR #21 HEAD `bc546c0` 对应 run `33765822606`；Python/语法、XPM CDC、NP7 功能与证据、NP7 物理证据四道门均为 `SUCCESS`，Webhook 已收到同一 SHA 的 `workflow_run completed/success`。
+- 当前本地 `main` 与 `origin/main` 同步到 `588e7d5`，无开放 PR；本次仅收口静态审计、状态文档与 Nexus，不含集成业务 RTL 或 Vivado。
+- 集成审核门仍为 `REVIEW_REQUIRED`，I1-I6 尚未获管理员批准；用户文件 `np75_tmp_sparse_protocol.ys` 继续保持未跟踪且不纳入 Nexus。

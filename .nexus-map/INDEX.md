@@ -18,7 +18,7 @@ ENeuron 是以 Python 黄金模型、SystemVerilog RTL、Icarus/Yosys/Vivado 验
 
 ## 当前状态
 
-NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`。NP7 共享 BRAM/lane 的 NP7.0-NP7.7 已实现并签核；PR #10-#20 均已合并，最新 PR #20 merge commit 为 `8d23347`，其 HEAD `0e681a7` 对应 run `33763267873` 的四道 CI 门均成功；Webhook 已收到同一 SHA 的 `workflow_run completed/success`。当前 `main` 为文档收口提交 `8d23347`，无开放 PR；工作树唯一未跟踪项 `np75_tmp_sparse_protocol.ys` 为用户文件，不得修改、提交或纳入 Nexus 文件树。当前活动门仍是传统 NPU + 神经元集成审核，I1-I6 为 `REVIEW_REQUIRED`，尚未授权集成业务 RTL、Vivado 或板级测试。首轮候选为待批准的 `64→32→10` INT8 MLP。最新原始探测统计见 `.nexus-map/raw/`。
+NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`。NP7 共享 BRAM/lane 的 NP7.0-NP7.7 已实现并签核；PR #10-#21 均已合并，最新 PR #21 merge commit 为 `588e7d5`，其 HEAD `bc546c0` 对应 run `33765822606` 的四道 CI 门均成功，Webhook 已收到同一 SHA 的 `workflow_run completed/success`。当前 `main` 为文档审计提交 `588e7d5`，无开放 PR；工作树唯一未跟踪项 `np75_tmp_sparse_protocol.ys` 为用户文件，不得修改、提交或纳入 Nexus 文件树。当前活动门仍是传统 NPU + 神经元集成审核，I1-I6 为 `REVIEW_REQUIRED`，尚未授权集成业务 RTL、Vivado 或板级测试。首轮候选为待批准的 `64→32→10` INT8 MLP。最新原始探测统计见 `.nexus-map/raw/`。
 
 ## 必读路由
 

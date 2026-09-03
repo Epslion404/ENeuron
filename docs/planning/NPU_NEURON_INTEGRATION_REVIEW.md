@@ -63,12 +63,14 @@
 
 | 检查项 | 结果 | 证据 |
 |---|---|---|
-| 主线 | 通过 | `main` 与 `origin/main` 同步于 `8d23347` |
-| 开放 PR | 通过 | GitHub 查询结果为 0 个开放 PR；PR #18/#19/#20 已合并 |
-| 最近 CI | 通过 | run `33763267873`，四道门均为 `success` |
-| 持久工作流恢复 | 通过 | `workflow_resume.ps1 -Mode Resume` 返回 PASS，活动 NP4B TODO 未完成项为 0 |
+| 主线 | 通过 | `main` 与 `origin/main` 同步于 `588e7d5`（PR #21 合并点） |
+| 开放 PR | 通过 | GitHub 查询结果为 0 个开放 PR；PR #18/#19/#20/#21 已合并 |
+| 最近 CI | 通过 | PR #21 HEAD `bc546c0` 的 run `33765822606`，四道门均为 `success` |
+| 持久工作流恢复 | 通过 | `workflow_resume.ps1 -Mode Resume` 返回 PASS，活动 NP4B TODO 未完成项为 0（审计时 HEAD `8d23347`） |
 | Webhook | 通过 | `C:\Users\Epsilon\ENeuronWebhook` 的 `/healthz` 返回 HTTP 200 |
 | 集成审核门 | 未通过/待裁定 | 本文件状态仍为 `REVIEW_REQUIRED`，I1-I6 未获管理员批准 |
 | 用户临时文件保护 | 通过 | `np75_tmp_sparse_protocol.ys` 保持未跟踪、未修改、未纳入 Nexus |
 
 因此，本快照只证明项目状态和工作流闭环正常，不证明传统 NPU + ENeuron 集成已经实现。批准前仍只允许静态审计、文档和 Nexus 维护。
+
+注：本节的恢复命令是在 PR #21 合并前执行，故保留其审计时 HEAD `8d23347`；合并后的主线基线以 `588e7d5` 为准。
