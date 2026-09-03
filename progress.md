@@ -954,3 +954,10 @@
 - GitHub Actions run `33728135382` 完成成功；Python/语法、XPM CDC、NP7 功能与证据、NP7 物理证据四道门全部通过。
 - 仓库外接收器已收到同一 SHA 的 `workflow_run completed/success`，并收到四个检查的成功事件；这次复核消除了此前“重跑终态可能漏收”的观察缺口。
 - PR #10 仍为 `OPEN / CLEAN`，等待管理员人工合并；集成审核 I1-I6 仍未批准，继续禁止新的集成 RTL 与 Vivado。
+
+## 2026-09-03 `cadc3a8` CI 与 Webhook 最终确认
+
+- 状态记录提交 `cadc3a812ee614d7d9e07caf12a3c7e8bbd0eaad` 已推送到 PR #10。
+- GitHub Actions run `33729657078` 已完成成功；Python/语法、XPM CDC、NP7 功能与证据、NP7 物理证据四道门全部通过。
+- 仓库外 Webhook 已收到同一 SHA 的 `workflow_run completed/success` 以及四个检查成功事件；本地接收服务仍在 `C:\Users\Epsilon\ENeuronWebhook`，不属于仓库。
+- PR #10 仍为 `OPEN / CLEAN`，等待管理员人工合并；传统 NPU + 神经元集成继续停在 I1-I6 `REVIEW_REQUIRED`。

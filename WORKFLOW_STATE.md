@@ -100,3 +100,9 @@ NP7 已完成；下一步是重新审核并批准传统 NPU + 神经元集成计
 - run `33728135382` 已完成成功；Python/语法、XPM CDC、NP7 功能与证据、NP7 物理证据四道门均为 `SUCCESS`。
 - 仓库外 Webhook 已收到同一 SHA 的 `workflow_run completed/success` 和四项检查成功事件；接收服务仍由 `C:\Users\Epsilon\ENeuronWebhook` 独立运行。
 - PR #10 仍为 `OPEN / CLEAN`，不自动 approve/merge；集成审核 I1-I6 仍为 `REVIEW_REQUIRED`。
+
+## 2026-09-03 `cadc3a8` CI 与 Webhook 最终确认
+
+- 当前文档状态提交 `cadc3a812ee614d7d9e07caf12a3c7e8bbd0eaad` 已推送到 PR #10。
+- run `33729657078` 已完成成功，四道 PR 门均为 `SUCCESS`；Webhook 已收到同一 SHA 的 `workflow_run completed/success` 和四项检查成功事件。
+- PR #10 仍为 `OPEN / CLEAN`，不自动 approve/merge；集成审核 I1-I6 未获批准，仍禁止集成 RTL/Vivado。

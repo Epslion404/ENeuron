@@ -12,4 +12,4 @@ provenance: NP4B/NP6 TODO、工作流状态与 RTL 文件
 - `PRUNE_CLEAR`：配置阶段恢复稠密掩码并清 utility。
 - `fail-closed`：证据缺失、陈旧或哈希不符时拒绝签核。
 - `NP6_PHYSICAL_COST_PARTIAL`：物理成本阶段的正式状态；不是整体时序通过，也不是板级性能结论。
-- `NP7`：已合并的共享 BRAM 与共享 lane 阶段；PR #10 当前 HEAD `6893964a`、CI run `33726377825` 已由 GitHub 与仓库外 Webhook 确认成功，后续转入传统 NPU + 神经元集成审核；I1-I6 仍为 `REVIEW_REQUIRED`，集成尚未实现。
+- `NP7`：已合并的共享 BRAM 与共享 lane 阶段；PR #10 当前 HEAD `cadc3a8`、CI run `33729657078` 已由 GitHub 与仓库外 Webhook 确认成功，后续转入传统 NPU + 神经元集成审核；I1-I6 仍为 `REVIEW_REQUIRED`，集成尚未实现。
