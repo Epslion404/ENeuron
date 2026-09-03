@@ -13,8 +13,64 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  python-and-syntax:
-    name: Python and syntax
+  classify-changes:
+    name: Classify changes
+    runs-on: ubuntu-latest
+    outputs:
+      npu_oracle: ${{ steps.classify.outputs.npu_oracle }}
+      full_repository: ${{ steps.classify.outputs.full_repository }}
+      xpm_cdc: ${{ steps.classify.outputs.xpm_cdc }}
+      np7_functional: ${{ steps.classify.outputs.np7_functional }}
+      np7_physical: ${{ steps.classify.outputs.np7_physical }}
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Classify affected verification scopes
+        id: classify
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          if [ "${EVENT_NAME}" = "workflow_dispatch" ]; then
+            python -X utf8 tools/ci/classify_changes.py --all --github-output "${GITHUB_OUTPUT}"
+          else
+            python -X utf8 tools/ci/classify_changes.py \
+              --base "${BASE_SHA}" --head "${HEAD_SHA}" --github-output "${GITHUB_OUTPUT}"
+          fi
+
+  fast-check:
+    name: Fast Python and diff check
+    needs: classify-changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile Python sources
+        run: python -X utf8 -m compileall -q .
+      - name: Run NPU oracle tests
+        if: needs['classify-changes'].outputs.npu_oracle == 'true'
+        run: python -X utf8 -m unittest -v test_npu_eneuron_reference
+      - name: Check PR diff whitespace
+        if: github.event_name == 'pull_request'
+        run: git diff --check "${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}"
+
+  full-repository:
+    name: Full repository regression
+    needs: classify-changes
+    if: needs['classify-changes'].outputs.full_repository == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -23,44 +79,21 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-
-      - name: Install open-source HDL tools for portable tests
+      - name: Install open-source HDL tools
         run: |
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y iverilog yosys
-          echo "APT_ICARUS_VERSION=$(iverilog -V | head -n 1)"
-          echo "APT_YOSYS_VERSION=$(yosys --version || true)"
-
-      - name: Compile Python sources
-        run: python -X utf8 -m compileall -q .
-
       - name: Run repository unit tests
-        shell: bash
-        run: |
-          set +e
-          python -X utf8 -m unittest discover -v > "${RUNNER_TEMP}/discover.log" 2>&1
-          discover_status=$?
-          set -e
-          echo "discover_exit_code=${discover_status}"
-          echo "UBUNTU_XPM_NOTICE_BEGIN"
-          grep -n "NOT APPLICABLE" "${RUNNER_TEMP}/discover.log" \
-            || echo "no SKIPPED/NOT APPLICABLE notice was emitted on Ubuntu"
-          echo "UBUNTU_XPM_NOTICE_END"
-          grep -n "^Ran \|^OK\|^FAILED" "${RUNNER_TEMP}/discover.log" || true
-          cat "${RUNNER_TEMP}/discover.log"
-          exit "${discover_status}"
-
-      - name: Check PR diff whitespace
-        if: github.event_name == 'pull_request'
-        run: git diff --check "${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}"
+        run: python -X utf8 -m unittest discover -v
 
   windows-xpm-cdc:
     name: XPM CDC wrapper (Windows MSYS2 UCRT64)
+    needs: classify-changes
+    if: needs['classify-changes'].outputs.xpm_cdc == 'true'
     runs-on: windows-latest
     timeout-minutes: 25
     steps:
@@ -69,32 +102,25 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-
       - name: Install Icarus Verilog with MSYS2 UCRT64
         id: msys2
         uses: msys2/setup-msys2@v2
         with:
           msystem: UCRT64
           location: C:\msys64
-          update: true
+          update: false
           install: mingw-w64-ucrt-x86_64-iverilog
-
-      - name: Provision and verify the fixed C:/msys64/ucrt64/bin toolchain
-        shell: bash
+      - name: Verify fixed toolchain
         env:
           MSYS2_LOCATION: ${{ steps.msys2.outputs.msys2-location }}
+        shell: bash
         run: |
-          echo "setup_msys2_location=${MSYS2_LOCATION:-unset}"
-          echo "ruled_fixed_path=C:/msys64/ucrt64/bin (Windows + MSYS2 UCRT64 only; admin ruling 5506790489)"
           FIXED="/c/msys64/ucrt64"
-          if [ -x "${FIXED}/bin/iverilog.exe" ] && [ -x "${FIXED}/bin/vvp.exe" ]; then
-            echo "fixed_path_source=direct_install"
-          else
+          if [ ! -x "${FIXED}/bin/iverilog.exe" ] || [ ! -x "${FIXED}/bin/vvp.exe" ]; then
             SRC=""
             for cand in "${MSYS2_LOCATION:-}" "${MSYS2_LOCATION:-}/msys64"; do
               [ -n "${cand}" ] || continue
@@ -105,54 +131,32 @@ jobs:
               fi
             done
             if [ -z "${SRC}" ]; then
-              echo "::error title=MSYS2 UCRT64 tree not found::no ucrt64/bin/iverilog.exe below location=${MSYS2_LOCATION:-unset}; the runner did not provision the ruled toolchain"
+              echo "::error title=MSYS2 UCRT64 tree not found::no ucrt64/bin/iverilog.exe below ${MSYS2_LOCATION:-unset}"
               exit 1
             fi
-            echo "discovered_ucrt64_root=${SRC}"
             WIN_SRC="$(cygpath -w "${SRC}")"
-            powershell.exe -NoProfile -Command "New-Item -ItemType Directory -Force -Path 'C:\msys64' > \$null; if (-not (Test-Path 'C:\msys64\ucrt64')) { New-Item -ItemType Junction -Path 'C:\msys64\ucrt64' -Target '${WIN_SRC}' > \$null }" \
-              || echo "junction creation failed; falling back to a full copy"
+            powershell.exe -NoProfile -Command "New-Item -ItemType Directory -Force -Path 'C:\msys64' > \$null; if (-not (Test-Path 'C:\msys64\ucrt64')) { New-Item -ItemType Junction -Path 'C:\msys64\ucrt64' -Target '${WIN_SRC}' > \$null }" || true
             if [ ! -x "${FIXED}/bin/iverilog.exe" ]; then
               mkdir -p "${FIXED}"
               cp -a "${SRC}/." "${FIXED}/"
             fi
-            echo "fixed_path_source=redirected_from=${WIN_SRC}"
           fi
-          if [ ! -x "${FIXED}/bin/iverilog.exe" ] || [ ! -x "${FIXED}/bin/vvp.exe" ]; then
-            echo "::error title=Fixed toolchain path not provisioned::C:/msys64/ucrt64/bin/iverilog.exe or vvp.exe is missing on the Windows runner. This is a CI environment problem, not an RTL functional failure."
-            ls -l "${FIXED}/bin" 2>/dev/null | head -n 20 || echo "C:/msys64/ucrt64/bin does not exist"
-            exit 1
-          fi
-          ls -l "${FIXED}/bin/iverilog.exe" "${FIXED}/bin/vvp.exe"
+          test -x "${FIXED}/bin/iverilog.exe"
+          test -x "${FIXED}/bin/vvp.exe"
           "${FIXED}/bin/iverilog.exe" -V | head -n 1
-          "${FIXED}/bin/vvp.exe" -V | head -n 1 || echo "vvp -V is not supported by this build"
-          "${FIXED}/bin/iverilog.exe" -V | grep -i "version" || true
-
       - name: Run XPM CDC wrapper tests on Windows
         shell: bash
         run: |
-          set +e
-          python -X utf8 -m unittest -v test_host_bridge_xpm_wrapper > "${RUNNER_TEMP}/xpm_windows.log" 2>&1
-          xpm_status=$?
-          set -e
-          cat "${RUNNER_TEMP}/xpm_windows.log"
-          if grep -q "NOT APPLICABLE" "${RUNNER_TEMP}/xpm_windows.log"; then
-            echo "::error title=XPM wrapper skipped::test_host_bridge_xpm_wrapper was SKIPPED on the Windows runner, so the fixed MSYS2 UCRT64 toolchain was not really exercised"
+          python -X utf8 -m unittest -v test_host_bridge_xpm_wrapper 2>&1 | tee "${RUNNER_TEMP}/xpm_windows.log"
+          if grep -q "NOT APPLICABLE\|TOOLCHAIN_DEFECT" "${RUNNER_TEMP}/xpm_windows.log"; then
+            echo "::error title=XPM wrapper not exercised::the required Windows toolchain test did not execute"
             exit 1
           fi
-          if grep -q "TOOLCHAIN_DEFECT" "${RUNNER_TEMP}/xpm_windows.log"; then
-            echo "::error title=toolchain defect::the MSYS2 UCRT64 Icarus build on the Windows runner hit a silent-crash toolchain defect"
-            exit 1
-          fi
-          if [ "${xpm_status}" -ne 0 ]; then
-            echo "XPM_WINDOWS_GATE=FAIL exit_code=${xpm_status}"
-            exit "${xpm_status}"
-          fi
-          grep -n "^Ran \|^OK" "${RUNNER_TEMP}/xpm_windows.log" || true
-          echo "XPM_WINDOWS_GATE=PASS"
 
   np7-functional:
     name: NP7 functional and evidence gate
+    needs: classify-changes
+    if: needs['classify-changes'].outputs.np7_functional == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -161,62 +165,29 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-
-      - name: Detect NP7 scope
-        id: detect
-        shell: bash
-        run: |
-          if [[ -f np7_shared_lane_cosim.py && -f verify_np7_software_cost.py && -f verify_np7_physical_cost.py ]]; then
-            echo 'enabled=true' >> "$GITHUB_OUTPUT"
-            echo 'NP7_SCOPE=enabled'
-          else
-            echo 'enabled=false' >> "$GITHUB_OUTPUT"
-            echo 'NP7_SCOPE=not-applicable'
-          fi
-
       - name: Install open-source HDL tools
-        if: steps.detect.outputs.enabled == 'true'
         run: |
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y iverilog yosys
-
       - name: Run NP7 oracle tests
-        if: steps.detect.outputs.enabled == 'true'
         run: python -X utf8 -m unittest -v test_np7_shared_lane_oracle
-
       - name: Run NP7 cycle-accurate cosimulation
-        if: steps.detect.outputs.enabled == 'true'
         run: python -X utf8 np7_shared_lane_cosim.py
-
       - name: Run three-model integration
-        if: steps.detect.outputs.enabled == 'true'
         run: python -X utf8 np7_three_model_integration_cosim.py
-
       - name: Run formal and mutation checks
-        if: steps.detect.outputs.enabled == 'true'
         run: python -X utf8 np7_formal_and_mutations.py
-
       - name: Verify software evidence against PR HEAD
-        if: steps.detect.outputs.enabled == 'true'
         run: python -X utf8 verify_np7_software_cost.py "${{ github.event.pull_request.head.sha || github.sha }}"
-
-      - name: Upload NP7 software evidence on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: np7-software-failure-${{ github.run_id }}
-          if-no-files-found: ignore
-          path: |
-            artifacts/logs/**
-            artifacts/results/**
 
   np7-physical-evidence:
     name: NP7 physical evidence integrity
+    needs: classify-changes
+    if: needs['classify-changes'].outputs.np7_physical == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -225,39 +196,27 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-
-      - name: Detect NP7 physical scope
-        id: detect
-        shell: bash
-        run: |
-          if [[ -f verify_np7_physical_cost.py && -f test_np7_physical_mutations.py ]]; then
-            echo 'enabled=true' >> "$GITHUB_OUTPUT"
-            echo 'NP7_PHYSICAL_SCOPE=enabled'
-          else
-            echo 'enabled=false' >> "$GITHUB_OUTPUT"
-            echo 'NP7_PHYSICAL_SCOPE=not-applicable'
-          fi
-
       - name: Run physical evidence verifier
-        if: steps.detect.outputs.enabled == 'true'
         run: python -X utf8 verify_np7_physical_cost.py "${{ github.event.pull_request.head.sha || github.sha }}"
-
       - name: Run physical-evidence mutation checks
-        if: steps.detect.outputs.enabled == 'true'
         run: python -X utf8 test_np7_physical_mutations.py
 
-      - name: Upload physical evidence on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: np7-physical-failure-${{ github.run_id }}
-          if-no-files-found: ignore
-          path: |
-            artifacts/logs/**
-            artifacts/results/**
-            vivado_np7_ooc_*_reports/**
+  pr-gate:
+    name: PR Gate
+    if: always()
+    needs: [classify-changes, fast-check, full-repository, windows-xpm-cdc, np7-functional, np7-physical-evidence]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require selected scopes to pass
+        env:
+          RESULTS: ${{ needs['classify-changes'].result }} ${{ needs['fast-check'].result }} ${{ needs['full-repository'].result }} ${{ needs['windows-xpm-cdc'].result }} ${{ needs['np7-functional'].result }} ${{ needs['np7-physical-evidence'].result }}
+        shell: bash
+        run: |
+          echo "results=${RESULTS}"
+          for result in ${RESULTS}; do
+            [[ "${result}" == "success" || "${result}" == "skipped" ]] || exit 1
+          done

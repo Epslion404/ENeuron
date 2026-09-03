@@ -915,6 +915,14 @@
 - 全开门控与 bypass 的完整结果对象逐字段相等，说明门控只影响执行/读取计数，不改变开放路径的数值语义。
 - 极值输入与权重测试确认隐藏层中间值先经过 ReLU 和 `0..127` 饱和，再作为输出层输入；不能用未饱和累加值直接计算 logits。
 - 当所有输出 logits 相等时，参考模型保持 `prediction=None` 并置 `abstain=True`，避免把平局伪装成分类成功。
+
+## 2026-09-03 CI-Fast V1 关键发现
+
+- 原 workflow 对所有 PR 无条件启动四个 job；最近完整 run 用时约 13.7–16.9 分钟，文档或单个 Python 测试改动也承担 NP7/Windows 成本。
+- PR #24 在 Python、NP7 两条检查仍为 `in_progress` 时已合并为 `3b53a7e`，证明现有分支保护没有把这些检查作为有效强制门。
+- 新 workflow 保留单一稳定 `PR Gate` 名称，避免直接使用 workflow `paths` 过滤导致 required check 永久 Pending；专项 job 在 job 层条件跳过。
+- 分类逻辑采用未知文件触发全仓回归的保守规则；workflow 手动运行强制所有专项门，避免手工验证被误裁剪。
+- `msys2/setup-msys2@v2` 在 `update: false` 下仍可能把 UCRT64 树放在 action 临时位置；仅检查固定路径会造成假失败。正确优化是减少触发次数，同时保留路径探测与固定路径联接/复制，不牺牲 Windows 专项证据。
 # 2026-09-03 PR #18 状态核对
 
 - PR #18 的四道门均已成功：Python/语法、XPM CDC、NP7 功能与证据、NP7 物理证据；同一 HEAD `59bef59a` 的 `workflow_run completed/success` 已由仓库外 Webhook 记录。
