@@ -983,3 +983,9 @@
 - 合并前 HEAD `0f6b0ad9` 的 run `33742796085` 已完成成功，GitHub 与仓库外 Webhook 均已确认同一 SHA 的终态。
 - 合并只收口 NP7 文档/状态记录，不改变集成审核门；`NPU_NEURON_INTEGRATION_REVIEW.md` 仍为 `REVIEW_REQUIRED`，I1-I6 未批准前不实现集成业务 RTL、不运行新的 Vivado。
 - 仓库外接收服务仍固定于 `C:\Users\Epsilon\ENeuronWebhook`，监听 `127.0.0.1:2355`，不进入仓库。
+
+## 2026-09-03 PR #11 合并收口
+
+- PR #11 已于 `2026-09-03T10:52:28Z` 合并到 `main`，merge commit 为 `f48f4b693dc6e5af05f35c448963db88ba2a16ea`。
+- PR #11 的四道 CI 门全部成功，且 Webhook 已收到同一 HEAD `2153bfca` 的检查完成与 PR closed 事件。
+- 本次仅合并状态/Nexus 文档，不改变 I1-I6 集成审核门；管理员批准前仍不实现传统 NPU + 神经元集成业务 RTL、不运行新的 Vivado。
