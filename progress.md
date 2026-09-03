@@ -1,5 +1,13 @@
 # 进度记录
 
+## 2026-09-03 仓库外 Webhook 接收服务复核
+
+- 确认本机接收服务独立部署在 `C:\Users\Epsilon\ENeuronWebhook`，未写入 ENeuron 仓库。
+- 服务进程 PID `42144` 正在运行，`127.0.0.1:2355/healthz` 返回 HTTP 200。
+- 本地发送 `workflow_run` 探测请求并收到 HTTP 200；事件摘要成功写入服务目录的 `latest.json`。
+- 仓库工作树未新增服务文件；当前仍只存在既有未跟踪 `.nexus-map/refresh_raw/` 临时目录。
+- 正式 GitHub 接收仍建议配置本机环境变量 `GITHUB_WEBHOOK_SECRET` 与 `WEBHOOK_REQUIRE_SIGNATURE=1`；密钥不得进入仓库。
+
 ## 2026-08-29 NP4B1 ENeuron 正式接入
 
 - `digital_lif_engine.sv` 新增纯组合参数化 committed snapshot 导出；lane 顺序固定，未增加寄存器、读取握手或修改 snapshot/MOD 状态机。
