@@ -8,6 +8,13 @@
 - 仓库工作树未新增服务文件；当前仍只存在既有未跟踪 `.nexus-map/refresh_raw/` 临时目录。
 - 正式 GitHub 接收仍建议配置本机环境变量 `GITHUB_WEBHOOK_SECRET` 与 `WEBHOOK_REQUIRE_SIGNATURE=1`；密钥不得进入仓库。
 
+## 2026-09-03 PR #10 当前 HEAD CI 收口
+
+- 提交 `c8fe1d1` 对应 GitHub Actions run `33717188485` 已于 2026-09-03 05:15 UTC 完成成功。
+- Python/全仓测试、XPM CDC、NP7 功能/形式/突变与物理证据四道门全部通过。
+- PR #10 仍为 `OPEN / CLEAN`，未自动批准或合并。
+- 仓库外接收器收到了 `workflow_job` 完成事件，但 `latest.json` 尚未出现该 run 的完整 `workflow_run` 终态摘要；这项漏收行为保留为后续服务修复 TODO，不能替代 GitHub API 证据。
+
 ## 2026-08-29 NP4B1 ENeuron 正式接入
 
 - `digital_lif_engine.sv` 新增纯组合参数化 committed snapshot 导出；lane 顺序固定，未增加寄存器、读取握手或修改 snapshot/MOD 状态机。
