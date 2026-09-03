@@ -106,23 +106,24 @@ class NpuReferenceTest(unittest.TestCase):
         closed0 = [False] * (config.hidden_size * (config.input_size // config.group_size))
         closed1 = [False] * (config.output_size * (config.hidden_size // config.group_size))
 
-        old_epoch, old_result = runtime.begin_sample([1] * config.input_size)
+        old_result = runtime.begin_sample([1] * config.input_size)
         runtime.stage_masks(1, closed0, closed1)
-        self.assertEqual(old_epoch, 0)
+        self.assertEqual(old_result.epoch, 0)
         self.assertEqual(runtime.active_epoch, 0)
-        runtime.complete_sample(old_result)
-        self.assertEqual(runtime.active_epoch, 1)
+        runtime.complete_sample()
+        self.assertEqual(runtime.active_epoch, 0)
         runtime.accept_result()
-        new_epoch, new_result = runtime.begin_sample([1] * config.input_size)
-        self.assertEqual(new_epoch, 1)
-        self.assertNotEqual(new_result.logits, old_result.logits)
-        runtime.complete_sample(new_result)
+        new_result = runtime.begin_sample([1] * config.input_size)
+        self.assertEqual(new_result.epoch, 1)
+        self.assertEqual(runtime.active_epoch, 1)
+        self.assertNotEqual(new_result.inference.logits, old_result.inference.logits)
+        runtime.complete_sample()
         runtime.accept_result()
 
     def test_result_backpressure_blocks_overwrite_until_accept(self):
         _, runtime = self._runtime()
-        _, result = runtime.begin_sample([1] * runtime.config.input_size)
-        runtime.complete_sample(result)
+        result = runtime.begin_sample([1] * runtime.config.input_size)
+        runtime.complete_sample()
         with self.assertRaisesRegex(RuntimeError, "result backpressure"):
             runtime.begin_sample([1] * runtime.config.input_size)
         self.assertIs(runtime.result, result)
@@ -132,9 +133,13 @@ class NpuReferenceTest(unittest.TestCase):
         config, runtime = self._runtime()
         closed0 = [False] * (config.hidden_size * (config.input_size // config.group_size))
         closed1 = [False] * (config.output_size * (config.hidden_size // config.group_size))
-        _, result = runtime.begin_sample([1] * config.input_size)
+        runtime.begin_sample([1] * config.input_size)
         runtime.stage_masks(1, closed0, closed1)
-        runtime.complete_sample(result)
+        runtime.complete_sample()
+        runtime.accept_result()
+        result = runtime.begin_sample([1] * config.input_size)
+        self.assertEqual(result.epoch, 1)
+        runtime.complete_sample()
         runtime.accept_result()
         runtime.state_clear()
         self.assertEqual(runtime.active_epoch, 1)
@@ -158,6 +163,21 @@ class NpuReferenceTest(unittest.TestCase):
             runtime.stage_masks(1, mask0[:-1], mask1)
         with self.assertRaisesRegex(ValueError, "epoch"):
             runtime.stage_masks(0, mask0, mask1)
+
+    def test_invalid_sample_has_no_runtime_or_epoch_side_effect(self):
+        config, runtime = self._runtime()
+        mask0 = [False] * (config.hidden_size * (config.input_size // config.group_size))
+        mask1 = [False] * (config.output_size * (config.hidden_size // config.group_size))
+        runtime.stage_masks(1, mask0, mask1)
+
+        with self.assertRaisesRegex(ValueError, "image shape"):
+            runtime.begin_sample([1] * (config.input_size - 1))
+
+        self.assertFalse(runtime.running)
+        self.assertIsNone(runtime.result)
+        self.assertEqual(runtime.active_epoch, 0)
+        accepted = runtime.begin_sample([1] * config.input_size)
+        self.assertEqual(accepted.epoch, 1)
 
 
 if __name__ == "__main__":
