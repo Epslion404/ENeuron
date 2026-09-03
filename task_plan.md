@@ -869,3 +869,9 @@
 - [x] 确认 PR #11 通过四道 CI 门并合并到 `main`，merge commit 为 `f48f4b6`。
 - [x] 通过仓库外 Webhook 核对 PR #11 的检查完成和 closed 事件。
 - [ ] 等待管理员批准 I1-I6；批准后进入 INT8 NPU 参考模型与门控语义验证。
+
+## 2026-09-03 PR #12 合并后入口
+
+- [x] 确认 PR #12 通过四道 CI 门并合并到 `main`，merge commit 为 `bc839b5`。
+- [x] 通过仓库外 Webhook 核对 PR #12 的 workflow 完成和 closed 事件。
+- [ ] 等待管理员批准 I1-I6；批准后进入 INT8 NPU 参考模型与门控语义验证。
