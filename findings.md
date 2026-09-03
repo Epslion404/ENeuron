@@ -923,6 +923,8 @@
 - 新 workflow 保留单一稳定 `PR Gate` 名称，避免直接使用 workflow `paths` 过滤导致 required check 永久 Pending；专项 job 在 job 层条件跳过。
 - 分类逻辑采用未知文件触发全仓回归的保守规则；workflow 手动运行强制所有专项门，避免手工验证被误裁剪。
 - `msys2/setup-msys2@v2` 在 `update: false` 下仍可能把 UCRT64 树放在 action 临时位置；仅检查固定路径会造成假失败。正确优化是减少触发次数，同时保留路径探测与固定路径联接/复制，不牺牲 Windows 专项证据。
+- PR #25 的真实 GitHub 结果证明路径分类和固定汇总门可运行；workflow 变更会故意触发全量门，普通文档变更需单独 PR 验证轻量路径。
+- 当前私有仓库套餐不允许 branch protection/ruleset API，不能把 `PR Gate` 注册为真正 required check；任何“已设置保护分支”的文档表述都必须改为“待升级套餐或组织策略”。
 # 2026-09-03 PR #18 状态核对
 
 - PR #18 的四道门均已成功：Python/语法、XPM CDC、NP7 功能与证据、NP7 物理证据；同一 HEAD `59bef59a` 的 `workflow_run completed/success` 已由仓库外 Webhook 记录。
