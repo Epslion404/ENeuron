@@ -940,3 +940,10 @@
 - 发现新提交 `33248ff` 触发的 run `33726255349` 后，仓库外接收服务曾停止，`127.0.0.1:2355` 健康检查暂时拒绝连接。
 - 已使用 `C:\Users\Epsilon\ENeuronWebhook\start_webhook.ps1` 重启，当前 PID `42136`，`GET /healthz` 返回 HTTP `200`。
 - 服务恢复前的少量事件可能未落盘；后续 CI 终态仍以 GitHub run 为主，并继续用恢复后的 Webhook 做交叉核对。
+
+## 2026-09-03 仓库外接收服务复核与 PR #10 终态
+
+- 仓库外接收服务固定在 `C:\Users\Epsilon\ENeuronWebhook`，监听 `127.0.0.1:2355`；服务脚本、事件日志和 PID 文件均不在 `D:\Documents\Code\ENeuron` 内。
+- 本地 `GET /healthz` 返回 HTTP `200`；带 `X-GitHub-Event: workflow_run` 和 `X-GitHub-Delivery` 标头的模拟请求返回 HTTP `200`，并正确落盘 `event=workflow_run` 摘要。
+- Webhook 已收到 PR #10 HEAD `6893964a8a7c3c04e683dd8331c399f72df3440a` 对应 run `33726377825` 的 `workflow_run completed/success`，同时收到 `NP7 functional and evidence gate` 的成功事件；该事实与 GitHub PR 检查结果一致。
+- PR #10 仍为 `OPEN / CLEAN`，不自动 approve 或 merge。传统 NPU + 神经元集成仍停在 `NPU_NEURON_INTEGRATION_REVIEW_REQUIRED`，未获 I1-I6 管理员裁定前不实现集成 RTL、不运行新的 Vivado。

@@ -833,3 +833,11 @@
 - [ ] 等待管理员人工合并 PR #10；合并前仅进行静态审核、文档和 Nexus 维护，不启动新的集成 RTL/Vivado。
 - [x] 重跑 run `33714262900` 并确认 HEAD `15940b5` 的四道 CI 门、形式与突变检查全部成功。
 - [ ] 修复或重新验证仓库外 Webhook 对 workflow_run 重跑事件的接收，再进入传统 NPU + 神经元集成审核。
+
+## 2026-09-03 仓库外接收服务与集成审核续跑
+
+- [x] 复核仓库外接收服务 `C:\Users\Epsilon\ENeuronWebhook`：`/healthz` HTTP 200，带完整事件标头的本地 `workflow_run` 接收返回 HTTP 200。
+- [x] 用 Webhook 核对 PR #10 HEAD `6893964a`、run `33726377825` 的 `workflow_run completed/success`；GitHub PR 状态为 `OPEN / CLEAN`。
+- [x] 只读审计 `NPU_NEURON_INTEGRATION_REVIEW.md`，确认 I1-I6 与模型、协议、参考模型、最坏情况、资源门槛、顶层证据七类材料仍未冻结。
+- [x] 刷新 `.nexus-map` 摘要，使当前 HEAD、CI 终态和集成审核门状态一致。
+- [ ] 等待管理员批准 I1-I6 及最小材料包；批准前不实现传统 NPU + 神经元集成 RTL，不运行新的 Vivado。

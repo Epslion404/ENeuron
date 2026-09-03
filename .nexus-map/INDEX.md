@@ -12,11 +12,11 @@ ENeuron 是以 Python 黄金模型、SystemVerilog RTL、Icarus/Yosys/Vivado 验
 - 网络/Tile/Host：`digital_snn_tile_4x2x2.sv`、`digital_snn_host_bridge_controller.sv`、`network_sim.py`
 - 局部剪枝：`local_prune_gate_2of4.sv`、`local_prune_reference.py`、`verify_np4b_signoff.py`
 - 验证入口：`verify_goal.py`、`verify_np4b_signoff.py`、`test_*.py`、formal `.ys/.sv`
-- 规划与状态：`WORKFLOW_STATE.md`、`docs/planning/NPU_PRUNING_NP6_TODO.md`、`docs/planning/NPU_PRUNING_NP7_TODO.md`
+- 规划与状态：`WORKFLOW_STATE.md`、`docs/planning/NPU_NEURON_INTEGRATION_REVIEW.md`、`docs/planning/NPU_PRUNING_NP6_TODO.md`、`docs/planning/NPU_PRUNING_NP7_TODO.md`
 
 ## 当前状态
 
-NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`。NP7 共享 BRAM/lane 已合并，PR #10 的清单绑定修复与 CI 已成功（当前文档 HEAD `6834664`）；当前活动门转为传统 NPU + 神经元集成审核。当前工作树状态以 `WORKFLOW_STATE.md` 为准，最新原始探测统计见 `.nexus-map/raw/`。
+NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`。NP7 共享 BRAM/lane 已合并；PR #10 当前 HEAD 为 `6893964a`，CI run `33726377825` 的 `workflow_run completed/success` 已由仓库外 Webhook 收到并核对。当前活动门转为传统 NPU + 神经元集成审核，I1-I6 仍为 `REVIEW_REQUIRED`，尚未授权集成 RTL 或 Vivado。当前工作树状态以 `WORKFLOW_STATE.md` 为准，最新原始探测统计见 `.nexus-map/raw/`。
 
 ## 必读路由
 

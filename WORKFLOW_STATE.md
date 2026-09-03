@@ -86,3 +86,10 @@ NP7 已完成；下一步是重新审核并批准传统 NPU + 神经元集成计
 - run `33720890399` 对 HEAD `832c785` 已由 GitHub 与仓库外 Webhook 双重确认成功；四道门全部通过，PR #10 仍保持 `OPEN / CLEAN`，等待人工合并。
 - run `33723437364` 对 HEAD `d7f7824` 已由 GitHub 与仓库外 Webhook 双重确认成功；四道门全部通过，PR #10 仍保持 `OPEN / CLEAN`，等待人工合并。
 - 2026-09-03 发现 Webhook 服务短暂停止，已从 `C:\Users\Epsilon\ENeuronWebhook\start_webhook.ps1` 重启，PID `42136`，本地健康检查 HTTP 200；run `33726255349` 的终态仍以 GitHub 为准，恢复后的事件继续交叉核对。
+
+## 2026-09-03 仓库外接收服务与 PR #10 最新终态
+
+- 接收服务实际目录为 `C:\Users\Epsilon\ENeuronWebhook`，绑定 `127.0.0.1:2355`；该目录不属于仓库，服务文件、日志和运行时 PID 不进入 Git。
+- 本地 `GET /healthz` 返回 HTTP `200`；带完整 GitHub 事件标头的本地 `workflow_run` 模拟接收返回 HTTP `200`，事件摘要正确写入 `latest.json` 与 `events.jsonl`。
+- Webhook 已收到 run `33726377825`、HEAD `6893964a8a7c3c04e683dd8331c399f72df3440a` 的 `workflow_run completed/success`；CI 四道门均已完成成功，PR #10 仍为 `OPEN / CLEAN`。
+- 集成审核合同没有改变：`docs/planning/NPU_NEURON_INTEGRATION_REVIEW.md` 仍为 `REVIEW_REQUIRED`，I1-I6 尚未获得管理员批准；在批准前只做静态审计、文档和 Nexus 维护。
