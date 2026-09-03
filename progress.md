@@ -21,6 +21,12 @@
 - 四道门全部通过：Python/全仓测试、XPM CDC、NP7 功能/形式/突变、NP7 物理证据完整性。
 - GitHub API 是本轮终态的权威证据；仓库外 Webhook 的 `latest.json` 仍停留在上一轮 `workflow_job`，因此未将其当作第二份终态证据。
 
+## 2026-09-03 Webhook 服务恢复
+
+- 轮询发现 `127.0.0.1:2355` 曾拒绝连接，确认仓库外接收服务已停止，而 GitHub Hook 配置仍为启用状态。
+- 通过 `C:\Users\Epsilon\ENeuronWebhook\start_webhook.ps1` 重启，当前 PID `5108`，健康检查 HTTP 200。
+- 因服务在本轮 CI 终态前离线，本轮 Webhook 不具备完整事件证据；继续以 GitHub API 核对 CI，并观察恢复后的后续事件。
+
 ## 2026-08-29 NP4B1 ENeuron 正式接入
 
 - `digital_lif_engine.sv` 新增纯组合参数化 committed snapshot 导出；lane 顺序固定，未增加寄存器、读取握手或修改 snapshot/MOD 状态机。
