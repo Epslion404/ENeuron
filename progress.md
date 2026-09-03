@@ -1015,3 +1015,11 @@
 - PR #15 已于 `2026-09-03T12:09:13Z` 合并到 `main`，merge commit 为 `feec6bcb5444c164d7403d66cf1b2e1f7e36ab91`。
 - HEAD `fc6332597ac34905e2e4a102d92eaa582cb81ef0` 的 run `33752156575` 已完成成功；四道 CI 门及仓库外 Webhook 终态均一致。
 - 本次合并只收口文档/Nexus 与仓库外接收器维护证据，没有越过传统 NPU + 神经元集成审核门；I1-I6 未批准前不实现集成 RTL、不运行新的 Vivado。
+
+## 2026-09-03 PR #16 合并与下一阶段入口
+
+- PR #16 已于 `2026-09-03T12:30:06Z` 合并到 `main`，merge commit 为 `3850df77fd505b871acfc5a9c913aef25ff9bf78`；合并前 HEAD 为 `46840e8c536b15068b55ae1324abd3a59f774f0a`。
+- Actions run `33753869517` 的四道门全部成功：Python/语法、XPM CDC、NP7 功能与证据、NP7 物理证据完整性；仓库外 Webhook 于 `2026-09-03T12:29:09Z` 收到同一 HEAD 的 `workflow_run completed/success`。
+- 本次合并仍只做状态/Nexus 收口，没有实现传统 NPU + ENeuron 集成 RTL，也没有启动新的 Vivado。
+- 当前唯一实质入口仍是 `NPU_NEURON_INTEGRATION_REVIEW_REQUIRED`：管理员需要先批准 I1-I6；批准后按材料包顺序实现 `64→32→10` INT8 MLP 的 Python 旁路/门控参考模型。
+- 仓库外接收服务继续固定在 `C:\Users\Epsilon\ENeuronWebhook`，监听 `127.0.0.1:2355`；本轮本地回归事件保存在仓库外，不进入 Git。

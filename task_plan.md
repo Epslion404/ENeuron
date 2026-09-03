@@ -881,3 +881,11 @@
 - [x] 确认 PR #12 通过四道 CI 门并合并到 `main`，merge commit 为 `bc839b5`。
 - [x] 通过仓库外 Webhook 核对 PR #12 的 workflow 完成和 closed 事件。
 - [ ] 等待管理员批准 I1-I6；批准后进入 INT8 NPU 参考模型与门控语义验证。
+
+## 2026-09-03 PR #16 合并后入口
+
+- [x] PR #16（HEAD `46840e8`）四道 CI 门全部成功并合并，merge commit 为 `3850df7`。
+- [x] 用仓库外 Webhook 核对同一 HEAD 的 `workflow_run completed/success`；服务健康检查仍为 HTTP 200。
+- [x] 清除 NP4B TODO 中已完成的“再次批准进入 NP6”历史残留，避免恢复脚本误报未完成项。
+- [ ] 管理员批准传统 NPU + ENeuron 集成审核 I1-I6；批准前不创建集成业务 RTL、不运行新的 Vivado。
+- [ ] 批准后先实现 `64→32→10` INT8 MLP Python 旁路/门控参考模型，并建立逐样本 bit-exact 与最坏情况矩阵。
