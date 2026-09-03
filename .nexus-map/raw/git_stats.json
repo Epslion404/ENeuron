@@ -1,18 +1,18 @@
 {
   "analysis_period_days": 90,
   "stats": {
-    "total_commits": 213,
+    "total_commits": 217,
     "total_authors": 5
   },
   "hotspots": [
     {
       "path": "progress.md",
-      "changes": 69,
+      "changes": 73,
       "risk": "high"
     },
     {
       "path": "task_plan.md",
-      "changes": 59,
+      "changes": 63,
       "risk": "high"
     },
     {
@@ -21,13 +21,13 @@
       "risk": "high"
     },
     {
-      "path": "NPU_PRUNING_NP4B_TODO.md",
-      "changes": 21,
+      "path": "WORKFLOW_STATE.md",
+      "changes": 22,
       "risk": "high"
     },
     {
-      "path": "WORKFLOW_STATE.md",
-      "changes": 18,
+      "path": "NPU_PRUNING_NP4B_TODO.md",
+      "changes": 21,
       "risk": "high"
     },
     {
@@ -71,6 +71,11 @@
       "risk": "medium"
     },
     {
+      "path": ".nexus-map/arch/test_coverage.md",
+      "changes": 8,
+      "risk": "medium"
+    },
+    {
       "path": "docs/README.md",
       "changes": 8,
       "risk": "medium"
@@ -99,19 +104,14 @@
       "path": "vivado_np7_xsim_reports/logs/cfgneg_sparse_L4.log",
       "changes": 8,
       "risk": "medium"
-    },
-    {
-      "path": "vivado_np7_xsim_reports/logs/golden_dense_L1.log",
-      "changes": 8,
-      "risk": "medium"
     }
   ],
   "coupling_pairs": [
     {
       "file_a": "progress.md",
       "file_b": "task_plan.md",
-      "co_changes": 57,
-      "coupling_score": 0.966
+      "co_changes": 61,
+      "coupling_score": 0.968
     },
     {
       "file_a": "findings.md",
@@ -130,6 +130,18 @@
       "file_b": "progress.md",
       "co_changes": 21,
       "coupling_score": 1.0
+    },
+    {
+      "file_a": "WORKFLOW_STATE.md",
+      "file_b": "progress.md",
+      "co_changes": 18,
+      "coupling_score": 0.818
+    },
+    {
+      "file_a": "WORKFLOW_STATE.md",
+      "file_b": "task_plan.md",
+      "co_changes": 18,
+      "coupling_score": 0.818
     },
     {
       "file_a": "NPU_PRUNING_NP4B_TODO.md",
@@ -160,18 +172,6 @@
       "file_b": "task_plan.md",
       "co_changes": 16,
       "coupling_score": 1.0
-    },
-    {
-      "file_a": "WORKFLOW_STATE.md",
-      "file_b": "progress.md",
-      "co_changes": 14,
-      "coupling_score": 0.778
-    },
-    {
-      "file_a": "WORKFLOW_STATE.md",
-      "file_b": "task_plan.md",
-      "co_changes": 14,
-      "coupling_score": 0.778
     },
     {
       "file_a": "NPU_PRUNING_TODO.md",

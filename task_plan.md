@@ -829,3 +829,5 @@
 - [ ] 等待管理员决定是否合并 PR #10；合并前不启动新的集成 RTL 或 Vivado 任务。
 - [x] 复核 `4d1a5cd` 对应 run `33663148479` 成功，并重启仓库外 Webhook 接收服务。
 - [x] 复核后续 HEAD `9cced26` 对应 run `33711162898` 成功，Webhook 收到 `workflow_run completed/success`。
+- [x] 复核当前 HEAD `90b7e414` 对应 run `33712261128` 成功，并用仓库外 Webhook 核对同一 SHA 的终态事件。
+- [ ] 等待管理员人工合并 PR #10；合并前仅进行静态审核、文档和 Nexus 维护，不启动新的集成 RTL/Vivado。
