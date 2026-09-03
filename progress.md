@@ -15,6 +15,12 @@
 - PR #10 仍为 `OPEN / CLEAN`，未自动批准或合并。
 - 仓库外接收器收到了 `workflow_job` 完成事件，但 `latest.json` 尚未出现该 run 的完整 `workflow_run` 终态摘要；这项漏收行为保留为后续服务修复 TODO，不能替代 GitHub API 证据。
 
+## 2026-09-03 PR #10 CI 终态确认
+
+- run `33718742404` 已于 2026-09-03 13:39（北京时间）完成成功，HEAD 为 `becada247d386e6ee71d12dd76b6300458719c13`。
+- 四道门全部通过：Python/全仓测试、XPM CDC、NP7 功能/形式/突变、NP7 物理证据完整性。
+- GitHub API 是本轮终态的权威证据；仓库外 Webhook 的 `latest.json` 仍停留在上一轮 `workflow_job`，因此未将其当作第二份终态证据。
+
 ## 2026-08-29 NP4B1 ENeuron 正式接入
 
 - `digital_lif_engine.sv` 新增纯组合参数化 committed snapshot 导出；lane 顺序固定，未增加寄存器、读取握手或修改 snapshot/MOD 状态机。
