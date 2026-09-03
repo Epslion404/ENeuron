@@ -1117,3 +1117,11 @@
 - 原任意地址配置需要 19-bit mask bitmap 和 634-bit model bitmap；V2 改为固定顺序流，分别只需 5-bit/10-bit 计数器。
 - V2 明确 mask staging 与 published pending、commit/首 beat 互斥、partial staging 阻止 freeze、STATE_CLEAR 非 abort、hard reset 只使 RAM 失效而不承诺物理清零。
 - 本轮只修订审核材料；Python 业务代码、RTL 和 Vivado 均未改变。
+
+## 2026-09-03 CI Node 24 action 升级
+
+- PR #31 的快速 run 首次给出 checkout v4 的 Node.js 20 弃用 annotation；该 run 本身成功，警告不影响既有证据。
+- 通过 GitHub 官方 release API 核对 checkout `v7.0.1`、setup-python `v7.0.0` 与 runner `v2.337.0`；Node 24 action 最低 runner 要求为 `v2.327.1`。
+- 将 6 处 checkout 和 5 处 setup-python 升级到 v7；新增单测固定数量并拒绝 v4/v5 回退。
+- 该改动触碰 workflow，CI-Fast 按设计必须运行所有重门；不能把本地语法检查替代真实 GitHub run。
+- 本地 `test_ci_fast_v1.py` 8/8、YAML/JSON 解析、compileall 和 `git diff --check` 均通过；分类结果为 full/XPM/NP7 功能/NP7 物理全部启用。

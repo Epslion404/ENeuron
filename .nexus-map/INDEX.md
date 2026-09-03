@@ -19,7 +19,7 @@ ENeuron 是以 Python 黄金模型、SystemVerilog RTL、Icarus/Yosys/Vivado 验
 
 ## 当前状态
 
-NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`。NP7 共享 BRAM/lane 已实现并签核。I1-I6 已批准，`64→32→10` INT8 NPU + ENeuron Python oracle 已覆盖零活动关闭、逐样本频繁 epoch 切换和 pending 单槽背压三项最坏情况；当前进入 `OF1-OF6_V2_REVIEW_REQUIRED`。V2 候选把核心输入冻结为 uint4，外部灰度裁剪留在 Host；以两层安全 bias 窗口排除合法计算的 INT32 溢出；模型采用 634 个 32-bit word、mask 采用 19 个 32-bit word 的固定顺序流。批准并完成冻结测试前不得创建集成 RTL 或运行 Vivado。CI-Fast V1 已完成 workflow 全量、文档轻量和 NPU-only 定向路径验证，所有路径由唯一 `PR Gate` 汇总。`np75_tmp_sparse_protocol.ys` 是用户临时文件，不得修改、提交或纳入 Nexus 文件树/原始探针。
+NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`。NP7 共享 BRAM/lane 已实现并签核。I1-I6 已批准，`64→32→10` INT8 NPU + ENeuron Python oracle 已覆盖零活动关闭、逐样本频繁 epoch 切换和 pending 单槽背压三项最坏情况；当前进入 `OF1-OF6_V2_REVIEW_REQUIRED`。V2 候选把核心输入冻结为 uint4，外部灰度裁剪留在 Host；以两层安全 bias 窗口排除合法计算的 INT32 溢出；模型采用 634 个 32-bit word、mask 采用 19 个 32-bit word 的固定顺序流。批准并完成冻结测试前不得创建集成 RTL 或运行 Vivado。CI-Fast V1 已完成 workflow 全量、文档轻量和 NPU-only 定向路径验证，所有路径由唯一 `PR Gate` 汇总；Action 基线已由 `actions/checkout@v4`、`actions/setup-python@v5` 升级为二者 `@v7`（Node 24），任何 workflow 变更必须运行全量门。`np75_tmp_sparse_protocol.ys` 是用户临时文件，不得修改、提交或纳入 Nexus 文件树/原始探针。
 
 ## 必读路由
 
