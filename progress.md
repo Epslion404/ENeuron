@@ -1028,3 +1028,9 @@
 - PR #18 已在四道 CI 全部成功、Webhook 收到同 SHA 工作流终态后合并到 `main`，merge commit 为 `1877140c`。
 - 本地 `main` 已与 `origin/main` 同步；用户文件 `np75_tmp_sparse_protocol.ys` 保持未跟踪且未纳入提交。
 - 当前唯一实质入口仍是传统 NPU + ENeuron 集成审核，I1-I6 尚未批准；本轮没有创建集成业务 RTL，也没有运行新的 Vivado。
+
+## 2026-09-03 PR #19 合并与 Webhook 恢复
+
+- PR #19 已在 GitHub API 确认四道 CI 全部成功后合并到 `main`，merge commit 为 `63028d4`。
+- CI 期间仓库外 Webhook 投递因本地服务/隧道短暂掉线而出现 EOF；已重启 `C:\Users\Epsilon\ENeuronWebhook`，本地和公网健康检查均恢复 200。由于 gh token 未授予 `admin:repo_hook`，未执行 redelivery，保留 GitHub API 作为本次终态权威来源。
+- 当前主线无业务代码变更，集成审核 I1-I6 仍待管理员批准。

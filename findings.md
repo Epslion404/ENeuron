@@ -892,3 +892,5 @@
 - PR #18 的四道门均已成功：Python/语法、XPM CDC、NP7 功能与证据、NP7 物理证据；同一 HEAD `59bef59a` 的 `workflow_run completed/success` 已由仓库外 Webhook 记录。
 - `mergeStateStatus=CLEAN` 且 `mergeable=MERGEABLE` 后完成合并；当前主线为 `1877140c`。这只证明状态文档收口，不扩展 NP7 或集成能力声明。
 - `NPU_NEURON_INTEGRATION_REVIEW.md` 仍为 `REVIEW_REQUIRED`，I1-I6 未批准前不能实现传统 NPU + ENeuron 集成 RTL 或运行新的 Vivado。
+
+- PR #19 的 CI 四门均成功并已合并为 `63028d4`；Webhook delivery API 显示本次终态事件曾因 EOF 失败，服务恢复后 `/healthz` 内外均为 200。不能把“服务恢复”倒推成该历史 delivery 已补投，当前仍以 GitHub run/PR API 作为终态证据。
