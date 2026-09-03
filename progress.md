@@ -1055,6 +1055,13 @@
 - 新增 `test_npu_eneuron_reference.py`：旁路全开逐输出检查、全关保留 bias 且零 MAC/零组读取检查均通过。
 - 当前仍未创建 RTL，下一切片是补齐饱和、旁路/全开等价和门控计数的边界测试。
 
+## 2026-09-03 Python oracle 边界测试完成
+
+- 新增全开 gated 与 bypass 的完整 `InferenceResult` 等价测试，确认门控路径不会改变数值结果或计数语义。
+- 新增隐藏层饱和测试，确认 ReLU/`0..127` 饱和发生在输出层计算之前；全相等 logits 正确触发 abstain。
+- `python -X utf8 -m unittest -v test_npu_eneuron_reference.py`：4/4 通过；`git diff --check` 通过。
+- 当前硬门完成：Python oracle 的基础 bit-exact、全关门控、饱和边界已具备；下一步补齐 epoch 原子切换、背压/清除和非法索引合同，再进入 RTL。
+
 ## 2026-09-03 PR #21 合并收口
 
 - PR #21 已合并到 `main`，merge commit 为 `588e7d5`；合并前 HEAD `bc546c0` 的 run `33765822606` 四道 CI 门全部成功。
