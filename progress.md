@@ -947,3 +947,10 @@
 - 本地 `GET /healthz` 返回 HTTP `200`；带 `X-GitHub-Event: workflow_run` 和 `X-GitHub-Delivery` 标头的模拟请求返回 HTTP `200`，并正确落盘 `event=workflow_run` 摘要。
 - Webhook 已收到 PR #10 HEAD `6893964a8a7c3c04e683dd8331c399f72df3440a` 对应 run `33726377825` 的 `workflow_run completed/success`，同时收到 `NP7 functional and evidence gate` 的成功事件；该事实与 GitHub PR 检查结果一致。
 - PR #10 仍为 `OPEN / CLEAN`，不自动 approve 或 merge。传统 NPU + 神经元集成仍停在 `NPU_NEURON_INTEGRATION_REVIEW_REQUIRED`，未获 I1-I6 管理员裁定前不实现集成 RTL、不运行新的 Vivado。
+
+## 2026-09-03 `da819cf` CI 与 Webhook 闭环
+
+- 文档/Nexus 提交 `da819cfdb6b492cd4bcb426aba8af3d8490007f5` 已推送到 PR #10。
+- GitHub Actions run `33728135382` 完成成功；Python/语法、XPM CDC、NP7 功能与证据、NP7 物理证据四道门全部通过。
+- 仓库外接收器已收到同一 SHA 的 `workflow_run completed/success`，并收到四个检查的成功事件；这次复核消除了此前“重跑终态可能漏收”的观察缺口。
+- PR #10 仍为 `OPEN / CLEAN`，等待管理员人工合并；集成审核 I1-I6 仍未批准，继续禁止新的集成 RTL 与 Vivado。

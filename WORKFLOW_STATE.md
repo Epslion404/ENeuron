@@ -93,3 +93,10 @@ NP7 已完成；下一步是重新审核并批准传统 NPU + 神经元集成计
 - 本地 `GET /healthz` 返回 HTTP `200`；带完整 GitHub 事件标头的本地 `workflow_run` 模拟接收返回 HTTP `200`，事件摘要正确写入 `latest.json` 与 `events.jsonl`。
 - Webhook 已收到 run `33726377825`、HEAD `6893964a8a7c3c04e683dd8331c399f72df3440a` 的 `workflow_run completed/success`；CI 四道门均已完成成功，PR #10 仍为 `OPEN / CLEAN`。
 - 集成审核合同没有改变：`docs/planning/NPU_NEURON_INTEGRATION_REVIEW.md` 仍为 `REVIEW_REQUIRED`，I1-I6 尚未获得管理员批准；在批准前只做静态审计、文档和 Nexus 维护。
+
+## 2026-09-03 `da819cf` CI 与 Webhook 闭环
+
+- 文档与 Nexus 提交 `da819cfdb6b492cd4bcb426aba8af3d8490007f5` 已推送到 PR #10。
+- run `33728135382` 已完成成功；Python/语法、XPM CDC、NP7 功能与证据、NP7 物理证据四道门均为 `SUCCESS`。
+- 仓库外 Webhook 已收到同一 SHA 的 `workflow_run completed/success` 和四项检查成功事件；接收服务仍由 `C:\Users\Epsilon\ENeuronWebhook` 独立运行。
+- PR #10 仍为 `OPEN / CLEAN`，不自动 approve/merge；集成审核 I1-I6 仍为 `REVIEW_REQUIRED`。
