@@ -1077,6 +1077,11 @@
 - 实测作业耗时：分类 6 秒、快速 7 秒、Windows XPM 75 秒、物理门 17 秒、全仓 12 分 26 秒、NP7 功能约 14 分钟；重门由 workflow 变更触发，不能代表普通文档 PR 的耗时。
 - GitHub API 对私有仓库 ruleset/branch protection 返回 403（需升级套餐或公开仓库）；因此 `PR Gate` 目前只能作为统一状态和人工合并纪律，不能由服务端强制锁定。
 
+## 2026-09-03 NPU-only 快速路径验证准备
+
+- 新增 4-bit 输入边界测试：负值裁剪为 0，超过 15 的值裁剪为 15，并验证裁剪后的结果进入完整两层计算。
+- 该改动只触碰 `test_npu_eneuron_reference.py`，预期 CI 仅执行 NPU oracle 定向单测、快速门和 `PR Gate`。
+
 ## 2026-09-03 PR #21 合并收口
 
 - PR #21 已合并到 `main`，merge commit 为 `588e7d5`；合并前 HEAD `bc546c0` 的 run `33765822606` 四道 CI 门全部成功。
