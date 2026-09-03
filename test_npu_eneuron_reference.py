@@ -74,6 +74,21 @@ class NpuReferenceTest(unittest.TestCase):
         self.assertEqual(result.logits, [127 * config.hidden_size] * config.output_size)
         self.assertTrue(result.abstain)
 
+    def test_input_values_are_clipped_to_four_bit_range(self):
+        config = NpuConfig()
+        model = NpuReference(config)
+        model.load_weights(
+            [[1] * config.input_size for _ in range(config.hidden_size)],
+            [0] * config.hidden_size,
+            [[1] * config.hidden_size for _ in range(config.output_size)],
+            list(range(config.output_size)),
+        )
+
+        image = [-9, 99] + [0] * (config.input_size - 2)
+        result = model.infer(image)
+
+        self.assertEqual(result.logits, [15 * config.hidden_size + index for index in range(config.output_size)])
+
 
 if __name__ == "__main__":
     unittest.main()
