@@ -1023,3 +1023,8 @@
 - 本次合并仍只做状态/Nexus 收口，没有实现传统 NPU + ENeuron 集成 RTL，也没有启动新的 Vivado。
 - 当前唯一实质入口仍是 `NPU_NEURON_INTEGRATION_REVIEW_REQUIRED`：管理员需要先批准 I1-I6；批准后按材料包顺序实现 `64→32→10` INT8 MLP 的 Python 旁路/门控参考模型。
 - 仓库外接收服务继续固定在 `C:\Users\Epsilon\ENeuronWebhook`，监听 `127.0.0.1:2355`；本轮本地回归事件保存在仓库外，不进入 Git。
+# 2026-09-03 PR #18 合并与工作流收口
+
+- PR #18 已在四道 CI 全部成功、Webhook 收到同 SHA 工作流终态后合并到 `main`，merge commit 为 `1877140c`。
+- 本地 `main` 已与 `origin/main` 同步；用户文件 `np75_tmp_sparse_protocol.ys` 保持未跟踪且未纳入提交。
+- 当前唯一实质入口仍是传统 NPU + ENeuron 集成审核，I1-I6 尚未批准；本轮没有创建集成业务 RTL，也没有运行新的 Vivado。
