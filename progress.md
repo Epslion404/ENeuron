@@ -1134,3 +1134,4 @@
 - 更新 `PROJECT_REPORT.md`，把陈旧的 NP7 人工门改为传统 NPU + ENeuron 集成基线及 OF1-OF6 V3 人工门。
 - 本切片只修改文档和持久状态；未修改 Python 业务语义、未创建 RTL、未运行 Vivado，且未触碰 `np75_tmp_sparse_protocol.ys`。
 - 本地分类器确认 `npu_oracle/full_repository/xpm_cdc/np7_functional/np7_physical` 全为 `false`，PR 应只运行 Fast check 与固定 `PR Gate`。
+- V3 文档提交已推送并创建 PR #33；后续只接受同一最新 HEAD 的 Fast check、`PR Gate` 和 Webhook 终态作为合并证据。

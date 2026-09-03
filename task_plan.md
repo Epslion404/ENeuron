@@ -974,7 +974,7 @@
 - [ ] 按 RED 测试 → 最小实现 → 手算 mask 向量 → 状态矩阵顺序完成冻结。
 - [ ] 冻结端口/地址/状态转移/逐拍测试计划后，才提交单时钟 RTL 设计审核。
 
-错误记录：跨 `WORKFLOW_STATE.md`、`task_plan.md`、`findings.md`、`progress.md` 的整包补丁因 `progress.md` 上下文变化被原子拒绝；未产生部分修改，随后改为逐文件小补丁。分类器首次漏传必填 `--github-output`；第二次把临时文件创建/删除组合在同一 PowerShell 命令被策略拒绝，改用固定仓库外临时路径后成功。该临时文件的两次删除尝试也被策略拒绝，按三次失败停止清理；文件只含五个 `false` 分类结果，不在仓库内。
+错误记录：跨 `WORKFLOW_STATE.md`、`task_plan.md`、`findings.md`、`progress.md` 的整包补丁因 `progress.md` 上下文变化被原子拒绝；未产生部分修改，随后改为逐文件小补丁。分类器首次漏传必填 `--github-output`；第二次把临时文件创建/删除组合在同一 PowerShell 命令被策略拒绝，改用固定仓库外临时路径后成功。该临时文件的两次删除尝试也被策略拒绝，按三次失败停止清理；文件只含五个 `false` 分类结果，不在仓库内。首次 `gh pr create` 的长正文含嵌套中文引号，被 PowerShell 拆成额外参数；分支已正常推送，随后改用无嵌套引号正文成功创建 PR #33。
 
 ## 2026-09-03 CI Node 24 action 维护
 
