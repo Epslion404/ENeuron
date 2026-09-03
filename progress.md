@@ -934,3 +934,9 @@
 - Python/语法、XPM CDC、NP7 功能与证据、NP7 物理证据完整性四道门全部通过；形式与突变检查、软件证据清单验证均成功。
 - 仓库外 Webhook 已收到同一 SHA 的 `workflow_run completed/success`，与 GitHub 结果一致。
 - PR #10 仍为 `OPEN / CLEAN`，等待管理员人工合并；不自动 approve/merge，也未启动集成 RTL/Vivado。
+
+## 2026-09-03 Webhook 再次恢复
+
+- 发现新提交 `33248ff` 触发的 run `33726255349` 后，仓库外接收服务曾停止，`127.0.0.1:2355` 健康检查暂时拒绝连接。
+- 已使用 `C:\Users\Epsilon\ENeuronWebhook\start_webhook.ps1` 重启，当前 PID `42136`，`GET /healthz` 返回 HTTP `200`。
+- 服务恢复前的少量事件可能未落盘；后续 CI 终态仍以 GitHub run 为主，并继续用恢复后的 Webhook 做交叉核对。
