@@ -41,6 +41,39 @@ class NpuReferenceTest(unittest.TestCase):
         self.assertEqual(result.mac_count, 0)
         self.assertEqual(result.group_reads, 0)
 
+    def test_full_open_gated_mode_is_bit_exact_with_bypass(self):
+        config = NpuConfig()
+        model = NpuReference(config)
+        model.load_weights(
+            [[-3 if index % 2 else 5 for index in range(config.input_size)] for _ in range(config.hidden_size)],
+            [2] * config.hidden_size,
+            [[4 if index % 3 else -2 for index in range(config.hidden_size)] for _ in range(config.output_size)],
+            [index - 4 for index in range(config.output_size)],
+        )
+        mask0 = [True] * (config.hidden_size * (config.input_size // config.group_size))
+        mask1 = [True] * (config.output_size * (config.hidden_size // config.group_size))
+        image = [index % 16 for index in range(config.input_size)]
+
+        bypass = model.infer(image, mode="bypass")
+        gated = model.infer(image, mode="gated", group_mask0=mask0, group_mask1=mask1)
+
+        self.assertEqual(gated, bypass)
+
+    def test_hidden_relu_saturates_before_output_layer(self):
+        config = NpuConfig()
+        model = NpuReference(config)
+        model.load_weights(
+            [[127] * config.input_size for _ in range(config.hidden_size)],
+            [0] * config.hidden_size,
+            [[1] * config.hidden_size for _ in range(config.output_size)],
+            [0] * config.output_size,
+        )
+
+        result = model.infer([15] * config.input_size)
+
+        self.assertEqual(result.logits, [127 * config.hidden_size] * config.output_size)
+        self.assertTrue(result.abstain)
+
 
 if __name__ == "__main__":
     unittest.main()
