@@ -1,6 +1,6 @@
 {
   "$schema": "nexus-mapper/concept-model/v1",
-  "generated_at": "2026-09-02T00:00:00Z",
+  "generated_at": "2026-09-03T11:46:17Z",
   "repo_path": "D:/Documents/Code/ENeuron",
   "generator": "nexus-mapper v2",
   "nodes": [
@@ -8,13 +8,15 @@
     {"id":"tile-host-network","type":"System","label":"Tile 与 Host 网络","responsibility":"编排 TICK、快照、提交和主机桥接的网络级事务","implementation_status":"implemented","code_path":"digital_snn_tile_4x2x2.sv","evidence_path":null,"evidence_gap":null,"tech_stack":["SystemVerilog","Python"],"hotspot":true},
     {"id":"local-prune","type":"System","label":"局部剪枝","responsibility":"执行 2:4 门控、证据提交、状态清理和剪枝参考验证","implementation_status":"implemented","code_path":"local_prune_gate_2of4.sv","evidence_path":null,"evidence_gap":null,"tech_stack":["SystemVerilog","Python"],"hotspot":true},
     {"id":"np6-physical-cost","type":"System","label":"NP6 物理成本评估","responsibility":"针对 xc7z020 与 100 MHz 约束收集资源时序 DRC 证据并执行只读签核","implementation_status":"implemented","code_path":"verify_np6_physical_cost.py","evidence_path":"docs/reports/LOCAL_PRUNE_NP6_PHYSICAL_COST_REPORT.md","evidence_gap":"正式结论为 NP6_PHYSICAL_COST_PARTIAL；不是整体时序通过"},
-    {"id":"np7-shared-memory-lane","type":"System","label":"NP7 共享 BRAM 与 lane","responsibility":"设计并验证共享存储和计算 lane 的下一阶段方案","implementation_status":"planned","code_path":null,"evidence_path":"docs/planning/NPU_PRUNING_NP7_TODO.md","evidence_gap":"当前处于审核门，仓库尚无 NP7 RTL、协同仿真或 Vivado 证据"}
+    {"id":"np7-shared-memory-lane","type":"System","label":"NP7 共享 BRAM 与 lane","responsibility":"以 dense/sparse 格式执行四输入组的共享权重读取、门控、lane 调度和周期账本，并通过协同、形式、XSim 与物理证据门","implementation_status":"implemented","code_path":"np7_shared_synapse_lane.sv","evidence_path":"docs/reports/LOCAL_PRUNE_NP7_SHARED_LANE_REPORT.md","evidence_gap":"证据限定为冻结 NP7 任务和 xc7z020 物理配置；不等于板级端到端吞吐或通用 NPU"},
+    {"id":"npu-eneuron-integration","type":"System","label":"传统 INT8 NPU + ENeuron 集成","responsibility":"由传统 NPU 执行数值乘加，由 ENeuron 提供局部门控和剪枝控制","implementation_status":"planned","code_path":null,"evidence_path":"docs/planning/NPU_NEURON_INTEGRATION_REVIEW.md","evidence_gap":"I1-I6 尚未批准；仓库尚无集成业务 RTL、集成 Vivado 或板级证据"}
   ],
   "edges": [
     {"source":"neuron-rtl","target":"tile-host-network","type":"depends_on"},
     {"source":"local-prune","target":"tile-host-network","type":"depends_on"},
     {"source":"tile-host-network","target":"np6-physical-cost","type":"depends_on"},
-    {"source":"np6-physical-cost","target":"np7-shared-memory-lane","type":"precedes"}
+    {"source":"np6-physical-cost","target":"np7-shared-memory-lane","type":"precedes"},
+    {"source":"np7-shared-memory-lane","target":"npu-eneuron-integration","type":"precedes"}
   ],
-  "metadata":{"languages":["Python","SystemVerilog"],"analysis_days":90,"raw_probe":".nexus-map/raw/ast_nodes.json and git_stats.json"}
+  "metadata":{"languages":["Python","SystemVerilog"],"analysis_days":90,"raw_probe":".nexus-map/raw/ast_nodes.json and git_stats.json","verification_head":"78062a74bfb42d6d54eea7e18b83425b11a64659","main_merge":"b754498a3cba871459eca87f509ff6482a7fc12c"}
 }

@@ -74,6 +74,8 @@ docs/design/original_goal_alignment_review.md
 docs/design/recommended_design.md
 docs/design/rtl_contract.md
 docs/planning/
+docs/planning/NPU_NEURON_INTEGRATION_MATERIALS.md
+docs/planning/NPU_NEURON_INTEGRATION_REVIEW.md
 docs/planning/NPU_PRUNING_NP4B_TODO.md
 docs/planning/NPU_PRUNING_NP6_FREEZE_DECISIONS.md
 docs/planning/NPU_PRUNING_NP6_RUNNER_AUDIT.md

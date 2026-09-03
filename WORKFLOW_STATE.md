@@ -114,3 +114,11 @@ NP7 已完成；下一步是重新审核并批准传统 NPU + 神经元集成计
 - 当前文档状态提交 `cadc3a812ee614d7d9e07caf12a3c7e8bbd0eaad` 已推送到 PR #10。
 - run `33729657078` 已完成成功，四道 PR 门均为 `SUCCESS`；Webhook 已收到同一 SHA 的 `workflow_run completed/success` 和四项检查成功事件。
 - PR #10 仍为 `OPEN / CLEAN`，不自动 approve/merge；集成审核 I1-I6 未获批准，仍禁止集成 RTL/Vivado。
+
+## 2026-09-03 PR #14 合并与接收器修复
+
+- PR #14 已于 `2026-09-03T11:42:44Z` 合并到 `main`，merge commit 为 `b754498a3cba871459eca87f509ff6482a7fc12c`。
+- 合并前 HEAD `78062a74bfb42d6d54eea7e18b83425b11a64659` 对应 Actions run `33749767954`；Python/语法、XPM CDC、NP7 功能与证据、NP7 物理证据四道门全部为 `SUCCESS`。
+- 仓库外 Webhook `C:\Users\Epsilon\ENeuronWebhook` 已于 `2026-09-03T11:40:22Z` 收到同一 HEAD 的 `workflow_run completed/success`；本机 `GET http://127.0.0.1:2355/healthz` 返回 HTTP 200。
+- 接收器仍完全位于仓库外。已修正启动/停止脚本，使其按 `webhook_server.py` 命令行识别真实 Python 监听进程，避免旧 wrapper PID 导致重复启动或误停止；当前监听 PID 为 `3308`。
+- 集成审核合同没有改变：`docs/planning/NPU_NEURON_INTEGRATION_REVIEW.md` 仍为 `REVIEW_REQUIRED`，I1-I6 未批准前只做静态审计、文档和 Nexus 维护，不实现集成业务 RTL、不运行新的 Vivado。
