@@ -1001,3 +1001,11 @@
 - PR #13 已于 `2026-09-03T11:26:10Z` 合并到 `main`，merge commit 为 `1a8d0f2733c65e26ce293a2f0affd15ef57a3e94`。
 - PR #13 的四道 CI 门全部成功；Webhook 已收到同一 HEAD `6da8748b` 的 workflow 完成和 PR closed 事件。
 - 文档/Nexus 收口已完成，后续不再为重复状态创建新 PR；下一项实质工作是管理员批准 I1-I6 后实现 INT8 NPU 参考模型。
+
+## 2026-09-03 PR #14 合并与仓库外接收器回归
+
+- PR #14 已合并到 `main`，merge commit 为 `b754498a3cba871459eca87f509ff6482a7fc12c`；合并前 HEAD 为 `78062a74bfb42d6d54eea7e18b83425b11a64659`。
+- Actions run `33749767954` 已完成成功；四道门（Python/语法、XPM CDC、NP7 功能与证据、NP7 物理证据）全部通过。
+- 仓库外 Webhook 已收到同一 HEAD 的 `workflow_run completed/success`，时间为 `2026-09-03T11:40:22Z`；本地健康检查仍为 HTTP 200。
+- 复核发现旧 `webhook.pid` 可能指向 wrapper shell；已在 `C:\Users\Epsilon\ENeuronWebhook\start_webhook.ps1` 与 `stop_webhook.ps1` 中加入真实 Python 命令行识别和安全回收逻辑，并完成停止/启动/POST 回归。服务目录、日志、PID 和事件摘要均未进入仓库。
+- 本轮仍未启动传统 NPU + 神经元集成 RTL 或 Vivado；当前下一步保持为等待管理员对 I1-I6 和材料包的明确裁定。
