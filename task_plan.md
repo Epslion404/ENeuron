@@ -841,3 +841,11 @@
 - [x] 只读审计 `NPU_NEURON_INTEGRATION_REVIEW.md`，确认 I1-I6 与模型、协议、参考模型、最坏情况、资源门槛、顶层证据七类材料仍未冻结。
 - [x] 刷新 `.nexus-map` 摘要，使当前 HEAD、CI 终态和集成审核门状态一致。
 - [ ] 等待管理员批准 I1-I6 及最小材料包；批准前不实现传统 NPU + 神经元集成 RTL，不运行新的 Vivado。
+
+## 2026-09-03 集成材料包草案
+
+- [x] 静态审计现有代码，确认仓库尚无完整传统 INT8 NPU 数值数据通路，NP7 共享突触执行器不能冒充 NPU。
+- [x] 新增 `docs/planning/NPU_NEURON_INTEGRATION_MATERIALS.md`，提出 `64→32→10` INT8 MLP、定点格式、四权重组门控、样本边界提交和最坏情况矩阵。
+- [x] 明确第一阶段只做片上单时钟 OOC，网口/DMA/PS 延后；I1-I6 仍需管理员批准。
+- [x] 记录 PR #10 run `33730940941` 对 HEAD `b5165824` 已由 GitHub 与仓库外 Webhook 双重确认成功。
+- [ ] 管理员裁定集成材料包 I1-I6 后，才进入 Python INT8 旁路/门控参考模型。

@@ -961,3 +961,10 @@
 - GitHub Actions run `33729657078` 已完成成功；Python/语法、XPM CDC、NP7 功能与证据、NP7 物理证据四道门全部通过。
 - 仓库外 Webhook 已收到同一 SHA 的 `workflow_run completed/success` 以及四个检查成功事件；本地接收服务仍在 `C:\Users\Epsilon\ENeuronWebhook`，不属于仓库。
 - PR #10 仍为 `OPEN / CLEAN`，等待管理员人工合并；传统 NPU + 神经元集成继续停在 I1-I6 `REVIEW_REQUIRED`。
+
+## 2026-09-03 集成材料包草案
+
+- 完成 `docs/planning/NPU_NEURON_INTEGRATION_MATERIALS.md`：推荐固定 8×8 灰度、`64→32→10` 两层 INT8 MLP，明确 INT32 累加、ReLU/INT8 饱和、四权重组门控和样本边界原子提交。
+- 第一阶段只做片上单时钟 OOC；网口、DMA、PS 和异步 FIFO 延后，避免把供数问题混入门控 bit-exact 证明。
+- 已列出全开、全关、零活动、频繁切换、背压、清除、推理冻结和非法配置矩阵及验收门槛。
+- PR #10 run `33730940941` 对 HEAD `b5165824` 已由 GitHub 和本机 Webhook 双重确认成功。

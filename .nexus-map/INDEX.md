@@ -13,10 +13,11 @@ ENeuron 是以 Python 黄金模型、SystemVerilog RTL、Icarus/Yosys/Vivado 验
 - 局部剪枝：`local_prune_gate_2of4.sv`、`local_prune_reference.py`、`verify_np4b_signoff.py`
 - 验证入口：`verify_goal.py`、`verify_np4b_signoff.py`、`test_*.py`、formal `.ys/.sv`
 - 规划与状态：`WORKFLOW_STATE.md`、`docs/planning/NPU_NEURON_INTEGRATION_REVIEW.md`、`docs/planning/NPU_PRUNING_NP6_TODO.md`、`docs/planning/NPU_PRUNING_NP7_TODO.md`
+- 集成材料包：`docs/planning/NPU_NEURON_INTEGRATION_MATERIALS.md`（候选模型、INT8 格式、门控协议与进入实现前硬门）
 
 ## 当前状态
 
-NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`。NP7 共享 BRAM/lane 已合并；PR #10 当前 HEAD 为 `cadc3a8`，CI run `33729657078` 的 `workflow_run completed/success` 已由仓库外 Webhook 收到并核对。当前活动门转为传统 NPU + 神经元集成审核，I1-I6 仍为 `REVIEW_REQUIRED`，尚未授权集成 RTL 或 Vivado。当前工作树状态以 `WORKFLOW_STATE.md` 为准，最新原始探测统计见 `.nexus-map/raw/`。
+NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`。NP7 共享 BRAM/lane 已合并；PR #10 HEAD `b5165824` 对应 run `33730940941` 已由 GitHub 与仓库外 Webhook 双重确认成功。当前活动门转为传统 NPU + 神经元集成审核，I1-I6 仍为 `REVIEW_REQUIRED`，尚未授权集成 RTL 或 Vivado。新增材料包提出待批准的 `64→32→10` INT8 MLP 首轮候选。当前工作树状态以 `WORKFLOW_STATE.md` 为准，最新原始探测统计见 `.nexus-map/raw/`。
 
 ## 必读路由
 

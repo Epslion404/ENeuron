@@ -94,6 +94,14 @@ NP7 已完成；下一步是重新审核并批准传统 NPU + 神经元集成计
 - Webhook 已收到 run `33726377825`、HEAD `6893964a8a7c3c04e683dd8331c399f72df3440a` 的 `workflow_run completed/success`；CI 四道门均已完成成功，PR #10 仍为 `OPEN / CLEAN`。
 - 集成审核合同没有改变：`docs/planning/NPU_NEURON_INTEGRATION_REVIEW.md` 仍为 `REVIEW_REQUIRED`，I1-I6 尚未获得管理员批准；在批准前只做静态审计、文档和 Nexus 维护。
 
+## 2026-09-03 集成材料包草案与 CI 收口
+
+- 新增 `docs/planning/NPU_NEURON_INTEGRATION_MATERIALS.md`，给出待管理员裁定的首个传统 NPU 候选（8×8、`64→32→10` INT8 MLP）、定点格式、门控粒度、逐周期接口、最坏情况矩阵和实现顺序。
+- 材料包明确：现有 NP7 共享突触执行器不是完整传统 INT8 NPU；网口/DMA/PS 延后到片上单时钟功能闭环之后。
+- 集成审核仍为 `REVIEW_REQUIRED`；I1-I6 未批准前不创建集成业务 RTL、不运行新的 Vivado。
+- PR #10 HEAD `b5165824275a71008f8acaa820448f675c8df42a` 对应 run `33730940941` 已完成成功；GitHub 与仓库外 Webhook 均收到 `workflow_run completed/success`。
+- Nexus 子代理本轮因外部服务配额返回 403，未产生改动；本次状态由主代理按本地证据维护。
+
 ## 2026-09-03 `da819cf` CI 与 Webhook 闭环
 
 - 文档与 Nexus 提交 `da819cfdb6b492cd4bcb426aba8af3d8490007f5` 已推送到 PR #10。
