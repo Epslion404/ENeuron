@@ -14,12 +14,12 @@ ENeuron 是以 Python 黄金模型、SystemVerilog RTL、Icarus/Yosys/Vivado 验
 - NP7 共享执行器：`np7_shared_synapse_lane.sv`、`np7_weight_ram.sv`、`np7_shared_lane_oracle.py`、`np7_shared_lane_cosim.py`
 - 验证入口：`verify_goal.py`、`verify_np4b_signoff.py`、`test_*.py`、formal `.ys/.sv`
 - 规划与状态：`WORKFLOW_STATE.md`、`docs/planning/NPU_NEURON_INTEGRATION_REVIEW.md`、`docs/planning/NPU_PRUNING_NP6_TODO.md`、`docs/planning/NPU_PRUNING_NP7_TODO.md`
-- 集成材料包：`docs/planning/NPU_NEURON_INTEGRATION_MATERIALS.md`、`docs/planning/NPU_ORACLE_FREEZE_REVIEW.md`（I1-I6 已批准；OF1-OF6 待批准）
+- 集成材料包：`docs/planning/NPU_NEURON_INTEGRATION_MATERIALS.md`、`docs/planning/NPU_ORACLE_FREEZE_REVIEW.md`（I1-I6 已批准；当前门为 `OF1-OF6_V2_REVIEW_REQUIRED`）
 - CI 编排：`.github/workflows/pr-gate.yml`、`tools/ci/classify_changes.py`、`test_ci_fast_v1.py`（路径分类、条件专项门和唯一 `PR Gate` 汇总）
 
 ## 当前状态
 
-NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`。NP7 共享 BRAM/lane 已实现并签核。I1-I6 已批准，`64→32→10` INT8 NPU + ENeuron Python oracle 已覆盖零活动关闭、逐样本频繁 epoch 切换和 pending 单槽背压三项最坏情况；当前进入 `OF1-OF6_REVIEW_REQUIRED`，批准并完成冻结测试前不得创建集成 RTL 或运行 Vivado。CI-Fast V1 已完成 workflow 全量、文档轻量和 NPU-only 定向路径验证，所有路径由唯一 `PR Gate` 汇总。`np75_tmp_sparse_protocol.ys` 是用户临时文件，不得修改、提交或纳入 Nexus 文件树/原始探针。
+NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`。NP7 共享 BRAM/lane 已实现并签核。I1-I6 已批准，`64→32→10` INT8 NPU + ENeuron Python oracle 已覆盖零活动关闭、逐样本频繁 epoch 切换和 pending 单槽背压三项最坏情况；当前进入 `OF1-OF6_V2_REVIEW_REQUIRED`。V2 候选把核心输入冻结为 uint4，外部灰度裁剪留在 Host；以两层安全 bias 窗口排除合法计算的 INT32 溢出；模型采用 634 个 32-bit word、mask 采用 19 个 32-bit word 的固定顺序流。批准并完成冻结测试前不得创建集成 RTL 或运行 Vivado。CI-Fast V1 已完成 workflow 全量、文档轻量和 NPU-only 定向路径验证，所有路径由唯一 `PR Gate` 汇总。`np75_tmp_sparse_protocol.ys` 是用户临时文件，不得修改、提交或纳入 Nexus 文件树/原始探针。
 
 ## 必读路由
 

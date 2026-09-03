@@ -1,6 +1,6 @@
 # NPU + ENeuron Python Oracle 冻结审核
 
-状态：`OF1-OF6_REVIEW_REQUIRED`
+状态：`OF1-OF6_V2_REVIEW_REQUIRED`
 
 适用范围：传统 `64→32→10` INT8 NPU 与 ENeuron 四权重整组门控的 Python 参考模型。本文只冻结进入单时钟 RTL 前必须明确的语义；未批准前不创建集成业务 RTL，不运行新的 Vivado。
 
@@ -10,7 +10,7 @@
 
 - 旁路和全开门控结果逐字段一致；
 - 全关门控保留 bias，并且不产生权重组读取或 MAC；
-- 4 bit 输入裁剪、隐藏层 ReLU/`0..127` 饱和与 logits 平局 abstain；
+- 当前 Python 入口会把任意整数裁剪到 4 bit，隐藏层执行 ReLU/`0..127` 饱和，logits 平局时 abstain；其中“裁剪属于核心还是 Host 适配器”尚未冻结；
 - active/pending epoch 在样本接受边界切换；
 - 结果背压阻止下一样本，非法样本无状态副作用；
 - `STATE_CLEAR` 保留 active epoch，推理冻结拒绝 mask 更新和动态清除；
@@ -26,16 +26,21 @@
 4. 当前协议把一次推理压缩为函数调用，尚未冻结输入/输出流、配置地址、mask 分段写入、复位和 epoch 回绕合同。
 5. `InferenceResult` 虽为 frozen dataclass，但 `logits` 仍是可变 list；调用者可以在结果背压期间修改内容。
 6. pending mask、推理冻结、动态清除和 hard reset 的组合转移尚未完整定义。
+7. 原 V1 建议让正常模型依赖 INT32 回绕，并使用任意地址 mask/model 配置；反审计表明这会引入分类翻转风险和 19/634 bit 完整性 bitmap，并非最简硬件合同。
 
 ## 3. OF1-OF6 建议裁定
 
 ### OF1：数值合同
 
-- 权重必须处于 signed INT8，bias 必须处于 signed INT32；越界配置一律拒绝，不静默裁剪。
-- 每次乘加按 signed INT32 二进制补码回绕，确保 Python 与普通 32-bit 硬件加法逐位一致。
+- 核心输入只接受 `0..15` 的 uint4；任意外部灰度值的裁剪属于 Host/输入适配器，不进入 NPU 核心数据路。
+- 权重必须处于 signed INT8；Python 配置越界一律拒绝，不静默裁剪。RTL 权重配置字节的任意位型天然是合法 INT8。
+- 为保证所有合法输入、权重和 mask 下都不发生 INT32 溢出，第一层 bias 只接受 `[-2147360768, 2147361727]`，第二层 bias 只接受 `[-2146963456, 2146967519]`。
+- 非法 bias 在配置边界拒绝且零副作用。二补码低 32 位仍作为故障兜底定义，但任何已提交模型不得依赖回绕得到正常分类。
 - 隐藏层完成累加后再执行 ReLU 和 `0..127` 饱和；输出层保留 signed INT32 logits。
 
-代价：需要显式的 INT32 归一化函数和边界测试，但不增加饱和累加器硬件。
+推导：第一层 64 个 `uint4×INT8` 的总贡献范围为 `[-122880, 121920]`；第二层 32 个 `0..127×INT8` 的总贡献范围为 `[-520192, 516128]`。上述 bias 窗口保证数学整数结果与 INT32 结果相同，只排除整个 INT32 空间约 0.0057% 和 0.0241% 的极端值。
+
+代价：配置路径复用两次 32-bit 常量比较；MAC/DSP 反馈路径不增加逐拍饱和比较器或 mux。逐拍饱和因非结合且依赖累加顺序，不采用。
 
 ### OF2：V1 参数域
 
@@ -51,32 +56,48 @@
 
 ### OF4：单时钟流与配置边界
 
-- 样本输入按索引 `0..63` 接受，输出 logits 按索引 `0..9` 发出；所有流使用 `valid/ready`。
+- 样本固定为 8 个 32-bit beat，每个 beat 按低位优先打包 8 个 uint4 像素；beat `k` 对应像素 `8k..8k+7`。输出固定为 10 个 32-bit signed logit beat，索引 `0..9`。
+- 输入、输出和配置流均以 `valid && ready` 为唯一接受条件；样本首 beat 是 mask epoch 的原子切换边界。
 - 输出阻塞期间，logit、index、epoch 和结束标志必须稳定；结果退出前不接受下一样本。
-- 592 个 pending mask bit 分为 19 个 32-bit word：第一层 16 word，第二层 3 word，最后一 word 仅低 16 bit 有效。
-- 19 个 word 全部写过后才允许 `MASK_COMMIT`；已发布版本仅在下一样本首元素接受边界切换。
-- 权重和 bias 使用独立配置地址空间，完成写入后由 `MODEL_COMMIT` 发布。
+- V1 模型只在 hard reset 后顺序装载一次，共 634 个 32-bit word：第一层权重 512 word、第一层 bias 32 word、第二层权重 80 word、第二层 bias 10 word；每个权重 word 低字节优先打包 4 个 INT8。
+- 顺序计数到 634 且全部 bias 合法后才允许 `MODEL_COMMIT`；提交后模型配置口锁定，避免复制第二份约 20 Kbit 模型 RAM。
+- mask 使用 active/staging 两个 592-bit bank。`MASK_BEGIN(epoch)` 后按固定顺序接收 19 个 word，再由 `MASK_COMMIT` 把 staging 标为 published pending；published 仅在后续样本首 beat 接受时翻转为 active。
+- canonical packing：word0.bit0=`mask0[0]`，word15.bit31=`mask0[511]`，word16.bit0=`mask1[0]`，word18.bit15=`mask1[79]`；word18[31:16] 必须为 0，否则该 beat 拒绝且零副作用。
+- mask word 索引使用 5-bit 顺序计数器，不接收显式地址，因此不存在重复、漏写或乱序歧义。`MASK_ABORT` 只在 loading/complete、尚未 published 时清除 staging 计数。
+- `MASK_COMMIT` 与样本首 beat 不允许同一边沿同时接受；commit 先完成，后续边沿的样本才能采用新 epoch。
+- prediction/abstain 由 Host 根据 10 个 logits 的唯一最大值计算，不放入 V1 RTL 关键路径。
 
 ### OF5：epoch、冻结、清除与复位
 
 - epoch 为 32 bit；`MASK_COMMIT` 只接受 `active_epoch+1 mod 2^32`。
-- pending 已发布但尚未生效时，拒绝进入推理冻结，避免隐藏的未来状态变化。
-- `STATE_CLEAR` 清动态事务计数，保留 active/pending mask、epoch、模型配置和冻结状态。
-- hard reset 丢弃运行事务、结果和 pending，active mask 恢复全开、epoch 恢复 0、冻结关闭；模型必须重新 `MODEL_COMMIT` 后才能推理。
+- epoch 只是 modulo tag，不宣称跨 `2^32` 次提交仍全局唯一；输出结果始终携带其样本接受时锁存的 epoch。
+- mask loading、complete 或 published pending 任一状态存在时，都拒绝进入推理冻结，避免冻结后仍藏有未来变化。
+- `STATE_CLEAR` 仅在 idle、无待消费结果且未冻结时接受；它只清运行统计，保留 active mask、epoch、模型以及 mask loading/complete/published 状态，不承担事务恢复或 mask abort。
+- hard reset 是唯一事务 abort：丢弃部分样本、运行结果、mask staging/pending，active mask 恢复全开、epoch 恢复 0、冻结关闭、模型置 invalid。
+- hard reset 不承诺物理清零模型 RAM；旧内容视为不可用。必须重新顺序装载完整 634 word 并 `MODEL_COMMIT` 后才能推理。
 
 ### OF6：冻结验收
 
 - `logits` 改为不可变 tuple，背压稳定性按值与对象内容共同检查。
-- 增加 INT32 正负溢出、权重/bias 越界、固定参数拒绝、单 bit/mixed mask、负权重、负 bias、局部最高值并列和组合状态矩阵。
+- 增加两层 bias 安全范围四个边界及其 ±1、权重越界、核心 uint4 拒绝、固定参数拒绝、单 bit/mixed mask、负权重、负 bias 和局部最高值并列测试。
+- 增加 mask 保留位、19-word 长度、abort、commit/首 beat 冲突、partial staging→freeze、epoch `0xffffffff→0`、reset 后旧 RAM 不可推理和完整 634-word model commit 测试。
 - 形成端口表、状态转移表和逐拍测试计划后，才把 Python oracle 标记为冻结并提交 RTL 设计审核。
 
-## 4. 当前允许动作
+## 4. V2 逻辑成本边界
+
+- 输入样本缓存为 256 bit，单槽输出 logits 为 320 bit；两者可先映射为寄存器或小型分布式 RAM，物理选择留给后续综合。
+- active/staging mask 共 1184 bit；19-word 顺序流只需 5-bit word counter 和少量状态位，不需要 19-bit written bitmap。
+- 模型配置共 634 word；顺序流只需 10-bit word counter，不需要 634-bit 完整性 bitmap，也不需要双份模型 RAM。
+- bias 合法性检查只位于低频配置路径；正常 MAC、权重读取、门控和输出路径不增加饱和逻辑。
+- 以上是逻辑规模推导，不是 LUT/FF/BRAM/DSP 或时序结果；OF1-OF6 和 RTL 设计获批前不运行 Vivado。
+
+## 5. 当前允许动作
 
 - 可以提交不依赖 OF1-OF6 的既有最坏情况测试、审计文档和知识库更新。
 - 可以继续编写会在当前实现上失败的 RED 测试，但不能先选择溢出、复位或协议语义来修改业务实现。
 - OF1-OF6 未批准前，不创建集成业务 RTL，不运行 Vivado，不宣称集成吞吐、资源、功耗或准确率收益。
 
-## 5. 批准后的执行顺序
+## 6. 批准后的执行顺序
 
 1. 先提交数值、参数和不可变结果 RED 测试。
 2. 实现最小参考模型修正并通过定向测试。

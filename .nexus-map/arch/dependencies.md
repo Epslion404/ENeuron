@@ -28,7 +28,7 @@ Python oracle → cosim runners → unittest/verifier
 local_prune_reference → local_prune wrappers/network → NP4B signoff
 NP7 shared lane oracle → dense/sparse RTL → XSim/OOC runners → physical/evidence gates
 Vivado Tcl/runner → reports → verify_goal
-传统 NPU + ENeuron 集成材料包 → `npu_eneuron_reference.py` → `npu_eneuron_protocol.py` → 定向 oracle/最坏情况测试 → OF1-OF6 冻结审核
+传统 NPU + ENeuron 集成材料包 → `OF1-OF6_V2_REVIEW_REQUIRED`（uint4 核心/Host clipping、安全 bias、634-word 模型顺序流、19-word mask 顺序流）→ `npu_eneuron_reference.py` → `npu_eneuron_protocol.py` → 定向 oracle/最坏情况测试 → 冻结审核
 变更路径 → `classify-changes` → fast/全仓/XPM/NP7 专项门 → 唯一 `PR Gate`
 ```
 

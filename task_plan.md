@@ -966,7 +966,9 @@
 - [x] 增加 pending 单槽满时拒绝覆盖并保留首份候选版本测试。
 - [x] 独立审计并复现 INT32 越界和非整除配置 `IndexError`，确认 oracle 尚不能冻结。
 - [x] 形成 `docs/planning/NPU_ORACLE_FREEZE_REVIEW.md`，提出 OF1-OF6 审核项。
-- [ ] 管理员批准 OF1-OF6。
+- [x] 独立反审计 OF1-OF6，修正 INT32 正常语义和 model/mask 配置粒度。
+- [x] 形成 OF1-OF6 V2：安全 bias、uint4 核心、634/19-word 顺序流、双 mask bank 和明确 reset/freeze 合同。
+- [ ] 管理员批准 OF1-OF6 V2。
 - [ ] 按 RED 测试 → 最小实现 → 手算 mask 向量 → 状态矩阵顺序完成冻结。
 - [ ] 冻结端口/地址/状态转移/逐拍测试计划后，才提交单时钟 RTL 设计审核。
 # 2026-09-03 持久工作流当前状态

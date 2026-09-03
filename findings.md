@@ -942,6 +942,14 @@
 - mask 位序必须由单 bit 和跨层混合手算向量证明。全开、全关和整版 epoch 切换无法发现输出通道或组地址互换。
 - frozen dataclass 不会递归冻结其中的 list；背压结果要真正稳定，logits 需要不可变容器。
 - pending、freeze、clear 和 hard reset 是同一状态机的组合边界，必须在 RTL 前统一冻结，不能分别用几个函数测试拼出结论。
+
+## 2026-09-03 OF1-OF6 反审计发现
+
+- 对固定维度而言，配置期限制 bias 可以保证所有合法计算无 INT32 溢出，且不增加 MAC/DSP 反馈路径；比正常回绕更符合分类语义，比逐拍饱和更容易保持时序和加法顺序无关性。
+- 外部灰度裁剪和核心 uint4 合法域必须分层；否则 Python 的钳位逻辑会被误解为片上 NPU 必需硬件。
+- 固定长度配置应优先使用隐式顺序计数，而不是显式地址加完整性 bitmap：模型 634 word 用 10-bit counter，mask 19 word 用 5-bit counter。
+- mask 至少包含 loading/complete/published 三阶段；published 后只允许由后续样本首 beat 原子消费，不能继续覆盖。
+- hard reset 对 BRAM 的正确合同是“内容不可用、model_valid 清零”，不是“物理清零所有存储位”。
 # 2026-09-03 PR #18 状态核对
 
 - PR #18 的四道门均已成功：Python/语法、XPM CDC、NP7 功能与证据、NP7 物理证据；同一 HEAD `59bef59a` 的 `workflow_run completed/success` 已由仓库外 Webhook 记录。

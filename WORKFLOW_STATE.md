@@ -4,13 +4,13 @@
 
 最后更新：2026-09-03
 
-状态：`ACTIVE / NP7_MERGED / I1_I6_APPROVED / ORACLE_FREEZE_REVIEW_REQUIRED`
+状态：`ACTIVE / NP7_MERGED / I1_I6_APPROVED / ORACLE_FREEZE_V2_REVIEW_REQUIRED`
 
 ## 当前活动目标
 
 NP6/NP7 已完成并合并；I1-I6 已批准。当前目标是冻结传统 `64→32→10` INT8 NPU 与 ENeuron 四权重整组门控的 Python oracle，为单时钟集成 RTL 提供逐位数值和事务合同。
 
-活动合同：`docs/planning/NPU_ORACLE_FREEZE_REVIEW.md`。当前人工门为 `OF1-OF6_REVIEW_REQUIRED`；历史 NP6/NP7 结果继续由各自 TODO 和报告约束。
+活动合同：`docs/planning/NPU_ORACLE_FREEZE_REVIEW.md`。当前人工门为 `OF1-OF6_V2_REVIEW_REQUIRED`；历史 NP6/NP7 结果继续由各自 TODO 和报告约束。
 
 ## 当前事实
 
@@ -42,7 +42,7 @@ NP6/NP7 已完成并合并；I1-I6 已批准。当前目标是冻结传统 `64�
 
 ## 下一动作
 
-提交当前三项最坏情况测试、冻结审计和 Nexus 更新；用 CI-Fast NPU-only 路径与仓库外 Webhook 完成同 SHA 验收。随后等待管理员裁定 OF1-OF6，同时继续准备不选择争议语义的 RED 测试。
+提交 OF1-OF6 V2 反审计、成本推导和 Nexus 更新；用 CI-Fast docs-only 路径与仓库外 Webhook 完成同 SHA 验收。管理员批准 V2 后，立即进入 RED 测试与 Python oracle 最小修正。
 
 ## 2026-09-03 PR #10 清单绑定修复
 
@@ -183,5 +183,13 @@ NP6/NP7 已完成并合并；I1-I6 已批准。当前目标是冻结传统 `64�
 - I1-I6 已批准，函数级参考模型与 active/pending 协议已完成基础实现。
 - 三项新增最坏情况测试覆盖全关零活动、连续 epoch 不混用和 pending 单槽背压；相关 NPU 测试 14/14 通过。
 - 独立审计确认 INT32 溢出、固定参数域、mask 位序、不可变结果及逐拍流/复位合同仍是冻结阻断项。
-- 当前活动门为 `OF1-OF6_REVIEW_REQUIRED`；详细方案见 `docs/planning/NPU_ORACLE_FREEZE_REVIEW.md`。
+- 当前活动门已由反审计修订为 `OF1-OF6_V2_REVIEW_REQUIRED`；详细方案见 `docs/planning/NPU_ORACLE_FREEZE_REVIEW.md`。
 - OF1-OF6 未批准前可以提交现有测试、审计和知识库更新，但不修改上述争议语义、不创建集成业务 RTL、不运行 Vivado。
+
+## 2026-09-03 OF1-OF6 V2 反审计
+
+- 固定拓扑的最坏贡献范围证明：第一层 `[-122880,121920]`，第二层 `[-520192,516128]`。
+- OF1 从“正常依赖 INT32 回绕”修订为“配置期拒绝可能溢出的极端 bias”；MAC 主路径不增加饱和逻辑。
+- 模型配置改为 634-word 固定顺序一次装载，mask 改为 19-word 固定顺序和 active/staging 双 bank，避免 634/19-bit 完整性 bitmap 与双模型 RAM。
+- 明确核心只接受 uint4，外部灰度裁剪属于 Host；prediction/abstain 也由 Host 从 logits 计算。
+- 当前仍是审核稿，不修改 Python 业务语义，不创建 RTL，不运行 Vivado。
