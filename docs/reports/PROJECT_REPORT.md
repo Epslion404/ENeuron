@@ -246,8 +246,9 @@ D2 状态为 `D2_FAIL_GENERALIZATION`，部分种子同时属于 `D2_FAIL_ACTIVI
 | 低成本脉冲单元 | 完成 | Pulse-Mini-L 单核与固定小网络通过 |
 | 32 核低成本阵列 | 完成到 100 MHz routed | 64/128 核仍未通过时序 |
 | 十分类数字识别 | 失败 | D2 多种子没有超过机会水平 |
-| 共享 RAM/lane 大规模架构 | 未实现 | 只有周期模型和规划 |
+| 共享突触 RAM/lane OOC 原型 | 完成到 NP7 | 160,000 事务逐拍一致，dense/sparse × 1/2/4/8 lane 均有证据，8/8 OOC 配置通过 100 MHz；尚未组成板级系统 |
 | 局部严格 `2:4` 功能集成 | 完成 | 三模型各 20,000 条、十 gate 原子提交、五套形式证据、359 项回归 |
+| 传统 NPU + ENeuron 集成 oracle | 冻结审核中 | I1-I6 已批准，当前 14 项函数/事务测试通过；OF1-OF6 V3 尚待批准，未创建集成 RTL |
 | L2 100 MHz | 失败 | 需要拆分积分与学习路径 |
 | 纯全局奖励隐藏层学习 | 未证明 | 当前受控实验失败 |
 | 指定 Zynq 开发板 bitstream | 未实现 | 缺 top、XDC、I/O 与在板闭环 |
@@ -266,31 +267,29 @@ D2 状态为 `D2_FAIL_GENERALIZATION`，部分种子同时属于 `D2_FAIL_ACTIVI
 
 ## 11. 建议下一阶段
 
-### 当前人工门：NP7 审核
+### 当前人工门：OF1-OF6 V3 审核
 
-NP6 已完成并以 PR #5 合并。7 个配置均完成 Vivado 2024.2 实现且 route/DRC error 为 0，但只有独立 gate 与 ENeuron 剪枝封装通过 100 MHz，因此状态为 `NP6_PHYSICAL_COST_PARTIAL / NP7_REVIEW_REQUIRED`。NP7 审核稿见 `docs/planning/NPU_PRUNING_NP7_TODO.md`；它才负责共享 BRAM 格式、真实读请求跳过和共享 lane 周期下降。
+NP7 已完成并合并，证明共享 lane 能在冻结任务和 OOC 范围内把门控转化为真实读请求与周期下降。项目当前基线已转为“传统 NPU + ENeuron 局部自动剪枝/动态门控集成”。I1-I6 已批准，`64→32→10` Python oracle 已覆盖旁路、门控、epoch、背压和清除等 14 项行为；进入单时钟 RTL 前仍须批准 `docs/planning/NPU_ORACLE_FREEZE_REVIEW.md` 的 OF1-OF6 V3。
 
-### 优先级 1：D2.1 输出信用修正
+### 优先级 1：批准并冻结 Python oracle
 
-保持 D0 数据、固定特征层和神经元方程不变，只调整 Host 的输出调制规则：目标输出仍为正；负调制只给当前错误赢家或有活动的竞争输出，静默非目标输出为零。它可以直接消除每样本“一正九负”的结构性失衡，而且不增加核心硬件。
+先裁定核心 uint4、INT8 权重、安全 bias、固定参数、mask 位序、634/19-word 顺序流、错误响应、双 bank、freeze/reset 和不可变输出合同。批准只表示设计合同生效，不表示当前 Python 已经满足合同。
 
-验收仍使用 D2 原门槛：至少 8/10 validation seeds 通过，test BAcc ≥70%、coverage ≥90%，标签打乱和固定权重对照失败，训练来源账本闭合。未通过时不进入 D3。
+### 优先级 2：按小 PR 完成 OF1-OF6
 
-### 优先级 2：判断四路特征瓶颈
+首个切片只做核心 uint4 fail-closed 和非法样本零副作用，把测试从 14 项提升到 15 项；随后再分别完成数值/参数、mask 手算向量和状态矩阵。每个 PR 只修改必要业务文件，不顺带创建 RTL。
 
-若 D2.1 仍失败，应做固定特征消融：比较四路象限输出、16 路 patch 输出和 D1 的 64 路发放 tick。先在软件中确定信息在哪里丢失，再决定训练隐藏层或增加扇入；不要直接投入 30 核 RTL。
+### 优先级 3：冻结单时钟 RTL 设计
 
-### 优先级 3：修复 L2 时序
+Python oracle 全绿后，先提交端口表、634/19-word 地址表、错误响应、状态转移和逐拍测试计划供审核。审核通过前不创建集成 SystemVerilog，不运行新的 Vivado。
 
-把 TICK 的窄积分/发放路径与 CAPTURE/FEEDBACK 的证据差值和幅度更新分拍，再重跑单核 Vivado。WNS 转正前不扩 L2 阵列。
+### 优先级 4：NPU 与 ENeuron 集成验证
 
-### 优先级 4：共享 RAM/lane 架构
+RTL 阶段按“稠密旁路 → 固定 mask → ENeuron 动态 mask”递进，要求 Python/RTL 逐拍 bit-exact、epoch 原子切换、输出背压稳定、推理冻结和非法配置零副作用。局部门控必须发生在权重读取/MAC 之前，不能用 MAC 之后丢结果冒充剪枝收益。
 
-采用同步 RAM 保存突触和神经元状态，用少量 lane 进行 read/modify/write 扫描；先做 `4→2→2` bit-exact 对照，再扩展 `16→16→2` 和 `64→32→2`。每个点都要同时报告逻辑 tick 周期数、持续事件率、提交延迟和 Host 带宽。
+### 优先级 5：系统与板级闭环
 
-### 优先级 5：板级闭环
-
-确定具体 Zynq-7020 开发板后，再增加 top、XDC、时钟/复位适配、Host 物理链路和 bitstream。在板验收必须重放 TRAIN → 本地更新 → 权重读回 → INFER，并用活动文件与电流测量补功耗证据。
+只有独立集成 RTL 通过后，才接 Host/FIFO/共享 lane/RAM 并运行 XC7Z020 系统级 routed、CDC、DRC 和吞吐检查。指定开发板、以太网、DMA、bitstream 和实测功耗仍属于更后的独立门槛。
 
 ## 12. 复现入口
 
@@ -323,7 +322,7 @@ python verify_np4b_signoff.py
 
 项目已经跨过“概念神经元”阶段：完整 ENeuron 和精简 Pulse-Mini-L 都有真实 RTL、协议、验证和 FPGA 实现证据；完整版本还完成了同一双时钟 RTL run 内的局部训练来源闭环。
 
-当前瓶颈已经从“单个神经元是否可做”转移为三个更具体的问题：怎样在十分类中分配输出信用，怎样用共享存储和 lane 把状态密集的完整单元扩展到更大网络，以及严格 `2:4` 功能门控能否在目标 FPGA 上转化为物理资源、时序和访存收益。在这些问题解决前，最准确的项目定位仍是：**已验证的数字可塑神经元、固定小网络与局部结构门控功能基石，尚未完成实用图像识别、大规模自主学习和物理稀疏加速。**
+当前瓶颈已经从“单个神经元或共享 lane 是否可做”转移为传统 NPU 与神经元控制面能否在同一条逐位、逐拍合同下集成，以及动态 mask 能否在系统级保持正确性并带来可测的访存/周期收益。在这些问题闭环前，最准确的项目定位仍是：**已验证的数字可塑神经元、固定小网络和 NP7 共享 lane/OOC 稀疏执行基石，正在冻结传统 NPU + ENeuron 集成合同；尚未完成板级 NPU、自主图像识别和系统级功耗收益证明。**
 
 ## 14. 权威证据索引
 
@@ -335,3 +334,5 @@ python verify_np4b_signoff.py
 - 数字识别：`docs/reports/DIGIT_RECOGNITION_D0.md`、`docs/reports/DIGIT_RECOGNITION_D1.md`、`docs/reports/DIGIT_RECOGNITION_D2.md`
 - D2 原始结果：`artifacts/results/digit8x8_d2_results.json`
 - NP4B 局部剪枝：`np4b_signoff_summary.json`、`verify_np4b_signoff.py`、`docs/planning/NPU_PRUNING_NP4B_TODO.md`
+- NP7 共享 lane：`docs/reports/LOCAL_PRUNE_NP7_SHARED_LANE_REPORT.md`、`verify_np7_software_cost.py`、`verify_np7_physical_cost.py`
+- NPU + ENeuron 集成：`docs/planning/NPU_NEURON_INTEGRATION_REVIEW.md`、`docs/planning/NPU_ORACLE_FREEZE_REVIEW.md`

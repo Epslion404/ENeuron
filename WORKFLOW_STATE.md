@@ -4,13 +4,13 @@
 
 最后更新：2026-09-03
 
-状态：`ACTIVE / NP7_MERGED / I1_I6_APPROVED / ORACLE_FREEZE_V2_REVIEW_REQUIRED`
+状态：`ACTIVE / NP7_MERGED / I1_I6_APPROVED / ORACLE_FREEZE_V3_REVIEW_REQUIRED`
 
 ## 当前活动目标
 
 NP6/NP7 已完成并合并；I1-I6 已批准。当前目标是冻结传统 `64→32→10` INT8 NPU 与 ENeuron 四权重整组门控的 Python oracle，为单时钟集成 RTL 提供逐位数值和事务合同。
 
-活动合同：`docs/planning/NPU_ORACLE_FREEZE_REVIEW.md`。当前人工门为 `OF1-OF6_V2_REVIEW_REQUIRED`；历史 NP6/NP7 结果继续由各自 TODO 和报告约束。
+活动合同：`docs/planning/NPU_ORACLE_FREEZE_REVIEW.md`。当前人工门为 `OF1-OF6_V3_REVIEW_REQUIRED`；历史 NP6/NP7 结果继续由各自 TODO 和报告约束。
 
 ## 当前事实
 
@@ -30,11 +30,11 @@ NP6/NP7 已完成并合并；I1-I6 已批准。当前目标是冻结传统 `64�
 
 - 提交不依赖 OF1-OF6 的最坏情况测试、冻结审计、状态文档和 Nexus 更新。
 - 为 OF1-OF6 编写预期失败的 RED 测试和只读反例，但不提前选择争议语义修改业务实现。
-- OF1-OF6 批准后，按测试先行顺序修正 Python oracle，并形成单时钟 RTL 设计审核稿。
+- OF1-OF6 V3 批准后，按 OF1a uint4 fail-closed 起始的测试先行顺序修正 Python oracle，并形成单时钟 RTL 设计审核稿。
 
 ## 禁止动作
 
-- OF1-OF6 批准并完成 oracle 冻结前，不创建传统 NPU + ENeuron 集成业务 RTL，不运行新的 Vivado。
+- OF1-OF6 V3 批准并完成 oracle 冻结前，不创建传统 NPU + ENeuron 集成业务 RTL，不运行新的 Vivado。
 - 不把当前 Python 测试通过外推为 INT32 逐位一致、RTL 协议冻结或物理性能收益。
 - 把 NP6 的逻辑资源和 vector-less 功耗解释成真实加速、BRAM 跳读或功耗收益。
 - 将 cex、tmp 日志或来源不明的历史产物纳入正式证据。
@@ -42,7 +42,7 @@ NP6/NP7 已完成并合并；I1-I6 已批准。当前目标是冻结传统 `64�
 
 ## 下一动作
 
-处理 PR #31 暴露的 Node.js 20 弃用警告：升级 checkout/setup-python 到 Node 24 兼容主版本，并用 workflow 变更触发一次全量门。完成后继续等待管理员批准 OF1-OF6 V2，再进入 RED 测试与 Python oracle 最小修正。
+请求管理员批准 OF1-OF6 V3。获批后的第一切片只做核心 uint4 类型/范围 fail-closed 与非法样本零副作用，把 oracle 测试从 14 项提升到 15 项；该 PR 不触碰 bias、mask、协议、RTL 或 Vivado。
 
 ## 2026-09-03 PR #10 清单绑定修复
 
@@ -200,3 +200,10 @@ NP6/NP7 已完成并合并；I1-I6 已批准。当前目标是冻结传统 `64�
 - 官方发布接口确认 checkout `v7.0.1`、setup-python `v7.0.0` 为当前稳定版，Node 24 action 的最低 runner 要求为 `v2.327.1`。
 - 本切片将 workflow 主版本升级为 `actions/checkout@v7`、`actions/setup-python@v7`，并新增防回退单测。
 - workflow 自身变化必须执行全仓、Windows XPM、NP7 功能与 NP7 物理门；全部通过前不合并。
+
+## 2026-09-03 OF1-OF6 V3 二次反审计
+
+- PR #32 已在全量 run `33790397482` 和 Webhook 同 SHA 终态成功后合并为 `1f9d3b7`；CI Node 24 action 基线完成。
+- 第二轮独立审计确认 V2 仍缺 634-word 段内映射、非法配置错误响应、mask 四态命令矩阵、freeze 切换、零激活工作量和 Python 严格类型域。
+- 审核稿已升级为 V3，当前人工门为 `OF1-OF6_V3_REVIEW_REQUIRED`。
+- 获批后的首个实现切片固定为 OF1a uint4 fail-closed；停止点是 15 项 oracle 测试全绿，不顺带修改 bias、mask、协议或 RTL。

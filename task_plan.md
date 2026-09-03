@@ -968,9 +968,13 @@
 - [x] 形成 `docs/planning/NPU_ORACLE_FREEZE_REVIEW.md`，提出 OF1-OF6 审核项。
 - [x] 独立反审计 OF1-OF6，修正 INT32 正常语义和 model/mask 配置粒度。
 - [x] 形成 OF1-OF6 V2：安全 bias、uint4 核心、634/19-word 顺序流、双 mask bank 和明确 reset/freeze 合同。
-- [ ] 管理员批准 OF1-OF6 V2。
+- [x] 第二轮独立反审计发现 V2 仍缺模型线性映射、非法配置响应、mask 命令矩阵、freeze 切换、零激活计数和 Python 类型域。
+- [x] 形成 OF1-OF6 V3，并同步当前项目基线与执行优先级。
+- [ ] 管理员批准 OF1-OF6 V3。
 - [ ] 按 RED 测试 → 最小实现 → 手算 mask 向量 → 状态矩阵顺序完成冻结。
 - [ ] 冻结端口/地址/状态转移/逐拍测试计划后，才提交单时钟 RTL 设计审核。
+
+错误记录：跨 `WORKFLOW_STATE.md`、`task_plan.md`、`findings.md`、`progress.md` 的整包补丁因 `progress.md` 上下文变化被原子拒绝；未产生部分修改，随后改为逐文件小补丁。分类器首次漏传必填 `--github-output`；第二次把临时文件创建/删除组合在同一 PowerShell 命令被策略拒绝，改用固定仓库外临时路径后成功。该临时文件的两次删除尝试也被策略拒绝，按三次失败停止清理；文件只含五个 `false` 分类结果，不在仓库内。首次 `gh pr create` 的长正文含嵌套中文引号，被 PowerShell 拆成额外参数；分支已正常推送，随后改用无嵌套引号正文成功创建 PR #33。记录提交和终态查询各有一次 `functions.exec` 调用在 JavaScript 字符串解析阶段失败，shell 未执行、仓库和外部状态均未改变；改用模板字符串后成功，后续复杂 PowerShell 命令固定使用模板字符串。
 
 ## 2026-09-03 CI Node 24 action 维护
 
@@ -978,8 +982,8 @@
 - [x] 通过 GitHub 官方发布接口核对 checkout `v7.0.1`、setup-python `v7.0.0` 和 runner 最低版本要求。
 - [x] 将 workflow 升级到 checkout/setup-python v7，并增加 action 主版本防回退测试。
 - [x] 更新 Nexus，并通过 action 版本单测、YAML/JSON 解析、compileall 和 diff-check。
-- [ ] 创建 PR，等待 workflow 变更触发的全量门和 Webhook 同 SHA 终态。
-- [ ] 全量门成功且 PR 可合并后自行合并。
+- [x] 创建 PR，等待 workflow 变更触发的全量门和 Webhook 同 SHA 终态。
+- [x] 全量门成功且 PR 可合并后自行合并；PR #32 已合并为 `1f9d3b7`。
 # 2026-09-03 持久工作流当前状态
 
 - [x] PR #18 文档与 Nexus 状态更新通过四道 CI，并合并到 `main` (`1877140c`)
