@@ -1043,6 +1043,18 @@
 - `docs/planning/NPU_NEURON_INTEGRATION_REVIEW.md` 仍为 `REVIEW_REQUIRED`；I1-I6 未批准前不创建集成业务 RTL、不运行新的 Vivado。
 - 用户文件 `np75_tmp_sparse_protocol.ys` 仍保持未跟踪、未修改，未纳入本次文档提交。
 
+## 2026-09-03 I1-I6 获批，启动 Python oracle
+
+- 管理员已批准 I1-I6，正式冻结 `64→32→10` INT8 MLP 集成参数与验证顺序。
+- 当前阶段从“等待审核”进入“Python 旁路/门控参考模型”；尚未创建 RTL，尚未运行 Vivado。
+- 下一硬门是旁路/全开门控逐样本 bit-exact，并覆盖全关、零活动、epoch 原子切换、背压、清除、推理冻结和非法索引。
+
+## 2026-09-03 Python oracle 首个纵向切片
+
+- 新增 `npu_eneuron_reference.py`：实现 `64→32→10`、4 bit 输入、INT8 权重、INT32 累加、隐藏 ReLU/`0..127` 饱和和四权重组门控。
+- 新增 `test_npu_eneuron_reference.py`：旁路全开逐输出检查、全关保留 bias 且零 MAC/零组读取检查均通过。
+- 当前仍未创建 RTL，下一切片是补齐饱和、旁路/全开等价和门控计数的边界测试。
+
 ## 2026-09-03 PR #21 合并收口
 
 - PR #21 已合并到 `main`，merge commit 为 `588e7d5`；合并前 HEAD `bc546c0` 的 run `33765822606` 四道 CI 门全部成功。

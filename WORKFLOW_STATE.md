@@ -4,7 +4,7 @@
 
 最后更新：2026-09-03
 
-状态：`ACTIVE / NP7_MERGED / NPU_NEURON_INTEGRATION_REVIEW_REQUIRED`
+状态：`ACTIVE / NP7_MERGED / I1_I6_APPROVED / PYTHON_ORACLE_IN_PROGRESS`
 
 ## 当前活动目标
 
@@ -163,6 +163,12 @@ NP7 已完成；下一步是重新审核并批准传统 NPU + 神经元集成计
 - 仓库外 Webhook `C:\Users\Epsilon\ENeuronWebhook` 的 `/healthz` 返回 HTTP 200，服务仍不属于仓库。
 - `docs/planning/NPU_NEURON_INTEGRATION_REVIEW.md` 仍为 `REVIEW_REQUIRED`；I1-I6 未获管理员批准。
 - 用户文件 `np75_tmp_sparse_protocol.ys` 保持未跟踪、未修改、未纳入 Nexus；批准前继续只做静态审计、文档和 Nexus 维护。
+
+## 2026-09-03 I1-I6 管理员批准
+
+- 管理员已批准 I1-I6，集成审核门从 `REVIEW_REQUIRED` 转为 `PYTHON_ORACLE_IN_PROGRESS`。
+- 已冻结首个模型 `64→32→10` INT8 MLP、8×8/4 bit 输入、INT32 累加、隐藏 ReLU/`0..127` 饱和、四权重组门控、样本/批边界原子提交以及 OOC→XC7Z020→DMA/PS/网口顺序。
+- 当前只进入 Python 旁路/门控参考模型阶段；bit-exact 和最坏情况矩阵通过前，不创建集成业务 RTL、不运行 Vivado。
 
 ## 2026-09-03 PR #21 合并后基线
 
