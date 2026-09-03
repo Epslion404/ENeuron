@@ -1088,6 +1088,13 @@
 - 新增样本边界切换、结果背压、状态清除、推理冻结、epoch/完整 mask 校验测试；与既有 NPU/CI 测试合计 17 项通过。
 - 将 `npu_eneuron_protocol.py` 纳入 NPU oracle 定向 CI 分类，避免该协议文件误触发全仓重门。
 
+## 2026-09-03 NPU oracle 接受原子性修正
+
+- 将运行结果改为 runtime 内部 `_inflight` 所有，`complete_sample()` 只能提交该事务自己的结果，调用者不能注入伪造结果。
+- pending mask 在有效样本接受沿原子切换；图片长度非法时 active epoch、pending、running 和输出槽均保持不变。
+- 输出槽同时锁存 inference 与 epoch；背压期间二者保持同一对象，不会被下一样本覆盖。
+- NPU/协议与 CI 分类合计 18 项测试通过，`compileall` 和 `git diff --check` 通过。
+
 ## 2026-09-03 PR #21 合并收口
 
 - PR #21 已合并到 `main`，merge commit 为 `588e7d5`；合并前 HEAD `bc546c0` 的 run `33765822606` 四道 CI 门全部成功。

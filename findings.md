@@ -931,6 +931,8 @@
 - 门控提交必须拆成 pending 与 active 两份；运行中的样本只读 active 快照，pending 不能组合穿透。
 - 单槽结果背压不仅保持结果稳定，还必须阻止下一样本启动，否则会覆盖尚未被下游接受的 logits。
 - `STATE_CLEAR` 可以增加动态清除计数，但不得回退已提交 mask epoch；`infer_freeze` 同时拒绝 mask 更新和动态清除。
+- 样本输入校验必须先于所有状态提交；否则非法图片会把 runtime 卡在 busy，或错误消费 pending epoch。
+- 结果完成接口不能接受外部 `InferenceResult` 参数，否则调用者可把非当前样本结果注入输出槽；内部 `_inflight` 是更接近硬件事务所有权的最小表达。
 # 2026-09-03 PR #18 状态核对
 
 - PR #18 的四道门均已成功：Python/语法、XPM CDC、NP7 功能与证据、NP7 物理证据；同一 HEAD `59bef59a` 的 `workflow_run completed/success` 已由仓库外 Webhook 记录。
