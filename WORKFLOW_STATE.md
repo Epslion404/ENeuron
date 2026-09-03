@@ -155,3 +155,11 @@ NP7 已完成；下一步是重新审核并批准传统 NPU + 神经元集成计
 - 该次 CI 期间 Webhook 服务短暂掉线，GitHub delivery API 记录 `workflow_run`/相关事件因 EOF 投递失败；已从 `C:\Users\Epsilon\ENeuronWebhook\start_webhook.ps1` 恢复服务，本地与公网 `/healthz` 均返回 HTTP 200。当前 gh token 缺少 `admin:repo_hook`，因此未调用官方 redelivery；CI 终态以 GitHub API 为权威证据。
 - PR #19 只包含工作流、状态文档和 Nexus 更新，没有业务 RTL、Vivado 或板级测试；用户文件 `np75_tmp_sparse_protocol.ys` 仍未跟踪、未修改、未提交。
 - 下一动作不变：等待管理员批准传统 NPU + ENeuron 集成审核 I1-I6；批准前不实现集成业务 RTL，不运行新的 Vivado。
+
+## 2026-09-03 集成审核门静态审计快照
+
+- `workflow_resume.ps1 -Mode Resume` 返回 PASS；当前 HEAD 为 `8d23347`，活动 NP4B TODO 未完成项为 0。
+- GitHub 当前无开放 PR；最近 run `33763267873` 的四道 CI 门全部成功，`main` 与 `origin/main` 同步。
+- 仓库外 Webhook `C:\Users\Epsilon\ENeuronWebhook` 的 `/healthz` 返回 HTTP 200，服务仍不属于仓库。
+- `docs/planning/NPU_NEURON_INTEGRATION_REVIEW.md` 仍为 `REVIEW_REQUIRED`；I1-I6 未获管理员批准。
+- 用户文件 `np75_tmp_sparse_protocol.ys` 保持未跟踪、未修改、未纳入 Nexus；批准前继续只做静态审计、文档和 Nexus 维护。

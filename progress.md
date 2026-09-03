@@ -1034,3 +1034,11 @@
 - PR #19 已在 GitHub API 确认四道 CI 全部成功后合并到 `main`，merge commit 为 `63028d4`。
 - CI 期间仓库外 Webhook 投递因本地服务/隧道短暂掉线而出现 EOF；已重启 `C:\Users\Epsilon\ENeuronWebhook`，本地和公网健康检查均恢复 200。由于 gh token 未授予 `admin:repo_hook`，未执行 redelivery，保留 GitHub API 作为本次终态权威来源。
 - 当前主线无业务代码变更，集成审核 I1-I6 仍待管理员批准。
+
+## 2026-09-03 集成审核门静态审计快照
+
+- `workflow_resume.ps1 -Mode Resume` 返回 PASS；当前 HEAD 为 `8d23347`，活动 NP4B TODO 未完成项为 0。
+- GitHub 当前无开放 PR；最近 run `33763267873` 的四道 CI 门全部成功，主线与 `origin/main` 同步。
+- 仓库外 Webhook `C:\Users\Epsilon\ENeuronWebhook` 的 `/healthz` 返回 HTTP 200。
+- `docs/planning/NPU_NEURON_INTEGRATION_REVIEW.md` 仍为 `REVIEW_REQUIRED`；I1-I6 未批准前不创建集成业务 RTL、不运行新的 Vivado。
+- 用户文件 `np75_tmp_sparse_protocol.ys` 仍保持未跟踪、未修改，未纳入本次文档提交。

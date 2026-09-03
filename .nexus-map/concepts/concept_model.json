@@ -1,6 +1,6 @@
 {
   "$schema": "nexus-mapper/concept-model/v1",
-  "generated_at": "2026-09-03T13:42:16Z",
+  "generated_at": "2026-09-03T14:12:48Z",
   "repo_path": "D:/Documents/Code/ENeuron",
   "generator": "nexus-mapper v2",
   "nodes": [
@@ -18,5 +18,5 @@
     {"source":"np6-physical-cost","target":"np7-shared-memory-lane","type":"precedes"},
     {"source":"np7-shared-memory-lane","target":"npu-eneuron-integration","type":"precedes"}
   ],
-  "metadata":{"languages":["Python","SystemVerilog"],"analysis_days":90,"raw_probe":".nexus-map/raw/ast_nodes.json and git_stats.json","verification_head":"d6ca09415eb857fc02d71131e962dd894fd58f3b","main_merge":"63028d41e681758c7234fbc57a9817de5caa3580"}
+  "metadata":{"languages":["Python","SystemVerilog"],"analysis_days":90,"raw_probe":".nexus-map/raw/ast_nodes.json and git_stats.json","verification_head":"d6ca09415eb857fc02d71131e962dd894fd58f3b","main_merge":"8d2334721ba42250b5818996059e98f658a7626a"}
 }

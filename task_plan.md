@@ -898,6 +898,15 @@
 - [x] 将当前事实写入 `WORKFLOW_STATE.md` 与 `findings.md`；不纳入用户未跟踪文件。
 - [ ] 管理员批准传统 NPU + ENeuron 集成审核 I1-I6；批准前保持静态审计、文档和 Nexus 维护边界。
 - [ ] 批准后实现 `64→32→10` INT8 MLP Python 旁路/门控参考模型，再进入 RTL 和 Vivado 门。
+
+## 2026-09-03 集成审核门静态审计
+
+- [x] 运行 `workflow_resume.ps1 -Mode Resume`，确认持久文件完整、HEAD 为 `8d23347`、活动 NP4B TODO 未完成项为 0。
+- [x] 核对 GitHub 无开放 PR、最近 run `33763267873` 四道 CI 门成功、`main` 与 `origin/main` 同步。
+- [x] 核对仓库外 Webhook `C:\Users\Epsilon\ENeuronWebhook` 健康检查 HTTP 200。
+- [x] 保持 `np75_tmp_sparse_protocol.ys` 未跟踪且不纳入 Nexus/提交。
+- [ ] 管理员批准 I1-I6；批准前继续保持“只做静态审计、文档和 Nexus 维护”的边界。
+- [ ] 获批后实现 `64→32→10` INT8 MLP Python 旁路/门控 oracle。
 # 2026-09-03 持久工作流当前状态
 
 - [x] PR #18 文档与 Nexus 状态更新通过四道 CI，并合并到 `main` (`1877140c`)

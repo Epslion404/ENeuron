@@ -887,6 +887,12 @@
 - `workflow_resume.ps1 -Mode Check` 返回 PASS，活动 TODO 未完成项为 0；这不等价于集成审核 I1-I6 已批准。
 - `docs/planning/NPU_NEURON_INTEGRATION_REVIEW.md` 仍为 `REVIEW_REQUIRED`，当前只能进行静态审计、文档与 Nexus 维护。
 - 用户未跟踪文件 `np75_tmp_sparse_protocol.ys` 仍保持原样，不纳入提交或 Nexus 文件树。
+
+## 2026-09-03 集成审核门审计结论
+
+- 持久工作流恢复检查、主线同步、开放 PR 检查、最近 CI 和仓库外 Webhook 健康检查均通过；这说明项目管理闭环可继续运行。
+- 这些检查不等价于传统 NPU + ENeuron 集成完成。当前缺口仍是 I1-I6 管理员裁定、Python bit-exact 旁路/门控 oracle、集成 RTL、协同仿真、形式验证和集成级 Vivado 证据。
+- 在审核门批准前继续实现业务 RTL 或运行 Vivado，会绕过已冻结的阶段边界；本轮仅更新可复核状态快照。
 # 2026-09-03 PR #18 状态核对
 
 - PR #18 的四道门均已成功：Python/语法、XPM CDC、NP7 功能与证据、NP7 物理证据；同一 HEAD `59bef59a` 的 `workflow_run completed/success` 已由仓库外 Webhook 记录。
