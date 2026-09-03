@@ -995,3 +995,9 @@
 - PR #12 已于 `2026-09-03T11:08:25Z` 合并到 `main`，merge commit 为 `bc839b5feca25935ec541871c1c34e1ab9c572d3`。
 - PR #12 的四道 CI 门全部成功；Webhook 已收到同一 HEAD `0ce0dce` 的 workflow 完成和 PR closed 事件。
 - 本次仍只更新文档与 Nexus 状态，I1-I6 集成审核门保持 `REVIEW_REQUIRED`，未启动集成 RTL 或 Vivado。
+
+## 2026-09-03 PR #13 合并与阶段收口
+
+- PR #13 已于 `2026-09-03T11:26:10Z` 合并到 `main`，merge commit 为 `1a8d0f2733c65e26ce293a2f0affd15ef57a3e94`。
+- PR #13 的四道 CI 门全部成功；Webhook 已收到同一 HEAD `6da8748b` 的 workflow 完成和 PR closed 事件。
+- 文档/Nexus 收口已完成，后续不再为重复状态创建新 PR；下一项实质工作是管理员批准 I1-I6 后实现 INT8 NPU 参考模型。

@@ -870,6 +870,12 @@
 - [x] 通过仓库外 Webhook 核对 PR #11 的检查完成和 closed 事件。
 - [ ] 等待管理员批准 I1-I6；批准后进入 INT8 NPU 参考模型与门控语义验证。
 
+## 2026-09-03 当前阶段终点
+
+- [x] PR #13 通过四道 CI 门并合并到 `main`，merge commit 为 `1a8d0f2`。
+- [x] 通过仓库外 Webhook 核对 PR #13 的 workflow 完成与 closed 事件。
+- [ ] 管理员批准 I1-I6 后，实现 `64→32→10` INT8 MLP 参考模型，再进入集成 RTL。
+
 ## 2026-09-03 PR #12 合并后入口
 
 - [x] 确认 PR #12 通过四道 CI 门并合并到 `main`，merge commit 为 `bc839b5`。
