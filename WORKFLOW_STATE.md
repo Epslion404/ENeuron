@@ -4,13 +4,13 @@
 
 最后更新：2026-09-03
 
-状态：`ACTIVE / NP7_MERGED / I1_I6_APPROVED / PYTHON_ORACLE_IN_PROGRESS`
+状态：`ACTIVE / NP7_MERGED / I1_I6_APPROVED / ORACLE_FREEZE_REVIEW_REQUIRED`
 
 ## 当前活动目标
 
-NP6 物理成本证据已经合并并完成阶段收口；NP7 共享 BRAM 与共享 lane 已完成并合并。PR #9 随后回滚了 PR #7 的 N1 集成基线，下一步重新审核传统 NPU + 神经元集成路线。
+NP6/NP7 已完成并合并；I1-I6 已批准。当前目标是冻结传统 `64→32→10` INT8 NPU 与 ENeuron 四权重整组门控的 Python oracle，为单时钟集成 RTL 提供逐位数值和事务合同。
 
-活动合同：`docs/planning/NPU_PRUNING_NP7_TODO.md`（NP7 已合并签核，后续进入集成审核）；NP6 结果见 `docs/planning/NPU_PRUNING_NP6_TODO.md` 与 `docs/reports/LOCAL_PRUNE_NP6_PHYSICAL_COST_REPORT.md`。
+活动合同：`docs/planning/NPU_ORACLE_FREEZE_REVIEW.md`。当前人工门为 `OF1-OF6_REVIEW_REQUIRED`；历史 NP6/NP7 结果继续由各自 TODO 和报告约束。
 
 ## 当前事实
 
@@ -28,20 +28,21 @@ NP6 物理成本证据已经合并并完成阶段收口；NP7 共享 BRAM 与共
 
 ## 允许动作
 
-- 只读恢复、状态核对、工作流维护和 NP7 方案审核。
-- 在 NP7 决策获批后，实现 Python 周期 oracle、RTL 共享 lane、协同仿真、形式检查和软件性能计数。
-- NP7 的 Vivado 阶段必须在前述功能门全部通过后单独执行。
+- 提交不依赖 OF1-OF6 的最坏情况测试、冻结审计、状态文档和 Nexus 更新。
+- 为 OF1-OF6 编写预期失败的 RED 测试和只读反例，但不提前选择争议语义修改业务实现。
+- OF1-OF6 批准后，按测试先行顺序修正 Python oracle，并形成单时钟 RTL 设计审核稿。
 
 ## 禁止动作
 
-- 在 NP7 审核前修改共享 lane/BRAM RTL，或在 NP7 功能门通过前运行新的 Vivado 实现。
+- OF1-OF6 批准并完成 oracle 冻结前，不创建传统 NPU + ENeuron 集成业务 RTL，不运行新的 Vivado。
+- 不把当前 Python 测试通过外推为 INT32 逐位一致、RTL 协议冻结或物理性能收益。
 - 把 NP6 的逻辑资源和 vector-less 功耗解释成真实加速、BRAM 跳读或功耗收益。
 - 将 cex、tmp 日志或来源不明的历史产物纳入正式证据。
 - 清理、覆盖或混入当前工作树中的已有改动。
 
 ## 下一动作
 
-NP7 已完成；下一步是重新审核并批准传统 NPU + 神经元集成计划。批准前只做静态审计、Nexus 更新和文档维护。
+提交当前三项最坏情况测试、冻结审计和 Nexus 更新；用 CI-Fast NPU-only 路径与仓库外 Webhook 完成同 SHA 验收。随后等待管理员裁定 OF1-OF6，同时继续准备不选择争议语义的 RED 测试。
 
 ## 2026-09-03 PR #10 清单绑定修复
 
@@ -176,3 +177,11 @@ NP7 已完成；下一步是重新审核并批准传统 NPU + 神经元集成计
 - PR #21 HEAD `bc546c0` 对应 run `33765822606`；Python/语法、XPM CDC、NP7 功能与证据、NP7 物理证据四道门均为 `SUCCESS`，Webhook 已收到同一 SHA 的 `workflow_run completed/success`。
 - 当前本地 `main` 与 `origin/main` 同步到 `588e7d5`，无开放 PR；本次仅收口静态审计、状态文档与 Nexus，不含集成业务 RTL 或 Vivado。
 - 集成审核门仍为 `REVIEW_REQUIRED`，I1-I6 尚未获管理员批准；用户文件 `np75_tmp_sparse_protocol.ys` 继续保持未跟踪且不纳入 Nexus。
+
+## 2026-09-03 Python oracle 冻结审核
+
+- I1-I6 已批准，函数级参考模型与 active/pending 协议已完成基础实现。
+- 三项新增最坏情况测试覆盖全关零活动、连续 epoch 不混用和 pending 单槽背压；相关 NPU 测试 14/14 通过。
+- 独立审计确认 INT32 溢出、固定参数域、mask 位序、不可变结果及逐拍流/复位合同仍是冻结阻断项。
+- 当前活动门为 `OF1-OF6_REVIEW_REQUIRED`；详细方案见 `docs/planning/NPU_ORACLE_FREEZE_REVIEW.md`。
+- OF1-OF6 未批准前可以提交现有测试、审计和知识库更新，但不修改上述争议语义、不创建集成业务 RTL、不运行 Vivado。

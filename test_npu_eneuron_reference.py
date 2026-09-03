@@ -179,6 +179,47 @@ class NpuReferenceTest(unittest.TestCase):
         accepted = runtime.begin_sample([1] * config.input_size)
         self.assertEqual(accepted.epoch, 1)
 
+    def test_zero_activity_with_closed_gate_emits_no_reads_or_macs(self):
+        config, runtime = self._runtime()
+        mask0 = [False] * (config.hidden_size * (config.input_size // config.group_size))
+        mask1 = [False] * (config.output_size * (config.hidden_size // config.group_size))
+        runtime.stage_masks(1, mask0, mask1)
+
+        accepted = runtime.begin_sample([0] * config.input_size)
+
+        self.assertEqual(accepted.epoch, 1)
+        self.assertEqual(accepted.inference.group_reads, 0)
+        self.assertEqual(accepted.inference.mac_count, 0)
+        self.assertEqual(accepted.inference.logits, list(range(config.output_size)))
+
+    def test_frequent_epoch_switches_never_mix_masks(self):
+        config, runtime = self._runtime()
+        size0 = config.hidden_size * (config.input_size // config.group_size)
+        size1 = config.output_size * (config.hidden_size // config.group_size)
+        observed = []
+        for epoch, opened in ((1, False), (2, True), (3, False)):
+            runtime.stage_masks(epoch, [opened] * size0, [opened] * size1)
+            transaction = runtime.begin_sample([1] * config.input_size)
+            observed.append((transaction.epoch, transaction.inference.mac_count))
+            runtime.complete_sample()
+            runtime.accept_result()
+
+        dense_macs = config.input_size * config.hidden_size + config.hidden_size * config.output_size
+        self.assertEqual(observed, [(1, 0), (2, dense_macs), (3, 0)])
+
+    def test_pending_slot_backpressure_rejects_overwrite(self):
+        config, runtime = self._runtime()
+        size0 = config.hidden_size * (config.input_size // config.group_size)
+        size1 = config.output_size * (config.hidden_size // config.group_size)
+        runtime.stage_masks(1, [False] * size0, [False] * size1)
+
+        with self.assertRaisesRegex(RuntimeError, "pending mask slot is full"):
+            runtime.stage_masks(2, [True] * size0, [True] * size1)
+
+        accepted = runtime.begin_sample([1] * config.input_size)
+        self.assertEqual(accepted.epoch, 1)
+        self.assertEqual(accepted.inference.mac_count, 0)
+
 
 if __name__ == "__main__":
     unittest.main()

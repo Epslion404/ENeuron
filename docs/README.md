@@ -20,6 +20,7 @@
 - [NPU 局部剪枝与动态门控计划](planning/NPU_PRUNING_TODO.md)
 - [NP4B 正式集成 TODO](planning/NPU_PRUNING_NP4B_TODO.md)
 - [传统 NPU + ENeuron 集成审核稿](planning/NPU_NEURON_INTEGRATION_REVIEW.md)
+- [NPU + ENeuron Python Oracle 冻结审核](planning/NPU_ORACLE_FREEZE_REVIEW.md)
 - [NP6 物理成本评估 TODO](planning/NPU_PRUNING_NP6_TODO.md)
 - [NP7 共享 BRAM 与共享 lane TODO](planning/NPU_PRUNING_NP7_TODO.md)
 - [NP7 B-V1+V2 管理员决策点](planning/NPU_PRUNING_NP7_DECISION_B_V1_V2.md)
