@@ -1097,3 +1097,18 @@
 - OF4 冻结合同允许部分输入、当前计算和结果背压期间继续准备并发布下一 mask。RTL 因此只对 mask 四类命令开放运行期 `cmd_ready`；模型、freeze、clear 和其它命令仍等待严格空闲。
 - 标准 ready/valid 源在并发路径上必须先稳定 `valid/payload` 再等待 ready；否则当 ready 合法依赖 opcode 分类时会形成源端自锁。
 - Yosys 0.56 的 `read_verilog; hierarchy; proc; check` 返回 0，只提示 `mask_active_words` 展开为寄存器；这不等价于 Vivado BRAM、资源或时序证据。
+
+## 2026-09-04 随机协同仿真设计
+
+- 随机门按每个固定 seed 单独运行一次 Icarus：模型 634 word、100 个样本 800 word、99 个用户 mask 1900 word、期望结果 1000 word 均通过 `$readmemh` 输入，避免把大数组硬编码进 testbench。
+- 第 0 个样本使用复位后的默认全开 mask/epoch0；发送该样本后立即开始发布第 1 个 mask。后续每个样本的下一版 mask 都在当前计算或结果背压期间装载并 commit，下一样本首 beat 才激活。
+- 每个结果先保持 `result_ready=0` 若干确定周期，再以 10 个 beat 消费；验证每 beat 的 logit、sample ID 和 epoch，覆盖结果槽稳定性与 mask 不串样本。
+- mask 模式按样本轮换全关、全开和随机 mixed；模型权重包含正负 INT8，bias 使用安全范围内的正负小值，参考计算与 RTL 使用同一固定 seed 数据。
+- 19-word mask 容器是 608 bit，但合同有效域为 512+80=592 bit；随机生成器必须对最后 word 的高 16 bit 进行零填充，不能把保留位当作可用 mask。
+
+## 2026-09-04 PR #54 合并门审计
+
+- GitHub API 当前确认 PR #54 为 `OPEN / MERGEABLE / CLEAN`；`Classify changes`、`Fast Python and diff check`、`Full repository regression` 和 `PR Gate` 均成功，三个不相关重门按路径跳过。
+- 这些 CI 结果只覆盖提交 HEAD `084f849`，不能覆盖工作树中尚未跟踪的 `tb_npu_eneuron_single_clock_random.sv` 与 `test_npu_single_clock_random.py`。
+- 随机门已确认是 testbench 首 beat ready/valid 观察竞态：DUT 内部 `logit_values` 与 Python 期望一致；在拉高 `result_ready` 后直接按下降沿采样会重复首 beat，改变等待拍数又可能跳过首 beat。
+- 因而当前合并裁定为“暂不合并”：先完成两样本、无随机背压的同步消费者，再通过固定 `20×100` 随机门；未通过前不把 PR 的 `CLEAN` 状态表述成阶段功能签核。
