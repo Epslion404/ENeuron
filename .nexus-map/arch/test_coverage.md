@@ -6,7 +6,7 @@ provenance: repository test names, signoff summaries, workflow state, latest Git
 
 已覆盖：Python/RTL 协同仿真、有限形式安全与可达性、负向 mutation、Tile/System Vivado OOC、XPM 仿真、NP4B 三模型 60000 事务签核；CI-Fast V1 已完成 workflow 全量、文档轻量和 NPU-only 定向路径验证。CI Action 已升级到 `actions/checkout@v7` 与 `actions/setup-python@v7` 的 Node 24 基线，分类合同要求任何 workflow 变更运行全量门。NPU oracle 新增并通过 `test_zero_activity_with_closed_gate_emits_no_reads_or_macs`、`test_frequent_epoch_switches_never_mix_masks`、`test_pending_slot_backpressure_rejects_overwrite` 三项最坏情况测试。
 
-NP6 结论为部分通过，NP7 已签核。OF1-OF6 Python oracle 保持 48/48。DSP V1 已通过单时钟专项 8/8、固定 `20×100` 和完整仓库 473/473（1 skipped）；Vivado 已确认 4 个 DSP48E1、hold/route/DRC 通过，但 setup 未通过，板级性能仍未完成。
+NP6 结论为部分通过，NP7 已签核。OF1-OF6 Python oracle 保持 48/48。DSP V1 已通过单时钟专项 8/8、固定 `20×100` 和完整仓库 473 项；PR #58 run `33907986001` 在 CI 环境为 473 项通过、3 项跳过，最终 `PR Gate` 成功。Vivado 已确认 4 个 DSP48E1、hold/route/DRC 通过，但 setup 未通过，板级性能仍未完成。
 
 ## 当前签核门（DSP V1 OOC 后）
 
