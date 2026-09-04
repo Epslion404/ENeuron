@@ -1230,5 +1230,22 @@ class ModelConfigPortTest(unittest.TestCase):
         self.assertEqual(accepted.epoch, result.epoch)
         self.assertEqual(accepted.inference.logits, (0,) * 10)
 
+    def test_hard_reset_discards_transactions_and_invalidates_model(self):
+        model = NpuReference()
+        runtime = NpuEpochRuntime(model)
+        model_port = ModelConfigPort(model)
+        mask_port = protocol.MaskConfigPort()
+        runtime.bind_model_port(model_port)
+        runtime.bind_mask_port(mask_port)
+        model_port.step(True, ModelCommand(ModelCommandKind.MODEL_BEGIN), False)
+        mask_port.step(True, protocol.MaskCommand(protocol.MaskCommandKind.MASK_BEGIN, epoch=1), False)
+        runtime.hard_reset()
+        self.assertFalse(model_port.model_valid)
+        self.assertEqual(model_port.state, ModelConfigPort.EMPTY)
+        self.assertEqual(mask_port.state, protocol.MaskConfigPort.EMPTY)
+        self.assertEqual(mask_port.active_epoch, 0)
+        with self.assertRaisesRegex(RuntimeError, "not committed"):
+            runtime.begin_sample([0] * 64)
+
 if __name__ == "__main__":
     unittest.main()

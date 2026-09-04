@@ -167,6 +167,7 @@
 - [x] OF4e：组合模型配置端口与 runtime 全局 idle/freeze 合同（45/45）
 - [x] OF4f：冻结模型提交、mask 交换、样本首拍和结果消费的同拍仲裁优先级（设计合同）
 - [x] OF4g：修正 committed 模型的冻结边界并验证冻结后仍可推理（47/47）
+- [x] OF5：实现模型、mask、runtime 的 hard reset 合同并验证旧状态不可见（48/48）
 
 ### 2026-09-03 CI-Fast V1
 
