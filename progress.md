@@ -1135,3 +1135,10 @@
 - 本切片只修改文档和持久状态；未修改 Python 业务语义、未创建 RTL、未运行 Vivado，且未触碰 `np75_tmp_sparse_protocol.ys`。
 - 本地分类器确认 `npu_oracle/full_repository/xpm_cdc/np7_functional/np7_physical` 全为 `false`，PR 应只运行 Fast check 与固定 `PR Gate`。
 - V3 文档提交已推送并创建 PR #33；后续只接受同一最新 HEAD 的 Fast check、`PR Gate` 和 Webhook 终态作为合并证据。
+
+## 2026-09-04 OF1a 实施
+
+- 管理员明确批准 OF1-OF6 V3；从 `main@1ef8b9f` 创建 `codex/of1a-uint4-core-20260904`。
+- 先替换旧裁剪测试并增加 pending epoch 原子性测试；旧实现运行 2 项测试得到 6 failures + 1 error，RED 成立。
+- 最小实现删除核心隐式转换/裁剪，新增严格 uint4 校验；OF1a 定向 2/2、完整 oracle 15/15、oracle + CI-Fast 23/23、Python 编译和差异检查均通过。
+- Nexus 只更新 6 个相关摘要，`concept_model.json` 有效，`.nexus-map` 差异检查通过；未运行 Vivado，未触碰用户未跟踪文件 `np75_tmp_sparse_protocol.ys`。

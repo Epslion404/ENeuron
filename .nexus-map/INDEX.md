@@ -1,7 +1,7 @@
 # ENeuron 知识库入口
 
 generated_by: nexus-mapper v2 / manual synthesis from raw probe
-verified_at: 2026-09-03
+verified_at: 2026-09-04
 provenance: `.nexus-map/raw/ast_nodes.json`, `git_stats.json`, `file_tree.txt`（文件树按版本化基线排除工作区未跟踪文件）；SystemVerilog边界由文件树与文档人工核对
 
 ENeuron 是以 Python 黄金模型、SystemVerilog RTL、Icarus/Yosys/Vivado 验证组成的数字脉冲神经元与 NPU 局部剪枝研究仓库。
@@ -14,12 +14,12 @@ ENeuron 是以 Python 黄金模型、SystemVerilog RTL、Icarus/Yosys/Vivado 验
 - NP7 共享执行器：`np7_shared_synapse_lane.sv`、`np7_weight_ram.sv`、`np7_shared_lane_oracle.py`、`np7_shared_lane_cosim.py`
 - 验证入口：`verify_goal.py`、`verify_np4b_signoff.py`、`test_*.py`、formal `.ys/.sv`
 - 规划与状态：`WORKFLOW_STATE.md`、`docs/planning/NPU_NEURON_INTEGRATION_REVIEW.md`、`docs/planning/NPU_PRUNING_NP6_TODO.md`、`docs/planning/NPU_PRUNING_NP7_TODO.md`
-- 集成材料包：`docs/planning/NPU_NEURON_INTEGRATION_MATERIALS.md`、`docs/planning/NPU_ORACLE_FREEZE_REVIEW.md`（I1-I6 已批准；当前门为 `OF1-OF6_V3_REVIEW_REQUIRED`）
+- 集成材料包：`docs/planning/NPU_NEURON_INTEGRATION_MATERIALS.md`、`docs/planning/NPU_ORACLE_FREEZE_REVIEW.md`（I1-I6、OF1-OF6 V3 已批准；当前状态为 `OF1A_UINT4_CORE_GREEN / OF1-OF6_V3_IMPLEMENTATION_IN_PROGRESS`）
 - CI 编排：`.github/workflows/pr-gate.yml`、`tools/ci/classify_changes.py`、`test_ci_fast_v1.py`（路径分类、条件专项门和唯一 `PR Gate` 汇总）
 
 ## 当前状态
 
-NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`。NP7 共享 BRAM/lane 已实现并签核。I1-I6 已批准，`64→32→10` INT8 NPU + ENeuron Python oracle 已覆盖零活动关闭、逐样本频繁 epoch 切换和 pending 单槽背压三项最坏情况；当前进入 `OF1-OF6_V3_REVIEW_REQUIRED`。V3 保留 uint4 核心、Host 裁剪、安全 bias 和 634/19-word 顺序流，并补齐 634-word 精确映射、非法配置握手错误响应与同索引重试、mask empty/loading/complete/published 命令矩阵、完全 idle 才能切换 freeze、open group 即使零激活仍计一次读取和四次 MAC，以及 Python 严格类型域。获批后的首个停止点为 OF1a uint4 fail-closed 与非法样本零副作用测试全绿；在完整冻结前不得创建集成 RTL 或运行 Vivado。CI-Fast V1 已完成 workflow 全量、文档轻量和 NPU-only 定向路径验证，所有路径由唯一 `PR Gate` 汇总；Action 基线已由 `actions/checkout@v4`、`actions/setup-python@v5` 升级为二者 `@v7`（Node 24），任何 workflow 变更必须运行全量门。`np75_tmp_sparse_protocol.ys` 是用户临时文件，不得修改、提交或纳入 Nexus 文件树/原始探针。
+NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`。NP7 共享 BRAM/lane 已实现并签核。I1-I6 与 OF1-OF6 V3 已批准，当前状态为 `OF1A_UINT4_CORE_GREEN / OF1-OF6_V3_IMPLEMENTATION_IN_PROGRESS`。OF1a 已实现严格 uint4 核心输入：仅接受 `type(value) is int` 且值为 `0..15`，非法像素在推理前 fail-closed，不消费 pending epoch，也不改变运行事务或结果槽；oracle 15/15、OF1a 定向 2/2 通过。V3 其余安全 bias、634/19-word 配置流、mask 四态、freeze 和不可变结果合同仍待分片实现；完整冻结前不得创建集成 RTL 或运行 Vivado。CI-Fast V1 已完成 workflow 全量、文档轻量和 NPU-only 定向路径验证，所有路径由唯一 `PR Gate` 汇总；Action 基线已由 `actions/checkout@v4`、`actions/setup-python@v5` 升级为二者 `@v7`（Node 24），任何 workflow 变更必须运行全量门。`np75_tmp_sparse_protocol.ys` 是用户临时文件，不得修改、提交或纳入 Nexus 文件树/原始探针。
 
 ## 必读路由
 

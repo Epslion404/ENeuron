@@ -973,3 +973,15 @@
 - freeze 只允许在完全 idle、无结果且 staging empty 时切换；frozen 下拒绝全部模型/mask 写和 `STATE_CLEAR`，但允许正常样本输入/输出。
 - V1 不做数据相关零跳过：open group 即使激活全零也固定计一次读取和四次 MAC，避免 Python 与 RTL 性能账本分叉。
 - Python 核心输入和权重不允许借 `int()` 隐式转换；`bool`、浮点、字符串和越界值必须 fail-closed。`prediction/abstain` 只是 Host 派生诊断，不属于 RTL bit-exact 端口。
+
+## 2026-09-04 OF1a RED 证据
+
+- 旧 `quantize_input()` 通过 `int()` 接受浮点、字符串和 `bool`，并把越界整数裁剪到 `0..15`，与批准的核心 uint4 合同冲突。
+- `None` 会泄漏 Python `TypeError`，说明错误类型和错误消息也未冻结。
+- runtime 只有在 `model.infer()` 成功后才提交 pending epoch，因此无需重写事务逻辑；只要完整图片在乘加前统一验证，非法像素即可保持 active epoch、running 和结果槽不变。
+
+## 2026-09-04 OF1a GREEN 结论
+
+- 最小修正只用 `validate_uint4_input()` 替换隐式转换入口，不改变推理循环、mask 账本或 runtime 状态机。
+- 使用 `type(value) is int` 明确排除 Python 中属于 `int` 子类的 `bool`；合法域仅为 `0..15`，所有非法值统一抛出包含 `uint4` 的 `ValueError`。
+- 64 个像素先完整验证、后进入 mask 和乘加，因此末像素非法也不会产生部分 MAC、读取计数或 epoch 提交。

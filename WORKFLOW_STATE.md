@@ -2,15 +2,15 @@
 
 模式：`PERSISTENT_WORKFLOW_V1`
 
-最后更新：2026-09-03
+最后更新：2026-09-04
 
-状态：`ACTIVE / NP7_MERGED / I1_I6_APPROVED / ORACLE_FREEZE_V3_REVIEW_REQUIRED`
+状态：`ACTIVE / NP7_MERGED / I1_I6_APPROVED / OF1_OF6_V3_APPROVED / OF1A_UINT4_CORE_GREEN`
 
 ## 当前活动目标
 
 NP6/NP7 已完成并合并；I1-I6 已批准。当前目标是冻结传统 `64→32→10` INT8 NPU 与 ENeuron 四权重整组门控的 Python oracle，为单时钟集成 RTL 提供逐位数值和事务合同。
 
-活动合同：`docs/planning/NPU_ORACLE_FREEZE_REVIEW.md`。当前人工门为 `OF1-OF6_V3_REVIEW_REQUIRED`；历史 NP6/NP7 结果继续由各自 TODO 和报告约束。
+活动合同：`docs/planning/NPU_ORACLE_FREEZE_REVIEW.md`。OF1-OF6 V3 已于 2026-09-04 获管理员批准；当前执行 OF1a 核心 uint4 fail-closed。历史 NP6/NP7 结果继续由各自 TODO 和报告约束。
 
 ## 当前事实
 
@@ -42,7 +42,14 @@ NP6/NP7 已完成并合并；I1-I6 已批准。当前目标是冻结传统 `64�
 
 ## 下一动作
 
-请求管理员批准 OF1-OF6 V3。获批后的第一切片只做核心 uint4 类型/范围 fail-closed 与非法样本零副作用，把 oracle 测试从 14 项提升到 15 项；该 PR 不触碰 bias、mask、协议、RTL 或 Vivado。
+提交并交付 OF1a 独立 PR：核心只接受严格 uint4，非法样本保持 pending epoch 与运行状态不变；oracle 15/15、OF1a 定向 2/2。合并后再进入 INT8 权重、安全 bias、固定参数和不可变结果的独立 RED→GREEN 切片。
+
+## 2026-09-04 OF1-OF6 V3 管理员批准与 OF1a RED
+
+- 管理员已明确批准 OF1-OF6 V3，Python oracle 实施门解除；RTL 和 Vivado 仍须等待完整 oracle 冻结与后续设计审核。
+- OF1a 两项定向测试在旧实现上真实失败：越界/非整数值未统一 fail-closed，`None` 抛出 `TypeError`，非法像素还会错误消费 pending epoch。
+- 当前切片只允许修改 `npu_eneuron_reference.py`、`test_npu_eneuron_reference.py` 及必要状态/Nexus 文档。
+- OF1a 最小实现已经 GREEN：定向测试 2/2、完整 oracle 15/15；完整回归与 PR CI 仍作为提交/合并硬门。
 
 ## 2026-09-03 PR #10 清单绑定修复
 

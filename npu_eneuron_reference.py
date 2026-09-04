@@ -8,9 +8,12 @@ from typing import Sequence
 LOGGER = logging.getLogger(__name__)
 
 
-def quantize_input(value: int) -> int:
-    """按批准的 4 bit 像素协议裁剪后零扩展为非负 INT8。"""
-    return max(0, min(15, int(value)))
+def validate_uint4_input(value: object) -> int:
+    """验证核心输入是严格的 4 bit 无符号整数。"""
+    if type(value) is not int or not 0 <= value <= 15:
+        LOGGER.debug("reject non-uint4 core input value=%r", value)
+        raise ValueError("core input must be a uint4 integer")
+    return value
 
 
 def saturate_hidden(value: int) -> int:
@@ -81,7 +84,7 @@ class NpuReference:
             raise ValueError("image shape mismatch")
         if mode not in {"bypass", "gated"}:
             raise ValueError("mode must be bypass or gated")
-        activations = [quantize_input(v) for v in image]
+        activations = [validate_uint4_input(value) for value in image]
         mask0 = self._validate_mask(group_mask0, c.hidden_size * (c.input_size // c.group_size), mode)
         hidden: list[int] = []
         reads = 0

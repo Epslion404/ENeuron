@@ -970,9 +970,18 @@
 - [x] 形成 OF1-OF6 V2：安全 bias、uint4 核心、634/19-word 顺序流、双 mask bank 和明确 reset/freeze 合同。
 - [x] 第二轮独立反审计发现 V2 仍缺模型线性映射、非法配置响应、mask 命令矩阵、freeze 切换、零激活计数和 Python 类型域。
 - [x] 形成 OF1-OF6 V3，并同步当前项目基线与执行优先级。
-- [ ] 管理员批准 OF1-OF6 V3。
+- [x] 管理员于 2026-09-04 批准 OF1-OF6 V3。
+- [x] OF1a RED：证明核心会静默转换/裁剪非法像素，且非法像素会错误消费 pending epoch。
+- [x] OF1a GREEN：严格接受 `type(value) is int` 且 `0..15`，并保持非法样本零副作用；定向 2/2、oracle 15/15。
 - [ ] 按 RED 测试 → 最小实现 → 手算 mask 向量 → 状态矩阵顺序完成冻结。
 - [ ] 冻结端口/地址/状态转移/逐拍测试计划后，才提交单时钟 RTL 设计审核。
+
+### OF1a 实施错误记录
+
+| 错误 | 尝试 | 处理 |
+|---|---:|---|
+| 跨多个状态文件的 GREEN 整包补丁因 `WORKFLOW_STATE.md` 中文空格上下文不匹配被原子拒绝 | 1 | 未产生部分修改；改为按当前精确上下文逐文件小补丁 |
+| Nexus 定向复验首次误写 unittest 类名，产生 2 个加载错误 | 1 | 使用实际 `NpuReferenceTest` 类名重新运行，正确的两项定向测试 2/2 通过 |
 
 错误记录：跨 `WORKFLOW_STATE.md`、`task_plan.md`、`findings.md`、`progress.md` 的整包补丁因 `progress.md` 上下文变化被原子拒绝；未产生部分修改，随后改为逐文件小补丁。分类器首次漏传必填 `--github-output`；第二次把临时文件创建/删除组合在同一 PowerShell 命令被策略拒绝，改用固定仓库外临时路径后成功。该临时文件的两次删除尝试也被策略拒绝，按三次失败停止清理；文件只含五个 `false` 分类结果，不在仓库内。首次 `gh pr create` 的长正文含嵌套中文引号，被 PowerShell 拆成额外参数；分支已正常推送，随后改用无嵌套引号正文成功创建 PR #33。记录提交和终态查询各有一次 `functions.exec` 调用在 JavaScript 字符串解析阶段失败，shell 未执行、仓库和外部状态均未改变；改用模板字符串后成功，后续复杂 PowerShell 命令固定使用模板字符串。
 
