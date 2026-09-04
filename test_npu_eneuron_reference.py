@@ -820,6 +820,30 @@ class MaskConfigProtocolRedTest(unittest.TestCase):
         self.assertTrue(self._field(valid_commit, "cmd_accepted"))
         self.assertEqual(self._field(valid_commit, "state"), "published")
 
+    def test_mask_begin_rejects_epoch_equal_to_active_epoch(self):
+        """active_epoch=0 时，MASK_BEGIN(epoch=0) 必须 BAD_EPOCH 且零副作用。"""
+        port = self._new_port()
+
+        invalid = self._step(
+            port,
+            self._command("MASK_BEGIN", epoch=0),
+            response_ready=False,
+        )
+        self.assertTrue(self._field(invalid, "cmd_ready"))
+        self.assertTrue(self._field(invalid, "cmd_accepted"))
+        self.assertTrue(self._field(invalid, "error_valid"))
+        self.assertEqual(self._field(invalid, "error_code"), "BAD_EPOCH")
+        self.assertEqual(self._field(invalid, "state"), "empty")
+        self.assertEqual(self._field(invalid, "word_index"), 0)
+        self.assertEqual(self._field(invalid, "active_epoch"), 0)
+
+        self._step(port, response_ready=True)
+        accepted = self._step(port, self._command("MASK_BEGIN", epoch=1))
+        self.assertTrue(self._field(accepted, "cmd_accepted"))
+        self.assertFalse(self._field(accepted, "error_valid"))
+        self.assertEqual(self._field(accepted, "state"), "loading")
+        self.assertEqual(self._field(accepted, "word_index"), 0)
+
     def test_published_mask_activates_at_sample_boundary(self):
         """published 只在样本边界交换为 active，并清空 staging 状态。"""
         port = self._new_port()
