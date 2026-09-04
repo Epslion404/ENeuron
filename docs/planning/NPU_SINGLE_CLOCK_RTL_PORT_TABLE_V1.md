@@ -19,6 +19,7 @@
 | `result_valid/result_ready` | 1/1 | 固定 10 beat；背压期间全部结果字段稳定 |
 | `runtime_idle` | 1 | 严格空闲条件的公开摘要 |
 | `model_valid` | 1 | 已完成 `MODEL_COMMIT` 才为 1 |
+| `mask_valid` | 1 | 至少一个用户 mask 已在样本首 beat 激活；复位后的默认全开 mask 保持 0 |
 
 ## 命令字段
 
@@ -56,4 +57,4 @@
 | `[79:48]` | 当前 epoch；模型错误时为 0 |
 | `[47:0]` | 保留，必须为 0 |
 
-第一片骨架只实现 `MODEL_BEGIN/DATA/COMMIT` 和通用错误槽；mask、clear、freeze 将在后续垂直切片按同一字段表接入。
+当前骨架已实现 `MODEL_BEGIN/DATA/COMMIT`、`MASK_BEGIN/DATA/COMMIT` 和通用错误槽。mask 使用 19-word staging，`MASK_COMMIT` 只形成 published 版本；下一样本首 beat 才激活 epoch 并置 `mask_valid=1`。`MASK_ABORT`、clear、freeze 和真实门控计算仍在后续垂直切片接入。

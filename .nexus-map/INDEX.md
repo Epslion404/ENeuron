@@ -10,23 +10,24 @@ ENeuron 是以 Python 黄金模型、SystemVerilog RTL、Icarus/Yosys/Vivado 验
 
 - 神经元与参考模型：`digital_lif_engine.sv`、`neuron_sim.py`、`pulse_mini_reference.py`
 - 网络/Tile/Host：`digital_snn_tile_4x2x2.sv`、`digital_snn_host_bridge_controller.sv`、`network_sim.py`
-- 单时钟 NPU 骨架：`npu_eneuron_single_clock_skeleton.sv`、`tb_npu_eneuron_single_clock_skeleton.sv`、`test_npu_single_clock_skeleton.py`
+- 单时钟 NPU 骨架：`npu_eneuron_single_clock_skeleton.sv`；基础入口为 `tb_npu_eneuron_single_clock_skeleton.sv`/`test_npu_single_clock_skeleton.py`，mask epoch 入口为 `tb_npu_eneuron_single_clock_mask.sv`/`test_npu_single_clock_mask.py`
 - 局部剪枝：`local_prune_gate_2of4.sv`、`local_prune_reference.py`、`verify_np4b_signoff.py`
 - NP7 共享执行器：`np7_shared_synapse_lane.sv`、`np7_weight_ram.sv`、`np7_shared_lane_oracle.py`、`np7_shared_lane_cosim.py`
 - 验证入口：`verify_goal.py`、`verify_np4b_signoff.py`、`test_*.py`、formal `.ys/.sv`
 - 规划与状态：`WORKFLOW_STATE.md`、`docs/planning/NPU_NEURON_INTEGRATION_REVIEW.md`、`docs/planning/NPU_PRUNING_NP6_TODO.md`、`docs/planning/NPU_PRUNING_NP7_TODO.md`
-- 集成材料包：`docs/planning/NPU_NEURON_INTEGRATION_MATERIALS.md`、`docs/planning/NPU_ORACLE_FREEZE_REVIEW.md`、`docs/planning/NPU_ORACLE_SINGLE_CLOCK_CONTRACT_V3.md`、`docs/planning/NPU_MODEL_COMMIT_CONTRACT_V3.md`、`docs/planning/NPU_SINGLE_CLOCK_RTL_DESIGN_REVIEW_V1.md`、`docs/planning/NPU_SINGLE_CLOCK_RTL_DESIGN_AUDIT_V1.md`、`docs/planning/NPU_SINGLE_CLOCK_RTL_DESIGN_DECISION_SHEET_V2.md`、`docs/planning/npu_single_clock_contract_provisional_v2.json`（I1-I6、OF1-OF6 V3 已批准；Python oracle 已签核，当前等待 RTL 设计审核）
+- 集成材料包：`docs/planning/NPU_NEURON_INTEGRATION_MATERIALS.md`、`docs/planning/NPU_ORACLE_FREEZE_REVIEW.md`、`docs/planning/NPU_ORACLE_SINGLE_CLOCK_CONTRACT_V3.md`、`docs/planning/NPU_MODEL_COMMIT_CONTRACT_V3.md`、`docs/planning/NPU_SINGLE_CLOCK_RTL_DESIGN_REVIEW_V1.md`、`docs/planning/NPU_SINGLE_CLOCK_RTL_DESIGN_AUDIT_V1.md`、`docs/planning/NPU_SINGLE_CLOCK_RTL_DECISION_SHEET_V2.md`、`docs/planning/npu_single_clock_contract_provisional_v2.json`（I1-I6、OF1-OF6 V3 与 V2 RTL 裁定已批准；Python oracle 已签核，RTL 骨架实施中）
 - CI 编排：`.github/workflows/pr-gate.yml`、`tools/ci/classify_changes.py`、`test_ci_fast_v1.py`（路径分类、条件专项门和唯一 `PR Gate` 汇总）
 
 ## 当前状态
 
-NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`。NP7 共享 BRAM/lane 已实现并签核。I1-I6 与 OF1-OF6 V3 已批准，OF1-OF6 Python oracle 已在 `main@0982ac5` 签核（48/48、CI-Fast 8/8）。管理员已批准 V2 八项单时钟 RTL 裁定，状态为 `RTL_DESIGN_CONTRACT_V2_APPROVED`；当前允许 RED/端口状态骨架 RTL，尚未允许完整计算 RTL。骨架冒烟测试 `test_npu_single_clock_skeleton.py` 为 1/1，通过 Icarus `C:\msys64\ucrt64\bin\iverilog.exe`/`vvp.exe` 验证；必须先完成 Python/Icarus 逐拍门，再运行 Vivado。
+NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`。NP7 共享 BRAM/lane 已实现并签核。I1-I6 与 OF1-OF6 V3 已批准，OF1-OF6 Python oracle 已在 `main@0982ac5` 签核（48/48、CI-Fast 8/8）。管理员已批准 V2 八项单时钟 RTL 裁定，当前状态为 `RTL_DESIGN_CONTRACT_V2_APPROVED / RTL_SKELETON_IN_PROGRESS`。第一条模型/流骨架和第二条 mask epoch 切片均通过独立 Icarus 测试（各 1/1）；第二条已覆盖 19-word staging、published→样本首拍激活、`mask_valid`、结果 epoch、word18 保留位同索引重试、连续两样本及完整 128-bit 错误响应。真实 MAC、mask 门控计算、freeze/clear 和 Vivado 尚未完成。
 
 ## 单时钟 RTL 审核摘要
 
 - **V1 审计问题**：统一单命令流却定义 `MODEL_COMMIT` 与 `MASK_COMMIT` 同拍竞争；结果 sideband 引入未冻结的 `model_epoch` 且硬件槽位账本不足；首 beat mask 切换未说明 framing 错误的零副作用/回滚；`runtime_idle` 漏待消费错误、部分结果和同拍握手占用；验证门低于 I5 的 20 个固定 seed × 100 样本要求。
 - **V2 修正**：固定 8/10 beat 并取消外部 `last`；明确 nibble 位序和内部 beat 计数；删除 `model_epoch`，结果 metadata 仅为 sample ID 与 mask epoch；统一命令流按握手顺序串行，配置命令优先样本首 beat；idle 纳入错误响应、部分输出、统一槽位及同拍仲裁；验证门恢复至少 20×100 样本并保留 OF6 定向/负向覆盖。
-- **当前门槛**：V2 八项裁定已批准并冻结为 `RTL_DESIGN_CONTRACT_V2_APPROVED`；允许 RED/端口状态骨架，完整计算 RTL 仍须逐拍验证。当前 provisional JSON 的 `rtl_allowed=false` 字段已由批准状态取代，Vivado 仍受 Python/Icarus 通过门禁；未通过前不得运行 Vivado。
+- **当前门槛**：V2 八项裁定已批准并冻结为 `RTL_DESIGN_CONTRACT_V2_APPROVED`；provisional JSON 已记录 `rtl_allowed=true`、`vivado_allowed=false`。允许 RED/端口状态骨架，完整计算 RTL 仍须逐拍验证；Vivado 继续受 Python/Icarus 通过门禁，未通过前不得运行。
+- **第二条 RTL 切片**：`test_npu_single_clock_mask.py` 驱动公开接口验证完整 19-word 顺序装载；非法 word18 高 16 位产生 128-bit 单槽错误响应且隐式索引保持 18，响应消费后可重试；`MASK_COMMIT` 只发布，后续样本首 beat 才令 epoch 1 active 并置 `mask_valid`，两个连续样本结果均携带 epoch 1。
 
 ## 必读路由
 

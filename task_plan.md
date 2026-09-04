@@ -681,6 +681,8 @@
 | 单时钟骨架 RED 首次运行因缺少 DUT 文件而失败，随后首片实现测试出现无限等待 | 1 | RED 缺文件属于预期；定位到 `sample_ready` 在首 beat 后错误屏蔽 `sample_active`，改为只由结果槽/配置响应/配置优先级阻塞，并终止卡住的 vvp 进程；不重复盲跑 |
 | 骨架测试第二次等待：测试台在 negedge 观察握手，漏计 RTL 清除 `result_valid` 后的最后一个 beat | 1 | 增加阶段日志和 5000 周期 watchdog 定位到结果排空计数；将结果握手观察点改为 posedge，不改变 DUT 行为 |
 | PR #54 Linux 全仓回归因新测试硬编码 Windows Icarus 绝对路径而失败 | 1 | 保留 Windows 固定路径优先策略，增加 `shutil.which` 的 Linux/CI 回退；本地固定工具路径仍被实际使用并在文档中明确 |
+| mask 切片首轮在结果排空后的同一 posedge 读取旧 `runtime_idle`，并暴露样本 beat 计数未归零 | 1 | 测试改在 negedge 观察 NBA 后状态；DUT 第 8 beat 显式清 `sample_beat_index`，并加入第二个完整 8-beat 样本验证 |
+| mask word18 负向测试发现错误响应拼接仅 126 位，header 与字段表错位 | 1 | 新增唯一 128-bit `make_error_response`，模型/mask/未知命令共用固定字段布局；保留同索引重试断言 |
 ## 2026-09-01 根目录非 Markdown 文件归档调研
 
 ### 目标
@@ -1007,6 +1009,7 @@
 - [x] 根据独立审计修订 RTL 裁定表 V2：删除 `model_epoch`、重写同拍仲裁、固定 beat 计数并补齐 idle/验证门。
 - [x] 管理员审核单时钟 RTL 设计稿并批准 V2 八项裁定。
 - [x] 第一条 RED→GREEN 垂直切片：模型无效拒收、634-word 提交、8-beat 输入、10-beat 结果背压骨架。
+- [x] 第二条 RED→GREEN 垂直切片：19-word mask、published→首拍激活、epoch metadata、保留位错误同索引重试。
 - [ ] 按 RED 测试 → 最小实现 → 手算 mask 向量 → 状态矩阵顺序完成冻结。
 - [ ] 冻结端口/地址/状态转移/逐拍测试计划后，才提交单时钟 RTL 设计审核。
 

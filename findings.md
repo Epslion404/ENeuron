@@ -1066,3 +1066,10 @@
 - V2 将配置固定为一条 128-bit 命令流和一条 128-bit 响应流；配置命令与样本首拍同拍时配置优先，统一命令流按握手顺序串行化两个 commit，不再定义不存在的 commit 碰撞优先级。
 - V2 明确复位后全开 mask 且 `mask_valid=0` 仍允许推理；样本首拍原子锁存 mask/epoch；`model_valid=0` 时 `sample_ready=0`；`runtime_idle` 必须计入 partial input、running、partial output、result/error slot 和命令/响应槽占用。
 - 验证门改为至少 20 个固定 seed × 每个 100 个样本（不少于 2000 个），并覆盖背压、reset、freeze/clear、epoch 回绕、错误同索引重试、全开/全关/mixed mask、负权重和负向 mutation。V2 provisional JSON 明确 `admin_review_required`、`rtl_allowed=false`、`vivado_allowed=false`。
+
+## 2026-09-04 单时钟 RTL 骨架与 mask epoch 切片
+
+- 第一条垂直切片冻结模型无效拒收、634-word 顺序装载/提交、配置优先样本首 beat、固定 8-beat 输入、单槽错误响应和固定 10-beat 结果背压；当前结果仍为零占位，不能称为 NPU 数值实现。
+- 第二条切片加入 19-word mask staging、next-epoch 检查、published 等待和样本首 beat 激活。复位默认全开但 `mask_valid=0`；首次用户版本激活后置 1，结果槽锁存该样本 epoch，后续样本继续使用 active epoch。
+- word18 高 16 位保留位错误会产生稳定单槽响应，隐式索引保持 18；响应消费后可在同一索引重试。该负向测试发现旧响应拼接只有 126 位，现由唯一 `make_error_response()` 生成严格 128 位字段。
+- 连续第二个样本测试发现第 8 beat 后输入计数必须显式归零；修正后两个样本均完整接收 8 beat。当前尚未实现 mask bit 对真实 MAC 的门控、INT8 计算、freeze/clear 或 Vivado OOC。
