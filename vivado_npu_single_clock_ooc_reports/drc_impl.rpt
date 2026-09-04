@@ -1,0 +1,48 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2024.1 (win64) Build 5076996 Wed May 22 18:37:14 MDT 2024
+| Date         : Fri Sep  4 20:42:57 2026
+| Host         : LAPTOP-AJQHFMKI running 64-bit major release  (build 9200)
+| Command      : report_drc -file D:/Documents/Code/ENeuron/vivado_npu_single_clock_ooc_reports/drc_impl.rpt
+| Design       : npu_eneuron_single_clock_skeleton
+| Device       : xc7z020clg400-1
+| Speed File   : -1
+| Design State : Fully Routed
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Report DRC
+
+Table of Contents
+-----------------
+1. REPORT SUMMARY
+2. REPORT DETAILS
+
+1. REPORT SUMMARY
+-----------------
+            Netlist: npu_eneuron_single_clock_skeleton
+          Floorplan: design_1
+      Design limits: <entire design considered>
+           Ruledeck: default
+             Max violations: <unlimited>
+             Violations found: 2
++-----------+----------+--------------------+------------+
+| Rule      | Severity | Description        | Violations |
++-----------+----------+--------------------+------------+
+| RTSTAT-10 | Warning  | No routable loads  | 1          |
+| ZPS7-1    | Warning  | PS7 block required | 1          |
++-----------+----------+--------------------+------------+
+
+2. REPORT DETAILS
+-----------------
+RTSTAT-10#1 Warning
+No routable loads  
+152 net(s) have no routable loads. The problem bus(es) and/or net(s) are cmd_ready, result_data[31:0], result_mask_epoch[31:0],
+result_sample_id[31:0], rsp_payload[126:48], runtime_idle.
+Related violations: <none>
+
+ZPS7-1#1 Warning
+PS7 block required  
+The PS7 cell must be used in this Zynq design in order to enable correct default configuration.
+Related violations: <none>
+
+

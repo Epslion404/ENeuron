@@ -14,7 +14,8 @@ graph TD
   cosim --> verify[signoff verifiers]
   vivado[Vivado runners] --> reports[physical reports]
   reports --> verify
-  np7 -. planned integration boundary .-> npu[traditional INT8 NPU + ENeuron]
+  np7 -. shared execution boundary .-> npu[traditional INT8 NPU + ENeuron]
+  npu --> vivado
   changes[changed paths] --> classify[tools/ci/classify_changes.py]
   classify --> fast[fast-check]
   classify --> specialized[conditional specialized gates]
@@ -28,7 +29,7 @@ Python oracle → cosim runners → unittest/verifier
 local_prune_reference → local_prune wrappers/network → NP4B signoff
 NP7 shared lane oracle → dense/sparse RTL → XSim/OOC runners → physical/evidence gates
 Vivado Tcl/runner → reports → verify_goal
-传统 NPU + ENeuron 集成材料包 → OF1-OF6 Python oracle 签核 → `RTL_DESIGN_CONTRACT_V2_APPROVED` → 模型/流骨架 → mask epoch 切片 → abort/clear/freeze 控制切片（三项 Icarus 各 1/1）→ 真实 MAC/mask 门控 → Python/Icarus 完整逐拍门 → Vivado 证据
+传统 NPU + ENeuron 集成材料包 → OF1-OF6 Python oracle 签核 → `RTL_DESIGN_CONTRACT_V2_APPROVED` → 模型/流骨架 → mask epoch 切片 → abort/clear/freeze 控制切片（三项 Icarus 各 1/1）→ 真实 MAC/mask 门控 → Python/Icarus 完整逐拍门 → Vivado OOC 证据（当前 setup 未收敛，待关键路径修复）
 变更路径 → `classify-changes` → fast/全仓/XPM/NP7 专项门 → 唯一 `PR Gate`
 ```
 

@@ -1117,5 +1117,13 @@
 
 - GitHub 已将包含随机 testbench 的 PR #54 合并为 `2a33f12`；此前“等待同一 HEAD CI”的描述只适用于合并前历史快照。
 - 当前软件/RTL 仿真闭环为：四项单时钟定向门通过、固定 `20×100=2000` 样本逐 beat 通过、完整回归 `469/469（1 skipped）` 通过。
-- 当前物理证据仍为空：尚未对 `2a33f12` 运行 Vivado 2024.1 OOC，因此不得引用历史 NP6/NP7 资源或时序数字代替本 RTL 的物理结果。
-- 下一阶段应固定器件 `xc7z020clg400-1`、100 MHz 约束和 Vivado 2024.1 runner，完成综合、实现、setup/hold、DRC 与报告哈希绑定；网口、DMA、PS、板级功耗和端到端吞吐后置。
+- 当时物理证据仍为空：该条记录属于 OOC 执行前的历史快照，不能覆盖下方 2026-09-04 的实际结果。
+- 随后已固定器件 `xc7z020clg400-1`、100 MHz 约束和 Vivado 2024.1 runner，并完成综合、实现、setup/hold、DRC 与报告哈希绑定；网口、DMA、PS、板级功耗和端到端吞吐仍后置。
+## 2026-09-04 传统 NPU + ENeuron 单时钟 Vivado OOC 结果
+
+- 当前 OOC 运行绑定 `HEAD=39e41d4`；该提交相对 `origin/main@2a33f12` 只包含文档/Nexus 收口，`npu_eneuron_single_clock_skeleton.sv` 未改变。工具为 Vivado 2024.1，器件为 `xc7z020clg400-1`，OOC 时钟为 100 MHz（10 ns）。
+- 综合、opt、place、route、时序和 DRC 均完成，Vivado 退出码为 0；`ROUTE_ERRORS=0`、`DRC_ERRORS=0`。DRC 仍有 OOC 环境 warning：`RTSTAT-10`（无可布线负载）和 `ZPS7-1`（PS7 未实例化），它们不是 RTL DRC error，也不等价于板级签核。
+- 资源为 `2672 LUT / 1879 FF / 0 BRAM36 / 0 BRAM18 / 0 DSP`。`input_pixels_reg` 被实现为寄存器，未推断为 BRAM；这只是当前骨架的实现结果，不代表未来大模型存储方案。
+- setup 未通过：`WNS=-5.087 ns`、`TNS=-421.539 ns`、244 个失败端点；hold 通过：`WHS=+0.098 ns`、`THS=0`、0 个失败端点。故当前物理状态必须写为 `VIVADO_OOC_SETUP_FAIL / TIMING_REPAIR_REQUIRED`，不能称作 XC7Z020 100 MHz 收敛。
+- `WNS` 说明最差路径至少还需消除约 5.087 ns 的组合/布线延迟。按 `10 ns + 5.087 ns` 粗略折算约 66.3 MHz，仅作定位参考，不替代完整频率扫描，也不能作为板级吞吐预测。
+- 下一步优先读取 `timing_impl.rpt` 的最差路径，判断四 lane 顺序计算、模型读取、ReLU/INT32 累加、mask 判断和结果锁存中哪段需要插入一拍；修复不得删除 INT32 累加、epoch 原子性、结果背压或推理冻结。

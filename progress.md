@@ -1210,3 +1210,10 @@
 - 修正持久状态口径：当前不再等待 PR 合并或随机门 CI，下一硬门为当前 HEAD 的 Vivado 2024.1 OOC 物理签核。
 - TODO 已拆分为“已完成的软件/RTL 仿真门”和“待完成的 OOC 物理门”，明确不把历史 NP6/NP7 结果代偿当前 RTL，也不把 OOC 外推为板级、网口、DMA、PS 或功耗结论。
 - 用户未跟踪文件 `np75_tmp_sparse_protocol.ys` 继续保持原样，未修改、未暂存、未提交。
+# 2026-09-04 P14 Vivado OOC 物理门收口
+
+- 当前分支以 `39e41d4` 运行 Vivado 2024.1 OOC；RTL 与冻结基线 `origin/main@2a33f12` 相同，未纳入用户临时文件 `np75_tmp_sparse_protocol.ys`。
+- 真实流程已完成：综合、优化、布局、布线、setup/hold 时序和 DRC 均执行成功，route errors=0、DRC errors=0。
+- 资源：2672 LUT、1879 FF、0 BRAM36、0 BRAM18、0 DSP。setup：WNS -5.087 ns、TNS -421.539 ns、244 个失败端点；hold：WHS +0.098 ns、0 个失败端点。
+- 结论：当前 RTL 具备完整 OOC 实现证据，但 100 MHz setup 门失败，状态更新为 `VIVADO_OOC_SETUP_FAIL / TIMING_REPAIR_REQUIRED`。不进入顶层、网口、DMA、PS 或板级功耗阶段。
+- 已将 P14 活动 TODO 改为：提取关键路径 → 设计最小流水化/分拍 → 重跑 bit-exact 回归 → 重跑同器件同约束 Vivado OOC。失败结果保留，不用历史 NP6/NP7 报告代偿。

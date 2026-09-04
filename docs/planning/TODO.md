@@ -1,7 +1,7 @@
 # Pulse-Mini 开发计划
 
 日期：2026-08-19  
-状态：`REVIEWED`；实施状态：`P8_NETWORK_SIGNED_OFF / NPU_RTL_RANDOM_GATE_GREEN / PR54_MERGED / VIVADO_OOC_NEXT`
+状态：`REVIEWED`；实施状态：`P8_NETWORK_SIGNED_OFF / NPU_RTL_RANDOM_GATE_GREEN / PR54_MERGED / VIVADO_OOC_SETUP_FAIL / TIMING_REPAIR_REQUIRED`
 基线：`ENeuron 1.0`，提交 `499fc8a`，标签 `v1.0`；当前 Pulse-Mini 工作基线：`64aff70`
 
 本文件是 `v1.0` 之后的 Pulse-Mini 规划，不回写或扩大 ENeuron 1.0 的声明。当前工作树已提交；后续修改应以本文件的阶段门为准，不能把“逻辑容量估算”写成“已 routed 的硬件容量”。
@@ -494,11 +494,15 @@ P0-P8 已完成并签核
 - [x] NP4B0 用户审核：已批准 committed snapshot 只读端口、Pulse 外部 wrapper、独立 `4→8→2` 网络、sideband 剪枝通道、一核一 gate、CLEAR 分离、commit 后自动清历史、NP6 二次审批八项决定。
 - [x] NP4B 正式集成：ENeuron snapshot evidence 旁路、Pulse FEEDBACK evidence 锁存、真正四输入输出组、三模型各 20,000 条、五套形式证据和 359 项回归通过；NP6/NP7 已完成并合并，NP6 结论为 `NP6_PHYSICAL_COST_PARTIAL`，NP7 共享 lane 已签核。
 
-### P14：传统 NPU + ENeuron 单时钟 RTL 物理门（当前阶段）
+### P14：传统 NPU + ENeuron 单时钟 RTL 物理门（已完成，setup 未通过）
 
 - [x] 完成 V2 八项 RTL 裁定、四条单时钟 Icarus 垂直切片和真实四 lane INT8 计算。
 - [x] 完成固定 `20 seeds × 100 samples = 2000` 个样本的逐 beat 随机协同仿真，覆盖 mask 轮换、全开/全关/mixed、负权重/负 bias、背压和 epoch。
 - [x] 完成完整回归 `469/469（1 skipped）`，并将证据随 PR #54 合并至 `main@2a33f12`。
-- [ ] 以 `origin/main@2a33f12`、Vivado 2024.1、`xc7z020clg400-1` 和 100 MHz 约束运行 OOC 综合、实现、setup/hold 与 DRC。
-- [ ] 记录 LUT/FF/BRAM/DSP、WNS/TNS/WHS/THS、失败端点、route/DRC 状态及报告 SHA-256；物理门未通过的配置标记为 `NOT_PROVEN`。
-- [ ] OOC 物理门完成后再规划 XC7Z020 顶层、DMA/PS/网口和板级功耗；不得用历史 NP6/NP7 结果代偿当前 RTL。
+- [x] 以 `HEAD=39e41d4`（RTL 与 `origin/main@2a33f12` 相同）、Vivado 2024.1、`xc7z020clg400-1` 和 100 MHz 约束运行 OOC 综合、实现、setup/hold 与 DRC。
+- [x] 记录 LUT/FF/BRAM/DSP、WNS/TNS/WHS/THS、失败端点、route/DRC 状态及报告 SHA-256；报告完整但物理门结果为 `NOT_PROVEN`。
+- [x] 确认综合、布局布线和 DRC 流程退出码为 0，route errors=0、DRC errors=0、hold 无失败；确认 setup `WNS=-5.087 ns`、`TNS=-421.539 ns`、244 个失败端点，因此不能宣称 100 MHz 收敛。
+- [ ] 从 `timing_impl.rpt` 提取关键寄存器路径，定位模型/掩码/结果数据通路的最长组合链，并形成带证据的流水化或分拍方案。
+- [ ] 在不删除 INT32 累加、mask epoch、结果背压或推理冻结语义的前提下实施最小 RTL 时序修复，并重跑单元/随机回归。
+- [ ] 修复后重新执行 Vivado OOC 物理门；只有 setup/hold 失败端点均为 0、route/DRC error 为 0 才可将状态改为 `VIVADO_OOC_PASS`。
+- [ ] OOC 通过后再规划 XC7Z020 顶层、DMA/PS/网口和板级功耗；不得用历史 NP6/NP7 结果代偿当前 RTL。
