@@ -1202,5 +1202,16 @@ class ModelConfigPortTest(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "model staging"):
             runtime.set_infer_freeze(True)
 
+    def test_model_and_mask_ports_cannot_both_be_staged_for_freeze(self):
+        model = NpuReference()
+        runtime = NpuEpochRuntime(model)
+        model_port = ModelConfigPort(model)
+        mask_port = protocol.MaskConfigPort()
+        runtime.bind_model_port(model_port)
+        runtime.bind_mask_port(mask_port)
+        model_port.step(True, ModelCommand(ModelCommandKind.MODEL_BEGIN), False)
+        with self.assertRaisesRegex(RuntimeError, "model staging"):
+            runtime.set_infer_freeze(True)
+
 if __name__ == "__main__":
     unittest.main()
