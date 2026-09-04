@@ -1300,3 +1300,4 @@
 - 一次只读 watchdog 搜索包含不存在的 `tb_npu_eneuron_single_clock.sv`，`rg` 因该路径返回 1；已确认其他三个 testbench 的 9000/6000/5000 拍常量，后续改用文件枚举寻找 skeleton testbench。未产生文件修改。
 - 独立只读反审计发现并修复一个文档 blocker：审核阶段允许写 V2 周期合同，但批准前禁止把周期常量落地到 testbench；同时将 `LOCAL_PRUNE_RTL_REPORT.md` 明确限定为 NP4A 历史基线。其余 accumulator、42 拍、C1-C4、watchdog、NP7 证据边界均无 blocker。
 - 本轮未修改计算 RTL、testbench、周期常量或 Vivado manifest；独立反审计 blocker 已闭合，下一步是提交并创建仅文档 PR。
+- 审核材料已提交为 `b6676b4`，推送到 `codex/timing-repair-v2-readiness-20260904` 并创建 PR #62；两个用户文件继续显式排除。等待最终 PR HEAD 的 GitHub Checks/API 结果。

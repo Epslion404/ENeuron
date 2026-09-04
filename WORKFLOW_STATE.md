@@ -30,6 +30,7 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 - 已从保留 routed checkpoint 扩展导出最多 50 条路径并完整覆盖全部 22 个 setup 失败端点：14 个属于动态激活选择/DSP/求和到 `lane_sum_latched`，8 个属于 `compute_group_index` 到 `logit_values` 写使能；不再存在未分类端点。证据身份见 `docs/verification/NPU_SINGLE_CLOCK_TIMING_ENDPOINT_AUDIT_V1.md`。
 - PR #60 HEAD `c0f1bea` 的 Actions run `33911646530` 已完成成功：分类和 Fast Python/diff check 成功、PR Gate 成功，其余无关重门按 CI-Fast V1 跳过；Webhook 收到同 SHA 的 `completed/success`。PR 已合并为 `main@4fc4c71`。
 - PR #61 HEAD `dc6715f` 的 Actions run `33912212910` 已完成成功并合并为 `main@bef5979`；当前分支与本地主线、远端主线均以该提交为基线。
+- PR #62 已由文档提交 `b6676b4` 创建，内容仅为 V2 审核材料、TODO 漂移修正和 Nexus 同步；不包含 RTL、testbench、周期常量或 Vivado manifest。当前等待最终 HEAD 的 GitHub Checks/API 结果。
 
 ## 允许动作
 
