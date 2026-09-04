@@ -1006,3 +1006,17 @@
 - 内部单 bit 手算向量只开启 `mask0[87]` 与 `mask1[25]`，得到唯一非零 logit 90、2 次组读取和 8 次 MAC；把 L0 改为相邻 `mask0[88]` 后结果归零，证明测试能发现 group 偏移。
 - 首尾 mixed 向量同时开启 `mask0[0]/mask0[511]` 与 `mask1[0]/mask1[79]`，得到首尾输出 12/40 和 4/16 读取/MAC，锁定两层边界与高端通道。
 - 输入和隐藏激活全零时，5 个 open group 仍固定计 5 次读取与 20 次 MAC；只有关闭 mask 才允许跳过，V1 不引入数据相关零跳过。
+
+## 2026-09-04 OF4a 634-word RED
+
+- 当前仓库没有模型 word 镜像解码或完整镜像载入 API，只有直接四数组 `load_weights()`；因此 634-word 段表仍仅存在于文档。
+- 最小切片限定为纯镜像边界：完整 634 word、每 word 严格 uint32、权重 byte0 对应最低 8 bit、bias 按 32-bit 二补码解释。
+- 原子性继续复用 OF1b：先在局部解码全部数据，再调用已签核的原子 `load_weights()`；不在 OF4a 引入 ready/valid、响应槽、顺序计数器或 `MODEL_COMMIT` 状态机。
+
+## 2026-09-04 OF4a 634-word GREEN
+
+- 解码器先把调用方序列快照为 tuple，再要求长度恰为 634，并统一验证每项必须是真正的 `0..0xffffffff` 整数；首、中、尾位置均覆盖非法类型和值域。
+- 权重段按低字节优先解为 signed INT8，bias 段按二补码解为 signed INT32；全量映射测试逐项检查 512/32/80/10 四段，安全 bias 边界由 OF1b 与 OF4a 原子拒绝矩阵共同验证。
+- `load_model_words()` 只在完整解码后调用已签核的原子 `load_weights()`；两层 bias 首尾的安全窗外值均拒绝，最晚 word633 失败仍保留旧模型或 unloaded 状态。
+- 该 API 允许函数级 oracle 重复原子 reload，仅用于冻结完整镜像语义；RTL 的一次装载锁定、逐 beat 接受和 `MODEL_COMMIT` 仍属于后续协议切片。
+- 首版只检查四段首尾，不能排除内部 word 交换/重复；最终测试改为逐项核对全部 512 个第一层权重 word、32 个第一层 bias、80 个第二层权重 word和10个第二层 bias，并验证解码后修改源列表不影响快照。
