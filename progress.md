@@ -1175,3 +1175,4 @@
 - 2026-09-04 单时钟 RTL 设计审核稿：新增 `docs/planning/NPU_SINGLE_CLOCK_RTL_DESIGN_REVIEW_V1.md`，冻结四 lane 共享引擎、634-word/双 mask 存储边界、状态机、仲裁、复位/冻结和验证顺序；等待管理员审核，未创建 RTL、未运行 Vivado。
 - 2026-09-04 设计审核前静态审计：新增 `NPU_SINGLE_CLOCK_RTL_DESIGN_AUDIT_V1.md`，确认 Python 合同与设计稿已对齐的 7 类内容，并列出 8 项逐拍接口/状态细节缺口；因此设计状态改为 `REVIEW_WITH_ACTIONS`，仍未创建 RTL、未运行 Vivado。
 - 2026-09-04 裁定表：新增 `NPU_SINGLE_CLOCK_RTL_DECISION_SHEET_V1.md`，为 8 项缺口提供推荐接口、仲裁、`mask_valid`、`model_valid` 和验证门；全部标为管理员待批准，仍未创建 RTL、未运行 Vivado。
+- 2026-09-04 provisional 合同：新增 `npu_single_clock_contract_provisional.json`，把 8 项建议转为机器可读字段，明确 `status=admin_review_required`、`rtl_allowed=false`、`vivado_allowed=false`；未改变冻结合同。
