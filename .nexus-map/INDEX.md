@@ -21,7 +21,7 @@ ENeuron 是以 Python 黄金模型、SystemVerilog RTL、Icarus/Yosys/Vivado 验
 
 ## 当前状态
 
-NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`，NP7 已签核。管理员已批准并完成 TR1-TR6：共享四 DSP lane、三拍组计算、单时钟专项 8/8、固定 `20×100` 和完整仓库 473 项均通过。实现提交 `5055073` 的 OOC 已证明恰好 4 个 `DSP48E1`，hold/route/DRC 通过，但 100 MHz setup 为 `WNS=-0.673 ns / TNS=-6.462 ns / 22` 个失败端点。当前权威基线为 `main@bef5979`。当前状态仍为 `DSP_GATE_PASS / VIVADO_OOC_SETUP_FAIL / TIMING_REPAIR_V2_REVIEW_REQUIRED`，TR7-TR12 尚未批准，计算 RTL 继续阻塞，不得宣称 100 MHz 或板级通过。
+NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`，NP7 已签核。管理员已批准并完成 TR1-TR6：共享四 DSP lane、三拍组计算、单时钟专项 8/8、固定 `20×100` 和完整仓库 473 项均通过。实现提交 `5055073` 的 OOC 已证明恰好 4 个 `DSP48E1`，hold/route/DRC 通过，但 100 MHz setup 为 `WNS=-0.673 ns / TNS=-6.462 ns / 22` 个失败端点。PR #62 已合并为 `main@e8dc947`，最终 HEAD `a4832cc3bddd96ba2f94c295ae99c1d12713abf3` 的 Actions run `33915028445` 为 success；Webhook 收到同 SHA，但 `signature_verified=false`，只作到达提示。当前状态仍为 `DSP_GATE_PASS / VIVADO_OOC_SETUP_FAIL / TIMING_REPAIR_V2_REVIEW_REQUIRED / RTL_CHANGES_BLOCKED`，TR7-TR12 尚未批准，不得宣称 100 MHz 或板级通过。
 
 ## 单时钟 RTL 审核摘要
 
@@ -36,7 +36,7 @@ NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`，NP7 已签核。
 
 ## 状态校正与下一门
 
-- **当前权威基线**：`main@bef5979`。DSP V1 实现与 OOC report head=`5055073`；V2 实施地图为 `docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V2_IMPLEMENTATION_MAP.md`，当前仍等待 TR7-TR12 批准。不要把旧 report head=`39e41d4` 的 0 DSP 结果当作当前实现结果。
+- **当前权威基线**：`main@e8dc947`（merge commit `e8dc9477dbfc7a9311dd00c514a986580ad2b84b`）。DSP V1 实现与 OOC report head=`5055073`；V2 实施地图为 `docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V2_IMPLEMENTATION_MAP.md`，当前仍等待 TR7-TR12 批准。不要把旧 report head=`39e41d4` 的 0 DSP 结果当作当前实现结果。
 - **已完成证据**：单时钟专项 8/8、固定 `20 seeds × 100 samples = 2000` 个样本逐 beat 随机门、完整回归 `473/473（1 skipped）`，以及 4 DSP 网表证据。
 - **已完成物理阶段**：使用 Vivado 2024.1 对当前 RTL、器件 `xc7z020clg400-1`、100 MHz 约束执行了 OOC 综合/实现、资源、setup/hold 和 DRC；setup 失败证据已归档。在关键路径修复通过前，不宣称当前设计的板级、功耗或网络吞吐性能。
 - **历史保留**：下方审计条目保留设计演进背景；其中标注为 V1/OF6 历史阶段的缺口不覆盖上述当前签核结果。

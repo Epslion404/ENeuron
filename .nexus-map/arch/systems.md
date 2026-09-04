@@ -1,6 +1,6 @@
 # 系统边界
 
-状态更新（2026-09-04）：当前基线为 `main@bef5979`。TR1-TR6 已实现并完成 C1-C4、单时钟专项 8/8、固定 `20×100` 和完整仓库 473 项。DSP V1 OOC 已确认恰好 4 个 DSP48E1，hold/route/DRC 通过，但 100 MHz setup `WNS=-0.673 ns / TNS=-6.462 ns / 22` 个端点失败。扩展报告已完整分类全部 22 个失败端点：14 个属于动态激活选择、DSP48E1 和求和到 `lane_sum_latched`，8 个属于 `compute_group_index` 到 `logit_values` 写使能。当前仍处于 `TIMING_REPAIR_V2_REVIEW_REQUIRED`，TR7-TR12 尚未批准，批准前不继续修改 RTL。
+状态更新（2026-09-04）：PR #62 已合并，V2 审核材料基线为 `main@e8dc947`，PR 最终 HEAD 为 `a4832cc3bddd96ba2f94c295ae99c1d12713abf3`。TR1-TR6 已实现并完成 C1-C4、单时钟专项 8/8、固定 `20×100` 和完整仓库 473 项。DSP V1 OOC 已确认恰好 4 个 DSP48E1，hold/route/DRC 通过，但 100 MHz setup `WNS=-0.673 ns / TNS=-6.462 ns / 22` 个端点失败。扩展报告已完整分类全部 22 个失败端点：14 个属于动态激活选择、DSP48E1 和求和到 `lane_sum_latched`，8 个属于 `compute_group_index` 到 `logit_values` 写使能。当前仍处于 `TIMING_REPAIR_V2_REVIEW_REQUIRED / RTL_CHANGES_BLOCKED`，TR7-TR12 尚未批准，批准前不继续修改 RTL。
 
 generated_by: nexus-mapper v2 / manual synthesis
 verified_at: 2026-09-04

@@ -1301,3 +1301,5 @@
 - 独立只读反审计发现并修复一个文档 blocker：审核阶段允许写 V2 周期合同，但批准前禁止把周期常量落地到 testbench；同时将 `LOCAL_PRUNE_RTL_REPORT.md` 明确限定为 NP4A 历史基线。其余 accumulator、42 拍、C1-C4、watchdog、NP7 证据边界均无 blocker。
 - 本轮未修改计算 RTL、testbench、周期常量或 Vivado manifest；独立反审计 blocker 已闭合，下一步是提交并创建仅文档 PR。
 - 审核材料已提交为 `b6676b4`，推送到 `codex/timing-repair-v2-readiness-20260904` 并创建 PR #62；两个用户文件继续显式排除。等待最终 PR HEAD 的 GitHub Checks/API 结果。
+- PR #62 最终 HEAD `a4832cc` 对应 Actions run `33915028445`：Classify、Fast Python/diff 和 PR Gate 成功，按 docs-only 分类跳过无关重门；GitHub API 确认 `CLEAN / MERGEABLE`。
+- 仓库外 Webhook 健康检查返回 HTTP 200，并收到同一 SHA 的 `check_run completed/success`；因 `signature_verified=false` 只作触发提示。PR #62 已合并为 `main@e8dc947`。
