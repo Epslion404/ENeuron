@@ -1217,3 +1217,15 @@
 - 资源：2672 LUT、1879 FF、0 BRAM36、0 BRAM18、0 DSP。setup：WNS -5.087 ns、TNS -421.539 ns、244 个失败端点；hold：WHS +0.098 ns、0 个失败端点。
 - 结论：当前 RTL 具备完整 OOC 实现证据，但 100 MHz setup 门失败，状态更新为 `VIVADO_OOC_SETUP_FAIL / TIMING_REPAIR_REQUIRED`。不进入顶层、网口、DMA、PS 或板级功耗阶段。
 - 已将 P14 活动 TODO 改为：提取关键路径 → 设计最小流水化/分拍 → 重跑 bit-exact 回归 → 重跑同器件同约束 Vivado OOC。失败结果保留，不用历史 NP6/NP7 报告代偿。
+
+## 2026-09-04 时序修复 TODO 与审核稿
+
+- 已从 `timing_impl.rpt` 完成最差路径分类：前 20 条均属于 `compute_group_index` 到 `hidden_values` 写回的同类长路径，最差 14.775 ns、23 级逻辑。
+- 已审计现有 RTL，确认长链在 `COMPUTE_L0_GROUP_ACCUM` 内同时承担四 lane 乘加、INT32 累加、末组饱和和写回。
+- 已新增 `docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V1.md`，提出 `FETCH→EXECUTE→COMMIT`、共用 `lane_sum_latched`、外部协议不变和 LUT-only 优先的 TR1-TR6 六项裁定。
+- 已修正 `docs/planning/TODO.md`：关键路径分析和方案形成标记为完成，当前人工门改为 `TIMING_REPAIR_V1_REVIEW_REQUIRED`。
+- 已同步 7 份 `.nexus-map` 人工摘要/机器概念文件：当前权威基线为 `origin/main@dc2452b`，并分别记录 RTL merge=`2a33f12`、OOC report head=`39e41d4`、evidence merge=`dc2452b`；JSON 解析与 diff-check 通过。
+- 提交前轻量回归通过：`test_ci_fast_v1` 8/8、`test_artifact_layout` 1/1；确认文档/Nexus 变更继续走 fast gate，OOC manifest 仍被唯一归档和索引。
+- 本轮未修改业务 RTL、未运行新的 Vivado，也未触碰用户文件 `np75_tmp_sparse_protocol.ys`。
+- PR #56 首轮 HEAD `c1c774e` 的 GitHub run `33891809535` 与仓库外 webhook 同 SHA 均为 success；PR 为 `CLEAN / MERGEABLE`，但该结果只证明文档门通过，不代表 TR1-TR6 已批准。
+- 独立反审计发现并修正 TR3 的关闭组矛盾，同时把 V1 失败后的升级改为按新最差路径选择 `WRITEBACK` 或 DSP；该修订需要新的 PR HEAD CI。
