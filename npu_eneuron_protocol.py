@@ -1,6 +1,7 @@
 """NPU + ENeuron 门控版本和单槽结果的最小事务参考模型。"""
 
 from dataclasses import dataclass
+from enum import Enum
 import logging
 from typing import Sequence
 
@@ -31,6 +32,37 @@ class DecodedMasks:
 
     mask0: tuple[bool, ...]
     mask1: tuple[bool, ...]
+
+
+class MaskCommandKind(str, Enum):
+    """19-word mask 配置端口的最小命令集合。"""
+
+    MASK_BEGIN = "MASK_BEGIN"
+    DATA = "DATA"
+    MASK_COMMIT = "MASK_COMMIT"
+    MASK_ABORT = "MASK_ABORT"
+
+
+@dataclass(frozen=True)
+class MaskCommand:
+    """一拍配置命令；字段保持原始值，边界错误由端口握手后报告。"""
+
+    kind: object
+    epoch: object = 0
+    word: object = 0
+
+
+@dataclass(frozen=True)
+class MaskStepResult:
+    """配置端口一拍后的公开状态和错误响应。"""
+
+    cmd_ready: bool
+    cmd_accepted: bool
+    error_valid: bool
+    error_code: str | None
+    state: str
+    word_index: int
+    active_epoch: int
 
 
 def _validate_uint32(value: object, label: str) -> int:
@@ -89,6 +121,186 @@ def decode_mask_words(words: Sequence[object]) -> DecodedMasks:
     mask0 = tuple(bool((image[index // 32] >> (index % 32)) & 1) for index in range(MASK0_BITS))
     mask1 = tuple(bool((image[16 + index // 32] >> (index % 32)) & 1) for index in range(MASK1_BITS))
     return DecodedMasks(mask0, mask1)
+
+
+class MaskConfigPort:
+    """19-word mask 配置口的单槽四态参考实现。
+
+    命令只在没有待消费错误响应时被接受。非法命令完成握手后产生一个稳定
+    错误码；错误响应被接受前，端口不会再接受下一条配置命令。
+    """
+
+    EMPTY = "empty"
+    LOADING = "loading"
+    COMPLETE = "complete"
+    PUBLISHED = "published"
+
+    def __init__(self) -> None:
+        self._state = self.EMPTY
+        self._word_index = 0
+        self._active_epoch = 0
+        self._active_masks = DecodedMasks((True,) * MASK0_BITS, (True,) * MASK1_BITS)
+        self._staging_epoch: int | None = None
+        self._staging_words: list[int] = []
+        self._published_epoch: int | None = None
+        self._published_masks: DecodedMasks | None = None
+        self._pending_error: str | None = None
+        self._frozen = False
+
+    @property
+    def state(self) -> str:
+        return self._state
+
+    @property
+    def word_index(self) -> int:
+        return self._word_index
+
+    @property
+    def active_epoch(self) -> int:
+        return self._active_epoch
+
+    @property
+    def active_masks(self) -> DecodedMasks:
+        return self._active_masks
+
+    @property
+    def published_epoch(self) -> int | None:
+        return self._published_epoch
+
+    @property
+    def frozen(self) -> bool:
+        return self._frozen
+
+    def set_infer_freeze(self, frozen: bool) -> None:
+        """只允许在 staging 为空时切换推理冻结。"""
+        if frozen and self._state != self.EMPTY:
+            raise RuntimeError("cannot freeze while mask staging is occupied")
+        self._frozen = bool(frozen)
+
+    def accept_sample_boundary(self) -> int:
+        """在后续样本首 beat 接受时把 published mask 交换为 active。"""
+        if self._state != self.PUBLISHED or self._published_masks is None:
+            return self._active_epoch
+        published_epoch = self._published_epoch
+        if published_epoch is None:
+            raise RuntimeError("published mask epoch is missing")
+        self._active_epoch = published_epoch
+        self._active_masks = self._published_masks
+        self._published_epoch = None
+        self._published_masks = None
+        self._staging_epoch = None
+        self._staging_words = []
+        self._word_index = 0
+        self._state = self.EMPTY
+        LOGGER.debug("activated mask epoch=%d at sample boundary", self._active_epoch)
+        return self._active_epoch
+
+    def step(
+        self,
+        cmd_valid: bool,
+        command: MaskCommand | None,
+        response_ready: bool,
+    ) -> MaskStepResult:
+        """推进一个配置时钟周期并返回公开握手状态。"""
+        if self._pending_error is not None:
+            error_code = self._pending_error
+            if response_ready:
+                self._pending_error = None
+            return self._result(False, False, True, error_code)
+
+        if not cmd_valid:
+            return self._result(True, False, False, None)
+
+        error_code = self._execute(command)
+        if error_code is not None:
+            self._pending_error = error_code
+        return self._result(True, True, error_code is not None, error_code)
+
+    def _result(
+        self,
+        cmd_ready: bool,
+        cmd_accepted: bool,
+        error_valid: bool,
+        error_code: str | None,
+    ) -> MaskStepResult:
+        return MaskStepResult(
+            cmd_ready,
+            cmd_accepted,
+            error_valid,
+            error_code,
+            self._state,
+            self._word_index,
+            self._active_epoch,
+        )
+
+    def _execute(self, command: MaskCommand | None) -> str | None:
+        if self._frozen:
+            return "FROZEN"
+        if not isinstance(command, MaskCommand):
+            return "BAD_COMMAND"
+        if not isinstance(command.kind, MaskCommandKind):
+            return "BAD_COMMAND"
+
+        kind = command.kind
+        if kind is MaskCommandKind.MASK_BEGIN:
+            if self._state != self.EMPTY:
+                return "BAD_STATE"
+            try:
+                epoch = _validate_uint32(command.epoch, "mask epoch")
+            except ValueError:
+                return "BAD_EPOCH"
+            expected = (self._active_epoch + 1) & 0xFFFFFFFF
+            if epoch != expected:
+                return "BAD_EPOCH"
+            self._staging_epoch = epoch
+            self._staging_words = []
+            self._word_index = 0
+            self._state = self.LOADING
+            LOGGER.debug("began mask staging epoch=%d", epoch)
+            return None
+
+        if kind is MaskCommandKind.DATA:
+            if self._state != self.LOADING:
+                return "BAD_STATE"
+            try:
+                word = _validate_uint32(command.word, "mask word")
+            except ValueError:
+                return "BAD_WORD"
+            if self._word_index == MASK_WORD_COUNT - 1 and word & 0xFFFF0000:
+                return "BAD_RESERVED"
+            self._staging_words.append(word)
+            self._word_index += 1
+            if self._word_index == MASK_WORD_COUNT:
+                self._state = self.COMPLETE
+            return None
+
+        if kind is MaskCommandKind.MASK_COMMIT:
+            if self._state != self.COMPLETE or self._staging_epoch is None:
+                return "BAD_STATE"
+            try:
+                epoch = _validate_uint32(command.epoch, "mask epoch")
+            except ValueError:
+                return "BAD_EPOCH"
+            expected = (self._active_epoch + 1) & 0xFFFFFFFF
+            if epoch != expected or epoch != self._staging_epoch:
+                return "BAD_EPOCH"
+            self._published_masks = decode_mask_words(tuple(self._staging_words))
+            self._published_epoch = epoch
+            self._state = self.PUBLISHED
+            LOGGER.debug("published mask epoch=%d", epoch)
+            return None
+
+        if kind is MaskCommandKind.MASK_ABORT:
+            if self._state not in {self.LOADING, self.COMPLETE}:
+                return "BAD_STATE"
+            self._staging_epoch = None
+            self._staging_words = []
+            self._word_index = 0
+            self._state = self.EMPTY
+            LOGGER.debug("aborted mask staging")
+            return None
+
+        return "BAD_COMMAND"
 
 
 @dataclass(frozen=True)

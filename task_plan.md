@@ -980,7 +980,11 @@
 - [x] OF4a GREEN：精确解码 512/32/80/10 四段并原子载入现有参考模型；定向 3/3、oracle 25/25。
 - [x] OF4b1 RED：19-word packing、uint32 域和保留位 2 项测试得到 25 errors，确认 API 尚不存在。
 - [x] OF4b1 GREEN：完整解码 512+80 mask bit，word18[31:16] 非零零副作用拒绝；定向 2/2、oracle 27/27、CI-Fast 8/8，独立审计 PASS。
-- [ ] OF4b2：实现 19-word mask 四态命令机、非法配置错误响应、同索引重试和握手/背压语义。
+- [x] OF4b2 RED：3 条公开行为测试验证四态流转、错误响应稳定背压和保留位失败后的同索引重试；当前基线均按预期失败，提交 `3fc3a3f`。
+- [x] OF4b2a：实现最小命令端口并通过首两组共 6 条行为测试；覆盖四态、错误背压、保留位重试、abort、epoch 和样本边界激活。
+- [x] OF4b2a.1：修正 BEGIN 等于 active epoch 导致的不可提交 staging；补回归并要求 BEGIN/COMMIT 均为 next epoch。
+- [x] OF4b2 GREEN：完成独立审计并冻结 19-word mask 四态命令、错误响应和握手/背压语义；定向 7/7、oracle 34/34。
+- [ ] OF4b2b：补齐完整状态矩阵非法组合、全局 idle/freeze 与 `NpuEpochRuntime` 组合合同。
 - [ ] 按 RED 测试 → 最小实现 → 手算 mask 向量 → 状态矩阵顺序完成冻结。
 - [ ] 冻结端口/地址/状态转移/逐拍测试计划后，才提交单时钟 RTL 设计审核。
 

@@ -13,7 +13,7 @@ provenance: NP4B/NP6/NP7 TODO、工作流状态与 RTL 文件；集成边界来�
 - `fail-closed`：证据缺失、陈旧或哈希不符时拒绝签核。
 - `NP6_PHYSICAL_COST_PARTIAL`：物理成本阶段的正式状态；不是整体时序通过，也不是板级性能结论。
 - `NP7`：已合并并签核的共享 BRAM 与共享 lane 阶段；其逻辑/物理证据不能外推为传统 NPU + ENeuron 的集成收益。
-- `OF4B1_MASK_WORD_MAP_GREEN / OF1-OF6_V3_IMPLEMENTATION_IN_PROGRESS`：OF4b1 在 OF4a 基础上冻结严格 19-word uint32 掩码镜像：word0..15 按 LSB-first 映射到 `mask0[0..511]`（512 bit），word16..18 按 LSB-first 映射到 `mask1[0..79]`（80 bit）；`word18[31:16]` 为保留位且必须为零。输入长度、整数类型与 uint32 范围均严格校验，解码结果为两个独立不可变 tuple，不保留源列表引用。oracle 27/27 通过。四态命令机、逐拍 `ready/valid`、错误响应、`MODEL_COMMIT`、状态协议、RTL 与 Vivado 尚未完成。
+- `OF4B2_COMMAND_PORT_GREEN / OF1-OF6_V3_IMPLEMENTATION_IN_PROGRESS`：OF4b2 在 OF4b1 基础上冻结 `MaskConfigPort` 四态 `empty/loading/complete/published`、19-word 顺序装载、BEGIN/COMMIT next-epoch 校验、单槽错误响应背压、非法数据同索引重试及样本边界激活；oracle 34/34 通过。完整状态矩阵、全局 idle/freeze runtime 组合、RTL 与 Vivado 尚未完成。
 - `B-V1+V2`：NP7 已批准的单槽弹性流水合同，允许零路径同拍完成及非零结果退出与下一事务接受重叠；其收益只由逐拍账本证明。
 - `CI-Fast V1`：按变更路径选择验证范围的 Action 编排；Action 基线已从 `actions/checkout@v4`、`actions/setup-python@v5` 升级为二者 `@v7`（Node 24）。已完成 workflow 全量、文档轻量与 NPU-only 定向路径验证；任何 workflow 变更必须运行全量门，未知代码触发全仓回归，手动运行触发全部专项门。
 - `PR Gate`：始终执行的汇总状态；只允许被选专项门 `success` 或 `skipped`，任何失败均拒绝合并。分支保护应只要求该状态。

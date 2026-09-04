@@ -610,5 +610,265 @@ class NpuReferenceTest(unittest.TestCase):
         self.assertEqual(accepted.inference.mac_count, 0)
 
 
+class MaskConfigProtocolRedTest(unittest.TestCase):
+    """OF4b2 RED：冻结 19-word mask 逐拍配置口的最小行为合同。"""
+
+    @staticmethod
+    def _new_port():
+        required = ("MaskCommand", "MaskCommandKind", "MaskConfigPort", "MaskStepResult")
+        missing = [name for name in required if not hasattr(protocol, name)]
+        if missing:
+            raise AssertionError(
+                "OF4b2 RED: protocol is missing " + ", ".join(missing)
+            )
+        return protocol.MaskConfigPort()
+
+    @staticmethod
+    def _command(kind: str, **fields):
+        command_kind = getattr(protocol.MaskCommandKind, kind)
+        return protocol.MaskCommand(command_kind, **fields)
+
+    @staticmethod
+    def _field(result, name):
+        """允许测试在 dataclass 属性上工作，同时给出清晰的 RED 失败。"""
+        if not hasattr(result, name):
+            raise AssertionError(f"OF4b2 RED: MaskStepResult missing field {name}")
+        return getattr(result, name)
+
+    def _step(self, port, command=None, response_ready=False):
+        result = port.step(command is not None, command, response_ready)
+        self.assertIsInstance(result, protocol.MaskStepResult)
+        return result
+
+    def test_empty_loading_complete_published_state_machine(self):
+        """19 个合法 word 后进入 complete，合法 commit 后进入 published。"""
+        port = self._new_port()
+
+        initial = self._step(port)
+        self.assertEqual(self._field(initial, "state"), "empty")
+        self.assertEqual(self._field(initial, "word_index"), 0)
+        self.assertEqual(self._field(initial, "active_epoch"), 0)
+
+        begun = self._step(
+            port,
+            self._command("MASK_BEGIN", epoch=1),
+        )
+        self.assertTrue(self._field(begun, "cmd_ready"))
+        self.assertTrue(self._field(begun, "cmd_accepted"))
+        self.assertFalse(self._field(begun, "error_valid"))
+        self.assertEqual(self._field(begun, "state"), "loading")
+        self.assertEqual(self._field(begun, "word_index"), 0)
+
+        for index in range(18):
+            loaded = self._step(
+                port,
+                self._command("DATA", word=0),
+            )
+            self.assertTrue(self._field(loaded, "cmd_accepted"), index)
+            self.assertEqual(self._field(loaded, "state"), "loading")
+            self.assertEqual(self._field(loaded, "word_index"), index + 1)
+
+        complete = self._step(
+            port,
+            self._command("DATA", word=0x0000FFFF),
+        )
+        self.assertTrue(self._field(complete, "cmd_accepted"))
+        self.assertFalse(self._field(complete, "error_valid"))
+        self.assertEqual(self._field(complete, "state"), "complete")
+        self.assertEqual(self._field(complete, "word_index"), 19)
+
+        published = self._step(
+            port,
+            self._command("MASK_COMMIT", epoch=1),
+        )
+        self.assertTrue(self._field(published, "cmd_accepted"))
+        self.assertFalse(self._field(published, "error_valid"))
+        self.assertEqual(self._field(published, "state"), "published")
+        # Publishing stages the next epoch; active_epoch changes only at a sample boundary.
+        self.assertEqual(self._field(published, "active_epoch"), 0)
+
+    def test_error_response_is_stable_and_blocks_new_command_until_accepted(self):
+        """非法命令仍握手一次；错误响应背压时稳定且不再接受配置事务。"""
+        port = self._new_port()
+
+        # DATA 在 empty 状态非法，但必须完成一次命令握手并产生一个错误。
+        rejected = self._step(
+            port,
+            self._command("DATA", word=0),
+            response_ready=False,
+        )
+        self.assertTrue(self._field(rejected, "cmd_ready"))
+        self.assertTrue(self._field(rejected, "cmd_accepted"))
+        self.assertTrue(self._field(rejected, "error_valid"))
+        error_code = self._field(rejected, "error_code")
+        self.assertTrue(error_code)
+        self.assertEqual(self._field(rejected, "state"), "empty")
+        self.assertEqual(self._field(rejected, "word_index"), 0)
+        self.assertEqual(self._field(rejected, "active_epoch"), 0)
+
+        # 下游继续背压：错误码和所有状态字段必须保持稳定，并拒绝新命令。
+        blocked = self._step(
+            port,
+            self._command("MASK_BEGIN", epoch=1),
+            response_ready=False,
+        )
+        self.assertFalse(self._field(blocked, "cmd_ready"))
+        self.assertFalse(self._field(blocked, "cmd_accepted"))
+        self.assertTrue(self._field(blocked, "error_valid"))
+        self.assertEqual(self._field(blocked, "error_code"), error_code)
+        self.assertEqual(self._field(blocked, "state"), "empty")
+        self.assertEqual(self._field(blocked, "word_index"), 0)
+        self.assertEqual(self._field(blocked, "active_epoch"), 0)
+
+        # 接受错误响应后，端口恢复可用；之前的非法命令没有推进任何索引。
+        self._step(port, response_ready=True)
+        resumed = self._step(
+            port,
+            self._command("MASK_BEGIN", epoch=1),
+        )
+        self.assertTrue(self._field(resumed, "cmd_accepted"))
+        self.assertEqual(self._field(resumed, "state"), "loading")
+        self.assertEqual(self._field(resumed, "word_index"), 0)
+
+    def test_reserved_bits_error_has_zero_side_effect_and_retries_same_index(self):
+        """word18 高 16 位非零只报错；修正后仍在同一隐式索引重试。"""
+        port = self._new_port()
+        self._step(port, self._command("MASK_BEGIN", epoch=1))
+
+        for _ in range(18):
+            loaded = self._step(port, self._command("DATA", word=0))
+            self.assertTrue(self._field(loaded, "cmd_accepted"))
+
+        invalid_last = self._step(
+            port,
+            self._command("DATA", word=0x00010000),
+            response_ready=False,
+        )
+        self.assertTrue(self._field(invalid_last, "cmd_accepted"))
+        self.assertTrue(self._field(invalid_last, "error_valid"))
+        self.assertEqual(self._field(invalid_last, "state"), "loading")
+        self.assertEqual(self._field(invalid_last, "word_index"), 18)
+        self.assertEqual(self._field(invalid_last, "active_epoch"), 0)
+
+        # 错误响应排空后，同一 word index 接受合法低 16 位，进入 complete。
+        self._step(port, response_ready=True)
+        retried = self._step(port, self._command("DATA", word=0x0000FFFF))
+        self.assertTrue(self._field(retried, "cmd_accepted"))
+        self.assertFalse(self._field(retried, "error_valid"))
+        self.assertEqual(self._field(retried, "state"), "complete")
+        self.assertEqual(self._field(retried, "word_index"), 19)
+
+    def test_mask_abort_clears_loading_and_complete_staging(self):
+        """MASK_ABORT 在 loading/complete 均清空 staging，不改变 active epoch。"""
+        port = self._new_port()
+        self._step(port, self._command("MASK_BEGIN", epoch=1))
+        self._step(port, self._command("DATA", word=0))
+
+        aborted_loading = self._step(port, self._command("MASK_ABORT"))
+        self.assertTrue(self._field(aborted_loading, "cmd_accepted"))
+        self.assertFalse(self._field(aborted_loading, "error_valid"))
+        self.assertEqual(self._field(aborted_loading, "state"), "empty")
+        self.assertEqual(self._field(aborted_loading, "word_index"), 0)
+        self.assertEqual(self._field(aborted_loading, "active_epoch"), 0)
+
+        self._step(port, self._command("MASK_BEGIN", epoch=1))
+        for _ in range(19):
+            self._step(port, self._command("DATA", word=0))
+        self.assertEqual(port.state, "complete")
+
+        aborted_complete = self._step(port, self._command("MASK_ABORT"))
+        self.assertTrue(self._field(aborted_complete, "cmd_accepted"))
+        self.assertFalse(self._field(aborted_complete, "error_valid"))
+        self.assertEqual(self._field(aborted_complete, "state"), "empty")
+        self.assertEqual(self._field(aborted_complete, "word_index"), 0)
+        self.assertEqual(self._field(aborted_complete, "active_epoch"), 0)
+
+    def test_invalid_epoch_reports_once_without_state_progress(self):
+        """MASK_BEGIN/COMMIT 的非法 epoch 只报错，不推进状态或 word index。"""
+        port = self._new_port()
+
+        invalid_begin = self._step(
+            port,
+            self._command("MASK_BEGIN", epoch=-1),
+            response_ready=False,
+        )
+        self.assertTrue(self._field(invalid_begin, "cmd_accepted"))
+        self.assertTrue(self._field(invalid_begin, "error_valid"))
+        self.assertEqual(self._field(invalid_begin, "state"), "empty")
+        self.assertEqual(self._field(invalid_begin, "word_index"), 0)
+        self.assertEqual(self._field(invalid_begin, "active_epoch"), 0)
+        self._step(port, response_ready=True)
+
+        self._step(port, self._command("MASK_BEGIN", epoch=1))
+        for _ in range(19):
+            self._step(port, self._command("DATA", word=0))
+        self.assertEqual(port.state, "complete")
+
+        invalid_commit = self._step(
+            port,
+            self._command("MASK_COMMIT", epoch=3),
+            response_ready=False,
+        )
+        self.assertTrue(self._field(invalid_commit, "cmd_accepted"))
+        self.assertTrue(self._field(invalid_commit, "error_valid"))
+        self.assertEqual(self._field(invalid_commit, "state"), "complete")
+        self.assertEqual(self._field(invalid_commit, "word_index"), 19)
+        self.assertEqual(self._field(invalid_commit, "active_epoch"), 0)
+        self._step(port, response_ready=True)
+
+        valid_commit = self._step(port, self._command("MASK_COMMIT", epoch=1))
+        self.assertTrue(self._field(valid_commit, "cmd_accepted"))
+        self.assertEqual(self._field(valid_commit, "state"), "published")
+
+    def test_mask_begin_rejects_epoch_equal_to_active_epoch(self):
+        """active_epoch=0 时，MASK_BEGIN(epoch=0) 必须 BAD_EPOCH 且零副作用。"""
+        port = self._new_port()
+
+        invalid = self._step(
+            port,
+            self._command("MASK_BEGIN", epoch=0),
+            response_ready=False,
+        )
+        self.assertTrue(self._field(invalid, "cmd_ready"))
+        self.assertTrue(self._field(invalid, "cmd_accepted"))
+        self.assertTrue(self._field(invalid, "error_valid"))
+        self.assertEqual(self._field(invalid, "error_code"), "BAD_EPOCH")
+        self.assertEqual(self._field(invalid, "state"), "empty")
+        self.assertEqual(self._field(invalid, "word_index"), 0)
+        self.assertEqual(self._field(invalid, "active_epoch"), 0)
+
+        self._step(port, response_ready=True)
+        accepted = self._step(port, self._command("MASK_BEGIN", epoch=1))
+        self.assertTrue(self._field(accepted, "cmd_accepted"))
+        self.assertFalse(self._field(accepted, "error_valid"))
+        self.assertEqual(self._field(accepted, "state"), "loading")
+        self.assertEqual(self._field(accepted, "word_index"), 0)
+
+    def test_published_mask_activates_at_sample_boundary(self):
+        """published 只在样本边界交换为 active，并清空 staging 状态。"""
+        port = self._new_port()
+        self._step(port, self._command("MASK_BEGIN", epoch=1))
+        words = [0] * 19
+        words[0] = 1 << 0
+        words[16] = 1 << 0
+        for word in words:
+            self._step(port, self._command("DATA", word=word))
+        self._step(port, self._command("MASK_COMMIT", epoch=1))
+
+        self.assertEqual(port.state, "published")
+        self.assertEqual(port.active_epoch, 0)
+        activated_epoch = port.accept_sample_boundary()
+
+        self.assertEqual(activated_epoch, 1)
+        self.assertEqual(port.active_epoch, 1)
+        self.assertEqual(port.state, "empty")
+        self.assertEqual(port.word_index, 0)
+        self.assertTrue(port.active_masks.mask0[0])
+        self.assertFalse(port.active_masks.mask0[1])
+        self.assertTrue(port.active_masks.mask1[0])
+        self.assertFalse(port.active_masks.mask1[1])
+
+
+
 if __name__ == "__main__":
     unittest.main()

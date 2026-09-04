@@ -1034,3 +1034,19 @@
 - 返回的两层 mask 均为独立 tuple；修改源列表或尝试修改解码结果都不会改变已发布快照。
 - 验证：OF4b1 定向 `2/2`，完整 oracle `27/27`，CI-Fast `8/8`，`compileall` 和 `git diff --check` 通过；独立审计 PASS。
 - 明确边界：本切片不实现 active/staging、epoch、四态命令、错误响应、valid/ready、RTL 或 Vivado；这些内容归入 OF4b2 及之后阶段。
+
+## 2026-09-04 OF4b2 RED
+
+- 新增 `MaskCommand`、`MaskCommandKind`、`MaskConfigPort`、`MaskStepResult` 的公开行为测试草案；当前基线缺少这些接口，3 条测试均以明确缺失失败。
+- 测试冻结三条最小行为：`empty → loading → complete → published`；非法命令必须先握手再产生单个错误响应，响应背压期间稳定且不接受下一笔；第 19 个 word 的保留位错误排空后必须在原隐式索引重试。
+- 本切片不预设内部寄存器、状态编码或 RTL 结构；响应和状态字段通过不可变步骤结果对外观察。
+
+## 2026-09-04 OF4b2a 实现中
+
+- Python 端口采用单错误响应槽：无待响应时 `cmd_ready=1`；非法命令仍被接受并产生一个错误码；响应未被 `response_ready` 接受前，后续命令不握手。
+- staging 状态为 `empty/loading/complete/published`；19 个合法 word 后进入 `complete`，`MASK_COMMIT` 只发布下一 epoch，`accept_sample_boundary()` 才交换到 active。
+- 非法 word、非法 epoch、非法状态和冻结状态均零副作用；保留位失败不会推进隐式 word index，排空响应后可同索引重试。
+- 当前 6 条行为测试通过，但尚未覆盖完整命令矩阵、同周期响应/新命令仲裁、与 `NpuEpochRuntime` 的正式组合；这些保留为后续 OF4b2b/OF4b3。
+- 独立审计发现 `MASK_BEGIN(epoch=active_epoch)` 会造成不可提交 staging；已补回归并修正为 BEGIN/COMMIT 均要求 `active_epoch+1 mod 2^32`，当前 7 条 OF4b2 测试通过。
+- 端口本身仍不判断样本运行、输入部分 beat 或结果槽；冻结切换的全局 idle 条件必须由上层 runtime/集成层负责。
+- OF4b2 终审 PASS：BEGIN/COMMIT 均要求 next epoch，`active_epoch=0xffffffff` 可正确回绕到 0；错误响应消费拍保持稳定且不接受新命令。当前切片 GREEN，但完整状态矩阵和 runtime 组合仍待 OF4b2b。

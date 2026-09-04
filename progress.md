@@ -1160,3 +1160,7 @@
 - OF4a PR #37 已合并为 `59a8dca`；从该基线创建 `codex/of4b1-mask-word-map-20260904`。
 - 新增 exact 19、严格 uint32、word18 保留位和全 592-bit canonical packing 测试；当前实现为 2 个方法、25 errors，OF4b1 RED 成立。
 - OF4b1 已完成 GREEN：新增 `DecodedMasks` 与 `decode_mask_words()`；定向 2/2、完整 oracle 27/27、CI-Fast 8/8、compileall/diff-check 通过，独立审计 PASS。下一阶段为 OF4b2 四态命令机，不在本提交中混入逐拍协议或 RTL。
+- OF4b2 RED 已提交为 `3fc3a3f`：3 条测试在基线均按预期失败，覆盖四态流转、错误响应稳定背压和保留位失败后的同索引重试；准备实现最小 Python 命令端口。
+- OF4b2a 实现已完成首轮：`MaskConfigPort` 支持四态、单槽错误响应、非法 epoch/保留位零副作用、同索引重试和样本边界激活；6 条 OF4b2 测试及既有 oracle 共 33/33 通过，独立审计待完成。
+- 审计后补齐 `MASK_BEGIN(epoch=active_epoch)` 回归，修正 BEGIN 与 COMMIT 的 next-epoch 校验；OF4b2 定向 7/7、完整 oracle 34/34、compileall/diff-check 通过，等待最终独立复审。
+- OF4b2 GREEN 已签核：独立审计 PASS，确认 epoch 回绕和错误消费拍语义；下一步为完整状态矩阵与 runtime idle/freeze 组合，不扩大到 RTL/Vivado。

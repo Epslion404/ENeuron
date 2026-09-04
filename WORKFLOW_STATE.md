@@ -4,7 +4,7 @@
 
 最后更新：2026-09-04
 
-状态：`ACTIVE / NP7_MERGED / I1_I6_APPROVED / OF1_OF6_V3_APPROVED / OF3_MASK_ORDER_COST_GREEN / OF4A_MODEL_WORD_MAP_GREEN / OF4B1_MASK_WORD_MAP_GREEN`
+状态：`ACTIVE / NP7_MERGED / I1_I6_APPROVED / OF1_OF6_V3_APPROVED / OF3_MASK_ORDER_COST_GREEN / OF4A_MODEL_WORD_MAP_GREEN / OF4B1_MASK_WORD_MAP_GREEN / OF4B2_COMMAND_PORT_GREEN`
 
 ## 当前活动目标
 
@@ -42,7 +42,20 @@ NP6/NP7 已完成并合并；I1-I6 已批准。当前目标是冻结传统 `64�
 
 ## 下一动作
 
-提交并推送 OF4b1；随后进入 OF4b2，冻结 19-word mask 四态命令、非法配置错误响应、同索引重试以及握手/背压语义。四态命令机仍不属于 OF4b1。
+完成 OF4b2 GREEN：冻结 19-word mask 四态命令、非法配置错误响应、同索引重试以及握手/背压语义。四态命令机仍不属于 OF4b1。
+
+## 2026-09-04 OF4b2 GREEN
+
+- 已实现最小 `MaskCommand`、`MaskCommandKind`、`MaskConfigPort` 和不可变 `MaskStepResult`。
+- 当前 6 条 OF4b2 行为测试全部通过：四态正常流、错误响应稳定背压、保留位同索引重试、`MASK_ABORT`、非法 epoch 和样本边界激活。
+- 已补充 `MASK_BEGIN(epoch=active_epoch)` 回归并修正 next-epoch 校验；当前 OF4b2 定向 7/7、完整 oracle 34/34 通过。
+- 独立实现审计 PASS；next-epoch 与 `0xffffffff→0` 回绕、错误消费拍不接新命令均已手工复核。
+- 完整命令矩阵的剩余非法组合、全局 idle/freeze 上层组合、RTL 和 Vivado 仍未开始。
+
+## 2026-09-04 OF4b2 RED
+
+- 已提交 `3fc3a3f`，新增 3 条公开行为测试；当前基线均按预期失败，确认命令机接口尚不存在。
+- RED 覆盖四态 `empty/loading/complete/published`、非法命令一次握手与稳定错误响应、响应背压阻止新命令，以及保留位错误后的同索引重试。
 
 ## 2026-09-04 OF4b1 GREEN
 
