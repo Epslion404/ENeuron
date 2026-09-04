@@ -1111,4 +1111,4 @@
 - GitHub API 当前确认 PR #54 为 `OPEN / MERGEABLE / CLEAN`；`Classify changes`、`Fast Python and diff check`、`Full repository regression` 和 `PR Gate` 均成功，三个不相关重门按路径跳过。
 - 这些 CI 结果只覆盖提交 HEAD `084f849`，不能覆盖工作树中尚未跟踪的 `tb_npu_eneuron_single_clock_random.sv` 与 `test_npu_single_clock_random.py`。
 - 随机门已确认是 testbench 首 beat ready/valid 观察竞态：DUT 内部 `logit_values` 与 Python 期望一致；在拉高 `result_ready` 后直接按下降沿采样会重复首 beat，改变等待拍数又可能跳过首 beat。
-- 因而当前合并裁定为“暂不合并”：先完成两样本、无随机背压的同步消费者，再通过固定 `20×100` 随机门；未通过前不把 PR 的 `CLEAN` 状态表述成阶段功能签核。
+- 两样本同步消费者已扩展为稳定的下降沿观察/上升沿握手循环，完整固定 `20×100`（共 2000 样本）已通过；当前仍不能合并，因为随机 testbench 尚未进入 PR HEAD，GitHub CI 尚未覆盖它。

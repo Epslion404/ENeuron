@@ -1060,24 +1060,25 @@
 ## 2026-09-04 随机 bit-exact 协同仿真门
 
 - [x] 确认 PR #54 当前 GitHub Actions 全部相关检查已成功，状态为 `OPEN / MERGEABLE / CLEAN`；Webhook 不作为缺失事件的替代来源。
-- [x] 新增可复现的固定 seed 随机模型/样本/mask 文件驱动 testbench（当前文件仍未纳入 PR，须先通过验证再提交）。
-- [ ] 至少 20 个固定 seed × 每个 100 个样本，逐 beat 比对 10 个 logits、sample ID 和 mask epoch。
-- [ ] 覆盖全开、全关、mixed mask、负权重、负 bias、运行期 mask 发布和结果背压。
-- [ ] 先用两样本、无随机背压的最小消费者证明首 beat/末 beat/结果清空，再恢复随机背压和 20×100 长门。
+- [x] 新增可复现的固定 seed 随机模型/样本/mask 文件驱动 testbench，并已完成本地验证。
+- [x] 至少 20 个固定 seed × 每个 100 个样本，逐 beat 比对 10 个 logits、sample ID 和 mask epoch。
+- [x] 覆盖全开、全关、mixed mask、负权重、负 bias、运行期 mask 发布和结果背压。
+- [x] 用稳定的结果消费者完成首 beat/末 beat/结果清空验证；随机背压与长事务已纳入同一消费者。
 - [x] 已更新任务状态文档与 Nexus，并推送 PR #54 的当前门审计（不代表随机门通过）。
-- [ ] 随机门通过后提交随机 testbench 与对应证据并再次推送 PR #54；在此之前不合并 PR #54、不运行 Vivado。
+- [x] 固定 `20×100` 随机门已通过；随机 testbench 与对应证据已准备提交并推送 PR #54。
+- [ ] 随机门对应代码进入同一 HEAD 且 CI 全部通过后，合并 PR #54；随后申请 Vivado OOC。
 
 ### 随机门错误记录
 
 | 错误 | 尝试 | 处理 |
 |---|---:|---|
 | mask 生成器把 592 个有效 bit 当作 608 个 bit 访问，首轮出现 `IndexError` | 1 | 将 word18 高 16 位显式视为保留零位，继续运行；未执行 DUT 仿真 |
-| 随机 testbench 在 ready 拉高后首个握手边界不明确，出现 beat0 重复或跳过 | 2 | 已确认 DUT 内部 logits 与黄金值一致；停止增减固定等待拍，改为先完成两样本同步消费者，再恢复随机门 |
+| 随机 testbench 在 ready 拉高后首个握手边界不明确，出现 beat0 重复或跳过 | 2 | 已确认 DUT 内部 logits 与黄金值一致；改为下降沿观察当前 beat、下一上升沿完成握手，完整 20×100 已通过 |
 
 ### PR #54 合并门
 
-- 当前 GitHub 检查全部成功只证明已提交的单时钟 RTL 切片，不证明本地未跟踪的随机 testbench。
-- 只有在两样本最小消费者、完整 `20×100` 随机逐 beat 门、文档/Nexus 更新和同一 HEAD 的 CI 全部完成后，PR #54 才满足本阶段合并条件。
+- 当前 GitHub 检查全部成功只证明已提交的单时钟 RTL 切片；随机 testbench 已在本地通过，但必须进入同一 HEAD 后由 CI 重验。
+- 只有在随机 testbench 与证据进入同一 HEAD、完整 `20×100` 随机逐 beat 门、文档/Nexus 更新和同一 HEAD 的 CI 全部完成后，PR #54 才满足本阶段合并条件。
 - 用户临时文件 `np75_tmp_sparse_protocol.ys` 继续保持未跟踪，不得暂存或提交。
 
 ### 本轮错误记录

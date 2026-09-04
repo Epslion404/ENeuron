@@ -1202,3 +1202,4 @@
 - 2026-09-04 PR #54 合并门复核：GitHub API 确认当前 HEAD `084f849` 的相关检查全部成功且 PR `OPEN / MERGEABLE / CLEAN`，但随机 testbench 仍未跟踪、未通过；因此暂不合并。
 - 2026-09-04 修正随机门 TODO：将“随机文件已创建”和“20×100 已签核”拆为独立状态；首 beat 问题记录为 ready/valid 观察竞态，下一步先做两样本无背压消费者，不再盲调等待拍。
 - 2026-09-04 已提交并推送文档/Nexus 状态修正：本地提交 `d6e3ce0`、`ccfbecc`，PR #54 HEAD 更新为 `ccfbecc`；新 CI 正在运行，随机门仍未签核。
+- 2026-09-04 重写随机结果消费者后，完整固定 `20 seeds × 100 samples = 2000` 逐 beat 门通过；首 beat、末 beat、sample ID、mask epoch、结果背压和 mask 轮换均通过。随机 testbench 尚未提交，需先纳入 PR 再等待同一 HEAD CI。
