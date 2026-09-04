@@ -1,6 +1,6 @@
 # 传统 NPU + ENeuron 单时钟 RTL 设计审核 V1
 
-状态：`REVIEW_REQUIRED`。本文仅为设计稿，尚未创建集成业务 RTL，也未运行 Vivado。
+状态：`REVIEW_WITH_ACTIONS`。本文仅为设计稿，静态审计见 `NPU_SINGLE_CLOCK_RTL_DESIGN_AUDIT_V1.md`；尚未创建集成业务 RTL，也未运行 Vivado。
 
 ## 目标与边界
 
@@ -67,3 +67,7 @@ V1 采用一个四 lane 共享引擎。忽略配置和背压时，每样本至�
 4. 批准 hidden 缓存使用 32×7 bit，输出缓存使用 10×32 bit。
 5. 批准精确周期在 RTL 协同仿真阶段冻结，不在设计稿中预设。
 6. 批准先用 Icarus 完成功能闭环，再单独申请 Vivado OOC 门。
+
+## 审核前必须补充
+
+样本/结果逐拍字段、统一配置流拓扑、双提交同拍行为、`mask_valid` 默认全开语义、未提交模型的 `sample_ready` 行为，以及 runtime idle 的硬件组合定义，详见静态审计稿。
