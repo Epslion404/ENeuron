@@ -1150,3 +1150,10 @@
 - OF1b PR #35 已合并为 `6833237`；从该基线创建 `codex/of3-mask-order-cost-20260904`。
 - 新增 3 项 OF3 手算冻结测试，首次运行 3/3 通过；独立只读审计确认核心索引和 open group 计数原已符合，未修改 `npu_eneuron_reference.py`、协议、RTL，未运行 Vivado。
 - OF3 最终本地复验：oracle 22/22、CI-Fast 8/8、compileall、Nexus JSON 与完整 diff-check 全通过；Nexus 仅更新 6 个相关摘要。
+- OF3 PR #36 已合并为 `a93019f`；从该基线创建 `codex/of4a-model-word-map-20260904`。
+- 新增 634-word 精确映射、严格 uint32 域和非法 bias 原子载入测试；当前实现定向结果为 3 个方法、10 errors，OF4a RED 成立。
+- 实现 `DecodedModel`、`decode_model_words()` 与 `load_model_words()`，完整镜像先快照/验证/解码再原子载入；OF4a 3/3、oracle 25/25、compileall 与 diff-check 通过。
+- 本切片未实现 ready/valid、配置响应、`MODEL_COMMIT`、19-word mask 或任何 RTL，未运行 Vivado，未触碰用户临时 `.ys`。
+- 独立首轮复审因内部 word 覆盖不足暂判 FAIL；已补为全 634 项逐位置核对，并增加 `word633=None/2^32` 经 loader 失败后旧模型对 0/1 输入保持不变。补强后 OF4a 3/3、oracle 25/25。
+- OF4a 终审 PASS：512 个第一层和 80 个第二层权重 word 图样分别全唯一，全部 bias 逐项核对；核心、mask、runtime 状态机和 RTL 均无越界改动。
+- OF4a 最终本地复验：oracle 25/25、CI-Fast 8/8，合计 33 项；compileall、Nexus JSON 和完整 diff-check 全通过。

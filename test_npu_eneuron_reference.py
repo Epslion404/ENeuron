@@ -3,6 +3,7 @@
 import unittest
 from dataclasses import FrozenInstanceError
 
+import npu_eneuron_protocol as protocol
 from npu_eneuron_reference import NpuConfig, NpuReference
 from npu_eneuron_protocol import NpuEpochRuntime
 
@@ -127,6 +128,107 @@ class NpuReferenceTest(unittest.TestCase):
         self.assertEqual(result.group_reads, 5)
         self.assertEqual(result.mac_count, 20)
         self.assertEqual(result.mac_count, config.group_size * result.group_reads)
+
+    def test_model_words_use_exact_segment_and_byte_mapping(self):
+        words = [0] * 634
+        for index in range(512):
+            words[index] = 0x80000000 | (index << 8) | (index ^ 0x5A)
+        for hidden in range(32):
+            words[512 + hidden] = (-1000 + hidden) & 0xFFFFFFFF
+        for offset in range(80):
+            words[544 + offset] = 0x7F000000 | (offset << 8) | (offset ^ 0xA5)
+        for output in range(10):
+            words[624 + output] = 2000 + output
+
+        words[0] = 0x7F00FF80
+        words[511] = 0x04030201
+        words[544] = 0xFFFEFDFC
+        words[623] = 0x01020304
+
+        decoded = protocol.decode_model_words(words)
+
+        for hidden in range(32):
+            for group in range(16):
+                word = words[16 * hidden + group]
+                expected = tuple(
+                    raw - 256 if raw >= 128 else raw
+                    for raw in ((word >> (8 * byte)) & 0xFF for byte in range(4))
+                )
+                self.assertEqual(decoded.weights0[hidden][4 * group : 4 * group + 4], expected)
+            self.assertEqual(decoded.bias0[hidden], -1000 + hidden)
+
+        for output in range(10):
+            for group in range(8):
+                word = words[544 + 8 * output + group]
+                expected = tuple(
+                    raw - 256 if raw >= 128 else raw
+                    for raw in ((word >> (8 * byte)) & 0xFF for byte in range(4))
+                )
+                self.assertEqual(decoded.weights1[output][4 * group : 4 * group + 4], expected)
+            self.assertEqual(decoded.bias1[output], 2000 + output)
+
+        original = decoded.weights0[0][0]
+        words[0] = 0
+        self.assertEqual(decoded.weights0[0][0], original)
+
+    def test_model_word_image_requires_exact_uint32_domain(self):
+        for length in (633, 635):
+            with self.subTest(length=length):
+                with self.assertRaisesRegex(ValueError, "634"):
+                    protocol.decode_model_words([0] * length)
+
+        for index in (0, 317, 633):
+            for invalid in (-1, 0x100000000, 1.0, "0", None, True):
+                with self.subTest(index=index, invalid=invalid):
+                    words = [0] * 634
+                    words[index] = invalid
+                    with self.assertRaisesRegex(ValueError, "uint32"):
+                        protocol.decode_model_words(words)
+
+    def test_model_word_load_is_atomic_for_invalid_bias(self):
+        config = NpuConfig()
+        unsafe_biases = (
+            (512, -2147360769 & 0xFFFFFFFF),
+            (543, 2147361728),
+            (624, -2146963457 & 0xFFFFFFFF),
+            (633, 2146967520),
+        )
+        for index, word in unsafe_biases:
+            with self.subTest(index=index):
+                model = NpuReference(config)
+                model.load_weights(*self._valid_model_data(config))
+                before = tuple(model.infer([value] * config.input_size) for value in (0, 1))
+                words = [0] * 634
+                words[index] = word
+                with self.assertRaisesRegex(ValueError, "bias"):
+                    protocol.load_model_words(model, words)
+                after = tuple(model.infer([value] * config.input_size) for value in (0, 1))
+                self.assertEqual(after, before)
+
+        unloaded = NpuReference(config)
+        words = [0] * 634
+        words[633] = 2146967520
+        with self.assertRaisesRegex(ValueError, "bias"):
+            protocol.load_model_words(unloaded, words)
+        with self.assertRaisesRegex(RuntimeError, "not loaded"):
+            unloaded.infer([0] * config.input_size)
+
+        protocol.load_model_words(unloaded, [0] * 634)
+        result = unloaded.infer([0] * config.input_size)
+        self.assertEqual(result.logits, (0,) * config.output_size)
+        self.assertTrue(result.abstain)
+
+        for invalid in (None, 0x100000000):
+            with self.subTest(late_invalid=invalid):
+                model = NpuReference(config)
+                model.load_weights(*self._valid_model_data(config))
+                before = tuple(model.infer([value] * config.input_size) for value in (0, 1))
+                words = [0] * 634
+                words[633] = invalid
+                with self.assertRaisesRegex(ValueError, "uint32"):
+                    protocol.load_model_words(model, words)
+                after = tuple(model.infer([value] * config.input_size) for value in (0, 1))
+                self.assertEqual(after, before)
 
     def test_full_open_gated_mode_is_bit_exact_with_bypass(self):
         config = NpuConfig()
