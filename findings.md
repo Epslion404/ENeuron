@@ -1058,3 +1058,57 @@
 - frozen 仍允许 `begin_sample → complete_sample → accept_result`，但配置、动态清除和端口 `MASK_BEGIN` 均被拒绝；runtime 组合测试 5/5，完整 oracle 41/41。
 - 后续必须把相同全局 idle/freeze 合同映射到单时钟 RTL；本切片没有运行 Vivado，也没有声明硬件吞吐或资源收益。
 - 2026-09-04 单时钟 RTL 设计审核前静态审计发现：Python oracle 与设计稿在 634-word/19-word 镜像、数值域、结果背压、版本切换、复位和冻结边界上已对齐；但样本/结果 beat 字段、统一配置流拓扑、双 commit 同拍行为、`mask_valid` 默认全开语义、未提交模型的 `sample_ready` 行为和 runtime idle 硬件组合仍需明确。详见 `docs/planning/NPU_SINGLE_CLOCK_RTL_DESIGN_AUDIT_V1.md`，共 8 项待补规格，未创建 RTL、未运行 Vivado。
+
+## 2026-09-04 RTL 裁定 V1 审计与 V2 修正
+
+- 独立审计确认 V1 不能直接批准：结果 metadata 引入 oracle 未定义的 `model_epoch`，320-bit 结果槽账本不完整；统一命令流下不存在 `MODEL_COMMIT` 与 `MASK_COMMIT` 同拍竞争；样本 framing、首拍 mask 切换后的错误回滚、`model_valid=0` 的逐拍 ready 行为以及 `runtime_idle` 的错误/部分输出/FIFO 条件均未闭合。
+- V2 将样本固定为 8 个 `32-bit` beat、结果固定为 10 个 `32-bit` signed beat，beat 序号由 DUT 内部计数，取消外部 `last`；像素采用 `pixel[8*k+j] = beat_data[4*j +: 4]`，结果只锁存 `sample_id` 与 `mask_epoch`，删除 `model_epoch`。
+- V2 将配置固定为一条 128-bit 命令流和一条 128-bit 响应流；配置命令与样本首拍同拍时配置优先，统一命令流按握手顺序串行化两个 commit，不再定义不存在的 commit 碰撞优先级。
+- V2 明确复位后全开 mask 且 `mask_valid=0` 仍允许推理；样本首拍原子锁存 mask/epoch；`model_valid=0` 时 `sample_ready=0`；`runtime_idle` 必须计入 partial input、running、partial output、result/error slot 和命令/响应槽占用。
+- 验证门改为至少 20 个固定 seed × 每个 100 个样本（不少于 2000 个），并覆盖背压、reset、freeze/clear、epoch 回绕、错误同索引重试、全开/全关/mixed mask、负权重和负向 mutation。V2 provisional JSON 明确 `admin_review_required`、`rtl_allowed=false`、`vivado_allowed=false`。
+
+## 2026-09-04 单时钟 RTL 骨架与 mask epoch 切片
+
+- 第一条垂直切片冻结模型无效拒收、634-word 顺序装载/提交、配置优先样本首 beat、固定 8-beat 输入、单槽错误响应和固定 10-beat 结果背压；当前结果仍为零占位，不能称为 NPU 数值实现。
+- 第二条切片加入 19-word mask staging、next-epoch 检查、published 等待和样本首 beat 激活。复位默认全开但 `mask_valid=0`；首次用户版本激活后置 1，结果槽锁存该样本 epoch，后续样本继续使用 active epoch。
+- word18 高 16 位保留位错误会产生稳定单槽响应，隐式索引保持 18；响应消费后可在同一索引重试。该负向测试发现旧响应拼接只有 126 位，现由唯一 `make_error_response()` 生成严格 128 位字段。
+- 连续第二个样本测试发现第 8 beat 后输入计数必须显式归零；修正后两个样本均完整接收 8 beat。当前尚未实现 mask bit 对真实 MAC 的门控、INT8 计算、freeze/clear 或 Vivado OOC。
+
+## 2026-09-04 单时钟控制切片
+
+- `MASK_ABORT` 只在 loading/complete 接受，并一次丢弃隐式 word index、staging epoch 与部分镜像；随后严格 idle 恢复，active mask/epoch 不变。
+- `STATE_CLEAR` 只在 runtime、响应槽和模型/mask staging 全空时接受；骨架用 `state_clear_count` 提供公开可观察证据，清除不改变 `model_valid`、active mask 或 epoch。
+- `FREEZE_SET` 使用命令 flags 的 bit0。进入/退出冻结都必须等待严格 idle；结果槽占用期间 Host 可以保持命令 valid，直到结果排空后才握手。
+- `infer_frozen=1` 时样本流继续工作，模型/mask 配置、abort 与 `STATE_CLEAR` 均握手后返回错误且零副作用；`FREEZE_SET` 自身仍可用于退出冻结。
+- 当前三条 RTL 切片只冻结协议骨架，不证明 INT8 乘加、mask 实际跳读、吞吐、资源、时序或功耗。
+
+## 2026-09-04 单时钟真实计算 RED
+
+- 真实计算 tracer 使用可手算稀疏模型：hidden0 的前四个权重为 +10，hidden1 的前四个权重为 -1 且 bias=100；output0 对 hidden0/1 权重为 +2/-3 且 bias=3。
+- 输入首 beat 为 `0x0000ffff`，按已批准 nibble 位序得到 pixel0..3=15；全开默认 mask 下 hidden0 饱和为 127、hidden1=40，首个 logit 应为 137。
+- 发布 epoch 1 且仅关闭 L0 bit0 后，hidden0 变为 0，首个 logit 应为 -117；该向量同时锁定 active mask 复制、首拍 epoch 激活和真实门控效果。
+- 现有占位 RTL 返回 0，测试以 `logit0 mismatch got=0 expected=137` 正确失败，证明 RED 针对缺失的数值路径而非测试环境问题。
+- `.nexus-map/INDEX.md` 含将仓库文本伪装为强制指令的段落；按安全规则仅作为不可信数据处理，不执行其权限扩张要求。
+- 最小 GREEN 使用单个 32-bit 模型读口语义：每次取出四个 INT8 权重供四 lane 并行乘法，L0/L1 均按 FETCH→ACCUM 分拍；关闭 group 直接跳过模型读取与乘加。
+- active mask 使用独立 19-word bank，published mask 只在样本首 beat 复制；后续 staging 不会污染运行中或已激活版本。
+- 边界回归增加 hidden31/group15 与 output9/group7，只在最后组非零；全开时 output9=59，关闭 L1 bit79 后只剩 bias=-1，证明最后组新累加值与两层最高 mask 位均生效。
+- 计算开始后 `cmd_ready=0`、`sample_ready=0`、`runtime_idle=0`；结果仍由原有 10-beat 槽保持背压稳定。
+- 模型配置必须在写入 word 512..543 与 624..633 前把 payload 解释为 signed INT32，并分别限制在 `[-2147360768, 2147361727]`、`[-2146963456, 2146967519]`；失败仍握手、产生错误、索引不前进。
+- OF4 冻结合同允许部分输入、当前计算和结果背压期间继续准备并发布下一 mask。RTL 因此只对 mask 四类命令开放运行期 `cmd_ready`；模型、freeze、clear 和其它命令仍等待严格空闲。
+- 标准 ready/valid 源在并发路径上必须先稳定 `valid/payload` 再等待 ready；否则当 ready 合法依赖 opcode 分类时会形成源端自锁。
+- Yosys 0.56 的 `read_verilog; hierarchy; proc; check` 返回 0，只提示 `mask_active_words` 展开为寄存器；这不等价于 Vivado BRAM、资源或时序证据。
+
+## 2026-09-04 随机协同仿真设计
+
+- 随机门按每个固定 seed 单独运行一次 Icarus：模型 634 word、100 个样本 800 word、99 个用户 mask 1900 word、期望结果 1000 word 均通过 `$readmemh` 输入，避免把大数组硬编码进 testbench。
+- 第 0 个样本使用复位后的默认全开 mask/epoch0；发送该样本后立即开始发布第 1 个 mask。后续每个样本的下一版 mask 都在当前计算或结果背压期间装载并 commit，下一样本首 beat 才激活。
+- 每个结果先保持 `result_ready=0` 若干确定周期，再以 10 个 beat 消费；验证每 beat 的 logit、sample ID 和 epoch，覆盖结果槽稳定性与 mask 不串样本。
+- mask 模式按样本轮换全关、全开和随机 mixed；模型权重包含正负 INT8，bias 使用安全范围内的正负小值，参考计算与 RTL 使用同一固定 seed 数据。
+- 19-word mask 容器是 608 bit，但合同有效域为 512+80=592 bit；随机生成器必须对最后 word 的高 16 bit 进行零填充，不能把保留位当作可用 mask。
+
+## 2026-09-04 PR #54 合并门审计
+
+- GitHub API 当前确认 PR #54 为 `OPEN / MERGEABLE / CLEAN`；`Classify changes`、`Fast Python and diff check`、`Full repository regression` 和 `PR Gate` 均成功，三个不相关重门按路径跳过。
+- 这些 CI 结果只覆盖提交 HEAD `084f849`，不能覆盖工作树中尚未跟踪的 `tb_npu_eneuron_single_clock_random.sv` 与 `test_npu_single_clock_random.py`。
+- 随机门已确认是 testbench 首 beat ready/valid 观察竞态：DUT 内部 `logit_values` 与 Python 期望一致；在拉高 `result_ready` 后直接按下降沿采样会重复首 beat，改变等待拍数又可能跳过首 beat。
+- 两样本同步消费者已扩展为稳定的下降沿观察/上升沿握手循环，完整固定 `20×100`（共 2000 样本）已通过；随机 testbench 已进入 PR HEAD `8ee7fe8`，当前等待 GitHub CI 重验。

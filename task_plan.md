@@ -678,6 +678,11 @@
 | 报告一致性检查命令包含删除系统临时文件，被进程策略在启动前拒绝 | 1 | 仓库未改；改用 `New-TemporaryFile` 取得唯一目标且不执行删除，由系统临时目录管理该文件 |
 | 报告生成器成功输出归档路径，但临时重渲染与正式报告不完全一致 | 1 | 差异只来自主工作区缺少 PR 评审时的 `vivado_regression_console.log`、当前未提交树无法重建当时分支清单，以及最新签名基线；保留正式报告中的原始真实证据，不用缺输入的降级输出覆盖 |
 | 首轮合并运行局部剪枝测试时，签名刷新态不满足“可用工具均已正式重验证”的已提交摘要合同 | 1 | 不降低断言；运行项目正式 `verify_local_prune_rtl.py` 重验证路径，使行为/形式证据与迁移后的 verifier 哈希一起刷新，再重跑定向套件 |
+| 单时钟骨架 RED 首次运行因缺少 DUT 文件而失败，随后首片实现测试出现无限等待 | 1 | RED 缺文件属于预期；定位到 `sample_ready` 在首 beat 后错误屏蔽 `sample_active`，改为只由结果槽/配置响应/配置优先级阻塞，并终止卡住的 vvp 进程；不重复盲跑 |
+| 骨架测试第二次等待：测试台在 negedge 观察握手，漏计 RTL 清除 `result_valid` 后的最后一个 beat | 1 | 增加阶段日志和 5000 周期 watchdog 定位到结果排空计数；将结果握手观察点改为 posedge，不改变 DUT 行为 |
+| PR #54 Linux 全仓回归因新测试硬编码 Windows Icarus 绝对路径而失败 | 1 | 保留 Windows 固定路径优先策略，增加 `shutil.which` 的 Linux/CI 回退；本地固定工具路径仍被实际使用并在文档中明确 |
+| mask 切片首轮在结果排空后的同一 posedge 读取旧 `runtime_idle`，并暴露样本 beat 计数未归零 | 1 | 测试改在 negedge 观察 NBA 后状态；DUT 第 8 beat 显式清 `sample_beat_index`，并加入第二个完整 8-beat 样本验证 |
+| mask word18 负向测试发现错误响应拼接仅 126 位，header 与字段表错位 | 1 | 新增唯一 128-bit `make_error_response`，模型/mask/未知命令共用固定字段布局；保留同索引重试断言 |
 ## 2026-09-01 根目录非 Markdown 文件归档调研
 
 ### 目标
@@ -1001,7 +1006,11 @@
 - [x] 单时钟 RTL 设计审核前静态审计：列出样本/结果 beat、配置拓扑、mask_valid 和 idle 信号等 8 项待补规格。
 - [x] 将 8 项待补规格整理为管理员裁定表，给出推荐值与硬件影响。
 - [x] 将建议裁定转换为 `provisional` 机器可读清单，供批准后生成 RED 测试。
-- [ ] 管理员审核单时钟 RTL 设计稿后，才创建集成业务 RTL。
+- [x] 根据独立审计修订 RTL 裁定表 V2：删除 `model_epoch`、重写同拍仲裁、固定 beat 计数并补齐 idle/验证门。
+- [x] 管理员审核单时钟 RTL 设计稿并批准 V2 八项裁定。
+- [x] 第一条 RED→GREEN 垂直切片：模型无效拒收、634-word 提交、8-beat 输入、10-beat 结果背压骨架。
+- [x] 第二条 RED→GREEN 垂直切片：19-word mask、published→首拍激活、epoch metadata、保留位错误同索引重试。
+- [x] 第三条 RED→GREEN 垂直切片：`MASK_ABORT`、`STATE_CLEAR`、freeze 空闲切换及冻结推理边界。
 - [ ] 按 RED 测试 → 最小实现 → 手算 mask 向量 → 状态矩阵顺序完成冻结。
 - [ ] 冻结端口/地址/状态转移/逐拍测试计划后，才提交单时钟 RTL 设计审核。
 
@@ -1033,3 +1042,54 @@
 
 - [x] PR #19 合并后同步主线到 `63028d4`，记录 Webhook 短暂掉线与恢复
 - 本切片提交时误留在本地 `main`，导致首次推送 refspec 失败；随后从该提交创建专用分支并成功推送，远端 `main` 未被修改。
+
+## 2026-09-04 单时钟真实计算切片
+
+- [x] 管理员再次确认批准 V2 八项 RTL 设计裁定；实施边界不变，仍禁止提前运行 Vivado。
+- [x] 建立手算真实计算 RED tracer：uint4×INT8、隐藏层 ReLU/0..127 饱和、INT32 logit 与 L0 mask 门控。
+- [x] RED 已复现：占位输出 `0`，期望首个 logit 为 `137`。
+- [x] 以四 lane 共享计算路径完成最小 GREEN，并把三个旧协议测试改为全零模型。
+- [x] 补两层最后分组、L1 bit79 门控和计算忙期间 ready/idle 阻塞回归。
+- [x] 四项 RTL 切片测试、`compileall`、`git diff --check` 与 Icarus `-Wall -tnull` 编译通过。
+- [x] 完整 Python 回归通过：`469/469 OK（1 skipped）`，并恢复历史验证器自动刷新的无关证据文件。
+- [x] 独立复核发现并修复两项阻断：两层 bias 安全窗，以及运行期 mask staging/publish 并发。
+- [x] 四个 bias 边界外点、同索引重试、当前样本不受新 mask 影响和下一样本 epoch 激活均通过。
+- [x] 最终完整回归再次通过：`469/469 OK（1 skipped）`，耗时约 546 秒。
+- [x] 完成最终差异审查；显式排除用户临时 Yosys 文件后提交并推送 PR #54。
+
+## 2026-09-04 随机 bit-exact 协同仿真门
+
+- [x] 确认 PR #54 当前 GitHub Actions 全部相关检查已成功，状态为 `OPEN / MERGEABLE / CLEAN`；Webhook 不作为缺失事件的替代来源。
+- [x] 新增可复现的固定 seed 随机模型/样本/mask 文件驱动 testbench，并已完成本地验证。
+- [x] 至少 20 个固定 seed × 每个 100 个样本，逐 beat 比对 10 个 logits、sample ID 和 mask epoch。
+- [x] 覆盖全开、全关、mixed mask、负权重、负 bias、运行期 mask 发布和结果背压。
+- [x] 用稳定的结果消费者完成首 beat/末 beat/结果清空验证；随机背压与长事务已纳入同一消费者。
+- [x] 已更新任务状态文档与 Nexus，并推送 PR #54 的当前门审计（不代表随机门通过）。
+- [x] 固定 `20×100` 随机门已通过；随机 testbench 与对应证据已提交至 PR #54 HEAD `8ee7fe8`。
+- [ ] 等待包含随机门的同一 HEAD CI 全部通过后，合并 PR #54；随后申请 Vivado OOC。
+
+### 随机门错误记录
+
+| 错误 | 尝试 | 处理 |
+|---|---:|---|
+| mask 生成器把 592 个有效 bit 当作 608 个 bit 访问，首轮出现 `IndexError` | 1 | 将 word18 高 16 位显式视为保留零位，继续运行；未执行 DUT 仿真 |
+| 随机 testbench 在 ready 拉高后首个握手边界不明确，出现 beat0 重复或跳过 | 2 | 已确认 DUT 内部 logits 与黄金值一致；改为下降沿观察当前 beat、下一上升沿完成握手，完整 20×100 已通过 |
+
+### PR #54 合并门
+
+- 当前 GitHub 检查全部成功只证明此前已提交的单时钟 RTL 切片；随机 testbench 已进入 HEAD `8ee7fe8`，必须等待该 HEAD 的 CI 重验。
+- 只有在随机 testbench 与证据进入同一 HEAD、完整 `20×100` 随机逐 beat 门、文档/Nexus 更新和同一 HEAD 的 CI 全部完成后，PR #54 才满足本阶段合并条件。
+- 用户临时文件 `np75_tmp_sparse_protocol.ys` 继续保持未跟踪，不得暂存或提交。
+
+### 本轮错误记录
+
+| 错误 | 尝试 | 处理 |
+|---|---:|---|
+| 文件行数统计把 `.nexus-map` 当作普通文件，PowerShell 报目录不可读取 | 1 | 未修改仓库；后续改用 `Get-ChildItem` 按目录读取 |
+| 首次批量统计命令的 JavaScript 模板字符串误解析 PowerShell 反引号 | 1 | shell 未执行；改用普通字符串拼接后成功 |
+| Icarus `always_comb` 对常量位选择报告 sensitivity 扩大提示，并对仿真 `$display` 报不可综合 warning | 1 | 编译返回 0；前者只扩大仿真敏感集，后者位于 `ifndef SYNTHESIS` 日志块，不作为功能失败 |
+| 开源综合检查直接调用 `yosys` 时 PowerShell PATH 中找不到工具 | 1 | 未执行综合、未生成文件；改用全仓日志确认的 MSYS2 UCRT64 明确路径 |
+| 运行期 mask 首次并发修复仍 watchdog | 1 | `cmd_ready` 依赖 opcode，而测试 Host 在 valid 前等待 ready；改为无待响应且 valid=0 时乐观 ready，valid=1 时再按命令类别仲裁 |
+| 乐观 ready 使忙态无 valid 时 `cmd_ready=1`，破坏 compute/freeze 逐拍断言 | 2 | 恢复忙态按 opcode 分类；修正并发测试源为先稳定 valid/payload 再等待 ready 的标准握手顺序 |
+| `rg` 在 Windows 上直接使用 `docs/planning/NPU_*` 路径通配符失败 | 1 | 未修改文件；改用 `rg -g "NPU_*.md" docs/planning` |
+| Yosys 完整 `memory; check` 展开未复位数组产生海量未驱动 mux warning | 1 | 返回码为 0但不作为干净证据；改用提交前端/过程级 `read_verilog; hierarchy; proc; check`，仅保留 active mask 展开提示 |

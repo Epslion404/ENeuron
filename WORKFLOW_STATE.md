@@ -4,13 +4,13 @@
 
 最后更新：2026-09-04
 
-状态：`ACTIVE / NP7_MERGED / I1_I6_APPROVED / OF1_OF6_V3_APPROVED / OF3_MASK_ORDER_COST_GREEN / OF4A_MODEL_WORD_MAP_GREEN / OF4B1_MASK_WORD_MAP_GREEN / OF4B2_COMMAND_PORT_GREEN / OF4B2B_RUNTIME_COMBINATION_GREEN / OF4C_SINGLE_CLOCK_CONTRACT_DRAFT / OF4D_MODEL_COMMIT_CONTRACT_DRAFT / OF4E_RUNTIME_CROSS_CONTRACT_GREEN / OF4F_ARBITRATION_CONTRACT_DRAFT / OF4G_BOUNDARY_GREEN / OF5_HARD_RESET_GREEN / OF6_ORACLE_SIGNOFF / RTL_DESIGN_REVIEW_WITH_ACTIONS`
+状态：`ACTIVE / NP7_MERGED / I1_I6_APPROVED / OF1_OF6_V3_APPROVED / OF3_MASK_ORDER_COST_GREEN / OF4A_MODEL_WORD_MAP_GREEN / OF4B1_MASK_WORD_MAP_GREEN / OF4B2_COMMAND_PORT_GREEN / OF4B2B_RUNTIME_COMBINATION_GREEN / OF4C_SINGLE_CLOCK_CONTRACT_DRAFT / OF4D_MODEL_COMMIT_CONTRACT_DRAFT / OF4E_RUNTIME_CROSS_CONTRACT_GREEN / OF4F_ARBITRATION_CONTRACT_DRAFT / OF4G_BOUNDARY_GREEN / OF5_HARD_RESET_GREEN / OF6_ORACLE_SIGNOFF / RTL_DESIGN_CONTRACT_V2_APPROVED / RTL_SKELETON_IN_PROGRESS / RTL_RANDOM_GATE_GREEN / PR54_WAITING_RANDOM_COMMIT_CI`
 
 ## 当前活动目标
 
-NP6/NP7 已完成并合并；I1-I6 已批准。当前目标是冻结传统 `64→32→10` INT8 NPU 与 ENeuron 四权重整组门控的 Python oracle，为单时钟集成 RTL 提供逐位数值和事务合同。
+NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3 及单时钟 RTL V2 八项裁定已批准。当前目标是按冻结合同构建传统 `64→32→10` INT8 NPU 与 ENeuron 四权重整组门控的单时钟 RTL，并逐步完成 Python/Icarus 逐拍签核。
 
-活动合同：`docs/planning/NPU_ORACLE_FREEZE_REVIEW.md`。OF1a/OF1b/OF3/OF4a 已 GREEN；OF4a 已通过 PR #37 合并，当前执行 OF4b1 19-word mask 镜像映射。历史 NP6/NP7 结果继续由各自 TODO 和报告约束。
+活动合同：`docs/planning/NPU_SINGLE_CLOCK_RTL_DECISION_SHEET_V2.md`、`docs/planning/NPU_SINGLE_CLOCK_RTL_PORT_TABLE_V1.md` 与 `docs/planning/npu_single_clock_contract_provisional_v2.json`。第一条 RTL 骨架垂直切片已通过 Icarus；真实 MAC、mask 双 bank 和 Vivado 仍未完成。历史 NP6/NP7 结果继续由各自 TODO 和报告约束。
 
 ## 当前事实
 
@@ -42,7 +42,7 @@ NP6/NP7 已完成并合并；I1-I6 已批准。当前目标是冻结传统 `64�
 
 ## 下一动作
 
-进入下一阶段：管理员审核 `docs/planning/NPU_SINGLE_CLOCK_RTL_DESIGN_REVIEW_V1.md`、`docs/planning/NPU_SINGLE_CLOCK_RTL_DESIGN_AUDIT_V1.md`、`docs/planning/NPU_SINGLE_CLOCK_RTL_DECISION_SHEET_V1.md` 与 provisional JSON；补齐逐拍规格并审核通过后才允许实现集成 RTL。
+进入下一阶段：按已批准的 V2 合同先写端口/状态 RED 测试，再实现最小单时钟 RTL 骨架；通过 Icarus/Python 逐拍门后，才申请 Vivado OOC。
 
 ## 2026-09-04 OF4b2b GREEN
 
@@ -267,3 +267,20 @@ NP6/NP7 已完成并合并；I1-I6 已批准。当前目标是冻结传统 `64�
 - 第二轮独立审计确认 V2 仍缺 634-word 段内映射、非法配置错误响应、mask 四态命令矩阵、freeze 切换、零激活工作量和 Python 严格类型域。
 - 审核稿已升级为 V3，当前人工门为 `OF1-OF6_V3_REVIEW_REQUIRED`。
 - 获批后的首个实现切片固定为 OF1a uint4 fail-closed；停止点是 15 项 oracle 测试全绿，不顺带修改 bias、mask、协议或 RTL。
+
+## 2026-09-04 真实计算 RTL 切片启动
+
+- 管理员再次确认批准 V2 八项 RTL 设计裁定；合同仍为 `rtl_allowed=true`、`vivado_allowed=false`。
+- 模型/流、mask epoch、控制三条 Icarus 切片已在 PR #54 提交；HEAD `8239063` 的快速检查成功，全仓回归仍需等待终态。
+- 手算真实计算 tracer 已形成 RED：默认全开 mask 时期望 logit0=137，epoch 1 关闭 L0 bit0 后期望 -117；当前占位 RTL 返回 0。
+- 当前允许动作是实现最小四 lane 顺序计算并完成 Python/Icarus 门；不得把该结果外推为 Vivado 资源、时序、功耗或板级性能。
+- 最小真实计算路径现已 GREEN：默认 mask 得到 logit0=137，关闭 L0 bit0 后得到 -117；额外最高组向量得到 output9=59，关闭 L1 bit79 后得到 -1。
+- 当前四项 RTL 切片联合回归、全仓 Python/语法检查和本地 `20×100` 随机 bit-exact 均已通过；随机 testbench 已提交至 PR HEAD `8ee7fe8`，等待 CI 重验。
+- 四项 RTL 切片联合 4/4、Python `compileall`、diff-check 和独立 Icarus 编译已通过；等待完整仓库回归与提交审查。
+- 完整仓库回归已通过 `469/469（1 skipped）`；历史 NP4B 证据文件的自动刷新副作用已恢复，不纳入本切片。
+- 提交前独立复核发现的 bias 安全窗与运行期 mask 并发阻断已完成 RED→GREEN：四个越界点均同索引拒绝，当前样本保持旧 active mask，下一样本才采用新 epoch。
+- 最终完整回归正在重跑；Yosys 仅完成开源前端/过程检查，不改变 `vivado_allowed=false`。
+- 最终完整回归终态为 `469/469 OK（1 skipped）`；当前软件/RTL 仿真证据已具备提交条件，Vivado OOC 和板级证据仍未完成。
+- 下一实质门是将随机 testbench 与证据纳入 PR #54 同一 HEAD，等待 GitHub CI 收敛；随后再申请 Vivado OOC。Webhook 当前掉线，GitHub API 为 CI 权威来源。
+- PR #54 的原提交 HEAD 检查均成功；随机 testbench 已完成 `20×100` 并纳入 HEAD `8ee7fe8`，但 GitHub CI 尚未返回该 HEAD 的终态；本阶段仍禁止合并，直到 CI 完成。
+- 文档/Nexus 状态修正已推送至 PR #54 HEAD `ccfbecc`；该 HEAD 的 CI 正在运行，不能把 `IN_PROGRESS` 视为通过。

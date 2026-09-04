@@ -1176,3 +1176,30 @@
 - 2026-09-04 设计审核前静态审计：新增 `NPU_SINGLE_CLOCK_RTL_DESIGN_AUDIT_V1.md`，确认 Python 合同与设计稿已对齐的 7 类内容，并列出 8 项逐拍接口/状态细节缺口；因此设计状态改为 `REVIEW_WITH_ACTIONS`，仍未创建 RTL、未运行 Vivado。
 - 2026-09-04 裁定表：新增 `NPU_SINGLE_CLOCK_RTL_DECISION_SHEET_V1.md`，为 8 项缺口提供推荐接口、仲裁、`mask_valid`、`model_valid` 和验证门；全部标为管理员待批准，仍未创建 RTL、未运行 Vivado。
 - 2026-09-04 provisional 合同：新增 `npu_single_clock_contract_provisional.json`，把 8 项建议转为机器可读字段，明确 `status=admin_review_required`、`rtl_allowed=false`、`vivado_allowed=false`；未改变冻结合同。
+- 2026-09-04 RTL 裁定 V2：独立审计确认 V1 的 `model_epoch`、双 commit 竞争和 framing/idle 定义存在缺口；新增 `NPU_SINGLE_CLOCK_RTL_DECISION_SHEET_V2.md` 与 `npu_single_clock_contract_provisional_v2.json`，仍禁止 RTL/Vivado。
+- 2026-09-04 管理员批准 RTL 裁定 V2 八项决策：V2 合同状态更新为 `approved_by_admin`，允许开始测试先行的单时钟 RTL 骨架；Vivado 仍须等待 Icarus/Python 功能门通过。
+- 2026-09-04 单时钟 RTL 第一条垂直切片：新增 `npu_eneuron_single_clock_skeleton.sv`、`tb_npu_eneuron_single_clock_skeleton.sv`、`test_npu_single_clock_skeleton.py` 与端口字段表。Icarus 使用 `C:\\msys64\\ucrt64\\bin\\iverilog.exe`/`vvp.exe` 实际通过模型无效拒收、634-word 顺序提交、非法响应背压、配置优先样本、8-beat 输入和 10-beat 零结果输出；当前仍未接入真实 MAC、mask 双 bank 或 Vivado。
+- 2026-09-04 CI 修正：PR #54 的 Linux 全仓回归因测试硬编码 Windows Icarus 路径失败；测试现为 Windows 优先固定 `C:\\msys64\\ucrt64\\bin\\iverilog.exe`/`vvp.exe`，非 Windows 回退 PATH，保留工具路径日志与同一协议断言。
+- 2026-09-04 mask epoch 垂直切片：新增 19-word staging/published/首拍激活、`mask_valid`、结果 epoch 锁存、word18 保留位错误同索引重试和连续两样本验证；修复样本 beat 计数归零及错误响应 126→128 位字段错位。Icarus 两项切片测试通过，仍未接入真实 MAC 或 Vivado。
+- 2026-09-04 控制垂直切片：新增 `MASK_ABORT`、`STATE_CLEAR`、`FREEZE_SET`、`infer_frozen` 与清除计数；Icarus 证明冻结仍可推理、配置/clear 零副作用拒绝、结果占用时 freeze 延迟至 idle。三项 RTL 切片测试通过，真实计算与 Vivado 仍未开始。
+- 2026-09-04 管理员再次确认批准 V2 八项 RTL 裁定。PR #54 HEAD `8239063` 的快速检查成功，全仓回归查询时仍在运行；本地工作树仅有两个真实计算测试和用户临时 `np75_tmp_sparse_protocol.ys`，临时文件保持未跟踪。
+- 2026-09-04 真实计算 RED tracer 已建立并复现：当前占位输出为 0，手算期望 logit0=137；下一步只实现 64×uint4 缓存、active mask、32 个隐藏值、10 个 logit 和四 lane 顺序计算，不提前扩展 DMA/网口/Vivado。
+- 2026-09-04 只读统计发生两次命令构造错误：一次 JavaScript 模板误解析、一次把 `.nexus-map` 当文件读取；均未修改仓库，已改为安全的目录读取方式。
+- 2026-09-04 真实计算最小 GREEN：`npu_eneuron_single_clock_skeleton.sv` 已加入输入缓存、active mask bank、四 lane 分组引擎、hidden/logit 缓存和 compute busy；手算 tracer 通过 137/-117，同时通过最后组 59、L1 bit79 关闭后 -1 和 busy ready/idle 断言。
+- 2026-09-04 原有 skeleton/mask/control 三项协议测试已改用全零模型并全部通过；尚未执行完整仓库回归、随机 20×100 bit-exact 门或 Vivado。
+- 2026-09-04 四项单时钟 RTL 测试联合 4/4、`compileall`、`git diff --check` 和 Icarus `-Wall -tnull` 均通过。Icarus 仅报告 `always_comb` sensitivity 扩大提示及受保护仿真 `$display` 的综合 warning，不影响本轮功能结论。
+- 2026-09-04 完整仓库回归 `469/469 OK（1 skipped）`，耗时约 465 秒；运行期间被历史验证器刷新过的 `local_prune_rtl_results.json` 与 `np4b_signoff_summary.json` 已恢复到提交前内容，避免混入无关证据变更。
+- 2026-09-04 首次直接调用 `yosys` 因 PowerShell PATH 不含工具而未执行；下一次使用 `C:\msys64\ucrt64\bin\yosys.exe` 明确路径，不运行 Vivado。
+- 2026-09-04 bias/并发合同补充 RED：unsafe L0 bias 被错误接受；计算中 mask 配置因 ready 关闭导致 watchdog。bias 最小修复已先转绿；并发首次修复暴露 ready 对未呈现 opcode 的依赖，现改为 valid=0 乐观 ready、valid=1 分类仲裁。
+- 2026-09-04 乐观 ready 会让忙态 `cmd_ready` 无请求时抬高，并被 freeze 逐拍测试正确拒绝；最终保持 RTL 的 opcode 分类 ready，改由并发测试 Host 先呈现 valid/payload 再等 ready，符合标准源端握手责任。
+- 2026-09-04 提交前复核两项阻断已修复：模型 word 512..543/624..633 增加 signed bias 安全窗；mask begin/data/commit/abort 可在部分输入、计算或结果输出期间握手，active bank 仍只在下一样本首 beat 切换。
+- 2026-09-04 定向验证覆盖 L0/L1 上下界外一点共四个非法 bias、错误背压与同索引重试；并发 mask 在样本 0x101 运行时发布但结果仍携带 epoch0，样本 0x102 才采用 epoch1。四项 RTL 回归 4/4、Yosys 过程检查返回 0。
+- 2026-09-04 最终完整仓库回归再次通过 `469/469 OK（1 skipped）`，耗时约 546 秒；端口表已移除“结果零占位/真实计算待接入”的过时描述。历史 NP4B 自动刷新文件再次恢复，不纳入提交。
+- 2026-09-04 提交前差异审查完成：独立复核无剩余阻断；用户 `np75_tmp_sparse_protocol.ys` 明确排除，历史 JSON 规范化后与索引无差异。
+- 2026-09-04 启动 20×100 随机 bit-exact 门设计；计划每个 seed 独立编译/运行 Icarus，运行期发布下一 mask 并施加结果背压，避免只证明静态手算向量。
+- 2026-09-04 随机门首轮在 Python mask 打包边界处失败，原因是 592 有效位与 608 位物理容器未区分；已修正为 word18 高 16 位零填充，尚未开始 DUT 运行。
+- 2026-09-04 随机 seed0 首样本失败经层间诊断确认为 testbench 时钟采样竞态，DUT `logit_values[0..3]` 已与黄金完全相同；结果消费检查改为 negedge 预采样 + posedge 握手。
+- 2026-09-04 PR #54 合并门复核：GitHub API 确认当前 HEAD `084f849` 的相关检查全部成功且 PR `OPEN / MERGEABLE / CLEAN`，但随机 testbench 仍未跟踪、未通过；因此暂不合并。
+- 2026-09-04 修正随机门 TODO：将“随机文件已创建”和“20×100 已签核”拆为独立状态；首 beat 问题记录为 ready/valid 观察竞态，下一步先做两样本无背压消费者，不再盲调等待拍。
+- 2026-09-04 已提交并推送文档/Nexus 状态修正：本地提交 `d6e3ce0`、`ccfbecc`，PR #54 HEAD 更新为 `ccfbecc`；新 CI 正在运行，随机门仍未签核。
+- 2026-09-04 重写随机结果消费者后，完整固定 `20 seeds × 100 samples = 2000` 逐 beat 门通过；首 beat、末 beat、sample ID、mask epoch、结果背压和 mask 轮换均通过。随机 testbench 尚未提交，需先纳入 PR 再等待同一 HEAD CI。
