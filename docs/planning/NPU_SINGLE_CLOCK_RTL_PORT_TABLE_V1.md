@@ -20,6 +20,8 @@
 | `runtime_idle` | 1 | 严格空闲条件的公开摘要 |
 | `model_valid` | 1 | 已完成 `MODEL_COMMIT` 才为 1 |
 | `mask_valid` | 1 | 至少一个用户 mask 已在样本首 beat 激活；复位后的默认全开 mask 保持 0 |
+| `infer_frozen` | 1 | 推理冻结状态；为 1 时仍允许样本流，但拒绝配置与 `STATE_CLEAR` |
+| `state_clear_count` | 32 | 骨架阶段用于观察成功动态清除；hard reset 清零 |
 
 ## 命令字段
 
@@ -57,4 +59,4 @@
 | `[79:48]` | 当前 epoch；模型错误时为 0 |
 | `[47:0]` | 保留，必须为 0 |
 
-当前骨架已实现 `MODEL_BEGIN/DATA/COMMIT`、`MASK_BEGIN/DATA/COMMIT` 和通用错误槽。mask 使用 19-word staging，`MASK_COMMIT` 只形成 published 版本；下一样本首 beat 才激活 epoch 并置 `mask_valid=1`。`MASK_ABORT`、clear、freeze 和真实门控计算仍在后续垂直切片接入。
+当前骨架已实现 `MODEL_BEGIN/DATA/COMMIT`、`MASK_BEGIN/DATA/COMMIT/ABORT`、`STATE_CLEAR`、`FREEZE_SET` 和通用错误槽。mask 使用 19-word staging，`MASK_COMMIT` 只形成 published 版本；下一样本首 beat 才激活 epoch 并置 `mask_valid=1`。freeze 只在无部分输入、无结果、无响应且模型/mask staging 为空时接受；冻结后仍允许推理，但配置和动态清除返回错误。真实门控计算仍在后续垂直切片接入。

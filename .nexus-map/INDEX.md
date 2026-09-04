@@ -10,7 +10,7 @@ ENeuron 是以 Python 黄金模型、SystemVerilog RTL、Icarus/Yosys/Vivado 验
 
 - 神经元与参考模型：`digital_lif_engine.sv`、`neuron_sim.py`、`pulse_mini_reference.py`
 - 网络/Tile/Host：`digital_snn_tile_4x2x2.sv`、`digital_snn_host_bridge_controller.sv`、`network_sim.py`
-- 单时钟 NPU 骨架：`npu_eneuron_single_clock_skeleton.sv`；基础入口为 `tb_npu_eneuron_single_clock_skeleton.sv`/`test_npu_single_clock_skeleton.py`，mask epoch 入口为 `tb_npu_eneuron_single_clock_mask.sv`/`test_npu_single_clock_mask.py`
+- 单时钟 NPU 骨架：`npu_eneuron_single_clock_skeleton.sv`；基础、mask epoch、控制入口分别为 `test_npu_single_clock_skeleton.py`、`test_npu_single_clock_mask.py`、`test_npu_single_clock_control.py`
 - 局部剪枝：`local_prune_gate_2of4.sv`、`local_prune_reference.py`、`verify_np4b_signoff.py`
 - NP7 共享执行器：`np7_shared_synapse_lane.sv`、`np7_weight_ram.sv`、`np7_shared_lane_oracle.py`、`np7_shared_lane_cosim.py`
 - 验证入口：`verify_goal.py`、`verify_np4b_signoff.py`、`test_*.py`、formal `.ys/.sv`
@@ -20,7 +20,7 @@ ENeuron 是以 Python 黄金模型、SystemVerilog RTL、Icarus/Yosys/Vivado 验
 
 ## 当前状态
 
-NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`。NP7 共享 BRAM/lane 已实现并签核。I1-I6 与 OF1-OF6 V3 已批准，OF1-OF6 Python oracle 已在 `main@0982ac5` 签核（48/48、CI-Fast 8/8）。管理员已批准 V2 八项单时钟 RTL 裁定，当前状态为 `RTL_DESIGN_CONTRACT_V2_APPROVED / RTL_SKELETON_IN_PROGRESS`。第一条模型/流骨架和第二条 mask epoch 切片均通过独立 Icarus 测试（各 1/1）；第二条已覆盖 19-word staging、published→样本首拍激活、`mask_valid`、结果 epoch、word18 保留位同索引重试、连续两样本及完整 128-bit 错误响应。真实 MAC、mask 门控计算、freeze/clear 和 Vivado 尚未完成。
+NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`。NP7 共享 BRAM/lane 已实现并签核。I1-I6 与 OF1-OF6 V3 已批准，OF1-OF6 Python oracle 已在 `main@0982ac5` 签核（48/48、CI-Fast 8/8）。管理员已批准 V2 八项单时钟 RTL 裁定，当前状态为 `RTL_DESIGN_CONTRACT_V2_APPROVED / RTL_SKELETON_IN_PROGRESS`。模型/流、mask epoch、控制三条 Icarus 切片均通过；控制切片覆盖 `MASK_ABORT`、`STATE_CLEAR`、严格 idle freeze 切换，以及冻结仍可推理但配置/clear 零副作用拒绝。真实 MAC、mask 门控计算和 Vivado 尚未完成。
 
 ## 单时钟 RTL 审核摘要
 
@@ -28,6 +28,7 @@ NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`。NP7 共享 BRAM/
 - **V2 修正**：固定 8/10 beat 并取消外部 `last`；明确 nibble 位序和内部 beat 计数；删除 `model_epoch`，结果 metadata 仅为 sample ID 与 mask epoch；统一命令流按握手顺序串行，配置命令优先样本首 beat；idle 纳入错误响应、部分输出、统一槽位及同拍仲裁；验证门恢复至少 20×100 样本并保留 OF6 定向/负向覆盖。
 - **当前门槛**：V2 八项裁定已批准并冻结为 `RTL_DESIGN_CONTRACT_V2_APPROVED`；provisional JSON 已记录 `rtl_allowed=true`、`vivado_allowed=false`。允许 RED/端口状态骨架，完整计算 RTL 仍须逐拍验证；Vivado 继续受 Python/Icarus 通过门禁，未通过前不得运行。
 - **第二条 RTL 切片**：`test_npu_single_clock_mask.py` 驱动公开接口验证完整 19-word 顺序装载；非法 word18 高 16 位产生 128-bit 单槽错误响应且隐式索引保持 18，响应消费后可重试；`MASK_COMMIT` 只发布，后续样本首 beat 才令 epoch 1 active 并置 `mask_valid`，两个连续样本结果均携带 epoch 1。
+- **第三条 RTL 切片**：`test_npu_single_clock_control.py` 验证部分 mask 可由 `MASK_ABORT` 丢弃；`STATE_CLEAR` 保留模型/mask；freeze 只在严格 idle 边界切换，冻结时样本仍可完成，而模型/mask 配置与动态清除返回稳定错误且不改变状态。
 
 ## 必读路由
 

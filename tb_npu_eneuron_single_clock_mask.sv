@@ -29,6 +29,8 @@ module tb_npu_eneuron_single_clock_mask;
     wire runtime_idle;
     wire model_valid;
     wire mask_valid;
+    wire infer_frozen;
+    wire [31:0] state_clear_count;
 
     npu_eneuron_single_clock_skeleton dut (
         .clk(clk), .rst(rst),
@@ -38,7 +40,8 @@ module tb_npu_eneuron_single_clock_mask;
         .sample_valid(sample_valid), .sample_ready(sample_ready),
         .result_data(result_data), .result_sample_id(result_sample_id),
         .result_mask_epoch(result_mask_epoch), .result_valid(result_valid), .result_ready(result_ready),
-        .runtime_idle(runtime_idle), .model_valid(model_valid), .mask_valid(mask_valid)
+        .runtime_idle(runtime_idle), .model_valid(model_valid), .mask_valid(mask_valid),
+        .infer_frozen(infer_frozen), .state_clear_count(state_clear_count)
     );
 
     task automatic send_cmd(input logic [3:0] opcode, input logic [31:0] word);

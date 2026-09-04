@@ -1073,3 +1073,11 @@
 - 第二条切片加入 19-word mask staging、next-epoch 检查、published 等待和样本首 beat 激活。复位默认全开但 `mask_valid=0`；首次用户版本激活后置 1，结果槽锁存该样本 epoch，后续样本继续使用 active epoch。
 - word18 高 16 位保留位错误会产生稳定单槽响应，隐式索引保持 18；响应消费后可在同一索引重试。该负向测试发现旧响应拼接只有 126 位，现由唯一 `make_error_response()` 生成严格 128 位字段。
 - 连续第二个样本测试发现第 8 beat 后输入计数必须显式归零；修正后两个样本均完整接收 8 beat。当前尚未实现 mask bit 对真实 MAC 的门控、INT8 计算、freeze/clear 或 Vivado OOC。
+
+## 2026-09-04 单时钟控制切片
+
+- `MASK_ABORT` 只在 loading/complete 接受，并一次丢弃隐式 word index、staging epoch 与部分镜像；随后严格 idle 恢复，active mask/epoch 不变。
+- `STATE_CLEAR` 只在 runtime、响应槽和模型/mask staging 全空时接受；骨架用 `state_clear_count` 提供公开可观察证据，清除不改变 `model_valid`、active mask 或 epoch。
+- `FREEZE_SET` 使用命令 flags 的 bit0。进入/退出冻结都必须等待严格 idle；结果槽占用期间 Host 可以保持命令 valid，直到结果排空后才握手。
+- `infer_frozen=1` 时样本流继续工作，模型/mask 配置、abort 与 `STATE_CLEAR` 均握手后返回错误且零副作用；`FREEZE_SET` 自身仍可用于退出冻结。
+- 当前三条 RTL 切片只冻结协议骨架，不证明 INT8 乘加、mask 实际跳读、吞吐、资源、时序或功耗。

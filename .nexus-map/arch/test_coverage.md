@@ -6,11 +6,11 @@ provenance: repository test names, signoff summaries, workflow state, latest Git
 
 已覆盖：Python/RTL 协同仿真、有限形式安全与可达性、负向 mutation、Tile/System Vivado OOC、XPM 仿真、NP4B 三模型 60000 事务签核；CI-Fast V1 已完成 workflow 全量、文档轻量和 NPU-only 定向路径验证。CI Action 已升级到 `actions/checkout@v7` 与 `actions/setup-python@v7` 的 Node 24 基线，分类合同要求任何 workflow 变更运行全量门。NPU oracle 新增并通过 `test_zero_activity_with_closed_gate_emits_no_reads_or_macs`、`test_frequent_epoch_switches_never_mix_masks`、`test_pending_slot_backpressure_rejects_overwrite` 三项最坏情况测试。
 
-NP6 已增加 7 组 Vivado 物理成本证据与 12 项 verifier mutation，结论为部分通过。NP7 已具备软件 oracle、共享 lane 协同仿真、形式/负向控制、Vivado XSim 及物理证据完整性门。OF1-OF6 Python oracle 保持 `48/48`、CI-Fast `8/8`。当前状态为 `RTL_DESIGN_CONTRACT_V2_APPROVED / RTL_SKELETON_IN_PROGRESS`：基础骨架测试 `test_npu_single_clock_skeleton.py` 为 1/1，第二条 mask epoch 测试 `test_npu_single_clock_mask.py` 为 1/1。后者覆盖 19-word staging、非法 word18 保留位的 128-bit 错误响应与同索引重试、commit 后等待样本首拍激活、`mask_valid`、结果 epoch，以及两个连续样本保持 epoch 1。证据仍是 Icarus 协议切片；真实 MAC、mask 门控计算、freeze/clear、20×100 随机逐拍门、Vivado 与板级性能均未完成。
+NP6 已增加 7 组 Vivado 物理成本证据与 12 项 verifier mutation，结论为部分通过。NP7 已具备软件 oracle、共享 lane 协同仿真、形式/负向控制、Vivado XSim 及物理证据完整性门。OF1-OF6 Python oracle 保持 `48/48`、CI-Fast `8/8`。当前状态为 `RTL_DESIGN_CONTRACT_V2_APPROVED / RTL_SKELETON_IN_PROGRESS`：基础、mask epoch、控制三条 Icarus 测试各 1/1。第三条覆盖 abort、clear、freeze idle 边界、冻结推理和拒绝副作用。证据仍是 Icarus 协议切片；真实 MAC、mask 门控计算、20×100 随机逐拍门、Vivado 与板级性能均未完成。
 
 ## V2 审核门
 
-- V2 八项裁定已获管理员批准，状态为 `RTL_DESIGN_CONTRACT_V2_APPROVED / RTL_SKELETON_IN_PROGRESS`；当前两条切片仍是端口/状态骨架，不得描述为已实现计算 RTL。
+- V2 八项裁定已获管理员批准，状态为 `RTL_DESIGN_CONTRACT_V2_APPROVED / RTL_SKELETON_IN_PROGRESS`；当前三条切片仍是端口/状态骨架，不得描述为已实现计算 RTL。
 - 先完成 Python/Icarus 逐拍与负向验证，再运行 Vivado；未通过前禁止 Vivado。
 - 后续逐拍证据必须覆盖 OF6 确定性边界、统一响应路由、配置/样本背压、freeze/clear/reset、epoch 回绕和负向 mutation；Python 函数级 48/48 不替代这些证据。
 # OF6 证据更新

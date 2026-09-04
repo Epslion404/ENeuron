@@ -1010,6 +1010,7 @@
 - [x] 管理员审核单时钟 RTL 设计稿并批准 V2 八项裁定。
 - [x] 第一条 RED→GREEN 垂直切片：模型无效拒收、634-word 提交、8-beat 输入、10-beat 结果背压骨架。
 - [x] 第二条 RED→GREEN 垂直切片：19-word mask、published→首拍激活、epoch metadata、保留位错误同索引重试。
+- [x] 第三条 RED→GREEN 垂直切片：`MASK_ABORT`、`STATE_CLEAR`、freeze 空闲切换及冻结推理边界。
 - [ ] 按 RED 测试 → 最小实现 → 手算 mask 向量 → 状态矩阵顺序完成冻结。
 - [ ] 冻结端口/地址/状态转移/逐拍测试计划后，才提交单时钟 RTL 设计审核。
 

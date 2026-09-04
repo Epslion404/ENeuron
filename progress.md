@@ -1181,3 +1181,4 @@
 - 2026-09-04 单时钟 RTL 第一条垂直切片：新增 `npu_eneuron_single_clock_skeleton.sv`、`tb_npu_eneuron_single_clock_skeleton.sv`、`test_npu_single_clock_skeleton.py` 与端口字段表。Icarus 使用 `C:\\msys64\\ucrt64\\bin\\iverilog.exe`/`vvp.exe` 实际通过模型无效拒收、634-word 顺序提交、非法响应背压、配置优先样本、8-beat 输入和 10-beat 零结果输出；当前仍未接入真实 MAC、mask 双 bank 或 Vivado。
 - 2026-09-04 CI 修正：PR #54 的 Linux 全仓回归因测试硬编码 Windows Icarus 路径失败；测试现为 Windows 优先固定 `C:\\msys64\\ucrt64\\bin\\iverilog.exe`/`vvp.exe`，非 Windows 回退 PATH，保留工具路径日志与同一协议断言。
 - 2026-09-04 mask epoch 垂直切片：新增 19-word staging/published/首拍激活、`mask_valid`、结果 epoch 锁存、word18 保留位错误同索引重试和连续两样本验证；修复样本 beat 计数归零及错误响应 126→128 位字段错位。Icarus 两项切片测试通过，仍未接入真实 MAC 或 Vivado。
+- 2026-09-04 控制垂直切片：新增 `MASK_ABORT`、`STATE_CLEAR`、`FREEZE_SET`、`infer_frozen` 与清除计数；Icarus 证明冻结仍可推理、配置/clear 零副作用拒绝、结果占用时 freeze 延迟至 idle。三项 RTL 切片测试通过，真实计算与 Vivado 仍未开始。

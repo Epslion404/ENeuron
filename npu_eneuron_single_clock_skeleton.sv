@@ -29,7 +29,9 @@ module npu_eneuron_single_clock_skeleton (
 
     output logic        runtime_idle,
     output logic        model_valid,
-    output logic        mask_valid
+    output logic        mask_valid,
+    output logic        infer_frozen,
+    output logic [31:0] state_clear_count
 );
     localparam logic [3:0] OP_MODEL_BEGIN  = 4'h1;
     localparam logic [3:0] OP_MODEL_DATA   = 4'h2;
@@ -37,6 +39,9 @@ module npu_eneuron_single_clock_skeleton (
     localparam logic [3:0] OP_MASK_BEGIN    = 4'h4;
     localparam logic [3:0] OP_MASK_DATA     = 4'h5;
     localparam logic [3:0] OP_MASK_COMMIT   = 4'h6;
+    localparam logic [3:0] OP_MASK_ABORT    = 4'h7;
+    localparam logic [3:0] OP_STATE_CLEAR   = 4'h8;
+    localparam logic [3:0] OP_FREEZE_SET    = 4'h9;
     localparam logic [3:0] RSP_ERROR       = 4'he;
 
     localparam logic [1:0] MODEL_EMPTY     = 2'd0;
@@ -124,6 +129,8 @@ module npu_eneuron_single_clock_skeleton (
             mask_published_epoch <= 32'd0;
             mask_active_epoch <= 32'd0;
             mask_valid <= 1'b0;
+            infer_frozen <= 1'b0;
+            state_clear_count <= 32'd0;
             rsp_valid <= 1'b0;
             rsp_payload <= 128'd0;
         end else begin
@@ -133,7 +140,16 @@ module npu_eneuron_single_clock_skeleton (
             end
 
             if (cmd_valid && cmd_ready) begin
-                if (cmd_opcode == OP_MODEL_BEGIN) begin
+                // 冻结只屏蔽配置/动态清除；FREEZE_SET 自身必须可用于退出冻结。
+                if (infer_frozen && cmd_opcode != OP_FREEZE_SET) begin
+                    rsp_valid <= 1'b1;
+                    rsp_payload <= make_error_response(
+                        4'h7, cmd_opcode, 4'hf,
+                        (cmd_opcode >= OP_MASK_BEGIN && cmd_opcode <= OP_MASK_ABORT) ?
+                            {27'd0, mask_word_index} : {22'd0, model_word_index},
+                        mask_active_epoch
+                    );
+                end else if (cmd_opcode == OP_MODEL_BEGIN) begin
                     if (model_state == MODEL_EMPTY) begin
                         model_state <= MODEL_LOADING;
                         model_word_index <= 10'd0;
@@ -209,6 +225,40 @@ module npu_eneuron_single_clock_skeleton (
                             {27'd0, mask_word_index}, mask_active_epoch
                         );
                     end
+                end else if (cmd_opcode == OP_MASK_ABORT) begin
+                    if (mask_state == MASK_LOADING || mask_state == MASK_COMPLETE) begin
+                        mask_state <= MASK_EMPTY;
+                        mask_word_index <= 5'd0;
+                        mask_staging_epoch <= 32'd0;
+                    end else begin
+                        rsp_valid <= 1'b1;
+                        rsp_payload <= make_error_response(
+                            4'h7, cmd_opcode, {2'd0, mask_state},
+                            {27'd0, mask_word_index}, mask_active_epoch
+                        );
+                    end
+                end else if (cmd_opcode == OP_STATE_CLEAR) begin
+                    if ((model_state == MODEL_EMPTY || model_state == MODEL_COMMITTED) &&
+                        mask_state == MASK_EMPTY) begin
+                        state_clear_count <= state_clear_count + 32'd1;
+                    end else begin
+                        rsp_valid <= 1'b1;
+                        rsp_payload <= make_error_response(
+                            4'h8, cmd_opcode, {2'd0, mask_state},
+                            {27'd0, mask_word_index}, mask_active_epoch
+                        );
+                    end
+                end else if (cmd_opcode == OP_FREEZE_SET) begin
+                    if ((model_state == MODEL_EMPTY || model_state == MODEL_COMMITTED) &&
+                        mask_state == MASK_EMPTY) begin
+                        infer_frozen <= cmd_payload[120];
+                    end else begin
+                        rsp_valid <= 1'b1;
+                        rsp_payload <= make_error_response(
+                            4'h9, cmd_opcode, {2'd0, mask_state},
+                            {27'd0, mask_word_index}, mask_active_epoch
+                        );
+                    end
                 end else begin
                     rsp_valid <= 1'b1;
                     rsp_payload <= make_error_response(
@@ -262,6 +312,9 @@ module npu_eneuron_single_clock_skeleton (
                 $display("NPU_SKELETON SAMPLE_COMPLETE id=%08x", sample_id_reg);
             if (result_active && result_ready && result_beat_index == 4'd9)
                 $display("NPU_SKELETON RESULT_COMPLETE id=%08x", result_sample_id_reg);
+            if (cmd_valid && cmd_ready && cmd_opcode == OP_FREEZE_SET &&
+                (model_state == MODEL_EMPTY || model_state == MODEL_COMMITTED) && mask_state == MASK_EMPTY)
+                $display("NPU_SKELETON FREEZE_SET value=%0d", cmd_payload[120]);
 `endif
         end
     end
