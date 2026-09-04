@@ -504,6 +504,7 @@ P0-P8 已完成并签核
 - [x] 确认综合、布局布线和 DRC 流程退出码为 0，route errors=0、DRC errors=0、hold 无失败；确认 setup `WNS=-5.087 ns`、`TNS=-421.539 ns`、244 个失败端点，因此不能宣称 100 MHz 收敛。
 - [x] 从 `timing_impl.rpt` 完成关键路径分类：前 20 条最差 setup 路径均从 `compute_group_index_reg[1]_rep` 进入 `hidden_values` 写入端；最差数据路径 14.775 ns、23 级逻辑，覆盖动态索引、四 lane 乘加、INT32 累加、末组饱和和写回。
 - [x] 形成 `docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V1.md` 审核稿，提出最小 `FETCH→EXECUTE→COMMIT` 分拍、外部协议不变和 LUT-only 优先策略。
+- [x] 形成 `docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_TEST_CONTRACT_V1.md`：冻结 592/590/591/0 启用组、1860/1856/1858/676 拍延迟、启用组三拍稳定、两层关闭末组旁路和实测 watchdog 预算；未修改 testbench/RTL。
 - [ ] 管理员批准 TR1-TR6 六项时序修复裁定；批准前不修改业务 RTL。
 - [ ] 获批后先修正测试的固定周期假设并增加启用组三拍稳定/关闭组直接跳过断言，再新增 `lane_sum_latched` 与 L0/L1 `EXECUTE` 状态；不得删除 INT32 累加、mask epoch、结果背压或推理冻结语义。
 - [ ] 依次重跑四项定向测试、固定 `20×100` 随机逐 beat bit-exact 和完整仓库回归；任一失败立即停止，不运行 Vivado。

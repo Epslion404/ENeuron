@@ -1229,3 +1229,8 @@
 - 本轮未修改业务 RTL、未运行新的 Vivado，也未触碰用户文件 `np75_tmp_sparse_protocol.ys`。
 - PR #56 首轮 HEAD `c1c774e` 的 GitHub run `33891809535` 与仓库外 webhook 同 SHA 均为 success；PR 为 `CLEAN / MERGEABLE`，但该结果只证明文档门通过，不代表 TR1-TR6 已批准。
 - 独立反审计发现并修正 TR3 的关闭组矛盾，同时把 V1 失败后的升级改为按新最差路径选择 `WRITEBACK` 或 DSP；该修订需要新的 PR HEAD CI。
+- PR #56 修订 HEAD `21be24b` 的 GitHub run `33893097155` 与 webhook 同 SHA 成功后已合并，当前 `main@2a0f2ce`。
+- 已完成允许范围内的测试合同准备：新增三种确定性 mask 的组计数、精确计算延迟、白盒状态稳定、全关 bias 结果和 watchdog 预算；尚未创建 RED testbench、修改 RTL或运行 Vivado。
+- 子代理复核了五个 testbench：确认无固定计算延迟依赖、V1 无需放宽 watchdog，并发现 L0 关闭末组的非零累加定向缺口；合同已扩为 C1-C4 四种样本补齐该证据。
+- `.nexus-map` 已同步测试合同编号、周期、watchdog 与阻断状态；6 个摘要文件 diff-check 和 3 个 JSON 解析均通过，raw 探针保持历史 provenance。
+- 测试合同提交前轻量回归通过：`test_ci_fast_v1` 8/8、`test_artifact_layout` 1/1；确认本切片继续只触发文档 fast gate，OOC manifest 索引未受影响。

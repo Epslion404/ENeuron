@@ -1,7 +1,7 @@
 # 核心领域概念
 
 generated_by: nexus-mapper v2 / manual synthesis
-verified_at: 2026-09-04
+verified_at: 2026-09-05
 provenance: NP4B/NP6/NP7 TODO、工作流状态与 RTL 文件；集成边界来自审核材料包
 
 - `TICK`：推进一个样本或网络时刻。
@@ -17,6 +17,7 @@ provenance: NP4B/NP6/NP7 TODO、工作流状态与 RTL 文件；集成边界来�
 - `VIVADO_OOC_SETUP_FAIL`：当前单时钟 NPU + ENeuron 集成的物理签核状态。Vivado 2024.1、`xc7z020clg400-1`、100 MHz OOC 已完成综合/实现、资源、setup/hold、route 和 DRC 报告；route/DRC error=0、hold 通过，但 setup `WNS=-5.087 ns`、244 个端点失败，因此必须先修复关键路径并在同一器件/频率范围重跑，不能宣称 100 MHz 收敛或板级性能。
 - `TIMING_REPAIR_REQUIRED`：功能、协议和固定 `20×100` 随机门已绿，但 100 MHz setup 未收敛。修复不得弱化 INT32 累加、`64→32→10` 拓扑、四权重整组 mask、mask epoch 原子切换、结果单槽背压、freeze/clear、8-beat 输入、10-beat 输出及配置错误处理；完成后必须在同器件、同频率约束下重跑 OOC。
 - `TIMING_REPAIR_V1_REVIEW_REQUIRED`：`docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V1.md` 提出的 TR1-TR6 尚待管理员批准。当前只允许文档审计和测试合同检查，不代表分拍 RTL 已实现，也不代表 100 MHz 已收敛。
+- `TIMING_REPAIR_TEST_CONTRACT_PREPARED`：`docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_TEST_CONTRACT_V1.md` 已把三拍设计转换为 C1-C4 状态次数、延迟、最后组和关闭组检查，状态为 `PREPARED / BLOCKED_BY_TR1_TR6_APPROVAL`。C1/C2/C3/C4 分别为 `592/590/0/591` 个启用组与 `1860/1856/676/1858` 拍；五个 watchdog 无需放宽。该状态不表示 RED 已创建、RTL 已修改或 100 MHz 已通过。
 - `B-V1+V2`：NP7 已批准的单槽弹性流水合同，允许零路径同拍完成及非零结果退出与下一事务接受重叠；其收益只由逐拍账本证明。
 - `CI-Fast V1`：按变更路径选择验证范围的 Action 编排；Action 基线已从 `actions/checkout@v4`、`actions/setup-python@v5` 升级为二者 `@v7`（Node 24）。已完成 workflow 全量、文档轻量与 NPU-only 定向路径验证；任何 workflow 变更必须运行全量门，未知代码触发全仓回归，手动运行触发全部专项门。
 - `PR Gate`：始终执行的汇总状态；只允许被选专项门 `success` 或 `skipped`，任何失败均拒绝合并。分支保护应只要求该状态。
