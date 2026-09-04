@@ -4,13 +4,13 @@
 
 最后更新：2026-09-04
 
-状态：`ACTIVE / NP7_MERGED / I1_I6_APPROVED / OF1_OF6_V3_APPROVED / OF1A_UINT4_CORE_GREEN`
+状态：`ACTIVE / NP7_MERGED / I1_I6_APPROVED / OF1_OF6_V3_APPROVED / OF1A_UINT4_CORE_GREEN / OF1B_FIXED_MODEL_GREEN`
 
 ## 当前活动目标
 
 NP6/NP7 已完成并合并；I1-I6 已批准。当前目标是冻结传统 `64→32→10` INT8 NPU 与 ENeuron 四权重整组门控的 Python oracle，为单时钟集成 RTL 提供逐位数值和事务合同。
 
-活动合同：`docs/planning/NPU_ORACLE_FREEZE_REVIEW.md`。OF1-OF6 V3 已于 2026-09-04 获管理员批准；当前执行 OF1a 核心 uint4 fail-closed。历史 NP6/NP7 结果继续由各自 TODO 和报告约束。
+活动合同：`docs/planning/NPU_ORACLE_FREEZE_REVIEW.md`。OF1-OF6 V3 已于 2026-09-04 获管理员批准；OF1a 与 OF1b 已 GREEN，当前准备交付固定模型合同切片。历史 NP6/NP7 结果继续由各自 TODO 和报告约束。
 
 ## 当前事实
 
@@ -42,7 +42,14 @@ NP6/NP7 已完成并合并；I1-I6 已批准。当前目标是冻结传统 `64�
 
 ## 下一动作
 
-提交并交付 OF1a 独立 PR：核心只接受严格 uint4，非法样本保持 pending epoch 与运行状态不变；oracle 15/15、OF1a 定向 2/2。合并后再进入 INT8 权重、安全 bias、固定参数和不可变结果的独立 RED→GREEN 切片。
+提交并交付 OF1b 独立 PR：严格 INT8 权重、安全 bias、固定 V1 参数、原子 reload 和不可变 logits 已完成。合并后进入 mask 位序手算向量、open+全零固定账本与状态组合矩阵。
+
+## 2026-09-04 OF1a 合并与 OF1b RED
+
+- OF1a 已通过 PR #34 合并到 `main@9d0c3e5`；GitHub run `33830336539` 的 Fast check 与固定 `PR Gate` 成功，四个不相关重门按 NPU-only 路径跳过。
+- OF1b 四个定向测试在旧实现上得到 20 failures + 2 errors，证明权重隐式转换/裁剪、bias 无安全窗口、V1 参数未固定和 logits 可变。
+- `load_weights()` 当前逐字段更新成员；后半段失败可能留下新旧模型混合，GREEN 必须先完整验证四块数据再原子提交。
+- OF1b 最小实现已 GREEN：四项定向 4/4、完整 oracle 19/19；合法第二层边界模型精确到达 `INT32_MIN/INT32_MAX`，非法 reload 保留旧模型。
 
 ## 2026-09-04 OF1-OF6 V3 管理员批准与 OF1a RED
 

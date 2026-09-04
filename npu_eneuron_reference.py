@@ -7,12 +7,27 @@ from typing import Sequence
 
 LOGGER = logging.getLogger(__name__)
 
+INT8_MIN = -128
+INT8_MAX = 127
+BIAS0_MIN = -2147360768
+BIAS0_MAX = 2147361727
+BIAS1_MIN = -2146963456
+BIAS1_MAX = 2146967519
+
 
 def validate_uint4_input(value: object) -> int:
     """验证核心输入是严格的 4 bit 无符号整数。"""
     if type(value) is not int or not 0 <= value <= 15:
         LOGGER.debug("reject non-uint4 core input value=%r", value)
         raise ValueError("core input must be a uint4 integer")
+    return value
+
+
+def _validate_integer_range(value: object, *, minimum: int, maximum: int, label: str) -> int:
+    """验证配置值是指定闭区间内的真正整数。"""
+    if type(value) is not int or not minimum <= value <= maximum:
+        LOGGER.debug("reject invalid %s value=%r range=[%d,%d]", label, value, minimum, maximum)
+        raise ValueError(f"{label} must be an integer in [{minimum}, {maximum}]")
     return value
 
 
@@ -28,10 +43,16 @@ class NpuConfig:
     output_size: int = 10
     group_size: int = 4
 
+    def __post_init__(self) -> None:
+        values = (self.input_size, self.hidden_size, self.output_size, self.group_size)
+        if any(type(value) is not int for value in values) or values != (64, 32, 10, 4):
+            LOGGER.debug("reject noncanonical V1 config values=%r", values)
+            raise ValueError("V1 config must be 64 inputs, 32 hidden, 10 outputs, group 4")
+
 
 @dataclass(frozen=True)
 class InferenceResult:
-    logits: list[int]
+    logits: tuple[int, ...]
     prediction: int | None
     abstain: bool
     group_reads: int
@@ -55,7 +76,7 @@ class NpuReference:
         weights1: Sequence[Sequence[int]],
         bias1: Sequence[int],
     ) -> None:
-        """载入固定形状权重，并在配置窗口执行 INT8/INT32 边界归一化。"""
+        """完整验证固定形状模型后，一次提交四块参数。"""
         c = self.config
         if len(weights0) != c.hidden_size or any(len(row) != c.input_size for row in weights0):
             raise ValueError("weights0 shape mismatch")
@@ -63,10 +84,24 @@ class NpuReference:
             raise ValueError("weights1 shape mismatch")
         if len(bias0) != c.hidden_size or len(bias1) != c.output_size:
             raise ValueError("bias shape mismatch")
-        self._weights0 = [[max(-128, min(127, int(v))) for v in row] for row in weights0]
-        self._bias0 = [int(v) for v in bias0]
-        self._weights1 = [[max(-128, min(127, int(v))) for v in row] for row in weights1]
-        self._bias1 = [int(v) for v in bias1]
+        new_weights0 = [
+            [_validate_integer_range(value, minimum=INT8_MIN, maximum=INT8_MAX, label="INT8 weight") for value in row]
+            for row in weights0
+        ]
+        new_bias0 = [
+            _validate_integer_range(value, minimum=BIAS0_MIN, maximum=BIAS0_MAX, label="layer0 bias")
+            for value in bias0
+        ]
+        new_weights1 = [
+            [_validate_integer_range(value, minimum=INT8_MIN, maximum=INT8_MAX, label="INT8 weight") for value in row]
+            for row in weights1
+        ]
+        new_bias1 = [
+            _validate_integer_range(value, minimum=BIAS1_MIN, maximum=BIAS1_MAX, label="layer1 bias")
+            for value in bias1
+        ]
+        self._weights0, self._bias0, self._weights1, self._bias1 = new_weights0, new_bias0, new_weights1, new_bias1
+        LOGGER.debug("loaded validated V1 model parameters")
 
     def infer(
         self,
@@ -115,7 +150,7 @@ class NpuReference:
         winners = [index for index, value in enumerate(logits) if value == best]
         prediction = winners[0] if len(winners) == 1 else None
         LOGGER.debug("infer mode=%s group_reads=%d mac_count=%d prediction=%s", mode, reads, macs, prediction)
-        return InferenceResult(logits, prediction, prediction is None, reads, macs)
+        return InferenceResult(tuple(logits), prediction, prediction is None, reads, macs)
 
     def _validate_mask(self, mask: Sequence[bool] | None, size: int, mode: str) -> list[bool]:
         if mode == "bypass":
