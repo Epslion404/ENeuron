@@ -7,7 +7,7 @@
 - [x] 在旧 RTL 上建立 C1-C4、精确周期、状态稳定性与 DSP 结构合同 RED；旧功能门继续 GREEN，三拍层次引用与四乘积属性门分别按预期 RED。
 - [x] 实现 `FETCH → EXECUTE → COMMIT` 三拍流水、共享四 DSP lane 和 `lane_sum_latched`；C1-C4 状态、周期、数值和 DSP 意图测试 3/3 GREEN。
 - [x] 将 OOC 物理硬门收紧为 utilization `DSP=4`、实现网表 `DSP48E1_COUNT=4`，并与 setup/hold/DRC/route 共同决定通过。
-- [ ] 依次完成定向、C1-C4、固定 `20×100`、完整仓库回归与 Vivado 2024.1 OOC；当前单时钟专项 8/8、随机 20×100、完整仓库 473/473（1 skipped）均通过，待 Vivado。
+- [x] 依次完成定向、C1-C4、固定 `20×100`、完整仓库回归与 Vivado 2024.1 OOC；单时钟专项 8/8、随机 20×100、完整仓库 473/473（1 skipped）均通过，OOC 证明 DSP=4 但 setup 失败。
 - [ ] 同步文档/Nexus，提交、推送、创建 PR，并完成 CI/Webhook 同 SHA 闭环。
 
 成功标准：外部协议与数值语义不变；C1-C4 输出和周期合同完全匹配；实现报告 `DSP=4`；XC7Z020 100 MHz 下 `WNS>=0`、`TNS=0`，setup/hold/DRC/route 零失败。
@@ -1171,7 +1171,7 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 - [x] 实现四条共享 signed 8×8 DSP lane 与 `FETCH→EXECUTE→COMMIT`；L0/L1 只在对应 EXECUTE 选择数组，乘积分别符号扩展后求和。
 - [ ] 通过五项定向、固定 `20×100`、完整仓库回归和 Vivado `DSP=4`/100 MHz 物理门；前三项已通过，待 Vivado OOC。
 
-当前执行点：`TIMING_REPAIR_DSP_V1_RED_IN_PROGRESS`。用户文件 `np75_tmp_sparse_protocol.ys` 保持未跟踪、未修改、未暂存。
+当前执行点：`TIMING_REPAIR_DSP_V1_SETUP_FAIL / TIMING_REPAIR_V2_REVIEW_REQUIRED`。用户文件 `np75_tmp_sparse_protocol.ys` 保持未跟踪、未修改、未暂存。
 
 ### 本轮文档错误记录
 
@@ -1181,3 +1181,13 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 | Nexus 验证命令把两个 Git 命令写入同一 PowerShell 条件括号导致解析失败 | 1 | 未修改文件；拆开命令后完成 diff-check、JSON 解析和未跟踪文件排除检查 |
 | 对整份历史 `TODO.md` 扫描行尾空格触发既有格式误报 | 1 | `git diff --check` 已证明本轮跟踪差异无新增空白错误；只对全新审核稿执行全文件扫描，不清洗无关历史行 |
 | Nexus 子任务消息把 C3/C4 的语义顺序写成 591/0，与已落盘编号 0/591 不一致 | 1 | 子代理在写入前发现冲突；明确以权威合同 C3=全关、C4=仅关 L0 最后一组为准，Nexus 未写入错误编号 |
+| Windows `rg` 命令直接传入多个 `*.py/*.ps1/*.tcl` 通配符导致路径错误 | 1 | 未修改仓库；改用明确目录与 `-g` 过滤，不重复 Windows 非法通配写法 |
+
+## 2026-09-04 DSP V1 OOC 结果与 V2 审核
+
+- [x] OOC 报告绑定实现提交 `50550733e4af4779f3d6933738fa043ecb919970`。
+- [x] 证明 utilization `DSP=4`、实现网表 `DSP48E1_COUNT=4`，四个乘法 lane 均有独立 cell/LOC 记录。
+- [x] 证明 hold、route 和 DRC 通过；记录 setup `WNS=-0.673 ns`、`TNS=-6.462 ns`、22 个失败端点。
+- [x] 将新最差路径分类为动态激活选择/DSP/求和链，以及残余 logit 写使能链。
+- [x] 形成 V2 方案 A/B/C 比较和 TR7-TR12 审核稿。
+- [ ] 等待管理员批准 TR7-TR12；批准前禁止继续修改计算 RTL。

@@ -1,7 +1,7 @@
 # Pulse-Mini 开发计划
 
 日期：2026-08-19  
-状态：`TIMING_REPAIR_DSP_V1_VIVADO_PENDING`；实施状态：`P8_NETWORK_SIGNED_OFF / PR57_MERGED / TR1_TR6_APPROVED / RTL_TIMING_REPAIR_GREEN / FULL_REGRESSION_GREEN / DSP_REQUIRED / VIVADO_PENDING`
+状态：`TIMING_REPAIR_DSP_V1_SETUP_FAIL / V2_REVIEW_REQUIRED`；实施状态：`P8_NETWORK_SIGNED_OFF / TR1_TR6_APPROVED / RTL_TIMING_REPAIR_GREEN / FULL_REGRESSION_GREEN / DSP_GATE_PASS / VIVADO_OOC_SETUP_FAIL`
 基线：`ENeuron 1.0`，提交 `499fc8a`，标签 `v1.0`；当前 Pulse-Mini 工作基线：`64aff70`
 
 本文件是 `v1.0` 之后的 Pulse-Mini 规划，不回写或扩大 ENeuron 1.0 的声明。当前工作树已提交；后续修改应以本文件的阶段门为准，不能把“逻辑容量估算”写成“已 routed 的硬件容量”。
@@ -508,5 +508,7 @@ P0-P8 已完成并签核
 - [x] 管理员批准 TR1-TR6 六项时序修复裁定，并要求四条乘法 lane 强制使用 DSP48E1；Vivado 必须报告 `DSP=4`。
 - [x] 修正测试握手竞态并增加逐组 FETCH/EXECUTE/COMMIT、模型地址、三拍稳定和关闭组直接旁路断言；实现 `lane_sum_latched`、L0/L1 `EXECUTE/COMMIT` 与四条共享 DSP lane，保留 INT32、mask epoch、结果背压和推理冻结语义。
 - [x] 重跑单时钟专项 8/8、固定 `20×100` 随机逐 beat bit-exact 和完整仓库 473/473（1 skipped）；最终两路反审计阻断项已闭合。
-- [ ] 先提交实现以冻结报告绑定 SHA，再执行 Vivado OOC；只有 utilization `DSP=4`、网表 `DSP48E1_COUNT=4`、setup/hold 失败端点均为 0、route/DRC error 为 0 才可改为 `VIVADO_OOC_PASS`。
+- [x] 提交实现并以 `5055073` 运行 Vivado OOC：utilization `DSP=4`、网表 `DSP48E1_COUNT=4`、hold/route/DRC 通过；setup `WNS=-0.673 ns`、`TNS=-6.462 ns`、22 个失败端点，物理门保持 `NOT_PROVEN`。
+- [x] 按新报告分类两类剩余路径，形成 `NPU_SINGLE_CLOCK_TIMING_REPAIR_V2.md` 审核稿。
+- [ ] 等待管理员批准 TR7-TR12；批准前不修改 RTL、不更新 V2 周期合同、不重跑 Vivado。
 - [ ] OOC 通过后再规划 XC7Z020 顶层、DMA/PS/网口和板级功耗；不得用历史 NP6/NP7 结果代偿当前 RTL。

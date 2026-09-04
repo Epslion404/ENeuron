@@ -1160,3 +1160,12 @@
 - TDD RED 可分辨：不启用合同宏时，扩展后的 C1-C4 仍在旧 RTL 上 bit-exact 通过；启用合同宏时因缺少新寄存器/状态失败；独立源码门因没有四个显式乘积属性失败。由此可排除 testbench 重构破坏既有功能这一混淆因素。
 - 仅验证 592/590/0/591 的总次数仍可能被“重复执行一个零权重组并遗漏另一个零权重组”蒙混。最终合同改为逐组 bitmap：592 个 tuple 的 FETCH 必须恰好一次，EXECUTE/COMMIT bitmap 必须逐 bit 等于 active mask；EXECUTE 锁存的模型字还必须等于当前 tuple 的真实模型地址。
 - 关闭组的证明也改为直接时序检查：普通关闭组下一拍仍在同层 FETCH 且 group+1，关闭末组直接进入下一 bias/跨层/结果槽，过程中 `model_word_latched` 不得改变。因此全关 C3 不再是只靠“0 次执行 + 676 拍”的间接结论。
+
+## 2026-09-04 DSP V1 OOC 结果与新路径
+
+- OOC 精确绑定实现提交 `50550733e4af4779f3d6933738fa043ecb919970`。资源为 `2192 LUT / 1904 FF / 0 BRAM / 4 DSP48E1`；相比旧实现减少 480 LUT、增加 25 FF，并把四个乘法器真实映射到 DSP。
+- 双重 DSP 结构门通过：utilization `DSP=4`，实现网表 `DSP48E1_COUNT=4`；四个 cell 分别是 `lane_product_0..3`。
+- hold `WHS=+0.090 ns`、route error=0、DRC error=0；setup 仍失败，`WNS=-0.673 ns`、`TNS=-6.462 ns`、22 个失败端点。相较旧版 `WNS=-5.087 ns`、244 个端点已有显著改善，但仍不能声明 100 MHz 收敛。
+- 新最差路径从 `compute_group_index_reg[1]_rep__1` 到 `lane_sum_latched_reg[30]`，数据路径 10.651 ns，其中逻辑 5.978 ns、布线 4.673 ns、11 级逻辑；实际经过 3 个激活选择 LUT、1 个 DSP48E1、求和 LUT 和 5 个 CARRY4。
+- 另有 `compute_group_index` 到 `logit_values` 分布式存储写使能的约 `-0.071 ns` 路径。只增加 WRITEBACK 会漏掉首要 DSP 输入路径；只锁存激活值又可能留下写使能失败，两类都必须处理。
+- KISS 首选 V2 是在 FETCH 锁存四个激活操作数，并让 L0/L1 最终值统一在独立 WRITEBACK 状态写数组。预估增加约 65 FF、少量 LUT 和每样本 42 拍；强制 DSP=4 和所有外部/数值合同不变。

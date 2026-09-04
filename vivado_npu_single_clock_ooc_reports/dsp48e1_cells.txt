@@ -1,0 +1,4 @@
+CELL=lane_product_0 LOC=DSP48_X2Y0
+CELL=lane_product_1 LOC=DSP48_X2Y2
+CELL=lane_product_2 LOC=DSP48_X2Y3
+CELL=lane_product_3 LOC=DSP48_X2Y1

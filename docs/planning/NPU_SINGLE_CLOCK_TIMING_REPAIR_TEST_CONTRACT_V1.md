@@ -1,6 +1,6 @@
 # 单时钟 NPU 时序修复测试合同 V1
 
-状态：`FUNCTIONAL_GREEN / VIVADO_PENDING / DSP_REQUIRED`
+状态：`FUNCTIONAL_GREEN / DSP_GATE_PASS / VIVADO_OOC_SETUP_FAIL / FROZEN`
 
 日期：2026-09-04
 
@@ -138,4 +138,4 @@ RTL 实施后必须记录真实完成周期；如果超过上述门槛，应先�
 
 ## 10. 当前停止点
 
-RED 已在旧 RTL 上精确命中；V1 RTL 的 C1-C4、逐组 FETCH/EXECUTE/COMMIT 图、模型地址、关闭组旁路、固定 `20×100` 与完整 473 项回归均已通过。下一步先提交实现以冻结报告绑定的 Git SHA，再运行 Vivado 2024.1 OOC；`DSP=4` 和 100 MHz 物理门仍未产生结果。
+RED 已在旧 RTL 上精确命中；V1 RTL 的 C1-C4、逐组 FETCH/EXECUTE/COMMIT 图、模型地址、关闭组旁路、固定 `20×100` 与完整 473 项回归均已通过。Vivado 已确认恰好 4 个 DSP48E1，但 100 MHz setup 为 `WNS=-0.673 ns`、22 个失败端点，故本合同冻结为 V1 功能证据而不是物理通过证据。V2 周期与状态合同只有在 TR7-TR12 获批后才允许落地。

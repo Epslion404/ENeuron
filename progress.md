@@ -1257,3 +1257,11 @@
 - OOC runner 的 `GIT_HEAD` 来自当前提交而非工作树内容；已决定先完成两路只读反审计并提交实现，再运行 Vivado，使物理报告能真实绑定修复后的 RTL/Tcl 哈希。
 - RTL/Tcl 最终反审计未发现 blocker。测试反审计发现“仅总数可能漏过重复零权重组、模型地址未核对、C3 FETCH 为空真”三项 blocker；已补 592-bit FETCH/EXECUTE/COMMIT 访问图、每层计数、模型实际地址核对和关闭组逐拍旁路检查，强化后 compute 专项仍为 `4/4`。
 - 最终源文件完整回归再次通过：`Ran 473 tests in 418.737s / OK (skipped=1)`，NPU 固定随机仍为 20 seeds / 2000 samples。回归再次触发的两份历史 NP4B 摘要刷新已精确恢复，不纳入实现提交。
+
+## 2026-09-04 DSP V1 Vivado OOC 与 V2 停止点
+
+- 实现提交 `5055073` 已使用 Vivado 2024.1、`xc7z020clg400-1`、100 MHz 约束完成 OOC 综合、布局布线、时序和 DRC。
+- 强制 DSP 合同真实通过：`DSP=4`、`DSP48E1_COUNT=4`；资源为 2192 LUT、1904 FF、0 BRAM。
+- hold、route 和 DRC 通过；setup 仍为 `WNS=-0.673 ns`、`TNS=-6.462 ns`、22 个失败端点，最终 `PHYSICAL_GATE=NOT_PROVEN`。
+- 最差路径已从旧版写回长链转移为“组号动态选择激活值 → DSP48E1 → 四乘积求和 → lane_sum_latched”；另有约 -0.071 ns 的 logit 写使能路径。
+- 已更新 OOC manifest 和报告哈希，并形成 `docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V2.md`。当前停在 TR7-TR12 管理员审核门，未继续修改 RTL。

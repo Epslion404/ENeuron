@@ -1,6 +1,6 @@
 # 传统 NPU + ENeuron 单时钟 RTL 时序修复 V1 审核稿
 
-状态：`RTL_GREEN / VIVADO_PENDING / DSP_REQUIRED`
+状态：`FUNCTIONAL_GREEN / DSP_GATE_PASS / VIVADO_OOC_SETUP_FAIL / SUPERSEDED_BY_V2_REVIEW`
 
 日期：2026-09-04
 
@@ -10,9 +10,9 @@
 
 本轮只处理当前 `64→32→10` INT8 计算路径的内部时序。不得删除或弱化以下合同：INT32 累加、四权重整组 mask、mask epoch 样本边界原子切换、8-beat 输入、10-beat 输出、单槽结果背压、freeze/clear 语义及模型/掩码错误处理。XC7Z020 顶层、DMA、PS、网口、动态功耗和持续学习收益不属于本轮。
 
-## 2. 已有物理证据
+## 2. 修复前物理证据
 
-Vivado 2024.1 已完成 OOC 综合、优化、布局、布线、setup/hold 分析和 DRC。资源为 2672 LUT、1879 FF、0 BRAM、0 DSP；route/DRC 无错误，hold 为 `WHS=+0.098 ns`、0 个失败端点；setup 为 `WNS=-5.087 ns`、`TNS=-421.539 ns`、244 个失败端点。因此当前状态只能是 `VIVADO_OOC_SETUP_FAIL / TIMING_REPAIR_REQUIRED`。
+TR1-TR6 实施前，Vivado 2024.1 OOC 资源为 2672 LUT、1879 FF、0 BRAM、0 DSP；route/DRC 无错误，hold 为 `WHS=+0.098 ns`、0 个失败端点；setup 为 `WNS=-5.087 ns`、`TNS=-421.539 ns`、244 个失败端点。因此当时状态只能是 `VIVADO_OOC_SETUP_FAIL / TIMING_REPAIR_REQUIRED`。
 
 最差路径从 `compute_group_index_reg[1]_rep` 到 `hidden_values` 的分布式存储写入端，数据路径 14.775 ns，其中逻辑 6.884 ns、布线 7.891 ns，共 23 级逻辑。前 20 条最差 setup 路径属于同一类路径。
 
@@ -78,4 +78,6 @@ Vivado 物理门要求实现报告 `DSP=4`。属性存在但 DSP 仍为 0、DSP 
 
 ## 7. 当前停止点
 
-三拍 RTL、共享四乘法 lane、C1-C4 白盒合同、固定 `20×100` 和完整 473 项回归已通过；两路最终反审计无 RTL blocker，测试覆盖 blocker 也已闭合。当前只剩把实现提交冻结为报告基线并运行 Vivado 2024.1 OOC；在实现报告同时满足 `DSP=4` 和 100 MHz 前，不生成物理通过声明。
+三拍 RTL、共享四乘法 lane、C1-C4 白盒合同、固定 `20×100` 和完整 473 项回归已通过；实现提交已冻结为 `50550733e4af4779f3d6933738fa043ecb919970`。Vivado 2024.1 OOC 证明 utilization `DSP=4`、实现网表 `DSP48E1_COUNT=4`，hold、route 和 DRC 通过，但 setup 为 `WNS=-0.673 ns`、`TNS=-6.462 ns`、22 个失败端点。因此 V1 的功能与 DSP 目标完成，100 MHz 物理门仍为 `NOT_PROVEN`。
+
+新最差路径已经转移到 `compute_group_index → 激活值动态选择 → DSP48E1 → 四乘积求和 → lane_sum_latched`，另有约 `-0.071 ns` 的 logit 写使能路径。后续方案见 `NPU_SINGLE_CLOCK_TIMING_REPAIR_V2.md`；在 TR7-TR12 获批前不继续修改 RTL。
