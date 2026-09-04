@@ -324,6 +324,7 @@ class NpuEpochRuntime:
     def __init__(self, model: NpuReference, config: NpuConfig | None = None) -> None:
         self.model = model
         self.config = config or model.config
+        self._mask_port: MaskConfigPort | None = None
         self.active_epoch = 0
         self._active_mask0 = self._all_open_mask(self.config.hidden_size * (self.config.input_size // self.config.group_size))
         self._active_mask1 = self._all_open_mask(self.config.output_size * (self.config.hidden_size // self.config.group_size))
@@ -343,13 +344,33 @@ class NpuEpochRuntime:
         return self._result
 
     @property
+    def frozen(self) -> bool:
+        """运行时是否处于推理冻结。"""
+        return self._frozen
+
+    def bind_mask_port(self, port: MaskConfigPort) -> None:
+        """绑定可选 mask 配置端口，令 freeze 判定覆盖两侧状态。"""
+        if not isinstance(port, MaskConfigPort):
+            raise TypeError("mask port must be a MaskConfigPort")
+        if self.running or self._result is not None or self._pending is not None:
+            raise RuntimeError("cannot bind mask port while runtime is occupied")
+        self._mask_port = port
+        LOGGER.debug("bound mask configuration port")
+
+    @property
     def running(self) -> bool:
         return self._inflight is not None
 
     def set_infer_freeze(self, frozen: bool) -> None:
-        if self.running:
-            raise RuntimeError("cannot change infer freeze while sample is running")
-        self._frozen = bool(frozen)
+        if self.running or self._result is not None or self._pending is not None:
+            raise RuntimeError("cannot change infer freeze while runtime is occupied")
+        if self._mask_port is not None and self._mask_port.state != MaskConfigPort.EMPTY:
+            raise RuntimeError("cannot change infer freeze while mask staging is occupied")
+        requested = bool(frozen)
+        if self._mask_port is not None:
+            self._mask_port.set_infer_freeze(requested)
+        self._frozen = requested
+        LOGGER.debug("set runtime infer freeze=%s", requested)
 
     def stage_masks(self, epoch: int, mask0: Sequence[bool], mask1: Sequence[bool]) -> None:
         """把候选版本写入单槽 pending 区，不影响当前 active 版本。"""

@@ -4,7 +4,7 @@
 
 最后更新：2026-09-04
 
-状态：`ACTIVE / NP7_MERGED / I1_I6_APPROVED / OF1_OF6_V3_APPROVED / OF3_MASK_ORDER_COST_GREEN / OF4A_MODEL_WORD_MAP_GREEN / OF4B1_MASK_WORD_MAP_GREEN / OF4B2_COMMAND_PORT_GREEN`
+状态：`ACTIVE / NP7_MERGED / I1_I6_APPROVED / OF1_OF6_V3_APPROVED / OF3_MASK_ORDER_COST_GREEN / OF4A_MODEL_WORD_MAP_GREEN / OF4B1_MASK_WORD_MAP_GREEN / OF4B2_COMMAND_PORT_GREEN / OF4B2B_RUNTIME_COMBINATION_GREEN`
 
 ## 当前活动目标
 
@@ -42,7 +42,14 @@ NP6/NP7 已完成并合并；I1-I6 已批准。当前目标是冻结传统 `64�
 
 ## 下一动作
 
-完成 OF4b2 GREEN：冻结 19-word mask 四态命令、非法配置错误响应、同索引重试以及握手/背压语义。四态命令机仍不属于 OF4b1。
+进入下一阶段：完成单时钟 Python oracle 的最终协议组合审计；OF4b2b 已冻结状态矩阵与 runtime 全局 idle/freeze 组合，之后才能提交 RTL 设计审核。
+
+## 2026-09-04 OF4b2b GREEN
+
+- 状态矩阵补强回归覆盖四态下全部非法命令、单次握手、错误响应背压稳定、零副作用和错误消费后恢复；`MaskConfigProtocolRedTest` 共 `9/9` 通过。由于 OF4b2 已覆盖这些行为，本组属于回归补强，不伪称新的 RED 失败。
+- `NpuEpochRuntime.bind_mask_port()` 已把 runtime 的运行中样本、结果背压、pending mask 与端口 staging 纳入 freeze 判定；完全 idle 且两侧为空时双端同步冻结。
+- frozen 状态仍允许样本推理，但拒绝 mask 配置和 `STATE_CLEAR`；runtime 组合测试 `5/5` 通过，完整 oracle `41/41` 通过。
+- 独立审计边界：全局 idle/freeze 只在 Python runtime 组合层证明；单时钟 RTL、Vivado、完整流接口和硬件资源仍未开始。
 
 ## 2026-09-04 OF4b2 GREEN
 

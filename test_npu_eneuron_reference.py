@@ -610,6 +610,136 @@ class NpuReferenceTest(unittest.TestCase):
         self.assertEqual(accepted.inference.mac_count, 0)
 
 
+class NpuEpochRuntimeCombinationRedTest(unittest.TestCase):
+    """OF4b2b RED：冻结 mask 端口与运行时的全局 idle/freeze 合同。
+
+    这里刻意只定义组合层公开入口，不预设内部寄存器或调度实现。运行时
+    通过 ``bind_mask_port`` 取得端口所有权；之后 freeze 切换必须同时观察
+    runtime 的运行/结果/pending 状态和端口的 staging 状态。
+    """
+
+    @staticmethod
+    def _new_runtime():
+        config = NpuConfig()
+        model = NpuReference(config)
+        model.load_weights(
+            [[1] * config.input_size for _ in range(config.hidden_size)],
+            [0] * config.hidden_size,
+            [[1] * config.hidden_size for _ in range(config.output_size)],
+            list(range(config.output_size)),
+        )
+        runtime = NpuEpochRuntime(model, config)
+        port = protocol.MaskConfigPort()
+        bind = getattr(runtime, "bind_mask_port", None)
+        if not callable(bind):
+            raise AssertionError(
+                "OF4b2b RED: NpuEpochRuntime.bind_mask_port(port) is required"
+            )
+        bind(port)
+        return config, runtime, port
+
+    @staticmethod
+    def _next_masks(config, opened=False):
+        size0 = config.hidden_size * (config.input_size // config.group_size)
+        size1 = config.output_size * (config.hidden_size // config.group_size)
+        return [opened] * size0, [opened] * size1
+
+    @staticmethod
+    def _begin_port_staging(port):
+        command = protocol.MaskCommand(protocol.MaskCommandKind.MASK_BEGIN, epoch=1)
+        result = port.step(True, command, False)
+        if result.error_valid:
+            raise AssertionError(f"unexpected mask staging error: {result.error_code}")
+        return result
+
+    def test_freeze_rejects_running_sample(self):
+        """当前 runtime 的样本已接受但尚未完成时，freeze 切换必须拒绝。"""
+        config, runtime, _ = self._new_runtime()
+        runtime.begin_sample([1] * config.input_size)
+        self.assertTrue(runtime.running)
+
+        with self.assertRaisesRegex(RuntimeError, "freeze|idle|running|occupied"):
+            runtime.set_infer_freeze(True)
+
+    def test_freeze_rejects_result_backpressure(self):
+        """结果槽未被消费时，运行时不能进入或退出 freeze。"""
+        config, runtime, _ = self._new_runtime()
+        runtime.begin_sample([1] * config.input_size)
+        runtime.complete_sample()
+        self.assertIsNotNone(runtime.result)
+
+        with self.assertRaisesRegex(RuntimeError, "freeze|idle|result|occupied"):
+            runtime.set_infer_freeze(True)
+
+        # 反向切换也必须服从同一全局 idle 条件；先验证运行中拒绝。
+        runtime.accept_result()
+        runtime.set_infer_freeze(True)
+        runtime.begin_sample([1] * config.input_size)
+        with self.assertRaisesRegex(RuntimeError, "freeze|idle|running|occupied"):
+            runtime.set_infer_freeze(False)
+
+        # 完成但尚未消费结果时，退出 freeze 仍被结果背压拒绝。
+        runtime.complete_sample()
+        with self.assertRaisesRegex(RuntimeError, "freeze|idle|result|occupied"):
+            runtime.set_infer_freeze(False)
+
+    def test_freeze_rejects_nonempty_runtime_or_port_staging(self):
+        """runtime pending 或端口 loading/complete 均使全局 freeze 不安全。"""
+        config, runtime, port = self._new_runtime()
+        mask0, mask1 = self._next_masks(config)
+        runtime.stage_masks(1, mask0, mask1)
+        with self.assertRaisesRegex(RuntimeError, "freeze|staging|pending|idle"):
+            runtime.set_infer_freeze(True)
+
+        # 消费 runtime pending 后，再单独验证 MaskConfigPort 的 loading staging。
+        runtime.begin_sample([1] * config.input_size)
+        runtime.complete_sample()
+        runtime.accept_result()
+        self._begin_port_staging(port)
+        with self.assertRaisesRegex(RuntimeError, "freeze|staging|idle"):
+            runtime.set_infer_freeze(True)
+
+    def test_freeze_is_allowed_only_when_runtime_and_port_are_empty(self):
+        """完全 idle 且无 pending/staging 时，freeze 应原子同步到两端。"""
+        _, runtime, port = self._new_runtime()
+        self.assertFalse(runtime.running)
+        self.assertIsNone(runtime.result)
+        self.assertEqual(port.state, port.EMPTY)
+
+        runtime.set_infer_freeze(True)
+        self.assertTrue(runtime.frozen)
+        self.assertTrue(port.frozen)
+
+        runtime.set_infer_freeze(False)
+        self.assertFalse(runtime.frozen)
+        self.assertFalse(port.frozen)
+
+    def test_frozen_runtime_still_runs_but_rejects_config_and_clear(self):
+        """freeze 只锁学习/配置状态，不得阻断样本推理；clear/config 必须拒绝。"""
+        config, runtime, port = self._new_runtime()
+        runtime.set_infer_freeze(True)
+
+        accepted = runtime.begin_sample([1] * config.input_size)
+        runtime.complete_sample()
+        self.assertIs(runtime.accept_result(), accepted)
+
+        mask0, mask1 = self._next_masks(config)
+        with self.assertRaisesRegex(RuntimeError, "freeze"):
+            runtime.stage_masks(1, mask0, mask1)
+        with self.assertRaisesRegex(RuntimeError, "freeze|clear"):
+            runtime.state_clear()
+
+        rejected = port.step(
+            True,
+            protocol.MaskCommand(protocol.MaskCommandKind.MASK_BEGIN, epoch=1),
+            False,
+        )
+        self.assertTrue(rejected.cmd_accepted)
+        self.assertTrue(rejected.error_valid)
+        self.assertEqual(rejected.error_code, "FROZEN")
+        self.assertEqual(rejected.state, port.EMPTY)
+
+
 class MaskConfigProtocolRedTest(unittest.TestCase):
     """OF4b2 RED：冻结 19-word mask 逐拍配置口的最小行为合同。"""
 
@@ -867,6 +997,160 @@ class MaskConfigProtocolRedTest(unittest.TestCase):
         self.assertFalse(port.active_masks.mask0[1])
         self.assertTrue(port.active_masks.mask1[0])
         self.assertFalse(port.active_masks.mask1[1])
+
+    def _port_in_state(self, state):
+        """通过公开配置口命令把端口推进到指定状态。"""
+        port = self._new_port()
+        if state == "empty":
+            return port
+
+        begun = self._step(port, self._command("MASK_BEGIN", epoch=1))
+        self.assertEqual(self._field(begun, "state"), "loading")
+        if state == "loading":
+            self._step(port, self._command("DATA", word=0))
+            self.assertEqual(port.state, "loading")
+            return port
+
+        for _ in range(19):
+            self._step(port, self._command("DATA", word=0))
+        self.assertEqual(port.state, "complete")
+        if state == "complete":
+            return port
+
+        self._step(port, self._command("MASK_COMMIT", epoch=1))
+        self.assertEqual(port.state, "published")
+        if state == "published":
+            return port
+        raise AssertionError(f"unknown mask state {state!r}")
+
+    def test_illegal_command_state_matrix_is_atomic_under_backpressure(self):
+        """OF4b2b RED：逐状态覆盖所有非法命令及稳定错误响应合同。"""
+        illegal_commands = {
+            "empty": (
+                self._command("MASK_COMMIT", epoch=1),
+                self._command("MASK_ABORT"),
+            ),
+            "loading": (
+                self._command("MASK_BEGIN", epoch=2),
+                self._command("MASK_COMMIT", epoch=1),
+            ),
+            "complete": (
+                self._command("MASK_BEGIN", epoch=2),
+                self._command("DATA", word=0),
+            ),
+            "published": (
+                self._command("MASK_BEGIN", epoch=2),
+                self._command("DATA", word=0),
+                self._command("MASK_COMMIT", epoch=1),
+                self._command("MASK_ABORT"),
+            ),
+        }
+
+        for state, commands in illegal_commands.items():
+            for command in commands:
+                with self.subTest(state=state, command=command.kind.value):
+                    port = self._port_in_state(state)
+                    baseline = (port.state, port.word_index, port.active_epoch)
+
+                    rejected = self._step(port, command, response_ready=False)
+                    self.assertTrue(self._field(rejected, "cmd_ready"))
+                    self.assertTrue(self._field(rejected, "cmd_accepted"))
+                    self.assertTrue(self._field(rejected, "error_valid"))
+                    self.assertEqual(self._field(rejected, "error_code"), "BAD_STATE")
+                    self.assertEqual(
+                        (
+                            self._field(rejected, "state"),
+                            self._field(rejected, "word_index"),
+                            self._field(rejected, "active_epoch"),
+                        ),
+                        baseline,
+                    )
+
+                    # 下游保持背压时，错误响应与三项状态必须逐拍稳定，且不能接收新命令。
+                    blocked = self._step(
+                        port,
+                        self._command("MASK_BEGIN", epoch=2),
+                        response_ready=False,
+                    )
+                    blocked_again = self._step(
+                        port,
+                        self._command("DATA", word=0),
+                        response_ready=False,
+                    )
+                    for stalled in (blocked, blocked_again):
+                        self.assertFalse(self._field(stalled, "cmd_ready"))
+                        self.assertFalse(self._field(stalled, "cmd_accepted"))
+                        self.assertTrue(self._field(stalled, "error_valid"))
+                        self.assertEqual(self._field(stalled, "error_code"), "BAD_STATE")
+                        self.assertEqual(
+                            (
+                                self._field(stalled, "state"),
+                                self._field(stalled, "word_index"),
+                                self._field(stalled, "active_epoch"),
+                            ),
+                            baseline,
+                        )
+
+                    consumed = self._step(port, response_ready=True)
+                    self.assertFalse(self._field(consumed, "cmd_ready"))
+                    self.assertFalse(self._field(consumed, "cmd_accepted"))
+                    self.assertTrue(self._field(consumed, "error_valid"))
+                    self.assertEqual(self._field(consumed, "error_code"), "BAD_STATE")
+                    self.assertEqual(
+                        (
+                            self._field(consumed, "state"),
+                            self._field(consumed, "word_index"),
+                            self._field(consumed, "active_epoch"),
+                        ),
+                        baseline,
+                    )
+
+                    idle = self._step(port)
+                    self.assertTrue(self._field(idle, "cmd_ready"))
+                    self.assertFalse(self._field(idle, "error_valid"))
+                    self.assertEqual(
+                        (
+                            self._field(idle, "state"),
+                            self._field(idle, "word_index"),
+                            self._field(idle, "active_epoch"),
+                        ),
+                        baseline,
+                    )
+
+    def test_empty_abort_is_illegal_and_valid_abort_allows_new_begin(self):
+        """OF4b2b RED：empty 中 abort 无副作用，合法 abort 后必须能重新 begin。"""
+        port = self._port_in_state("empty")
+        baseline = (port.state, port.word_index, port.active_epoch)
+        rejected = self._step(port, self._command("MASK_ABORT"), response_ready=False)
+        self.assertTrue(self._field(rejected, "cmd_accepted"))
+        self.assertTrue(self._field(rejected, "error_valid"))
+        self.assertEqual(self._field(rejected, "error_code"), "BAD_STATE")
+        self.assertEqual(
+            (
+                self._field(rejected, "state"),
+                self._field(rejected, "word_index"),
+                self._field(rejected, "active_epoch"),
+            ),
+            baseline,
+        )
+        self._step(port, response_ready=True)
+        self._step(port)
+
+        self._step(port, self._command("MASK_BEGIN", epoch=1))
+        self._step(port, self._command("DATA", word=0))
+        aborted = self._step(port, self._command("MASK_ABORT"))
+        self.assertTrue(self._field(aborted, "cmd_accepted"))
+        self.assertFalse(self._field(aborted, "error_valid"))
+        self.assertEqual(self._field(aborted, "state"), "empty")
+        self.assertEqual(self._field(aborted, "word_index"), 0)
+        self.assertEqual(self._field(aborted, "active_epoch"), 0)
+
+        begun_again = self._step(port, self._command("MASK_BEGIN", epoch=1))
+        self.assertTrue(self._field(begun_again, "cmd_accepted"))
+        self.assertFalse(self._field(begun_again, "error_valid"))
+        self.assertEqual(self._field(begun_again, "state"), "loading")
+        self.assertEqual(self._field(begun_again, "word_index"), 0)
+        self.assertEqual(self._field(begun_again, "active_epoch"), 0)
 
 
 

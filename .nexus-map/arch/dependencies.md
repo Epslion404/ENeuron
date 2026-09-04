@@ -28,7 +28,7 @@ Python oracle → cosim runners → unittest/verifier
 local_prune_reference → local_prune wrappers/network → NP4B signoff
 NP7 shared lane oracle → dense/sparse RTL → XSim/OOC runners → physical/evidence gates
 Vivado Tcl/runner → reports → verify_goal
-传统 NPU + ENeuron 集成材料包 → OF1a/OF1b/OF3 已绿 → OF4a 634-word 模型镜像 → OF4b1 19-word mask 映射 → `OF4B2_COMMAND_PORT_GREEN`（四态、错误响应背压、next-epoch、同索引重试、样本边界激活、oracle 34/34）→ `OF1-OF6_V3_IMPLEMENTATION_IN_PROGRESS` → 完整状态矩阵与 runtime idle/freeze → RTL 设计审核 → Vivado 证据
+传统 NPU + ENeuron 集成材料包 → OF1a/OF1b/OF3 已绿 → OF4a 634-word 模型镜像 → OF4b1 19-word mask 映射 → OF4b2 命令端口（四态、错误响应背压、next-epoch、同索引重试、样本边界激活、oracle 34/34）→ `OF4B2B_RUNTIME_COMBINATION_GREEN`（非法状态矩阵回归 9/9、`NpuEpochRuntime.bind_mask_port()`、全局 idle/freeze 双端同步、frozen 仍可推理、完整 oracle 41/41）→ `OF1-OF6_V3_IMPLEMENTATION_IN_PROGRESS` → OF4c 单时钟端口/RTL 设计审核 → Vivado 证据
 变更路径 → `classify-changes` → fast/全仓/XPM/NP7 专项门 → 唯一 `PR Gate`
 ```
 

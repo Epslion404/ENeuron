@@ -14,12 +14,12 @@ ENeuron 是以 Python 黄金模型、SystemVerilog RTL、Icarus/Yosys/Vivado 验
 - NP7 共享执行器：`np7_shared_synapse_lane.sv`、`np7_weight_ram.sv`、`np7_shared_lane_oracle.py`、`np7_shared_lane_cosim.py`
 - 验证入口：`verify_goal.py`、`verify_np4b_signoff.py`、`test_*.py`、formal `.ys/.sv`
 - 规划与状态：`WORKFLOW_STATE.md`、`docs/planning/NPU_NEURON_INTEGRATION_REVIEW.md`、`docs/planning/NPU_PRUNING_NP6_TODO.md`、`docs/planning/NPU_PRUNING_NP7_TODO.md`
-- 集成材料包：`docs/planning/NPU_NEURON_INTEGRATION_MATERIALS.md`、`docs/planning/NPU_ORACLE_FREEZE_REVIEW.md`（I1-I6、OF1-OF6 V3 已批准；当前状态为 `OF4B2_COMMAND_PORT_GREEN / OF1-OF6_V3_IMPLEMENTATION_IN_PROGRESS`）
+- 集成材料包：`docs/planning/NPU_NEURON_INTEGRATION_MATERIALS.md`、`docs/planning/NPU_ORACLE_FREEZE_REVIEW.md`（I1-I6、OF1-OF6 V3 已批准；当前状态为 `OF4B2B_RUNTIME_COMBINATION_GREEN / OF1-OF6_V3_IMPLEMENTATION_IN_PROGRESS`）
 - CI 编排：`.github/workflows/pr-gate.yml`、`tools/ci/classify_changes.py`、`test_ci_fast_v1.py`（路径分类、条件专项门和唯一 `PR Gate` 汇总）
 
 ## 当前状态
 
-NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`。NP7 共享 BRAM/lane 已实现并签核。I1-I6 与 OF1-OF6 V3 已批准，当前状态为 `OF4B2_COMMAND_PORT_GREEN / OF1-OF6_V3_IMPLEMENTATION_IN_PROGRESS`。OF1a/OF1b/OF3/OF4a/OF4b1 合同继续成立；OF4b2 新增 `MaskConfigPort` 四态 staging、19-word 顺序装载、BEGIN/COMMIT next-epoch 校验、单槽错误响应与背压阻塞、同索引重试，以及 published 在样本边界激活；oracle 34/34 通过。完整状态矩阵、全局 idle/freeze runtime 组合、`MODEL_COMMIT`、集成 RTL 与 Vivado 尚未完成；完整冻结前不得创建集成 RTL 或运行 Vivado。CI-Fast V1 已完成 workflow 全量、文档轻量和 NPU-only 定向路径验证，所有路径由唯一 `PR Gate` 汇总；Action 基线已由 `actions/checkout@v4`、`actions/setup-python@v5` 升级为二者 `@v7`（Node 24），任何 workflow 变更必须运行全量门。`np75_tmp_sparse_protocol.ys` 是用户临时文件，不得修改、提交或纳入 Nexus 文件树/原始探针。
+NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`。NP7 共享 BRAM/lane 已实现并签核。I1-I6 与 OF1-OF6 V3 已批准，当前状态为 `OF4B2B_RUNTIME_COMBINATION_GREEN / OF1-OF6_V3_IMPLEMENTATION_IN_PROGRESS`。OF1a/OF1b/OF3/OF4a/OF4b1/OF4b2 合同继续成立；OF4b2b 已补齐四态 mask 端口的完整非法状态矩阵回归（9/9）和 `NpuEpochRuntime.bind_mask_port()` 的全局 idle/freeze 组合（5/5），完全 idle 时双端同步冻结，frozen 仍允许推理但拒绝配置与动态清除；完整 oracle 41/41 通过。状态矩阵是对既有 OF4b2 实现的回归补强，不是新的 RED 切片。`MODEL_COMMIT`、集成 RTL、完整流接口与 Vivado 仍未完成；冻结前不得创建集成 RTL 或运行 Vivado。CI-Fast V1 已完成 workflow 全量、文档轻量和 NPU-only 定向路径验证，所有路径由唯一 `PR Gate` 汇总；Action 基线已由 `actions/checkout@v4`、`actions/setup-python@v5` 升级为二者 `@v7`（Node 24），任何 workflow 变更必须运行全量门。`np75_tmp_sparse_protocol.ys` 是用户临时文件，不得修改、提交或纳入 Nexus 文件树/原始探针。
 
 ## 必读路由
 
