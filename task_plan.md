@@ -1127,6 +1127,7 @@
 | 当前 OOC 实现 setup 未通过 | 1 | 保留完整失败证据；不修改业务语义换取假通过，下一步先做关键路径分析和最小流水化设计 |
 | staged 文件排除检查误用了 POSIX `exit 0` | 1 | PowerShell 将 `exit` 解析为不存在的命令；未改动文件，改用 PowerShell 原生命令单独检查暂存清单 |
 | `gh pr create` 使用了本机版本不支持的 `--json` 参数 | 1 | 创建命令本身未执行；移除该参数后成功创建 PR #55 |
+| PR #55 全仓回归因新增 OOC manifest 未登记而失败 | 1 | `test_artifact_layout` 发现 `npu_single_clock_ooc_manifest.json` 不在期望集合；已同步登记测试集合和 `artifacts/README.md`，定向测试通过 |
 | 乐观 ready 使忙态无 valid 时 `cmd_ready=1`，破坏 compute/freeze 逐拍断言 | 2 | 恢复忙态按 opcode 分类；修正并发测试源为先稳定 valid/payload 再等待 ready 的标准握手顺序 |
 | `rg` 在 Windows 上直接使用 `docs/planning/NPU_*` 路径通配符失败 | 1 | 未修改文件；改用 `rg -g "NPU_*.md" docs/planning` |
 | Yosys 完整 `memory; check` 展开未复位数组产生海量未驱动 mux warning | 1 | 返回码为 0但不作为干净证据；改用提交前端/过程级 `read_verilog; hierarchy; proc; check`，仅保留 active mask 展开提示 |
