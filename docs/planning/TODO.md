@@ -511,5 +511,6 @@ P0-P8 已完成并签核
 - [x] 提交实现并以 `5055073` 运行 Vivado OOC：utilization `DSP=4`、网表 `DSP48E1_COUNT=4`、hold/route/DRC 通过；setup `WNS=-0.673 ns`、`TNS=-6.462 ns`、22 个失败端点，物理门保持 `NOT_PROVEN`。
 - [x] 按冻结报告先分类前 20 条路径，并形成 `NPU_SINGLE_CLOCK_TIMING_REPAIR_V2.md` 审核稿。
 - [x] 从 routed checkpoint 扩展到最多 50 条路径，完整覆盖全部 22 个失败端点：14 个动态激活选择/DSP/求和端点，8 个 logit 写使能端点；审计见 `docs/verification/NPU_SINGLE_CLOCK_TIMING_ENDPOINT_AUDIT_V1.md`。
+- [x] 端点补证经 PR #60 的 CI-Fast/PR Gate 和 Webhook 同 SHA 闭环后合并为 `main@4fc4c71`。
 - [ ] 等待管理员批准 TR7-TR12；批准前不修改 RTL、不更新 V2 周期合同、不重跑 Vivado。
 - [ ] OOC 通过后再规划 XC7Z020 顶层、DMA/PS/网口和板级功耗；不得用历史 NP6/NP7 结果代偿当前 RTL。
