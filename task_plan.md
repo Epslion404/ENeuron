@@ -1042,3 +1042,30 @@
 
 - [x] PR #19 合并后同步主线到 `63028d4`，记录 Webhook 短暂掉线与恢复
 - 本切片提交时误留在本地 `main`，导致首次推送 refspec 失败；随后从该提交创建专用分支并成功推送，远端 `main` 未被修改。
+
+## 2026-09-04 单时钟真实计算切片
+
+- [x] 管理员再次确认批准 V2 八项 RTL 设计裁定；实施边界不变，仍禁止提前运行 Vivado。
+- [x] 建立手算真实计算 RED tracer：uint4×INT8、隐藏层 ReLU/0..127 饱和、INT32 logit 与 L0 mask 门控。
+- [x] RED 已复现：占位输出 `0`，期望首个 logit 为 `137`。
+- [x] 以四 lane 共享计算路径完成最小 GREEN，并把三个旧协议测试改为全零模型。
+- [x] 补两层最后分组、L1 bit79 门控和计算忙期间 ready/idle 阻塞回归。
+- [x] 四项 RTL 切片测试、`compileall`、`git diff --check` 与 Icarus `-Wall -tnull` 编译通过。
+- [x] 完整 Python 回归通过：`469/469 OK（1 skipped）`，并恢复历史验证器自动刷新的无关证据文件。
+- [x] 独立复核发现并修复两项阻断：两层 bias 安全窗，以及运行期 mask staging/publish 并发。
+- [x] 四个 bias 边界外点、同索引重试、当前样本不受新 mask 影响和下一样本 epoch 激活均通过。
+- [x] 最终完整回归再次通过：`469/469 OK（1 skipped）`，耗时约 546 秒。
+- [x] 完成最终差异审查；显式排除用户临时 Yosys 文件后提交并推送 PR #54。
+
+### 本轮错误记录
+
+| 错误 | 尝试 | 处理 |
+|---|---:|---|
+| 文件行数统计把 `.nexus-map` 当作普通文件，PowerShell 报目录不可读取 | 1 | 未修改仓库；后续改用 `Get-ChildItem` 按目录读取 |
+| 首次批量统计命令的 JavaScript 模板字符串误解析 PowerShell 反引号 | 1 | shell 未执行；改用普通字符串拼接后成功 |
+| Icarus `always_comb` 对常量位选择报告 sensitivity 扩大提示，并对仿真 `$display` 报不可综合 warning | 1 | 编译返回 0；前者只扩大仿真敏感集，后者位于 `ifndef SYNTHESIS` 日志块，不作为功能失败 |
+| 开源综合检查直接调用 `yosys` 时 PowerShell PATH 中找不到工具 | 1 | 未执行综合、未生成文件；改用全仓日志确认的 MSYS2 UCRT64 明确路径 |
+| 运行期 mask 首次并发修复仍 watchdog | 1 | `cmd_ready` 依赖 opcode，而测试 Host 在 valid 前等待 ready；改为无待响应且 valid=0 时乐观 ready，valid=1 时再按命令类别仲裁 |
+| 乐观 ready 使忙态无 valid 时 `cmd_ready=1`，破坏 compute/freeze 逐拍断言 | 2 | 恢复忙态按 opcode 分类；修正并发测试源为先稳定 valid/payload 再等待 ready 的标准握手顺序 |
+| `rg` 在 Windows 上直接使用 `docs/planning/NPU_*` 路径通配符失败 | 1 | 未修改文件；改用 `rg -g "NPU_*.md" docs/planning` |
+| Yosys 完整 `memory; check` 展开未复位数组产生海量未驱动 mux warning | 1 | 返回码为 0但不作为干净证据；改用提交前端/过程级 `read_verilog; hierarchy; proc; check`，仅保留 active mask 展开提示 |

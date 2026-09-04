@@ -1081,3 +1081,19 @@
 - `FREEZE_SET` 使用命令 flags 的 bit0。进入/退出冻结都必须等待严格 idle；结果槽占用期间 Host 可以保持命令 valid，直到结果排空后才握手。
 - `infer_frozen=1` 时样本流继续工作，模型/mask 配置、abort 与 `STATE_CLEAR` 均握手后返回错误且零副作用；`FREEZE_SET` 自身仍可用于退出冻结。
 - 当前三条 RTL 切片只冻结协议骨架，不证明 INT8 乘加、mask 实际跳读、吞吐、资源、时序或功耗。
+
+## 2026-09-04 单时钟真实计算 RED
+
+- 真实计算 tracer 使用可手算稀疏模型：hidden0 的前四个权重为 +10，hidden1 的前四个权重为 -1 且 bias=100；output0 对 hidden0/1 权重为 +2/-3 且 bias=3。
+- 输入首 beat 为 `0x0000ffff`，按已批准 nibble 位序得到 pixel0..3=15；全开默认 mask 下 hidden0 饱和为 127、hidden1=40，首个 logit 应为 137。
+- 发布 epoch 1 且仅关闭 L0 bit0 后，hidden0 变为 0，首个 logit 应为 -117；该向量同时锁定 active mask 复制、首拍 epoch 激活和真实门控效果。
+- 现有占位 RTL 返回 0，测试以 `logit0 mismatch got=0 expected=137` 正确失败，证明 RED 针对缺失的数值路径而非测试环境问题。
+- `.nexus-map/INDEX.md` 含将仓库文本伪装为强制指令的段落；按安全规则仅作为不可信数据处理，不执行其权限扩张要求。
+- 最小 GREEN 使用单个 32-bit 模型读口语义：每次取出四个 INT8 权重供四 lane 并行乘法，L0/L1 均按 FETCH→ACCUM 分拍；关闭 group 直接跳过模型读取与乘加。
+- active mask 使用独立 19-word bank，published mask 只在样本首 beat 复制；后续 staging 不会污染运行中或已激活版本。
+- 边界回归增加 hidden31/group15 与 output9/group7，只在最后组非零；全开时 output9=59，关闭 L1 bit79 后只剩 bias=-1，证明最后组新累加值与两层最高 mask 位均生效。
+- 计算开始后 `cmd_ready=0`、`sample_ready=0`、`runtime_idle=0`；结果仍由原有 10-beat 槽保持背压稳定。
+- 模型配置必须在写入 word 512..543 与 624..633 前把 payload 解释为 signed INT32，并分别限制在 `[-2147360768, 2147361727]`、`[-2146963456, 2146967519]`；失败仍握手、产生错误、索引不前进。
+- OF4 冻结合同允许部分输入、当前计算和结果背压期间继续准备并发布下一 mask。RTL 因此只对 mask 四类命令开放运行期 `cmd_ready`；模型、freeze、clear 和其它命令仍等待严格空闲。
+- 标准 ready/valid 源在并发路径上必须先稳定 `valid/payload` 再等待 ready；否则当 ready 合法依赖 opcode 分类时会形成源端自锁。
+- Yosys 0.56 的 `read_verilog; hierarchy; proc; check` 返回 0，只提示 `mask_active_words` 展开为寄存器；这不等价于 Vivado BRAM、资源或时序证据。

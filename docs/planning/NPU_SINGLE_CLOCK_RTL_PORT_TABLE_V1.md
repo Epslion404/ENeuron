@@ -13,7 +13,7 @@
 | `sample_data` | 32 | 每拍 8 个 uint4，低 nibble 先到 |
 | `sample_id` | 32 | 仅首 beat 采样 |
 | `sample_valid/sample_ready` | 1/1 | 固定 8 beat；命令有效时首拍让路给配置 |
-| `result_data` | 32 | signed INT32 beat；骨架阶段为零占位 |
+| `result_data` | 32 | signed INT32 beat；按内部索引依次输出 10 个 logit |
 | `result_sample_id` | 32 | 结果槽锁存的 sample ID |
 | `result_mask_epoch` | 32 | 结果槽锁存的 active mask epoch |
 | `result_valid/result_ready` | 1/1 | 固定 10 beat；背压期间全部结果字段稳定 |
@@ -59,4 +59,4 @@
 | `[79:48]` | 当前 epoch；模型错误时为 0 |
 | `[47:0]` | 保留，必须为 0 |
 
-当前骨架已实现 `MODEL_BEGIN/DATA/COMMIT`、`MASK_BEGIN/DATA/COMMIT/ABORT`、`STATE_CLEAR`、`FREEZE_SET` 和通用错误槽。mask 使用 19-word staging，`MASK_COMMIT` 只形成 published 版本；下一样本首 beat 才激活 epoch 并置 `mask_valid=1`。freeze 只在无部分输入、无结果、无响应且模型/mask staging 为空时接受；冻结后仍允许推理，但配置和动态清除返回错误。真实门控计算仍在后续垂直切片接入。
+当前实现已覆盖 `MODEL_BEGIN/DATA/COMMIT`、`MASK_BEGIN/DATA/COMMIT/ABORT`、`STATE_CLEAR`、`FREEZE_SET` 和通用错误槽，并以四 lane 共享路径执行真实 `64→32→10` 计算。mask 使用 staging/published/active 分离；运行期可准备下一版本，但只在下一样本首 beat 激活 epoch。freeze 只在无部分输入、无计算、无结果、无响应且模型/mask staging 为空时接受；冻结后仍允许推理，但配置和动态清除返回错误。

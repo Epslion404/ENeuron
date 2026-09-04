@@ -1182,3 +1182,17 @@
 - 2026-09-04 CI 修正：PR #54 的 Linux 全仓回归因测试硬编码 Windows Icarus 路径失败；测试现为 Windows 优先固定 `C:\\msys64\\ucrt64\\bin\\iverilog.exe`/`vvp.exe`，非 Windows 回退 PATH，保留工具路径日志与同一协议断言。
 - 2026-09-04 mask epoch 垂直切片：新增 19-word staging/published/首拍激活、`mask_valid`、结果 epoch 锁存、word18 保留位错误同索引重试和连续两样本验证；修复样本 beat 计数归零及错误响应 126→128 位字段错位。Icarus 两项切片测试通过，仍未接入真实 MAC 或 Vivado。
 - 2026-09-04 控制垂直切片：新增 `MASK_ABORT`、`STATE_CLEAR`、`FREEZE_SET`、`infer_frozen` 与清除计数；Icarus 证明冻结仍可推理、配置/clear 零副作用拒绝、结果占用时 freeze 延迟至 idle。三项 RTL 切片测试通过，真实计算与 Vivado 仍未开始。
+- 2026-09-04 管理员再次确认批准 V2 八项 RTL 裁定。PR #54 HEAD `8239063` 的快速检查成功，全仓回归查询时仍在运行；本地工作树仅有两个真实计算测试和用户临时 `np75_tmp_sparse_protocol.ys`，临时文件保持未跟踪。
+- 2026-09-04 真实计算 RED tracer 已建立并复现：当前占位输出为 0，手算期望 logit0=137；下一步只实现 64×uint4 缓存、active mask、32 个隐藏值、10 个 logit 和四 lane 顺序计算，不提前扩展 DMA/网口/Vivado。
+- 2026-09-04 只读统计发生两次命令构造错误：一次 JavaScript 模板误解析、一次把 `.nexus-map` 当文件读取；均未修改仓库，已改为安全的目录读取方式。
+- 2026-09-04 真实计算最小 GREEN：`npu_eneuron_single_clock_skeleton.sv` 已加入输入缓存、active mask bank、四 lane 分组引擎、hidden/logit 缓存和 compute busy；手算 tracer 通过 137/-117，同时通过最后组 59、L1 bit79 关闭后 -1 和 busy ready/idle 断言。
+- 2026-09-04 原有 skeleton/mask/control 三项协议测试已改用全零模型并全部通过；尚未执行完整仓库回归、随机 20×100 bit-exact 门或 Vivado。
+- 2026-09-04 四项单时钟 RTL 测试联合 4/4、`compileall`、`git diff --check` 和 Icarus `-Wall -tnull` 均通过。Icarus 仅报告 `always_comb` sensitivity 扩大提示及受保护仿真 `$display` 的综合 warning，不影响本轮功能结论。
+- 2026-09-04 完整仓库回归 `469/469 OK（1 skipped）`，耗时约 465 秒；运行期间被历史验证器刷新过的 `local_prune_rtl_results.json` 与 `np4b_signoff_summary.json` 已恢复到提交前内容，避免混入无关证据变更。
+- 2026-09-04 首次直接调用 `yosys` 因 PowerShell PATH 不含工具而未执行；下一次使用 `C:\msys64\ucrt64\bin\yosys.exe` 明确路径，不运行 Vivado。
+- 2026-09-04 bias/并发合同补充 RED：unsafe L0 bias 被错误接受；计算中 mask 配置因 ready 关闭导致 watchdog。bias 最小修复已先转绿；并发首次修复暴露 ready 对未呈现 opcode 的依赖，现改为 valid=0 乐观 ready、valid=1 分类仲裁。
+- 2026-09-04 乐观 ready 会让忙态 `cmd_ready` 无请求时抬高，并被 freeze 逐拍测试正确拒绝；最终保持 RTL 的 opcode 分类 ready，改由并发测试 Host 先呈现 valid/payload 再等 ready，符合标准源端握手责任。
+- 2026-09-04 提交前复核两项阻断已修复：模型 word 512..543/624..633 增加 signed bias 安全窗；mask begin/data/commit/abort 可在部分输入、计算或结果输出期间握手，active bank 仍只在下一样本首 beat 切换。
+- 2026-09-04 定向验证覆盖 L0/L1 上下界外一点共四个非法 bias、错误背压与同索引重试；并发 mask 在样本 0x101 运行时发布但结果仍携带 epoch0，样本 0x102 才采用 epoch1。四项 RTL 回归 4/4、Yosys 过程检查返回 0。
+- 2026-09-04 最终完整仓库回归再次通过 `469/469 OK（1 skipped）`，耗时约 546 秒；端口表已移除“结果零占位/真实计算待接入”的过时描述。历史 NP4B 自动刷新文件再次恢复，不纳入提交。
+- 2026-09-04 提交前差异审查完成：独立复核无剩余阻断；用户 `np75_tmp_sparse_protocol.ys` 明确排除，历史 JSON 规范化后与索引无差异。

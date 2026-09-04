@@ -88,7 +88,7 @@ module tb_npu_eneuron_single_clock_control;
         repeat (3) @(negedge clk);
         rst = 1'b0;
         send_cmd(OP_MODEL_BEGIN, 1'b0, 32'd0, 32'd0);
-        for (i = 0; i < 634; i = i + 1) send_cmd(OP_MODEL_DATA, 1'b0, 32'd0, i);
+        for (i = 0; i < 634; i = i + 1) send_cmd(OP_MODEL_DATA, 1'b0, 32'd0, 32'd0);
         send_cmd(OP_MODEL_COMMIT, 1'b0, 32'd0, 32'd0);
 
         // 部分 mask 可由 MASK_ABORT 原子丢弃，之后回到严格 idle。

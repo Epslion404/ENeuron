@@ -78,6 +78,24 @@ module tb_npu_eneuron_single_clock_skeleton;
     integer result_beats;
     logic [31:0] held_result;
 
+    function automatic logic is_unsafe_bias_probe(input integer index);
+        begin
+            is_unsafe_bias_probe = index == 512 || index == 543 || index == 624 || index == 633;
+        end
+    endfunction
+
+    function automatic logic [31:0] unsafe_bias_word(input integer index);
+        begin
+            case (index)
+                512: unsafe_bias_word = 32'h8001_dfff; // L0 min - 1
+                543: unsafe_bias_word = 32'h7ffe_23c0; // L0 max + 1
+                624: unsafe_bias_word = 32'h8007_efff; // L1 min - 1
+                633: unsafe_bias_word = 32'h7ff8_1fe0; // L1 max + 1
+                default: unsafe_bias_word = 32'd0;
+            endcase
+        end
+    endfunction
+
     // 防止 ready/valid 回归在工具中无限等待，失败时给出明确阶段边界。
     initial begin
         repeat (5000) @(posedge clk);
@@ -101,10 +119,27 @@ module tb_npu_eneuron_single_clock_skeleton;
         sample_valid = 1'b0;
         sample_data = '0;
 
-        // 634-word 模型镜像：第一片只验证顺序计数和原子提交，数据本身不参与计算。
+        // 634-word 全零模型镜像：同时验证顺序计数、原子提交和零结果。
         $display("PHASE model_load");
         send_cmd(OP_MODEL_BEGIN, 32'd0);
-        for (i = 0; i < 634; i = i + 1) send_cmd(OP_MODEL_DATA, i[31:0]);
+        for (i = 0; i < 634; i = i + 1) begin
+            if (is_unsafe_bias_probe(i)) begin
+                // 两层 bias 安全窗的上下界外一点都必须报错，并允许同地址重试。
+                rsp_ready = 1'b0;
+                send_cmd(OP_MODEL_DATA, unsafe_bias_word(i));
+                if (!rsp_valid) $fatal(1, "unsafe bias must produce an error response");
+                if (rsp_payload[127:124] !== 4'he || rsp_payload[119:116] !== OP_MODEL_DATA)
+                    $fatal(1, "unsafe bias error header mismatch");
+                if (rsp_payload[111:80] !== i)
+                    $fatal(1, "unsafe bias advanced model word index");
+                repeat (2) @(negedge clk);
+                if (!rsp_valid || cmd_ready) $fatal(1, "bias error response backpressure broken");
+                rsp_ready = 1'b1;
+                @(negedge clk);
+                while (rsp_valid) @(negedge clk);
+            end
+            send_cmd(OP_MODEL_DATA, 32'd0);
+        end
         send_cmd(OP_MODEL_COMMIT, 32'd0);
         repeat (2) @(negedge clk);
         if (model_valid !== 1'b1) $fatal(1, "model_valid did not assert after commit");
@@ -166,7 +201,7 @@ module tb_npu_eneuron_single_clock_skeleton;
             // 在 posedge 观察握手，避免最后一个 beat 清除 valid 后在 negedge 被漏计。
             @(posedge clk);
             if (result_valid && result_ready) begin
-                if (result_data !== 32'd0) $fatal(1, "skeleton result must be zero placeholder");
+                if (result_data !== 32'd0) $fatal(1, "zero model result must be zero");
                 result_beats = result_beats + 1;
             end
         end

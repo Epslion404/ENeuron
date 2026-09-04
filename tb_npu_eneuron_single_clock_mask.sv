@@ -93,7 +93,7 @@ module tb_npu_eneuron_single_clock_mask;
         if (mask_valid !== 1'b0) $fatal(1, "mask_valid must be 0 after reset");
 
         send_cmd(OP_MODEL_BEGIN, 32'd0);
-        for (i = 0; i < 634; i = i + 1) send_cmd(OP_MODEL_DATA, i[31:0]);
+        for (i = 0; i < 634; i = i + 1) send_cmd(OP_MODEL_DATA, 32'd0);
         send_cmd(OP_MODEL_COMMIT, 32'd0);
         repeat (2) @(negedge clk);
         if (!model_valid) $fatal(1, "model commit failed");

@@ -267,3 +267,17 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3 及单时钟 RTL V2 八项裁定
 - 第二轮独立审计确认 V2 仍缺 634-word 段内映射、非法配置错误响应、mask 四态命令矩阵、freeze 切换、零激活工作量和 Python 严格类型域。
 - 审核稿已升级为 V3，当前人工门为 `OF1-OF6_V3_REVIEW_REQUIRED`。
 - 获批后的首个实现切片固定为 OF1a uint4 fail-closed；停止点是 15 项 oracle 测试全绿，不顺带修改 bias、mask、协议或 RTL。
+
+## 2026-09-04 真实计算 RTL 切片启动
+
+- 管理员再次确认批准 V2 八项 RTL 设计裁定；合同仍为 `rtl_allowed=true`、`vivado_allowed=false`。
+- 模型/流、mask epoch、控制三条 Icarus 切片已在 PR #54 提交；HEAD `8239063` 的快速检查成功，全仓回归仍需等待终态。
+- 手算真实计算 tracer 已形成 RED：默认全开 mask 时期望 logit0=137，epoch 1 关闭 L0 bit0 后期望 -117；当前占位 RTL 返回 0。
+- 当前允许动作是实现最小四 lane 顺序计算并完成 Python/Icarus 门；不得把该结果外推为 Vivado 资源、时序、功耗或板级性能。
+- 最小真实计算路径现已 GREEN：默认 mask 得到 logit0=137，关闭 L0 bit0 后得到 -117；额外最高组向量得到 output9=59，关闭 L1 bit79 后得到 -1。
+- 当前下一门是四项 RTL 切片联合回归与全仓 Python/语法检查；20×100 随机 bit-exact 和 Vivado 仍未完成。
+- 四项 RTL 切片联合 4/4、Python `compileall`、diff-check 和独立 Icarus 编译已通过；等待完整仓库回归与提交审查。
+- 完整仓库回归已通过 `469/469（1 skipped）`；历史 NP4B 证据文件的自动刷新副作用已恢复，不纳入本切片。
+- 提交前独立复核发现的 bias 安全窗与运行期 mask 并发阻断已完成 RED→GREEN：四个越界点均同索引拒绝，当前样本保持旧 active mask，下一样本才采用新 epoch。
+- 最终完整回归正在重跑；Yosys 仅完成开源前端/过程检查，不改变 `vivado_allowed=false`。
+- 最终完整回归终态为 `469/469 OK（1 skipped）`；当前切片已具备提交条件，但 20×100 随机 bit-exact、Vivado OOC 和板级证据仍未完成。

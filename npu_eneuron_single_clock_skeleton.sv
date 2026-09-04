@@ -1,9 +1,8 @@
 // 传统 NPU + ENeuron 单时钟协议骨架。
 //
-// 这是第一条 RTL 垂直切片：它只冻结公开 ready/valid、模型顺序装载、
-// 固定 8/10 beat 计数、结果背压和 fail-closed 行为。模型数据暂存但不参与
-// 乘加，结果使用零占位；mask 只实现 staging/published/首拍激活账本，真正的
-// 门控计算和计算调度器属于后续切片。
+// 当前实现冻结公开 ready/valid、模型/掩码配置和固定 8/10 beat 协议，
+// 并用一个四 lane 共享数据通路顺序完成 64→32→10 推理。每个模型 word
+// 正好提供四个 INT8 权重；关闭的四权重组不读取模型 word，也不执行乘加。
 `timescale 1ns/1ps
 module npu_eneuron_single_clock_skeleton (
     input  logic        clk,
@@ -54,6 +53,16 @@ module npu_eneuron_single_clock_skeleton (
     localparam logic [1:0] MASK_COMPLETE   = 2'd2;
     localparam logic [1:0] MASK_PUBLISHED  = 2'd3;
 
+    localparam logic [3:0] COMPUTE_IDLE           = 4'd0;
+    localparam logic [3:0] COMPUTE_L0_BIAS_FETCH  = 4'd1;
+    localparam logic [3:0] COMPUTE_L0_BIAS_LOAD   = 4'd2;
+    localparam logic [3:0] COMPUTE_L0_GROUP_FETCH = 4'd3;
+    localparam logic [3:0] COMPUTE_L0_GROUP_ACCUM = 4'd4;
+    localparam logic [3:0] COMPUTE_L1_BIAS_FETCH  = 4'd5;
+    localparam logic [3:0] COMPUTE_L1_BIAS_LOAD   = 4'd6;
+    localparam logic [3:0] COMPUTE_L1_GROUP_FETCH = 4'd7;
+    localparam logic [3:0] COMPUTE_L1_GROUP_ACCUM = 4'd8;
+
     logic [1:0]  model_state;
     logic [9:0]  model_word_index;
     logic        sample_active;
@@ -71,14 +80,29 @@ module npu_eneuron_single_clock_skeleton (
     logic [31:0] mask_published_epoch;
     logic [31:0] mask_active_epoch;
 
+    logic        compute_active;
+    logic [3:0]  compute_state;
+    logic [5:0]  compute_unit_index;
+    logic [4:0]  compute_group_index;
+    logic [31:0] model_word_latched;
+    logic signed [31:0] mac_accumulator;
+    logic signed [31:0] l0_lane_sum;
+    logic signed [31:0] l1_lane_sum;
+
+    logic [3:0]  input_pixels [0:63];
+    logic [6:0]  hidden_values [0:31];
+    logic [31:0] logit_values [0:9];
+
     // 634 words are deliberately represented by a small staging array in this
     // protocol slice. Later implementation may infer BRAM without changing the port contract.
     logic [31:0] model_staging [0:633];
     logic [31:0] mask_staging [0:18];
+    logic [31:0] mask_active_words [0:18];
 
     wire [3:0]  cmd_opcode = cmd_payload[127:124];
     wire [31:0] cmd_word = cmd_payload[31:0];
     wire [31:0] cmd_epoch = cmd_payload[119:88];
+    wire        cmd_is_mask = cmd_opcode >= OP_MASK_BEGIN && cmd_opcode <= OP_MASK_ABORT;
 
     function automatic logic [127:0] make_error_response(
         input logic [3:0] error_code,
@@ -95,20 +119,113 @@ module npu_eneuron_single_clock_skeleton (
         end
     endfunction
 
+    function automatic logic model_word_payload_valid(
+        input logic [9:0] word_index,
+        input logic [31:0] word
+    );
+        logic signed [31:0] signed_word;
+        begin
+            signed_word = $signed(word);
+            if (word_index >= 10'd512 && word_index <= 10'd543) begin
+                model_word_payload_valid =
+                    signed_word >= -32'sd2147360768 && signed_word <= 32'sd2147361727;
+            end else if (word_index >= 10'd624 && word_index <= 10'd633) begin
+                model_word_payload_valid =
+                    signed_word >= -32'sd2146963456 && signed_word <= 32'sd2146967519;
+            end else begin
+                model_word_payload_valid = 1'b1;
+            end
+        end
+    endfunction
+
+    // uint4/uint7 激活先补零，再与 signed INT8 权重相乘并显式扩展到 INT32。
+    function automatic logic signed [31:0] multiply_u4_s8(
+        input logic [3:0] activation,
+        input logic [7:0] weight
+    );
+        logic signed [4:0]  signed_activation;
+        logic signed [7:0]  signed_weight;
+        logic signed [12:0] product;
+        begin
+            signed_activation = $signed({1'b0, activation});
+            signed_weight = $signed(weight);
+            product = signed_activation * signed_weight;
+            multiply_u4_s8 = {{19{product[12]}}, product};
+        end
+    endfunction
+
+    function automatic logic signed [31:0] multiply_u7_s8(
+        input logic [6:0] activation,
+        input logic [7:0] weight
+    );
+        logic signed [7:0]  signed_activation;
+        logic signed [7:0]  signed_weight;
+        logic signed [15:0] product;
+        begin
+            signed_activation = $signed({1'b0, activation});
+            signed_weight = $signed(weight);
+            product = signed_activation * signed_weight;
+            multiply_u7_s8 = {{16{product[15]}}, product};
+        end
+    endfunction
+
+    function automatic logic [6:0] relu_saturate_u7(
+        input logic signed [31:0] value
+    );
+        begin
+            if (value <= 0)
+                relu_saturate_u7 = 7'd0;
+            else if (value >= 127)
+                relu_saturate_u7 = 7'd127;
+            else
+                relu_saturate_u7 = value[6:0];
+        end
+    endfunction
+
+    function automatic logic active_mask_enabled(input integer bit_index);
+        begin
+            active_mask_enabled = mask_active_words[bit_index >> 5][bit_index & 31];
+        end
+    endfunction
+
+    integer l0_base_index;
+    integer l1_base_index;
+    always_comb begin
+        l0_base_index = compute_group_index * 4;
+        l1_base_index = compute_group_index * 4;
+        l0_lane_sum =
+            multiply_u4_s8(input_pixels[l0_base_index + 0], model_word_latched[7:0]) +
+            multiply_u4_s8(input_pixels[l0_base_index + 1], model_word_latched[15:8]) +
+            multiply_u4_s8(input_pixels[l0_base_index + 2], model_word_latched[23:16]) +
+            multiply_u4_s8(input_pixels[l0_base_index + 3], model_word_latched[31:24]);
+        l1_lane_sum =
+            multiply_u7_s8(hidden_values[l1_base_index + 0], model_word_latched[7:0]) +
+            multiply_u7_s8(hidden_values[l1_base_index + 1], model_word_latched[15:8]) +
+            multiply_u7_s8(hidden_values[l1_base_index + 2], model_word_latched[23:16]) +
+            multiply_u7_s8(hidden_values[l1_base_index + 3], model_word_latched[31:24]);
+    end
+
     // 配置握手优先于样本首拍；响应槽背压期间整个命令口停住。
     always_comb begin
-        cmd_ready = !rsp_valid && !sample_active && !result_active;
-        // 输入流在首 beat 后仍需保持 ready，直到第 8 beat 完成；结果槽出现后才停止。
-        sample_ready = model_valid && !result_active && !rsp_valid && !cmd_valid;
+        // mask staging/publish 可与部分输入、计算和结果输出并行；其它命令等待严格运行空闲。
+        cmd_ready = !rsp_valid &&
+                    (cmd_is_mask || (!sample_active && !compute_active && !result_active));
+        // 配置只抢占样本首 beat；部分样本期间命令口被阻塞，输入必须继续前进。
+        sample_ready = model_valid && !compute_active && !result_active && !rsp_valid &&
+                       !(cmd_valid && !sample_active);
         result_valid = result_active;
-        result_data = 32'd0;
+        result_data = result_active ? logit_values[result_beat_index] : 32'd0;
         result_sample_id = result_sample_id_reg;
         result_mask_epoch = result_mask_epoch_reg;
-        runtime_idle = !sample_active && !result_active && !rsp_valid &&
+        runtime_idle = !sample_active && !compute_active && !result_active && !rsp_valid &&
                        ((model_state == MODEL_EMPTY) || (model_state == MODEL_COMMITTED)) &&
                        (mask_state == MASK_EMPTY) &&
                        !cmd_valid;
     end
+
+    integer reset_mask_index;
+    integer sample_pixel_index;
+    integer activate_mask_index;
 
     always_ff @(posedge clk) begin
         if (rst) begin
@@ -129,10 +246,20 @@ module npu_eneuron_single_clock_skeleton (
             mask_published_epoch <= 32'd0;
             mask_active_epoch <= 32'd0;
             mask_valid <= 1'b0;
+            compute_active <= 1'b0;
+            compute_state <= COMPUTE_IDLE;
+            compute_unit_index <= 6'd0;
+            compute_group_index <= 5'd0;
+            model_word_latched <= 32'd0;
+            mac_accumulator <= 32'sd0;
             infer_frozen <= 1'b0;
             state_clear_count <= 32'd0;
             rsp_valid <= 1'b0;
             rsp_payload <= 128'd0;
+            // 复位后的默认 mask 全开；word18 只有低 16 位属于 L1 mask。
+            for (reset_mask_index = 0; reset_mask_index < 18; reset_mask_index = reset_mask_index + 1)
+                mask_active_words[reset_mask_index] <= 32'hffff_ffff;
+            mask_active_words[18] <= 32'h0000_ffff;
         end else begin
             // 单槽错误响应：消费前保持 payload/valid 稳定，消费拍不接受新命令。
             if (rsp_valid && rsp_ready) begin
@@ -162,7 +289,8 @@ module npu_eneuron_single_clock_skeleton (
                         );
                     end
                 end else if (cmd_opcode == OP_MODEL_DATA) begin
-                    if (model_state == MODEL_LOADING && model_word_index < 10'd634) begin
+                    if (model_state == MODEL_LOADING && model_word_index < 10'd634 &&
+                        model_word_payload_valid(model_word_index, cmd_word)) begin
                         model_staging[model_word_index] <= cmd_word;
                         if (model_word_index == 10'd633) begin
                             model_state <= MODEL_COMPLETE;
@@ -270,9 +398,14 @@ module npu_eneuron_single_clock_skeleton (
 
             // 固定 8 beat 样本；首 beat 锁存 sample_id，payload 在背压期间由上游保持。
             if (sample_valid && sample_ready) begin
+                for (sample_pixel_index = 0; sample_pixel_index < 8; sample_pixel_index = sample_pixel_index + 1)
+                    input_pixels[(sample_beat_index * 8) + sample_pixel_index] <=
+                        sample_data[(sample_pixel_index * 4) +: 4];
                 if (sample_beat_index == 4'd0) begin
                     sample_id_reg <= sample_id;
                     if (mask_state == MASK_PUBLISHED) begin
+                        for (activate_mask_index = 0; activate_mask_index < 19; activate_mask_index = activate_mask_index + 1)
+                            mask_active_words[activate_mask_index] <= mask_staging[activate_mask_index];
                         mask_active_epoch <= mask_published_epoch;
                         sample_mask_epoch_reg <= mask_published_epoch;
                         mask_state <= MASK_EMPTY;
@@ -285,14 +418,123 @@ module npu_eneuron_single_clock_skeleton (
                 if (sample_beat_index == 4'd7) begin
                     sample_active <= 1'b0;
                     sample_beat_index <= 4'd0;
-                    result_active <= 1'b1;
-                    result_beat_index <= 4'd0;
+                    compute_active <= 1'b1;
+                    compute_state <= COMPUTE_L0_BIAS_FETCH;
+                    compute_unit_index <= 6'd0;
+                    compute_group_index <= 5'd0;
                     result_sample_id_reg <= sample_id_reg;
                     result_mask_epoch_reg <= sample_mask_epoch_reg;
                 end else begin
                     sample_active <= 1'b1;
                     sample_beat_index <= sample_beat_index + 4'd1;
                 end
+            end
+
+            // 一个 32-bit 模型 word 提供四个权重，因此四 lane 每次处理一个 group。
+            // FETCH/LOAD 或 FETCH/ACCUM 分拍，给后续同步 RAM 映射保留清晰时序边界。
+            if (compute_active) begin
+                case (compute_state)
+                    COMPUTE_L0_BIAS_FETCH: begin
+                        model_word_latched <= model_staging[512 + compute_unit_index];
+                        compute_state <= COMPUTE_L0_BIAS_LOAD;
+                    end
+                    COMPUTE_L0_BIAS_LOAD: begin
+                        mac_accumulator <= $signed(model_word_latched);
+                        compute_group_index <= 5'd0;
+                        compute_state <= COMPUTE_L0_GROUP_FETCH;
+                    end
+                    COMPUTE_L0_GROUP_FETCH: begin
+                        if (active_mask_enabled((compute_unit_index * 16) + compute_group_index)) begin
+                            model_word_latched <= model_staging[(compute_unit_index * 16) + compute_group_index];
+                            compute_state <= COMPUTE_L0_GROUP_ACCUM;
+                        end else if (compute_group_index == 5'd15) begin
+                            hidden_values[compute_unit_index] <= relu_saturate_u7(mac_accumulator);
+                            compute_group_index <= 5'd0;
+                            if (compute_unit_index == 6'd31) begin
+                                compute_unit_index <= 6'd0;
+                                compute_state <= COMPUTE_L1_BIAS_FETCH;
+                            end else begin
+                                compute_unit_index <= compute_unit_index + 6'd1;
+                                compute_state <= COMPUTE_L0_BIAS_FETCH;
+                            end
+                        end else begin
+                            compute_group_index <= compute_group_index + 5'd1;
+                        end
+                    end
+                    COMPUTE_L0_GROUP_ACCUM: begin
+                        // 最后一组必须使用包含本拍 lane_sum 的新值，不能读取旧 accumulator。
+                        if (compute_group_index == 5'd15) begin
+                            hidden_values[compute_unit_index] <=
+                                relu_saturate_u7(mac_accumulator + l0_lane_sum);
+                            compute_group_index <= 5'd0;
+                            if (compute_unit_index == 6'd31) begin
+                                compute_unit_index <= 6'd0;
+                                compute_state <= COMPUTE_L1_BIAS_FETCH;
+                            end else begin
+                                compute_unit_index <= compute_unit_index + 6'd1;
+                                compute_state <= COMPUTE_L0_BIAS_FETCH;
+                            end
+                        end else begin
+                            mac_accumulator <= mac_accumulator + l0_lane_sum;
+                            compute_group_index <= compute_group_index + 5'd1;
+                            compute_state <= COMPUTE_L0_GROUP_FETCH;
+                        end
+                    end
+                    COMPUTE_L1_BIAS_FETCH: begin
+                        model_word_latched <= model_staging[624 + compute_unit_index];
+                        compute_state <= COMPUTE_L1_BIAS_LOAD;
+                    end
+                    COMPUTE_L1_BIAS_LOAD: begin
+                        mac_accumulator <= $signed(model_word_latched);
+                        compute_group_index <= 5'd0;
+                        compute_state <= COMPUTE_L1_GROUP_FETCH;
+                    end
+                    COMPUTE_L1_GROUP_FETCH: begin
+                        if (active_mask_enabled(512 + (compute_unit_index * 8) + compute_group_index)) begin
+                            model_word_latched <= model_staging[544 + (compute_unit_index * 8) + compute_group_index];
+                            compute_state <= COMPUTE_L1_GROUP_ACCUM;
+                        end else if (compute_group_index == 5'd7) begin
+                            logit_values[compute_unit_index] <= mac_accumulator;
+                            compute_group_index <= 5'd0;
+                            if (compute_unit_index == 6'd9) begin
+                                compute_active <= 1'b0;
+                                compute_state <= COMPUTE_IDLE;
+                                compute_unit_index <= 6'd0;
+                                result_active <= 1'b1;
+                                result_beat_index <= 4'd0;
+                            end else begin
+                                compute_unit_index <= compute_unit_index + 6'd1;
+                                compute_state <= COMPUTE_L1_BIAS_FETCH;
+                            end
+                        end else begin
+                            compute_group_index <= compute_group_index + 5'd1;
+                        end
+                    end
+                    COMPUTE_L1_GROUP_ACCUM: begin
+                        if (compute_group_index == 5'd7) begin
+                            logit_values[compute_unit_index] <= mac_accumulator + l1_lane_sum;
+                            compute_group_index <= 5'd0;
+                            if (compute_unit_index == 6'd9) begin
+                                compute_active <= 1'b0;
+                                compute_state <= COMPUTE_IDLE;
+                                compute_unit_index <= 6'd0;
+                                result_active <= 1'b1;
+                                result_beat_index <= 4'd0;
+                            end else begin
+                                compute_unit_index <= compute_unit_index + 6'd1;
+                                compute_state <= COMPUTE_L1_BIAS_FETCH;
+                            end
+                        end else begin
+                            mac_accumulator <= mac_accumulator + l1_lane_sum;
+                            compute_group_index <= compute_group_index + 5'd1;
+                            compute_state <= COMPUTE_L1_GROUP_FETCH;
+                        end
+                    end
+                    default: begin
+                        compute_active <= 1'b0;
+                        compute_state <= COMPUTE_IDLE;
+                    end
+                endcase
             end
 
             // 结果槽只有在 result_valid && result_ready 时前进；否则所有输出保持。
@@ -310,6 +552,9 @@ module npu_eneuron_single_clock_skeleton (
                 $display("NPU_SKELETON MODEL_COMMIT accepted");
             if (sample_valid && sample_ready && sample_beat_index == 4'd7)
                 $display("NPU_SKELETON SAMPLE_COMPLETE id=%08x", sample_id_reg);
+            if (compute_active && compute_state == COMPUTE_L1_GROUP_ACCUM &&
+                compute_unit_index == 6'd9 && compute_group_index == 5'd7)
+                $display("NPU_SKELETON COMPUTE_COMPLETE id=%08x", result_sample_id_reg);
             if (result_active && result_ready && result_beat_index == 4'd9)
                 $display("NPU_SKELETON RESULT_COMPLETE id=%08x", result_sample_id_reg);
             if (cmd_valid && cmd_ready && cmd_opcode == OP_FREEZE_SET &&
