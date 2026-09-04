@@ -1272,3 +1272,5 @@
 - 仓库外 webhook 已收到同一 SHA 的事件，但 `signature_verified=false`，因此只用作到达提示；GitHub API/checks 仍是合并权威来源。
 - 独立发布审计确认提交边界、manifest 哈希、报告与 RTL 绑定无 blocker；独立 V2 审计发现三项文档 blocker：写回寄存器语义不唯一、只报告前 20 条却过度外推全部 22 个端点、持久计划遗留 V1 待执行状态。
 - 已修正为共享 signed 32-bit `writeback_value_latched` 的唯一语义，明确前 20 条为 14 条 DSP/求和路径和 6 条写使能路径，并将 V1 执行链标记为“已执行但 setup 失败”。本轮仍未修改 RTL。
+- 修订 HEAD `c7e1247` 的 Actions run `33907986001` 完成成功：全仓运行 473 项、CI 环境 3 项跳过，固定随机 `20×100` 通过，最终 `PR Gate` 成功；Webhook 收到同 SHA completed/success。
+- 合并前 GitHub API 确认 `CLEAN / MERGEABLE`，两路独立审计无 blocker；PR #58 已于 2026-09-04 合并为 `main@999038f`。合并口径保持“DSP V1 功能/结构通过，100 MHz setup 仍失败，转入 V2 审核”。

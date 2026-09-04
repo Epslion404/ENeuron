@@ -1191,5 +1191,5 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 - [x] 将新最差路径分类为动态激活选择/DSP/求和链，以及残余 logit 写使能链。
 - [x] 形成 V2 方案 A/B/C 比较和 TR7-TR12 审核稿。
 - [x] 推送实现与证据并创建 PR #58；以两路独立反审计修正 V2 写回语义、路径覆盖边界和持久状态残留。
-- [ ] 等待修订 HEAD 的全仓回归与 PR Gate；同 SHA 全绿且 mergeability=CLEAN 后合并。
+- [x] 修订 HEAD `c7e1247` 的全仓回归与 PR Gate 同 SHA 全绿，PR 为 CLEAN/MERGEABLE；PR #58 已合并为 `main@999038f`。
 - [ ] 等待管理员批准 TR7-TR12；批准前禁止继续修改计算 RTL。

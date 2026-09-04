@@ -21,7 +21,7 @@ ENeuron 是以 Python 黄金模型、SystemVerilog RTL、Icarus/Yosys/Vivado 验
 
 ## 当前状态
 
-NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`，NP7 已签核。管理员已批准并完成 TR1-TR6：共享四 DSP lane、三拍组计算、单时钟专项 8/8、固定 `20×100` 和完整仓库 473/473（1 skipped）均通过。实现提交 `5055073` 的 OOC 已证明 `DSP=4`、hold/route/DRC 通过，但 setup 为 `WNS=-0.673 ns`、22 个失败端点。当前状态为 `DSP_GATE_PASS / VIVADO_OOC_SETUP_FAIL / TIMING_REPAIR_V2_REVIEW_REQUIRED`，不得宣称 100 MHz 或板级通过。
+NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`，NP7 已签核。管理员已批准并完成 TR1-TR6：共享四 DSP lane、三拍组计算、单时钟专项 8/8、固定 `20×100` 和完整仓库 473 项均通过。实现提交 `5055073` 的 OOC 已证明 `DSP=4`、hold/route/DRC 通过，但 setup 为 `WNS=-0.673 ns`、22 个失败端点。PR #58 已将实现、证据和 V2 审核稿合入 `main@999038f`；当前状态为 `DSP_GATE_PASS / VIVADO_OOC_SETUP_FAIL / TIMING_REPAIR_V2_REVIEW_REQUIRED`，不得宣称 100 MHz 或板级通过。
 
 ## 单时钟 RTL 审核摘要
 
@@ -36,7 +36,7 @@ NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`，NP7 已签核。
 
 ## 状态校正与下一门
 
-- **当前权威开发基线**：`origin/main@e51f018`，DSP V1 实现与 OOC report head=`5055073`；本轮物理证据已在当前分支提交，尚未合入 main。不要把旧 report head=`39e41d4` 的 0 DSP 结果当作当前实现结果。
+- **当前权威基线**：`origin/main@999038f`（PR #58 merge）；DSP V1 实现与 OOC report head=`5055073`，最终审核修订 HEAD=`c7e1247`。不要把旧 report head=`39e41d4` 的 0 DSP 结果当作当前实现结果。
 - **已完成证据**：单时钟专项 8/8、固定 `20 seeds × 100 samples = 2000` 个样本逐 beat 随机门、完整回归 `473/473（1 skipped）`，以及 4 DSP 网表证据。
 - **已完成物理阶段**：使用 Vivado 2024.1 对当前 RTL、器件 `xc7z020clg400-1`、100 MHz 约束执行了 OOC 综合/实现、资源、setup/hold 和 DRC；setup 失败证据已归档。在关键路径修复通过前，不宣称当前设计的板级、功耗或网络吞吐性能。
 - **历史保留**：下方审计条目保留设计演进背景；其中标注为 V1/OF6 历史阶段的缺口不覆盖上述当前签核结果。
