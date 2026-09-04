@@ -1065,8 +1065,8 @@
 - [x] 覆盖全开、全关、mixed mask、负权重、负 bias、运行期 mask 发布和结果背压。
 - [x] 用稳定的结果消费者完成首 beat/末 beat/结果清空验证；随机背压与长事务已纳入同一消费者。
 - [x] 已更新任务状态文档与 Nexus，并推送 PR #54 的当前门审计（不代表随机门通过）。
-- [x] 固定 `20×100` 随机门已通过；随机 testbench 与对应证据已准备提交并推送 PR #54。
-- [ ] 随机门对应代码进入同一 HEAD 且 CI 全部通过后，合并 PR #54；随后申请 Vivado OOC。
+- [x] 固定 `20×100` 随机门已通过；随机 testbench 与对应证据已提交至 PR #54 HEAD `8ee7fe8`。
+- [ ] 等待包含随机门的同一 HEAD CI 全部通过后，合并 PR #54；随后申请 Vivado OOC。
 
 ### 随机门错误记录
 
@@ -1077,7 +1077,7 @@
 
 ### PR #54 合并门
 
-- 当前 GitHub 检查全部成功只证明已提交的单时钟 RTL 切片；随机 testbench 已在本地通过，但必须进入同一 HEAD 后由 CI 重验。
+- 当前 GitHub 检查全部成功只证明此前已提交的单时钟 RTL 切片；随机 testbench 已进入 HEAD `8ee7fe8`，必须等待该 HEAD 的 CI 重验。
 - 只有在随机 testbench 与证据进入同一 HEAD、完整 `20×100` 随机逐 beat 门、文档/Nexus 更新和同一 HEAD 的 CI 全部完成后，PR #54 才满足本阶段合并条件。
 - 用户临时文件 `np75_tmp_sparse_protocol.ys` 继续保持未跟踪，不得暂存或提交。
 
