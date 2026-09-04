@@ -1193,5 +1193,14 @@ class ModelConfigPortTest(unittest.TestCase):
         self.assertFalse(blocked.cmd_accepted)
         self.assertEqual(blocked.error_code, "BAD_STATE")
 
+    def test_runtime_freeze_rejects_model_staging(self):
+        model = NpuReference()
+        runtime = NpuEpochRuntime(model)
+        port = ModelConfigPort(model)
+        runtime.bind_model_port(port)
+        port.step(True, ModelCommand(ModelCommandKind.MODEL_BEGIN), False)
+        with self.assertRaisesRegex(RuntimeError, "model staging"):
+            runtime.set_infer_freeze(True)
+
 if __name__ == "__main__":
     unittest.main()

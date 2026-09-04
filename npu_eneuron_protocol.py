@@ -416,6 +416,7 @@ class NpuEpochRuntime:
         self.model = model
         self.config = config or model.config
         self._mask_port: MaskConfigPort | None = None
+        self._model_port: ModelConfigPort | None = None
         self.active_epoch = 0
         self._active_mask0 = self._all_open_mask(self.config.hidden_size * (self.config.input_size // self.config.group_size))
         self._active_mask1 = self._all_open_mask(self.config.output_size * (self.config.hidden_size // self.config.group_size))
@@ -448,6 +449,12 @@ class NpuEpochRuntime:
         self._mask_port = port
         LOGGER.debug("bound mask configuration port")
 
+    def bind_model_port(self, port: ModelConfigPort) -> None:
+        if self.running or self._result is not None or self._pending is not None:
+            raise RuntimeError("cannot bind model port while runtime is occupied")
+        self._model_port = port
+        LOGGER.debug("bound model configuration port")
+
     @property
     def running(self) -> bool:
         return self._inflight is not None
@@ -457,9 +464,13 @@ class NpuEpochRuntime:
             raise RuntimeError("cannot change infer freeze while runtime is occupied")
         if self._mask_port is not None and self._mask_port.state != MaskConfigPort.EMPTY:
             raise RuntimeError("cannot change infer freeze while mask staging is occupied")
+        if self._model_port is not None and self._model_port.state != ModelConfigPort.EMPTY:
+            raise RuntimeError("cannot change infer freeze while model staging is occupied")
         requested = bool(frozen)
         if self._mask_port is not None:
             self._mask_port.set_infer_freeze(requested)
+        if self._model_port is not None:
+            self._model_port.set_frozen(requested)
         self._frozen = requested
         LOGGER.debug("set runtime infer freeze=%s", requested)
 
