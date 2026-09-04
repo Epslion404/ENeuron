@@ -1224,6 +1224,11 @@ class ModelConfigPortTest(unittest.TestCase):
         runtime.bind_model_port(port)
         runtime.set_infer_freeze(True)
         self.assertTrue(runtime.frozen)
+        result = runtime.begin_sample([0] * 64)
+        runtime.complete_sample()
+        accepted = runtime.accept_result()
+        self.assertEqual(accepted.epoch, result.epoch)
+        self.assertEqual(accepted.inference.logits, (0,) * 10)
 
 if __name__ == "__main__":
     unittest.main()

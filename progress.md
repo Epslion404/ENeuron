@@ -1169,3 +1169,4 @@
 - 2026-09-04 OF4d 设计稿：补充模型配置口的 634-word 顺序装载、非法 word 同索引重试、单槽响应背压、`MODEL_COMMIT` 原子发布与 reset-only reload 合同；仍未实现 RTL、未运行 Vivado。
 - 2026-09-04 OF4e GREEN：`NpuEpochRuntime` 绑定 `ModelConfigPort`，模型 staging 非空时拒绝 freeze 切换；与既有 mask/runtime 组合共同通过 45/45。未创建 RTL，未运行 Vivado。
 - 2026-09-04 OF4f：冻结单时钟同拍仲裁优先级，明确配置提交不得与样本首拍双重生效；后续 RTL 必须按该优先级实现。未运行 Vivado。
+- 2026-09-04 OF4g GREEN：发现并修正已提交模型被误判为 staging 占用的问题；`committed` 允许冻结，`loading/complete` 仍拒绝。相关回归 47/47 通过，修正已合并至 `main@9f6d14b`。
