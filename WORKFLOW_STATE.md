@@ -283,3 +283,4 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3 及单时钟 RTL V2 八项裁定
 - 最终完整回归终态为 `469/469 OK（1 skipped）`；当前切片已具备提交条件，但 20×100 随机 bit-exact、Vivado OOC 和板级证据仍未完成。
 - 下一实质门是 20 个固定 seed × 100 样本随机 bit-exact 协同仿真；每个样本逐 beat 验证 logits、sample ID、mask epoch，并在计算/结果背压期间准备下一 mask。webhook 当前掉线，GitHub API 为 CI 权威来源。
 - PR #54 当前 GitHub 检查均成功且为 `OPEN / MERGEABLE / CLEAN`，但本地随机 testbench 尚未纳入提交；本阶段仍禁止合并，直到两样本同步消费者和完整 `20×100` 随机门通过。
+- 文档/Nexus 状态修正已推送至 PR #54 HEAD `ccfbecc`；该 HEAD 的 CI 正在运行，不能把 `IN_PROGRESS` 视为通过。

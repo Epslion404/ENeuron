@@ -1201,3 +1201,4 @@
 - 2026-09-04 随机 seed0 首样本失败经层间诊断确认为 testbench 时钟采样竞态，DUT `logit_values[0..3]` 已与黄金完全相同；结果消费检查改为 negedge 预采样 + posedge 握手。
 - 2026-09-04 PR #54 合并门复核：GitHub API 确认当前 HEAD `084f849` 的相关检查全部成功且 PR `OPEN / MERGEABLE / CLEAN`，但随机 testbench 仍未跟踪、未通过；因此暂不合并。
 - 2026-09-04 修正随机门 TODO：将“随机文件已创建”和“20×100 已签核”拆为独立状态；首 beat 问题记录为 ready/valid 观察竞态，下一步先做两样本无背压消费者，不再盲调等待拍。
+- 2026-09-04 已提交并推送文档/Nexus 状态修正：本地提交 `d6e3ce0`、`ccfbecc`，PR #54 HEAD 更新为 `ccfbecc`；新 CI 正在运行，随机门仍未签核。
