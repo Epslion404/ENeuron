@@ -1227,3 +1227,5 @@
 - 已同步 7 份 `.nexus-map` 人工摘要/机器概念文件：当前权威基线为 `origin/main@dc2452b`，并分别记录 RTL merge=`2a33f12`、OOC report head=`39e41d4`、evidence merge=`dc2452b`；JSON 解析与 diff-check 通过。
 - 提交前轻量回归通过：`test_ci_fast_v1` 8/8、`test_artifact_layout` 1/1；确认文档/Nexus 变更继续走 fast gate，OOC manifest 仍被唯一归档和索引。
 - 本轮未修改业务 RTL、未运行新的 Vivado，也未触碰用户文件 `np75_tmp_sparse_protocol.ys`。
+- PR #56 首轮 HEAD `c1c774e` 的 GitHub run `33891809535` 与仓库外 webhook 同 SHA 均为 success；PR 为 `CLEAN / MERGEABLE`，但该结果只证明文档门通过，不代表 TR1-TR6 已批准。
+- 独立反审计发现并修正 TR3 的关闭组矛盾，同时把 V1 失败后的升级改为按新最差路径选择 `WRITEBACK` 或 DSP；该修订需要新的 PR HEAD CI。

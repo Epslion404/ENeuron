@@ -1141,6 +1141,7 @@
 - [x] 同步 `.nexus-map` 当前基线，精确区分 RTL merge、OOC report head 与 PR #55 evidence merge；原始探针无生成器，保留其 `c46320e` provenance，不伪造刷新。
 - [x] 提交前通过 CI-Fast 分类与 artifact layout 共 9 项轻量回归。
 - [ ] 等待管理员批准 TR1-TR6；批准前不修改业务 RTL。
+- [x] 对 TR1-TR6 完成独立反审计；修正 TR3 对关闭组的自相矛盾，并补充 V1 失败后的路径分类升级顺序。
 - [ ] 获批后按测试合同调整 → 最小分拍 RTL → 定向/随机/全仓回归 → 同条件 Vivado OOC 顺序执行。
 
 当前停止点：`TIMING_REPAIR_V1_REVIEW_REQUIRED`。用户文件 `np75_tmp_sparse_protocol.ys` 保持未跟踪、未修改、未暂存。

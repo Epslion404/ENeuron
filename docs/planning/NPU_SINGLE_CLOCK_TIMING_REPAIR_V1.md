@@ -44,7 +44,7 @@ FETCH -> EXECUTE -> COMMIT
 
 ### TR3：组三元组保持一致
 
-`compute_unit_index`、`compute_group_index` 和 `model_word_latched` 在同一组的 `FETCH/EXECUTE/COMMIT` 三拍内必须保持对应关系。只允许在 `COMMIT` 完成后推进组号或神经元号。
+对启用组，`compute_unit_index`、`compute_group_index` 和对应的 `model_word_latched` 从 `FETCH` 接受该组起，经过 `EXECUTE`，直到 `COMMIT` 完成前必须保持对应关系；只在 `COMMIT` 完成后推进组号或神经元号。对关闭组，允许在 `FETCH` 直接推进；若关闭的是最后一组，则在 `FETCH` 使用当前累加器完成写回并推进神经元。
 
 ### TR4：最后一组不丢失
 
@@ -52,7 +52,7 @@ FETCH -> EXECUTE -> COMMIT
 
 ### TR5：先验证 LUT-only V1
 
-先只做上述寄存器分拍并重跑同一 OOC。若 100 MHz 仍失败，再单独提出 DSP 映射或进一步流水化 V2；不在第一次修复中混入资源架构切换。
+先只做上述寄存器分拍并重跑同一 OOC。若 100 MHz 仍失败，先重新分类新的最差路径：若仍落在末组 INT32 加法、饱和与写回链，优先审核每个神经元只增加一次的独立 `WRITEBACK` 状态；若落在 `EXECUTE` 的乘法/组内求和链，再评估 DSP 映射。任何 V2 都单独审核，不在第一次修复中混入资源架构切换。
 
 ### TR6：验收门不降级
 
@@ -68,9 +68,9 @@ FETCH -> EXECUTE -> COMMIT
 
 ## 6. 批准后的实施顺序
 
-1. 先更新定向测试，使其只依赖握手，不假定旧计算周期，并增加三拍组号稳定与最后一组检查。
+1. 先更新定向测试，使其只依赖握手，不假定旧计算周期；增加“启用组在 `EXECUTE/COMMIT` 内 unit/group 稳定、关闭组不进入这两个状态、两层最后一组不丢失”的检查。
 2. 实现 `lane_sum_latched` 和两层 `EXECUTE` 状态，保持外部端口与数值函数不变。
-3. 运行四项定向门和固定 `20×100` 随机门；任何 bit-exact 差异立即停止。
+3. 同步更新 `COMPUTE_COMPLETE` 仿真日志的完成状态条件，再运行四项定向门和固定 `20×100` 随机门；任何 bit-exact 差异立即停止。
 4. 运行完整仓库回归并更新机器证据。
 5. 使用同一 Vivado 版本、器件、100 MHz 约束重跑 OOC；若仍 setup 失败，保留失败报告并进入 V2 设计审核，不直接扩展范围。
 
