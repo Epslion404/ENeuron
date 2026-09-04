@@ -2,7 +2,7 @@
 
 状态：`OF1-OF6_V3_APPROVED / OF1A_UINT4_CORE_GREEN / OF1B_FIXED_MODEL_GREEN / OF3_MASK_ORDER_COST_GREEN / OF4A_MODEL_WORD_MAP_GREEN / OF4B1_MASK_WORD_MAP_GREEN / OF4B2_COMMAND_PORT_GREEN / OF4B2B_RUNTIME_COMBINATION_GREEN / OF4C_TO_OF5_GREEN / OF6_ORACLE_SIGNOFF`
 
-适用范围：传统 `64→32→10` INT8 NPU 与 ENeuron 四权重整组门控的 Python 参考模型。OF1-OF6 V3 已于 2026-09-04 获管理员批准；本文冻结进入单时钟 RTL 前必须明确的语义。完整 oracle 冻结和 RTL 设计审核完成前，不创建集成业务 RTL，不运行新的 Vivado。
+适用范围：传统 `64→32→10` INT8 NPU 与 ENeuron 四权重整组门控的 Python 参考模型。OF1-OF6 V3 已于 2026-09-04 获管理员批准；本文记录进入单时钟 RTL 前必须明确的语义，前置冻结门现已完成。当前物理阶段仅允许对 `main@2a33f12` 运行 Vivado 2024.1 OOC，不包含板级或网络验证。
 
 ## 1. 已证明的行为
 

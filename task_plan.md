@@ -1033,6 +1033,16 @@
 - [x] 更新 Nexus，并通过 action 版本单测、YAML/JSON 解析、compileall 和 diff-check。
 - [x] 创建 PR，等待 workflow 变更触发的全量门和 Webhook 同 SHA 终态。
 - [x] 全量门成功且 PR 可合并后自行合并；PR #32 已合并为 `1f9d3b7`。
+
+## 2026-09-04 PR #54 合并后当前计划
+
+- [x] 随机 testbench 与固定 `20×100` 逐 beat 门已在同一 HEAD 通过 CI。
+- [x] PR #54 已合并为 `2a33f12`，并完成软件/RTL 仿真状态收口。
+- [ ] 运行当前 HEAD 的 Vivado 2024.1 OOC 综合、实现、setup/hold 和 DRC。
+- [ ] 绑定资源、时序、工具版本、约束、runner 和报告 SHA-256，形成可重放物理证据。
+- [ ] OOC 完成后再决定 XC7Z020 顶层、DMA/PS、网口和板级功耗的进入条件。
+
+当前计划边界：OOC 物理门不改变神经元/NPU 业务合同；网口吞吐、板级功耗、持续学习和通用 AI 能力仍为后续独立任务。
 # 2026-09-03 持久工作流当前状态
 
 - [x] PR #18 文档与 Nexus 状态更新通过四道 CI，并合并到 `main` (`1877140c`)
@@ -1066,7 +1076,9 @@
 - [x] 用稳定的结果消费者完成首 beat/末 beat/结果清空验证；随机背压与长事务已纳入同一消费者。
 - [x] 已更新任务状态文档与 Nexus，并推送 PR #54 的当前门审计（不代表随机门通过）。
 - [x] 固定 `20×100` 随机门已通过；随机 testbench 与对应证据已提交至 PR #54 HEAD `8ee7fe8`。
-- [ ] 等待包含随机门的同一 HEAD CI 全部通过后，合并 PR #54；随后申请 Vivado OOC。
+- [x] 等待包含随机门的同一 HEAD CI 全部通过后，合并 PR #54；PR #54 已以 merge commit `2a33f12` 合并。
+- [ ] 以 `origin/main@2a33f12` 为冻结 HEAD，运行 Vivado 2024.1 OOC 综合、实现、时序和 DRC，并绑定资源/报告哈希。
+- [ ] OOC 通过后再规划 XC7Z020 顶层；网口、DMA、PS、板级吞吐和功耗暂不纳入本阶段。
 
 ### 随机门错误记录
 
@@ -1075,11 +1087,22 @@
 | mask 生成器把 592 个有效 bit 当作 608 个 bit 访问，首轮出现 `IndexError` | 1 | 将 word18 高 16 位显式视为保留零位，继续运行；未执行 DUT 仿真 |
 | 随机 testbench 在 ready 拉高后首个握手边界不明确，出现 beat0 重复或跳过 | 2 | 已确认 DUT 内部 logits 与黄金值一致；改为下降沿观察当前 beat、下一上升沿完成握手，完整 20×100 已通过 |
 
-### PR #54 合并门
+### PR #54 合并门（已完成）
 
-- 当前 GitHub 检查全部成功只证明此前已提交的单时钟 RTL 切片；随机 testbench 已进入 HEAD `8ee7fe8`，必须等待该 HEAD 的 CI 重验。
-- 只有在随机 testbench 与证据进入同一 HEAD、完整 `20×100` 随机逐 beat 门、文档/Nexus 更新和同一 HEAD 的 CI 全部完成后，PR #54 才满足本阶段合并条件。
+- PR #54 的随机 testbench、固定 `20×100` 逐 beat 门、文档/Nexus 更新和同一 HEAD CI 均已完成；合并提交为 `2a33f12`。
+- 合并门只证明当前源码的软件/RTL 仿真证据闭环，不替代 Vivado 物理证据。
 - 用户临时文件 `np75_tmp_sparse_protocol.ys` 继续保持未跟踪，不得暂存或提交。
+
+## 2026-09-04 合并后 TODO 修正：Vivado OOC 物理门
+
+- [x] 确认当前冻结 HEAD 为 `origin/main@2a33f12`，工作树不纳入 `np75_tmp_sparse_protocol.ys`。
+- [x] 确认四项单时钟 RTL 定向测试、固定 `20×100` 随机逐 beat 门和完整回归 `469/469（1 skipped）` 已完成。
+- [ ] 固定 Vivado 2024.1 可执行文件、器件 `xc7z020clg400-1`、100 MHz 时钟和 OOC 顶层/约束。
+- [ ] 运行综合、opt、place、route、setup/hold 时序分析和 DRC；记录退出码、失败端点、LUT/FF/BRAM/DSP、WNS/TNS/WHS/THS。
+- [ ] 生成并校验可重放 manifest，绑定 RTL、Tcl、XDC、runner、Vivado 版本、Git HEAD 和报告 SHA-256。
+- [ ] 只有物理门完整通过后，才更新当前状态为 OOC 结果；失败项必须保留为 `NOT_PROVEN`，不能用旧 NP6/NP7 报告代偿。
+
+物理门硬条件：当前 RTL 的 OOC 综合/实现退出码为 0，route/DRC Error 为 0，100 MHz setup/hold 失败端点为 0；报告必须明确 OOC 结果不包含板级网口/DMA/PS 吞吐、动态功耗或持续学习能力。
 
 ### 本轮错误记录
 

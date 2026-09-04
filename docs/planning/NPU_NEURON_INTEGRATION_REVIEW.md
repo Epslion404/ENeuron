@@ -1,7 +1,7 @@
 # 传统 NPU + ENeuron 集成审核稿
 
-状态：`I1-I6_APPROVED / PYTHON_ORACLE_IN_PROGRESS`
-适用基线：NP7 `NP7.0-NP7.7_SIGNED_OFF`；本稿只做静态规划，不授权新 RTL、Vivado 或板级测试。
+状态：`I1-I6_APPROVED / PYTHON_ORACLE_SIGNED_OFF / RTL_RANDOM_GATE_GREEN / PR54_MERGED / VIVADO_OOC_NEXT`
+适用基线：NP7 `NP7.0-NP7.7_SIGNED_OFF`、单时钟 RTL `main@2a33f12`；当前仅授权绑定该 HEAD 的 Vivado 2024.1 OOC 物理门，不授权板级、网口或 DMA 测试。
 
 ## 1. 目标
 

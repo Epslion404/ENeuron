@@ -1112,3 +1112,10 @@
 - 这些 CI 结果只覆盖提交 HEAD `084f849`，不能覆盖工作树中尚未跟踪的 `tb_npu_eneuron_single_clock_random.sv` 与 `test_npu_single_clock_random.py`。
 - 随机门已确认是 testbench 首 beat ready/valid 观察竞态：DUT 内部 `logit_values` 与 Python 期望一致；在拉高 `result_ready` 后直接按下降沿采样会重复首 beat，改变等待拍数又可能跳过首 beat。
 - 两样本同步消费者已扩展为稳定的下降沿观察/上升沿握手循环，完整固定 `20×100`（共 2000 样本）已通过；随机 testbench 已进入 PR HEAD `8ee7fe8`，当前等待 GitHub CI 重验。
+
+## 2026-09-04 PR #54 合并后事实
+
+- GitHub 已将包含随机 testbench 的 PR #54 合并为 `2a33f12`；此前“等待同一 HEAD CI”的描述只适用于合并前历史快照。
+- 当前软件/RTL 仿真闭环为：四项单时钟定向门通过、固定 `20×100=2000` 样本逐 beat 通过、完整回归 `469/469（1 skipped）` 通过。
+- 当前物理证据仍为空：尚未对 `2a33f12` 运行 Vivado 2024.1 OOC，因此不得引用历史 NP6/NP7 资源或时序数字代替本 RTL 的物理结果。
+- 下一阶段应固定器件 `xc7z020clg400-1`、100 MHz 约束和 Vivado 2024.1 runner，完成综合、实现、setup/hold、DRC 与报告哈希绑定；网口、DMA、PS、板级功耗和端到端吞吐后置。
