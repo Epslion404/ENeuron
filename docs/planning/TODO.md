@@ -514,6 +514,7 @@ P0-P8 已完成并签核
 - [x] 端点补证经 PR #60 的 CI-Fast/PR Gate 和 Webhook 同 SHA 闭环后合并为 `main@4fc4c71`。
 - [x] PR #61 将端点审计后的持久状态同步合并为当前 `main@bef5979`。
 - [x] 完成 V2 KISS 实施审计：复用现有 signed 32-bit `mac_accumulator`，不新增 `writeback_value_latched`；预计只新增四个 signed 8-bit 激活锁存器约 32 FF，并形成独立实施地图。
+- [x] V2 审核材料与总 TODO 漂移修正经 PR #62 的最终 HEAD `a4832cc`、run `33915028445` 通过后合并为 `main@e8dc947`；仍未开放 RTL 实施授权。
 - [ ] 管理员批准 TR7-TR12；批准前不修改 RTL、不把 V2 周期常量落地到 testbench、不重跑 Vivado。
 - [ ] 新建独立 V2 测试合同，更新 C1-C4、WRITEBACK/激活锁存白盒门与 compute watchdog，并在旧 RTL 上取得精确 RED。
 - [ ] 最小修改计算 RTL：FETCH 锁存四个激活、EXECUTE 只读锁存操作数、统一 WRITEBACK 复用 `mac_accumulator`，继续强制恰好 4 个 DSP48E1。

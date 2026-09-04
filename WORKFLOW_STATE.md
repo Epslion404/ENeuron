@@ -4,11 +4,11 @@
 
 最后更新：2026-09-04
 
-状态：`ACTIVE / NP7_MERGED / I1_I6_APPROVED / OF1_OF6_V3_APPROVED / OF6_ORACLE_SIGNOFF / RTL_DESIGN_CONTRACT_V2_APPROVED / PR58_MERGED / TR1_TR6_APPROVED / RTL_TIMING_REPAIR_GREEN / FULL_REGRESSION_GREEN / DSP_GATE_PASS / VIVADO_OOC_SETUP_FAIL / TIMING_REPAIR_V2_REVIEW_REQUIRED`
+状态：`ACTIVE / NP7_MERGED / I1_I6_APPROVED / OF1_OF6_V3_APPROVED / OF6_ORACLE_SIGNOFF / RTL_DESIGN_CONTRACT_V2_APPROVED / PR62_MERGED / TR1_TR6_APPROVED / RTL_TIMING_REPAIR_GREEN / FULL_REGRESSION_GREEN / DSP_GATE_PASS / VIVADO_OOC_SETUP_FAIL / TIMING_REPAIR_V2_REVIEW_REQUIRED`
 
 ## 当前活动目标
 
-NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定及 TR1-TR6 已批准。DSP V1 实现、真实 OOC 失败证据和全部 22 个失败端点审计已经 PR #58/#60 合入，PR #61 的状态同步已合入当前 `main@bef5979`；当前目标是审核下一轮最小时序修复，未经 TR7-TR12 新批准不继续修改 RTL。
+NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定及 TR1-TR6 已批准。DSP V1 实现、真实 OOC 失败证据和全部 22 个失败端点审计已经合入；V2 KISS 审核材料经 PR #62 合入 `main@e8dc947`。当前目标是审核下一轮最小时序修复，未经 TR7-TR12 新批准不继续修改 RTL。
 
 活动合同：`docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V1.md`、`docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_TEST_CONTRACT_V1.md` 和 `docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V2.md`。当前 RTL 已完成共享四 DSP lane、三拍组计算、active-mask 门控和全部功能回归。Vivado 2024.1 OOC 已确认恰好 4 个 DSP48E1，route/DRC 无错误且 hold 通过，但 100 MHz setup 仍未通过；板级、网口、DMA、功耗仍不在本阶段。
 
@@ -30,7 +30,7 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 - 已从保留 routed checkpoint 扩展导出最多 50 条路径并完整覆盖全部 22 个 setup 失败端点：14 个属于动态激活选择/DSP/求和到 `lane_sum_latched`，8 个属于 `compute_group_index` 到 `logit_values` 写使能；不再存在未分类端点。证据身份见 `docs/verification/NPU_SINGLE_CLOCK_TIMING_ENDPOINT_AUDIT_V1.md`。
 - PR #60 HEAD `c0f1bea` 的 Actions run `33911646530` 已完成成功：分类和 Fast Python/diff check 成功、PR Gate 成功，其余无关重门按 CI-Fast V1 跳过；Webhook 收到同 SHA 的 `completed/success`。PR 已合并为 `main@4fc4c71`。
 - PR #61 HEAD `dc6715f` 的 Actions run `33912212910` 已完成成功并合并为 `main@bef5979`；当前分支与本地主线、远端主线均以该提交为基线。
-- PR #62 已由文档提交 `b6676b4` 创建，内容仅为 V2 审核材料、TODO 漂移修正和 Nexus 同步；不包含 RTL、testbench、周期常量或 Vivado manifest。当前等待最终 HEAD 的 GitHub Checks/API 结果。
+- PR #62 最终 HEAD `a4832cc` 的 Actions run `33915028445` 已完成成功，PR 为 `CLEAN / MERGEABLE` 后合并为 `main@e8dc947`。Webhook 收到同 SHA 的检查成功事件，但 `signature_verified=false`，只作到达提示；合并依据为 GitHub Checks/API。该 PR 不包含 RTL、testbench、周期常量或 Vivado manifest。
 
 ## 允许动作
 
