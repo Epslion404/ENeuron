@@ -975,6 +975,7 @@
 - [x] OF1a GREEN：严格接受 `type(value) is int` 且 `0..15`，并保持非法样本零副作用；定向 2/2、oracle 15/15。
 - [x] OF1b RED：严格 INT8、安全 bias、固定参数和 tuple 结果共 4 项定向测试得到 20 failures + 2 errors。
 - [x] OF1b GREEN：配置完整预检、原子 reload、四个 bias 边界及 ±1、固定 `64→32→10/group4` 和不可变 logits 全部通过；定向 4/4、oracle 19/19。
+- [x] OF3 证据冻结：内部单 bit、两层首尾 mixed mask、相邻 bit 负对照与 open+全零固定账本 3/3 通过；业务代码无需修改。
 - [ ] 按 RED 测试 → 最小实现 → 手算 mask 向量 → 状态矩阵顺序完成冻结。
 - [ ] 冻结端口/地址/状态转移/逐拍测试计划后，才提交单时钟 RTL 设计审核。
 
