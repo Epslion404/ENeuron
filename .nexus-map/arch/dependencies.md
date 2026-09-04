@@ -14,7 +14,7 @@ graph TD
   cosim --> verify[signoff verifiers]
   vivado[Vivado runners] --> reports[physical reports]
   reports --> verify
-  reports -. V1 setup fail .-> timing[Timing repair V2 review]
+  reports -. V1 setup fail .-> timing[Timing repair V2 review and implementation map]
   timing -. TR7-TR12 approval required .-> npu
   np7 -. shared execution boundary .-> npu[traditional INT8 NPU + ENeuron]
   npu --> vivado
@@ -31,7 +31,7 @@ Python oracle → cosim runners → unittest/verifier
 local_prune_reference → local_prune wrappers/network → NP4B signoff
 NP7 shared lane oracle → dense/sparse RTL → XSim/OOC runners → physical/evidence gates
 Vivado Tcl/runner → reports → verify_goal
-传统 NPU + ENeuron 集成材料包 → Python oracle 签核 → 单时钟 RTL 与随机门 → 旧 OOC setup 失败 → TR1-TR6 批准 → 四 DSP 三拍 RTL → 单时钟 8/8 + 固定 `20×100` + 完整 473 项 → DSP V1 OOC（DSP/hold/route/DRC 通过，setup 失败）→ `NPU_SINGLE_CLOCK_TIMING_REPAIR_V2` 审核 → TR7-TR12 批准后才允许下一轮 RED/RTL/OOC
+传统 NPU + ENeuron 集成材料包 → Python oracle 签核 → 单时钟 RTL 与随机门 → 旧 OOC setup 失败 → TR1-TR6 批准 → 四 DSP 三拍 RTL → 单时钟 8/8 + 固定 `20×100` + 完整 473 项 → DSP V1 OOC（恰好 4 DSP48E1，hold/route/DRC 通过，100 MHz setup `WNS=-0.673 ns / TNS=-6.462 ns / 22` 端点失败）→ `NPU_SINGLE_CLOCK_TIMING_REPAIR_V2` 审核与 `NPU_SINGLE_CLOCK_TIMING_REPAIR_V2_IMPLEMENTATION_MAP`（复用 accumulator，仅预计新增约 32 FF 激活锁存）→ TR7-TR12 批准后才允许下一轮 RED/RTL/OOC
 变更路径 → `classify-changes` → fast/全仓/XPM/NP7 专项门 → 唯一 `PR Gate`
 ```
 

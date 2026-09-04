@@ -512,5 +512,12 @@ P0-P8 已完成并签核
 - [x] 按冻结报告先分类前 20 条路径，并形成 `NPU_SINGLE_CLOCK_TIMING_REPAIR_V2.md` 审核稿。
 - [x] 从 routed checkpoint 扩展到最多 50 条路径，完整覆盖全部 22 个失败端点：14 个动态激活选择/DSP/求和端点，8 个 logit 写使能端点；审计见 `docs/verification/NPU_SINGLE_CLOCK_TIMING_ENDPOINT_AUDIT_V1.md`。
 - [x] 端点补证经 PR #60 的 CI-Fast/PR Gate 和 Webhook 同 SHA 闭环后合并为 `main@4fc4c71`。
-- [ ] 等待管理员批准 TR7-TR12；批准前不修改 RTL、不更新 V2 周期合同、不重跑 Vivado。
+- [x] PR #61 将端点审计后的持久状态同步合并为当前 `main@bef5979`。
+- [x] 完成 V2 KISS 实施审计：复用现有 signed 32-bit `mac_accumulator`，不新增 `writeback_value_latched`；预计只新增四个 signed 8-bit 激活锁存器约 32 FF，并形成独立实施地图。
+- [ ] 管理员批准 TR7-TR12；批准前不修改 RTL、不把 V2 周期常量落地到 testbench、不重跑 Vivado。
+- [ ] 新建独立 V2 测试合同，更新 C1-C4、WRITEBACK/激活锁存白盒门与 compute watchdog，并在旧 RTL 上取得精确 RED。
+- [ ] 最小修改计算 RTL：FETCH 锁存四个激活、EXECUTE 只读锁存操作数、统一 WRITEBACK 复用 `mac_accumulator`，继续强制恰好 4 个 DSP48E1。
+- [ ] 依次通过单时钟定向、固定 `20×100` 随机逐 beat 和完整仓库回归；任何数值、协议或周期差异立即停止。
+- [ ] 使用同一器件、100 MHz 约束和 Vivado 2024.1 重跑 OOC；要求 `DSP=4`、setup/hold 零失败、route/DRC 零错误，并重新绑定 RTL/报告哈希。
+- [ ] 若 V2 方案 A 仍不收敛，归档完整失败证据并重新审核乘积寄存方案 B，不自动增加流水。
 - [ ] OOC 通过后再规划 XC7Z020 顶层、DMA/PS/网口和板级功耗；不得用历史 NP6/NP7 结果代偿当前 RTL。
