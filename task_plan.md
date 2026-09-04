@@ -1,5 +1,21 @@
 # 单神经元硬件基石模拟计划
 
+## 2026-09-04 TR1-TR6 + DSP48E1 执行切片
+
+- [x] 管理员批准 TR1-TR6，并将 TR5 收紧为四条共享乘法 lane 强制使用 DSP48E1。
+- [x] Vivado 2024.1 独立推断探针确认：四个内部 signed 乘积信号分别标注 `use_dsp="yes"` 可稳定得到恰好 4 DSP；函数局部变量属性无效。
+- [x] 在旧 RTL 上建立 C1-C4、精确周期、状态稳定性与 DSP 结构合同 RED；旧功能门继续 GREEN，三拍层次引用与四乘积属性门分别按预期 RED。
+- [x] 实现 `FETCH → EXECUTE → COMMIT` 三拍流水、共享四 DSP lane 和 `lane_sum_latched`；C1-C4 状态、周期、数值和 DSP 意图测试 3/3 GREEN。
+- [x] 将 OOC 物理硬门收紧为 utilization `DSP=4`、实现网表 `DSP48E1_COUNT=4`，并与 setup/hold/DRC/route 共同决定通过。
+- [ ] 依次完成定向、C1-C4、固定 `20×100`、完整仓库回归与 Vivado 2024.1 OOC；当前单时钟专项 8/8、随机 20×100、完整仓库 473/473（1 skipped）均通过，待 Vivado。
+- [ ] 同步文档/Nexus，提交、推送、创建 PR，并完成 CI/Webhook 同 SHA 闭环。
+
+成功标准：外部协议与数值语义不变；C1-C4 输出和周期合同完全匹配；实现报告 `DSP=4`；XC7Z020 100 MHz 下 `WNS>=0`、`TNS=0`，setup/hold/DRC/route 零失败。
+
+错误记录：首轮合同运行发现 testbench 在 negedge 读取刚切换的 `cmd_ready` 会重复接受首个运行期 mask word，导致 C2 实际关闭 3 组。已改为 posedge 检查握手，保持 590 组冻结合同不变。一次跨文件补丁因 hunk 分隔格式错误被工具原子拒绝，随后拆分为小补丁，未产生部分修改。
+
+Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告错误绑定旧基线，先在最终反审计后提交 RTL/测试/Tcl，再用该实现提交运行 OOC；报告与 manifest 作为后续证据提交。
+
 ## 目标
 
 在本项目中用本机 Python 模拟并比较几种单神经元候选，平衡硬件复杂度与“可构建 AI 自训练和推理”的能力，最终确定推荐的最小可塑神经元设计。
@@ -1140,13 +1156,22 @@
 - [x] 形成 `docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V1.md`，冻结 TR1-TR6 待审方案。
 - [x] 同步 `.nexus-map` 当前基线，精确区分 RTL merge、OOC report head 与 PR #55 evidence merge；原始探针无生成器，保留其 `c46320e` provenance，不伪造刷新。
 - [x] 提交前通过 CI-Fast 分类与 artifact layout 共 9 项轻量回归。
-- [ ] 等待管理员批准 TR1-TR6；批准前不修改业务 RTL。
+- [x] 管理员批准 TR1-TR6，并将 TR5 修订为四条共享乘法 lane 强制使用 DSP48E1；实现物理门新增 `DSP=4`。
 - [x] 对 TR1-TR6 完成独立反审计；修正 TR3 对关闭组的自相矛盾，并补充 V1 失败后的路径分类升级顺序。
 - [x] 在不修改 testbench/RTL 的前提下冻结批准后的测试合同：C1-C4 组计数、精确计算延迟、白盒稳定断言、两层关闭末组定向向量、日志与 watchdog 门槛。
 - [x] 同步 `.nexus-map` 测试合同状态，保持 `PREPARED / BLOCKED_BY_TR1_TR6_APPROVAL`，未刷新或伪造旧 raw 探针。
-- [ ] 获批后按测试合同调整 → 最小分拍 RTL → 定向/随机/全仓回归 → 同条件 Vivado OOC 顺序执行。
+- [ ] 按测试合同形成 RED → DSP 强制三拍 RTL → 定向/随机/全仓回归 → 同条件 Vivado OOC 顺序执行。
 
-当前停止点：`TIMING_REPAIR_V1_REVIEW_REQUIRED`。用户文件 `np75_tmp_sparse_protocol.ys` 保持未跟踪、未修改、未暂存。
+## 2026-09-04 DSP 强制时序修复实施
+
+- [x] TR1-TR6 获批；按上下文将用户输入的 `DPS` 解释为 Xilinx `DSP48E1`。
+- [x] 核对 AMD UG901/UG912：`USE_DSP="yes"` 可覆盖默认算术映射；核对 UG479：DSP48E1 的 signed 25×18 乘法器覆盖本项目 8×8 输入域。
+- [x] 用 Vivado 2024.1 最小探针确认属性作用域和预期 4 DSP 映射：四个内部乘积信号分别标注时稳定得到 4 DSP；函数局部属性无效。
+- [x] 建立 C1-C4 三拍状态、精确周期和 DSP 结构 RED：旧 RTL 功能 1/1 GREEN；合同因缺少 `lane_sum_latched` RED；DSP 意图因 0/4 属性 RED。
+- [x] 实现四条共享 signed 8×8 DSP lane 与 `FETCH→EXECUTE→COMMIT`；L0/L1 只在对应 EXECUTE 选择数组，乘积分别符号扩展后求和。
+- [ ] 通过五项定向、固定 `20×100`、完整仓库回归和 Vivado `DSP=4`/100 MHz 物理门；前三项已通过，待 Vivado OOC。
+
+当前执行点：`TIMING_REPAIR_DSP_V1_RED_IN_PROGRESS`。用户文件 `np75_tmp_sparse_protocol.ys` 保持未跟踪、未修改、未暂存。
 
 ### 本轮文档错误记录
 

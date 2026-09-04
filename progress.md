@@ -1234,3 +1234,26 @@
 - 子代理复核了五个 testbench：确认无固定计算延迟依赖、V1 无需放宽 watchdog，并发现 L0 关闭末组的非零累加定向缺口；合同已扩为 C1-C4 四种样本补齐该证据。
 - `.nexus-map` 已同步测试合同编号、周期、watchdog 与阻断状态；6 个摘要文件 diff-check 和 3 个 JSON 解析均通过，raw 探针保持历史 provenance。
 - 测试合同提交前轻量回归通过：`test_ci_fast_v1` 8/8、`test_artifact_layout` 1/1；确认本切片继续只触发文档 fast gate，OOC manifest 索引未受影响。
+
+## 2026-09-04 TR1-TR6 批准与 DSP V1 启动
+
+- 管理员批准 TR1-TR6，并要求强制使用 DSP48E1；持续目标已从 blocked 恢复为 active。
+- 已核对官方 DSP48E1 容量和 Vivado `USE_DSP="yes"` 推断规则；V1 固定为四条共享 signed 8×8 DSP lane，物理硬门为 `DSP=4`。
+- 已创建实施分支 `codex/npu-timing-repair-dsp-v1-20260904`；用户文件 `np75_tmp_sparse_protocol.ys` 保持未跟踪。
+
+## 2026-09-04 DSP 探针完成并进入 RED
+
+- Vivado 2024.1 独立探针已完成，确认四个内部乘积信号逐个标注 `use_dsp="yes"` 是稳定得到 `DSP=4` 的最简写法；函数局部属性不可用。
+- 已冻结实现边界：L0/L1 共享四条 signed 8×8 lane，`EXECUTE` 锁存组和，`COMMIT` 只消费 `lane_sum_latched`；外部协议和 INT32 数值合同不变。
+- 当前开始扩展 C1-C4、精确周期和白盒状态合同；Vivado OOC 仍必须等功能与完整回归全部通过后执行。
+- RED 已实测：旧版 C1-C4 数值/协议门 `1/1` 通过；三拍合同在 Icarus 展开阶段因 `dut.lane_sum_latched` 不存在失败；四个显式 DSP 乘积检查因实际 `0/4` 失败。失败均精确命中待实现结构，未出现无关功能回归。
+- 首轮三拍 GREEN 在 C2 发现 active mask 为 589 而非 590。定位到 compute TB 的 `send_cmd` 在 `cmd_ready` 由非 mask payload 切换时于 negedge 采样存在 delta-cycle 竞态，可能让首个 mask data 重复接受并额外关闭 bit32。修正为 posedge 判定握手、negedge 撤销 valid；不修改 DUT 协议或期望组数。
+- 修正 testbench 握手后，compute 专项 `3/3` 通过：旧功能 C1-C4 bit-exact、三拍状态/稳定性/精确周期、四个显式 DSP 乘积属性均 GREEN。实测周期与冻结合同一致：1860、1856、676、1858。
+- RTL 已采用连续状态编号 `0..10`，L0/L1 共享四条 signed 8×8 lane；`lane_sum_latched` 仅在两层 EXECUTE 写入，COMMIT 消费锁存结果，关闭组继续在 FETCH 旁路。
+- Vivado OOC Tcl 已增加双重 DSP 硬门：utilization 的 `DSP` 与实现网表 `REF_NAME=DSP48E1` cell 数都必须精确为 4；摘要新增 `EXPECTED_DSP`、`DSP48E1_COUNT`、`DSP_GATE`，并输出 cell/LOC 清单。对应静态门与 compute 专项合计 `4/4` 通过。
+- 五项单时钟回归实际执行为 `8/8` 通过；固定随机门输出 `RANDOM_BIT_EXACT_PASS seeds=20 samples=2000`。模型、mask epoch、控制、C1-C4、结果 metadata/背压均未因三拍与 DSP lane 改动而回归。
+- 完整仓库回归完成：`Ran 473 tests in 423.687s / OK (skipped=1)`；固定 NPU 随机门仍为 20 seeds、2000 samples，既有五组 RTL cosim seed 也全部通过。按冻结顺序，现已允许启动 Vivado 2024.1 OOC。
+- 完整回归中的历史 NP4B verifier 会刷新两个受版本绑定的已跟踪摘要；已用精确小补丁恢复 `local_prune_rtl_results.json` 与 `np4b_signoff_summary.json` 到基线，避免把无关证据刷新纳入本切片。用户文件仍未触碰。
+- OOC runner 的 `GIT_HEAD` 来自当前提交而非工作树内容；已决定先完成两路只读反审计并提交实现，再运行 Vivado，使物理报告能真实绑定修复后的 RTL/Tcl 哈希。
+- RTL/Tcl 最终反审计未发现 blocker。测试反审计发现“仅总数可能漏过重复零权重组、模型地址未核对、C3 FETCH 为空真”三项 blocker；已补 592-bit FETCH/EXECUTE/COMMIT 访问图、每层计数、模型实际地址核对和关闭组逐拍旁路检查，强化后 compute 专项仍为 `4/4`。
+- 最终源文件完整回归再次通过：`Ran 473 tests in 418.737s / OK (skipped=1)`，NPU 固定随机仍为 20 seeds / 2000 samples。回归再次触发的两份历史 NP4B 摘要刷新已精确恢复，不纳入实现提交。

@@ -8,6 +8,19 @@ module tb_npu_eneuron_single_clock_compute;
     localparam logic [3:0] OP_MASK_DATA    = 4'h5;
     localparam logic [3:0] OP_MASK_COMMIT  = 4'h6;
 
+`ifdef TIMING_REPAIR_V1_CONTRACT
+    // 三拍流水的冻结状态编码，仅用于白盒合同，不增加综合端口。
+    localparam logic [3:0] COMPUTE_IDLE             = 4'd0;
+    localparam logic [3:0] COMPUTE_L0_BIAS_FETCH    = 4'd1;
+    localparam logic [3:0] COMPUTE_L0_GROUP_FETCH   = 4'd3;
+    localparam logic [3:0] COMPUTE_L0_GROUP_EXECUTE = 4'd4;
+    localparam logic [3:0] COMPUTE_L0_GROUP_COMMIT  = 4'd5;
+    localparam logic [3:0] COMPUTE_L1_BIAS_FETCH    = 4'd6;
+    localparam logic [3:0] COMPUTE_L1_GROUP_FETCH   = 4'd8;
+    localparam logic [3:0] COMPUTE_L1_GROUP_EXECUTE = 4'd9;
+    localparam logic [3:0] COMPUTE_L1_GROUP_COMMIT  = 4'd10;
+`endif
+
     logic clk = 1'b0;
     always #5 clk = ~clk;
     logic rst = 1'b1;
@@ -28,6 +41,41 @@ module tb_npu_eneuron_single_clock_compute;
     logic result_ready = 1'b1;
     wire runtime_idle, model_valid, mask_valid, infer_frozen;
     wire [31:0] state_clear_count;
+
+    integer clock_count = 0;
+`ifdef TIMING_REPAIR_V1_CONTRACT
+    integer compute_start_cycle = 0;
+    integer observed_compute_cycles = 0;
+    integer execute_count = 0;
+    integer commit_count = 0;
+    integer l0_execute_count = 0;
+    integer l1_execute_count = 0;
+    integer expected_compute_cycles = 0;
+    integer expected_group_count = 0;
+    integer expected_l0_group_count = 0;
+    integer expected_l1_group_count = 0;
+    logic contract_active = 1'b0;
+    logic contract_done = 1'b0;
+    logic pending_execute = 1'b0;
+    logic pending_layer = 1'b0;
+    logic [5:0] pending_unit = '0;
+    logic [4:0] pending_group = '0;
+    logic [31:0] pending_model_word = '0;
+    logic pending_closed_fetch = 1'b0;
+    logic pending_closed_layer = 1'b0;
+    logic [5:0] pending_closed_unit = '0;
+    logic [4:0] pending_closed_group = '0;
+    logic [31:0] pending_closed_model_word = '0;
+    logic [591:0] fetch_seen = '0;
+    logic [591:0] execute_seen = '0;
+    logic [591:0] commit_seen = '0;
+    logic [3:0] previous_compute_state = '0;
+    logic signed [31:0] previous_lane_sum = '0;
+    logic monitor_initialized = 1'b0;
+`endif
+
+    always @(posedge clk)
+        clock_count = clock_count + 1;
 
     npu_eneuron_single_clock_skeleton dut (
         .clk(clk), .rst(rst), .cmd_payload(cmd_payload), .cmd_valid(cmd_valid), .cmd_ready(cmd_ready),
@@ -64,7 +112,8 @@ module tb_npu_eneuron_single_clock_compute;
             cmd_payload[119:88] = epoch;
             cmd_payload[31:0] = word;
             cmd_valid = 1'b1;
-            while (!cmd_ready) @(negedge clk);
+            @(posedge clk);
+            while (!cmd_ready) @(posedge clk);
             @(negedge clk);
             cmd_valid = 1'b0;
             cmd_payload = '0;
@@ -73,6 +122,10 @@ module tb_npu_eneuron_single_clock_compute;
 
     task automatic send_sample(input logic [31:0] id);
         integer beat;
+`ifdef TIMING_REPAIR_V1_CONTRACT
+        integer scan_bit;
+        integer enabled_groups;
+`endif
         begin
             for (beat = 0; beat < 8; beat = beat + 1) begin
                 @(negedge clk);
@@ -81,12 +134,250 @@ module tb_npu_eneuron_single_clock_compute;
                 else if (beat == 7) sample_data = 32'hffff_0000;
                 else sample_data = 32'd0;
                 sample_valid = 1'b1;
-                while (!sample_ready) @(negedge clk);
+                @(posedge clk);
+                while (!sample_ready) @(posedge clk);
                 @(negedge clk);
+`ifdef TIMING_REPAIR_V1_CONTRACT
+                if (beat == 7) begin
+                    compute_start_cycle = clock_count;
+                    enabled_groups = 0;
+                    for (scan_bit = 0; scan_bit < 592; scan_bit = scan_bit + 1)
+                        if (dut.mask_active_words[scan_bit >> 5][scan_bit & 31])
+                            enabled_groups = enabled_groups + 1;
+                    if (enabled_groups != expected_group_count)
+                        $fatal(1, "active mask count mismatch got=%0d expected=%0d",
+                               enabled_groups, expected_group_count);
+                end
+`endif
                 sample_valid = 1'b0;
             end
         end
     endtask
+
+    task automatic publish_mask(input logic [31:0] epoch, input integer mode);
+        logic [31:0] word;
+        integer mask_word;
+        begin
+            send_cmd(OP_MASK_BEGIN, epoch, 32'd0);
+            for (mask_word = 0; mask_word < 19; mask_word = mask_word + 1) begin
+                case (mode)
+                    1: begin
+                        if (mask_word == 0) word = 32'hffff_fffe;
+                        else if (mask_word == 18) word = 32'h0000_7fff;
+                        else word = 32'hffff_ffff;
+                    end
+                    2: word = 32'd0;
+                    3: begin
+                        if (mask_word == 0) word = 32'hffff_7fff;
+                        else if (mask_word == 18) word = 32'h0000_ffff;
+                        else word = 32'hffff_ffff;
+                    end
+                    default: begin
+                        if (mask_word == 18) word = 32'h0000_ffff;
+                        else word = 32'hffff_ffff;
+                    end
+                endcase
+                send_cmd(OP_MASK_DATA, 32'd0, word);
+            end
+            send_cmd(OP_MASK_COMMIT, epoch, 32'd0);
+        end
+    endtask
+
+`ifdef TIMING_REPAIR_V1_CONTRACT
+    task automatic start_contract(
+        input integer groups,
+        input integer l0_groups,
+        input integer l1_groups,
+        input integer cycles
+    );
+        begin
+            expected_group_count = groups;
+            expected_l0_group_count = l0_groups;
+            expected_l1_group_count = l1_groups;
+            expected_compute_cycles = cycles;
+            observed_compute_cycles = 0;
+            execute_count = 0;
+            commit_count = 0;
+            l0_execute_count = 0;
+            l1_execute_count = 0;
+            pending_execute = 1'b0;
+            pending_closed_fetch = 1'b0;
+            fetch_seen = '0;
+            execute_seen = '0;
+            commit_seen = '0;
+            contract_done = 1'b0;
+            contract_active = 1'b1;
+            monitor_initialized = 1'b0;
+        end
+    endtask
+
+    task automatic check_contract;
+        begin
+            if (!contract_done)
+                $fatal(1, "timing contract did not observe result slot");
+            if (execute_count != expected_group_count || commit_count != expected_group_count)
+                $fatal(1, "group count mismatch execute=%0d commit=%0d expected=%0d l0=%0d l1=%0d",
+                       execute_count, commit_count, expected_group_count,
+                       l0_execute_count, l1_execute_count);
+            if (l0_execute_count != expected_l0_group_count ||
+                l1_execute_count != expected_l1_group_count)
+                $fatal(1, "layer group count mismatch l0=%0d/%0d l1=%0d/%0d",
+                       l0_execute_count, expected_l0_group_count,
+                       l1_execute_count, expected_l1_group_count);
+            if (observed_compute_cycles != expected_compute_cycles)
+                $fatal(1, "compute cycle mismatch got=%0d expected=%0d",
+                       observed_compute_cycles, expected_compute_cycles);
+        end
+    endtask
+
+    integer active_mask_bit;
+    integer expected_model_address;
+    integer verify_bit;
+    always @(negedge clk) begin
+        if (rst) begin
+            monitor_initialized = 1'b0;
+            previous_compute_state = 4'd0;
+            previous_lane_sum = 32'sd0;
+        end else if (contract_active) begin
+            if (pending_closed_fetch) begin
+                if (dut.model_word_latched !== pending_closed_model_word)
+                    $fatal(1, "disabled FETCH changed model_word_latched layer=%0d unit=%0d group=%0d",
+                           pending_closed_layer, pending_closed_unit, pending_closed_group);
+                if (!pending_closed_layer) begin
+                    if (pending_closed_group != 5'd15) begin
+                        if (dut.compute_state != COMPUTE_L0_GROUP_FETCH ||
+                            dut.compute_unit_index !== pending_closed_unit ||
+                            dut.compute_group_index !== (pending_closed_group + 5'd1))
+                            $fatal(1, "disabled L0 group did not advance directly in FETCH");
+                    end else if (pending_closed_unit != 6'd31) begin
+                        if (dut.compute_state != COMPUTE_L0_BIAS_FETCH ||
+                            dut.compute_unit_index !== (pending_closed_unit + 6'd1) ||
+                            dut.compute_group_index !== 5'd0)
+                            $fatal(1, "disabled final L0 group did not advance to next bias");
+                    end else if (dut.compute_state != COMPUTE_L1_BIAS_FETCH ||
+                                 dut.compute_unit_index !== 6'd0 ||
+                                 dut.compute_group_index !== 5'd0) begin
+                        $fatal(1, "disabled final L0 layer group did not cross to L1 bias");
+                    end
+                end else begin
+                    if (pending_closed_group != 5'd7) begin
+                        if (dut.compute_state != COMPUTE_L1_GROUP_FETCH ||
+                            dut.compute_unit_index !== pending_closed_unit ||
+                            dut.compute_group_index !== (pending_closed_group + 5'd1))
+                            $fatal(1, "disabled L1 group did not advance directly in FETCH");
+                    end else if (pending_closed_unit != 6'd9) begin
+                        if (dut.compute_state != COMPUTE_L1_BIAS_FETCH ||
+                            dut.compute_unit_index !== (pending_closed_unit + 6'd1) ||
+                            dut.compute_group_index !== 5'd0)
+                            $fatal(1, "disabled final L1 group did not advance to next bias");
+                    end else if (dut.compute_state != COMPUTE_IDLE || !result_valid) begin
+                        $fatal(1, "disabled final output group did not establish result slot");
+                    end
+                end
+                pending_closed_fetch = 1'b0;
+            end
+
+            if (monitor_initialized && dut.lane_sum_latched !== previous_lane_sum &&
+                previous_compute_state != COMPUTE_L0_GROUP_EXECUTE &&
+                previous_compute_state != COMPUTE_L1_GROUP_EXECUTE)
+                $fatal(1, "lane_sum_latched changed outside EXECUTE previous_state=%0d",
+                       previous_compute_state);
+
+            if (dut.compute_state == COMPUTE_L0_GROUP_FETCH ||
+                dut.compute_state == COMPUTE_L1_GROUP_FETCH) begin
+                if (dut.compute_state == COMPUTE_L1_GROUP_FETCH)
+                    active_mask_bit = 512 + (dut.compute_unit_index * 8) + dut.compute_group_index;
+                else
+                    active_mask_bit = (dut.compute_unit_index * 16) + dut.compute_group_index;
+                if (fetch_seen[active_mask_bit])
+                    $fatal(1, "group FETCH repeated bit=%0d", active_mask_bit);
+                fetch_seen[active_mask_bit] = 1'b1;
+                if (!dut.mask_active_words[active_mask_bit >> 5][active_mask_bit & 31]) begin
+                    pending_closed_fetch = 1'b1;
+                    pending_closed_layer = (dut.compute_state == COMPUTE_L1_GROUP_FETCH);
+                    pending_closed_unit = dut.compute_unit_index;
+                    pending_closed_group = dut.compute_group_index;
+                    pending_closed_model_word = dut.model_word_latched;
+                end
+            end
+
+            if (dut.compute_state == COMPUTE_L0_GROUP_EXECUTE ||
+                dut.compute_state == COMPUTE_L1_GROUP_EXECUTE) begin
+                if (pending_execute)
+                    $fatal(1, "EXECUTE observed before prior COMMIT");
+                pending_execute = 1'b1;
+                pending_layer = (dut.compute_state == COMPUTE_L1_GROUP_EXECUTE);
+                pending_unit = dut.compute_unit_index;
+                pending_group = dut.compute_group_index;
+                pending_model_word = dut.model_word_latched;
+                execute_count = execute_count + 1;
+                if (pending_layer) begin
+                    l1_execute_count = l1_execute_count + 1;
+                    active_mask_bit = 512 + (pending_unit * 8) + pending_group;
+                end else begin
+                    l0_execute_count = l0_execute_count + 1;
+                    active_mask_bit = (pending_unit * 16) + pending_group;
+                end
+                if (!dut.mask_active_words[active_mask_bit >> 5][active_mask_bit & 31])
+                    $fatal(1, "disabled group entered EXECUTE layer=%0d unit=%0d group=%0d",
+                           pending_layer, pending_unit, pending_group);
+                if (execute_seen[active_mask_bit])
+                    $fatal(1, "group EXECUTE repeated bit=%0d", active_mask_bit);
+                execute_seen[active_mask_bit] = 1'b1;
+                if (pending_layer)
+                    expected_model_address = 544 + (pending_unit * 8) + pending_group;
+                else
+                    expected_model_address = (pending_unit * 16) + pending_group;
+                if (dut.model_word_latched !== dut.model_staging[expected_model_address])
+                    $fatal(1, "model word address mismatch layer=%0d unit=%0d group=%0d address=%0d",
+                           pending_layer, pending_unit, pending_group, expected_model_address);
+            end else if (pending_execute) begin
+                if ((!pending_layer && dut.compute_state != COMPUTE_L0_GROUP_COMMIT) ||
+                    (pending_layer && dut.compute_state != COMPUTE_L1_GROUP_COMMIT))
+                    $fatal(1, "EXECUTE did not transition directly to COMMIT state=%0d",
+                           dut.compute_state);
+                if (dut.compute_unit_index !== pending_unit ||
+                    dut.compute_group_index !== pending_group ||
+                    dut.model_word_latched !== pending_model_word)
+                    $fatal(1, "unit/group/model word changed before COMMIT");
+                if (pending_layer)
+                    active_mask_bit = 512 + (pending_unit * 8) + pending_group;
+                else
+                    active_mask_bit = (pending_unit * 16) + pending_group;
+                if (commit_seen[active_mask_bit])
+                    $fatal(1, "group COMMIT repeated bit=%0d", active_mask_bit);
+                commit_seen[active_mask_bit] = 1'b1;
+                commit_count = commit_count + 1;
+                pending_execute = 1'b0;
+            end else if (dut.compute_state == COMPUTE_L0_GROUP_COMMIT ||
+                         dut.compute_state == COMPUTE_L1_GROUP_COMMIT) begin
+                $fatal(1, "COMMIT observed without preceding EXECUTE");
+            end
+
+            if (result_valid && !contract_done) begin
+                if (pending_execute || pending_closed_fetch)
+                    $fatal(1, "result slot established with pending compute transition");
+                for (verify_bit = 0; verify_bit < 592; verify_bit = verify_bit + 1) begin
+                    if (!fetch_seen[verify_bit])
+                        $fatal(1, "group FETCH missing bit=%0d", verify_bit);
+                    if (execute_seen[verify_bit] !==
+                        dut.mask_active_words[verify_bit >> 5][verify_bit & 31])
+                        $fatal(1, "EXECUTE bitmap differs from active mask bit=%0d", verify_bit);
+                    if (commit_seen[verify_bit] !==
+                        dut.mask_active_words[verify_bit >> 5][verify_bit & 31])
+                        $fatal(1, "COMMIT bitmap differs from active mask bit=%0d", verify_bit);
+                end
+                observed_compute_cycles = clock_count - compute_start_cycle;
+                contract_done = 1'b1;
+                contract_active = 1'b0;
+            end
+
+            previous_compute_state = dut.compute_state;
+            previous_lane_sum = dut.lane_sum_latched;
+            monitor_initialized = 1'b1;
+        end
+    end
+`endif
 
     task automatic check_result(
         input logic [31:0] id,
@@ -126,22 +417,48 @@ module tb_npu_eneuron_single_clock_compute;
 
         // hidden0=600→127，hidden1=-60+100=40，logit0=137；
         // hidden31 的最后一组为 60，output9 最后一组得到 60-1=59。
+`ifdef TIMING_REPAIR_V1_CONTRACT
+        start_contract(592, 512, 80, 1860);
+`endif
         send_sample(32'h101);
         if (sample_ready || cmd_ready || runtime_idle)
             $fatal(1, "ready/idle asserted while compute is active");
         // 当前样本计算期间并发发布下一 mask；它只能影响下一样本。
-        send_cmd(OP_MASK_BEGIN, 32'd1, 32'd0);
-        for (i = 0; i < 19; i = i + 1) begin
-            if (i == 0) send_cmd(OP_MASK_DATA, 32'd0, 32'hffff_fffe);
-            else if (i == 18) send_cmd(OP_MASK_DATA, 32'd0, 32'h0000_7fff);
-            else send_cmd(OP_MASK_DATA, 32'd0, 32'hffff_ffff);
-        end
-        send_cmd(OP_MASK_COMMIT, 32'd1, 32'd0);
+        publish_mask(32'd1, 1);
         check_result(32'h101, 32'd0, 32'sd137, 32'sd59);
+`ifdef TIMING_REPAIR_V1_CONTRACT
+        check_contract();
+        start_contract(590, 511, 79, 1856);
+`endif
 
         // 下一样本首 beat 激活新版本：logit0=-117，output9 只剩 bias=-1。
         send_sample(32'h102);
         check_result(32'h102, 32'd1, -32'sd117, -32'sd1);
+`ifdef TIMING_REPAIR_V1_CONTRACT
+        check_contract();
+`endif
+
+        // epoch2 全关：所有权重组都在 FETCH 直接跳过，bias 仍然有效。
+        publish_mask(32'd2, 2);
+`ifdef TIMING_REPAIR_V1_CONTRACT
+        start_contract(0, 0, 0, 676);
+`endif
+        send_sample(32'h103);
+        check_result(32'h103, 32'd2, 32'sd3, -32'sd1);
+`ifdef TIMING_REPAIR_V1_CONTRACT
+        check_contract();
+`endif
+
+        // epoch3 只关闭 L0 unit0/group15；此前 group0 已产生非零累加。
+        publish_mask(32'd3, 3);
+`ifdef TIMING_REPAIR_V1_CONTRACT
+        start_contract(591, 511, 80, 1858);
+`endif
+        send_sample(32'h104);
+        check_result(32'h104, 32'd3, 32'sd137, 32'sd59);
+`ifdef TIMING_REPAIR_V1_CONTRACT
+        check_contract();
+`endif
 
         $display("PASS npu single-clock real compute tracer");
         $finish;

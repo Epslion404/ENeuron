@@ -1,12 +1,12 @@
 # 单时钟 NPU 时序修复测试合同 V1
 
-状态：`PREPARED / BLOCKED_BY_TR1_TR6_APPROVAL`
+状态：`FUNCTIONAL_GREEN / VIVADO_PENDING / DSP_REQUIRED`
 
 日期：2026-09-04
 
 ## 1. 用途
 
-本合同把 `NPU_SINGLE_CLOCK_TIMING_REPAIR_V1.md` 的 TR1-TR6 转成可执行测试要求。它只冻结批准后的测试改动，不授权当前修改业务 RTL，也不把准备完成误写成 100 MHz 已收敛。
+本合同把 `NPU_SINGLE_CLOCK_TIMING_REPAIR_V1.md` 的 TR1-TR6 转成可执行测试要求。管理员已批准进入实施并附加强制 DSP 要求；测试准备完成仍不能改写为 100 MHz 已收敛。
 
 ## 2. 不变的黑盒合同
 
@@ -134,7 +134,8 @@ RTL 实施后必须记录真实完成周期；如果超过上述门槛，应先�
 2. V1 RTL 上 C1-C4 的状态次数、延迟和结果全部 GREEN；
 3. 五项 NPU 单时钟测试全部通过；
 4. 固定 `20×100` 和完整仓库回归通过后，才允许运行 Vivado OOC。
+5. Vivado 实现报告必须为 `DSP=4`；只检查 RTL 中存在 `use_dsp` 字符串不构成通过证据。
 
 ## 10. 当前停止点
 
-TR1-TR6 未获管理员批准。当前只提交本测试合同，不创建 RED testbench、不修改 RTL、不运行 Vivado。
+RED 已在旧 RTL 上精确命中；V1 RTL 的 C1-C4、逐组 FETCH/EXECUTE/COMMIT 图、模型地址、关闭组旁路、固定 `20×100` 与完整 473 项回归均已通过。下一步先提交实现以冻结报告绑定的 Git SHA，再运行 Vivado 2024.1 OOC；`DSP=4` 和 100 MHz 物理门仍未产生结果。

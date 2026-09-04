@@ -42,6 +42,15 @@ set ff [kv $util_text {Slice Registers\s*\|\s*([0-9]+)}]
 set bram36 [kv $util_text {Block RAM Tile\s*\|\s*([0-9.]+)}]
 set bram18 [kv $util_text {RAMB18\s*\|\s*([0-9]+)}]
 set dsp [kv $util_text {DSPs\s*\|\s*([0-9]+)}]
+set expected_dsp 4
+set dsp48_cells [get_cells -hierarchical -filter {REF_NAME == DSP48E1}]
+set dsp48_count [llength $dsp48_cells]
+set dsp_cells_path [file join $out_dir dsp48e1_cells.txt]
+set dsp_fh [open $dsp_cells_path w]
+foreach cell [lsort $dsp48_cells] {
+    puts $dsp_fh "CELL=$cell LOC=[get_property LOC $cell]"
+}
+close $dsp_fh
 set timing_text [read [open [file join $out_dir timing_impl.rpt] r]]
 set setup_fail [kv $timing_text {Setup\s*:\s*([0-9]+)\s+Failing Endpoints,\s*Worst Slack\s+(-?[0-9.]+)ns,\s*Total Violation\s+(-?[0-9.]+)ns}]
 set wns [kv $timing_text {Setup\s*:\s*[0-9]+\s+Failing Endpoints,\s*Worst Slack\s+(-?[0-9.]+)ns}]
@@ -55,11 +64,19 @@ set drc_errors [regexp -all -line {^\|[^|]+\|\s*Error\s*\|} $drc_text]
 set route_text [read [open [file join $out_dir route_status_impl.rpt] r]]
 set route_errors [kv $route_text {nets with routing errors\.+\s*:\s*([0-9]+)}]
 
+set dsp_gate NOT_PROVEN
+if {[string is integer -strict $dsp] && $dsp == $expected_dsp && $dsp48_count == $expected_dsp} {
+    set dsp_gate PASS
+} elseif {[string is integer -strict $dsp]} {
+    set dsp_gate FAIL
+}
+
 set physical_gate NOT_PROVEN
 if {$setup_fail ne {NA} && $hold_fail ne {NA} && $drc_errors ne {NA} && $route_errors ne {NA} &&
     [string is integer -strict $setup_fail] && [string is integer -strict $hold_fail] &&
     [string is integer -strict $drc_errors] && [string is integer -strict $route_errors] &&
-    $setup_fail == 0 && $hold_fail == 0 && $drc_errors == 0 && $route_errors == 0} {
+    $setup_fail == 0 && $hold_fail == 0 && $drc_errors == 0 && $route_errors == 0 &&
+    $dsp_gate eq "PASS"} {
     if {[string is double -strict $wns] && [string is double -strict $whs] && $wns >= 0.0 && $whs >= 0.0} {
         set physical_gate PASS
     }
@@ -81,6 +98,9 @@ puts $fh "FF=$ff"
 puts $fh "BRAM36=$bram36"
 puts $fh "BRAM18=$bram18"
 puts $fh "DSP=$dsp"
+puts $fh "EXPECTED_DSP=$expected_dsp"
+puts $fh "DSP48E1_COUNT=$dsp48_count"
+puts $fh "DSP_GATE=$dsp_gate"
 puts $fh "WNS_NS=$wns"
 puts $fh "TNS_NS=$tns"
 puts $fh "WHS_NS=$whs"
@@ -89,7 +109,7 @@ puts $fh "SETUP_FAILING_ENDPOINTS=$setup_fail"
 puts $fh "HOLD_FAILING_ENDPOINTS=$hold_fail"
 puts $fh "DRC_ERRORS=$drc_errors"
 puts $fh "ROUTE_ERRORS=$route_errors"
-puts $fh "NOTES=Vivado 2024.1 OOC post-route; xc7z020clg400-1; 100MHz; no board I/O, DMA, PS, Ethernet or SAIF activity"
+puts $fh "NOTES=Vivado 2024.1 OOC post-route; xc7z020clg400-1; 100MHz; exact four-DSP gate; no board I/O, DMA, PS, Ethernet or SAIF activity"
 close $fh
-puts "NPU_SINGLE_CLOCK_OOC_ROUTED part=$part top=$top physical_gate=$physical_gate out_dir=$out_dir"
+puts "NPU_SINGLE_CLOCK_OOC_ROUTED part=$part top=$top dsp=$dsp dsp48e1_count=$dsp48_count dsp_gate=$dsp_gate physical_gate=$physical_gate out_dir=$out_dir"
 exit

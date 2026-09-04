@@ -1,6 +1,6 @@
 # 传统 NPU + ENeuron 单时钟 RTL 时序修复 V1 审核稿
 
-状态：`REVIEW_REQUIRED`
+状态：`RTL_GREEN / VIVADO_PENDING / DSP_REQUIRED`
 
 日期：2026-09-04
 
@@ -32,11 +32,11 @@ FETCH -> EXECUTE -> COMMIT
 
 关闭的 mask 组继续直接跳过，不读取权重、不执行乘加，也不额外进入 `EXECUTE/COMMIT`。因此剪枝后的周期节省合同保持成立。
 
-## 4. 待管理员批准的六项裁定
+## 4. 管理员已批准的六项裁定
 
 ### TR1：新增组和寄存器
 
-新增一个 signed 32-bit `lane_sum_latched`，L0/L1 共用；增加 L0/L1 的 `EXECUTE` 状态。第一版保持现有 LUT 乘法，不同时引入 DSP 强制映射。
+新增一个 signed 32-bit `lane_sum_latched`，L0/L1 共用；增加 L0/L1 的 `EXECUTE` 状态。管理员附加要求：四条并行乘法 lane 必须使用 XC7Z020 的 DSP48E1，不接受 LUT 乘法实现。
 
 ### TR2：外部协议不变
 
@@ -50,13 +50,15 @@ FETCH -> EXECUTE -> COMMIT
 
 最后一组必须用 `mac_accumulator + lane_sum_latched` 生成隐藏值或 logit，不能只读取旧累加器。关闭的最后一组仍直接用当前累加器写回。
 
-### TR5：先验证 LUT-only V1
+### TR5：强制四个 DSP48E1
 
-先只做上述寄存器分拍并重跑同一 OOC。若 100 MHz 仍失败，先重新分类新的最差路径：若仍落在末组 INT32 加法、饱和与写回链，优先审核每个神经元只增加一次的独立 `WRITEBACK` 状态；若落在 `EXECUTE` 的乘法/组内求和链，再评估 DSP 映射。任何 V2 都单独审核，不在第一次修复中混入资源架构切换。
+四条并行 lane 使用共享的 signed 8-bit 激活输入和 signed 8-bit 权重输入，以显式 `*` 表达乘法，并对四个乘积信号施加 `(* use_dsp = "yes" *)`。L0 的 uint4 和 L1 的 uint7 激活都先零扩展到 signed 8-bit；L0/L1 复用同一组四个乘法器。
+
+Vivado 物理门要求实现报告 `DSP=4`。属性存在但 DSP 仍为 0、DSP 少于 4，或因错误作用域把加法器/累加器也塞入 DSP 导致超过 4，均不得签核。若 100 MHz 仍失败，先重新分类新的最差路径；写回链优先审核独立 `WRITEBACK` 状态，其他路径另行审核，不能静默扩大架构。
 
 ### TR6：验收门不降级
 
-修复必须依次通过：四项定向 RTL 测试、固定 `20×100` 随机逐 beat bit-exact、完整仓库回归、Vivado 2024.1 同器件同约束 OOC。最终硬门仍是 setup/hold 失败端点均为 0、route/DRC error 为 0，且报告和 manifest 重新绑定修复后的 RTL 哈希。
+修复必须依次通过：五项单时钟定向 RTL 测试、固定 `20×100` 随机逐 beat bit-exact、完整仓库回归、Vivado 2024.1 同器件同约束 OOC。最终硬门是 `DSP=4`、setup/hold 失败端点均为 0、route/DRC error 为 0，且报告和 manifest 重新绑定修复后的 RTL 哈希。
 
 ## 5. 预期代价与收益
 
@@ -64,16 +66,16 @@ FETCH -> EXECUTE -> COMMIT
 
 以上仅是周期模型，不是板级或网口端到端实测。稀疏 mask 会跳过 `EXECUTE/COMMIT`，实际周期取决于启用组数。
 
-预计新增状态主要是 32-bit 组和寄存器和两个状态编码，面积代价相对当前 2672 LUT/1879 FF 应较小；准确 LUT/FF、功耗与布线收益必须由修复后的 Vivado 报告裁定。
+预计新增状态主要是 32-bit 组和寄存器和两个状态编码，并固定占用 4 个 DSP48E1。准确 LUT/FF、功耗与布线收益必须由修复后的 Vivado 报告裁定。
 
 ## 6. 批准后的实施顺序
 
 1. 先更新定向测试，使其只依赖握手，不假定旧计算周期；增加“启用组在 `EXECUTE/COMMIT` 内 unit/group 稳定、关闭组不进入这两个状态、两层最后一组不丢失”的检查。
-2. 实现 `lane_sum_latched` 和两层 `EXECUTE` 状态，保持外部端口与数值函数不变。
+2. 实现 `lane_sum_latched`、两层 `EXECUTE` 状态和四条共享 DSP 乘法 lane，保持外部端口与数值合同不变。
 3. 同步更新 `COMPUTE_COMPLETE` 仿真日志的完成状态条件，再运行四项定向门和固定 `20×100` 随机门；任何 bit-exact 差异立即停止。
 4. 运行完整仓库回归并更新机器证据。
-5. 使用同一 Vivado 版本、器件、100 MHz 约束重跑 OOC；若仍 setup 失败，保留失败报告并进入 V2 设计审核，不直接扩展范围。
+5. 使用同一 Vivado 版本、器件、100 MHz 约束重跑 OOC；先确认 `DSP=4`，再裁定时序。若 DSP 数不符或 setup 仍失败，保留失败报告并进入 V2 设计审核，不直接扩展范围。
 
 ## 7. 当前停止点
 
-本文件是设计审核稿。TR1-TR6 获批前，只允许文档审计和测试合同检查，不修改业务 RTL、不生成新的通过声明。
+三拍 RTL、共享四乘法 lane、C1-C4 白盒合同、固定 `20×100` 和完整 473 项回归已通过；两路最终反审计无 RTL blocker，测试覆盖 blocker 也已闭合。当前只剩把实现提交冻结为报告基线并运行 Vivado 2024.1 OOC；在实现报告同时满足 `DSP=4` 和 100 MHz 前，不生成物理通过声明。

@@ -1143,3 +1143,20 @@
 - 五个现有 testbench 都通过握手或 `result_valid` 等待计算完成；`repeat(10)` 是结果 beat 数而非计算延迟。现有 watchdog 对 V1 仍有裕量，但实施后必须记录真实周期，不允许用盲目增大 watchdog 掩盖停顿。
 - 只靠全关和随机门仍缺少“L0 最后一组关闭、此前累加非零”的小型定向证据；测试合同新增 epoch 3，只关闭 L0 bit15，使 hidden0 在 group0 累加 600 后从关闭的最后组 `FETCH` 直接饱和写回。该样本启用 591 组，V1 延迟应为 1858 拍。
 - 当前 Icarus 实测/推导显示 V1 无需调整 watchdog：最小裕量是 skeleton 的约 1802.5 拍；compute 加入两条新样本后仍要求至少保留 1200 拍规划裕量。
+
+## 2026-09-04 TR1-TR6 批准与强制 DSP 修订
+
+- 管理员批准 TR1-TR6，并要求强制使用 DSP；按上下文将输入 `DPS` 解释为 XC7Z020 的 DSP48E1。
+- AMD Vivado UG901/UG912 说明 `USE_DSP="yes"` 可以覆盖默认选择并将算术结构强制映射到 DSP；7 Series UG479 的 DSP48E1 signed 25×18 乘法器足以覆盖当前 L0 的 5×8 和 L1 的 8×8 signed 乘法。
+- 最小架构固定为四条共享 signed 8×8 乘法 lane：L0 uint4、L1 uint7 都零扩展为 signed 8-bit，四个权重按 signed INT8 输入；只对乘积信号施加属性，避免把累加器也强制映射到 DSP。
+- 物理签核新增精确硬门 `DSP=4`。源代码出现属性但 Vivado 报告不是 4 个 DSP 时必须失败。
+
+## 2026-09-04 Vivado DSP 推断探针
+
+- Vivado 2024.1、`xc7z020clg400-1` 实测：无属性窄乘法映射为 LUT；属性直接放在内部或输出乘积信号可得到 1 DSP；函数局部乘积上的属性会被忽略。
+- 四个内部 signed 乘积信号分别施加 `use_dsp="yes"` 时稳定得到恰好 4 DSP；只给最终 `lane_sum` 施加属性只得到 2 DSP 并保留大量 LUT，不满足合同。
+- 最小实现应删除当前函数局部乘法结构，建立四组共享 `signed [7:0] activation/weight` 和四个带属性的 `signed [15:0] product`；L0/L1 不得各复制一套组合乘法表达式。
+- 探针证据保存在仓库外 `C:\Users\Epsilon\AppData\Local\Temp\eneuron_dsp_probe_20260905`，未污染仓库。四个 DSP 占 XC7Z020 共 220 个 DSP48E1 的约 1.82%。
+- TDD RED 可分辨：不启用合同宏时，扩展后的 C1-C4 仍在旧 RTL 上 bit-exact 通过；启用合同宏时因缺少新寄存器/状态失败；独立源码门因没有四个显式乘积属性失败。由此可排除 testbench 重构破坏既有功能这一混淆因素。
+- 仅验证 592/590/0/591 的总次数仍可能被“重复执行一个零权重组并遗漏另一个零权重组”蒙混。最终合同改为逐组 bitmap：592 个 tuple 的 FETCH 必须恰好一次，EXECUTE/COMMIT bitmap 必须逐 bit 等于 active mask；EXECUTE 锁存的模型字还必须等于当前 tuple 的真实模型地址。
+- 关闭组的证明也改为直接时序检查：普通关闭组下一拍仍在同层 FETCH 且 group+1，关闭末组直接进入下一 bias/跨层/结果槽，过程中 `model_word_latched` 不得改变。因此全关 C3 不再是只靠“0 次执行 + 676 拍”的间接结论。

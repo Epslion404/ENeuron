@@ -57,11 +57,13 @@ module npu_eneuron_single_clock_skeleton (
     localparam logic [3:0] COMPUTE_L0_BIAS_FETCH  = 4'd1;
     localparam logic [3:0] COMPUTE_L0_BIAS_LOAD   = 4'd2;
     localparam logic [3:0] COMPUTE_L0_GROUP_FETCH = 4'd3;
-    localparam logic [3:0] COMPUTE_L0_GROUP_ACCUM = 4'd4;
-    localparam logic [3:0] COMPUTE_L1_BIAS_FETCH  = 4'd5;
-    localparam logic [3:0] COMPUTE_L1_BIAS_LOAD   = 4'd6;
-    localparam logic [3:0] COMPUTE_L1_GROUP_FETCH = 4'd7;
-    localparam logic [3:0] COMPUTE_L1_GROUP_ACCUM = 4'd8;
+    localparam logic [3:0] COMPUTE_L0_GROUP_EXECUTE = 4'd4;
+    localparam logic [3:0] COMPUTE_L0_GROUP_COMMIT  = 4'd5;
+    localparam logic [3:0] COMPUTE_L1_BIAS_FETCH  = 4'd6;
+    localparam logic [3:0] COMPUTE_L1_BIAS_LOAD   = 4'd7;
+    localparam logic [3:0] COMPUTE_L1_GROUP_FETCH = 4'd8;
+    localparam logic [3:0] COMPUTE_L1_GROUP_EXECUTE = 4'd9;
+    localparam logic [3:0] COMPUTE_L1_GROUP_COMMIT  = 4'd10;
 
     logic [1:0]  model_state;
     logic [9:0]  model_word_index;
@@ -86,8 +88,20 @@ module npu_eneuron_single_clock_skeleton (
     logic [4:0]  compute_group_index;
     logic [31:0] model_word_latched;
     logic signed [31:0] mac_accumulator;
-    logic signed [31:0] l0_lane_sum;
-    logic signed [31:0] l1_lane_sum;
+    logic signed [31:0] lane_sum_latched;
+    logic signed [31:0] lane_sum_comb;
+    logic signed [7:0] lane_activation_0;
+    logic signed [7:0] lane_activation_1;
+    logic signed [7:0] lane_activation_2;
+    logic signed [7:0] lane_activation_3;
+    logic signed [7:0] lane_weight_0;
+    logic signed [7:0] lane_weight_1;
+    logic signed [7:0] lane_weight_2;
+    logic signed [7:0] lane_weight_3;
+    (* use_dsp = "yes" *) logic signed [15:0] lane_product_0;
+    (* use_dsp = "yes" *) logic signed [15:0] lane_product_1;
+    (* use_dsp = "yes" *) logic signed [15:0] lane_product_2;
+    (* use_dsp = "yes" *) logic signed [15:0] lane_product_3;
 
     logic [3:0]  input_pixels [0:63];
     logic [6:0]  hidden_values [0:31];
@@ -138,37 +152,6 @@ module npu_eneuron_single_clock_skeleton (
         end
     endfunction
 
-    // uint4/uint7 激活先补零，再与 signed INT8 权重相乘并显式扩展到 INT32。
-    function automatic logic signed [31:0] multiply_u4_s8(
-        input logic [3:0] activation,
-        input logic [7:0] weight
-    );
-        logic signed [4:0]  signed_activation;
-        logic signed [7:0]  signed_weight;
-        logic signed [12:0] product;
-        begin
-            signed_activation = $signed({1'b0, activation});
-            signed_weight = $signed(weight);
-            product = signed_activation * signed_weight;
-            multiply_u4_s8 = {{19{product[12]}}, product};
-        end
-    endfunction
-
-    function automatic logic signed [31:0] multiply_u7_s8(
-        input logic [6:0] activation,
-        input logic [7:0] weight
-    );
-        logic signed [7:0]  signed_activation;
-        logic signed [7:0]  signed_weight;
-        logic signed [15:0] product;
-        begin
-            signed_activation = $signed({1'b0, activation});
-            signed_weight = $signed(weight);
-            product = signed_activation * signed_weight;
-            multiply_u7_s8 = {{16{product[15]}}, product};
-        end
-    endfunction
-
     function automatic logic [6:0] relu_saturate_u7(
         input logic signed [31:0] value
     );
@@ -188,21 +171,43 @@ module npu_eneuron_single_clock_skeleton (
         end
     endfunction
 
-    integer l0_base_index;
-    integer l1_base_index;
+    // L0/L1 共用同一组四个 signed 8×8 乘法器。只在对应 EXECUTE 状态
+    // 读取数组，避免无效层的动态索引越界；每个乘积先符号扩展到 INT32 再求和。
+    integer lane_base_index;
     always_comb begin
-        l0_base_index = compute_group_index * 4;
-        l1_base_index = compute_group_index * 4;
-        l0_lane_sum =
-            multiply_u4_s8(input_pixels[l0_base_index + 0], model_word_latched[7:0]) +
-            multiply_u4_s8(input_pixels[l0_base_index + 1], model_word_latched[15:8]) +
-            multiply_u4_s8(input_pixels[l0_base_index + 2], model_word_latched[23:16]) +
-            multiply_u4_s8(input_pixels[l0_base_index + 3], model_word_latched[31:24]);
-        l1_lane_sum =
-            multiply_u7_s8(hidden_values[l1_base_index + 0], model_word_latched[7:0]) +
-            multiply_u7_s8(hidden_values[l1_base_index + 1], model_word_latched[15:8]) +
-            multiply_u7_s8(hidden_values[l1_base_index + 2], model_word_latched[23:16]) +
-            multiply_u7_s8(hidden_values[l1_base_index + 3], model_word_latched[31:24]);
+        lane_base_index = compute_group_index * 4;
+        lane_activation_0 = 8'sd0;
+        lane_activation_1 = 8'sd0;
+        lane_activation_2 = 8'sd0;
+        lane_activation_3 = 8'sd0;
+        lane_weight_0 = $signed(model_word_latched[7:0]);
+        lane_weight_1 = $signed(model_word_latched[15:8]);
+        lane_weight_2 = $signed(model_word_latched[23:16]);
+        lane_weight_3 = $signed(model_word_latched[31:24]);
+        if (compute_state == COMPUTE_L0_GROUP_EXECUTE) begin
+            lane_activation_0 = $signed({4'b0000, input_pixels[lane_base_index + 0]});
+            lane_activation_1 = $signed({4'b0000, input_pixels[lane_base_index + 1]});
+            lane_activation_2 = $signed({4'b0000, input_pixels[lane_base_index + 2]});
+            lane_activation_3 = $signed({4'b0000, input_pixels[lane_base_index + 3]});
+        end else if (compute_state == COMPUTE_L1_GROUP_EXECUTE) begin
+            lane_activation_0 = $signed({1'b0, hidden_values[lane_base_index + 0]});
+            lane_activation_1 = $signed({1'b0, hidden_values[lane_base_index + 1]});
+            lane_activation_2 = $signed({1'b0, hidden_values[lane_base_index + 2]});
+            lane_activation_3 = $signed({1'b0, hidden_values[lane_base_index + 3]});
+        end
+    end
+
+    assign lane_product_0 = lane_activation_0 * lane_weight_0;
+    assign lane_product_1 = lane_activation_1 * lane_weight_1;
+    assign lane_product_2 = lane_activation_2 * lane_weight_2;
+    assign lane_product_3 = lane_activation_3 * lane_weight_3;
+
+    always_comb begin
+        lane_sum_comb =
+            {{16{lane_product_0[15]}}, lane_product_0} +
+            {{16{lane_product_1[15]}}, lane_product_1} +
+            {{16{lane_product_2[15]}}, lane_product_2} +
+            {{16{lane_product_3[15]}}, lane_product_3};
     end
 
     // 配置握手优先于样本首拍；响应槽背压期间整个命令口停住。
@@ -252,6 +257,7 @@ module npu_eneuron_single_clock_skeleton (
             compute_group_index <= 5'd0;
             model_word_latched <= 32'd0;
             mac_accumulator <= 32'sd0;
+            lane_sum_latched <= 32'sd0;
             infer_frozen <= 1'b0;
             state_clear_count <= 32'd0;
             rsp_valid <= 1'b0;
@@ -431,7 +437,8 @@ module npu_eneuron_single_clock_skeleton (
             end
 
             // 一个 32-bit 模型 word 提供四个权重，因此四 lane 每次处理一个 group。
-            // FETCH/LOAD 或 FETCH/ACCUM 分拍，给后续同步 RAM 映射保留清晰时序边界。
+            // bias 使用 FETCH/LOAD，启用权重组使用 FETCH/EXECUTE/COMMIT，
+            // 给后续同步 RAM 映射和 DSP 数据通路保留清晰时序边界。
             if (compute_active) begin
                 case (compute_state)
                     COMPUTE_L0_BIAS_FETCH: begin
@@ -446,7 +453,7 @@ module npu_eneuron_single_clock_skeleton (
                     COMPUTE_L0_GROUP_FETCH: begin
                         if (active_mask_enabled((compute_unit_index * 16) + compute_group_index)) begin
                             model_word_latched <= model_staging[(compute_unit_index * 16) + compute_group_index];
-                            compute_state <= COMPUTE_L0_GROUP_ACCUM;
+                            compute_state <= COMPUTE_L0_GROUP_EXECUTE;
                         end else if (compute_group_index == 5'd15) begin
                             hidden_values[compute_unit_index] <= relu_saturate_u7(mac_accumulator);
                             compute_group_index <= 5'd0;
@@ -461,11 +468,15 @@ module npu_eneuron_single_clock_skeleton (
                             compute_group_index <= compute_group_index + 5'd1;
                         end
                     end
-                    COMPUTE_L0_GROUP_ACCUM: begin
-                        // 最后一组必须使用包含本拍 lane_sum 的新值，不能读取旧 accumulator。
+                    COMPUTE_L0_GROUP_EXECUTE: begin
+                        lane_sum_latched <= lane_sum_comb;
+                        compute_state <= COMPUTE_L0_GROUP_COMMIT;
+                    end
+                    COMPUTE_L0_GROUP_COMMIT: begin
+                        // 最后一组必须使用 EXECUTE 已锁存的新组和，不能读取旧 accumulator。
                         if (compute_group_index == 5'd15) begin
                             hidden_values[compute_unit_index] <=
-                                relu_saturate_u7(mac_accumulator + l0_lane_sum);
+                                relu_saturate_u7(mac_accumulator + lane_sum_latched);
                             compute_group_index <= 5'd0;
                             if (compute_unit_index == 6'd31) begin
                                 compute_unit_index <= 6'd0;
@@ -475,7 +486,7 @@ module npu_eneuron_single_clock_skeleton (
                                 compute_state <= COMPUTE_L0_BIAS_FETCH;
                             end
                         end else begin
-                            mac_accumulator <= mac_accumulator + l0_lane_sum;
+                            mac_accumulator <= mac_accumulator + lane_sum_latched;
                             compute_group_index <= compute_group_index + 5'd1;
                             compute_state <= COMPUTE_L0_GROUP_FETCH;
                         end
@@ -492,7 +503,7 @@ module npu_eneuron_single_clock_skeleton (
                     COMPUTE_L1_GROUP_FETCH: begin
                         if (active_mask_enabled(512 + (compute_unit_index * 8) + compute_group_index)) begin
                             model_word_latched <= model_staging[544 + (compute_unit_index * 8) + compute_group_index];
-                            compute_state <= COMPUTE_L1_GROUP_ACCUM;
+                            compute_state <= COMPUTE_L1_GROUP_EXECUTE;
                         end else if (compute_group_index == 5'd7) begin
                             logit_values[compute_unit_index] <= mac_accumulator;
                             compute_group_index <= 5'd0;
@@ -510,9 +521,13 @@ module npu_eneuron_single_clock_skeleton (
                             compute_group_index <= compute_group_index + 5'd1;
                         end
                     end
-                    COMPUTE_L1_GROUP_ACCUM: begin
+                    COMPUTE_L1_GROUP_EXECUTE: begin
+                        lane_sum_latched <= lane_sum_comb;
+                        compute_state <= COMPUTE_L1_GROUP_COMMIT;
+                    end
+                    COMPUTE_L1_GROUP_COMMIT: begin
                         if (compute_group_index == 5'd7) begin
-                            logit_values[compute_unit_index] <= mac_accumulator + l1_lane_sum;
+                            logit_values[compute_unit_index] <= mac_accumulator + lane_sum_latched;
                             compute_group_index <= 5'd0;
                             if (compute_unit_index == 6'd9) begin
                                 compute_active <= 1'b0;
@@ -525,7 +540,7 @@ module npu_eneuron_single_clock_skeleton (
                                 compute_state <= COMPUTE_L1_BIAS_FETCH;
                             end
                         end else begin
-                            mac_accumulator <= mac_accumulator + l1_lane_sum;
+                            mac_accumulator <= mac_accumulator + lane_sum_latched;
                             compute_group_index <= compute_group_index + 5'd1;
                             compute_state <= COMPUTE_L1_GROUP_FETCH;
                         end
@@ -552,9 +567,13 @@ module npu_eneuron_single_clock_skeleton (
                 $display("NPU_SKELETON MODEL_COMMIT accepted");
             if (sample_valid && sample_ready && sample_beat_index == 4'd7)
                 $display("NPU_SKELETON SAMPLE_COMPLETE id=%08x", sample_id_reg);
-            if (compute_active && compute_state == COMPUTE_L1_GROUP_ACCUM &&
-                compute_unit_index == 6'd9 && compute_group_index == 5'd7)
-                $display("NPU_SKELETON COMPUTE_COMPLETE id=%08x", result_sample_id_reg);
+            if (compute_active && compute_unit_index == 6'd9 && compute_group_index == 5'd7 &&
+                compute_state == COMPUTE_L1_GROUP_COMMIT)
+                $display("NPU_SKELETON COMPUTE_COMPLETE id=%08x path=COMMIT", result_sample_id_reg);
+            if (compute_active && compute_unit_index == 6'd9 && compute_group_index == 5'd7 &&
+                compute_state == COMPUTE_L1_GROUP_FETCH &&
+                !active_mask_enabled(512 + (compute_unit_index * 8) + compute_group_index))
+                $display("NPU_SKELETON COMPUTE_COMPLETE id=%08x path=MASK_BYPASS", result_sample_id_reg);
             if (result_active && result_ready && result_beat_index == 4'd9)
                 $display("NPU_SKELETON RESULT_COMPLETE id=%08x", result_sample_id_reg);
             if (cmd_valid && cmd_ready && cmd_opcode == OP_FREEZE_SET &&
