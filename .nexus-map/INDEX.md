@@ -1,7 +1,7 @@
 # ENeuron 知识库入口
 
 generated_by: nexus-mapper v2 / manual synthesis from raw probe
-verified_at: 2026-09-04
+verified_at: 2026-09-05
 provenance: `.nexus-map/raw/ast_nodes.json`, `git_stats.json`, `file_tree.txt`（最后提交于 `c46320e`，文件树按版本化基线排除工作区未跟踪文件）；其后的单时钟 RTL、测试与 OOC 证据由版本化文件、manifest 和文档人工核对
 
 ENeuron 是以 Python 黄金模型、SystemVerilog RTL、Icarus/Yosys/Vivado 验证组成的数字脉冲神经元与 NPU 局部剪枝研究仓库。
@@ -15,13 +15,13 @@ ENeuron 是以 Python 黄金模型、SystemVerilog RTL、Icarus/Yosys/Vivado 验
 - NP7 共享执行器：`np7_shared_synapse_lane.sv`、`np7_weight_ram.sv`、`np7_shared_lane_oracle.py`、`np7_shared_lane_cosim.py`
 - 验证入口：`verify_goal.py`、`verify_np4b_signoff.py`、`test_*.py`、formal `.ys/.sv`
 - 规划与状态：`WORKFLOW_STATE.md`、`docs/planning/NPU_NEURON_INTEGRATION_REVIEW.md`、`docs/planning/NPU_PRUNING_NP6_TODO.md`、`docs/planning/NPU_PRUNING_NP7_TODO.md`
-- 集成材料包：`docs/planning/NPU_NEURON_INTEGRATION_MATERIALS.md`、`docs/planning/NPU_ORACLE_FREEZE_REVIEW.md`、`docs/planning/NPU_ORACLE_SINGLE_CLOCK_CONTRACT_V3.md`、`docs/planning/NPU_MODEL_COMMIT_CONTRACT_V3.md`、`docs/planning/NPU_SINGLE_CLOCK_RTL_DESIGN_REVIEW_V1.md`、`docs/planning/NPU_SINGLE_CLOCK_RTL_DESIGN_AUDIT_V1.md`、`docs/planning/NPU_SINGLE_CLOCK_RTL_DECISION_SHEET_V2.md`、`docs/planning/npu_single_clock_contract_provisional_v2.json`（I1-I6、OF1-OF6 V3 与 V2 RTL 裁定已批准；Python oracle 与当前单时钟 RTL 随机门均已签核）；时序修复审核稿为 `docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V1.md`，当前 `REVIEW_REQUIRED`，TR1-TR6 尚未批准
+- 集成材料包：`docs/planning/NPU_NEURON_INTEGRATION_MATERIALS.md`、`docs/planning/NPU_ORACLE_FREEZE_REVIEW.md`、`docs/planning/NPU_ORACLE_SINGLE_CLOCK_CONTRACT_V3.md`、`docs/planning/NPU_MODEL_COMMIT_CONTRACT_V3.md`、`docs/planning/NPU_SINGLE_CLOCK_RTL_DESIGN_REVIEW_V1.md`、`docs/planning/NPU_SINGLE_CLOCK_RTL_DESIGN_AUDIT_V1.md`、`docs/planning/NPU_SINGLE_CLOCK_RTL_DECISION_SHEET_V2.md`、`docs/planning/npu_single_clock_contract_provisional_v2.json`（I1-I6、OF1-OF6 V3 与 V2 RTL 裁定已批准；Python oracle 与当前单时钟 RTL 随机门均已签核）；时序修复审核稿为 `docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V1.md`，测试合同为 `docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_TEST_CONTRACT_V1.md`，当前测试合同状态为 `PREPARED / BLOCKED_BY_TR1_TR6_APPROVAL`
 - 单时钟 OOC 入口：`run_vivado_npu_single_clock_ooc.ps1`、`vivado_npu_single_clock_ooc.tcl`、`artifacts/results/npu_single_clock_ooc_manifest.json`、`vivado_npu_single_clock_ooc_reports/`
 - CI 编排：`.github/workflows/pr-gate.yml`、`tools/ci/classify_changes.py`、`test_ci_fast_v1.py`（路径分类、条件专项门和唯一 `PR Gate` 汇总）
 
 ## 当前状态
 
-NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`。NP7 共享 BRAM/lane 已实现并签核。I1-I6 与 OF1-OF6 V3 已批准，OF1-OF6 Python oracle 已签核（48/48、CI-Fast 8/8）。管理员已批准 V2 八项单时钟 RTL 裁定；PR #54 在 `main@2a33f12` 完成 RTL 与随机门，PR #55 将 OOC 证据归档并合入 `main@dc2452b`。当前状态为 `RTL_RANDOM_GATE_GREEN / PR55_MERGED / VIVADO_OOC_SETUP_FAIL / TIMING_REPAIR_REQUIRED / TIMING_REPAIR_V1_REVIEW_REQUIRED`。模型/流、mask epoch、控制和真实计算四条 Icarus 切片均通过，固定 `20×100` 随机逐 beat 门及完整回归 `469/469（1 skipped）` 已完成；Vivado 2024.1 OOC 已完成但 setup 未通过，TR1-TR6 仍待批准。
+NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`。NP7 共享 BRAM/lane 已实现并签核。I1-I6 与 OF1-OF6 V3 已批准，OF1-OF6 Python oracle 已签核（48/48、CI-Fast 8/8）。管理员已批准 V2 八项单时钟 RTL 裁定；PR #54 在 `main@2a33f12` 完成 RTL 与随机门，PR #55 将 OOC 证据归档并合入 `main@dc2452b`。当前状态为 `RTL_RANDOM_GATE_GREEN / PR55_MERGED / VIVADO_OOC_SETUP_FAIL / TIMING_REPAIR_REQUIRED / TIMING_REPAIR_V1_REVIEW_REQUIRED / TIMING_REPAIR_TEST_CONTRACT_PREPARED`。测试合同已准备 C1=592、C2=590、C3=0、C4=591 个启用组，对应 V1 计算延迟 1860、1856、676、1858 拍；五个现有 watchdog 均无需放宽。TR1-TR6 仍待批准，因此业务 RTL 尚未修改，也不得宣称 100 MHz 已通过。
 
 ## 单时钟 RTL 审核摘要
 

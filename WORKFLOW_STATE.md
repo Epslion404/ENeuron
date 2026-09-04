@@ -311,3 +311,10 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3 及单时钟 RTL V2 八项裁定
 - 当前人工门为 `TIMING_REPAIR_V1_REVIEW_REQUIRED`：等待管理员批准 TR1-TR6。批准前 `rtl_allowed=false`、`vivado_allowed=false`；只允许文档审计和测试合同检查。
 - 获批后的唯一主链为：测试合同调整 → `FETCH→EXECUTE→COMMIT` 最小分拍 → 定向/固定 `20×100`/全仓回归 → 同器件同约束 Vivado OOC。
 - 用户文件 `np75_tmp_sparse_protocol.ys` 保持未跟踪、未修改、未暂存、未纳入 Nexus。
+
+## 2026-09-04 PR #56 合并与测试合同准备
+
+- PR #56 已在独立反审计修正 TR3 后合并为 `main@2a0f2ce`；最终 HEAD `21be24b` 的 Actions run `33893097155` 与仓库外 webhook 同 SHA 均为 success。
+- `docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V1.md` 仍为 `REVIEW_REQUIRED`，TR1-TR6 未获得管理员批准；合并审核稿不等于批准裁定。
+- `docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_TEST_CONTRACT_V1.md` 已准备批准后的测试切片：全开/关闭两组/仅关闭 L0 最后一组/全关分别要求 592/590/591/0 次执行和 1860/1856/1858/676 拍计算延迟；五个 watchdog 均无需放宽。
+- 当前 `rtl_allowed=false`、`vivado_allowed=false`；允许继续文档、测试合同与 Nexus 审计，不创建 RED testbench、不修改业务 RTL。
