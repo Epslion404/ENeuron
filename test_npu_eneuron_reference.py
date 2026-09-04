@@ -1,12 +1,22 @@
 """传统 INT8 NPU 旁路/门控参考模型的行为测试。"""
 
 import unittest
+from dataclasses import FrozenInstanceError
 
 from npu_eneuron_reference import NpuConfig, NpuReference
 from npu_eneuron_protocol import NpuEpochRuntime
 
 
 class NpuReferenceTest(unittest.TestCase):
+    @staticmethod
+    def _valid_model_data(config):
+        return (
+            [[1] * config.input_size for _ in range(config.hidden_size)],
+            [0] * config.hidden_size,
+            [[1] * config.hidden_size for _ in range(config.output_size)],
+            list(range(config.output_size)),
+        )
+
     def test_full_open_matches_dense_integer_result(self):
         config = NpuConfig()
         model = NpuReference(config)
@@ -20,7 +30,7 @@ class NpuReferenceTest(unittest.TestCase):
         result = model.infer(image, mode="bypass")
 
         total = sum(image)
-        self.assertEqual(result.logits, [total * config.hidden_size + i for i in range(config.output_size)])
+        self.assertEqual(result.logits, tuple(total * config.hidden_size + i for i in range(config.output_size)))
         self.assertEqual(result.prediction, config.output_size - 1)
         self.assertEqual(result.mac_count, config.input_size * config.hidden_size + config.hidden_size * config.output_size)
 
@@ -38,7 +48,7 @@ class NpuReferenceTest(unittest.TestCase):
 
         result = model.infer([7] * config.input_size, mode="gated", group_mask0=mask0, group_mask1=mask1)
 
-        self.assertEqual(result.logits, list(range(config.output_size)))
+        self.assertEqual(result.logits, tuple(range(config.output_size)))
         self.assertEqual(result.mac_count, 0)
         self.assertEqual(result.group_reads, 0)
 
@@ -72,7 +82,7 @@ class NpuReferenceTest(unittest.TestCase):
 
         result = model.infer([15] * config.input_size)
 
-        self.assertEqual(result.logits, [127 * config.hidden_size] * config.output_size)
+        self.assertEqual(result.logits, (127 * config.hidden_size,) * config.output_size)
         self.assertTrue(result.abstain)
 
     def test_core_uint4_domain_is_fail_closed(self):
@@ -95,6 +105,120 @@ class NpuReferenceTest(unittest.TestCase):
                 image[-1] = invalid
                 with self.assertRaisesRegex(ValueError, "uint4"):
                     model.infer(image)
+
+    def test_v1_rejects_noncanonical_configurations(self):
+        fields = {
+            "input_size": 64,
+            "hidden_size": 32,
+            "output_size": 10,
+            "group_size": 4,
+        }
+        for name, expected in fields.items():
+            for invalid in (expected - 1, expected + 1, float(expected), str(expected), None, True):
+                with self.subTest(name=name, invalid=invalid):
+                    candidate = dict(fields)
+                    candidate[name] = invalid
+                    with self.assertRaisesRegex(ValueError, "64.*32.*10.*4"):
+                        NpuConfig(**candidate)
+
+    def test_weights_require_strict_int8_and_failed_reload_is_atomic(self):
+        config = NpuConfig()
+        invalid_values = (-129, 128, 1.5, "7", None, True)
+        for layer in (0, 1):
+            for invalid in invalid_values:
+                with self.subTest(layer=layer, invalid=invalid):
+                    model = NpuReference(config)
+                    model.load_weights(*self._valid_model_data(config))
+                    before = tuple(model.infer([value] * config.input_size) for value in (0, 1))
+                    weights0 = [[2] * config.input_size for _ in range(config.hidden_size)]
+                    bias0 = [3] * config.hidden_size
+                    weights1 = [[4] * config.hidden_size for _ in range(config.output_size)]
+                    bias1 = [5] * config.output_size
+                    (weights0 if layer == 0 else weights1)[-1][-1] = invalid
+                    with self.assertRaisesRegex(ValueError, "INT8"):
+                        model.load_weights(weights0, bias0, weights1, bias1)
+                    after = tuple(model.infer([value] * config.input_size) for value in (0, 1))
+                    self.assertEqual(after, before)
+
+        unloaded = NpuReference(config)
+        weights0, bias0, weights1, bias1 = self._valid_model_data(config)
+        weights1[-1][-1] = None
+        with self.assertRaisesRegex(ValueError, "INT8"):
+            unloaded.load_weights(weights0, bias0, weights1, bias1)
+        with self.assertRaisesRegex(RuntimeError, "not loaded"):
+            unloaded.infer([0] * config.input_size)
+
+        model = NpuReference(config)
+        weights0, bias0, weights1, bias1 = self._valid_model_data(config)
+        weights0[0][0] = -128
+        weights0[0][1] = 127
+        weights1[0][0] = -128
+        weights1[0][1] = 127
+        model.load_weights(weights0, bias0, weights1, bias1)
+
+    def test_bias_safe_windows_and_failed_reload_is_atomic(self):
+        config = NpuConfig()
+        safe0 = (-2147360768, 2147361727)
+        safe1 = (-2146963456, 2146967519)
+
+        model = NpuReference(config)
+        weights0, bias0, weights1, bias1 = self._valid_model_data(config)
+        bias0[:4] = [safe0[0], safe0[0] + 1, safe0[1] - 1, safe0[1]]
+        bias1[:4] = [safe1[0], safe1[0] + 1, safe1[1] - 1, safe1[1]]
+        model.load_weights(weights0, bias0, weights1, bias1)
+
+        weights0 = [[0] * config.input_size for _ in range(config.hidden_size)]
+        bias0 = [127] * config.hidden_size
+        weights1 = [[0] * config.hidden_size for _ in range(config.output_size)]
+        weights1[0] = [-128] * config.hidden_size
+        weights1[1] = [127] * config.hidden_size
+        bias1 = [0] * config.output_size
+        bias1[0], bias1[1] = safe1
+        model.load_weights(weights0, bias0, weights1, bias1)
+        result = model.infer([0] * config.input_size)
+        self.assertEqual(result.logits[:2], (-2147483648, 2147483647))
+
+        invalid_cases = (
+            (0, safe0[0] - 1),
+            (0, safe0[1] + 1),
+            (0, 1.5),
+            (0, "7"),
+            (0, None),
+            (0, True),
+            (1, safe1[0] - 1),
+            (1, safe1[1] + 1),
+            (1, 1.5),
+            (1, "7"),
+            (1, None),
+            (1, True),
+        )
+        for layer, invalid in invalid_cases:
+            with self.subTest(layer=layer, invalid=invalid):
+                model = NpuReference(config)
+                model.load_weights(*self._valid_model_data(config))
+                before = tuple(model.infer([value] * config.input_size) for value in (0, 1))
+                weights0 = [[2] * config.input_size for _ in range(config.hidden_size)]
+                bias0 = [3] * config.hidden_size
+                weights1 = [[4] * config.hidden_size for _ in range(config.output_size)]
+                bias1 = [5] * config.output_size
+                (bias0 if layer == 0 else bias1)[-1] = invalid
+                with self.assertRaisesRegex(ValueError, "bias"):
+                    model.load_weights(weights0, bias0, weights1, bias1)
+                after = tuple(model.infer([value] * config.input_size) for value in (0, 1))
+                self.assertEqual(after, before)
+
+    def test_logits_are_immutable_during_result_backpressure(self):
+        config, runtime = self._runtime()
+        transaction = runtime.begin_sample([1] * config.input_size)
+        runtime.complete_sample()
+
+        self.assertIs(runtime.result, transaction)
+        self.assertIsInstance(transaction.inference.logits, tuple)
+        with self.assertRaises(TypeError):
+            transaction.inference.logits[0] = -1
+        with self.assertRaises(FrozenInstanceError):
+            transaction.inference.logits = ()
+        self.assertIs(runtime.result, transaction)
 
     def _runtime(self):
         config = NpuConfig()
@@ -215,7 +339,7 @@ class NpuReferenceTest(unittest.TestCase):
         self.assertEqual(accepted.epoch, 1)
         self.assertEqual(accepted.inference.group_reads, 0)
         self.assertEqual(accepted.inference.mac_count, 0)
-        self.assertEqual(accepted.inference.logits, list(range(config.output_size)))
+        self.assertEqual(accepted.inference.logits, tuple(range(config.output_size)))
 
     def test_frequent_epoch_switches_never_mix_masks(self):
         config, runtime = self._runtime()

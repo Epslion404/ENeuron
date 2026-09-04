@@ -1142,3 +1142,8 @@
 - 先替换旧裁剪测试并增加 pending epoch 原子性测试；旧实现运行 2 项测试得到 6 failures + 1 error，RED 成立。
 - 最小实现删除核心隐式转换/裁剪，新增严格 uint4 校验；OF1a 定向 2/2、完整 oracle 15/15、oracle + CI-Fast 23/23、Python 编译和差异检查均通过。
 - Nexus 只更新 6 个相关摘要，`concept_model.json` 有效，`.nexus-map` 差异检查通过；未运行 Vivado，未触碰用户未跟踪文件 `np75_tmp_sparse_protocol.ys`。
+- OF1a PR #34 已由 GitHub NPU-only 快速路径验证并合并，merge commit 为 `9d0c3e5`；本地 `main` 已同步。
+- 从该基线创建 `codex/of1b-fixed-model-contract-20260904`，新增固定参数、严格权重、安全 bias、原子 reload 和不可变 logits 的 RED 测试；旧实现定向结果为 20 failures + 2 errors。
+- 完成 OF1b 最小实现并按独立审计补强原子性与 INT32 极值测试；定向 4/4、完整 oracle 19/19、Python 编译和差异检查通过。
+- 本切片未修改 `npu_eneuron_protocol.py`、mask 语义或任何 RTL，未运行 Vivado，未触碰 `np75_tmp_sparse_protocol.ys`。
+- 最终本地复验：OF1b 4/4、oracle 19/19、CI-Fast 8/8，合计 27 项；compileall、Nexus JSON 和 `git diff --check` 全部通过，独立复审 PASS。
