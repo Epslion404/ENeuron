@@ -509,6 +509,7 @@ P0-P8 已完成并签核
 - [x] 修正测试握手竞态并增加逐组 FETCH/EXECUTE/COMMIT、模型地址、三拍稳定和关闭组直接旁路断言；实现 `lane_sum_latched`、L0/L1 `EXECUTE/COMMIT` 与四条共享 DSP lane，保留 INT32、mask epoch、结果背压和推理冻结语义。
 - [x] 重跑单时钟专项 8/8、固定 `20×100` 随机逐 beat bit-exact 和完整仓库 473/473（1 skipped）；最终两路反审计阻断项已闭合。
 - [x] 提交实现并以 `5055073` 运行 Vivado OOC：utilization `DSP=4`、网表 `DSP48E1_COUNT=4`、hold/route/DRC 通过；setup `WNS=-0.673 ns`、`TNS=-6.462 ns`、22 个失败端点，物理门保持 `NOT_PROVEN`。
-- [x] 按新报告分类两类剩余路径，形成 `NPU_SINGLE_CLOCK_TIMING_REPAIR_V2.md` 审核稿。
+- [x] 按冻结报告先分类前 20 条路径，并形成 `NPU_SINGLE_CLOCK_TIMING_REPAIR_V2.md` 审核稿。
+- [x] 从 routed checkpoint 扩展到最多 50 条路径，完整覆盖全部 22 个失败端点：14 个动态激活选择/DSP/求和端点，8 个 logit 写使能端点；审计见 `docs/verification/NPU_SINGLE_CLOCK_TIMING_ENDPOINT_AUDIT_V1.md`。
 - [ ] 等待管理员批准 TR7-TR12；批准前不修改 RTL、不更新 V2 周期合同、不重跑 Vivado。
 - [ ] OOC 通过后再规划 XC7Z020 顶层、DMA/PS/网口和板级功耗；不得用历史 NP6/NP7 结果代偿当前 RTL。

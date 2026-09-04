@@ -8,13 +8,15 @@
 
 TR1-TR6 已完成实现与验证：四条共享 signed 8×8 lane 被 Vivado 2024.1 映射为恰好 4 个 `DSP48E1`，单时钟专项 8/8、固定 `20×100` 随机逐 beat 和完整仓库 473/473（1 skipped）均通过。
 
-同一实现提交 `50550733e4af4779f3d6933738fa043ecb919970` 的 XC7Z020、100 MHz OOC 结果仍是 setup 失败：`WNS=-0.673 ns`、`TNS=-6.462 ns`、22 个失败端点；hold、route、DRC 和四 DSP 结构门均通过。因此 V1 不能签核为 100 MHz 收敛。当前报告只展开前 20 条 setup 路径：其中 14 条属于 DSP/求和路径，6 条属于写使能路径；剩余 2 个失败端点未在该报告中展开，不能声称全部 22 个端点已完成分类。
+同一实现提交 `50550733e4af4779f3d6933738fa043ecb919970` 的 XC7Z020、100 MHz OOC 结果仍是 setup 失败：`WNS=-0.673 ns`、`TNS=-6.462 ns`、22 个失败端点；hold、route、DRC 和四 DSP 结构门均通过。因此 V1 不能签核为 100 MHz 收敛。
+
+冻结的 `timing_impl.rpt` 只展开前 20 条路径。随后从同一保留 routed checkpoint 以 `-max_paths 50` 扩展审计，完整覆盖全部 22 个失败端点：14 条属于 DSP/求和路径，8 条属于 `logit_values` 写使能路径，已经没有未分类端点。checkpoint、命令、报告哈希和逐端点清单见 `docs/verification/NPU_SINGLE_CLOCK_TIMING_ENDPOINT_AUDIT_V1.md`；该补证不改变原始 manifest，也不把当前状态提升为 100 MHz 通过。
 
 ## 2. 新关键路径分类
 
 第一类也是最差路径：`compute_group_index` 选择当前四个激活值，经过一个 `DSP48E1` 乘法和四乘积求和 carry chain，到达 `lane_sum_latched`。最差数据路径 10.651 ns，含 11 级逻辑：3 个 LUT、1 个 DSP48E1、2 个求和 LUT 和 5 个 CARRY4。该路径说明仅增加最终 WRITEBACK 不足以解决当前首要瓶颈。
 
-第二类路径从 `compute_group_index` 到 `logit_values` 分布式存储写使能，最差约 `-0.071 ns`，逻辑延迟不大但布线占主导。第一类路径修复后，它可能成为新的签核阻断项。该分类只覆盖报告列出的前 20 条路径。
+第二类共有 8 个失败端点，路径均从 `compute_group_index` 到 `logit_values` 分布式存储写使能，slack 均为 `-0.071 ns`，逻辑延迟不大但布线占主导。第一类路径修复后，它可能成为新的签核阻断项。
 
 ## 3. 方案比较
 

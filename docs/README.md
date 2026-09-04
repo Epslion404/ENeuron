@@ -49,6 +49,7 @@
 
 - [原始 Goal 完成审计](verification/goal_audit.md)
 - [NPU 局部剪枝原始 Goal 签核](verification/NPU_PRUNING_GOAL_SIGNOFF.md)
+- [NPU 单时钟 DSP V1 全部失败端点审计](verification/NPU_SINGLE_CLOCK_TIMING_ENDPOINT_AUDIT_V1.md)
 
 ## 持续集成
 

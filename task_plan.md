@@ -1,5 +1,15 @@
 # 单神经元硬件基石模拟计划
 
+## 2026-09-04 DSP V1 全部失败端点补证
+
+- [x] 从保留的 routed checkpoint 生成 `-max_paths 50` 扩展时序报告，并核对摘要仍为 `WNS=-0.673 ns / TNS=-6.462 ns / 22` 个 setup 失败端点。
+- [x] 逐条提取全部失败端点，确认 14 个属于动态激活选择/DSP/求和到 `lane_sum_latched`，8 个属于 `compute_group_index` 到 `logit_values` 写使能。
+- [x] 新增端点审计文档并同步 V2 审核稿、findings、progress、TODO 和持久状态；原始 OOC manifest 保持不变。
+- [x] 完成 Nexus 独立复核，确认 14+8 分类并移除知识库中的旧边界表述。
+- [x] 完成 CI-Fast 分类测试 8/8、diff whitespace 检查、报告 SHA-256 与 22=14+8+0 解析检查。
+- [ ] 提交、PR 与 CI/Webhook 同 SHA 闭环。
+- [ ] 请求管理员批准 TR7-TR12；获批前不修改计算 RTL。
+
 ## 2026-09-04 TR1-TR6 + DSP48E1 执行切片
 
 - [x] 管理员批准 TR1-TR6，并将 TR5 收紧为四条共享乘法 lane 强制使用 DSP48E1。
@@ -8,7 +18,7 @@
 - [x] 实现 `FETCH → EXECUTE → COMMIT` 三拍流水、共享四 DSP lane 和 `lane_sum_latched`；C1-C4 状态、周期、数值和 DSP 意图测试 3/3 GREEN。
 - [x] 将 OOC 物理硬门收紧为 utilization `DSP=4`、实现网表 `DSP48E1_COUNT=4`，并与 setup/hold/DRC/route 共同决定通过。
 - [x] 依次完成定向、C1-C4、固定 `20×100`、完整仓库回归与 Vivado 2024.1 OOC；单时钟专项 8/8、随机 20×100、完整仓库 473/473（1 skipped）均通过，OOC 证明 DSP=4 但 setup 失败。
-- [ ] 同步文档/Nexus，提交、推送、创建 PR，并完成 CI/Webhook 同 SHA 闭环。
+- [x] 同步文档/Nexus，提交、推送、创建 PR，并完成 CI/Webhook 同 SHA 闭环（PR #58/#59）。
 
 成功标准：外部协议与数值语义不变；C1-C4 输出和周期合同完全匹配；实现报告 `DSP=4`；XC7Z020 100 MHz 下 `WNS>=0`、`TNS=0`，setup/hold/DRC/route 零失败。
 

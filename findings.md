@@ -1169,3 +1169,10 @@
 - 新最差路径从 `compute_group_index_reg[1]_rep__1` 到 `lane_sum_latched_reg[30]`，数据路径 10.651 ns，其中逻辑 5.978 ns、布线 4.673 ns、11 级逻辑；实际经过 3 个激活选择 LUT、1 个 DSP48E1、求和 LUT 和 5 个 CARRY4。
 - 当前 `timing_impl.rpt` 只展开前 20 条 setup 路径：14 条属于动态激活选择/DSP/求和到 `lane_sum_latched`，6 条属于 `compute_group_index` 到 `logit_values` 写使能；剩余 2 个失败端点没有展开，不能声称全部 22 个端点已分类。只增加 WRITEBACK 会漏掉已知首要 DSP 输入路径；只锁存激活值又可能留下已知写使能失败。
 - KISS 首选 V2 是在 FETCH 锁存四个激活操作数，并让 L0/L1 最终值统一在独立 WRITEBACK 状态写数组。预估增加约 65 FF、少量 LUT 和每样本 42 拍；强制 DSP=4 和所有外部/数值合同不变。
+
+## 2026-09-04 DSP V1 全部失败端点补证
+
+- 从保留的 routed checkpoint 重新执行 `report_timing_summary -delay_type min_max -max_paths 50`；扩展报告 SHA-256 为 `BE8F1BF268553E9BDAEB31FF7DB348D6F4573011DF6CBDB699D840A71D91F04D`，摘要仍为 `WNS=-0.673 ns / TNS=-6.462 ns / 22` 个 setup 失败端点。
+- 全部 22 个端点完成分类：14 个从 `compute_group_index_reg[1]_rep__1` 经动态激活选择、DSP48E1 和求和链到 `lane_sum_latched`；8 个从 `compute_group_index_reg[3]` 到 `logit_values` 分布式存储写使能。
+- 旧文档中的“前 20 条为 14+6、剩余2个未分类”是原冻结报告的可见边界，现已由扩展报告补齐为 `14+8=22`；TR7/TR8 与 TR9 分别覆盖两个端点族，V2 方案边界无需改变。
+- 完整证据身份和逐端点清单见 `docs/verification/NPU_SINGLE_CLOCK_TIMING_ENDPOINT_AUDIT_V1.md`。该审计不修改 RTL、约束、实现或原始 manifest，物理状态仍是 `VIVADO_OOC_SETUP_FAIL`。
