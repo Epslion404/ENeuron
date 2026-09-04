@@ -2,7 +2,7 @@
 
 import unittest
 
-from npu_eneuron_reference import NpuConfig, NpuReference, quantize_input
+from npu_eneuron_reference import NpuConfig, NpuReference
 from npu_eneuron_protocol import NpuEpochRuntime
 
 
@@ -19,7 +19,7 @@ class NpuReferenceTest(unittest.TestCase):
         image = [1] * config.input_size
         result = model.infer(image, mode="bypass")
 
-        total = sum(quantize_input(value) for value in image)
+        total = sum(image)
         self.assertEqual(result.logits, [total * config.hidden_size + i for i in range(config.output_size)])
         self.assertEqual(result.prediction, config.output_size - 1)
         self.assertEqual(result.mac_count, config.input_size * config.hidden_size + config.hidden_size * config.output_size)
@@ -75,7 +75,7 @@ class NpuReferenceTest(unittest.TestCase):
         self.assertEqual(result.logits, [127 * config.hidden_size] * config.output_size)
         self.assertTrue(result.abstain)
 
-    def test_input_values_are_clipped_to_four_bit_range(self):
+    def test_core_uint4_domain_is_fail_closed(self):
         config = NpuConfig()
         model = NpuReference(config)
         model.load_weights(
@@ -85,10 +85,16 @@ class NpuReferenceTest(unittest.TestCase):
             list(range(config.output_size)),
         )
 
-        image = [-9, 99] + [0] * (config.input_size - 2)
-        result = model.infer(image)
+        for valid in (0, 15):
+            with self.subTest(valid=valid):
+                model.infer([valid] * config.input_size)
 
-        self.assertEqual(result.logits, [15 * config.hidden_size + index for index in range(config.output_size)])
+        for invalid in (-1, 16, 1.5, "7", None, True):
+            with self.subTest(invalid=invalid):
+                image = [0] * config.input_size
+                image[-1] = invalid
+                with self.assertRaisesRegex(ValueError, "uint4"):
+                    model.infer(image)
 
     def _runtime(self):
         config = NpuConfig()
@@ -178,6 +184,25 @@ class NpuReferenceTest(unittest.TestCase):
         self.assertEqual(runtime.active_epoch, 0)
         accepted = runtime.begin_sample([1] * config.input_size)
         self.assertEqual(accepted.epoch, 1)
+
+    def test_invalid_pixel_preserves_pending_epoch_and_runtime_state(self):
+        config, runtime = self._runtime()
+        size0 = config.hidden_size * (config.input_size // config.group_size)
+        size1 = config.output_size * (config.hidden_size // config.group_size)
+        runtime.stage_masks(1, [False] * size0, [False] * size1)
+
+        invalid_image = [1] * config.input_size
+        invalid_image[-1] = 16
+        with self.assertRaisesRegex(ValueError, "uint4"):
+            runtime.begin_sample(invalid_image)
+
+        self.assertEqual(runtime.active_epoch, 0)
+        self.assertFalse(runtime.running)
+        self.assertIsNone(runtime.result)
+
+        accepted = runtime.begin_sample([1] * config.input_size)
+        self.assertEqual(accepted.epoch, 1)
+        self.assertEqual(accepted.inference.mac_count, 0)
 
     def test_zero_activity_with_closed_gate_emits_no_reads_or_macs(self):
         config, runtime = self._runtime()

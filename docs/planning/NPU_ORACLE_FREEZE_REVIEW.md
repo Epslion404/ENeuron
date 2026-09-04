@@ -1,8 +1,8 @@
 # NPU + ENeuron Python Oracle 冻结审核
 
-状态：`OF1-OF6_V3_REVIEW_REQUIRED`
+状态：`OF1-OF6_V3_APPROVED / OF1A_UINT4_CORE_GREEN / IMPLEMENTATION_IN_PROGRESS`
 
-适用范围：传统 `64→32→10` INT8 NPU 与 ENeuron 四权重整组门控的 Python 参考模型。本文只冻结进入单时钟 RTL 前必须明确的语义；未批准前不创建集成业务 RTL，不运行新的 Vivado。
+适用范围：传统 `64→32→10` INT8 NPU 与 ENeuron 四权重整组门控的 Python 参考模型。OF1-OF6 V3 已于 2026-09-04 获管理员批准；本文冻结进入单时钟 RTL 前必须明确的语义。完整 oracle 冻结和 RTL 设计审核完成前，不创建集成业务 RTL，不运行新的 Vivado。
 
 ## 1. 已证明的行为
 
@@ -112,9 +112,9 @@
 
 ## 5. 当前允许动作
 
-- 可以提交不依赖 OF1-OF6 的既有最坏情况测试、审计文档和知识库更新。
-- 可以继续编写会在当前实现上失败的 RED 测试，但不能先选择溢出、复位或协议语义来修改业务实现。
-- OF1-OF6 V3 未批准前，不创建集成业务 RTL，不运行 Vivado，不宣称集成吞吐、资源、功耗或准确率收益。
+- OF1a 已完成严格 uint4 核心输入与非法样本零副作用，状态为 GREEN；该切片不修改 bias、权重、mask、协议或 RTL。
+- 后续按第 6 节顺序，以独立 RED→GREEN 切片实现已批准的 INT8 权重、安全 bias、固定参数、不可变结果、mask 和逐拍协议合同。
+- 完整 oracle 冻结并通过独立审计后，才提交单时钟 RTL 设计稿供管理员审核；审核通过前不创建集成业务 RTL、不运行 Vivado，也不宣称集成吞吐、资源、功耗或准确率收益。
 
 ## 6. 批准后的执行顺序
 
