@@ -985,7 +985,7 @@
 - [x] OF4b2a.1：修正 BEGIN 等于 active epoch 导致的不可提交 staging；补回归并要求 BEGIN/COMMIT 均为 next epoch。
 - [x] OF4b2 GREEN：完成独立审计并冻结 19-word mask 四态命令、错误响应和握手/背压语义；定向 7/7、oracle 34/34。
 - [x] OF4b2b：补齐完整状态矩阵非法组合、全局 idle/freeze 与 `NpuEpochRuntime` 组合合同；状态矩阵 9/9、runtime 组合 5/5、oracle 41/41。
-- [ ] OF4c：冻结单时钟端口表、完整逐拍流接口和 Python→RTL 设计审核材料。
+- [x] OF4c：冻结单时钟端口表、完整逐拍流接口和 Python→RTL 设计审核材料（设计审核稿已提交，待管理员审核）。
 - [ ] 按 RED 测试 → 最小实现 → 手算 mask 向量 → 状态矩阵顺序完成冻结。
 - [ ] 冻结端口/地址/状态转移/逐拍测试计划后，才提交单时钟 RTL 设计审核。
 

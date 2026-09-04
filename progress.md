@@ -1165,3 +1165,4 @@
 - 审计后补齐 `MASK_BEGIN(epoch=active_epoch)` 回归，修正 BEGIN 与 COMMIT 的 next-epoch 校验；OF4b2 定向 7/7、完整 oracle 34/34、compileall/diff-check 通过，等待最终独立复审。
 - OF4b2 GREEN 已签核：独立审计 PASS，确认 epoch 回绕和错误消费拍语义；下一步为完整状态矩阵与 runtime idle/freeze 组合，不扩大到 RTL/Vivado。
 - OF4b2b 完成：状态矩阵新增回归 9/9（基于已有实现直接通过），runtime 组合 5/5；实现 `bind_mask_port` 与双端 freeze 同步，完整 oracle 41/41。下一阶段 OF4c 为单时钟端口表和 RTL 设计审核材料。
+- 2026-09-04 OF4c 设计审核稿：在 OF4b2b 合并后冻结单时钟同步复位、128-bit 命令/响应、sample/result 流、19/634-word 地址、逐拍优先级、错误背压和零副作用合同；尚未创建集成 RTL，未运行 Vivado。
