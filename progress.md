@@ -1274,3 +1274,11 @@
 - 已修正为共享 signed 32-bit `writeback_value_latched` 的唯一语义，明确前 20 条为 14 条 DSP/求和路径和 6 条写使能路径，并将 V1 执行链标记为“已执行但 setup 失败”。本轮仍未修改 RTL。
 - 修订 HEAD `c7e1247` 的 Actions run `33907986001` 完成成功：全仓运行 473 项、CI 环境 3 项跳过，固定随机 `20×100` 通过，最终 `PR Gate` 成功；Webhook 收到同 SHA completed/success。
 - 合并前 GitHub API 确认 `CLEAN / MERGEABLE`，两路独立审计无 blocker；PR #58 已于 2026-09-04 合并为 `main@999038f`。合并口径保持“DSP V1 功能/结构通过，100 MHz setup 仍失败，转入 V2 审核”。
+
+## 2026-09-04 全部 22 个 setup 失败端点审计
+
+- 使用现有 routed checkpoint 扩展输出最多 50 条时序路径，实际准确展开全部 22 个失败端点；没有重新综合、布局或布线。
+- 独立提取结果为 14 个 `lane_sum_latched` 端点和 8 个 `logit_values` 写使能端点，修正此前冻结报告只能看到 14+6、剩余2个未知的证据缺口。
+- 新增 `docs/verification/NPU_SINGLE_CLOCK_TIMING_ENDPOINT_AUDIT_V1.md`，记录 checkpoint/Tcl/报告 SHA-256、复现命令、完整端点表和证据边界；同步 V2 审核稿、TODO、持久状态与 Nexus。
+- 独立发布审计逐项重算三个 SHA-256、22 个 destination/slack 和时序摘要，确认文档一致、原 manifest/冻结报告无 diff、当前状态未误写为 100 MHz 通过；结论无 blocker。
+- 本轮仅补证和文档化，未修改 RTL、测试、约束或 OOC manifest；下一门仍为管理员批准 TR7-TR12。

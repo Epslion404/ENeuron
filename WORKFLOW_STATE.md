@@ -27,6 +27,7 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 - 根目录结果归档、当前 RTL Vivado 证据重建和 Goal 审计已推送：提交 `9465142`；随后 NP6 规划提交 `cbff013`，nexus 知识库提交 `c7c5c5b`；文档入口为 `docs/README.md`，知识库入口为 `.nexus-map/INDEX.md`。
 - DSP V1 实现 HEAD `5055073` 的 Vivado 2024.1 OOC 报告已生成：`2192 LUT / 1904 FF / 0 BRAM / 4 DSP48E1`，DSP 双重硬门通过；setup `WNS=-0.673 ns / TNS=-6.462 ns / 22` 个失败端点，hold `WHS=+0.090 ns / 0` 个失败端点，route errors=0、DRC errors=0。该结果取代旧 OOC 作为当前物理边界，但仍不是 100 MHz 通过证据。
 - PR #58 HEAD `c7e1247` 的 Actions run `33907986001` 已完成成功：全仓 473 项通过（CI 环境 3 项跳过）、固定随机 20×100 通过、最终 `PR Gate` 成功；PR 已合并为 `main@999038f`。Webhook 收到同 SHA completed/success，但签名未验证，GitHub API 是权威终态。
+- 已从保留 routed checkpoint 扩展导出最多 50 条路径并完整覆盖全部 22 个 setup 失败端点：14 个属于动态激活选择/DSP/求和到 `lane_sum_latched`，8 个属于 `compute_group_index` 到 `logit_values` 写使能；不再存在未分类端点。证据身份见 `docs/verification/NPU_SINGLE_CLOCK_TIMING_ENDPOINT_AUDIT_V1.md`。
 
 ## 允许动作
 
@@ -44,7 +45,7 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 
 ## 下一动作
 
-归档 DSP V1 OOC 报告及哈希，等待管理员审核 `docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V2.md` 的 TR7-TR12。获批后才进入测试 RED、最小 RTL、定向/随机/全仓回归和同条件 OOC；通过前不进入 XC7Z020 顶层规划。
+完成全部 22 个失败端点补证的 PR/CI 闭环，随后请求管理员审核 `docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V2.md` 的 TR7-TR12。获批后才进入测试 RED、最小 RTL、定向/随机/全仓回归和同条件 OOC；通过前不进入 XC7Z020 顶层规划。
 
 ## 2026-09-04 Vivado OOC 物理门收口
 

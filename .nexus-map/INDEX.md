@@ -27,7 +27,7 @@ NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`，NP7 已签核。
 
 - **V1 审计问题**：统一单命令流却定义 `MODEL_COMMIT` 与 `MASK_COMMIT` 同拍竞争；结果 sideband 引入未冻结的 `model_epoch` 且硬件槽位账本不足；首 beat mask 切换未说明 framing 错误的零副作用/回滚；`runtime_idle` 漏待消费错误、部分结果和同拍握手占用；验证门低于 I5 的 20 个固定 seed × 100 样本要求。
 - **V2 修正**：固定 8/10 beat 并取消外部 `last`；明确 nibble 位序和内部 beat 计数；删除 `model_epoch`，结果 metadata 仅为 sample ID 与 mask epoch；统一命令流按握手顺序串行，配置命令优先样本首 beat；idle 纳入错误响应、部分输出、统一槽位及同拍仲裁；验证门恢复至少 20×100 样本并保留 OF6 定向/负向覆盖。
-- **当前门槛**：TR1-TR6 已实现于 `5055073`。OOC 结果为 `2192 LUT / 1904 FF / 4 DSP48E1`，DSP 双重结构门、hold、route 和 DRC 通过；setup `WNS=-0.673 ns / TNS=-6.462 ns / 22` 个失败端点。当前先审核 TR7-TR12，仍不声明板级或网络性能。
+- **当前门槛**：TR1-TR6 已实现于 `5055073`。OOC 结果为 `2192 LUT / 1904 FF / 4 DSP48E1`，DSP 双重结构门、hold、route 和 DRC 通过；setup `WNS=-0.673 ns / TNS=-6.462 ns / 22` 个失败端点。扩展 50-path 报告已展开全部 22 个失败端点：14 个属于动态激活选择→DSP48E1→求和→`lane_sum_latched`，8 个属于 `compute_group_index`→`logit_values` 写使能。当前先审核 TR7-TR12，仍不声明板级或网络性能。
 - **第二条 RTL 切片**：`test_npu_single_clock_mask.py` 驱动公开接口验证完整 19-word 顺序装载；非法 word18 高 16 位产生 128-bit 单槽错误响应且隐式索引保持 18，响应消费后可重试；`MASK_COMMIT` 只发布，后续样本首 beat 才令 epoch 1 active 并置 `mask_valid`，两个连续样本结果均携带 epoch 1。
 - **第三条 RTL 切片**：`test_npu_single_clock_control.py` 验证部分 mask 可由 `MASK_ABORT` 丢弃；`STATE_CLEAR` 保留模型/mask；freeze 只在严格 idle 边界切换，冻结时样本仍可完成，而模型/mask 配置与动态清除返回稳定错误且不改变状态。
 - **真实计算状态**：`test_npu_single_clock_compute.py`/`tb_npu_eneuron_single_clock_compute.sv` 已锁定 uint4×INT8、隐藏饱和、INT32 logit 与 L0 mask 门控；四 lane FETCH/EXECUTE/COMMIT 引擎通过首组 137/-117、两层最后组 59、L1 bit79 关闭后 -1，以及忙态阻塞检查。
