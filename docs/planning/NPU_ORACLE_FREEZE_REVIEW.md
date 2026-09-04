@@ -1,6 +1,6 @@
 # NPU + ENeuron Python Oracle 冻结审核
 
-状态：`OF1-OF6_V3_APPROVED / OF1A_UINT4_CORE_GREEN / OF1B_FIXED_MODEL_GREEN / OF3_MASK_ORDER_COST_GREEN / OF4A_MODEL_WORD_MAP_GREEN / OF4B1_MASK_WORD_MAP_GREEN / IMPLEMENTATION_IN_PROGRESS`
+状态：`OF1-OF6_V3_APPROVED / OF1A_UINT4_CORE_GREEN / OF1B_FIXED_MODEL_GREEN / OF3_MASK_ORDER_COST_GREEN / OF4A_MODEL_WORD_MAP_GREEN / OF4B1_MASK_WORD_MAP_GREEN / OF4B2_COMMAND_PORT_GREEN / IMPLEMENTATION_IN_PROGRESS`
 
 适用范围：传统 `64→32→10` INT8 NPU 与 ENeuron 四权重整组门控的 Python 参考模型。OF1-OF6 V3 已于 2026-09-04 获管理员批准；本文冻结进入单时钟 RTL 前必须明确的语义。完整 oracle 冻结和 RTL 设计审核完成前，不创建集成业务 RTL，不运行新的 Vivado。
 
@@ -116,6 +116,8 @@
 - OF3 已用内部单 bit、两层首尾 mixed mask 和 open+全零向量冻结位序与固定工作量账本；现实现本已符合，因此只增加测试证据、不修改业务代码。
 - OF4a 已冻结完整 634-word uint32 镜像、512/32/80/10 段映射、低字节优先 signed 解码和原子载入；它是完整镜像 API，不冒充逐拍配置状态机。
 - OF4b1 已冻结完整 19-word uint32 mask 镜像：word0..15 对应 `mask0[0..511]`，word16..18 的低 80 bit 对应 `mask1[0..79]`，统一采用 LSB-first；`word18[31:16]` 为保留位且必须为零。解码结果为独立不可变 tuple，定向测试 2/2、完整 oracle 27/27，并经独立审计 PASS。
+- OF4b2a 已实现最小 Python 命令端口：四态 staging、单槽错误响应、非法配置零副作用、同索引重试和样本边界激活；当前相关测试 6/6 通过，独立审计和完整状态矩阵仍待完成。
+- OF4b2 已完成独立审计：7/7 定向测试、完整 oracle 34/34 通过；BEGIN/COMMIT 均要求 `active_epoch+1 mod 2^32`，覆盖 `0xffffffff→0` 回绕，错误消费拍不接受新命令。端口级实现不替代上层 runtime 的全局 idle/freeze 检查。
 - 后续按第 6 节顺序，以独立 RED→GREEN 切片实现已批准的 19-word mask 配置、错误响应、状态组合和逐拍协议合同。
 - 完整 oracle 冻结并通过独立审计后，才提交单时钟 RTL 设计稿供管理员审核；审核通过前不创建集成业务 RTL、不运行 Vivado，也不宣称集成吞吐、资源、功耗或准确率收益。
 
