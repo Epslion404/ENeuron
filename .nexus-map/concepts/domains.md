@@ -13,7 +13,7 @@ provenance: NP4B/NP6/NP7 TODO、工作流状态与 RTL 文件；集成边界来�
 - `fail-closed`：证据缺失、陈旧或哈希不符时拒绝签核。
 - `NP6_PHYSICAL_COST_PARTIAL`：物理成本阶段的正式状态；不是整体时序通过，也不是板级性能结论。
 - `NP7`：已合并并签核的共享 BRAM 与共享 lane 阶段；其逻辑/物理证据不能外推为传统 NPU + ENeuron 的集成收益。
-- `OF4G_BOUNDARY_GREEN / OF1-OF6_V3_IMPLEMENTATION_IN_PROGRESS`：OF4g 修正模型端口冻结边界。`loading` 和 `complete` 表示 staging 占用，阻止 runtime 进入/退出冻结；`committed` 表示模型已完整提交，不再阻止冻结。冻结后模型仍可参与推理，但模型/掩码配置和动态清除继续拒绝。该修正与既有 OF4b2b/OF4e/OF4f 合同合并后，`test_npu_eneuron_reference.py` 为 47/47 通过，修正已合并到 `main@9f6d14b`。证据仍仅覆盖 Python oracle/组合层；单时钟 RTL、完整流接口与 Vivado 尚未完成。
+- `RTL_DESIGN_REVIEW_WITH_ACTIONS`：OF4g 修正模型端口冻结边界，`loading/complete` 阻止冻结而 `committed` 允许冻结和推理；OF5 冻结 hard reset 的破坏性清理，丢弃模型/mask/runtime staging、结果与冻结状态并恢复 `epoch=0`、全开 mask、`model_valid=0`。OF6 汇总 OF1-OF5，相关 Python oracle 回归 48/48、CI-Fast 8/8，签核合并于 `main@0982ac5`。静态审计列出 8 项逐拍规格缺口；证据仍仅覆盖 Python oracle/组合层，单时钟 RTL、完整流接口与 Vivado 尚未完成。
 - `B-V1+V2`：NP7 已批准的单槽弹性流水合同，允许零路径同拍完成及非零结果退出与下一事务接受重叠；其收益只由逐拍账本证明。
 - `CI-Fast V1`：按变更路径选择验证范围的 Action 编排；Action 基线已从 `actions/checkout@v4`、`actions/setup-python@v5` 升级为二者 `@v7`（Node 24）。已完成 workflow 全量、文档轻量与 NPU-only 定向路径验证；任何 workflow 变更必须运行全量门，未知代码触发全仓回归，手动运行触发全部专项门。
 - `PR Gate`：始终执行的汇总状态；只允许被选专项门 `success` 或 `skipped`，任何失败均拒绝合并。分支保护应只要求该状态。

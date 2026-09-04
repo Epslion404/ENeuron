@@ -1057,3 +1057,4 @@
 - `NpuEpochRuntime.bind_mask_port()` 只增加组合层所有权与冻结判定：运行中、结果槽占用、runtime pending 或 mask staging 非空时拒绝切换；完全 idle 时把 freeze 同步到端口。
 - frozen 仍允许 `begin_sample → complete_sample → accept_result`，但配置、动态清除和端口 `MASK_BEGIN` 均被拒绝；runtime 组合测试 5/5，完整 oracle 41/41。
 - 后续必须把相同全局 idle/freeze 合同映射到单时钟 RTL；本切片没有运行 Vivado，也没有声明硬件吞吐或资源收益。
+- 2026-09-04 单时钟 RTL 设计审核前静态审计发现：Python oracle 与设计稿在 634-word/19-word 镜像、数值域、结果背压、版本切换、复位和冻结边界上已对齐；但样本/结果 beat 字段、统一配置流拓扑、双 commit 同拍行为、`mask_valid` 默认全开语义、未提交模型的 `sample_ready` 行为和 runtime idle 硬件组合仍需明确。详见 `docs/planning/NPU_SINGLE_CLOCK_RTL_DESIGN_AUDIT_V1.md`，共 8 项待补规格，未创建 RTL、未运行 Vivado。
