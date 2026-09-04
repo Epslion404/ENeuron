@@ -1171,3 +1171,4 @@
 - 2026-09-04 OF4f：冻结单时钟同拍仲裁优先级，明确配置提交不得与样本首拍双重生效；后续 RTL 必须按该优先级实现。未运行 Vivado。
 - 2026-09-04 OF4g GREEN：发现并修正已提交模型被误判为 staging 占用的问题；`committed` 允许冻结，`loading/complete` 仍拒绝。相关回归 47/47 通过，修正已合并至 `main@9f6d14b`。
 - 2026-09-04 OF5 GREEN：新增模型端口、mask 端口和 runtime 的 hard reset；复位丢弃 staging/published/运行结果，恢复全开 mask、epoch=0、model_valid=0，未提交模型拒绝推理。相关回归 48/48 通过。
+- 2026-09-04 OF6 签核：OF1-OF5 相关 Python oracle 回归 48/48、CI-Fast 8/8、compileall、diff-check 全通过；形成最终证据摘要。该签核不外推 RTL/Vivado/物理性能，下一步仅进入单时钟 RTL 设计审核。
