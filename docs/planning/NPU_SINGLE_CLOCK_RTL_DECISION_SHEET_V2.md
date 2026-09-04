@@ -1,6 +1,6 @@
 # 单时钟 RTL 设计裁定表 V2
 
-状态：`APPROVED_BY_ADMIN`。管理员已于 2026-09-04 批准以下 8 项裁定；V2 现作为单时钟 RTL 开工基线。精确周期仍须由逐拍 RTL 协同仿真冻结，Vivado OOC 仍需在 Icarus/本地功能门通过后执行。
+状态：`APPROVED_BY_ADMIN / RTL_RANDOM_GATE_GREEN / PR54_MERGED / VIVADO_OOC_NEXT`。管理员已于 2026-09-04 批准以下 8 项裁定；V2 现作为单时钟 RTL 基线。逐拍 RTL 协同仿真与固定随机门已通过，下一步可对 `main@2a33f12` 执行 Vivado 2024.1 OOC；板级验证仍后置。
 
 ## 1. 样本输入流
 

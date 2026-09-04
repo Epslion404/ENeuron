@@ -1,7 +1,7 @@
 # 传统 NPU + ENeuron 集成审核稿
 
-状态：`I1-I6_APPROVED / PYTHON_ORACLE_IN_PROGRESS`
-适用基线：NP7 `NP7.0-NP7.7_SIGNED_OFF`；本稿只做静态规划，不授权新 RTL、Vivado 或板级测试。
+状态：`I1-I6_APPROVED / PYTHON_ORACLE_SIGNED_OFF / RTL_RANDOM_GATE_GREEN / PR54_MERGED / VIVADO_OOC_SETUP_FAIL / TIMING_REPAIR_REQUIRED`
+适用基线：NP7 `NP7.0-NP7.7_SIGNED_OFF`、单时钟 RTL `main@2a33f12`；当前 OOC 已完成但 setup 未通过，下一步仅授权关键路径修复和同器件同约束重签，不授权板级、网口或 DMA 测试。
 
 ## 1. 目标
 
@@ -10,7 +10,7 @@
 ## 2. 已有证据与未证明事项
 
 已具备：NP7 共享 BRAM/共享 lane 的软件、周期、形式、负向和 Vivado 物理证据；8/8 `xc7z020clg400-1`、100 MHz 配置收敛。
-尚未证明：传统 NPU 与神经元在同一顶层的资源、时序、DMA/网口端到端吞吐、准确率保持、在线更新稳定性和板级功耗。
+已部分证明：当前单时钟 OOC 资源为 `2672 LUT / 1879 FF / 0 BRAM / 0 DSP`，route/DRC 无错误且 hold 通过。尚未证明：100 MHz setup 收敛、DMA/网口端到端吞吐、准确率保持、在线更新稳定性和板级功耗。
 
 ## 3. 建议的最小集成边界
 
@@ -36,16 +36,16 @@
 - [x] 管理员批准 I1-I6，并明确首个 NPU 模型、输入尺寸和 INT8 量化格式。
 - [ ] Python 参考模型能在旁路/门控两种模式下逐样本复现输出与门控决策。
 - [ ] 明确最坏情况：门控全开、全关、频繁切换、背压和状态清除。
-- [ ] 明确资源预算：LUT、FF、BRAM、DSP、时钟和可接受 WNS。
-- [ ] 形成独立集成顶层与 testbench 任务后，才允许实现 RTL。
+- [x] 明确资源预算：LUT、FF、BRAM、DSP、时钟和可接受 WNS；当前 OOC 实测 `2672 LUT / 1879 FF / 0 BRAM / 0 DSP`，100 MHz setup `WNS=-5.087 ns`，因此物理门未通过。
+- [x] 形成独立集成顶层与 testbench 任务后实现并完成当前 RTL 随机门；当前只允许进入关键路径时序修复，不允许把 OOC 失败结果写成部署通过。
 
 ## 6. 禁止的提前结论
 
 在上述硬门通过前，不得宣称神经元已经提升传统 NPU 的板级吞吐、准确率、功耗或通用训练能力；NP7 的局部周期收益不能直接外推到集成系统。
 
-## 7. 2026-09-03 静态审计结论
+## 7. 2026-09-03 静态审计结论（历史入口，已由后续实现覆盖）
 
-当前文档仍停在 `REVIEW_REQUIRED`，尚未授权集成 RTL、Vivado 或板级测试。进入实现前必须补齐以下最小材料包：
+当时文档停在 `REVIEW_REQUIRED`，尚未授权集成 RTL、Vivado 或板级测试。以下材料包已在后续批准和实现阶段补齐；本节保留为历史审计记录：
 
 1. 冻结首个传统 NPU 模型、输入尺寸、INT8 权重/激活格式、累加位宽和量化位置。
 2. 冻结活动摘要、门控位图宽度、`valid/ready`、背压、复位、跨时钟和 DMA/网口边界的逐周期协议。

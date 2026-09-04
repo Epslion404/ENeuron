@@ -4,13 +4,13 @@
 
 最后更新：2026-09-04
 
-状态：`ACTIVE / NP7_MERGED / I1_I6_APPROVED / OF1_OF6_V3_APPROVED / OF3_MASK_ORDER_COST_GREEN / OF4A_MODEL_WORD_MAP_GREEN / OF4B1_MASK_WORD_MAP_GREEN / OF4B2_COMMAND_PORT_GREEN / OF4B2B_RUNTIME_COMBINATION_GREEN / OF4C_SINGLE_CLOCK_CONTRACT_DRAFT / OF4D_MODEL_COMMIT_CONTRACT_DRAFT / OF4E_RUNTIME_CROSS_CONTRACT_GREEN / OF4F_ARBITRATION_CONTRACT_DRAFT / OF4G_BOUNDARY_GREEN / OF5_HARD_RESET_GREEN / OF6_ORACLE_SIGNOFF / RTL_DESIGN_CONTRACT_V2_APPROVED / RTL_SKELETON_IN_PROGRESS / RTL_RANDOM_GATE_GREEN / PR54_WAITING_RANDOM_COMMIT_CI`
+状态：`ACTIVE / NP7_MERGED / I1_I6_APPROVED / OF1_OF6_V3_APPROVED / OF3_MASK_ORDER_COST_GREEN / OF4A_MODEL_WORD_MAP_GREEN / OF4B1_MASK_WORD_MAP_GREEN / OF4B2_COMMAND_PORT_GREEN / OF4B2B_RUNTIME_COMBINATION_GREEN / OF4C_TO_OF5_GREEN / OF4E_RUNTIME_CROSS_CONTRACT_GREEN / OF4G_BOUNDARY_GREEN / OF5_HARD_RESET_GREEN / OF6_ORACLE_SIGNOFF / RTL_DESIGN_CONTRACT_V2_APPROVED / RTL_RANDOM_GATE_GREEN / PR54_MERGED / VIVADO_OOC_SETUP_FAIL / TIMING_REPAIR_REQUIRED`
 
 ## 当前活动目标
 
-NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3 及单时钟 RTL V2 八项裁定已批准。当前目标是按冻结合同构建传统 `64→32→10` INT8 NPU 与 ENeuron 四权重整组门控的单时钟 RTL，并逐步完成 Python/Icarus 逐拍签核。
+NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3 及单时钟 RTL V2 八项裁定已批准。PR #54 已于 2026-09-04 合并，当前目标是对冻结的传统 `64→32→10` INT8 NPU 与 ENeuron 四权重整组门控 RTL 做 Vivado 2024.1 OOC 物理签核。
 
-活动合同：`docs/planning/NPU_SINGLE_CLOCK_RTL_DECISION_SHEET_V2.md`、`docs/planning/NPU_SINGLE_CLOCK_RTL_PORT_TABLE_V1.md` 与 `docs/planning/npu_single_clock_contract_provisional_v2.json`。第一条 RTL 骨架垂直切片已通过 Icarus；真实 MAC、mask 双 bank 和 Vivado 仍未完成。历史 NP6/NP7 结果继续由各自 TODO 和报告约束。
+活动合同：`docs/planning/NPU_SINGLE_CLOCK_RTL_DECISION_SHEET_V2.md`、`docs/planning/NPU_SINGLE_CLOCK_RTL_PORT_TABLE_V1.md` 与 `docs/planning/npu_single_clock_contract_provisional_v2.json`。当前 RTL 已完成真实四 lane 顺序计算、active-mask 门控、结果背压和四项单时钟定向门；固定 `20×100` 随机逐 beat 门与 PR #54 CI 已通过并合并。Vivado 2024.1 OOC 已完成：综合、布局布线和 DRC 流程成功，route/DRC 无错误且 hold 通过，但 100 MHz setup 未通过；下一项是基于关键路径证据进行最小流水化/分拍修复。板级、网口、DMA、功耗仍不在本阶段。
 
 ## 当前事实
 
@@ -25,24 +25,34 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3 及单时钟 RTL V2 八项裁定
 - NP6 fail-closed verifier 正向通过，12 项 mutation 全部通过；冻结证据 HEAD 为 `7023b15`。
 - 7 个 NP6 实现均完成且 route/DRC error 为 0；只有 gate 与 ENeuron 剪枝封装通过 100 MHz，正式状态为 `NP6_PHYSICAL_COST_PARTIAL`。
 - 根目录结果归档、当前 RTL Vivado 证据重建和 Goal 审计已推送：提交 `9465142`；随后 NP6 规划提交 `cbff013`，nexus 知识库提交 `c7c5c5b`；文档入口为 `docs/README.md`，知识库入口为 `.nexus-map/INDEX.md`。
+- 当前 HEAD `39e41d4` 的 Vivado 2024.1 OOC 报告已生成：`2672 LUT / 1879 FF / 0 BRAM / 0 DSP`，setup `WNS=-5.087 ns / TNS=-421.539 ns / 244` 个失败端点，hold `WHS=+0.098 ns / 0` 个失败端点，route errors=0、DRC errors=0。该结果是当前物理边界，不是通过证据。
 
 ## 允许动作
 
-- 提交不依赖 OF1-OF6 的最坏情况测试、冻结审计、状态文档和 Nexus 更新。
-- 为 OF1-OF6 编写预期失败的 RED 测试和只读反例，但不提前选择争议语义修改业务实现。
-- OF1-OF6 V3 批准后，按 OF1a uint4 fail-closed 起始的测试先行顺序修正 Python oracle，并形成单时钟 RTL 设计审核稿。
+- 更新当前状态、TODO、任务计划和 Nexus 摘要，保留历史审计记录。
+- 基于当前 RTL 的关键路径报告提出并实施最小时序修复，先保持软件/RTL 语义不变，再重跑局部回归和 Vivado OOC。
+- 物理门通过后再规划 XC7Z020 顶层；在此之前不把 OOC 结果外推为板级吞吐、功耗或网口性能。
 
 ## 禁止动作
 
-- OF1-OF6 V3 批准并完成 oracle 冻结前，不创建传统 NPU + ENeuron 集成业务 RTL，不运行新的 Vivado。
 - 不把当前 Python 测试通过外推为 INT32 逐位一致、RTL 协议冻结或物理性能收益。
+- 不把历史 NP6/NP7 的 Vivado 结果代替当前单时钟 NPU RTL 的 OOC 结果。
 - 把 NP6 的逻辑资源和 vector-less 功耗解释成真实加速、BRAM 跳读或功耗收益。
 - 将 cex、tmp 日志或来源不明的历史产物纳入正式证据。
 - 清理、覆盖或混入当前工作树中的已有改动。
 
 ## 下一动作
 
-进入下一阶段：按已批准的 V2 合同先写端口/状态 RED 测试，再实现最小单时钟 RTL 骨架；通过 Icarus/Python 逐拍门后，才申请 Vivado OOC。
+先归档当前 OOC 报告及哈希，随后从 `timing_impl.rpt` 提取最差 setup 路径并冻结时序修复方案；修复必须保留 INT32、mask epoch、结果背压和推理冻结合同。修复后的单时钟 RTL 重新通过定向/随机回归和 Vivado OOC 后，才进入 XC7Z020 顶层规划。
+
+## 2026-09-04 Vivado OOC 物理门收口
+
+- 使用 `G:\Xilinx\Vivado\2024.1\bin\vivado.bat`、器件 `xc7z020clg400-1`、OOC 顶层 `npu_eneuron_single_clock_skeleton` 和 100 MHz 时钟完成综合、opt、place、route、时序和 DRC。
+- 资源：`LUT=2672`、`FF=1879`、`BRAM36=0`、`BRAM18=0`、`DSP=0`。
+- setup：`WNS=-5.087 ns`、`TNS=-421.539 ns`、`244` 个失败端点；hold：`WHS=+0.098 ns`、`THS=0`、`0` 个失败端点。
+- `ROUTE_ERRORS=0`、`DRC_ERRORS=0`，所以实现流程成功但物理门为 `NOT_PROVEN`；不能写成 100 MHz 收敛。
+- OOC 限制：没有真实板级 I/O delay、DMA、PS、Ethernet 或 SAIF 活动；`RTSTAT-10` 与 `ZPS7-1` 为 OOC 环境 warning，不能替代板级签核。
+- 当前等效周期至少需要消除约 `5.087 ns` 的 setup 余量；由 WNS 粗略推导的频率约为 `66.3 MHz`，仅作定位参考，不替代频率扫描。
 
 ## 2026-09-04 OF4b2b GREEN
 
@@ -280,7 +290,15 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3 及单时钟 RTL V2 八项裁定
 - 完整仓库回归已通过 `469/469（1 skipped）`；历史 NP4B 证据文件的自动刷新副作用已恢复，不纳入本切片。
 - 提交前独立复核发现的 bias 安全窗与运行期 mask 并发阻断已完成 RED→GREEN：四个越界点均同索引拒绝，当前样本保持旧 active mask，下一样本才采用新 epoch。
 - 最终完整回归正在重跑；Yosys 仅完成开源前端/过程检查，不改变 `vivado_allowed=false`。
-- 最终完整回归终态为 `469/469 OK（1 skipped）`；当前软件/RTL 仿真证据已具备提交条件，Vivado OOC 和板级证据仍未完成。
+- 最终完整回归终态为 `469/469 OK（1 skipped）`；该条记录属于 OOC 执行前历史快照。当前 Vivado OOC 已完成但 setup 失败，板级证据仍未完成。
 - 下一实质门是将随机 testbench 与证据纳入 PR #54 同一 HEAD，等待 GitHub CI 收敛；随后再申请 Vivado OOC。Webhook 当前掉线，GitHub API 为 CI 权威来源。
 - PR #54 的原提交 HEAD 检查均成功；随机 testbench 已完成 `20×100` 并纳入 HEAD `8ee7fe8`，但 GitHub CI 尚未返回该 HEAD 的终态；本阶段仍禁止合并，直到 CI 完成。
 - 文档/Nexus 状态修正已推送至 PR #54 HEAD `ccfbecc`；该 HEAD 的 CI 正在运行，不能把 `IN_PROGRESS` 视为通过。
+
+## 2026-09-04 PR #54 合并后状态更正
+
+- PR #54 已于 2026-09-04 合并，merge commit 为 `2a33f12`；该提交包含真实单时钟计算 RTL、固定 `20×100` 随机逐 beat testbench 及对应文档。
+- 上述“等待随机门 CI”“禁止合并”和“随机门未提交”条目均为历史记录，不再代表当前状态；当前随机门状态为 `RTL_RANDOM_GATE_GREEN / PR54_MERGED`。
+- 当前已证明范围：四 lane 顺序 INT8 计算、隐藏层饱和、active-mask 门控、结果背压、sample ID/mask epoch 逐 beat 一致，以及 469/469（1 skipped）仓库回归。
+- 当前未证明范围：Vivado 2024.1 OOC 资源/时序/DRC、XC7Z020 顶层、网口/DMA/PS 端到端吞吐、板级功耗和持续学习收益。
+- 下一硬门改为 Vivado 2024.1 OOC；所有物理结论必须绑定 `origin/main@2a33f12`、约束、Tcl/runner 和报告 SHA-256。

@@ -1,6 +1,6 @@
 # NPU 局部剪枝 NP6 物理成本 TODO
 
-状态：`NP6_PHYSICAL_COST_PARTIAL / NP7_REVIEW_REQUIRED`
+状态：`NP6_PHYSICAL_COST_PARTIAL / NP7_SIGNED_OFF / NPU_INTEGRATION_NEXT`
 
 日期：2026-09-01
 
@@ -41,7 +41,7 @@ NP6 只测量 NP4B 已签核剪枝结构在指定 FPGA 上的综合、实现、�
 - [x] NP6.5：独立解析资源、WNS/WHS、TNS/THS、失败端点、DRC 和 route status；配对 2 因微架构不同标 `NOT_COMPARABLE`。
 - [x] NP6.6：固定每配置 9 件报告并绑定 SHA-256；RTL/runner 与冻结提交字节三方一致，未绑定未提交 DCP。
 - [x] NP6.7：只读 fail-closed verifier 正向通过；12 项 mutation 均被正确接受或拒绝，验证后 manifest 与工作树不变。
-- [x] NP6.8：PR #5 已以 merge commit `241b1d0` 合并；阶段状态收口为 `NP6_PHYSICAL_COST_PARTIAL / NP7_REVIEW_REQUIRED`。
+- [x] NP6.8：PR #5 已以 merge commit `241b1d0` 合并；NP7 后续共享 BRAM/lane 已签核，阶段状态收口为 `NP6_PHYSICAL_COST_PARTIAL / NP7_SIGNED_OFF / NPU_INTEGRATION_NEXT`。
 
 ## 4.1 实际阶段结论
 

@@ -1,6 +1,6 @@
 # NPU 局部剪枝 NP4B 正式集成 TODO
 
-状态：`NP4B_INTEGRATION_PASS / NP6_REVIEW_REQUIRED`
+状态：`NP4B_INTEGRATION_PASS / NP6_PHYSICAL_COST_PARTIAL / NP7_SIGNED_OFF / NPU_INTEGRATION_NEXT`
 
 日期：2026-08-29
 
@@ -15,7 +15,7 @@
 - ENeuron、Pulse-Mini-L、Pulse-Mini-L2 固定 evidence gain 已冻结为 `1/2/1`。
 - 三模型各完成 20 seeds × 1000 条公共控制器 Python/RTL 协同事务，共 60000 条，零差异。
 - depth=32 有限检查、成功提交可达性和两个故障变体反例均已通过。
-- 当前准确状态是 `NP4B_INTEGRATION_PASS`、`NP6_REVIEW_REQUIRED`；NP6 尚未启动。
+- 当前准确状态是 `NP4B_INTEGRATION_PASS`、`NP6_PHYSICAL_COST_PARTIAL`、`NP7_SIGNED_OFF`；NP6/NP7 已完成，下一阶段为传统 NPU + ENeuron 集成 OOC 物理门。
 
 尚未完成：
 

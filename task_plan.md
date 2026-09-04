@@ -1033,6 +1033,24 @@
 - [x] 更新 Nexus，并通过 action 版本单测、YAML/JSON 解析、compileall 和 diff-check。
 - [x] 创建 PR，等待 workflow 变更触发的全量门和 Webhook 同 SHA 终态。
 - [x] 全量门成功且 PR 可合并后自行合并；PR #32 已合并为 `1f9d3b7`。
+
+## 2026-09-04 PR #54 合并后当前计划（已收口）
+
+- [x] 随机 testbench 与固定 `20×100` 逐 beat 门已在同一 HEAD 通过 CI。
+- [x] PR #54 已合并为 `2a33f12`，并完成软件/RTL 仿真状态收口。
+- [x] 运行当前 HEAD 的 Vivado 2024.1 OOC 综合、实现、setup/hold 和 DRC；流程退出码为 0，route/DRC 无错误，hold 通过，setup 失败。
+- [x] 绑定资源、时序、工具版本、约束、runner 和报告 SHA-256，形成可重放物理证据；清单为 `artifacts/results/npu_single_clock_ooc_manifest.json`。
+- [ ] OOC setup 通过后再决定 XC7Z020 顶层、DMA/PS、网口和板级功耗的进入条件；当前因 `WNS=-5.087 ns` 暂缓。
+
+当前计划边界：OOC 物理门不改变神经元/NPU 业务合同；网口吞吐、板级功耗、持续学习和通用 AI 能力仍为后续独立任务。
+
+### 当前阶段错误记录
+
+| 错误 | 尝试 | 处理 |
+|---|---:|---|
+| OOC runner 中的 Vivado 路径变量在当前 PowerShell 宿主内被解析为空，随后路径检查块产生解析错误 | 3 | 去掉非必要的路径检查块，调用处保留单引号绝对路径字面量；前三次均未进入 Vivado，未生成物理证据 |
+| OOC 首次实现已完成但摘要把 route 状态解析为 `NA` | 1 | 原始 route 报告使用 `# of nets with routing errors..........` 格式；已收紧正则并重新运行，物理结论仍以时序报告为准 |
+| OOC 物理门 setup 失败 | 1 | 记录 `WNS=-5.087 ns`、`TNS=-421.539 ns`、244 个失败端点；下一步转入关键路径分析和时序修复，不把流程成功误报为物理通过 |
 # 2026-09-03 持久工作流当前状态
 
 - [x] PR #18 文档与 Nexus 状态更新通过四道 CI，并合并到 `main` (`1877140c`)
@@ -1066,7 +1084,9 @@
 - [x] 用稳定的结果消费者完成首 beat/末 beat/结果清空验证；随机背压与长事务已纳入同一消费者。
 - [x] 已更新任务状态文档与 Nexus，并推送 PR #54 的当前门审计（不代表随机门通过）。
 - [x] 固定 `20×100` 随机门已通过；随机 testbench 与对应证据已提交至 PR #54 HEAD `8ee7fe8`。
-- [ ] 等待包含随机门的同一 HEAD CI 全部通过后，合并 PR #54；随后申请 Vivado OOC。
+- [x] 等待包含随机门的同一 HEAD CI 全部通过后，合并 PR #54；PR #54 已以 merge commit `2a33f12` 合并。
+- [ ] 以 `origin/main@2a33f12` 为冻结 HEAD，运行 Vivado 2024.1 OOC 综合、实现、时序和 DRC，并绑定资源/报告哈希。
+- [ ] OOC 通过后再规划 XC7Z020 顶层；网口、DMA、PS、板级吞吐和功耗暂不纳入本阶段。
 
 ### 随机门错误记录
 
@@ -1075,11 +1095,25 @@
 | mask 生成器把 592 个有效 bit 当作 608 个 bit 访问，首轮出现 `IndexError` | 1 | 将 word18 高 16 位显式视为保留零位，继续运行；未执行 DUT 仿真 |
 | 随机 testbench 在 ready 拉高后首个握手边界不明确，出现 beat0 重复或跳过 | 2 | 已确认 DUT 内部 logits 与黄金值一致；改为下降沿观察当前 beat、下一上升沿完成握手，完整 20×100 已通过 |
 
-### PR #54 合并门
+### PR #54 合并门（已完成）
 
-- 当前 GitHub 检查全部成功只证明此前已提交的单时钟 RTL 切片；随机 testbench 已进入 HEAD `8ee7fe8`，必须等待该 HEAD 的 CI 重验。
-- 只有在随机 testbench 与证据进入同一 HEAD、完整 `20×100` 随机逐 beat 门、文档/Nexus 更新和同一 HEAD 的 CI 全部完成后，PR #54 才满足本阶段合并条件。
+- PR #54 的随机 testbench、固定 `20×100` 逐 beat 门、文档/Nexus 更新和同一 HEAD CI 均已完成；合并提交为 `2a33f12`。
+- 合并门只证明当前源码的软件/RTL 仿真证据闭环，不替代 Vivado 物理证据。
 - 用户临时文件 `np75_tmp_sparse_protocol.ys` 继续保持未跟踪，不得暂存或提交。
+
+## 2026-09-04 Vivado OOC 物理门结果与 TODO 修正
+
+- [x] 确认当前冻结 RTL HEAD 为 `origin/main@2a33f12`；本次 OOC 运行绑定文档提交 `39e41d4`，工作树不纳入 `np75_tmp_sparse_protocol.ys`。
+- [x] 确认四项单时钟 RTL 定向测试、固定 `20×100` 随机逐 beat 门和完整回归 `469/469（1 skipped）` 已完成。
+- [x] 固定 Vivado 2024.1 可执行文件、器件 `xc7z020clg400-1`、100 MHz 时钟和 OOC 顶层/约束。
+- [x] 运行综合、opt、place、route、setup/hold 时序分析和 DRC；记录退出码、失败端点、LUT/FF/BRAM/DSP、WNS/TNS/WHS/THS。
+- [x] 生成并校验可重放 manifest，绑定 RTL、Tcl、runner、Vivado 版本、Git HEAD 和报告 SHA-256。
+- [x] 物理门结论保留为 `NOT_PROVEN`：route/DRC 为 0 错误且 hold 通过，但 setup `WNS=-5.087 ns`、`TNS=-421.539 ns`、244 个端点失败。
+- [ ] 基于 `timing_impl.rpt` 提取最差路径，判断模型读取、四 lane 累加、ReLU/INT32 累加和结果锁存之间的关键组合链。
+- [ ] 提出最小流水化/分拍方案，先以 bit-exact 回归证明不改变 mask epoch、结果背压、清除和推理冻结语义。
+- [ ] 修复后的 RTL 重新通过定向/随机回归后，再跑同器件、同约束的 Vivado OOC；setup/hold、route、DRC 全部通过后才进入顶层规划。
+
+物理门硬条件：当前 RTL 的 OOC 综合/实现退出码为 0，route/DRC Error 为 0，100 MHz setup/hold 失败端点为 0；报告必须明确 OOC 结果不包含板级网口/DMA/PS 吞吐、动态功耗或持续学习能力。
 
 ### 本轮错误记录
 
@@ -1090,6 +1124,10 @@
 | Icarus `always_comb` 对常量位选择报告 sensitivity 扩大提示，并对仿真 `$display` 报不可综合 warning | 1 | 编译返回 0；前者只扩大仿真敏感集，后者位于 `ifndef SYNTHESIS` 日志块，不作为功能失败 |
 | 开源综合检查直接调用 `yosys` 时 PowerShell PATH 中找不到工具 | 1 | 未执行综合、未生成文件；改用全仓日志确认的 MSYS2 UCRT64 明确路径 |
 | 运行期 mask 首次并发修复仍 watchdog | 1 | `cmd_ready` 依赖 opcode，而测试 Host 在 valid 前等待 ready；改为无待响应且 valid=0 时乐观 ready，valid=1 时再按命令类别仲裁 |
+| 当前 OOC 实现 setup 未通过 | 1 | 保留完整失败证据；不修改业务语义换取假通过，下一步先做关键路径分析和最小流水化设计 |
+| staged 文件排除检查误用了 POSIX `exit 0` | 1 | PowerShell 将 `exit` 解析为不存在的命令；未改动文件，改用 PowerShell 原生命令单独检查暂存清单 |
+| `gh pr create` 使用了本机版本不支持的 `--json` 参数 | 1 | 创建命令本身未执行；移除该参数后成功创建 PR #55 |
+| PR #55 全仓回归因新增 OOC manifest 未登记而失败 | 1 | `test_artifact_layout` 发现 `npu_single_clock_ooc_manifest.json` 不在期望集合；已同步登记测试集合和 `artifacts/README.md`，定向测试通过 |
 | 乐观 ready 使忙态无 valid 时 `cmd_ready=1`，破坏 compute/freeze 逐拍断言 | 2 | 恢复忙态按 opcode 分类；修正并发测试源为先稳定 valid/payload 再等待 ready 的标准握手顺序 |
 | `rg` 在 Windows 上直接使用 `docs/planning/NPU_*` 路径通配符失败 | 1 | 未修改文件；改用 `rg -g "NPU_*.md" docs/planning` |
 | Yosys 完整 `memory; check` 展开未复位数组产生海量未驱动 mux warning | 1 | 返回码为 0但不作为干净证据；改用提交前端/过程级 `read_verilog; hierarchy; proc; check`，仅保留 active mask 展开提示 |

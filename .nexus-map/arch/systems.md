@@ -1,6 +1,6 @@
 # 系统边界
 
-OF6 更新：传统 NPU + ENeuron 集成已进入 `RTL_DESIGN_CONTRACT_V2_APPROVED / RTL_SKELETON_IN_PROGRESS`。模型/流、mask epoch、控制三条 Icarus 切片已通过；第三条加入 `MASK_ABORT`、`STATE_CLEAR` 与严格 idle freeze 切换，并证明冻结仍可推理、配置与 clear 零副作用拒绝。真实 MAC、mask 门控计算与 Vivado 证据仍未完成。
+PR54/OOC 更新（2026-09-04）：传统 NPU + ENeuron 集成已进入 `RTL_RANDOM_GATE_GREEN / PR54_MERGED / VIVADO_OOC_SETUP_FAIL / TIMING_REPAIR_REQUIRED`。模型/流、mask epoch、控制和真实计算四条 Icarus 切片已通过；固定 `20×100` 随机逐 beat 门、完整回归与 PR #54 CI 已在 `main@2a33f12` 收口。Vivado 2024.1 OOC 已完成，资源为 `2672 LUT / 1879 FF / 0 BRAM / 0 DSP`，route/DRC 无错误且 hold 通过，但 setup `WNS=-5.087 ns`、244 个端点失败；下一步是关键路径修复。
 
 generated_by: nexus-mapper v2 / manual synthesis
 verified_at: 2026-09-04
@@ -8,6 +8,6 @@ provenance: Python AST/file-tree probe plus SystemVerilog文件树和项目文�
 
 仓库分为六个边界：神经元 RTL 与 Python 参考模型、Tile/Host 网络、局部剪枝控制器、NP7 共享 BRAM/lane 执行器、传统 NPU + ENeuron 集成参考模型、验证与签核工具。CI-Fast V1 是验证编排边界，不改变业务硬件合同。跨边界的主要合同是逐周期/逐位比较、原子提交、INFER 状态冻结和 fail-closed SHA-256 摘要。
 
-NP6 物理评估正式状态为 `NP6_PHYSICAL_COST_PARTIAL`；NP7 共享 BRAM/lane 已实现并合并。传统 NPU + ENeuron 当前状态为 `RTL_DESIGN_CONTRACT_V2_APPROVED / RTL_SKELETON_IN_PROGRESS`。OF1-OF6 Python 合同继续成立；当前 RTL 已包含四 lane 顺序 INT8 MAC、hidden 饱和、logit 槽和 active-mask 门控，并通过单时钟定向门。PR #54 的合并门暂缓：随机测试台首 beat 采样竞态已定位为消费者握手顺序错误，样本 0 已通过且样本 1 的失败值正好重复 output0；修复需在 result_ready 拉高后先完成首 beat posedge，再检查 beat1..9。GitHub CI 仅覆盖已提交 HEAD。尚无完整随机逐拍门或 Vivado 物理证据，不得外推性能。`np75_tmp_sparse_protocol.ys` 被明确排除在提交、Nexus 文件树和原始探针之外。
+NP6 物理评估正式状态为 `NP6_PHYSICAL_COST_PARTIAL`；NP7 共享 BRAM/lane 已实现并合并。传统 NPU + ENeuron 当前状态为 `RTL_RANDOM_GATE_GREEN / PR54_MERGED / VIVADO_OOC_SETUP_FAIL / TIMING_REPAIR_REQUIRED`。OF1-OF6 Python 合同继续成立；当前 RTL 已包含四 lane 顺序 INT8 MAC、hidden 饱和、logit 槽和 active-mask 门控，并通过定向与固定 `20×100` 随机逐 beat 门。当前 HEAD 的 Vivado 物理证据已归档，但 setup 失败，因此不得外推 100 MHz 收敛、板级吞吐、动态功耗或部署性能。`np75_tmp_sparse_protocol.ys` 被明确排除在提交、Nexus 文件树和原始探针之外。
 
-状态覆盖：OF4a 至 OF6 属于已签核 Python oracle 历史阶段；当前以 `RTL_DESIGN_CONTRACT_V2_APPROVED / RTL_SKELETON_IN_PROGRESS` 为准。三条 Icarus 切片已覆盖部分逐拍协议，但完整计算、随机逐拍签核和 Vivado 仍未完成。
+状态覆盖：OF4a 至 OF6 属于已签核 Python oracle 历史阶段；当前以 `RTL_RANDOM_GATE_GREEN / PR54_MERGED / VIVADO_OOC_SETUP_FAIL / TIMING_REPAIR_REQUIRED` 为准。四条 Icarus 切片、固定 `20×100` 随机逐拍签核和完整回归 `469/469（1 skipped）` 已完成；Vivado 2024.1 OOC 已执行但 setup 失败。历史条目不删除，但不得覆盖当前 PR54 合并口径。

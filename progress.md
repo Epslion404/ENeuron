@@ -1203,3 +1203,17 @@
 - 2026-09-04 修正随机门 TODO：将“随机文件已创建”和“20×100 已签核”拆为独立状态；首 beat 问题记录为 ready/valid 观察竞态，下一步先做两样本无背压消费者，不再盲调等待拍。
 - 2026-09-04 已提交并推送文档/Nexus 状态修正：本地提交 `d6e3ce0`、`ccfbecc`，PR #54 HEAD 更新为 `ccfbecc`；新 CI 正在运行，随机门仍未签核。
 - 2026-09-04 重写随机结果消费者后，完整固定 `20 seeds × 100 samples = 2000` 逐 beat 门通过；首 beat、末 beat、sample ID、mask epoch、结果背压和 mask 轮换均通过。随机 testbench 尚未提交，需先纳入 PR 再等待同一 HEAD CI。
+
+## 2026-09-04 PR #54 合并后 TODO 收口
+
+- PR #54 已合并为 `2a33f12`；随机 testbench 已进入主线，固定 `20×100` 随机逐 beat 门与 CI 证据闭环完成。
+- 修正持久状态口径：当前不再等待 PR 合并或随机门 CI，下一硬门为当前 HEAD 的 Vivado 2024.1 OOC 物理签核。
+- TODO 已拆分为“已完成的软件/RTL 仿真门”和“待完成的 OOC 物理门”，明确不把历史 NP6/NP7 结果代偿当前 RTL，也不把 OOC 外推为板级、网口、DMA、PS 或功耗结论。
+- 用户未跟踪文件 `np75_tmp_sparse_protocol.ys` 继续保持原样，未修改、未暂存、未提交。
+# 2026-09-04 P14 Vivado OOC 物理门收口
+
+- 当前分支以 `39e41d4` 运行 Vivado 2024.1 OOC；RTL 与冻结基线 `origin/main@2a33f12` 相同，未纳入用户临时文件 `np75_tmp_sparse_protocol.ys`。
+- 真实流程已完成：综合、优化、布局、布线、setup/hold 时序和 DRC 均执行成功，route errors=0、DRC errors=0。
+- 资源：2672 LUT、1879 FF、0 BRAM36、0 BRAM18、0 DSP。setup：WNS -5.087 ns、TNS -421.539 ns、244 个失败端点；hold：WHS +0.098 ns、0 个失败端点。
+- 结论：当前 RTL 具备完整 OOC 实现证据，但 100 MHz setup 门失败，状态更新为 `VIVADO_OOC_SETUP_FAIL / TIMING_REPAIR_REQUIRED`。不进入顶层、网口、DMA、PS 或板级功耗阶段。
+- 已将 P14 活动 TODO 改为：提取关键路径 → 设计最小流水化/分拍 → 重跑 bit-exact 回归 → 重跑同器件同约束 Vivado OOC。失败结果保留，不用历史 NP6/NP7 报告代偿。
