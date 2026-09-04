@@ -14,12 +14,12 @@ ENeuron 是以 Python 黄金模型、SystemVerilog RTL、Icarus/Yosys/Vivado 验
 - NP7 共享执行器：`np7_shared_synapse_lane.sv`、`np7_weight_ram.sv`、`np7_shared_lane_oracle.py`、`np7_shared_lane_cosim.py`
 - 验证入口：`verify_goal.py`、`verify_np4b_signoff.py`、`test_*.py`、formal `.ys/.sv`
 - 规划与状态：`WORKFLOW_STATE.md`、`docs/planning/NPU_NEURON_INTEGRATION_REVIEW.md`、`docs/planning/NPU_PRUNING_NP6_TODO.md`、`docs/planning/NPU_PRUNING_NP7_TODO.md`
-- 集成材料包：`docs/planning/NPU_NEURON_INTEGRATION_MATERIALS.md`、`docs/planning/NPU_ORACLE_FREEZE_REVIEW.md`（I1-I6、OF1-OF6 V3 已批准；当前状态为 `OF1B_FIXED_MODEL_GREEN / OF1-OF6_V3_IMPLEMENTATION_IN_PROGRESS`）
+- 集成材料包：`docs/planning/NPU_NEURON_INTEGRATION_MATERIALS.md`、`docs/planning/NPU_ORACLE_FREEZE_REVIEW.md`（I1-I6、OF1-OF6 V3 已批准；当前状态为 `OF3_MASK_ORDER_COST_GREEN / OF1-OF6_V3_IMPLEMENTATION_IN_PROGRESS`）
 - CI 编排：`.github/workflows/pr-gate.yml`、`tools/ci/classify_changes.py`、`test_ci_fast_v1.py`（路径分类、条件专项门和唯一 `PR Gate` 汇总）
 
 ## 当前状态
 
-NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`。NP7 共享 BRAM/lane 已实现并签核。I1-I6 与 OF1-OF6 V3 已批准，当前状态为 `OF1B_FIXED_MODEL_GREEN / OF1-OF6_V3_IMPLEMENTATION_IN_PROGRESS`。OF1a 严格 uint4 核心合同继续成立；OF1b 已增加严格 INT8 权重、两层安全 bias、固定 `64→32→10/group=4` 参数、完整预检后原子 reload 和 tuple logits，oracle 19/19 通过。V3 其余 634/19-word 配置流、mask 四态和运行协议仍待分片实现；完整冻结前不得创建集成 RTL 或运行 Vivado。CI-Fast V1 已完成 workflow 全量、文档轻量和 NPU-only 定向路径验证，所有路径由唯一 `PR Gate` 汇总；Action 基线已由 `actions/checkout@v4`、`actions/setup-python@v5` 升级为二者 `@v7`（Node 24），任何 workflow 变更必须运行全量门。`np75_tmp_sparse_protocol.ys` 是用户临时文件，不得修改、提交或纳入 Nexus 文件树/原始探针。
+NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`。NP7 共享 BRAM/lane 已实现并签核。I1-I6 与 OF1-OF6 V3 已批准，当前状态为 `OF3_MASK_ORDER_COST_GREEN / OF1-OF6_V3_IMPLEMENTATION_IN_PROGRESS`。OF1a/OF1b 合同继续成立；OF3 以三项新增测试冻结 `mask0[h*16+g]`、`mask1[o*8+g]`，覆盖内部单 bit、两层首尾 mixed mask，并证明每个 open group 即使四个激活全零也固定计 1 次读取和 4 次 MAC。Oracle 22/22、OF3 定向 3/3 通过，业务核心无需修改。V3 其余 634/19-word 配置流、状态协议、RTL 与 Vivado 尚未完成；完整冻结前不得创建集成 RTL 或运行 Vivado。CI-Fast V1 已完成 workflow 全量、文档轻量和 NPU-only 定向路径验证，所有路径由唯一 `PR Gate` 汇总；Action 基线已由 `actions/checkout@v4`、`actions/setup-python@v5` 升级为二者 `@v7`（Node 24），任何 workflow 变更必须运行全量门。`np75_tmp_sparse_protocol.ys` 是用户临时文件，不得修改、提交或纳入 Nexus 文件树/原始探针。
 
 ## 必读路由
 

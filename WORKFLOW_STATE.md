@@ -4,13 +4,13 @@
 
 最后更新：2026-09-04
 
-状态：`ACTIVE / NP7_MERGED / I1_I6_APPROVED / OF1_OF6_V3_APPROVED / OF1A_UINT4_CORE_GREEN / OF1B_FIXED_MODEL_GREEN`
+状态：`ACTIVE / NP7_MERGED / I1_I6_APPROVED / OF1_OF6_V3_APPROVED / OF1A_UINT4_CORE_GREEN / OF1B_FIXED_MODEL_GREEN / OF3_MASK_ORDER_COST_GREEN`
 
 ## 当前活动目标
 
 NP6/NP7 已完成并合并；I1-I6 已批准。当前目标是冻结传统 `64→32→10` INT8 NPU 与 ENeuron 四权重整组门控的 Python oracle，为单时钟集成 RTL 提供逐位数值和事务合同。
 
-活动合同：`docs/planning/NPU_ORACLE_FREEZE_REVIEW.md`。OF1-OF6 V3 已于 2026-09-04 获管理员批准；OF1a 与 OF1b 已 GREEN，当前准备交付固定模型合同切片。历史 NP6/NP7 结果继续由各自 TODO 和报告约束。
+活动合同：`docs/planning/NPU_ORACLE_FREEZE_REVIEW.md`。OF1-OF6 V3 已于 2026-09-04 获管理员批准；OF1a、OF1b 与 OF3 数值/mask 语义已 GREEN，当前准备交付 OF3 证据切片。历史 NP6/NP7 结果继续由各自 TODO 和报告约束。
 
 ## 当前事实
 
@@ -42,7 +42,13 @@ NP6/NP7 已完成并合并；I1-I6 已批准。当前目标是冻结传统 `64�
 
 ## 下一动作
 
-提交并交付 OF1b 独立 PR：严格 INT8 权重、安全 bias、固定 V1 参数、原子 reload 和不可变 logits 已完成。合并后进入 mask 位序手算向量、open+全零固定账本与状态组合矩阵。
+提交并交付 OF3 独立 PR：冻结两层 mask 行主序、首尾 bit、组内连续四权重以及 open+全零固定读取/MAC 账本。合并后进入 634/19-word 配置流和状态组合矩阵。
+
+## 2026-09-04 OF1b 合并与 OF3 证据冻结
+
+- OF1b 已通过 PR #35 合并到 `main@6833237`；GitHub run `33831315136` 的 Fast check 与固定 `PR Gate` 成功。
+- OF3 三项手算测试首次运行即 3/3 通过，证明当前业务实现已符合 `mask0[h*16+g]`、`mask1[o*8+g]` 和 `mac_count=4*group_reads`；本切片只补冻结证据，不修改核心。
+- 内部单 bit 测试加入相邻 bit 负对照；两层 mixed 测试覆盖 mask0/mask1 的首尾线性位置；open+全零测试证明不得做数据相关零跳过。
 
 ## 2026-09-04 OF1a 合并与 OF1b RED
 

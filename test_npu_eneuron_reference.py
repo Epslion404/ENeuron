@@ -52,6 +52,82 @@ class NpuReferenceTest(unittest.TestCase):
         self.assertEqual(result.mac_count, 0)
         self.assertEqual(result.group_reads, 0)
 
+    def test_single_mask_bits_use_canonical_layer_order(self):
+        config = NpuConfig()
+        model = NpuReference(config)
+        weights0 = [[0] * config.input_size for _ in range(config.hidden_size)]
+        weights1 = [[0] * config.hidden_size for _ in range(config.output_size)]
+        weights0[5][28:32] = [1, 2, 3, 4]
+        weights1[3][5] = 3
+        model.load_weights(weights0, [0] * config.hidden_size, weights1, [0] * config.output_size)
+
+        image = [0] * config.input_size
+        image[28:32] = [1, 2, 3, 4]
+        mask0 = [False] * 512
+        mask1 = [False] * 80
+        mask0[5 * 16 + 7] = True
+        mask1[3 * 8 + 1] = True
+
+        result = model.infer(image, mode="gated", group_mask0=mask0, group_mask1=mask1)
+
+        expected = [0] * config.output_size
+        expected[3] = 90
+        self.assertEqual(result.logits, tuple(expected))
+        self.assertEqual((result.group_reads, result.mac_count), (2, 8))
+
+        mask0[5 * 16 + 7] = False
+        mask0[5 * 16 + 8] = True
+        adjacent = model.infer(image, mode="gated", group_mask0=mask0, group_mask1=mask1)
+        self.assertEqual(adjacent.logits, (0,) * config.output_size)
+
+    def test_mixed_masks_cover_first_and_last_linear_bits(self):
+        config = NpuConfig()
+        model = NpuReference(config)
+        weights0 = [[0] * config.input_size for _ in range(config.hidden_size)]
+        weights1 = [[0] * config.hidden_size for _ in range(config.output_size)]
+        weights0[0][0:4] = [1] * 4
+        weights0[31][60:64] = [2] * 4
+        weights1[0][0] = 3
+        weights1[9][31] = 5
+        model.load_weights(weights0, [0] * config.hidden_size, weights1, [0] * config.output_size)
+
+        mask0 = [False] * 512
+        mask1 = [False] * 80
+        mask0[0] = True
+        mask0[511] = True
+        mask1[0] = True
+        mask1[79] = True
+        result = model.infer([1] * config.input_size, mode="gated", group_mask0=mask0, group_mask1=mask1)
+
+        expected = [0] * config.output_size
+        expected[0] = 12
+        expected[9] = 40
+        self.assertEqual(result.logits, tuple(expected))
+        self.assertEqual((result.group_reads, result.mac_count), (4, 16))
+
+    def test_open_groups_with_zero_activations_keep_fixed_work_count(self):
+        config = NpuConfig()
+        model = NpuReference(config)
+        model.load_weights(
+            [[1] * config.input_size for _ in range(config.hidden_size)],
+            [0] * config.hidden_size,
+            [[1] * config.hidden_size for _ in range(config.output_size)],
+            list(range(config.output_size)),
+        )
+        mask0 = [False] * 512
+        mask1 = [False] * 80
+        for index in (0, 17):
+            mask0[index] = True
+        for index in (0, 9, 79):
+            mask1[index] = True
+
+        result = model.infer([0] * config.input_size, mode="gated", group_mask0=mask0, group_mask1=mask1)
+
+        self.assertEqual(result.logits, tuple(range(config.output_size)))
+        self.assertEqual(result.group_reads, 5)
+        self.assertEqual(result.mac_count, 20)
+        self.assertEqual(result.mac_count, config.group_size * result.group_reads)
+
     def test_full_open_gated_mode_is_bit_exact_with_bypass(self):
         config = NpuConfig()
         model = NpuReference(config)

@@ -1147,3 +1147,6 @@
 - 完成 OF1b 最小实现并按独立审计补强原子性与 INT32 极值测试；定向 4/4、完整 oracle 19/19、Python 编译和差异检查通过。
 - 本切片未修改 `npu_eneuron_protocol.py`、mask 语义或任何 RTL，未运行 Vivado，未触碰 `np75_tmp_sparse_protocol.ys`。
 - 最终本地复验：OF1b 4/4、oracle 19/19、CI-Fast 8/8，合计 27 项；compileall、Nexus JSON 和 `git diff --check` 全部通过，独立复审 PASS。
+- OF1b PR #35 已合并为 `6833237`；从该基线创建 `codex/of3-mask-order-cost-20260904`。
+- 新增 3 项 OF3 手算冻结测试，首次运行 3/3 通过；独立只读审计确认核心索引和 open group 计数原已符合，未修改 `npu_eneuron_reference.py`、协议、RTL，未运行 Vivado。
+- OF3 最终本地复验：oracle 22/22、CI-Fast 8/8、compileall、Nexus JSON 与完整 diff-check 全通过；Nexus 仅更新 6 个相关摘要。

@@ -28,7 +28,7 @@ Python oracle → cosim runners → unittest/verifier
 local_prune_reference → local_prune wrappers/network → NP4B signoff
 NP7 shared lane oracle → dense/sparse RTL → XSim/OOC runners → physical/evidence gates
 Vivado Tcl/runner → reports → verify_goal
-传统 NPU + ENeuron 集成材料包 → OF1-OF6 V3 已批准 → `OF1B_FIXED_MODEL_GREEN`（OF1a 严格 uint4；严格 INT8、安全 bias、固定参数、原子 reload、tuple logits、oracle 19/19）→ `OF1-OF6_V3_IMPLEMENTATION_IN_PROGRESS` → 634/19-word 配置与 mask/状态协议 → 定向 oracle/最坏情况测试 → 冻结审核
+传统 NPU + ENeuron 集成材料包 → OF1-OF6 V3 已批准 → OF1a/OF1b 固定数值模型 → `OF3_MASK_ORDER_COST_GREEN`（两层行主序 mask、内部单 bit、首尾 mixed、open+零激活固定 1 read + 4 MAC、oracle 22/22）→ `OF1-OF6_V3_IMPLEMENTATION_IN_PROGRESS` → 634/19-word 配置与状态协议 → RTL 设计审核
 变更路径 → `classify-changes` → fast/全仓/XPM/NP7 专项门 → 唯一 `PR Gate`
 ```
 
