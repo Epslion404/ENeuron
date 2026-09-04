@@ -1168,3 +1168,4 @@
 - 2026-09-04 OF4c 设计审核稿：在 OF4b2b 合并后冻结单时钟同步复位、128-bit 命令/响应、sample/result 流、19/634-word 地址、逐拍优先级、错误背压和零副作用合同；尚未创建集成 RTL，未运行 Vivado。
 - 2026-09-04 OF4d 设计稿：补充模型配置口的 634-word 顺序装载、非法 word 同索引重试、单槽响应背压、`MODEL_COMMIT` 原子发布与 reset-only reload 合同；仍未实现 RTL、未运行 Vivado。
 - 2026-09-04 OF4e GREEN：`NpuEpochRuntime` 绑定 `ModelConfigPort`，模型 staging 非空时拒绝 freeze 切换；与既有 mask/runtime 组合共同通过 45/45。未创建 RTL，未运行 Vivado。
+- 2026-09-04 OF4f：冻结单时钟同拍仲裁优先级，明确配置提交不得与样本首拍双重生效；后续 RTL 必须按该优先级实现。未运行 Vivado。
