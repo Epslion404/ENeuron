@@ -1,0 +1,56 @@
+{
+  "schema": "npu_single_clock_contract_provisional_v1",
+  "status": "admin_review_required",
+  "source": "docs/planning/NPU_SINGLE_CLOCK_RTL_DECISION_SHEET_V1.md",
+  "scope": {
+    "clock_domains": 1,
+    "model_shape": [64, 32, 10],
+    "group_size": 4,
+    "rtl_allowed": false,
+    "vivado_allowed": false
+  },
+  "sample_stream": {
+    "beat_count": 8,
+    "beat_width_bits": 32,
+    "pixels_per_beat": 8,
+    "packing": "uint4_lsb_first",
+    "beat_index_bits": 3,
+    "last_on_index": 7,
+    "payload_hold_on_backpressure": true
+  },
+  "result_stream": {
+    "beat_count": 10,
+    "beat_width_bits": 32,
+    "encoding": "signed_int32",
+    "beat_index_bits": 4,
+    "last_on_index": 9,
+    "payload_hold_on_backpressure": true,
+    "prediction_in_rtl": false
+  },
+  "config_stream": {
+    "command_width_bits": 128,
+    "response_width_bits": 128,
+    "single_external_stream": true,
+    "model_word_count": 634,
+    "mask_word_count": 19,
+    "invalid_request_handshake": true,
+    "error_response_single_slot": true
+  },
+  "arbitration": {
+    "priority": ["reset", "response_consume", "result_publish", "model_commit", "mask_commit", "sample_accept", "config_data"],
+    "commit_collision": "lower_priority_valid_must_hold",
+    "sample_locks_epoch_on_first_beat": true
+  },
+  "validity": {
+    "mask_after_reset": "all_open",
+    "mask_valid_after_reset": false,
+    "mask_valid_meaning": "user_published_mask_exists",
+    "sample_ready_when_model_invalid": false,
+    "runtime_idle_requires_empty_result": true
+  },
+  "review_gates": {
+    "approve_before_rtl": true,
+    "python_rtl_bit_exact_seeds": 20,
+    "vivado_after_icarus": true
+  }
+}

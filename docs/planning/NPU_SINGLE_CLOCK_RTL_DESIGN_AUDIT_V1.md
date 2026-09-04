@@ -2,7 +2,7 @@
 
 日期：2026-09-04
 
-结论：`REVIEW_WITH_ACTIONS`。Python oracle 已签核，但设计稿仍有几处必须在 RTL 开工前明确的接口细节。它们不是当前 Python 回归失败，而是从函数级模型进入逐拍硬件时的规格缺口。推荐裁定见 `NPU_SINGLE_CLOCK_RTL_DECISION_SHEET_V1.md`。
+结论：`REVIEW_WITH_ACTIONS`。Python oracle 已签核，但设计稿仍有几处必须在 RTL 开工前明确的接口细节。它们不是当前 Python 回归失败，而是从函数级模型进入逐拍硬件时的规格缺口。推荐裁定见 `NPU_SINGLE_CLOCK_RTL_DECISION_SHEET_V1.md`，机器可读草案见 `npu_single_clock_contract_provisional.json`；该 JSON 明确标记为 provisional，不是冻结合同。
 
 ## 已对齐部分
 

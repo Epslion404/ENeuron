@@ -42,7 +42,7 @@ NP6/NP7 已完成并合并；I1-I6 已批准。当前目标是冻结传统 `64�
 
 ## 下一动作
 
-进入下一阶段：管理员审核 `docs/planning/NPU_SINGLE_CLOCK_RTL_DESIGN_REVIEW_V1.md`、`docs/planning/NPU_SINGLE_CLOCK_RTL_DESIGN_AUDIT_V1.md` 与 `docs/planning/NPU_SINGLE_CLOCK_RTL_DECISION_SHEET_V1.md`；补齐逐拍规格并审核通过后才允许实现集成 RTL。
+进入下一阶段：管理员审核 `docs/planning/NPU_SINGLE_CLOCK_RTL_DESIGN_REVIEW_V1.md`、`docs/planning/NPU_SINGLE_CLOCK_RTL_DESIGN_AUDIT_V1.md`、`docs/planning/NPU_SINGLE_CLOCK_RTL_DECISION_SHEET_V1.md` 与 provisional JSON；补齐逐拍规格并审核通过后才允许实现集成 RTL。
 
 ## 2026-09-04 OF4b2b GREEN
 
