@@ -1179,3 +1179,4 @@
 - 2026-09-04 RTL 裁定 V2：独立审计确认 V1 的 `model_epoch`、双 commit 竞争和 framing/idle 定义存在缺口；新增 `NPU_SINGLE_CLOCK_RTL_DECISION_SHEET_V2.md` 与 `npu_single_clock_contract_provisional_v2.json`，仍禁止 RTL/Vivado。
 - 2026-09-04 管理员批准 RTL 裁定 V2 八项决策：V2 合同状态更新为 `approved_by_admin`，允许开始测试先行的单时钟 RTL 骨架；Vivado 仍须等待 Icarus/Python 功能门通过。
 - 2026-09-04 单时钟 RTL 第一条垂直切片：新增 `npu_eneuron_single_clock_skeleton.sv`、`tb_npu_eneuron_single_clock_skeleton.sv`、`test_npu_single_clock_skeleton.py` 与端口字段表。Icarus 使用 `C:\\msys64\\ucrt64\\bin\\iverilog.exe`/`vvp.exe` 实际通过模型无效拒收、634-word 顺序提交、非法响应背压、配置优先样本、8-beat 输入和 10-beat 零结果输出；当前仍未接入真实 MAC、mask 双 bank 或 Vivado。
+- 2026-09-04 CI 修正：PR #54 的 Linux 全仓回归因测试硬编码 Windows Icarus 路径失败；测试现为 Windows 优先固定 `C:\\msys64\\ucrt64\\bin\\iverilog.exe`/`vvp.exe`，非 Windows 回退 PATH，保留工具路径日志与同一协议断言。
