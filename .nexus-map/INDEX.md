@@ -14,12 +14,12 @@ ENeuron 是以 Python 黄金模型、SystemVerilog RTL、Icarus/Yosys/Vivado 验
 - NP7 共享执行器：`np7_shared_synapse_lane.sv`、`np7_weight_ram.sv`、`np7_shared_lane_oracle.py`、`np7_shared_lane_cosim.py`
 - 验证入口：`verify_goal.py`、`verify_np4b_signoff.py`、`test_*.py`、formal `.ys/.sv`
 - 规划与状态：`WORKFLOW_STATE.md`、`docs/planning/NPU_NEURON_INTEGRATION_REVIEW.md`、`docs/planning/NPU_PRUNING_NP6_TODO.md`、`docs/planning/NPU_PRUNING_NP7_TODO.md`
-- 集成材料包：`docs/planning/NPU_NEURON_INTEGRATION_MATERIALS.md`、`docs/planning/NPU_ORACLE_FREEZE_REVIEW.md`（I1-I6、OF1-OF6 V3 已批准；当前状态为 `OF4A_MODEL_WORD_MAP_GREEN / OF1-OF6_V3_IMPLEMENTATION_IN_PROGRESS`）
+- 集成材料包：`docs/planning/NPU_NEURON_INTEGRATION_MATERIALS.md`、`docs/planning/NPU_ORACLE_FREEZE_REVIEW.md`（I1-I6、OF1-OF6 V3 已批准；当前状态为 `OF4B1_MASK_WORD_MAP_GREEN / OF1-OF6_V3_IMPLEMENTATION_IN_PROGRESS`）
 - CI 编排：`.github/workflows/pr-gate.yml`、`tools/ci/classify_changes.py`、`test_ci_fast_v1.py`（路径分类、条件专项门和唯一 `PR Gate` 汇总）
 
 ## 当前状态
 
-NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`。NP7 共享 BRAM/lane 已实现并签核。I1-I6 与 OF1-OF6 V3 已批准，当前状态为 `OF4A_MODEL_WORD_MAP_GREEN / OF1-OF6_V3_IMPLEMENTATION_IN_PROGRESS`。OF1a/OF1b/OF3 合同继续成立；OF4a 已实现严格 634-word uint32 镜像，按 512 个第一层权重 word、32 个第一层 bias、80 个第二层权重 word和 10 个第二层 bias 解码，权重按 little-endian signed INT8、bias 按 little-endian signed INT32 解释，并在完整验证后原子载入。Oracle 25/25 通过。逐拍 `ready/valid`、错误响应、`MODEL_COMMIT`、19-word mask、状态协议、RTL 与 Vivado 尚未完成；完整冻结前不得创建集成 RTL 或运行 Vivado。CI-Fast V1 已完成 workflow 全量、文档轻量和 NPU-only 定向路径验证，所有路径由唯一 `PR Gate` 汇总；Action 基线已由 `actions/checkout@v4`、`actions/setup-python@v5` 升级为二者 `@v7`（Node 24），任何 workflow 变更必须运行全量门。`np75_tmp_sparse_protocol.ys` 是用户临时文件，不得修改、提交或纳入 Nexus 文件树/原始探针。
+NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`。NP7 共享 BRAM/lane 已实现并签核。I1-I6 与 OF1-OF6 V3 已批准，当前状态为 `OF4B1_MASK_WORD_MAP_GREEN / OF1-OF6_V3_IMPLEMENTATION_IN_PROGRESS`。OF1a/OF1b/OF3 合同继续成立；OF4a 已实现严格 634-word uint32 模型镜像；OF4b1 进一步冻结严格 19-word 掩码镜像解码：前 16 个 word 提供 `mask0` 的 512 bit，后 3 个 word 提供 `mask1` 的 80 bit，均为 LSB-first 映射，`word18[31:16]` 为保留位且必须为零。输入长度、uint32 范围与保留位校验通过后返回独立不可变快照。Oracle 27/27 通过。逐拍 `ready/valid`、四态命令机、错误响应、`MODEL_COMMIT`、状态协议、集成 RTL 与 Vivado 尚未完成；完整冻结前不得创建集成 RTL 或运行 Vivado。CI-Fast V1 已完成 workflow 全量、文档轻量和 NPU-only 定向路径验证，所有路径由唯一 `PR Gate` 汇总；Action 基线已由 `actions/checkout@v4`、`actions/setup-python@v5` 升级为二者 `@v7`（Node 24），任何 workflow 变更必须运行全量门。`np75_tmp_sparse_protocol.ys` 是用户临时文件，不得修改、提交或纳入 Nexus 文件树/原始探针。
 
 ## 必读路由
 

@@ -1157,3 +1157,6 @@
 - 独立首轮复审因内部 word 覆盖不足暂判 FAIL；已补为全 634 项逐位置核对，并增加 `word633=None/2^32` 经 loader 失败后旧模型对 0/1 输入保持不变。补强后 OF4a 3/3、oracle 25/25。
 - OF4a 终审 PASS：512 个第一层和 80 个第二层权重 word 图样分别全唯一，全部 bias 逐项核对；核心、mask、runtime 状态机和 RTL 均无越界改动。
 - OF4a 最终本地复验：oracle 25/25、CI-Fast 8/8，合计 33 项；compileall、Nexus JSON 和完整 diff-check 全通过。
+- OF4a PR #37 已合并为 `59a8dca`；从该基线创建 `codex/of4b1-mask-word-map-20260904`。
+- 新增 exact 19、严格 uint32、word18 保留位和全 592-bit canonical packing 测试；当前实现为 2 个方法、25 errors，OF4b1 RED 成立。
+- OF4b1 已完成 GREEN：新增 `DecodedMasks` 与 `decode_mask_words()`；定向 2/2、完整 oracle 27/27、CI-Fast 8/8、compileall/diff-check 通过，独立审计 PASS。下一阶段为 OF4b2 四态命令机，不在本提交中混入逐拍协议或 RTL。

@@ -978,6 +978,9 @@
 - [x] OF3 证据冻结：内部单 bit、两层首尾 mixed mask、相邻 bit 负对照与 open+全零固定账本 3/3 通过；业务代码无需修改。
 - [x] OF4a RED：634-word 映射、uint32 域和原子载入 3 项测试得到 10 errors，确认 API 尚不存在。
 - [x] OF4a GREEN：精确解码 512/32/80/10 四段并原子载入现有参考模型；定向 3/3、oracle 25/25。
+- [x] OF4b1 RED：19-word packing、uint32 域和保留位 2 项测试得到 25 errors，确认 API 尚不存在。
+- [x] OF4b1 GREEN：完整解码 512+80 mask bit，word18[31:16] 非零零副作用拒绝；定向 2/2、oracle 27/27、CI-Fast 8/8，独立审计 PASS。
+- [ ] OF4b2：实现 19-word mask 四态命令机、非法配置错误响应、同索引重试和握手/背压语义。
 - [ ] 按 RED 测试 → 最小实现 → 手算 mask 向量 → 状态矩阵顺序完成冻结。
 - [ ] 冻结端口/地址/状态转移/逐拍测试计划后，才提交单时钟 RTL 设计审核。
 

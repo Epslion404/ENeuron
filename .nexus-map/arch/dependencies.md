@@ -1,7 +1,7 @@
 # 依赖关系
 
 generated_by: nexus-mapper v2 / manual synthesis
-verified_at: 2026-09-03
+verified_at: 2026-09-04
 provenance: `.nexus-map/raw/ast_nodes.json` hub analysis and Python imports；SystemVerilog依赖由文件树/手工检查推断
 
 ```mermaid
@@ -28,7 +28,7 @@ Python oracle → cosim runners → unittest/verifier
 local_prune_reference → local_prune wrappers/network → NP4B signoff
 NP7 shared lane oracle → dense/sparse RTL → XSim/OOC runners → physical/evidence gates
 Vivado Tcl/runner → reports → verify_goal
-传统 NPU + ENeuron 集成材料包 → OF1a/OF1b/OF3 已绿 → `OF4A_MODEL_WORD_MAP_GREEN`（严格 634-word uint32、512/32/80/10 映射、little-endian signed INT8/INT32、原子 load、oracle 25/25）→ `OF1-OF6_V3_IMPLEMENTATION_IN_PROGRESS` → ready/valid、错误响应与 MODEL_COMMIT → 19-word mask/状态协议 → RTL 设计审核
+传统 NPU + ENeuron 集成材料包 → OF1a/OF1b/OF3 已绿 → OF4a 634-word 模型镜像 → `OF4B1_MASK_WORD_MAP_GREEN`（严格 19-word uint32 掩码镜像、512+80 bit、LSB-first、word18 保留位、oracle 27/27）→ `OF1-OF6_V3_IMPLEMENTATION_IN_PROGRESS` → 四态命令机、ready/valid、错误响应与 MODEL_COMMIT → 状态协议 → RTL 设计审核 → Vivado 证据
 变更路径 → `classify-changes` → fast/全仓/XPM/NP7 专项门 → 唯一 `PR Gate`
 ```
 

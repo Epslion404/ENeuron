@@ -1020,3 +1020,17 @@
 - `load_model_words()` 只在完整解码后调用已签核的原子 `load_weights()`；两层 bias 首尾的安全窗外值均拒绝，最晚 word633 失败仍保留旧模型或 unloaded 状态。
 - 该 API 允许函数级 oracle 重复原子 reload，仅用于冻结完整镜像语义；RTL 的一次装载锁定、逐 beat 接受和 `MODEL_COMMIT` 仍属于后续协议切片。
 - 首版只检查四段首尾，不能排除内部 word 交换/重复；最终测试改为逐项核对全部 512 个第一层权重 word、32 个第一层 bias、80 个第二层权重 word和10个第二层 bias，并验证解码后修改源列表不影响快照。
+
+## 2026-09-04 OF4b1 19-word RED
+
+- mask 完整镜像固定为 19 个 uint32 word：前 16 个承载 mask0 的 512 bit，后三个低 80 bit 承载 mask1；所有 bit 均按 word 内 LSB-first 展开。
+- word18 仅低 16 bit 合法，高 16 bit 是保留位；任何置位必须整体拒绝，不能静默忽略。
+- 本切片只建立无状态 `decode_mask_words()`，不与现有 `_PendingMasks` 或 `stage_masks()` 合并，避免提前选择四态命令、错误响应和 epoch 时序。
+
+## 2026-09-04 OF4b1 19-word GREEN
+
+- `decode_mask_words()` 已实现严格 19-word `uint32` 快照校验；所有输入先复制为 tuple，拒绝 `bool`、浮点、字符串、`None`、负数和超过 `0xffffffff` 的值。
+- canonical packing 已逐 bit 验证：word0.bit0 到 word15.bit31 映射 `mask0[0..511]`；word16.bit0 到 word18.bit15 映射 `mask1[0..79]`。word18 高 16 位是保留位，非零立即拒绝。
+- 返回的两层 mask 均为独立 tuple；修改源列表或尝试修改解码结果都不会改变已发布快照。
+- 验证：OF4b1 定向 `2/2`，完整 oracle `27/27`，CI-Fast `8/8`，`compileall` 和 `git diff --check` 通过；独立审计 PASS。
+- 明确边界：本切片不实现 active/staging、epoch、四态命令、错误响应、valid/ready、RTL 或 Vivado；这些内容归入 OF4b2 及之后阶段。
