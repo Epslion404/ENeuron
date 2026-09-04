@@ -80,6 +80,16 @@ class ModelConfigPort:
         self._model_valid = False
         self._frozen = False
 
+    def hard_reset(self) -> None:
+        """丢弃模型 staging；旧 RAM 内容保留但在 model_valid=0 时不可见。"""
+        self._state = self.EMPTY
+        self._word_index = 0
+        self._words = []
+        self._pending_error = None
+        self._model_valid = False
+        self._frozen = False
+        LOGGER.debug("model configuration port hard reset")
+
     @property
     def state(self) -> str: return self._state
     @property
@@ -237,6 +247,20 @@ class MaskConfigPort:
         self._published_masks: DecodedMasks | None = None
         self._pending_error: str | None = None
         self._frozen = False
+
+    def hard_reset(self) -> None:
+        """丢弃 staging/published，恢复全开 active mask 和 epoch 0。"""
+        self._state = self.EMPTY
+        self._word_index = 0
+        self._active_epoch = 0
+        self._active_masks = DecodedMasks((True,) * MASK0_BITS, (True,) * MASK1_BITS)
+        self._staging_epoch = None
+        self._staging_words = []
+        self._published_epoch = None
+        self._published_masks = None
+        self._pending_error = None
+        self._frozen = False
+        LOGGER.debug("mask configuration port hard reset")
 
     @property
     def state(self) -> str:
@@ -450,6 +474,8 @@ class NpuEpochRuntime:
         LOGGER.debug("bound mask configuration port")
 
     def bind_model_port(self, port: ModelConfigPort) -> None:
+        if not isinstance(port, ModelConfigPort):
+            raise TypeError("model port must be a ModelConfigPort")
         if self.running or self._result is not None or self._pending is not None:
             raise RuntimeError("cannot bind model port while runtime is occupied")
         self._model_port = port
@@ -495,6 +521,8 @@ class NpuEpochRuntime:
             raise RuntimeError("sample already running")
         if self._result is not None:
             raise RuntimeError("result backpressure blocks next sample")
+        if self._model_port is not None and not self._model_port.model_valid:
+            raise RuntimeError("model is not committed")
         if self._pending is None:
             epoch = self.active_epoch
             mask0 = self._active_mask0
@@ -512,6 +540,22 @@ class NpuEpochRuntime:
             LOGGER.debug("committed mask epoch=%d at sample accept boundary", epoch)
         self._inflight = RuntimeResult(epoch, inference)
         return self._inflight
+
+    def hard_reset(self) -> None:
+        """硬复位 runtime 事务；已绑定端口同步回到不可用初始态。"""
+        self.active_epoch = 0
+        self._active_mask0 = self._all_open_mask(self.config.hidden_size * (self.config.input_size // self.config.group_size))
+        self._active_mask1 = self._all_open_mask(self.config.output_size * (self.config.hidden_size // self.config.group_size))
+        self._pending = None
+        self._frozen = False
+        self._inflight = None
+        self._result = None
+        self.clear_count = 0
+        if self._mask_port is not None:
+            self._mask_port.hard_reset()
+        if self._model_port is not None:
+            self._model_port.hard_reset()
+        LOGGER.debug("NPU epoch runtime hard reset")
 
     def complete_sample(self) -> None:
         if self._inflight is None:

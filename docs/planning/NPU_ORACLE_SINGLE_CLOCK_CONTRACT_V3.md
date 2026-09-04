@@ -73,3 +73,7 @@
 ## 11. OF4g 边界回归
 
 已提交模型处于 `committed`，不再属于 staging 占用，可以进入推理冻结；只有 `loading` 和 `complete` 阶段阻止冻结切换。冻结后模型仍可参与推理，但配置和动态清除继续拒绝。该边界修正由 `47/47` 相关回归覆盖。
+
+## 12. OF5 hard reset
+
+hard reset 是唯一可丢弃部分事务的路径：模型 staging、mask staging/published、运行中样本、待消费结果和冻结状态全部清除；active mask 恢复全开，epoch 恢复 0，`model_valid=0`。模型 RAM 的旧物理内容不要求清零，在重新完成 634-word 顺序装载并提交前不得推理。当前 Python 回归已覆盖该路径，相关测试总数为 `48/48`。
