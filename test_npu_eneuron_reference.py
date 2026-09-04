@@ -1213,5 +1213,17 @@ class ModelConfigPortTest(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "model staging"):
             runtime.set_infer_freeze(True)
 
+    def test_committed_model_allows_freeze_and_inference(self):
+        model = NpuReference()
+        port = ModelConfigPort(model)
+        port.step(True, ModelCommand(ModelCommandKind.MODEL_BEGIN), False)
+        for word in [0] * 634:
+            port.step(True, ModelCommand(ModelCommandKind.DATA, word=word), False)
+        port.step(True, ModelCommand(ModelCommandKind.MODEL_COMMIT), False)
+        runtime = NpuEpochRuntime(model)
+        runtime.bind_model_port(port)
+        runtime.set_infer_freeze(True)
+        self.assertTrue(runtime.frozen)
+
 if __name__ == "__main__":
     unittest.main()

@@ -88,7 +88,7 @@ class ModelConfigPort:
     def model_valid(self) -> bool: return self._model_valid
 
     def set_frozen(self, frozen: bool) -> None:
-        if frozen and self._state != self.EMPTY:
+        if frozen and self._state not in {self.EMPTY, self.COMMITTED}:
             raise RuntimeError("cannot freeze while model staging is occupied")
         self._frozen = bool(frozen)
 
@@ -464,7 +464,7 @@ class NpuEpochRuntime:
             raise RuntimeError("cannot change infer freeze while runtime is occupied")
         if self._mask_port is not None and self._mask_port.state != MaskConfigPort.EMPTY:
             raise RuntimeError("cannot change infer freeze while mask staging is occupied")
-        if self._model_port is not None and self._model_port.state != ModelConfigPort.EMPTY:
+        if self._model_port is not None and self._model_port.state not in {ModelConfigPort.EMPTY, ModelConfigPort.COMMITTED}:
             raise RuntimeError("cannot change infer freeze while model staging is occupied")
         requested = bool(frozen)
         if self._mask_port is not None:
