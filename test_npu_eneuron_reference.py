@@ -881,7 +881,7 @@ class MaskConfigProtocolRedTest(unittest.TestCase):
         self.assertEqual(self._field(invalid_last, "active_epoch"), 0)
 
         # 错误响应排空后，同一 word index 接受合法低 16 位，进入 complete。
-        self._step(port, ready=True)
+        self._step(port, response_ready=True)
         retried = self._step(port, self._command("DATA", word=0x0000FFFF))
         self.assertTrue(self._field(retried, "cmd_accepted"))
         self.assertFalse(self._field(retried, "error_valid"))
@@ -1178,7 +1178,7 @@ class ModelConfigPortTest(unittest.TestCase):
         invalid = self._step(port, ModelCommand(ModelCommandKind.DATA, word=0x7FFFFFFF))
         self.assertTrue(invalid.error_valid)
         self.assertEqual(port.word_index, 512)
-        self._step(port, response_ready=True)
+        self._step(port, ready=True)
         valid = self._step(port, ModelCommand(ModelCommandKind.DATA, word=0))
         self.assertFalse(valid.error_valid)
         self.assertEqual(port.word_index, 513)
