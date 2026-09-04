@@ -302,3 +302,12 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3 及单时钟 RTL V2 八项裁定
 - 当前已证明范围：四 lane 顺序 INT8 计算、隐藏层饱和、active-mask 门控、结果背压、sample ID/mask epoch 逐 beat 一致，以及 469/469（1 skipped）仓库回归。
 - 当前未证明范围：Vivado 2024.1 OOC 资源/时序/DRC、XC7Z020 顶层、网口/DMA/PS 端到端吞吐、板级功耗和持续学习收益。
 - 下一硬门改为 Vivado 2024.1 OOC；所有物理结论必须绑定 `origin/main@2a33f12`、约束、Tcl/runner 和报告 SHA-256。
+
+## 2026-09-04 Vivado OOC 失败后的活动入口
+
+- PR #55 已合并为 `main@dc2452b`；OOC 证据、manifest、报告索引和 Nexus 状态已进入主线。
+- 当前物理状态为 `VIVADO_OOC_SETUP_FAIL / TIMING_REPAIR_REQUIRED`：2672 LUT、1879 FF、0 BRAM、0 DSP；setup `WNS=-5.087 ns`、`TNS=-421.539 ns`、244 个失败端点；hold、route 和 DRC 无失败。
+- 关键路径分类已完成，当前设计审核稿为 `docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V1.md`。
+- 当前人工门为 `TIMING_REPAIR_V1_REVIEW_REQUIRED`：等待管理员批准 TR1-TR6。批准前 `rtl_allowed=false`、`vivado_allowed=false`；只允许文档审计和测试合同检查。
+- 获批后的唯一主链为：测试合同调整 → `FETCH→EXECUTE→COMMIT` 最小分拍 → 定向/固定 `20×100`/全仓回归 → 同器件同约束 Vivado OOC。
+- 用户文件 `np75_tmp_sparse_protocol.ys` 保持未跟踪、未修改、未暂存、未纳入 Nexus。

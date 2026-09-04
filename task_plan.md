@@ -1131,3 +1131,24 @@
 | 乐观 ready 使忙态无 valid 时 `cmd_ready=1`，破坏 compute/freeze 逐拍断言 | 2 | 恢复忙态按 opcode 分类；修正并发测试源为先稳定 valid/payload 再等待 ready 的标准握手顺序 |
 | `rg` 在 Windows 上直接使用 `docs/planning/NPU_*` 路径通配符失败 | 1 | 未修改文件；改用 `rg -g "NPU_*.md" docs/planning` |
 | Yosys 完整 `memory; check` 展开未复位数组产生海量未驱动 mux warning | 1 | 返回码为 0但不作为干净证据；改用提交前端/过程级 `read_verilog; hierarchy; proc; check`，仅保留 active mask 展开提示 |
+
+## 2026-09-04 单时钟 RTL 时序修复设计审核
+
+- [x] 读取 `timing_impl.rpt` 并完成最差 setup 路径分类。
+- [x] 确认前 20 条最差路径属于同一结构：组号动态索引 → 四 lane 乘加 → INT32 累加 → 末组饱和 → `hidden_values` 写回。
+- [x] 审计现有 testbench watchdog；当前阈值均有余量，但实施时仍须禁止依赖固定计算拍数。
+- [x] 形成 `docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V1.md`，冻结 TR1-TR6 待审方案。
+- [x] 同步 `.nexus-map` 当前基线，精确区分 RTL merge、OOC report head 与 PR #55 evidence merge；原始探针无生成器，保留其 `c46320e` provenance，不伪造刷新。
+- [x] 提交前通过 CI-Fast 分类与 artifact layout 共 9 项轻量回归。
+- [ ] 等待管理员批准 TR1-TR6；批准前不修改业务 RTL。
+- [ ] 获批后按测试合同调整 → 最小分拍 RTL → 定向/随机/全仓回归 → 同条件 Vivado OOC 顺序执行。
+
+当前停止点：`TIMING_REPAIR_V1_REVIEW_REQUIRED`。用户文件 `np75_tmp_sparse_protocol.ys` 保持未跟踪、未修改、未暂存。
+
+### 本轮文档错误记录
+
+| 错误 | 尝试 | 处理 |
+|---|---:|---|
+| 首次跨四文件整包补丁因 `findings.md` 上下文不匹配被原子拒绝 | 1 | 未产生部分修改；改为按当前精确上下文逐文件小补丁 |
+| Nexus 验证命令把两个 Git 命令写入同一 PowerShell 条件括号导致解析失败 | 1 | 未修改文件；拆开命令后完成 diff-check、JSON 解析和未跟踪文件排除检查 |
+| 对整份历史 `TODO.md` 扫描行尾空格触发既有格式误报 | 1 | `git diff --check` 已证明本轮跟踪差异无新增空白错误；只对全新审核稿执行全文件扫描，不清洗无关历史行 |
