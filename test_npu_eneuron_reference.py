@@ -868,6 +868,160 @@ class MaskConfigProtocolRedTest(unittest.TestCase):
         self.assertTrue(port.active_masks.mask1[0])
         self.assertFalse(port.active_masks.mask1[1])
 
+    def _port_in_state(self, state):
+        """通过公开配置口命令把端口推进到指定状态。"""
+        port = self._new_port()
+        if state == "empty":
+            return port
+
+        begun = self._step(port, self._command("MASK_BEGIN", epoch=1))
+        self.assertEqual(self._field(begun, "state"), "loading")
+        if state == "loading":
+            self._step(port, self._command("DATA", word=0))
+            self.assertEqual(port.state, "loading")
+            return port
+
+        for _ in range(19):
+            self._step(port, self._command("DATA", word=0))
+        self.assertEqual(port.state, "complete")
+        if state == "complete":
+            return port
+
+        self._step(port, self._command("MASK_COMMIT", epoch=1))
+        self.assertEqual(port.state, "published")
+        if state == "published":
+            return port
+        raise AssertionError(f"unknown mask state {state!r}")
+
+    def test_illegal_command_state_matrix_is_atomic_under_backpressure(self):
+        """OF4b2b RED：逐状态覆盖所有非法命令及稳定错误响应合同。"""
+        illegal_commands = {
+            "empty": (
+                self._command("MASK_COMMIT", epoch=1),
+                self._command("MASK_ABORT"),
+            ),
+            "loading": (
+                self._command("MASK_BEGIN", epoch=2),
+                self._command("MASK_COMMIT", epoch=1),
+            ),
+            "complete": (
+                self._command("MASK_BEGIN", epoch=2),
+                self._command("DATA", word=0),
+            ),
+            "published": (
+                self._command("MASK_BEGIN", epoch=2),
+                self._command("DATA", word=0),
+                self._command("MASK_COMMIT", epoch=1),
+                self._command("MASK_ABORT"),
+            ),
+        }
+
+        for state, commands in illegal_commands.items():
+            for command in commands:
+                with self.subTest(state=state, command=command.kind.value):
+                    port = self._port_in_state(state)
+                    baseline = (port.state, port.word_index, port.active_epoch)
+
+                    rejected = self._step(port, command, response_ready=False)
+                    self.assertTrue(self._field(rejected, "cmd_ready"))
+                    self.assertTrue(self._field(rejected, "cmd_accepted"))
+                    self.assertTrue(self._field(rejected, "error_valid"))
+                    self.assertEqual(self._field(rejected, "error_code"), "BAD_STATE")
+                    self.assertEqual(
+                        (
+                            self._field(rejected, "state"),
+                            self._field(rejected, "word_index"),
+                            self._field(rejected, "active_epoch"),
+                        ),
+                        baseline,
+                    )
+
+                    # 下游保持背压时，错误响应与三项状态必须逐拍稳定，且不能接收新命令。
+                    blocked = self._step(
+                        port,
+                        self._command("MASK_BEGIN", epoch=2),
+                        response_ready=False,
+                    )
+                    blocked_again = self._step(
+                        port,
+                        self._command("DATA", word=0),
+                        response_ready=False,
+                    )
+                    for stalled in (blocked, blocked_again):
+                        self.assertFalse(self._field(stalled, "cmd_ready"))
+                        self.assertFalse(self._field(stalled, "cmd_accepted"))
+                        self.assertTrue(self._field(stalled, "error_valid"))
+                        self.assertEqual(self._field(stalled, "error_code"), "BAD_STATE")
+                        self.assertEqual(
+                            (
+                                self._field(stalled, "state"),
+                                self._field(stalled, "word_index"),
+                                self._field(stalled, "active_epoch"),
+                            ),
+                            baseline,
+                        )
+
+                    consumed = self._step(port, response_ready=True)
+                    self.assertFalse(self._field(consumed, "cmd_ready"))
+                    self.assertFalse(self._field(consumed, "cmd_accepted"))
+                    self.assertTrue(self._field(consumed, "error_valid"))
+                    self.assertEqual(self._field(consumed, "error_code"), "BAD_STATE")
+                    self.assertEqual(
+                        (
+                            self._field(consumed, "state"),
+                            self._field(consumed, "word_index"),
+                            self._field(consumed, "active_epoch"),
+                        ),
+                        baseline,
+                    )
+
+                    idle = self._step(port)
+                    self.assertTrue(self._field(idle, "cmd_ready"))
+                    self.assertFalse(self._field(idle, "error_valid"))
+                    self.assertEqual(
+                        (
+                            self._field(idle, "state"),
+                            self._field(idle, "word_index"),
+                            self._field(idle, "active_epoch"),
+                        ),
+                        baseline,
+                    )
+
+    def test_empty_abort_is_illegal_and_valid_abort_allows_new_begin(self):
+        """OF4b2b RED：empty 中 abort 无副作用，合法 abort 后必须能重新 begin。"""
+        port = self._port_in_state("empty")
+        baseline = (port.state, port.word_index, port.active_epoch)
+        rejected = self._step(port, self._command("MASK_ABORT"), response_ready=False)
+        self.assertTrue(self._field(rejected, "cmd_accepted"))
+        self.assertTrue(self._field(rejected, "error_valid"))
+        self.assertEqual(self._field(rejected, "error_code"), "BAD_STATE")
+        self.assertEqual(
+            (
+                self._field(rejected, "state"),
+                self._field(rejected, "word_index"),
+                self._field(rejected, "active_epoch"),
+            ),
+            baseline,
+        )
+        self._step(port, response_ready=True)
+        self._step(port)
+
+        self._step(port, self._command("MASK_BEGIN", epoch=1))
+        self._step(port, self._command("DATA", word=0))
+        aborted = self._step(port, self._command("MASK_ABORT"))
+        self.assertTrue(self._field(aborted, "cmd_accepted"))
+        self.assertFalse(self._field(aborted, "error_valid"))
+        self.assertEqual(self._field(aborted, "state"), "empty")
+        self.assertEqual(self._field(aborted, "word_index"), 0)
+        self.assertEqual(self._field(aborted, "active_epoch"), 0)
+
+        begun_again = self._step(port, self._command("MASK_BEGIN", epoch=1))
+        self.assertTrue(self._field(begun_again, "cmd_accepted"))
+        self.assertFalse(self._field(begun_again, "error_valid"))
+        self.assertEqual(self._field(begun_again, "state"), "loading")
+        self.assertEqual(self._field(begun_again, "word_index"), 0)
+        self.assertEqual(self._field(begun_again, "active_epoch"), 0)
+
 
 
 if __name__ == "__main__":
