@@ -758,6 +758,92 @@ class MaskConfigProtocolRedTest(unittest.TestCase):
         self.assertEqual(self._field(retried, "state"), "complete")
         self.assertEqual(self._field(retried, "word_index"), 19)
 
+    def test_mask_abort_clears_loading_and_complete_staging(self):
+        """MASK_ABORT 在 loading/complete 均清空 staging，不改变 active epoch。"""
+        port = self._new_port()
+        self._step(port, self._command("MASK_BEGIN", epoch=1))
+        self._step(port, self._command("DATA", word=0))
+
+        aborted_loading = self._step(port, self._command("MASK_ABORT"))
+        self.assertTrue(self._field(aborted_loading, "cmd_accepted"))
+        self.assertFalse(self._field(aborted_loading, "error_valid"))
+        self.assertEqual(self._field(aborted_loading, "state"), "empty")
+        self.assertEqual(self._field(aborted_loading, "word_index"), 0)
+        self.assertEqual(self._field(aborted_loading, "active_epoch"), 0)
+
+        self._step(port, self._command("MASK_BEGIN", epoch=1))
+        for _ in range(19):
+            self._step(port, self._command("DATA", word=0))
+        self.assertEqual(port.state, "complete")
+
+        aborted_complete = self._step(port, self._command("MASK_ABORT"))
+        self.assertTrue(self._field(aborted_complete, "cmd_accepted"))
+        self.assertFalse(self._field(aborted_complete, "error_valid"))
+        self.assertEqual(self._field(aborted_complete, "state"), "empty")
+        self.assertEqual(self._field(aborted_complete, "word_index"), 0)
+        self.assertEqual(self._field(aborted_complete, "active_epoch"), 0)
+
+    def test_invalid_epoch_reports_once_without_state_progress(self):
+        """MASK_BEGIN/COMMIT 的非法 epoch 只报错，不推进状态或 word index。"""
+        port = self._new_port()
+
+        invalid_begin = self._step(
+            port,
+            self._command("MASK_BEGIN", epoch=-1),
+            response_ready=False,
+        )
+        self.assertTrue(self._field(invalid_begin, "cmd_accepted"))
+        self.assertTrue(self._field(invalid_begin, "error_valid"))
+        self.assertEqual(self._field(invalid_begin, "state"), "empty")
+        self.assertEqual(self._field(invalid_begin, "word_index"), 0)
+        self.assertEqual(self._field(invalid_begin, "active_epoch"), 0)
+        self._step(port, response_ready=True)
+
+        self._step(port, self._command("MASK_BEGIN", epoch=1))
+        for _ in range(19):
+            self._step(port, self._command("DATA", word=0))
+        self.assertEqual(port.state, "complete")
+
+        invalid_commit = self._step(
+            port,
+            self._command("MASK_COMMIT", epoch=3),
+            response_ready=False,
+        )
+        self.assertTrue(self._field(invalid_commit, "cmd_accepted"))
+        self.assertTrue(self._field(invalid_commit, "error_valid"))
+        self.assertEqual(self._field(invalid_commit, "state"), "complete")
+        self.assertEqual(self._field(invalid_commit, "word_index"), 19)
+        self.assertEqual(self._field(invalid_commit, "active_epoch"), 0)
+        self._step(port, response_ready=True)
+
+        valid_commit = self._step(port, self._command("MASK_COMMIT", epoch=1))
+        self.assertTrue(self._field(valid_commit, "cmd_accepted"))
+        self.assertEqual(self._field(valid_commit, "state"), "published")
+
+    def test_published_mask_activates_at_sample_boundary(self):
+        """published 只在样本边界交换为 active，并清空 staging 状态。"""
+        port = self._new_port()
+        self._step(port, self._command("MASK_BEGIN", epoch=1))
+        words = [0] * 19
+        words[0] = 1 << 0
+        words[16] = 1 << 0
+        for word in words:
+            self._step(port, self._command("DATA", word=word))
+        self._step(port, self._command("MASK_COMMIT", epoch=1))
+
+        self.assertEqual(port.state, "published")
+        self.assertEqual(port.active_epoch, 0)
+        activated_epoch = port.accept_sample_boundary()
+
+        self.assertEqual(activated_epoch, 1)
+        self.assertEqual(port.active_epoch, 1)
+        self.assertEqual(port.state, "empty")
+        self.assertEqual(port.word_index, 0)
+        self.assertTrue(port.active_masks.mask0[0])
+        self.assertFalse(port.active_masks.mask0[1])
+        self.assertTrue(port.active_masks.mask1[0])
+        self.assertFalse(port.active_masks.mask1[1])
+
 
 
 if __name__ == "__main__":
