@@ -4,13 +4,13 @@
 
 最后更新：2026-09-04
 
-状态：`ACTIVE / NP7_MERGED / I1_I6_APPROVED / OF1_OF6_V3_APPROVED / OF3_MASK_ORDER_COST_GREEN / OF4A_MODEL_WORD_MAP_GREEN`
+状态：`ACTIVE / NP7_MERGED / I1_I6_APPROVED / OF1_OF6_V3_APPROVED / OF3_MASK_ORDER_COST_GREEN / OF4A_MODEL_WORD_MAP_GREEN / OF4B1_MASK_WORD_MAP_GREEN`
 
 ## 当前活动目标
 
 NP6/NP7 已完成并合并；I1-I6 已批准。当前目标是冻结传统 `64→32→10` INT8 NPU 与 ENeuron 四权重整组门控的 Python oracle，为单时钟集成 RTL 提供逐位数值和事务合同。
 
-活动合同：`docs/planning/NPU_ORACLE_FREEZE_REVIEW.md`。OF1a、OF1b 与 OF3 已 GREEN；OF3 已通过 PR #36 合并，当前执行 OF4a 634-word 模型镜像映射与原子载入。历史 NP6/NP7 结果继续由各自 TODO 和报告约束。
+活动合同：`docs/planning/NPU_ORACLE_FREEZE_REVIEW.md`。OF1a/OF1b/OF3/OF4a 已 GREEN；OF4a 已通过 PR #37 合并，当前执行 OF4b1 19-word mask 镜像映射。历史 NP6/NP7 结果继续由各自 TODO 和报告约束。
 
 ## 当前事实
 
@@ -42,7 +42,20 @@ NP6/NP7 已完成并合并；I1-I6 已批准。当前目标是冻结传统 `64�
 
 ## 下一动作
 
-提交并交付 OF4a 独立 PR：634-word 精确映射、严格 uint32 镜像和原子载入已完成。合并后进入 OF4b 19-word mask 四态流和错误响应。
+提交并推送 OF4b1；随后进入 OF4b2，冻结 19-word mask 四态命令、非法配置错误响应、同索引重试以及握手/背压语义。四态命令机仍不属于 OF4b1。
+
+## 2026-09-04 OF4b1 GREEN
+
+- 独立审计 PASS，无阻断；实现只包含不可变 19-word mask 镜像解码，不含 active/staging、epoch、valid/ready、错误响应、逐拍配置或 RTL。
+- `decode_mask_words()` 严格要求 19 个 `uint32`，按 LSB-first 解码 `mask0=512 bit` 与 `mask1=80 bit`；`word18[31:16]` 非零时拒绝且无副作用。
+- OF4b1 定向测试 `2/2`、完整 oracle `27/27`、CI-Fast `8/8`、`compileall` 与 `git diff --check` 全部通过。
+- 本切片未运行 Vivado；物理资源、时序和逐拍配置协议仍待后续阶段。
+
+## 2026-09-04 OF4a 合并与 OF4b1 RED
+
+- OF4a 已通过 PR #37 合并到 `main@59a8dca`；Webhook 与 GitHub API 同 SHA 终态均成功。
+- OF4b1 两个测试方法在当前实现上得到 25 errors，原因是 `decode_mask_words()` 尚不存在。
+- RED 覆盖 exact 19、首中尾严格 uint32、word18 保留位和全部 592 个 mask bit 的 LSB-first 映射；不涉及四态命令或 epoch。
 
 ## 2026-09-04 OF3 合并与 OF4a RED
 

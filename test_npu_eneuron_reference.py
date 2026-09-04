@@ -230,6 +230,68 @@ class NpuReferenceTest(unittest.TestCase):
                 after = tuple(model.infer([value] * config.input_size) for value in (0, 1))
                 self.assertEqual(after, before)
 
+    def test_mask_words_use_canonical_lsb_first_mapping(self):
+        words = [((index * 0x9E3779B1) ^ 0xA5A55A5A) & 0xFFFFFFFF for index in range(19)]
+        words[18] &= 0xFFFF
+        decoded = protocol.decode_mask_words(words)
+
+        expected0 = tuple(bool((words[index // 32] >> (index % 32)) & 1) for index in range(512))
+        expected1 = tuple(bool((words[16 + index // 32] >> (index % 32)) & 1) for index in range(80))
+        self.assertEqual(decoded.mask0, expected0)
+        self.assertEqual(decoded.mask1, expected1)
+        self.assertIsInstance(decoded.mask0, tuple)
+        self.assertIsInstance(decoded.mask1, tuple)
+        self.assertTrue(all(type(value) is bool for value in decoded.mask0 + decoded.mask1))
+        self.assertEqual((decoded.mask0[0], decoded.mask0[511]), (bool(words[0] & 1), bool(words[15] >> 31)))
+        self.assertEqual((decoded.mask1[0], decoded.mask1[79]), (bool(words[16] & 1), bool((words[18] >> 15) & 1)))
+
+        with self.assertRaises(TypeError):
+            decoded.mask0[0] = not decoded.mask0[0]
+
+        original = decoded.mask0[0]
+        words[0] ^= 1
+        self.assertEqual(decoded.mask0[0], original)
+
+        landmarks = [0] * 19
+        landmarks[0] = 0x80000001
+        landmarks[7] = 1 << 13
+        landmarks[15] = 0x80000000
+        landmarks[16] = 0x80000001
+        landmarks[17] = 1
+        landmarks[18] = 0x00008001
+        landmark_masks = protocol.decode_mask_words(landmarks)
+        self.assertEqual({index for index, value in enumerate(landmark_masks.mask0) if value}, {0, 31, 237, 511})
+        self.assertEqual({index for index, value in enumerate(landmark_masks.mask1) if value}, {0, 31, 32, 64, 79})
+
+    def test_mask_word_image_is_exact_uint32_and_rejects_reserved_bits(self):
+        for length in (18, 20):
+            with self.subTest(length=length):
+                with self.assertRaisesRegex(ValueError, "19"):
+                    protocol.decode_mask_words([0] * length)
+
+        for index in (0, 9, 18):
+            for invalid in (-1, 0x100000000, 1.0, "0", None, True):
+                with self.subTest(index=index, invalid=invalid):
+                    words = [0] * 19
+                    words[index] = invalid
+                    with self.assertRaisesRegex(ValueError, "uint32"):
+                        protocol.decode_mask_words(words)
+
+        for reserved in (1 << 16, 1 << 31, 0xFFFF0000):
+            with self.subTest(reserved=reserved):
+                words = [0] * 19
+                words[18] = reserved
+                with self.assertRaisesRegex(ValueError, "reserved"):
+                    protocol.decode_mask_words(words)
+
+        decoded = protocol.decode_mask_words([0] * 18 + [0xFFFF])
+        self.assertEqual(decoded.mask1[64:80], (True,) * 16)
+
+        all_zero = protocol.decode_mask_words([0] * 19)
+        all_one = protocol.decode_mask_words([0xFFFFFFFF] * 18 + [0xFFFF])
+        self.assertFalse(any(all_zero.mask0 + all_zero.mask1))
+        self.assertTrue(all(all_one.mask0 + all_one.mask1))
+
     def test_full_open_gated_mode_is_bit_exact_with_bypass(self):
         config = NpuConfig()
         model = NpuReference(config)

@@ -10,6 +10,9 @@ from npu_eneuron_reference import InferenceResult, NpuConfig, NpuReference
 LOGGER = logging.getLogger(__name__)
 
 MODEL_WORD_COUNT = 634
+MASK_WORD_COUNT = 19
+MASK0_BITS = 512
+MASK1_BITS = 80
 
 
 @dataclass(frozen=True)
@@ -22,10 +25,18 @@ class DecodedModel:
     bias1: tuple[int, ...]
 
 
-def _validate_model_word(value: object) -> int:
+@dataclass(frozen=True)
+class DecodedMasks:
+    """由固定 19-word 镜像解码出的两层不可变门控位。"""
+
+    mask0: tuple[bool, ...]
+    mask1: tuple[bool, ...]
+
+
+def _validate_uint32(value: object, label: str) -> int:
     if type(value) is not int or not 0 <= value <= 0xFFFFFFFF:
-        LOGGER.debug("reject non-uint32 model word value=%r", value)
-        raise ValueError("model word must be a uint32 integer")
+        LOGGER.debug("reject non-uint32 %s value=%r", label, value)
+        raise ValueError(f"{label} must be a uint32 integer")
     return value
 
 
@@ -43,7 +54,7 @@ def decode_model_words(words: Sequence[object]) -> DecodedModel:
     snapshot = tuple(words)
     if len(snapshot) != MODEL_WORD_COUNT:
         raise ValueError("model image must contain exactly 634 words")
-    image = tuple(_validate_model_word(word) for word in snapshot)
+    image = tuple(_validate_uint32(word, "model word") for word in snapshot)
 
     weights0 = tuple(
         tuple(value for group in range(16) for value in _decode_int8_word(image[16 * hidden + group]))
@@ -63,6 +74,21 @@ def load_model_words(model: NpuReference, words: Sequence[object]) -> None:
     decoded = decode_model_words(words)
     model.load_weights(decoded.weights0, decoded.bias0, decoded.weights1, decoded.bias1)
     LOGGER.debug("loaded validated 634-word model image")
+
+
+def decode_mask_words(words: Sequence[object]) -> DecodedMasks:
+    """按 V1 的 LSB-first 512+80 bit 规则解码完整 mask 镜像。"""
+    snapshot = tuple(words)
+    if len(snapshot) != MASK_WORD_COUNT:
+        raise ValueError("mask image must contain exactly 19 words")
+    image = tuple(_validate_uint32(word, "mask word") for word in snapshot)
+    if image[18] & 0xFFFF0000:
+        LOGGER.debug("reject nonzero mask word 18 reserved bits value=0x%08x", image[18])
+        raise ValueError("mask word 18 reserved bits must be zero")
+
+    mask0 = tuple(bool((image[index // 32] >> (index % 32)) & 1) for index in range(MASK0_BITS))
+    mask1 = tuple(bool((image[16 + index // 32] >> (index % 32)) & 1) for index in range(MASK1_BITS))
+    return DecodedMasks(mask0, mask1)
 
 
 @dataclass(frozen=True)
