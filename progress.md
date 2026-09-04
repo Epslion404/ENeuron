@@ -1164,3 +1164,4 @@
 - OF4b2a 实现已完成首轮：`MaskConfigPort` 支持四态、单槽错误响应、非法 epoch/保留位零副作用、同索引重试和样本边界激活；6 条 OF4b2 测试及既有 oracle 共 33/33 通过，独立审计待完成。
 - 审计后补齐 `MASK_BEGIN(epoch=active_epoch)` 回归，修正 BEGIN 与 COMMIT 的 next-epoch 校验；OF4b2 定向 7/7、完整 oracle 34/34、compileall/diff-check 通过，等待最终独立复审。
 - OF4b2 GREEN 已签核：独立审计 PASS，确认 epoch 回绕和错误消费拍语义；下一步为完整状态矩阵与 runtime idle/freeze 组合，不扩大到 RTL/Vivado。
+- OF4b2b 完成：状态矩阵新增回归 9/9（基于已有实现直接通过），runtime 组合 5/5；实现 `bind_mask_port` 与双端 freeze 同步，完整 oracle 41/41。下一阶段 OF4c 为单时钟端口表和 RTL 设计审核材料。

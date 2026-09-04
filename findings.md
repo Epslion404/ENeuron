@@ -1050,3 +1050,10 @@
 - 独立审计发现 `MASK_BEGIN(epoch=active_epoch)` 会造成不可提交 staging；已补回归并修正为 BEGIN/COMMIT 均要求 `active_epoch+1 mod 2^32`，当前 7 条 OF4b2 测试通过。
 - 端口本身仍不判断样本运行、输入部分 beat 或结果槽；冻结切换的全局 idle 条件必须由上层 runtime/集成层负责。
 - OF4b2 终审 PASS：BEGIN/COMMIT 均要求 next epoch，`active_epoch=0xffffffff` 可正确回绕到 0；错误响应消费拍保持稳定且不接受新命令。当前切片 GREEN，但完整状态矩阵和 runtime 组合仍待 OF4b2b。
+
+## 2026-09-04 OF4b2b GREEN
+
+- 完整状态矩阵覆盖 `empty/loading/complete/published` 的所有非法命令组合；每项均验证一次握手、错误响应背压稳定、错误消费拍不接新命令、状态/索引/epoch 零副作用及恢复。现有 OF4b2 已使该组直接回归绿，不把它改写为虚假的 RED。
+- `NpuEpochRuntime.bind_mask_port()` 只增加组合层所有权与冻结判定：运行中、结果槽占用、runtime pending 或 mask staging 非空时拒绝切换；完全 idle 时把 freeze 同步到端口。
+- frozen 仍允许 `begin_sample → complete_sample → accept_result`，但配置、动态清除和端口 `MASK_BEGIN` 均被拒绝；runtime 组合测试 5/5，完整 oracle 41/41。
+- 后续必须把相同全局 idle/freeze 合同映射到单时钟 RTL；本切片没有运行 Vivado，也没有声明硬件吞吐或资源收益。
