@@ -4,13 +4,13 @@
 
 最后更新：2026-09-04
 
-状态：`ACTIVE / NP7_MERGED / I1_I6_APPROVED / OF1_OF6_V3_APPROVED / OF3_MASK_ORDER_COST_GREEN / OF4A_MODEL_WORD_MAP_GREEN / OF4B1_MASK_WORD_MAP_GREEN / OF4B2_COMMAND_PORT_GREEN / OF4B2B_RUNTIME_COMBINATION_GREEN / OF4C_TO_OF5_GREEN / OF4E_RUNTIME_CROSS_CONTRACT_GREEN / OF4G_BOUNDARY_GREEN / OF5_HARD_RESET_GREEN / OF6_ORACLE_SIGNOFF / RTL_DESIGN_CONTRACT_V2_APPROVED / RTL_RANDOM_GATE_GREEN / PR54_MERGED / VIVADO_OOC_SETUP_FAIL / TIMING_REPAIR_REQUIRED`
+状态：`ACTIVE / NP7_MERGED / I1_I6_APPROVED / OF1_OF6_V3_APPROVED / OF6_ORACLE_SIGNOFF / RTL_DESIGN_CONTRACT_V2_APPROVED / PR54_MERGED / TR1_TR6_APPROVED / RTL_TIMING_REPAIR_GREEN / FULL_REGRESSION_GREEN / DSP_GATE_PASS / VIVADO_OOC_SETUP_FAIL / TIMING_REPAIR_V2_REVIEW_REQUIRED`
 
 ## 当前活动目标
 
-NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3 及单时钟 RTL V2 八项裁定已批准。PR #54 已于 2026-09-04 合并，当前目标是对冻结的传统 `64→32→10` INT8 NPU 与 ENeuron 四权重整组门控 RTL 做 Vivado 2024.1 OOC 物理签核。
+NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定及 TR1-TR6 已批准。当前目标是保存 DSP V1 的真实 OOC 失败证据，并审核下一轮最小时序修复；未经 TR7-TR12 新批准不继续修改 RTL。
 
-活动合同：`docs/planning/NPU_SINGLE_CLOCK_RTL_DECISION_SHEET_V2.md`、`docs/planning/NPU_SINGLE_CLOCK_RTL_PORT_TABLE_V1.md` 与 `docs/planning/npu_single_clock_contract_provisional_v2.json`。当前 RTL 已完成真实四 lane 顺序计算、active-mask 门控、结果背压和四项单时钟定向门；固定 `20×100` 随机逐 beat 门与 PR #54 CI 已通过并合并。Vivado 2024.1 OOC 已完成：综合、布局布线和 DRC 流程成功，route/DRC 无错误且 hold 通过，但 100 MHz setup 未通过；下一项是基于关键路径证据进行最小流水化/分拍修复。板级、网口、DMA、功耗仍不在本阶段。
+活动合同：`docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V1.md`、`docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_TEST_CONTRACT_V1.md` 和 `docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V2.md`。当前 RTL 已完成共享四 DSP lane、三拍组计算、active-mask 门控和全部功能回归。Vivado 2024.1 OOC 已确认恰好 4 个 DSP48E1，route/DRC 无错误且 hold 通过，但 100 MHz setup 仍未通过；板级、网口、DMA、功耗仍不在本阶段。
 
 ## 当前事实
 
@@ -25,7 +25,7 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3 及单时钟 RTL V2 八项裁定
 - NP6 fail-closed verifier 正向通过，12 项 mutation 全部通过；冻结证据 HEAD 为 `7023b15`。
 - 7 个 NP6 实现均完成且 route/DRC error 为 0；只有 gate 与 ENeuron 剪枝封装通过 100 MHz，正式状态为 `NP6_PHYSICAL_COST_PARTIAL`。
 - 根目录结果归档、当前 RTL Vivado 证据重建和 Goal 审计已推送：提交 `9465142`；随后 NP6 规划提交 `cbff013`，nexus 知识库提交 `c7c5c5b`；文档入口为 `docs/README.md`，知识库入口为 `.nexus-map/INDEX.md`。
-- 当前 HEAD `39e41d4` 的 Vivado 2024.1 OOC 报告已生成：`2672 LUT / 1879 FF / 0 BRAM / 0 DSP`，setup `WNS=-5.087 ns / TNS=-421.539 ns / 244` 个失败端点，hold `WHS=+0.098 ns / 0` 个失败端点，route errors=0、DRC errors=0。该结果是当前物理边界，不是通过证据。
+- DSP V1 实现 HEAD `5055073` 的 Vivado 2024.1 OOC 报告已生成：`2192 LUT / 1904 FF / 0 BRAM / 4 DSP48E1`，DSP 双重硬门通过；setup `WNS=-0.673 ns / TNS=-6.462 ns / 22` 个失败端点，hold `WHS=+0.090 ns / 0` 个失败端点，route errors=0、DRC errors=0。该结果取代旧 OOC 作为当前物理边界，但仍不是 100 MHz 通过证据。
 
 ## 允许动作
 
@@ -43,7 +43,7 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3 及单时钟 RTL V2 八项裁定
 
 ## 下一动作
 
-先归档当前 OOC 报告及哈希，随后从 `timing_impl.rpt` 提取最差 setup 路径并冻结时序修复方案；修复必须保留 INT32、mask epoch、结果背压和推理冻结合同。修复后的单时钟 RTL 重新通过定向/随机回归和 Vivado OOC 后，才进入 XC7Z020 顶层规划。
+归档 DSP V1 OOC 报告及哈希，等待管理员审核 `docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V2.md` 的 TR7-TR12。获批后才进入测试 RED、最小 RTL、定向/随机/全仓回归和同条件 OOC；通过前不进入 XC7Z020 顶层规划。
 
 ## 2026-09-04 Vivado OOC 物理门收口
 
@@ -308,7 +308,7 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3 及单时钟 RTL V2 八项裁定
 - PR #55 已合并为 `main@dc2452b`；OOC 证据、manifest、报告索引和 Nexus 状态已进入主线。
 - 当前物理状态为 `VIVADO_OOC_SETUP_FAIL / TIMING_REPAIR_REQUIRED`：2672 LUT、1879 FF、0 BRAM、0 DSP；setup `WNS=-5.087 ns`、`TNS=-421.539 ns`、244 个失败端点；hold、route 和 DRC 无失败。
 - 关键路径分类已完成，当前设计审核稿为 `docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V1.md`。
-- 当前人工门为 `TIMING_REPAIR_V1_REVIEW_REQUIRED`：等待管理员批准 TR1-TR6。批准前 `rtl_allowed=false`、`vivado_allowed=false`；只允许文档审计和测试合同检查。
+- 该历史阶段的人工门为 `TIMING_REPAIR_V1_REVIEW_REQUIRED`：当时等待管理员批准 TR1-TR6，批准前只允许文档审计和测试合同检查。
 - 获批后的唯一主链为：测试合同调整 → `FETCH→EXECUTE→COMMIT` 最小分拍 → 定向/固定 `20×100`/全仓回归 → 同器件同约束 Vivado OOC。
 - 用户文件 `np75_tmp_sparse_protocol.ys` 保持未跟踪、未修改、未暂存、未纳入 Nexus。
 
@@ -318,3 +318,25 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3 及单时钟 RTL V2 八项裁定
 - `docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V1.md` 仍为 `REVIEW_REQUIRED`，TR1-TR6 未获得管理员批准；合并审核稿不等于批准裁定。
 - `docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_TEST_CONTRACT_V1.md` 已准备批准后的测试切片：全开/关闭两组/仅关闭 L0 最后一组/全关分别要求 592/590/591/0 次执行和 1860/1856/1858/676 拍计算延迟；五个 watchdog 均无需放宽。
 - 当前 `rtl_allowed=false`、`vivado_allowed=false`；允许继续文档、测试合同与 Nexus 审计，不创建 RED testbench、不修改业务 RTL。
+
+## 2026-09-04 TR1-TR6 批准与强制 DSP
+
+- 管理员已批准 TR1-TR6，并附加要求四条乘法 lane 强制使用 XC7Z020 DSP48E1；此前 `TIMING_REPAIR_V1_REVIEW_REQUIRED` 和 `BLOCKED_BY_TR1_TR6_APPROVAL` 已解除。
+- 当前状态为 `TIMING_REPAIR_DSP_V1_IN_PROGRESS`，`rtl_allowed=true`；Vivado 只允许在定向、C1-C4、固定 `20×100` 和完整回归通过后执行。
+- DSP 合同为四条共享 signed 8×8 乘法 lane，只对乘积施加 `USE_DSP="yes"`，实现报告必须 `DSP=4`。DSP 数不符或 setup 失败均保持物理门未通过。
+- 外部协议、INT32、`64→32→10`、整组 mask、epoch 原子性、结果背压、freeze/clear 和 8/10 beat 合同不变。
+
+## 2026-09-04 DSP 三拍 RTL 功能签核
+
+- 已实现 L0/L1 共用的四条 signed 8×8 DSP lane，以及 `FETCH→EXECUTE→COMMIT` 三拍调度；关闭组仍在 FETCH 直接旁路。
+- C1-C4 的结果、592/590/0/591 个启用组、1860/1856/676/1858 拍、逐组访问图、模型地址、关闭末组写回均通过。
+- 单时钟专项 `8/8`、固定 `20×100` 随机和完整仓库 `473/473（1 skipped）` 通过；最终 RTL/Tcl 反审计无 blocker，测试覆盖 blocker 已补齐。
+- 该历史阶段状态是 `VIVADO_PENDING`，当时不能提前声称 `DSP=4` 或 100 MHz 收敛；随后已经由实现提交 `5055073` 完成 OOC。
+
+## 2026-09-04 DSP V1 OOC 终态与 V2 审核门
+
+- Vivado 报告绑定实现提交 `50550733e4af4779f3d6933738fa043ecb919970`；utilization `DSP=4`、实现网表 `DSP48E1_COUNT=4`，强制 DSP 条件成立。
+- 资源为 `2192 LUT / 1904 FF / 0 BRAM / 4 DSP48E1`；hold、route 和 DRC 通过。
+- setup 未通过：`WNS=-0.673 ns`、`TNS=-6.462 ns`、22 个失败端点，物理状态必须保持 `VIVADO_OOC_SETUP_FAIL`。
+- 新最差路径是组号动态激活选择、DSP 乘法和四路求和到 `lane_sum_latched`；残余路径包含 logit 写使能。因此下一轮需同时审核操作数锁存和独立 WRITEBACK。
+- `NPU_SINGLE_CLOCK_TIMING_REPAIR_V2.md` 已形成 TR7-TR12 审核稿；当前 `rtl_allowed=false`、`vivado_allowed=false`，等待管理员批准。
