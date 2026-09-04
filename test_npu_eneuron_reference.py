@@ -610,6 +610,136 @@ class NpuReferenceTest(unittest.TestCase):
         self.assertEqual(accepted.inference.mac_count, 0)
 
 
+class NpuEpochRuntimeCombinationRedTest(unittest.TestCase):
+    """OF4b2b RED：冻结 mask 端口与运行时的全局 idle/freeze 合同。
+
+    这里刻意只定义组合层公开入口，不预设内部寄存器或调度实现。运行时
+    通过 ``bind_mask_port`` 取得端口所有权；之后 freeze 切换必须同时观察
+    runtime 的运行/结果/pending 状态和端口的 staging 状态。
+    """
+
+    @staticmethod
+    def _new_runtime():
+        config = NpuConfig()
+        model = NpuReference(config)
+        model.load_weights(
+            [[1] * config.input_size for _ in range(config.hidden_size)],
+            [0] * config.hidden_size,
+            [[1] * config.hidden_size for _ in range(config.output_size)],
+            list(range(config.output_size)),
+        )
+        runtime = NpuEpochRuntime(model, config)
+        port = protocol.MaskConfigPort()
+        bind = getattr(runtime, "bind_mask_port", None)
+        if not callable(bind):
+            raise AssertionError(
+                "OF4b2b RED: NpuEpochRuntime.bind_mask_port(port) is required"
+            )
+        bind(port)
+        return config, runtime, port
+
+    @staticmethod
+    def _next_masks(config, opened=False):
+        size0 = config.hidden_size * (config.input_size // config.group_size)
+        size1 = config.output_size * (config.hidden_size // config.group_size)
+        return [opened] * size0, [opened] * size1
+
+    @staticmethod
+    def _begin_port_staging(port):
+        command = protocol.MaskCommand(protocol.MaskCommandKind.MASK_BEGIN, epoch=1)
+        result = port.step(True, command, False)
+        if result.error_valid:
+            raise AssertionError(f"unexpected mask staging error: {result.error_code}")
+        return result
+
+    def test_freeze_rejects_running_sample(self):
+        """当前 runtime 的样本已接受但尚未完成时，freeze 切换必须拒绝。"""
+        config, runtime, _ = self._new_runtime()
+        runtime.begin_sample([1] * config.input_size)
+        self.assertTrue(runtime.running)
+
+        with self.assertRaisesRegex(RuntimeError, "freeze|idle|running|occupied"):
+            runtime.set_infer_freeze(True)
+
+    def test_freeze_rejects_result_backpressure(self):
+        """结果槽未被消费时，运行时不能进入或退出 freeze。"""
+        config, runtime, _ = self._new_runtime()
+        runtime.begin_sample([1] * config.input_size)
+        runtime.complete_sample()
+        self.assertIsNotNone(runtime.result)
+
+        with self.assertRaisesRegex(RuntimeError, "freeze|idle|result|occupied"):
+            runtime.set_infer_freeze(True)
+
+        # 反向切换也必须服从同一全局 idle 条件；先验证运行中拒绝。
+        runtime.accept_result()
+        runtime.set_infer_freeze(True)
+        runtime.begin_sample([1] * config.input_size)
+        with self.assertRaisesRegex(RuntimeError, "freeze|idle|running|occupied"):
+            runtime.set_infer_freeze(False)
+
+        # 完成但尚未消费结果时，退出 freeze 仍被结果背压拒绝。
+        runtime.complete_sample()
+        with self.assertRaisesRegex(RuntimeError, "freeze|idle|result|occupied"):
+            runtime.set_infer_freeze(False)
+
+    def test_freeze_rejects_nonempty_runtime_or_port_staging(self):
+        """runtime pending 或端口 loading/complete 均使全局 freeze 不安全。"""
+        config, runtime, port = self._new_runtime()
+        mask0, mask1 = self._next_masks(config)
+        runtime.stage_masks(1, mask0, mask1)
+        with self.assertRaisesRegex(RuntimeError, "freeze|staging|pending|idle"):
+            runtime.set_infer_freeze(True)
+
+        # 消费 runtime pending 后，再单独验证 MaskConfigPort 的 loading staging。
+        runtime.begin_sample([1] * config.input_size)
+        runtime.complete_sample()
+        runtime.accept_result()
+        self._begin_port_staging(port)
+        with self.assertRaisesRegex(RuntimeError, "freeze|staging|idle"):
+            runtime.set_infer_freeze(True)
+
+    def test_freeze_is_allowed_only_when_runtime_and_port_are_empty(self):
+        """完全 idle 且无 pending/staging 时，freeze 应原子同步到两端。"""
+        _, runtime, port = self._new_runtime()
+        self.assertFalse(runtime.running)
+        self.assertIsNone(runtime.result)
+        self.assertEqual(port.state, port.EMPTY)
+
+        runtime.set_infer_freeze(True)
+        self.assertTrue(runtime.frozen)
+        self.assertTrue(port.frozen)
+
+        runtime.set_infer_freeze(False)
+        self.assertFalse(runtime.frozen)
+        self.assertFalse(port.frozen)
+
+    def test_frozen_runtime_still_runs_but_rejects_config_and_clear(self):
+        """freeze 只锁学习/配置状态，不得阻断样本推理；clear/config 必须拒绝。"""
+        config, runtime, port = self._new_runtime()
+        runtime.set_infer_freeze(True)
+
+        accepted = runtime.begin_sample([1] * config.input_size)
+        runtime.complete_sample()
+        self.assertIs(runtime.accept_result(), accepted)
+
+        mask0, mask1 = self._next_masks(config)
+        with self.assertRaisesRegex(RuntimeError, "freeze"):
+            runtime.stage_masks(1, mask0, mask1)
+        with self.assertRaisesRegex(RuntimeError, "freeze|clear"):
+            runtime.state_clear()
+
+        rejected = port.step(
+            True,
+            protocol.MaskCommand(protocol.MaskCommandKind.MASK_BEGIN, epoch=1),
+            False,
+        )
+        self.assertTrue(rejected.cmd_accepted)
+        self.assertTrue(rejected.error_valid)
+        self.assertEqual(rejected.error_code, "FROZEN")
+        self.assertEqual(rejected.state, port.EMPTY)
+
+
 class MaskConfigProtocolRedTest(unittest.TestCase):
     """OF4b2 RED：冻结 19-word mask 逐拍配置口的最小行为合同。"""
 
