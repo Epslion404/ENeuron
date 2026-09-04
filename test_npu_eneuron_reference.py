@@ -5,7 +5,7 @@ from dataclasses import FrozenInstanceError
 
 import npu_eneuron_protocol as protocol
 from npu_eneuron_reference import NpuConfig, NpuReference
-from npu_eneuron_protocol import NpuEpochRuntime
+from npu_eneuron_protocol import NpuEpochRuntime, ModelConfigPort, ModelCommand, ModelCommandKind
 
 
 class NpuReferenceTest(unittest.TestCase):
@@ -1153,6 +1153,45 @@ class MaskConfigProtocolRedTest(unittest.TestCase):
         self.assertEqual(self._field(begun_again, "active_epoch"), 0)
 
 
+class ModelConfigPortTest(unittest.TestCase):
+    def _step(self, port, command=None, ready=False):
+        return port.step(command is not None, command, ready)
+
+    def test_full_image_commit_publishes_once(self):
+        model = NpuReference()
+        port = ModelConfigPort(model)
+        self._step(port, ModelCommand(ModelCommandKind.MODEL_BEGIN))
+        for word in [0] * 634:
+            result = self._step(port, ModelCommand(ModelCommandKind.DATA, word=word))
+            self.assertTrue(result.cmd_accepted)
+        self.assertEqual(port.state, "complete")
+        committed = self._step(port, ModelCommand(ModelCommandKind.MODEL_COMMIT))
+        self.assertFalse(committed.error_valid)
+        self.assertTrue(port.model_valid)
+        self.assertEqual(port.state, "committed")
+
+    def test_invalid_bias_keeps_same_index_for_retry(self):
+        model = NpuReference()
+        port = ModelConfigPort(model)
+        self._step(port, ModelCommand(ModelCommandKind.MODEL_BEGIN))
+        for _ in range(512): self._step(port, ModelCommand(ModelCommandKind.DATA, word=0))
+        invalid = self._step(port, ModelCommand(ModelCommandKind.DATA, word=0x7FFFFFFF))
+        self.assertTrue(invalid.error_valid)
+        self.assertEqual(port.word_index, 512)
+        self._step(port, ready=True)
+        valid = self._step(port, ModelCommand(ModelCommandKind.DATA, word=0))
+        self.assertFalse(valid.error_valid)
+        self.assertEqual(port.word_index, 513)
+
+    def test_error_backpressure_blocks_next_command(self):
+        model = NpuReference()
+        port = ModelConfigPort(model)
+        rejected = self._step(port, ModelCommand(ModelCommandKind.MODEL_COMMIT))
+        self.assertTrue(rejected.error_valid)
+        blocked = self._step(port, ModelCommand(ModelCommandKind.MODEL_BEGIN))
+        self.assertFalse(blocked.cmd_ready)
+        self.assertFalse(blocked.cmd_accepted)
+        self.assertEqual(blocked.error_code, "BAD_STATE")
 
 if __name__ == "__main__":
     unittest.main()

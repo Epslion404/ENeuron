@@ -5,7 +5,10 @@ from enum import Enum
 import logging
 from typing import Sequence
 
-from npu_eneuron_reference import InferenceResult, NpuConfig, NpuReference
+from npu_eneuron_reference import (
+    BIAS0_MAX, BIAS0_MIN, BIAS1_MAX, BIAS1_MIN,
+    InferenceResult, NpuConfig, NpuReference, _validate_integer_range,
+)
 
 
 LOGGER = logging.getLogger(__name__)
@@ -14,6 +17,11 @@ MODEL_WORD_COUNT = 634
 MASK_WORD_COUNT = 19
 MASK0_BITS = 512
 MASK1_BITS = 80
+
+class ModelCommandKind(str, Enum):
+    MODEL_BEGIN = "MODEL_BEGIN"
+    DATA = "DATA"
+    MODEL_COMMIT = "MODEL_COMMIT"
 
 
 @dataclass(frozen=True)
@@ -41,6 +49,89 @@ class MaskCommandKind(str, Enum):
     DATA = "DATA"
     MASK_COMMIT = "MASK_COMMIT"
     MASK_ABORT = "MASK_ABORT"
+
+@dataclass(frozen=True)
+class ModelCommand:
+    kind: object
+    word: object = 0
+
+@dataclass(frozen=True)
+class ModelStepResult:
+    cmd_ready: bool
+    cmd_accepted: bool
+    error_valid: bool
+    error_code: str | None
+    state: str
+    word_index: int
+    model_valid: bool
+
+class ModelConfigPort:
+    EMPTY = "empty"
+    LOADING = "loading"
+    COMPLETE = "complete"
+    COMMITTED = "committed"
+
+    def __init__(self, model: NpuReference) -> None:
+        self._model = model
+        self._state = self.EMPTY
+        self._word_index = 0
+        self._words: list[object] = []
+        self._pending_error: str | None = None
+        self._model_valid = False
+        self._frozen = False
+
+    @property
+    def state(self) -> str: return self._state
+    @property
+    def word_index(self) -> int: return self._word_index
+    @property
+    def model_valid(self) -> bool: return self._model_valid
+
+    def set_frozen(self, frozen: bool) -> None:
+        if frozen and self._state != self.EMPTY:
+            raise RuntimeError("cannot freeze while model staging is occupied")
+        self._frozen = bool(frozen)
+
+    def step(self, cmd_valid: bool, command: ModelCommand | None, response_ready: bool) -> ModelStepResult:
+        if self._pending_error is not None:
+            code = self._pending_error
+            if response_ready: self._pending_error = None
+            return self._result(False, False, True, code)
+        if not cmd_valid: return self._result(True, False, False, None)
+        code = self._execute(command)
+        if code is not None: self._pending_error = code
+        return self._result(True, True, code is not None, code)
+
+    def _result(self, ready: bool, accepted: bool, error: bool, code: str | None) -> ModelStepResult:
+        return ModelStepResult(ready, accepted, error, code, self._state, self._word_index, self._model_valid)
+
+    def _execute(self, command: ModelCommand | None) -> str | None:
+        if self._frozen: return "FROZEN"
+        if not isinstance(command, ModelCommand) or not isinstance(command.kind, ModelCommandKind): return "BAD_COMMAND"
+        if command.kind is ModelCommandKind.MODEL_BEGIN:
+            if self._state != self.EMPTY: return "BAD_STATE"
+            self._words, self._word_index, self._state = [], 0, "loading"
+            return None
+        if command.kind is ModelCommandKind.DATA:
+            if self._state != self.LOADING: return "BAD_STATE"
+            if type(command.word) is not int or not 0 <= command.word <= 0xFFFFFFFF: return "BAD_WORD"
+            try:
+                candidate = self._words + [command.word]
+                if len(candidate) in range(513, 545):
+                    _validate_integer_range(_signed(command.word, 32), minimum=BIAS0_MIN, maximum=BIAS0_MAX, label="layer0 bias")
+                if len(candidate) in range(625, 635):
+                    _validate_integer_range(_signed(command.word, 32), minimum=BIAS1_MIN, maximum=BIAS1_MAX, label="layer1 bias")
+            except ValueError: return "BAD_WORD"
+            self._words.append(command.word); self._word_index += 1
+            if self._word_index == MODEL_WORD_COUNT: self._state = "complete"
+            return None
+        if command.kind is ModelCommandKind.MODEL_COMMIT:
+            if self._state != "complete": return "BAD_STATE"
+            try: load_model_words(self._model, self._words)
+            except (ValueError, RuntimeError): return "BAD_MODEL"
+            self._model_valid, self._state = True, "committed"
+            return None
+        return "BAD_COMMAND"
 
 
 @dataclass(frozen=True)
