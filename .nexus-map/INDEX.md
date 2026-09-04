@@ -26,10 +26,10 @@ NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`。NP7 共享 BRAM/
 
 - **V1 审计问题**：统一单命令流却定义 `MODEL_COMMIT` 与 `MASK_COMMIT` 同拍竞争；结果 sideband 引入未冻结的 `model_epoch` 且硬件槽位账本不足；首 beat mask 切换未说明 framing 错误的零副作用/回滚；`runtime_idle` 漏待消费错误、部分结果和同拍握手占用；验证门低于 I5 的 20 个固定 seed × 100 样本要求。
 - **V2 修正**：固定 8/10 beat 并取消外部 `last`；明确 nibble 位序和内部 beat 计数；删除 `model_epoch`，结果 metadata 仅为 sample ID 与 mask epoch；统一命令流按握手顺序串行，配置命令优先样本首 beat；idle 纳入错误响应、部分输出、统一槽位及同拍仲裁；验证门恢复至少 20×100 样本并保留 OF6 定向/负向覆盖。
-- **当前门槛**：V2 八项裁定已批准并冻结为 `RTL_DESIGN_CONTRACT_V2_APPROVED`；provisional JSON 已记录 `rtl_allowed=true`、`vivado_allowed=false`。允许 RED/端口状态骨架，完整计算 RTL 仍须逐拍验证；Vivado 继续受 Python/Icarus 通过门禁，未通过前不得运行。
+- **当前门槛**：V2 八项裁定已批准并冻结为 `RTL_DESIGN_CONTRACT_V2_APPROVED`；provisional JSON 已记录 `rtl_allowed=true`、`vivado_allowed=false`。PR #54 的合并门暂缓：随机 testbench 曾在结果首 beat 消费处发生采样竞态，当前已确认 DUT 首 beat 数值正确，仍需修正两样本消费者的握手顺序并完成 20×100 门；GitHub CI 只对提交 HEAD 提供权威证据。完整计算 RTL 逐拍门通过前不得运行 Vivado。
 - **第二条 RTL 切片**：`test_npu_single_clock_mask.py` 驱动公开接口验证完整 19-word 顺序装载；非法 word18 高 16 位产生 128-bit 单槽错误响应且隐式索引保持 18，响应消费后可重试；`MASK_COMMIT` 只发布，后续样本首 beat 才令 epoch 1 active 并置 `mask_valid`，两个连续样本结果均携带 epoch 1。
 - **第三条 RTL 切片**：`test_npu_single_clock_control.py` 验证部分 mask 可由 `MASK_ABORT` 丢弃；`STATE_CLEAR` 保留模型/mask；freeze 只在严格 idle 边界切换，冻结时样本仍可完成，而模型/mask 配置与动态清除返回稳定错误且不改变状态。
-- **真实计算 RED**：`test_npu_single_clock_compute.py`/`tb_npu_eneuron_single_clock_compute.sv` 已用手算模型锁定 uint4×INT8、隐藏饱和、INT32 logit 与 L0 mask 门控；当前占位输出以 0 对 137 正确失败，最小 GREEN 尚未提交。
+- **真实计算状态**：`test_npu_single_clock_compute.py`/`tb_npu_eneuron_single_clock_compute.sv` 已锁定 uint4×INT8、隐藏饱和、INT32 logit 与 L0 mask 门控；`084f849` 已实现并通过对应四项单时钟定向计算门。完整 20×100 随机逐拍门仍待完成。
 - **真实计算 GREEN**：四 lane FETCH/ACCUM 引擎已通过首组 137/-117、两层最后组 59、L1 bit79 关闭后 -1，以及计算忙期间 command/sample/idle 阻塞；完整随机 bit-exact 与 Vivado 仍是后续门。
 - **配置合同补强**：模型写入已执行两层 signed bias 安全窗；mask 四态命令可与部分输入、计算和结果流并行准备 published bank，但只在下一样本首 beat 切换 active，模型/冻结/清除命令仍要求严格运行空闲。
 
