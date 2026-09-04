@@ -1,6 +1,6 @@
 # NPU + ENeuron Python Oracle 冻结审核
 
-状态：`OF1-OF6_V3_APPROVED / OF1A_UINT4_CORE_GREEN / OF1B_FIXED_MODEL_GREEN / OF3_MASK_ORDER_COST_GREEN / OF4A_MODEL_WORD_MAP_GREEN / OF4B1_MASK_WORD_MAP_GREEN / OF4B2_COMMAND_PORT_GREEN / OF4B2B_RUNTIME_COMBINATION_GREEN / IMPLEMENTATION_IN_PROGRESS`
+状态：`OF1-OF6_V3_APPROVED / OF1A_UINT4_CORE_GREEN / OF1B_FIXED_MODEL_GREEN / OF3_MASK_ORDER_COST_GREEN / OF4A_MODEL_WORD_MAP_GREEN / OF4B1_MASK_WORD_MAP_GREEN / OF4B2_COMMAND_PORT_GREEN / OF4B2B_RUNTIME_COMBINATION_GREEN / OF4C_TO_OF5_GREEN / OF6_ORACLE_SIGNOFF`
 
 适用范围：传统 `64→32→10` INT8 NPU 与 ENeuron 四权重整组门控的 Python 参考模型。OF1-OF6 V3 已于 2026-09-04 获管理员批准；本文冻结进入单时钟 RTL 前必须明确的语义。完整 oracle 冻结和 RTL 设计审核完成前，不创建集成业务 RTL，不运行新的 Vivado。
 
@@ -109,6 +109,12 @@
 - 模型配置共 634 word；顺序流只需 10-bit word counter，不需要 634-bit 完整性 bitmap，也不需要双份模型 RAM。
 - bias 合法性检查只位于低频配置路径；正常 MAC、权重读取、门控和输出路径不增加饱和逻辑。
 - 以上是逻辑规模推导，不是 LUT/FF/BRAM/DSP 或时序结果；OF1-OF6 和 RTL 设计获批前不运行 Vivado。
+
+## 7. OF6 最终签核
+
+OF1a、OF1b、OF3、OF4a、OF4b1、OF4b2、OF4b2b、OF4e、OF4g、OF5 已在 Python oracle 中完成；最终相关回归为 `48/48`，CI-Fast 为 `8/8`，`compileall` 与 `git diff --check` 通过。该证据证明的是 Python 参考模型和事务边界，不等同于 RTL、Vivado、资源、时序或板级性能证明。
+
+下一道人工门是根据本合同审核单时钟 RTL 设计；在该门通过前，不创建集成业务 RTL，不运行新的 Vivado。
 
 ## 5. 当前允许动作
 
