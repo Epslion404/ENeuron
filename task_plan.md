@@ -1160,7 +1160,7 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 - [x] 对 TR1-TR6 完成独立反审计；修正 TR3 对关闭组的自相矛盾，并补充 V1 失败后的路径分类升级顺序。
 - [x] 在不修改 testbench/RTL 的前提下冻结批准后的测试合同：C1-C4 组计数、精确计算延迟、白盒稳定断言、两层关闭末组定向向量、日志与 watchdog 门槛。
 - [x] 同步 `.nexus-map` 测试合同状态，保持 `PREPARED / BLOCKED_BY_TR1_TR6_APPROVAL`，未刷新或伪造旧 raw 探针。
-- [ ] 按测试合同形成 RED → DSP 强制三拍 RTL → 定向/随机/全仓回归 → 同条件 Vivado OOC 顺序执行。
+- [x] 按测试合同完成 RED → DSP 强制三拍 RTL → 定向/随机/全仓回归 → 同条件 Vivado OOC；执行链完成，但 OOC setup 失败，转入 V2 审核。
 
 ## 2026-09-04 DSP 强制时序修复实施
 
@@ -1169,7 +1169,7 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 - [x] 用 Vivado 2024.1 最小探针确认属性作用域和预期 4 DSP 映射：四个内部乘积信号分别标注时稳定得到 4 DSP；函数局部属性无效。
 - [x] 建立 C1-C4 三拍状态、精确周期和 DSP 结构 RED：旧 RTL 功能 1/1 GREEN；合同因缺少 `lane_sum_latched` RED；DSP 意图因 0/4 属性 RED。
 - [x] 实现四条共享 signed 8×8 DSP lane 与 `FETCH→EXECUTE→COMMIT`；L0/L1 只在对应 EXECUTE 选择数组，乘积分别符号扩展后求和。
-- [ ] 通过五项定向、固定 `20×100`、完整仓库回归和 Vivado `DSP=4`/100 MHz 物理门；前三项已通过，待 Vivado OOC。
+- [x] 五项定向、固定 `20×100`、完整仓库回归和 Vivado OOC 均已执行；功能与 `DSP=4` 通过，100 MHz setup 失败，不能标记为物理签核通过。
 
 当前执行点：`TIMING_REPAIR_DSP_V1_SETUP_FAIL / TIMING_REPAIR_V2_REVIEW_REQUIRED`。用户文件 `np75_tmp_sparse_protocol.ys` 保持未跟踪、未修改、未暂存。
 
@@ -1190,4 +1190,6 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 - [x] 证明 hold、route 和 DRC 通过；记录 setup `WNS=-0.673 ns`、`TNS=-6.462 ns`、22 个失败端点。
 - [x] 将新最差路径分类为动态激活选择/DSP/求和链，以及残余 logit 写使能链。
 - [x] 形成 V2 方案 A/B/C 比较和 TR7-TR12 审核稿。
+- [x] 推送实现与证据并创建 PR #58；以两路独立反审计修正 V2 写回语义、路径覆盖边界和持久状态残留。
+- [ ] 等待修订 HEAD 的全仓回归与 PR Gate；同 SHA 全绿且 mergeability=CLEAN 后合并。
 - [ ] 等待管理员批准 TR7-TR12；批准前禁止继续修改计算 RTL。

@@ -1265,3 +1265,10 @@
 - hold、route 和 DRC 通过；setup 仍为 `WNS=-0.673 ns`、`TNS=-6.462 ns`、22 个失败端点，最终 `PHYSICAL_GATE=NOT_PROVEN`。
 - 最差路径已从旧版写回长链转移为“组号动态选择激活值 → DSP48E1 → 四乘积求和 → lane_sum_latched”；另有约 -0.071 ns 的 logit 写使能路径。
 - 已更新 OOC manifest 和报告哈希，并形成 `docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V2.md`。当前停在 TR7-TR12 管理员审核门，未继续修改 RTL。
+
+## 2026-09-04 PR #58 发布反审计
+
+- 两次提交已推送并创建 PR #58；初始 HEAD `3c91d68` 的分类与快速检查成功，全仓回归按预期执行，XPM/NP7 三项无关门跳过。
+- 仓库外 webhook 已收到同一 SHA 的事件，但 `signature_verified=false`，因此只用作到达提示；GitHub API/checks 仍是合并权威来源。
+- 独立发布审计确认提交边界、manifest 哈希、报告与 RTL 绑定无 blocker；独立 V2 审计发现三项文档 blocker：写回寄存器语义不唯一、只报告前 20 条却过度外推全部 22 个端点、持久计划遗留 V1 待执行状态。
+- 已修正为共享 signed 32-bit `writeback_value_latched` 的唯一语义，明确前 20 条为 14 条 DSP/求和路径和 6 条写使能路径，并将 V1 执行链标记为“已执行但 setup 失败”。本轮仍未修改 RTL。

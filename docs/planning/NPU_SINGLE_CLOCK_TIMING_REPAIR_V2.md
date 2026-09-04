@@ -8,13 +8,13 @@
 
 TR1-TR6 已完成实现与验证：四条共享 signed 8×8 lane 被 Vivado 2024.1 映射为恰好 4 个 `DSP48E1`，单时钟专项 8/8、固定 `20×100` 随机逐 beat 和完整仓库 473/473（1 skipped）均通过。
 
-同一实现提交 `50550733e4af4779f3d6933738fa043ecb919970` 的 XC7Z020、100 MHz OOC 结果仍是 setup 失败：`WNS=-0.673 ns`、`TNS=-6.462 ns`、22 个失败端点；hold、route、DRC 和四 DSP 结构门均通过。因此 V1 不能签核为 100 MHz 收敛，但它已把旧版 `WNS=-5.087 ns`、244 个失败端点缩小到新的两类局部路径。
+同一实现提交 `50550733e4af4779f3d6933738fa043ecb919970` 的 XC7Z020、100 MHz OOC 结果仍是 setup 失败：`WNS=-0.673 ns`、`TNS=-6.462 ns`、22 个失败端点；hold、route、DRC 和四 DSP 结构门均通过。因此 V1 不能签核为 100 MHz 收敛。当前报告只展开前 20 条 setup 路径：其中 14 条属于 DSP/求和路径，6 条属于写使能路径；剩余 2 个失败端点未在该报告中展开，不能声称全部 22 个端点已完成分类。
 
 ## 2. 新关键路径分类
 
 第一类也是最差路径：`compute_group_index` 选择当前四个激活值，经过一个 `DSP48E1` 乘法和四乘积求和 carry chain，到达 `lane_sum_latched`。最差数据路径 10.651 ns，含 11 级逻辑：3 个 LUT、1 个 DSP48E1、2 个求和 LUT 和 5 个 CARRY4。该路径说明仅增加最终 WRITEBACK 不足以解决当前首要瓶颈。
 
-第二类路径从 `compute_group_index` 到 `logit_values` 分布式存储写使能，最差约 `-0.071 ns`，逻辑延迟不大但布线占主导。第一类路径修复后，它会成为新的签核阻断项。
+第二类路径从 `compute_group_index` 到 `logit_values` 分布式存储写使能，最差约 `-0.071 ns`，逻辑延迟不大但布线占主导。第一类路径修复后，它可能成为新的签核阻断项。该分类只覆盖报告列出的前 20 条路径。
 
 ## 3. 方案比较
 
@@ -22,7 +22,7 @@ TR1-TR6 已完成实现与验证：四条共享 signed 8×8 lane 被 Vivado 2024
 
 - 在每个启用组的 `FETCH` 拍同时锁存四个 signed 8-bit 激活值；权重继续锁存在现有 `model_word_latched`。
 - `EXECUTE` 只读取锁存后的四个激活值和权重，不再用 `compute_group_index` 动态访问 `input_pixels` 或 `hidden_values`。
-- L0/L1 各增加一个 WRITEBACK 状态。最后启用组在 COMMIT 形成最终值后进入 WRITEBACK；最后关闭组在 FETCH 锁存当前累加值后进入同一 WRITEBACK。数组写使能只由 WRITEBACK 状态产生。
+- L0/L1 各增加一个 WRITEBACK 状态，并共用一个 signed 32-bit `writeback_value_latched`。最后启用组在 COMMIT 锁存 `mac_accumulator + lane_sum_latched`；最后关闭组在 FETCH 锁存 `mac_accumulator`。L0 WRITEBACK 才执行 ReLU/127 饱和并写 `hidden_values`，L1 WRITEBACK 直接写 `logit_values`；两个数组只能在 WRITEBACK 状态写入。
 - 继续强制恰好 4 个 DSP48E1；不增加乘法器，不改变 INT32、mask、epoch、背压、freeze/clear 或外部端口。
 
 预估代价：约增加 64 个寄存器（四个激活值 32 bit、最终值 32 bit）和少量状态/选择逻辑；每样本固定增加 42 拍，对 V1 全开周期 1860 拍约增加 2.26%。100 MHz 下理论计算上限由约 53.8k 降到约 52.6k samples/s。实际资源与时序仍必须由 Vivado 报告裁定。
@@ -47,7 +47,14 @@ TR1-TR6 已完成实现与验证：四条共享 signed 8×8 lane 被 Vivado 2024
 
 ### TR9：统一独立 WRITEBACK
 
-L0/L1 每个神经元只在各自 WRITEBACK 状态写 `hidden_values` 或 `logit_values`。最后启用组和最后关闭组都必须经过 WRITEBACK，禁止从 FETCH/COMMIT 直接写数组。
+新增 L0/L1 共用的 signed 32-bit `writeback_value_latched`：
+
+- 最后启用组在 COMMIT 锁存 `mac_accumulator + lane_sum_latched`；
+- 最后关闭组在 FETCH 锁存 `mac_accumulator`；
+- L0 WRITEBACK 执行 `relu_saturate_u7(writeback_value_latched)` 后写 `hidden_values`；
+- L1 WRITEBACK 将 `writeback_value_latched` 原样写入 `logit_values`。
+
+最后启用组和最后关闭组都必须经过 WRITEBACK，禁止从 FETCH/COMMIT 直接写两个数组。该唯一语义是 TR10 每个神经元固定增加一拍的依据。
 
 ### TR10：精确周期合同更新
 

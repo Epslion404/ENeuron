@@ -1167,5 +1167,5 @@
 - 双重 DSP 结构门通过：utilization `DSP=4`，实现网表 `DSP48E1_COUNT=4`；四个 cell 分别是 `lane_product_0..3`。
 - hold `WHS=+0.090 ns`、route error=0、DRC error=0；setup 仍失败，`WNS=-0.673 ns`、`TNS=-6.462 ns`、22 个失败端点。相较旧版 `WNS=-5.087 ns`、244 个端点已有显著改善，但仍不能声明 100 MHz 收敛。
 - 新最差路径从 `compute_group_index_reg[1]_rep__1` 到 `lane_sum_latched_reg[30]`，数据路径 10.651 ns，其中逻辑 5.978 ns、布线 4.673 ns、11 级逻辑；实际经过 3 个激活选择 LUT、1 个 DSP48E1、求和 LUT 和 5 个 CARRY4。
-- 另有 `compute_group_index` 到 `logit_values` 分布式存储写使能的约 `-0.071 ns` 路径。只增加 WRITEBACK 会漏掉首要 DSP 输入路径；只锁存激活值又可能留下写使能失败，两类都必须处理。
+- 当前 `timing_impl.rpt` 只展开前 20 条 setup 路径：14 条属于动态激活选择/DSP/求和到 `lane_sum_latched`，6 条属于 `compute_group_index` 到 `logit_values` 写使能；剩余 2 个失败端点没有展开，不能声称全部 22 个端点已分类。只增加 WRITEBACK 会漏掉已知首要 DSP 输入路径；只锁存激活值又可能留下已知写使能失败。
 - KISS 首选 V2 是在 FETCH 锁存四个激活操作数，并让 L0/L1 最终值统一在独立 WRITEBACK 状态写数组。预估增加约 65 FF、少量 LUT 和每样本 42 拍；强制 DSP=4 和所有外部/数值合同不变。

@@ -1,7 +1,7 @@
 # 测试面与缺口
 
 generated_by: nexus-mapper v2 / manual synthesis
-verified_at: 2026-09-05
+verified_at: 2026-09-04
 provenance: repository test names, signoff summaries, workflow state, latest GitHub/Webhook evidence
 
 已覆盖：Python/RTL 协同仿真、有限形式安全与可达性、负向 mutation、Tile/System Vivado OOC、XPM 仿真、NP4B 三模型 60000 事务签核；CI-Fast V1 已完成 workflow 全量、文档轻量和 NPU-only 定向路径验证。CI Action 已升级到 `actions/checkout@v7` 与 `actions/setup-python@v7` 的 Node 24 基线，分类合同要求任何 workflow 变更运行全量门。NPU oracle 新增并通过 `test_zero_activity_with_closed_gate_emits_no_reads_or_macs`、`test_frequent_epoch_switches_never_mix_masks`、`test_pending_slot_backpressure_rejects_overwrite` 三项最坏情况测试。
@@ -12,7 +12,7 @@ NP6 结论为部分通过，NP7 已签核。OF1-OF6 Python oracle 保持 48/48�
 
 - 实现与 report head=`5055073`；C1-C4 的启用组/周期为 `592/1860`、`590/1856`、`0/676`、`591/1858`，逐组 bitmap、模型地址和关闭组旁路均通过。
 - Vivado 2024.1、`xc7z020clg400-1`、100 MHz 结果为 `2192 LUT / 1904 FF / 0 BRAM / 4 DSP48E1`；setup `WNS=-0.673 ns / TNS=-6.462 ns / 22` 个失败端点，hold `WHS=+0.090 ns / 0` 个失败端点，route/DRC error 为 0。
-- 新最差路径经过动态激活选择、DSP48E1 和四乘积求和到 `lane_sum_latched`；另有 logit 写使能路径。V2 审核稿要求同时处理两类路径。
+- 报告列出的前 20 条 setup 路径中，14 条经过动态激活选择、DSP48E1 和四乘积求和到 `lane_sum_latched`，6 条属于 logit 写使能；剩余 2 个失败端点未展开。V2 审核稿针对已知两类路径，不把它们冒充全部端点分类。
 - 当前尚未实现 V2；TR7-TR12 未批准前不得创建新 RED 或修改业务 RTL。
 
 ## V2 审核门（历史/协议背景）

@@ -3,7 +3,7 @@
 状态更新（2026-09-04）：TR1-TR6 已实现并完成 C1-C4、单时钟专项 8/8、固定 `20×100` 和完整仓库 473/473（1 skipped）。DSP V1 OOC 已确认恰好 4 个 DSP48E1，hold/route/DRC 通过，但 setup `WNS=-0.673 ns`、22 个端点失败。当前进入 `TIMING_REPAIR_V2_REVIEW_REQUIRED`，TR7-TR12 未批准前不继续修改 RTL。
 
 generated_by: nexus-mapper v2 / manual synthesis
-verified_at: 2026-09-05
+verified_at: 2026-09-04
 provenance: Python AST/file-tree probe plus SystemVerilog文件树和项目文档人工核对
 
 仓库分为六个边界：神经元 RTL 与 Python 参考模型、Tile/Host 网络、局部剪枝控制器、NP7 共享 BRAM/lane 执行器、传统 NPU + ENeuron 集成参考模型、验证与签核工具。CI-Fast V1 是验证编排边界，不改变业务硬件合同。跨边界的主要合同是逐周期/逐位比较、原子提交、INFER 状态冻结和 fail-closed SHA-256 摘要。
