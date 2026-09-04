@@ -1126,6 +1126,7 @@
 | 运行期 mask 首次并发修复仍 watchdog | 1 | `cmd_ready` 依赖 opcode，而测试 Host 在 valid 前等待 ready；改为无待响应且 valid=0 时乐观 ready，valid=1 时再按命令类别仲裁 |
 | 当前 OOC 实现 setup 未通过 | 1 | 保留完整失败证据；不修改业务语义换取假通过，下一步先做关键路径分析和最小流水化设计 |
 | staged 文件排除检查误用了 POSIX `exit 0` | 1 | PowerShell 将 `exit` 解析为不存在的命令；未改动文件，改用 PowerShell 原生命令单独检查暂存清单 |
+| `gh pr create` 使用了本机版本不支持的 `--json` 参数 | 1 | 创建命令本身未执行；移除该参数后成功创建 PR #55 |
 | 乐观 ready 使忙态无 valid 时 `cmd_ready=1`，破坏 compute/freeze 逐拍断言 | 2 | 恢复忙态按 opcode 分类；修正并发测试源为先稳定 valid/payload 再等待 ready 的标准握手顺序 |
 | `rg` 在 Windows 上直接使用 `docs/planning/NPU_*` 路径通配符失败 | 1 | 未修改文件；改用 `rg -g "NPU_*.md" docs/planning` |
 | Yosys 完整 `memory; check` 展开未复位数组产生海量未驱动 mux warning | 1 | 返回码为 0但不作为干净证据；改用提交前端/过程级 `read_verilog; hierarchy; proc; check`，仅保留 active mask 展开提示 |
