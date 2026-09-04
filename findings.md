@@ -1058,3 +1058,11 @@
 - frozen 仍允许 `begin_sample → complete_sample → accept_result`，但配置、动态清除和端口 `MASK_BEGIN` 均被拒绝；runtime 组合测试 5/5，完整 oracle 41/41。
 - 后续必须把相同全局 idle/freeze 合同映射到单时钟 RTL；本切片没有运行 Vivado，也没有声明硬件吞吐或资源收益。
 - 2026-09-04 单时钟 RTL 设计审核前静态审计发现：Python oracle 与设计稿在 634-word/19-word 镜像、数值域、结果背压、版本切换、复位和冻结边界上已对齐；但样本/结果 beat 字段、统一配置流拓扑、双 commit 同拍行为、`mask_valid` 默认全开语义、未提交模型的 `sample_ready` 行为和 runtime idle 硬件组合仍需明确。详见 `docs/planning/NPU_SINGLE_CLOCK_RTL_DESIGN_AUDIT_V1.md`，共 8 项待补规格，未创建 RTL、未运行 Vivado。
+
+## 2026-09-04 RTL 裁定 V1 审计与 V2 修正
+
+- 独立审计确认 V1 不能直接批准：结果 metadata 引入 oracle 未定义的 `model_epoch`，320-bit 结果槽账本不完整；统一命令流下不存在 `MODEL_COMMIT` 与 `MASK_COMMIT` 同拍竞争；样本 framing、首拍 mask 切换后的错误回滚、`model_valid=0` 的逐拍 ready 行为以及 `runtime_idle` 的错误/部分输出/FIFO 条件均未闭合。
+- V2 将样本固定为 8 个 `32-bit` beat、结果固定为 10 个 `32-bit` signed beat，beat 序号由 DUT 内部计数，取消外部 `last`；像素采用 `pixel[8*k+j] = beat_data[4*j +: 4]`，结果只锁存 `sample_id` 与 `mask_epoch`，删除 `model_epoch`。
+- V2 将配置固定为一条 128-bit 命令流和一条 128-bit 响应流；配置命令与样本首拍同拍时配置优先，统一命令流按握手顺序串行化两个 commit，不再定义不存在的 commit 碰撞优先级。
+- V2 明确复位后全开 mask 且 `mask_valid=0` 仍允许推理；样本首拍原子锁存 mask/epoch；`model_valid=0` 时 `sample_ready=0`；`runtime_idle` 必须计入 partial input、running、partial output、result/error slot 和命令/响应槽占用。
+- 验证门改为至少 20 个固定 seed × 每个 100 个样本（不少于 2000 个），并覆盖背压、reset、freeze/clear、epoch 回绕、错误同索引重试、全开/全关/mixed mask、负权重和负向 mutation。V2 provisional JSON 明确 `admin_review_required`、`rtl_allowed=false`、`vivado_allowed=false`。

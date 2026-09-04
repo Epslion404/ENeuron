@@ -2,7 +2,7 @@
 
 日期：2026-09-04
 
-结论：`REVIEW_WITH_ACTIONS`。Python oracle 已签核，但设计稿仍有几处必须在 RTL 开工前明确的接口细节。它们不是当前 Python 回归失败，而是从函数级模型进入逐拍硬件时的规格缺口。推荐裁定见 `NPU_SINGLE_CLOCK_RTL_DECISION_SHEET_V1.md`，机器可读草案见 `npu_single_clock_contract_provisional.json`；该 JSON 明确标记为 provisional，不是冻结合同。
+结论：V1 的规格缺口已由 V2 裁定补齐。管理员已于 2026-09-04 批准 V2 八项裁定，现允许按 V2 开始测试先行的 RTL 骨架；本文件保留 V1 审计证据，后续逐拍实现必须继续满足 V2 合同。
 
 ## 已对齐部分
 

@@ -1176,3 +1176,6 @@
 - 2026-09-04 设计审核前静态审计：新增 `NPU_SINGLE_CLOCK_RTL_DESIGN_AUDIT_V1.md`，确认 Python 合同与设计稿已对齐的 7 类内容，并列出 8 项逐拍接口/状态细节缺口；因此设计状态改为 `REVIEW_WITH_ACTIONS`，仍未创建 RTL、未运行 Vivado。
 - 2026-09-04 裁定表：新增 `NPU_SINGLE_CLOCK_RTL_DECISION_SHEET_V1.md`，为 8 项缺口提供推荐接口、仲裁、`mask_valid`、`model_valid` 和验证门；全部标为管理员待批准，仍未创建 RTL、未运行 Vivado。
 - 2026-09-04 provisional 合同：新增 `npu_single_clock_contract_provisional.json`，把 8 项建议转为机器可读字段，明确 `status=admin_review_required`、`rtl_allowed=false`、`vivado_allowed=false`；未改变冻结合同。
+- 2026-09-04 RTL 裁定 V2：独立审计确认 V1 的 `model_epoch`、双 commit 竞争和 framing/idle 定义存在缺口；新增 `NPU_SINGLE_CLOCK_RTL_DECISION_SHEET_V2.md` 与 `npu_single_clock_contract_provisional_v2.json`，仍禁止 RTL/Vivado。
+- 2026-09-04 管理员批准 RTL 裁定 V2 八项决策：V2 合同状态更新为 `approved_by_admin`，允许开始测试先行的单时钟 RTL 骨架；Vivado 仍须等待 Icarus/Python 功能门通过。
+- 2026-09-04 单时钟 RTL 第一条垂直切片：新增 `npu_eneuron_single_clock_skeleton.sv`、`tb_npu_eneuron_single_clock_skeleton.sv`、`test_npu_single_clock_skeleton.py` 与端口字段表。Icarus 使用 `C:\\msys64\\ucrt64\\bin\\iverilog.exe`/`vvp.exe` 实际通过模型无效拒收、634-word 顺序提交、非法响应背压、配置优先样本、8-beat 输入和 10-beat 零结果输出；当前仍未接入真实 MAC、mask 双 bank 或 Vivado。
