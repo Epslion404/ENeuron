@@ -7,7 +7,7 @@
 - [x] 新增端点审计文档并同步 V2 审核稿、findings、progress、TODO 和持久状态；原始 OOC manifest 保持不变。
 - [x] 完成 Nexus 独立复核，确认 14+8 分类并移除知识库中的旧边界表述。
 - [x] 完成 CI-Fast 分类测试 8/8、diff whitespace 检查、报告 SHA-256 与 22=14+8+0 解析检查。
-- [ ] 提交、PR 与 CI/Webhook 同 SHA 闭环。
+- [x] 提交为 `c0f1bea`，PR #60 的 run `33911646530` 与 Webhook 同 SHA 成功，并合并为 `main@4fc4c71`。
 - [ ] 请求管理员批准 TR7-TR12；获批前不修改计算 RTL。
 
 ## 2026-09-04 TR1-TR6 + DSP48E1 执行切片

@@ -1,6 +1,6 @@
 # 系统边界
 
-状态更新（2026-09-04）：TR1-TR6 已实现并完成 C1-C4、单时钟专项 8/8、固定 `20×100` 和完整仓库 473 项。DSP V1 OOC 已确认恰好 4 个 DSP48E1，hold/route/DRC 通过，但 setup `WNS=-0.673 ns`、22 个端点失败。扩展报告已完整分类全部 22 个失败端点：14 个属于动态激活选择、DSP48E1 和求和到 `lane_sum_latched`，8 个属于 `compute_group_index` 到 `logit_values` 写使能。PR #58 已合并为 `main@999038f`；当前进入 `TIMING_REPAIR_V2_REVIEW_REQUIRED`，TR7-TR12 未批准前不继续修改 RTL。
+状态更新（2026-09-04）：TR1-TR6 已实现并完成 C1-C4、单时钟专项 8/8、固定 `20×100` 和完整仓库 473 项。DSP V1 OOC 已确认恰好 4 个 DSP48E1，hold/route/DRC 通过，但 setup `WNS=-0.673 ns`、22 个端点失败。扩展报告已完整分类全部 22 个失败端点：14 个属于动态激活选择、DSP48E1 和求和到 `lane_sum_latched`，8 个属于 `compute_group_index` 到 `logit_values` 写使能。PR #60 已于 2026-09-04 合并为 `main@4fc4c71`；HEAD `c0f1bea` 的 CI run `33911646530` 成功。当前仍处于 `TIMING_REPAIR_V2_REVIEW_REQUIRED`，等待管理员批准 TR7-TR12，批准前不继续修改 RTL。
 
 generated_by: nexus-mapper v2 / manual synthesis
 verified_at: 2026-09-04

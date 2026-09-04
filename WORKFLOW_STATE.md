@@ -8,7 +8,7 @@
 
 ## 当前活动目标
 
-NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定及 TR1-TR6 已批准。DSP V1 实现与真实 OOC 失败证据已经 PR #58 合入 `main@999038f`；当前目标是审核下一轮最小时序修复，未经 TR7-TR12 新批准不继续修改 RTL。
+NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定及 TR1-TR6 已批准。DSP V1 实现、真实 OOC 失败证据和全部 22 个失败端点审计已经 PR #58/#60 合入 `main@4fc4c71`；当前目标是审核下一轮最小时序修复，未经 TR7-TR12 新批准不继续修改 RTL。
 
 活动合同：`docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V1.md`、`docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_TEST_CONTRACT_V1.md` 和 `docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V2.md`。当前 RTL 已完成共享四 DSP lane、三拍组计算、active-mask 门控和全部功能回归。Vivado 2024.1 OOC 已确认恰好 4 个 DSP48E1，route/DRC 无错误且 hold 通过，但 100 MHz setup 仍未通过；板级、网口、DMA、功耗仍不在本阶段。
 
@@ -28,6 +28,7 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 - DSP V1 实现 HEAD `5055073` 的 Vivado 2024.1 OOC 报告已生成：`2192 LUT / 1904 FF / 0 BRAM / 4 DSP48E1`，DSP 双重硬门通过；setup `WNS=-0.673 ns / TNS=-6.462 ns / 22` 个失败端点，hold `WHS=+0.090 ns / 0` 个失败端点，route errors=0、DRC errors=0。该结果取代旧 OOC 作为当前物理边界，但仍不是 100 MHz 通过证据。
 - PR #58 HEAD `c7e1247` 的 Actions run `33907986001` 已完成成功：全仓 473 项通过（CI 环境 3 项跳过）、固定随机 20×100 通过、最终 `PR Gate` 成功；PR 已合并为 `main@999038f`。Webhook 收到同 SHA completed/success，但签名未验证，GitHub API 是权威终态。
 - 已从保留 routed checkpoint 扩展导出最多 50 条路径并完整覆盖全部 22 个 setup 失败端点：14 个属于动态激活选择/DSP/求和到 `lane_sum_latched`，8 个属于 `compute_group_index` 到 `logit_values` 写使能；不再存在未分类端点。证据身份见 `docs/verification/NPU_SINGLE_CLOCK_TIMING_ENDPOINT_AUDIT_V1.md`。
+- PR #60 HEAD `c0f1bea` 的 Actions run `33911646530` 已完成成功：分类和 Fast Python/diff check 成功、PR Gate 成功，其余无关重门按 CI-Fast V1 跳过；Webhook 收到同 SHA 的 `completed/success`。PR 已合并为 `main@4fc4c71`。
 
 ## 允许动作
 
@@ -45,7 +46,7 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 
 ## 下一动作
 
-完成全部 22 个失败端点补证的 PR/CI 闭环，随后请求管理员审核 `docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V2.md` 的 TR7-TR12。获批后才进入测试 RED、最小 RTL、定向/随机/全仓回归和同条件 OOC；通过前不进入 XC7Z020 顶层规划。
+请求管理员审核 `docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V2.md` 的 TR7-TR12。获批后才进入测试 RED、最小 RTL、定向/随机/全仓回归和同条件 OOC；通过前不进入 XC7Z020 顶层规划。
 
 ## 2026-09-04 Vivado OOC 物理门收口
 

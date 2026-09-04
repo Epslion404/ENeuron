@@ -1176,3 +1176,9 @@
 - 全部 22 个端点完成分类：14 个从 `compute_group_index_reg[1]_rep__1` 经动态激活选择、DSP48E1 和求和链到 `lane_sum_latched`；8 个从 `compute_group_index_reg[3]` 到 `logit_values` 分布式存储写使能。
 - 旧文档中的“前 20 条为 14+6、剩余2个未分类”是原冻结报告的可见边界，现已由扩展报告补齐为 `14+8=22`；TR7/TR8 与 TR9 分别覆盖两个端点族，V2 方案边界无需改变。
 - 完整证据身份和逐端点清单见 `docs/verification/NPU_SINGLE_CLOCK_TIMING_ENDPOINT_AUDIT_V1.md`。该审计不修改 RTL、约束、实现或原始 manifest，物理状态仍是 `VIVADO_OOC_SETUP_FAIL`。
+
+## 2026-09-04 PR #60 合并事实
+
+- PR #60 将全部 22 个失败端点补证和 Nexus 同步合入主线，merge commit 为 `4fc4c71e4c579d9b7181cd09950daf5b521854d4`。
+- 权威 Actions run `33911646530` 绑定 HEAD `c0f1beaff63ffa516c8fea2de749819a9f534b4e` 并成功；Webhook 同 SHA 终态也为 success，但签名未验证，只作交叉通知。
+- 当前没有开放的实现授权：TR7-TR12 仍需管理员批准。该合并只增强失败路径证据，不改变 `DSP_GATE_PASS / VIVADO_OOC_SETUP_FAIL`。
