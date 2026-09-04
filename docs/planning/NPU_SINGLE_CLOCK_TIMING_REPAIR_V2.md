@@ -24,10 +24,12 @@ TR1-TR6 已完成实现与验证：四条共享 signed 8×8 lane 被 Vivado 2024
 
 - 在每个启用组的 `FETCH` 拍同时锁存四个 signed 8-bit 激活值；权重继续锁存在现有 `model_word_latched`。
 - `EXECUTE` 只读取锁存后的四个激活值和权重，不再用 `compute_group_index` 动态访问 `input_pixels` 或 `hidden_values`。
-- L0/L1 各增加一个 WRITEBACK 状态，并共用一个 signed 32-bit `writeback_value_latched`。最后启用组在 COMMIT 锁存 `mac_accumulator + lane_sum_latched`；最后关闭组在 FETCH 锁存 `mac_accumulator`。L0 WRITEBACK 才执行 ReLU/127 饱和并写 `hidden_values`，L1 WRITEBACK 直接写 `logit_values`；两个数组只能在 WRITEBACK 状态写入。
+- L0/L1 各增加一个 WRITEBACK 状态，并复用现有 signed 32-bit `mac_accumulator` 保存最终值。最后物理组启用时，COMMIT 先把 `mac_accumulator + lane_sum_latched` 写回 accumulator；最后物理组关闭时，FETCH 保持 accumulator 不变。下一拍 L0 WRITEBACK 执行 ReLU/127 饱和并写 `hidden_values`，L1 WRITEBACK 直接写 `logit_values`；两个数组只能在 WRITEBACK 状态写入。
 - 继续强制恰好 4 个 DSP48E1；不增加乘法器，不改变 INT32、mask、epoch、背压、freeze/clear 或外部端口。
 
-预估代价：约增加 64 个寄存器（四个激活值 32 bit、最终值 32 bit）和少量状态/选择逻辑；每样本固定增加 42 拍，对 V1 全开周期 1860 拍约增加 2.26%。100 MHz 下理论计算上限由约 53.8k 降到约 52.6k samples/s。实际资源与时序仍必须由 Vivado 报告裁定。
+预估代价：约增加 32 个寄存器（四个激活值共 32 bit）和少量状态/选择逻辑；两个 WRITEBACK 状态仍可放入现有 4-bit 状态编码。每样本固定增加 42 拍，对 V1 全开周期 1860 拍约增加 2.26%。100 MHz 下理论计算上限由约 53.8k 降到约 52.6k samples/s。准确资源与修改后时序仍必须由 Vivado 报告裁定。
+
+复用 accumulator 的修改位置、状态转移、定向时序证据和测试地图见 `NPU_SINGLE_CLOCK_TIMING_REPAIR_V2_IMPLEMENTATION_MAP.md`。现有 routed checkpoint 中 32 个 `mac_accumulator[*]/D` 端点的最差 setup slack 为 `+5.272 ns`；该证据支持优先采用此 KISS 方案，但不替代修改后的完整 OOC。
 
 ### 方案 B：再增加乘积寄存拍
 
@@ -49,14 +51,14 @@ TR1-TR6 已完成实现与验证：四条共享 signed 8×8 lane 被 Vivado 2024
 
 ### TR9：统一独立 WRITEBACK
 
-新增 L0/L1 共用的 signed 32-bit `writeback_value_latched`：
+L0/L1 共用现有 signed 32-bit `mac_accumulator` 作为最终写回值，不新增第二个 32-bit 寄存器：
 
-- 最后启用组在 COMMIT 锁存 `mac_accumulator + lane_sum_latched`；
-- 最后关闭组在 FETCH 锁存 `mac_accumulator`；
-- L0 WRITEBACK 执行 `relu_saturate_u7(writeback_value_latched)` 后写 `hidden_values`；
-- L1 WRITEBACK 将 `writeback_value_latched` 原样写入 `logit_values`。
+- 物理末组启用时，COMMIT 更新 `mac_accumulator <= mac_accumulator + lane_sum_latched` 后进入 WRITEBACK；
+- 物理末组关闭时，FETCH 保持 `mac_accumulator` 后直接进入 WRITEBACK；
+- L0 WRITEBACK 执行 `relu_saturate_u7(mac_accumulator)` 后写 `hidden_values`；
+- L1 WRITEBACK 将 `mac_accumulator` 原样写入 `logit_values`。
 
-最后启用组和最后关闭组都必须经过 WRITEBACK，禁止从 FETCH/COMMIT 直接写两个数组。该唯一语义是 TR10 每个神经元固定增加一拍的依据。
+最后启用组和最后关闭组都必须经过 WRITEBACK，禁止从 FETCH/COMMIT 直接写两个数组；神经元索引只能在 WRITEBACK 完成后推进。这里的“末组”始终指 L0 group15 或 L1 group7，不是 mask 中最后一个启用组。该唯一语义是 TR10 每个神经元固定增加一拍的依据。
 
 ### TR10：精确周期合同更新
 
@@ -68,7 +70,7 @@ TR1-TR6 已完成实现与验证：四条共享 signed 8×8 lane 被 Vivado 2024
 
 ### TR12：验证和停止条件
 
-先更新 C1-C4 的周期与白盒状态合同，再修改 RTL；随后依次运行单时钟专项、固定 `20×100`、完整仓库回归和同器件同约束 Vivado OOC。只有 `DSP=4`、setup/hold 失败端点均为 0、route/DRC error 为 0 才能签核。若方案 A 仍失败，保留完整报告并重新审核方案 B，不自动继续加流水。
+新建独立 V2 测试合同，先更新 C1-C4 的周期与白盒状态检查并证明旧 RTL 精确 RED，再修改 RTL。compute testbench watchdog 可从 9000 定向调整为 9500 拍，精确周期断言继续拒绝额外停顿；其他 watchdog 不变。随后依次运行单时钟专项、固定 `20×100`、完整仓库回归和同器件同约束 Vivado OOC。只有 `DSP=4`、setup/hold 失败端点均为 0、route/DRC error 为 0 才能签核。若方案 A 仍失败，保留完整报告并重新审核方案 B，不自动继续加流水。
 
 ## 5. 审核停止点
 

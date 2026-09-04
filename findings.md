@@ -1182,3 +1182,12 @@
 - PR #60 将全部 22 个失败端点补证和 Nexus 同步合入主线，merge commit 为 `4fc4c71e4c579d9b7181cd09950daf5b521854d4`。
 - 权威 Actions run `33911646530` 绑定 HEAD `c0f1beaff63ffa516c8fea2de749819a9f534b4e` 并成功；Webhook 同 SHA 终态也为 success，但签名未验证，只作交叉通知。
 - 当前没有开放的实现授权：TR7-TR12 仍需管理员批准。该合并只增强失败路径证据，不改变 `DSP_GATE_PASS / VIVADO_OOC_SETUP_FAIL`。
+
+## 2026-09-04 V2 KISS 实施审计
+
+- V2 不需要新增原计划的 signed 32-bit `writeback_value_latched`。现有 `mac_accumulator` 在物理末组启用时由 COMMIT 更新，末组关闭时保持原值，随后都可由统一 WRITEBACK 读取。
+- 从 DSP V1 routed checkpoint 定向检查全部 32 个 `mac_accumulator[*]/D` 端点，最差 setup slack 为 `+5.272 ns`、data path delay 为 `4.381 ns`、3 级逻辑；报告 SHA-256 为 `E0725B14C16150406347101814C6CA067359DBF102BFCCB68947256275833D36`。这是候选结构依据，不是修改后 OOC 通过证据。
+- V2 预计新增状态由约 64 bit 收敛为四个 signed 8-bit 激活锁存器，共约 32 bit；两个 WRITEBACK 状态仍装入现有 4-bit FSM。准确 LUT/FF 与时序必须等待获批后的 Vivado 实测。
+- 每个样本仍固定增加 42 个 WRITEBACK 周期，C1/C2/C3/C4 预计为 `1902/1898/718/1900`。compute testbench 的 9000 拍 watchdog 预计只剩 1122.5 拍余量，批准后应定向调到 9500；精确周期断言不放宽。
+- `COMPUTE_COMPLETE` 必须延后到最终 `L1_WRITEBACK && unit==9`，但可直接读取当前稳定 active-mask 的末位保留 `path=COMMIT` / `path=MASK_BYPASS`，无需新增硬件来源状态。
+- 当前仍为 `REVIEW_REQUIRED / RTL_CHANGES_BLOCKED`；本轮只冻结实施地图和测试边界，不修改 RTL、测试周期或 OOC 证据。

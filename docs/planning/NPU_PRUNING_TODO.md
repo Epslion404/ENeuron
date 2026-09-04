@@ -1,10 +1,10 @@
 # ENeuron NPU 局部自动剪枝与动态门控计划
 
-状态：`APPROVED`
+状态：`NP4B_COMPLETED / NP6_PARTIAL / NP7_SIGNED_OFF / NPU_INTEGRATION_TIMING_REPAIR_V2_REVIEW`
 
 日期：2026-08-28
 
-范围：规划与验收合同；NP0 已批准，后续新增独立模型/适配器，不直接改写已签核神经元 RTL
+范围：规划与验收合同；NP0-NP7 已执行，当前转入传统 NPU + ENeuron 集成时序修复；不直接改写已签核神经元 RTL
 
 ## 1. 目标
 
@@ -326,29 +326,29 @@ B1/B2 和最小量化扫描已完成。三模型分别选择 S2 gain=`1/2/1`，B
 
 B1/B2/NP3 闭环已完成。三模型从同一父 checkpoint 运行一次、软件渐进和错误符号分支；一次与渐进均为 100%，错误符号均为 0%，因此选择一次剪枝。账本证明零 Host mask 写入、每 detector 一次 commit、两次公平微调、被剪权重/历史冻结和同分支 INFER 指纹不变。完整证据见 `docs/reports/LOCAL_PRUNE_NP3_REPORT.md`。
 
-当前硬门结论：三模型已通过 NP2/NP3；B2.1 output-2:4 也已将全网读取/发射降到 120，减少 50%，因此 NP4 实现门已打开。NP4-NP7 本身仍全部未完成，禁止把软件结果写成 RTL 或功耗结论。
+当前硬门结论：三模型已通过 NP2/NP3，B2.1 output-2:4 将全网读取/发射降到 120，减少 50%；NP4B 已完成正式接入，NP5 已完成协同仿真和形式检查，NP6 的七配置物理结论为 `PARTIAL`，NP7.0-NP7.7 已签核。当前执行入口已转为传统 NPU + ENeuron 单时钟 V2 时序修复审核；历史软件、NP6 或 NP7 证据不能替代当前集成 RTL 的 100 MHz OOC。
 
 ### NP4：局部剪枝 RTL
 
 - [x] 用户审核并冻结 B2.1 推荐的六项 NP4 V1 接口决定。
 - [x] 新建独立 `local_prune_gate_2of4.sv`，暂不侵入已签核核心。
 - [x] 使用多周期四路扫描生成前两名，明确每条命令的精确延迟。
-- [ ] 接入 ENeuron snapshot/mod commit 旁路或测试适配器，不复制神经元方程。
+- [x] 接入 ENeuron snapshot/mod commit 旁路或测试适配器，不复制神经元方程。
 - [x] 提供 `OBSERVE / PRUNE_CLEAR / PRUNE_COMMIT / MASK_READ`；CONFIG 测试口单独控制。
 - [x] 所有状态只使用主时钟和同步使能，不生成门控时钟。
 - [x] 添加定宽综合审计端口，综合版本不依赖字符串日志。
 - [x] 同一控制器支持隐藏层组和输出层分账；V1 不实现整 detector channel enable。
 - [x] 三模型固定 evidence gain=`1/2/1`，控制器不存在直接权重恢复写口。
-- [ ] Pulse-Mini-L/L2 wrapper 在 FEEDBACK 接受沿锁存 evidence、成功响应后提交 OBSERVE。
-- [ ] 建立真正四输入的输出分组 wrapper；现有 `4→2→2` tile 输出核只有两输入，不能冒充输出 `2:4`。
+- [x] Pulse-Mini-L/L2 wrapper 在 FEEDBACK 接受沿锁存 evidence、成功响应后提交 OBSERVE。
+- [x] 建立真正四输入的输出分组 wrapper；没有用原 `4→2→2` tile 的两输入输出核冒充输出 `2:4`。
 
 硬门：不修改原 ENeuron 与 Pulse-Mini 的冻结行为；新模块可独立旁路。
 
 NP4 V1 六项决定已于 2026-08-29 获用户批准并冻结：隐藏层和输出层统一严格 `2:4`；三模型 evidence gain 固定为 `1/2/1`；每组只允许一次原子 `PRUNE_COMMIT`；不实现整 detector/channel enable；输出稀疏后的恢复只走既有 TRAIN/FEEDBACK；`issue_mask` 必须在权重读取和计算发射前形成，并分别统计隐藏层与输出层结构节省。批准只开放 NP4/NP5 实现，不代表 RTL、资源、时序或功耗已经通过。
 
-NP4A 公共控制器已于 2026-08-29 通过：四拍扫描、原子双位 mask、固定 gain 适配器、读取前 `issue_mask` 和层级分账均已实现。NP4B 正式接入仍未完成，因为 ENeuron 尚无可综合 snapshot evidence 输出，Pulse 尚需在 FEEDBACK 清除前锁存 evidence，现有 `4→2→2` 输出层也不是四输入组。完整边界见 `docs/reports/LOCAL_PRUNE_RTL_REPORT.md`。
+NP4A 公共控制器已于 2026-08-29 通过：四拍扫描、原子双位 mask、固定 gain 适配器、读取前 `issue_mask` 和层级分账均已实现。NP4B 八项实现决定同日获用户批准并已完成实施：ENeuron 导出正式 committed snapshot，Pulse wrapper 在 FEEDBACK 清除前锁存 evidence，并建立真正四输入的输出分组。NP4B 完成边界见 `docs/planning/NPU_PRUNING_NP4B_TODO.md`；`docs/reports/LOCAL_PRUNE_RTL_REPORT.md` 只保留 NP4A 的历史基线，不作为 NP4B 当前状态来源。
 
-NP4B 八项实现决定已于 2026-08-29 获用户批准并完成实施。NP6 已完成并合并：7 个配置均实现完成、route/DRC error 为 0，但只有 gate 与 ENeuron 剪枝封装通过 100 MHz，因此状态为 `NP6_PHYSICAL_COST_PARTIAL`。NP7 共享 BRAM/lane 已完成并合并，当前剪枝主线进入传统 NPU + ENeuron 集成的 OOC 物理门。
+NP6 已完成并合并：7 个配置均实现完成、route/DRC error 为 0，但只有 gate 与 ENeuron 剪枝封装通过 100 MHz，因此状态为 `NP6_PHYSICAL_COST_PARTIAL`。NP7 共享 BRAM/lane 已完成并合并，当前剪枝主线进入传统 NPU + ENeuron 集成的 OOC 物理门。
 
 ### NP5：协同仿真和形式检查
 
@@ -372,14 +372,14 @@ NP5 当前签核范围仅为独立公共控制器；三核心 wrapper 完成后�
 
 ### NP7：真正跳算的共享 lane
 
-- [ ] 建立四权重稠密组与 `2 weight + 4-bit mask` 稀疏组的 BRAM 格式。
-- [ ] 调度器只为 `issue_mask` 中有效连接产生读请求和 lane 操作。
-- [ ] `issue_mask=0` 时走零突触快速路径，但仍保持神经元时间状态 bit-exact。
-- [ ] 比较 1/2/4/8 lane 的周期、持续吞吐、BRAM 带宽和输出拥塞。
-- [ ] 增加“门控放在 MAC 之后”的负向版本，证明性能计数器能够拒绝伪收益。
-- [ ] 与稠密参考逐 tick、逐膜状态、逐输出 bit-exact。
+- [x] 建立四权重稠密组与“两权重 + 两个 2-bit 位置索引”的稀疏格式；结构掩码由索引唯一重建，不保存第二份真值。
+- [x] 调度器只为 `issue_mask` 中有效连接产生读请求和 lane 操作。
+- [x] `issue_mask=0` 时走零突触快速路径，但仍保持神经元时间状态 bit-exact。
+- [x] 比较 1/2/4/8 lane 的周期、持续吞吐、存储读取和输出拥塞。
+- [x] 增加“全读后门控”和“MAC 后清零”负向版本，证明性能 verifier 能拒绝伪收益。
+- [x] 与稠密参考逐 tick、逐膜状态、逐输出 bit-exact。
 
-硬门：满足 7.3 的读取、操作和周期减少；否则项目只可声明模型稀疏，不能声明 NPU 加速。
+硬门已通过：NP7.3 共 160 配置、160,000 事务逐拍比对零失败；NP7.7 的 dense/sparse × 1/2/4/8 lane 八种配置在其绑定的 Vivado 2024.2、`xc7z020clg400-1`、100 MHz OOC 条件下 8/8 收敛。该结论只证明共享执行原型，不外推到当前单时钟集成 RTL、板级 DMA/网口吞吐或真实功耗。权威边界见 `docs/planning/NPU_PRUNING_NP7_TODO.md` 与 `docs/reports/LOCAL_PRUNE_NP7_SHARED_LANE_REPORT.md`。
 
 ### NP8：可选动态恢复
 

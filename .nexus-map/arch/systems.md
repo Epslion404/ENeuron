@@ -1,6 +1,6 @@
 # 系统边界
 
-状态更新（2026-09-04）：TR1-TR6 已实现并完成 C1-C4、单时钟专项 8/8、固定 `20×100` 和完整仓库 473 项。DSP V1 OOC 已确认恰好 4 个 DSP48E1，hold/route/DRC 通过，但 setup `WNS=-0.673 ns`、22 个端点失败。扩展报告已完整分类全部 22 个失败端点：14 个属于动态激活选择、DSP48E1 和求和到 `lane_sum_latched`，8 个属于 `compute_group_index` 到 `logit_values` 写使能。PR #60 已于 2026-09-04 合并为 `main@4fc4c71`；HEAD `c0f1bea` 的 CI run `33911646530` 成功。当前仍处于 `TIMING_REPAIR_V2_REVIEW_REQUIRED`，等待管理员批准 TR7-TR12，批准前不继续修改 RTL。
+状态更新（2026-09-04）：当前基线为 `main@bef5979`。TR1-TR6 已实现并完成 C1-C4、单时钟专项 8/8、固定 `20×100` 和完整仓库 473 项。DSP V1 OOC 已确认恰好 4 个 DSP48E1，hold/route/DRC 通过，但 100 MHz setup `WNS=-0.673 ns / TNS=-6.462 ns / 22` 个端点失败。扩展报告已完整分类全部 22 个失败端点：14 个属于动态激活选择、DSP48E1 和求和到 `lane_sum_latched`，8 个属于 `compute_group_index` 到 `logit_values` 写使能。当前仍处于 `TIMING_REPAIR_V2_REVIEW_REQUIRED`，TR7-TR12 尚未批准，批准前不继续修改 RTL。
 
 generated_by: nexus-mapper v2 / manual synthesis
 verified_at: 2026-09-04
@@ -10,4 +10,4 @@ provenance: Python AST/file-tree probe plus SystemVerilog文件树和项目文�
 
 NP6 物理评估正式状态为 `NP6_PHYSICAL_COST_PARTIAL`；NP7 已签核。传统 NPU + ENeuron 的 DSP V1 实现为 report head=`5055073`：`2192 LUT / 1904 FF / 4 DSP48E1`，setup 失败，故不得外推 100 MHz 收敛、板级吞吐、动态功耗或部署性能。`np75_tmp_sparse_protocol.ys` 被明确排除在提交、Nexus 文件树和原始探针之外。
 
-状态覆盖：OF4a 至 OF6 属于已签核 Python oracle 历史阶段；当前以 `TR1_TR6_APPROVED / TIMING_REPAIR_V1_FUNCTIONAL_GREEN / DSP_GATE_PASS / VIVADO_OOC_SETUP_FAIL / TIMING_REPAIR_V2_REVIEW_REQUIRED` 为准。三拍 RTL 已实现，但 100 MHz 仍未收敛。
+状态覆盖：OF4a 至 OF6 属于已签核 Python oracle 历史阶段；当前以 `TR1_TR6_APPROVED / TIMING_REPAIR_V1_FUNCTIONAL_GREEN / DSP_GATE_PASS / VIVADO_OOC_SETUP_FAIL / TIMING_REPAIR_V2_REVIEW_REQUIRED` 为准。V2 实施地图位于 `docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V2_IMPLEMENTATION_MAP.md`：复用 signed 32-bit `mac_accumulator` 作为最终写回值，不新增 `writeback_value_latched`，仅预计增加四个 signed 8-bit 激活锁存器（约 32 FF）。三拍 RTL 已实现，但 100 MHz 仍未收敛。

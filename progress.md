@@ -1288,3 +1288,16 @@
 - 端点审计提交为 `c0f1bea`；PR #60 的 Actions run `33911646530` 完成成功，分类、Fast Python/diff check 与 PR Gate 均通过，无关重门按 CI-Fast V1 跳过。
 - 仓库外 Webhook 收到同一 HEAD 的 `workflow_run completed/success`，`signature_verified=false`，继续只作为到达通知；GitHub API/Checks 为合并权威。
 - PR #60 在 `CLEAN / MERGEABLE`、两路独立审计无 blocker 后合并为 `main@4fc4c71`。活动门正式收口为 TR7-TR12 管理员批准；未修改计算 RTL。
+
+## 2026-09-04 V2 审核材料 KISS 收口
+
+- 复核当前本地、`main` 与 `origin/main` 均为 `bef5979`；`local_prune_rtl_results.json` 的行尾/stat 异常和用户文件 `np75_tmp_sparse_protocol.ys` 均保持未暂存、未修改内容。
+- 新增 `docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V2_IMPLEMENTATION_MAP.md`，把激活锁存、统一 WRITEBACK、物理末组语义、唯一数组写点、日志和白盒测试要求映射到 RTL。
+- 修订 V2 审核稿：复用现有 signed 32-bit `mac_accumulator`，删除新增 `writeback_value_latched` 的计划，预计新增状态由约 64 bit 降为约 32 bit；四 DSP 硬门和每样本 42 拍代价不变。
+- 修正 `NPU_PRUNING_TODO.md` 的历史漂移：NP4B 三项正式接入改为完成，NP7 六项改为完成，并明确 160,000 事务与 Vivado 2024.2 八配置 8/8 的证据边界。
+- 现有子代理仅同步 `.nexus-map` 七个文件，记录 `main@bef5979`、DSP V1 失败边界、TR7-TR12 审批门和 accumulator 复用方案；Markdown diff check 与 JSON 解析通过。
+- `git diff --check`、Nexus `concept_model.json` 解析和 `python -X utf8 -m unittest -v test_ci_fast_v1` 均通过，CI-Fast 为 8/8。
+- 一次只读 watchdog 搜索包含不存在的 `tb_npu_eneuron_single_clock.sv`，`rg` 因该路径返回 1；已确认其他三个 testbench 的 9000/6000/5000 拍常量，后续改用文件枚举寻找 skeleton testbench。未产生文件修改。
+- 独立只读反审计发现并修复一个文档 blocker：审核阶段允许写 V2 周期合同，但批准前禁止把周期常量落地到 testbench；同时将 `LOCAL_PRUNE_RTL_REPORT.md` 明确限定为 NP4A 历史基线。其余 accumulator、42 拍、C1-C4、watchdog、NP7 证据边界均无 blocker。
+- 本轮未修改计算 RTL、testbench、周期常量或 Vivado manifest；独立反审计 blocker 已闭合，下一步是提交并创建仅文档 PR。
+- 审核材料已提交为 `b6676b4`，推送到 `codex/timing-repair-v2-readiness-20260904` 并创建 PR #62；两个用户文件继续显式排除。等待最终 PR HEAD 的 GitHub Checks/API 结果。

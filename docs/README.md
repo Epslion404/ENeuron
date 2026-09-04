@@ -25,6 +25,10 @@
 - [NP7 共享 BRAM 与共享 lane TODO](planning/NPU_PRUNING_NP7_TODO.md)
 - [NP7 B-V1+V2 管理员决策点](planning/NPU_PRUNING_NP7_DECISION_B_V1_V2.md)
 - [NP6 Runner 静态审计](planning/NPU_PRUNING_NP6_RUNNER_AUDIT.md)
+- [NPU 单时钟 DSP V1 时序修复](planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V1.md)
+- [NPU 单时钟 DSP V1 测试合同](planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_TEST_CONTRACT_V1.md)
+- [NPU 单时钟 V2 时序修复审核稿](planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V2.md)
+- [NPU 单时钟 V2 实施地图](planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V2_IMPLEMENTATION_MAP.md)
 
 ## 报告
 
