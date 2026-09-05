@@ -23,7 +23,11 @@
 - [x] PR #68 已创建并记录 P15-T0 审计；GitHub CI 因账户付款/额度问题在 runner 启动前阻断，已重跑确认 `NOT_RUN_BILLING_BLOCKED`，不得按代码失败或通过处理。
 - [x] 形成 P15-T0 A1-A7 决策附录，覆盖命令格式、V2 framing、跨流 fence、复位汇合、FIFO 参数、状态可见性和 XC7Z020 物理基线；等待管理员逐项裁定后才开放 T1。
 
+本轮本地合同探针：`P15_T0_DOC_CONTRACT_CHECK=PASS`；检查 A1-A7 标题、sample/result 64/96-bit FIFO 表、T1 阻断语义和 Nexus JSON。
+
 错误记录：首次 watchdog 搜索误写了不存在的 `tb_npu_eneuron_single_clock.sv`，`rg` 返回文件不存在；后续改用 `rg --files` 解析真实文件名，不重复该命令。该错误未修改文件，也不影响已完成测试。
+
+本轮新增错误记录：第一次合同探针使用了不存在的带连字符中文表述（`64-bit 样本 FIFO` 等），导致断言失败；拆分断言并按文档实际表格文本重跑后通过，未修改合同内容。
 
 ## 2026-09-04 DSP V1 全部失败端点补证
 
