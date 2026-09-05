@@ -20,6 +20,7 @@
 - [x] 合并 PR #65（状态与顶层规划）为 `main@618c1e4`，合并 PR #66（T0 端口裁定稿）为 `main@a1457bb`。
 - [x] 完成 P15-T0 静态合同审计，明确样本/结果 FIFO 完整 payload 分别为 64/96 bit，并记录命令/版本/顺序/复位/AXI/FIFO/器件七项 T1 阻断项。
 - [ ] 等待管理员批准 `NPU_ZYNQ7020_TOPLEVEL_DECISION_SHEET_V1.md` 的方案 A；批准前不实现 T1 顶层 RTL。
+- [x] PR #68 已创建并记录 P15-T0 审计；GitHub CI 因账户付款/额度问题在 runner 启动前阻断，已重跑确认 `NOT_RUN_BILLING_BLOCKED`，不得按代码失败或通过处理。
 
 错误记录：首次 watchdog 搜索误写了不存在的 `tb_npu_eneuron_single_clock.sv`，`rg` 返回文件不存在；后续改用 `rg --files` 解析真实文件名，不重复该命令。该错误未修改文件，也不影响已完成测试。
 

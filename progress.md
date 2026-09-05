@@ -1331,3 +1331,9 @@
 - 确认样本/结果完整 FIFO payload 分别为 64/96 bit；同时发现命令字段布局、V1/V2 framing、跨 FIFO fence、reset-busy 汇合、TLAST/TUSER 错误语义、FIFO 参数和目标器件七项尚未冻结。
 - 现有随机 TB 仅覆盖串行样本/结果与 mask 操作，不能替代新四 FIFO 并发顺序验证。
 - 未修改 RTL；T1 顶层实现仍被 `P15_T0_REVIEW_REQUIRED` 阻塞。
+
+## 2026-09-05 PR #68 CI 调度结果
+
+- PR #68（`ed4d55b`）的 `Classify changes` 成功，正确识别为文档变更并跳过无关重门。
+- `Fast Python and diff check` 与最终 `PR Gate` 两次均在 runner 启动前失败；GitHub annotation 明确原因为账户近期付款失败或 spending limit 需要提高，`runner_id=0` 且无任何执行步骤。
+- 已重跑失败 job，结果相同；该 CI 结果只能标记为 `NOT_RUN_BILLING_BLOCKED`，不能视为代码失败或通过。PR #68 暂不合并，等待计费/额度恢复后重新运行。
