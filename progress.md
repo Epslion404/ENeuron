@@ -1337,3 +1337,4 @@
 - PR #68（`ed4d55b`）的 `Classify changes` 成功，正确识别为文档变更并跳过无关重门。
 - `Fast Python and diff check` 与最终 `PR Gate` 两次均在 runner 启动前失败；GitHub annotation 明确原因为账户近期付款失败或 spending limit 需要提高，`runner_id=0` 且无任何执行步骤。
 - 已重跑失败 job，结果相同；该 CI 结果只能标记为 `NOT_RUN_BILLING_BLOCKED`，不能视为代码失败或通过。PR #68 暂不合并，等待计费/额度恢复后重新运行。
+- 已新增 `docs/planning/NPU_ZYNQ7020_TOPLEVEL_T0_DECISION_ADDENDUM_V1.md`，将七项阻断转成 A1-A7 可逐项批准的建议；在管理员确认前仍不授权 T1 RTL。

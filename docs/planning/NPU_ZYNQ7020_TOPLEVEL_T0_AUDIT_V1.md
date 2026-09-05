@@ -11,6 +11,7 @@
 - `docs/planning/NPU_SINGLE_CLOCK_RTL_PORT_TABLE_V1.md`
 - `docs/planning/NPU_SINGLE_CLOCK_RTL_DECISION_SHEET_V2.md`
 - `docs/planning/NPU_ORACLE_SINGLE_CLOCK_CONTRACT_V3.md`
+- `docs/planning/NPU_ZYNQ7020_TOPLEVEL_T0_DECISION_ADDENDUM_V1.md`
 
 ## 1. 审计结论
 
