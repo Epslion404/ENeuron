@@ -1320,5 +1320,5 @@
 - 单时钟定向门、固定 `20×100=2000` 样本逐 beat 随机门和完整仓库回归通过：`475 tests / OK (skipped=1)`；C1/C2/C3/C4 为 `1902/1898/718/1900` 拍。
 - Vivado 2024.1 OOC 绑定提交 `f744bff2bdde68e138a7b2b348ce103bec1ab469`，器件 `xc7z020clg400-1`、100 MHz：`2126 LUT / 1916 FF / 0 BRAM / 4 DSP48E1`。
 - post-route 时序与实现硬门通过：`WNS=+0.060 ns / TNS=0 / WHS=+0.040 ns / THS=0`，setup/hold 失败端点均为 0，route/DRC errors 均为 0，`PHYSICAL_GATE=PASS`。
-- manifest 已更新并与当前 RTL/报告 SHA-256 一致。PR #64 的 GitHub Actions run `33946568679` 全绿，当前等待管理员合并。
+- manifest 已更新并与当前 RTL/报告 SHA-256 一致。PR #64 的 GitHub Actions run `33946568679` 全绿，并于 2026-09-05 合并为 `main@a53a040`。
 - Webhook 当前掉线；该状态只影响本机到达提示，不影响 GitHub Checks/API 权威结果。OOC 仍不覆盖板级 I/O、DMA、PS、Ethernet、SAIF 活动、动态功耗或持续学习。

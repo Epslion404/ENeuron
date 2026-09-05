@@ -1,7 +1,7 @@
 # Pulse-Mini 开发计划
 
 日期：2026-08-19  
-状态：`V2_IMPLEMENTED / VIVADO_OOC_100MHZ_PASS`；实施状态：`P8_NETWORK_SIGNED_OFF / PR64_OPEN / TR1_TR6_APPROVED / TR7_TR12_APPROVED / RTL_TIMING_REPAIR_GREEN / FULL_REGRESSION_GREEN / DSP_GATE_PASS / VIVADO_OOC_PASS`
+状态：`V2_IMPLEMENTED / VIVADO_OOC_100MHZ_PASS`；实施状态：`P8_NETWORK_SIGNED_OFF / PR64_MERGED / TR1_TR6_APPROVED / TR7_TR12_APPROVED / RTL_TIMING_REPAIR_GREEN / FULL_REGRESSION_GREEN / DSP_GATE_PASS / VIVADO_OOC_PASS`
 基线：`ENeuron 1.0`，提交 `499fc8a`，标签 `v1.0`；当前 Pulse-Mini 工作基线：`64aff70`
 
 本文件是 `v1.0` 之后的 Pulse-Mini 规划，不回写或扩大 ENeuron 1.0 的声明。当前工作树已提交；后续修改应以本文件的阶段门为准，不能把“逻辑容量估算”写成“已 routed 的硬件容量”。
@@ -520,5 +520,17 @@ P0-P8 已完成并签核
 - [x] 最小修改计算 RTL：FETCH 锁存四个激活、EXECUTE 只读锁存操作数、统一 WRITEBACK 复用 `mac_accumulator`，继续强制恰好 4 个 DSP48E1。
 - [x] 通过单时钟定向、固定 `20×100` 随机逐 beat 和完整仓库回归：`475 tests / OK (skipped=1)`。
 - [x] 使用同一器件、100 MHz 约束和 Vivado 2024.1 重跑 OOC：`2126 LUT / 1916 FF / 0 BRAM / 4 DSP48E1`，`WNS=+0.060 ns / TNS=0`，`WHS=+0.040 ns / THS=0`，setup/hold/route/DRC 零失败。
-- [x] PR #64 HEAD `f744bff2bdde68e138a7b2b348ce103bec1ab469` 的 GitHub Actions run `33946568679` 全部成功；当前等待管理员合并。
-- [ ] OOC 通过后规划 XC7Z020 顶层、DMA/PS/网口和板级功耗；不得把 OOC 结果外推为板级结论。
+- [x] PR #64 HEAD `f744bff2bdde68e138a7b2b348ce103bec1ab469` 的 GitHub Actions run `33946568679` 全部成功，并于 2026-09-05 合并为 `main@a53a040`。
+- [x] OOC 通过后完成 XC7Z020 顶层、DMA/PS/网口和板级功耗的分阶段规划；规划文档为 `docs/planning/NPU_ZYNQ7020_TOPLEVEL_INTEGRATION_V1.md`，不得把 OOC 结果外推为板级结论。
+
+### P15：XC7Z020 顶层适配器与板级闭环规划
+
+- [x] 冻结核心与 Host Bridge 的复用边界：核心保持 128-bit 命令/响应、固定 8/10 beat，双时钟只经异步 FIFO。
+- [x] 冻结 T0→T4 阶段：合同、纯 RTL 适配器、双时钟协同仿真、XC7Z020 顶层物理门、网口/训练闭环。
+- [ ] 评审 V1 顶层端口命名、AXI 外部适配位置和 PS/DMA 责任边界。
+- [ ] 实现纯 RTL 顶层薄封装并完成逐 beat、背压、复位和负向协同仿真。
+- [ ] 对“核心 + 适配器 + FIFO”运行 XC7Z020 OOC，单独归因新增 LUT/FF/BRAM/DSP 与时序。
+- [ ] 选定开发板、Ethernet/PS 软件栈和真实 XDC 后，运行含 PS7/AXI/DMA 的顶层实现门。
+- [ ] 以旁路 NPU 与 ENeuron 门控 NPU 做网口输入 A/B，报告有效 MAC、周期、准确率、丢包和动态功耗。
+
+P15 硬门：双时钟逐 beat bit-exact；reset/ready-valid/FIFO 满空无丢失、重复、乱序；核心 OOC 基线不被错误覆盖；顶层 routed `WNS>=0`、`TNS=0`、setup/hold/route/DRC 零失败；板级吞吐和功耗必须使用真实板级证据。

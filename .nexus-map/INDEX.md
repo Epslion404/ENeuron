@@ -21,6 +21,8 @@ ENeuron 是以 Python 黄金模型、SystemVerilog RTL、Icarus/Yosys/Vivado 验
 
 ## 当前状态
 
+状态校正（2026-09-05）：PR #64 已合并为 `main@a53a040`。下文若仍出现“PR #64 OPEN”或“等待合并”，均属于生成快照中的历史措辞，不覆盖本条和 `WORKFLOW_STATE.md` 的当前状态。
+
 NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`，NP7 已签核。TR7-TR12 已批准并完成 V2 实现：单时钟专项、固定 `20×100` 和完整仓库回归均通过。实现提交 `f744bff2bdde68e138a7b2b348ce103bec1ab469` 的 OOC 为 `2126 LUT / 1916 FF / 0 BRAM / 4 DSP48E1`，100 MHz `WNS=+0.060 ns / TNS=0 / WHS=+0.040 ns`，setup/hold/route/DRC 零失败。PR #64 HEAD 与该提交一致，Actions run `33946568679` 全绿，当前状态为 `TIMING_REPAIR_V2_FUNCTIONAL_GREEN / VIVADO_OOC_100MHZ_PASS`；Webhook 掉线仅影响到达提示，板级、DMA、PS、网口和功耗仍未签核。
 
 ## 单时钟 RTL 审核摘要

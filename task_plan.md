@@ -16,7 +16,7 @@
 - [x] 更新 TR10 周期合同与 compute watchdog，完成单时钟定向和固定 `20×100` 随机验证。
 - [x] 完成全仓回归 `475/475（1 skipped）`；进入 Vivado 2024.1 OOC。
 - [x] 运行同器件同约束 Vivado 2024.1 OOC，按 TR11/TR12 物理硬门裁定：`PHYSICAL_GATE=PASS`。
-- [x] 更新 OOC manifest、报告 SHA 和当前状态文档；PR #64 HEAD `f744bff2bdde68e138a7b2b348ce103bec1ab469` 的 GitHub CI 全绿。
+- [x] 更新 OOC manifest、报告 SHA 和当前状态文档；PR #64 HEAD `f744bff2bdde68e138a7b2b348ce103bec1ab469` 的 GitHub CI 全绿，并合并为 `main@a53a040`。
 
 错误记录：首次 watchdog 搜索误写了不存在的 `tb_npu_eneuron_single_clock.sv`，`rg` 返回文件不存在；后续改用 `rg --files` 解析真实文件名，不重复该命令。该错误未修改文件，也不影响已完成测试。
 
