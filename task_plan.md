@@ -22,6 +22,7 @@
 - [ ] 等待管理员批准 `NPU_ZYNQ7020_TOPLEVEL_DECISION_SHEET_V1.md` 的方案 A；批准前不实现 T1 顶层 RTL。
 - [x] PR #68 已创建并记录 P15-T0 审计；GitHub CI 因账户付款/额度问题在 runner 启动前阻断，已重跑确认 `NOT_RUN_BILLING_BLOCKED`，不得按代码失败或通过处理。
 - [x] 形成 P15-T0 A1-A7 决策附录，覆盖命令格式、V2 framing、跨流 fence、复位汇合、FIFO 参数、状态可见性和 XC7Z020 物理基线；等待管理员逐项裁定后才开放 T1。
+- [x] 形成 P15-T0 T1/T2/T3 测试合同，覆盖 A1-A7 的正向/负向/CDC/资源证据与停止条件；等待管理员裁定后执行。
 
 本轮本地合同探针：`P15_T0_DOC_CONTRACT_CHECK=PASS`；检查 A1-A7 标题、sample/result 64/96-bit FIFO 表、T1 阻断语义和 Nexus JSON。
 
