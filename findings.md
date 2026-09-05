@@ -1214,3 +1214,4 @@
 - V1 的 `5055073` setup 失败路径已降级为历史审计证据，不再代表当前物理状态；当前 manifest 状态为 `VIVADO_OOC_PASS`。
 - PR #64 HEAD 与上述实现提交一致，GitHub Actions run `33946568679` 全绿；Webhook 掉线仅记录为通知通道缺失。
 - OOC 结论仍不覆盖板级 I/O、DMA、PS、Ethernet、动态功耗和持续学习；下一阶段必须另行完成顶层与板级签核。
+- 2026-09-05：P15-T0 审查结论为“方案 A 最小且可归因”：现有 Host Bridge 不能直接承载 32-bit 样本/结果，因此不把样本塞入 128-bit 配置流；新增 FIFO 的资源与时序必须在 T1/T3 单独测量。AXI、DMA、Ethernet、PS7 暂不进入核心。

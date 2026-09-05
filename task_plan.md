@@ -17,6 +17,8 @@
 - [x] 完成全仓回归 `475/475（1 skipped）`；进入 Vivado 2024.1 OOC。
 - [x] 运行同器件同约束 Vivado 2024.1 OOC，按 TR11/TR12 物理硬门裁定：`PHYSICAL_GATE=PASS`。
 - [x] 更新 OOC manifest、报告 SHA 和当前状态文档；PR #64 HEAD `f744bff2bdde68e138a7b2b348ce103bec1ab469` 的 GitHub CI 全绿，并合并为 `main@a53a040`。
+- [x] 合并 PR #65（状态与顶层规划）为 `main@618c1e4`，合并 PR #66（T0 端口裁定稿）为 `main@a1457bb`。
+- [ ] 等待管理员批准 `NPU_ZYNQ7020_TOPLEVEL_DECISION_SHEET_V1.md` 的方案 A；批准前不实现 T1 顶层 RTL。
 
 错误记录：首次 watchdog 搜索误写了不存在的 `tb_npu_eneuron_single_clock.sv`，`rg` 返回文件不存在；后续改用 `rg --files` 解析真实文件名，不重复该命令。该错误未修改文件，也不影响已完成测试。
 
