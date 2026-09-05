@@ -5,7 +5,7 @@
 - [x] 再次确认管理员已同意 TR7-TR12；V2 RTL、功能回归和 Vivado OOC 已完成，不重复修改计算核。
 - [x] 核对 PR #68：A1-A7 尚未收到管理员逐项裁定，当前仍为 `P15_T0_REVIEW_REQUIRED / NO_RTL_AUTHORIZATION`。
 - [x] 核对 PR #68 CI：提交 `8cac035` 触发的最新 run `33975784335` 在 runner 启动前因账户付款/额度问题失败；annotation 已确认原文，按 `NOT_RUN_BILLING_BLOCKED` 记录，不视为代码失败或通过。
-- [x] 本机 webhook `http://127.0.0.1:2355/healthz` 当前连接被拒绝；GitHub Checks/API 继续作为 CI 权威来源。
+- [x] 已重启本机 webhook；`http://127.0.0.1:2355/healthz` 返回 HTTP 200，但 `latest.json` 仍是历史 PR #63 事件，不能替代 GitHub Checks/API 权威结果。
 - [x] 轻量验证通过：CI-Fast `8/8`、`git diff --check`；P15-T0 文档锚点检查通过。
 - [ ] 等待管理员批准 P15-T0 方案 A 与 A1-A7；批准前不创建 T1 顶层 RTL。
 
