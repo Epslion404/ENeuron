@@ -1,10 +1,10 @@
 # Git 热点
 
-当前状态校正（2026-09-05）：PR #64 已合并为 `main@a53a040`；V2 OOC 报告绑定 `f744bff`，GitHub Actions run `33948293095` 全绿。
+当前状态校正（2026-09-05）：PR #64 已合并为 `main@a53a040`；V2 OOC 报告绑定 `f744bff`，GitHub Actions run `33948293095` 全绿。当前活动 PR 为 **#68 OPEN / MERGEABLE / UNSTABLE**，HEAD=`6a2f30e5385f246262fa399c8f9a5faff3fea863`。
 
 ## 当前 V2 状态（2026-09-05）
 
-PR #64 当前为 `OPEN / CLEAN`，HEAD 与 OOC report head 均为 `f744bff2bdde68e138a7b2b348ce103bec1ab469`，Actions run `33946568679` 全绿。V2 OOC 资源为 `2126 LUT / 1916 FF / 4 DSP48E1`，100 MHz setup/hold/route/DRC 全部通过；Webhook 当前掉线，仅作通知通道状态记录。用户文件 `np75_tmp_sparse_protocol.ys` 继续排除在提交和 Nexus 文件树之外。
+PR #68 当前为 `OPEN / MERGEABLE / UNSTABLE`，HEAD=`6a2f30e5385f246262fa399c8f9a5faff3fea863`。最新 Actions run `33976158999` 在 runner 启动前因账户付款/额度限制阻断，归类为 `NOT_RUN_BILLING_BLOCKED`，不能视为代码失败或通过；本地 webhook `/healthz` 已恢复 HTTP 200，但 `latest.json` 仍是历史 PR #63 事件，GitHub Checks/API 为权威来源。V2 OOC 仍绑定 `f744bff2bdde68e138a7b2b348ce103bec1ab469`，资源为 `2126 LUT / 1916 FF / 4 DSP48E1`，100 MHz setup/hold/route/DRC 全部通过；TR7-TR12 已批准。用户文件 `np75_tmp_sparse_protocol.ys` 继续排除在提交和 Nexus 文件树之外。
 
 generated_by: nexus-mapper v2 / manual synthesis
 verified_at: 2026-09-05

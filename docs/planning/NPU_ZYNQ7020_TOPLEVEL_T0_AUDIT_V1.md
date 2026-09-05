@@ -13,6 +13,13 @@
 - `docs/planning/NPU_ORACLE_SINGLE_CLOCK_CONTRACT_V3.md`
 - `docs/planning/NPU_ZYNQ7020_TOPLEVEL_T0_DECISION_ADDENDUM_V1.md`
 
+## 0. 当前审核窗口（2026-09-05）
+
+- 当前 PR 为 #68，状态 `OPEN / MERGEABLE / UNSTABLE`，审计 HEAD 为 `6a2f30e5385f246262fa399c8f9a5faff3fea863`。
+- 最新 Actions run `33976158999` 在 runner 启动前因账户付款/额度限制阻断，归类为 `NOT_RUN_BILLING_BLOCKED`；这不是代码失败，也不是通过证据。
+- 本地 webhook `http://127.0.0.1:2355/healthz` 已恢复 HTTP 200，但 `latest.json` 仍为历史 PR #63 事件；CI 终态以 GitHub Checks/API 为权威。
+- A1-A7 仍为待管理员批准的提案；TR7-TR12 已批准，V2 单时钟 OOC 已通过（`2126 LUT / 1916 FF / 0 BRAM / 4 DSP48E1`，100 MHz `WNS=+0.060 ns / TNS=0 / WHS=+0.040 ns`，setup/hold/route/DRC 零失败）。
+
 ## 1. 审计结论
 
 方案 A 的总体方向仍然合理，但当前 T0 文档还不能唯一指导 T1 RTL。四条独立 FIFO 只解决各流跨时钟传输，不自动解决跨流顺序、配置生效边界、复位汇合和命令字段解释。因此当前状态保持 `P15_T0_REVIEW_REQUIRED / NO_RTL_AUTHORIZATION`。
