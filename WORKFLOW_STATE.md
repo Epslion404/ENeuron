@@ -4,7 +4,7 @@
 
 最后更新：2026-09-05
 
-状态：`ACTIVE / NP7_MERGED / I1_I6_APPROVED / OF1_OF6_V3_APPROVED / OF6_ORACLE_SIGNOFF / RTL_DESIGN_CONTRACT_V2_APPROVED / PR62_MERGED / PR64_MERGED / TR1_TR6_APPROVED / TR7_TR12_APPROVED / TIMING_REPAIR_V2_FUNCTIONAL_GREEN / VIVADO_OOC_100MHZ_PASS`
+状态：`ACTIVE / NP7_MERGED / I1_I6_APPROVED / OF1_OF6_V3_APPROVED / OF6_ORACLE_SIGNOFF / RTL_DESIGN_CONTRACT_V2_APPROVED / PR62_MERGED / PR64_MERGED / PR65_MERGED / PR66_MERGED / TR1_TR6_APPROVED / TR7_TR12_APPROVED / TIMING_REPAIR_V2_FUNCTIONAL_GREEN / VIVADO_OOC_100MHZ_PASS / P15_T0_REVIEW_REQUIRED`
 
 ## 当前活动目标
 
@@ -48,7 +48,7 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 
 ## 下一动作
 
-V2 OOC 物理门已通过，PR #64 已合并为 `main@a53a040`。下一步是规划 XC7Z020 顶层、DMA/PS/网口和板级活动功耗。当前 OOC 仍不等价于板级、网口、DMA、PS 或持续学习签核。
+V2 OOC 物理门已通过，PR #64 已合并为 `main@a53a040`；PR #65 已合并为 `main@618c1e4`，PR #66 已合并为 `main@a1457bb`。下一步是由管理员评审并批准 P15-T0 端口与适配边界，批准前不创建顶层 RTL。当前 OOC 仍不等价于板级、网口、DMA、PS 或持续学习签核。
 
 ## 2026-09-05 V2 OOC 签核结果
 
@@ -57,6 +57,13 @@ V2 OOC 物理门已通过，PR #64 已合并为 `main@a53a040`。下一步是规
 - 时序：`WNS=+0.060 ns / TNS=0`，`WHS=+0.040 ns / THS=0`；setup/hold 失败端点均为 0。
 - 实现状态：`ROUTE_ERRORS=0 / DRC_ERRORS=0 / PHYSICAL_GATE=PASS`。该结论仅覆盖 OOC，不能外推真实 I/O delay、DMA、PS、Ethernet、SAIF 活动、动态功耗或板级吞吐。
 - OOC 报告及 SHA-256 已同步到 `artifacts/results/npu_single_clock_ooc_manifest.json`；Webhook 当前不可用，CI 终态以 GitHub Checks/API 为权威。
+
+## 2026-09-05 P15-T0 当前门
+
+- `docs/planning/NPU_ZYNQ7020_TOPLEVEL_INTEGRATION_V1.md` 与 `NPU_ZYNQ7020_TOPLEVEL_DECISION_SHEET_V1.md` 已合并为 `main@a1457bb`。
+- 推荐方案 A：保留 128-bit 命令/响应异步 FIFO，新增独立 32-bit 样本/结果异步 FIFO；AXI-Stream 放在 FIFO 外，AXI-Lite/DMA/Ethernet/PS7 留在后续层。
+- 当前状态为 `PROPOSED / ADMIN_REVIEW_REQUIRED / NO_RTL_AUTHORIZATION`。T1 纯 RTL 适配器、T2 双时钟协同仿真和 T3 顶层 OOC 均等待 T0 批准。
+- 保护文件仍为 `local_prune_rtl_results.json`、`np4b_signoff_summary.json`、`np75_tmp_sparse_protocol.ys`，不得纳入后续提交。
 
 ## 2026-09-04 V2 KISS 实施地图
 

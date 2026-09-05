@@ -21,9 +21,9 @@ ENeuron 是以 Python 黄金模型、SystemVerilog RTL、Icarus/Yosys/Vivado 验
 
 ## 当前状态
 
-状态校正（2026-09-05）：PR #64 已合并为 `main@a53a040`。下文若仍出现“PR #64 OPEN”或“等待合并”，均属于生成快照中的历史措辞，不覆盖本条和 `WORKFLOW_STATE.md` 的当前状态。
+状态校正（2026-09-05）：PR #64 已合并为 `main@a53a040`；PR #65 已合并为 `main@618c1e4`；PR #66 已合并为 `main@a1457bb`。下文若仍出现旧的“OPEN”或“等待合并”措辞，均属于生成快照中的历史内容，不覆盖本条和 `WORKFLOW_STATE.md` 的当前状态。
 
-NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`，NP7 已签核。TR7-TR12 已批准并完成 V2 实现：单时钟专项、固定 `20×100` 和完整仓库回归均通过。实现提交 `f744bff2bdde68e138a7b2b348ce103bec1ab469` 的 OOC 为 `2126 LUT / 1916 FF / 0 BRAM / 4 DSP48E1`，100 MHz `WNS=+0.060 ns / TNS=0 / WHS=+0.040 ns`，setup/hold/route/DRC 零失败。PR #64 HEAD 与该提交一致，Actions run `33946568679` 全绿，当前状态为 `TIMING_REPAIR_V2_FUNCTIONAL_GREEN / VIVADO_OOC_100MHZ_PASS`；Webhook 掉线仅影响到达提示，板级、DMA、PS、网口和功耗仍未签核。
+NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`，NP7 已签核。TR7-TR12 已批准并完成 V2 实现：单时钟专项、固定 `20×100` 和完整仓库回归均通过。实现提交 `f744bff2bdde68e138a7b2b348ce103bec1ab469` 的 OOC 为 `2126 LUT / 1916 FF / 0 BRAM / 4 DSP48E1`，100 MHz `WNS=+0.060 ns / TNS=0 / WHS=+0.040 ns`，setup/hold/route/DRC 零失败。PR #64 已合并为 `main@a53a040`，PR #65 已合并为 `main@618c1e4`，PR #66 已合并为 `main@a1457bb`；当前状态为 `TIMING_REPAIR_V2_FUNCTIONAL_GREEN / VIVADO_OOC_100MHZ_PASS / P15_T0_REVIEW_REQUIRED`。P15-T0 推荐方案 A：保留 128-bit 命令/响应异步 FIFO，新增独立 32-bit 样本/结果 FIFO，AXI-Stream 置于 FIFO 外；当前为 `PROPOSED / ADMIN_REVIEW_REQUIRED / NO_RTL_AUTHORIZATION`，不允许开始 T1 RTL。Webhook 掉线仅影响到达提示，板级、DMA、PS、网口和功耗仍未签核。
 
 ## 单时钟 RTL 审核摘要
 
@@ -36,9 +36,15 @@ NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`，NP7 已签核。
 - **随机门 GREEN**：固定 `20 seeds × 100 samples = 2000` 个样本逐 beat 比对 logits、sample ID、mask epoch、背压和 mask 轮换；DSP V1 完整仓库回归为 473/473（1 skipped）。物理 setup 仍失败，下一步是审核 V2，不能用软件周期或历史报告代偿。
 - **配置合同补强**：模型写入已执行两层 signed bias 安全窗；mask 四态命令可与部分输入、计算和结果流并行准备 published bank，但只在下一样本首 beat 切换 active，模型/冻结/清除命令仍要求严格运行空闲。
 
+## P15-T0 顶层规划（当前门）
+
+- 规划文档：`docs/planning/NPU_ZYNQ7020_TOPLEVEL_INTEGRATION_V1.md`；裁定稿：`docs/planning/NPU_ZYNQ7020_TOPLEVEL_DECISION_SHEET_V1.md`。
+- 推荐方案 A：命令/响应继续使用现有 128-bit 异步 FIFO；新增独立 32-bit 样本输入和结果输出 FIFO，并在 FIFO 外侧放置 AXI-Stream shim。样本固定 8 beat，结果固定 10 beat，`sample_id`/`mask_epoch` sideband 在各自事务内保持稳定。
+- 当前状态：`P15_T0_REVIEW_REQUIRED / PROPOSED / ADMIN_REVIEW_REQUIRED / NO_RTL_AUTHORIZATION`。管理员批准方案 A、四条流 sideband/固定 beat 语义以及 AXI 外置边界后，才开放 T1 纯 RTL 适配器；T0 期间不修改计算核，不接入 AXI-Lite、DMA、Ethernet 或 PS7。
+
 ## 状态校正与下一门
 
-- **当前权威基线**：PR #64 HEAD `f744bff2bdde68e138a7b2b348ce103bec1ab469`（尚未合并 main）。V2 OOC report head 与 RTL 均绑定该提交；`main@e8dc947` 是合并前基线。不要把旧 report head=`39e41d4` 的 0 DSP 结果或 V1 `5055073` 失败结果当作当前物理状态。
+- **当前权威基线**：V2 OOC report head 与 RTL 均绑定 `f744bff2bdde68e138a7b2b348ce103bec1ab469`；其变更已随 PR #64 合并为 `main@a53a040`。P15-T0 规划随 PR #65 合并为 `main@618c1e4`，端口裁定稿随 PR #66 合并为 `main@a1457bb`。不要把旧 report head=`39e41d4` 的 0 DSP 结果或 V1 `5055073` 失败结果当作当前物理状态。
 - **已完成证据**：单时钟专项 8/8、固定 `20 seeds × 100 samples = 2000` 个样本逐 beat 随机门、完整回归 `473/473（1 skipped）`，以及 4 DSP 网表证据。
 - **已完成物理阶段**：使用 Vivado 2024.1 对 V2 RTL、器件 `xc7z020clg400-1`、100 MHz 约束执行了 OOC 综合/实现、资源、setup/hold 和 DRC，物理硬门通过。该结果不宣称板级、功耗或网络吞吐性能。
 - **历史保留**：下方审计条目保留设计演进背景；其中标注为 V1/OF6 历史阶段的缺口不覆盖上述当前签核结果。

@@ -1322,3 +1322,5 @@
 - post-route 时序与实现硬门通过：`WNS=+0.060 ns / TNS=0 / WHS=+0.040 ns / THS=0`，setup/hold 失败端点均为 0，route/DRC errors 均为 0，`PHYSICAL_GATE=PASS`。
 - manifest 已更新并与当前 RTL/报告 SHA-256 一致。PR #64 的 GitHub Actions run `33946568679` 全绿，并于 2026-09-05 合并为 `main@a53a040`。
 - Webhook 当前掉线；该状态只影响本机到达提示，不影响 GitHub Checks/API 权威结果。OOC 仍不覆盖板级 I/O、DMA、PS、Ethernet、SAIF 活动、动态功耗或持续学习。
+- 2026-09-05：PR #64 合并为 `main@a53a040`，PR #65 合并为 `main@618c1e4`，PR #66 合并为 `main@a1457bb`。V2 OOC 与 P15 顶层规划均已入库。
+- 2026-09-05：P15-T0 形成端口与适配边界裁定稿，推荐方案 A（128-bit 命令/响应 + 独立 32-bit 样本/结果 FIFO，AXI 在 FIFO 外）。该文档只提出方案，不授权 T1 RTL；等待管理员批准。
