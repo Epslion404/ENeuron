@@ -23,7 +23,7 @@ def find_tool(fixed: Path, name: str) -> Path | None:
 
 
 class NpuSingleClockComputeTests(unittest.TestCase):
-    def _run_compute_tracer(self, contract: bool) -> subprocess.CompletedProcess[str]:
+    def _run_compute_tracer(self, contract: str | None) -> subprocess.CompletedProcess[str]:
         iverilog = find_tool(FIXED_IVERILOG, "iverilog")
         vvp = find_tool(FIXED_VVP, "vvp")
         self.assertIsNotNone(iverilog, "Icarus unavailable")
@@ -31,8 +31,10 @@ class NpuSingleClockComputeTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="eneuron_npu_compute_") as temp:
             output = Path(temp) / "compute.vvp"
             command = [str(iverilog), "-g2012", "-Wall"]
-            if contract:
+            if contract == "v1":
                 command.append("-DTIMING_REPAIR_V1_CONTRACT")
+            elif contract == "v2":
+                command.append("-DTIMING_REPAIR_V2_CONTRACT")
             command.extend([
                 "-s", "tb_npu_eneuron_single_clock_compute", "-o", str(output),
                 "tb_npu_eneuron_single_clock_compute.sv", "npu_eneuron_single_clock_skeleton.sv",
@@ -46,14 +48,29 @@ class NpuSingleClockComputeTests(unittest.TestCase):
             return ran
 
     def test_real_compute_tracer(self) -> None:
-        ran = self._run_compute_tracer(contract=False)
+        ran = self._run_compute_tracer(contract=None)
         self.assertEqual(ran.returncode, 0, ran.stdout + ran.stderr)
         self.assertIn("PASS npu single-clock real compute tracer", ran.stdout)
 
     def test_timing_repair_v1_contract(self) -> None:
-        ran = self._run_compute_tracer(contract=True)
+        """V1 的 1860/1856/676/1858 周期合同保留为历史反证。"""
+        ran = self._run_compute_tracer(contract="v1")
+        self.assertNotEqual(ran.returncode, 0, "V1 historical contract unexpectedly accepted by V2 RTL")
+        self.assertIn("compute cycle mismatch got=1902 expected=1860", ran.stdout + ran.stderr)
+
+    def test_timing_repair_v2_contract(self) -> None:
+        ran = self._run_compute_tracer(contract="v2")
         self.assertEqual(ran.returncode, 0, ran.stdout + ran.stderr)
         self.assertIn("PASS npu single-clock real compute tracer", ran.stdout)
+
+    def test_v2_writeback_and_activation_latches_are_structural(self) -> None:
+        rtl = (ROOT / "npu_eneuron_single_clock_skeleton.sv").read_text(encoding="utf-8")
+        for index in range(4):
+            self.assertRegex(rtl, rf"lane_activation_latched_{index}")
+        self.assertIn("COMPUTE_L0_WRITEBACK", rtl)
+        self.assertIn("COMPUTE_L1_WRITEBACK", rtl)
+        self.assertEqual(rtl.count("hidden_values[compute_unit_index] <="), 1)
+        self.assertEqual(rtl.count("logit_values[compute_unit_index] <="), 1)
 
     def test_four_explicit_dsp_products(self) -> None:
         rtl = (ROOT / "npu_eneuron_single_clock_skeleton.sv").read_text(encoding="utf-8")

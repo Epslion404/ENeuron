@@ -1,6 +1,6 @@
 # 系统边界
 
-状态更新（2026-09-04）：PR #62 已合并，V2 审核材料基线为 `main@e8dc947`，PR 最终 HEAD 为 `a4832cc3bddd96ba2f94c295ae99c1d12713abf3`。TR1-TR6 已实现并完成 C1-C4、单时钟专项 8/8、固定 `20×100` 和完整仓库 473 项。DSP V1 OOC 已确认恰好 4 个 DSP48E1，hold/route/DRC 通过，但 100 MHz setup `WNS=-0.673 ns / TNS=-6.462 ns / 22` 个端点失败。扩展报告已完整分类全部 22 个失败端点：14 个属于动态激活选择、DSP48E1 和求和到 `lane_sum_latched`，8 个属于 `compute_group_index` 到 `logit_values` 写使能。当前仍处于 `TIMING_REPAIR_V2_REVIEW_REQUIRED / RTL_CHANGES_BLOCKED`，TR7-TR12 尚未批准，批准前不继续修改 RTL。
+状态更新（2026-09-05）：PR #64 当前 OPEN，HEAD 为 `f744bff2bdde68e138a7b2b348ce103bec1ab469`。TR7-TR12 已实现并完成 C1-C4、单时钟专项、固定 `20×100` 和完整仓库回归。V2 OOC 已确认 `2126 LUT / 1916 FF / 4 DSP48E1`，100 MHz `WNS=+0.060 ns / TNS=0 / WHS=+0.040 ns`，setup/hold/route/DRC 全部通过。V1 失败端点审计仍保留为历史证据；当前状态为 `TIMING_REPAIR_V2_FUNCTIONAL_GREEN / VIVADO_OOC_100MHZ_PASS`。
 
 generated_by: nexus-mapper v2 / manual synthesis
 verified_at: 2026-09-04
@@ -8,6 +8,6 @@ provenance: Python AST/file-tree probe plus SystemVerilog文件树和项目文�
 
 仓库分为六个边界：神经元 RTL 与 Python 参考模型、Tile/Host 网络、局部剪枝控制器、NP7 共享 BRAM/lane 执行器、传统 NPU + ENeuron 集成参考模型、验证与签核工具。CI-Fast V1 是验证编排边界，不改变业务硬件合同。跨边界的主要合同是逐周期/逐位比较、原子提交、INFER 状态冻结和 fail-closed SHA-256 摘要。
 
-NP6 物理评估正式状态为 `NP6_PHYSICAL_COST_PARTIAL`；NP7 已签核。传统 NPU + ENeuron 的 DSP V1 实现为 report head=`5055073`：`2192 LUT / 1904 FF / 4 DSP48E1`，setup 失败，故不得外推 100 MHz 收敛、板级吞吐、动态功耗或部署性能。`np75_tmp_sparse_protocol.ys` 被明确排除在提交、Nexus 文件树和原始探针之外。
+NP6 物理评估正式状态为 `NP6_PHYSICAL_COST_PARTIAL`；NP7 已签核。传统 NPU + ENeuron 的 V2 实现为 report head=`f744bff`：`2126 LUT / 1916 FF / 4 DSP48E1`，100 MHz OOC 通过；仍不得外推板级吞吐、动态功耗或部署性能。`np75_tmp_sparse_protocol.ys` 被明确排除在提交、Nexus 文件树和原始探针之外。
 
-状态覆盖：OF4a 至 OF6 属于已签核 Python oracle 历史阶段；当前以 `TR1_TR6_APPROVED / TIMING_REPAIR_V1_FUNCTIONAL_GREEN / DSP_GATE_PASS / VIVADO_OOC_SETUP_FAIL / TIMING_REPAIR_V2_REVIEW_REQUIRED` 为准。V2 实施地图位于 `docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V2_IMPLEMENTATION_MAP.md`：复用 signed 32-bit `mac_accumulator` 作为最终写回值，不新增 `writeback_value_latched`，仅预计增加四个 signed 8-bit 激活锁存器（约 32 FF）。三拍 RTL 已实现，但 100 MHz 仍未收敛。
+状态覆盖：OF4a 至 OF6 属于已签核 Python oracle 历史阶段；当前以 `TR1_TR6_APPROVED / TR7_TR12_APPROVED / TIMING_REPAIR_V2_FUNCTIONAL_GREEN / VIVADO_OOC_100MHZ_PASS` 为准。V2 已复用 signed 32-bit `mac_accumulator` 作为最终写回值，不新增 `writeback_value_latched`，并完成激活锁存、WRITEBACK、功能和 OOC 证明。

@@ -2,6 +2,8 @@
 
 状态：`EVIDENCE_COMPLETE / DESIGN_UNCHANGED`
 
+历史说明：本文记录的 V1 失败端点已被 V2 实现及 Vivado 2024.1 OOC 通过结果取代，仅保留用于解释 TR7-TR12 的路径分类和修复依据；当前物理状态以 `artifacts/results/npu_single_clock_ooc_manifest.json` 为准。
+
 日期：2026-09-04
 
 ## 1. 目的与边界

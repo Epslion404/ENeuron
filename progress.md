@@ -1303,3 +1303,22 @@
 - 审核材料已提交为 `b6676b4`，推送到 `codex/timing-repair-v2-readiness-20260904` 并创建 PR #62；两个用户文件继续显式排除。等待最终 PR HEAD 的 GitHub Checks/API 结果。
 - PR #62 最终 HEAD `a4832cc` 对应 Actions run `33915028445`：Classify、Fast Python/diff 和 PR Gate 成功，按 docs-only 分类跳过无关重门；GitHub API 确认 `CLEAN / MERGEABLE`。
 - 仓库外 Webhook 健康检查返回 HTTP 200，并收到同一 SHA 的 `check_run completed/success`；因 `signature_verified=false` 只作触发提示。PR #62 已合并为 `main@e8dc947`。
+
+## 2026-09-05 TR7-TR12 批准与 V2 实施启动
+
+- 管理员批准 TR7-TR12，并明确继续强制且仅使用 4 个 DSP48E1；时序修复从审核门切换为 V2 实施阶段。
+- 已更新 `WORKFLOW_STATE.md`、`docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V2.md`、实施地图、`docs/planning/TODO.md` 和 `task_plan.md`：状态为 `IMPLEMENTATION_APPROVED / RTL_IN_PROGRESS`，Vivado 仍必须等待功能门。
+- 实施顺序冻结为：独立 V2 测试合同在旧 RTL 上精确 RED → TR7-TR9 最小 RTL → 定向/固定 `20×100`/全仓回归 → Vivado 2024.1 OOC。
+- 当前工作树仍只保留用户已有的 `local_prune_rtl_results.json` 修改和 `np75_tmp_sparse_protocol.ys` 未跟踪文件；二者不修改、不暂存、不提交。
+- V2 RED 已建立：旧 RTL 在 `TIMING_REPAIR_V2_CONTRACT` 下实际返回码为 1，首样本报告 `WRITEBACK count mismatch l0=0/32 l1=0/10`；结构门同时确认不存在四个激活锁存器、L0/L1 WRITEBACK 状态且数组存在多个写点。该失败符合预期，证明新合同确实能区分旧实现。
+- 已完成 TR7-TR9 RTL 垂直切片：四个 FETCH 激活锁存器、EXECUTE 稳定操作数、L0/L1 独立 WRITEBACK 和单一数组写点均已落地；V2 计算合同、协议骨架、mask、control、随机 `20×100` 逐 beat 共 10 项专项全部通过。V1 旧合同现在只作为预期失败的历史反证，不再误报为当前周期合同。
+- V2 白盒合同已补强为逐组核对：FETCH 锁存值必须匹配对应 input/hidden 数组，EXECUTE→COMMIT 期间四个激活锁存器保持不变；定向V2与历史V1反证均通过。
+- 完整仓库回归已完成：`python -m unittest discover -q` 共 `475 tests`，`OK (skipped=1)`，耗时约 416.8 秒；固定随机门仍报告 `seeds=20 samples=2000`。功能门全部通过，下一步进入同器件 Vivado OOC。
+## 2026-09-05 V2 实施与 OOC 签核完成
+
+- TR7-TR12 已落实：FETCH 激活锁存、EXECUTE 稳定操作数、L0/L1 独立 WRITEBACK，继续复用四个 DSP48E1 和 `mac_accumulator`。
+- 单时钟定向门、固定 `20×100=2000` 样本逐 beat 随机门和完整仓库回归通过：`475 tests / OK (skipped=1)`；C1/C2/C3/C4 为 `1902/1898/718/1900` 拍。
+- Vivado 2024.1 OOC 绑定提交 `f744bff2bdde68e138a7b2b348ce103bec1ab469`，器件 `xc7z020clg400-1`、100 MHz：`2126 LUT / 1916 FF / 0 BRAM / 4 DSP48E1`。
+- post-route 时序与实现硬门通过：`WNS=+0.060 ns / TNS=0 / WHS=+0.040 ns / THS=0`，setup/hold 失败端点均为 0，route/DRC errors 均为 0，`PHYSICAL_GATE=PASS`。
+- manifest 已更新并与当前 RTL/报告 SHA-256 一致。PR #64 的 GitHub Actions run `33946568679` 全绿，当前等待管理员合并。
+- Webhook 当前掉线；该状态只影响本机到达提示，不影响 GitHub Checks/API 权威结果。OOC 仍不覆盖板级 I/O、DMA、PS、Ethernet、SAIF 活动、动态功耗或持续学习。

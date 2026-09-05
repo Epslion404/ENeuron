@@ -1,7 +1,7 @@
 # Pulse-Mini 开发计划
 
 日期：2026-08-19  
-状态：`TIMING_REPAIR_DSP_V1_SETUP_FAIL / V2_REVIEW_REQUIRED`；实施状态：`P8_NETWORK_SIGNED_OFF / PR58_MERGED / TR1_TR6_APPROVED / RTL_TIMING_REPAIR_GREEN / FULL_REGRESSION_GREEN / DSP_GATE_PASS / VIVADO_OOC_SETUP_FAIL`
+状态：`V2_IMPLEMENTED / VIVADO_OOC_100MHZ_PASS`；实施状态：`P8_NETWORK_SIGNED_OFF / PR64_OPEN / TR1_TR6_APPROVED / TR7_TR12_APPROVED / RTL_TIMING_REPAIR_GREEN / FULL_REGRESSION_GREEN / DSP_GATE_PASS / VIVADO_OOC_PASS`
 基线：`ENeuron 1.0`，提交 `499fc8a`，标签 `v1.0`；当前 Pulse-Mini 工作基线：`64aff70`
 
 本文件是 `v1.0` 之后的 Pulse-Mini 规划，不回写或扩大 ENeuron 1.0 的声明。当前工作树已提交；后续修改应以本文件的阶段门为准，不能把“逻辑容量估算”写成“已 routed 的硬件容量”。
@@ -494,7 +494,7 @@ P0-P8 已完成并签核
 - [x] NP4B0 用户审核：已批准 committed snapshot 只读端口、Pulse 外部 wrapper、独立 `4→8→2` 网络、sideband 剪枝通道、一核一 gate、CLEAR 分离、commit 后自动清历史、NP6 二次审批八项决定。
 - [x] NP4B 正式集成：ENeuron snapshot evidence 旁路、Pulse FEEDBACK evidence 锁存、真正四输入输出组、三模型各 20,000 条、五套形式证据和 359 项回归通过；NP6/NP7 已完成并合并，NP6 结论为 `NP6_PHYSICAL_COST_PARTIAL`，NP7 共享 lane 已签核。
 
-### P14：传统 NPU + ENeuron 单时钟 RTL 物理门（OOC 已完成，时序修复待审核）
+### P14：传统 NPU + ENeuron 单时钟 RTL 物理门（V2 OOC 已通过）
 
 - [x] 完成 V2 八项 RTL 裁定、四条单时钟 Icarus 垂直切片和真实四 lane INT8 计算。
 - [x] 完成固定 `20 seeds × 100 samples = 2000` 个样本的逐 beat 随机协同仿真，覆盖 mask 轮换、全开/全关/mixed、负权重/负 bias、背压和 epoch。
@@ -515,10 +515,10 @@ P0-P8 已完成并签核
 - [x] PR #61 将端点审计后的持久状态同步合并为当前 `main@bef5979`。
 - [x] 完成 V2 KISS 实施审计：复用现有 signed 32-bit `mac_accumulator`，不新增 `writeback_value_latched`；预计只新增四个 signed 8-bit 激活锁存器约 32 FF，并形成独立实施地图。
 - [x] V2 审核材料与总 TODO 漂移修正经 PR #62 的最终 HEAD `a4832cc`、run `33915028445` 通过后合并为 `main@e8dc947`；仍未开放 RTL 实施授权。
-- [ ] 管理员批准 TR7-TR12；批准前不修改 RTL、不把 V2 周期常量落地到 testbench、不重跑 Vivado。
-- [ ] 新建独立 V2 测试合同，更新 C1-C4、WRITEBACK/激活锁存白盒门与 compute watchdog，并在旧 RTL 上取得精确 RED。
-- [ ] 最小修改计算 RTL：FETCH 锁存四个激活、EXECUTE 只读锁存操作数、统一 WRITEBACK 复用 `mac_accumulator`，继续强制恰好 4 个 DSP48E1。
-- [ ] 依次通过单时钟定向、固定 `20×100` 随机逐 beat 和完整仓库回归；任何数值、协议或周期差异立即停止。
-- [ ] 使用同一器件、100 MHz 约束和 Vivado 2024.1 重跑 OOC；要求 `DSP=4`、setup/hold 零失败、route/DRC 零错误，并重新绑定 RTL/报告哈希。
-- [ ] 若 V2 方案 A 仍不收敛，归档完整失败证据并重新审核乘积寄存方案 B，不自动增加流水。
-- [ ] OOC 通过后再规划 XC7Z020 顶层、DMA/PS/网口和板级功耗；不得用历史 NP6/NP7 结果代偿当前 RTL。
+- [x] 管理员于 2026-09-05 批准 TR7-TR12；开放 V2 RTL 与独立测试合同实施。
+- [x] 新建独立 V2 测试合同，更新 C1-C4、WRITEBACK/激活锁存白盒门与 compute watchdog，并在旧 RTL 上取得精确 RED。
+- [x] 最小修改计算 RTL：FETCH 锁存四个激活、EXECUTE 只读锁存操作数、统一 WRITEBACK 复用 `mac_accumulator`，继续强制恰好 4 个 DSP48E1。
+- [x] 通过单时钟定向、固定 `20×100` 随机逐 beat 和完整仓库回归：`475 tests / OK (skipped=1)`。
+- [x] 使用同一器件、100 MHz 约束和 Vivado 2024.1 重跑 OOC：`2126 LUT / 1916 FF / 0 BRAM / 4 DSP48E1`，`WNS=+0.060 ns / TNS=0`，`WHS=+0.040 ns / THS=0`，setup/hold/route/DRC 零失败。
+- [x] PR #64 HEAD `f744bff2bdde68e138a7b2b348ce103bec1ab469` 的 GitHub Actions run `33946568679` 全部成功；当前等待管理员合并。
+- [ ] OOC 通过后规划 XC7Z020 顶层、DMA/PS/网口和板级功耗；不得把 OOC 结果外推为板级结论。

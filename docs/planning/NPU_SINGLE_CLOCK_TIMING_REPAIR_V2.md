@@ -1,14 +1,14 @@
 # 传统 NPU + ENeuron 单时钟 RTL 时序修复 V2 审核稿
 
-状态：`REVIEW_REQUIRED / RTL_CHANGES_BLOCKED`
+状态：`IMPLEMENTED / FUNCTIONAL_GREEN / VIVADO_OOC_100MHZ_PASS`
 
-日期：2026-09-04
+日期：2026-09-05
 
 ## 1. 为什么需要 V2
 
-TR1-TR6 已完成实现与验证：四条共享 signed 8×8 lane 被 Vivado 2024.1 映射为恰好 4 个 `DSP48E1`，单时钟专项 8/8、固定 `20×100` 随机逐 beat 和完整仓库 473/473（1 skipped）均通过。
+TR1-TR6 已完成实现与验证：四条共享 signed 8×8 lane 被 Vivado 2024.1 映射为恰好 4 个 `DSP48E1`，单时钟专项 8/8、固定 `20×100` 随机逐 beat 和完整仓库回归均通过。TR7-TR12 随后完成 V2 激活锁存与统一 WRITEBACK 实施。
 
-同一实现提交 `50550733e4af4779f3d6933738fa043ecb919970` 的 XC7Z020、100 MHz OOC 结果仍是 setup 失败：`WNS=-0.673 ns`、`TNS=-6.462 ns`、22 个失败端点；hold、route、DRC 和四 DSP 结构门均通过。因此 V1 不能签核为 100 MHz 收敛。
+V2 实现提交 `f744bff2bdde68e138a7b2b348ce103bec1ab469` 的 XC7Z020、100 MHz OOC 已通过：`WNS=+0.060 ns`、`TNS=0`、`WHS=+0.040 ns`、`THS=0`，setup/hold 失败端点均为 0；route/DRC 和四 DSP 结构门均通过。V1 的 `WNS=-0.673 ns` 历史失败仍保留作对照。
 
 冻结的 `timing_impl.rpt` 只展开前 20 条路径。随后从同一保留 routed checkpoint 以 `-max_paths 50` 扩展审计，完整覆盖全部 22 个失败端点：14 条属于 DSP/求和路径，8 条属于 `logit_values` 写使能路径，已经没有未分类端点。checkpoint、命令、报告哈希和逐端点清单见 `docs/verification/NPU_SINGLE_CLOCK_TIMING_ENDPOINT_AUDIT_V1.md`；该补证不改变原始 manifest，也不把当前状态提升为 100 MHz 通过。
 
@@ -39,7 +39,7 @@ TR1-TR6 已完成实现与验证：四条共享 signed 8×8 lane 被 Vivado 2024
 
 用 DSP 级联通路完成乘积累加，可能减少通用布线，但会把当前简单推断式 RTL变成器件专用结构，验证、符号扩展和级联布局风险更高。当前仅差 0.673 ns，不建议在 A 未验证前采用。
 
-## 4. 待管理员批准的六项裁定
+## 4. 已批准的六项裁定
 
 ### TR7：FETCH 锁存四个激活操作数
 
@@ -72,6 +72,6 @@ L0/L1 共用现有 signed 32-bit `mac_accumulator` 作为最终写回值，不�
 
 新建独立 V2 测试合同，先更新 C1-C4 的周期与白盒状态检查并证明旧 RTL 精确 RED，再修改 RTL。compute testbench watchdog 可从 9000 定向调整为 9500 拍，精确周期断言继续拒绝额外停顿；其他 watchdog 不变。随后依次运行单时钟专项、固定 `20×100`、完整仓库回归和同器件同约束 Vivado OOC。只有 `DSP=4`、setup/hold 失败端点均为 0、route/DRC error 为 0 才能签核。若方案 A 仍失败，保留完整报告并重新审核方案 B，不自动继续加流水。
 
-## 5. 审核停止点
+## 5. 执行停止点
 
-当前仅形成 V2 方案和任务边界，不修改 RTL、不更新测试周期。等待管理员批准 TR7-TR12；批准后才按“测试 RED → 最小 RTL → 功能回归 → Vivado OOC”执行。
+管理员已于 2026-09-05 批准 TR7-TR12。本阶段按“测试 RED → 最小 RTL → 功能回归 → Vivado OOC”执行：先建立独立 V2 合同并在旧 RTL 上取得精确 RED，再修改计算 RTL。Vivado 仍必须等待定向、固定 `20×100`、完整回归和结构门全部通过；方案 A 若 setup 仍失败，只保留证据并重新审核方案 B，不自动增加流水。

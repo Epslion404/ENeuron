@@ -1,7 +1,7 @@
 # 传统 NPU + ENeuron 集成审核稿
 
-状态：`I1-I6_APPROVED / PYTHON_ORACLE_SIGNED_OFF / RTL_RANDOM_GATE_GREEN / PR54_MERGED / VIVADO_OOC_SETUP_FAIL / TIMING_REPAIR_REQUIRED`
-适用基线：NP7 `NP7.0-NP7.7_SIGNED_OFF`、单时钟 RTL `main@2a33f12`；当前 OOC 已完成但 setup 未通过，下一步仅授权关键路径修复和同器件同约束重签，不授权板级、网口或 DMA 测试。
+状态：`I1-I6_APPROVED / PYTHON_ORACLE_SIGNED_OFF / RTL_RANDOM_GATE_GREEN / TR7_TR12_APPROVED / VIVADO_OOC_100MHZ_PASS`
+适用基线：NP7 `NP7.0-NP7.7_SIGNED_OFF`、单时钟 RTL `f744bff2bdde68e138a7b2b348ce103bec1ab469`；当前 OOC 已通过 100 MHz 物理硬门，下一步才允许规划 XC7Z020 顶层、DMA/PS/网口和板级功耗，尚不代表这些项目已签核。
 
 ## 1. 目标
 
@@ -10,7 +10,7 @@
 ## 2. 已有证据与未证明事项
 
 已具备：NP7 共享 BRAM/共享 lane 的软件、周期、形式、负向和 Vivado 物理证据；8/8 `xc7z020clg400-1`、100 MHz 配置收敛。
-已部分证明：当前单时钟 OOC 资源为 `2672 LUT / 1879 FF / 0 BRAM / 0 DSP`，route/DRC 无错误且 hold 通过。尚未证明：100 MHz setup 收敛、DMA/网口端到端吞吐、准确率保持、在线更新稳定性和板级功耗。
+已证明：V2 单时钟 OOC 资源为 `2126 LUT / 1916 FF / 0 BRAM / 4 DSP48E1`，100 MHz post-route `WNS=+0.060 ns / TNS=0 / WHS=+0.040 ns / THS=0`，setup/hold/route/DRC 均通过。尚未证明：DMA/网口端到端吞吐、准确率保持、在线更新稳定性和板级功耗；V1 的 `2672/1879/0DSP` 与负 WNS 仅作历史证据。
 
 ## 3. 建议的最小集成边界
 
@@ -36,7 +36,7 @@
 - [x] 管理员批准 I1-I6，并明确首个 NPU 模型、输入尺寸和 INT8 量化格式。
 - [ ] Python 参考模型能在旁路/门控两种模式下逐样本复现输出与门控决策。
 - [ ] 明确最坏情况：门控全开、全关、频繁切换、背压和状态清除。
-- [x] 明确资源预算：LUT、FF、BRAM、DSP、时钟和可接受 WNS；当前 OOC 实测 `2672 LUT / 1879 FF / 0 BRAM / 0 DSP`，100 MHz setup `WNS=-5.087 ns`，因此物理门未通过。
+- [x] 明确资源预算：LUT、FF、BRAM、DSP、时钟和可接受 WNS；V2 OOC 实测 `2126 LUT / 1916 FF / 0 BRAM / 4 DSP48E1`，100 MHz `WNS=+0.060 ns`、setup/hold 零失败。
 - [x] 形成独立集成顶层与 testbench 任务后实现并完成当前 RTL 随机门；当前只允许进入关键路径时序修复，不允许把 OOC 失败结果写成部署通过。
 
 ## 6. 禁止的提前结论

@@ -14,10 +14,10 @@ provenance: NP4B/NP6/NP7 TODO、工作流状态与 RTL 文件；集成边界来�
 - `NP6_PHYSICAL_COST_PARTIAL`：物理成本阶段的正式状态；不是整体时序通过，也不是板级性能结论。
 - `NP7`：已合并并签核的共享 BRAM 与共享 lane 阶段；其逻辑/物理证据不能外推为传统 NPU + ENeuron 的集成收益。
 - `RTL_DESIGN_REVIEW_WITH_ACTIONS`（历史阶段）：OF4g 修正模型端口冻结边界，`loading/complete` 阻止冻结而 `committed` 允许冻结和推理；OF5 冻结 hard reset 的破坏性清理，丢弃模型/mask/runtime staging、结果与冻结状态并恢复 `epoch=0`、全开 mask、`model_valid=0`。OF6 汇总 OF1-OF5，相关 Python oracle 回归 48/48、CI-Fast 8/8，曾签核合并于 `main@0982ac5`。该阶段的“单时钟 RTL、完整流接口与 Vivado 尚未完成”仅描述当时快照，不覆盖当前 PR #55/OOC 归档状态。
-- `VIVADO_OOC_SETUP_FAIL`：当前单时钟 NPU + ENeuron 集成的物理签核状态。DSP V1 OOC 绑定 `5055073`，route/DRC error=0、hold 通过、DSP 双重门通过，但 setup `WNS=-0.673 ns`、22 个端点失败，因此不能宣称 100 MHz 收敛或板级性能。
+- `VIVADO_OOC_100MHZ_PASS`：当前单时钟 NPU + ENeuron 集成的 OOC 物理状态。V2 绑定 `f744bff`，资源 `2126 LUT / 1916 FF / 0 BRAM / 4 DSP48E1`，100 MHz `WNS=+0.060 ns / TNS=0 / WHS=+0.040 ns`，setup/hold/route/DRC 零失败；不等价于板级签核。
 - `DSP_GATE_PASS`：Vivado utilization 为 `DSP=4`，实现网表 `DSP48E1_COUNT=4`，四个 cell 对应 `lane_product_0..3`；只表示强制 DSP 结构合同成立，不代替 setup 签核。
 - `TIMING_REPAIR_V1_FUNCTIONAL_GREEN`：TR1-TR6 已实现，共享四 DSP lane、FETCH/EXECUTE/COMMIT、C1-C4、固定 `20×100` 和完整回归均通过；因 setup 失败，该状态不等于物理通过。
-- `TIMING_REPAIR_V2_REVIEW_REQUIRED`：扩展报告已展开全部 22 个 setup 失败端点，其中 14 条经过动态激活选择、DSP 和求和到 `lane_sum_latched`，8 条从 `compute_group_index` 到 `logit_values` 写使能。`NPU_SINGLE_CLOCK_TIMING_REPAIR_V2.md` 提出 FETCH 锁存激活值和统一 WRITEBACK 的 TR7-TR12；`NPU_SINGLE_CLOCK_TIMING_REPAIR_V2_IMPLEMENTATION_MAP.md` 将 KISS 实现冻结为复用 signed 32-bit `mac_accumulator`、不新增 `writeback_value_latched`、仅预计增加四个 signed 8-bit 激活锁存器（约 32 FF）。TR7-TR12 尚未批准，批准前禁止继续修改 RTL。
+- `TIMING_REPAIR_V2_FUNCTIONAL_GREEN`：TR7-TR12 已实施，V2 独立 RED、定向门、固定 `20×100`、完整回归和逐组 WRITEBACK/激活锁存合同均通过；C1-C4 为 `1902/1898/718/1900` 拍。
 - `B-V1+V2`：NP7 已批准的单槽弹性流水合同，允许零路径同拍完成及非零结果退出与下一事务接受重叠；其收益只由逐拍账本证明。
 - `CI-Fast V1`：按变更路径选择验证范围的 Action 编排；Action 基线已从 `actions/checkout@v4`、`actions/setup-python@v5` 升级为二者 `@v7`（Node 24）。已完成 workflow 全量、文档轻量与 NPU-only 定向路径验证；任何 workflow 变更必须运行全量门，未知代码触发全仓回归，手动运行触发全部专项门。
 - `PR Gate`：始终执行的汇总状态；只允许被选专项门 `success` 或 `skipped`，任何失败均拒绝合并。分支保护应只要求该状态。

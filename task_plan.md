@@ -1,15 +1,22 @@
 # 单神经元硬件基石模拟计划
 
-## 2026-09-04 V2 时序修复审核收口
+## 2026-09-05 V2 时序修复实施启动
 
-- [x] 复核 `main@bef5979`、DSP V1 全部 22 个失败端点与 TR7-TR12 审批边界；保持 `RTL_CHANGES_BLOCKED`。
+- [x] 复核 `main@bef5979`、DSP V1 全部 22 个失败端点与 TR7-TR12 审批边界。
 - [x] 对现有 routed checkpoint 的 `mac_accumulator[*]/D` 做定向 setup 检查，最差 slack 为 `+5.272 ns`；据此把 V2 KISS 候选收敛为复用现有 accumulator，不新增 `writeback_value_latched`。
 - [x] 形成 `docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V2_IMPLEMENTATION_MAP.md`，冻结约 32 FF 新增状态、精确状态转移、日志语义、C1-C4 周期和 watchdog 预算。
 - [x] 同步 V2 审核稿、总 TODO、剪枝 TODO、工作流状态、Nexus 与文档索引；`git diff --check`、Nexus JSON 解析和 CI-Fast `8/8` 通过。
 - [x] 完成独立只读反审计并修复唯一 blocker：把“批准前不更新 V2 周期合同”校正为“批准前不把周期常量落地到 testbench”；同时明确 NP4A 历史报告不作为 NP4B 当前状态来源。
 - [x] 提交为 `b6676b4`、推送并创建仅文档 PR #62；用 GitHub Checks/API 作为权威 CI 结果，Webhook 只作到达提示。
 - [x] PR #62 最终 HEAD `a4832cc` 的 run `33915028445` 成功；在 `CLEAN / MERGEABLE` 且独立反审计无 blocker 后合并为 `main@e8dc947`。
-- [ ] 请求管理员批准 TR7-TR12；获批前禁止修改计算 RTL、V2 测试周期常量或运行新的完整 Vivado OOC。
+- [x] 管理员批准 TR7-TR12，并确认继续强制且仅使用 4 个 DSP48E1。
+- [ ] 建立独立 V2 测试合同，在旧 RTL 上取得精确 RED。
+- [x] 建立独立 V2 测试合同，在旧 RTL 上取得精确 RED。
+- [x] 实施 TR7-TR9：激活锁存、EXECUTE 稳定操作数、L0/L1 独立 WRITEBACK。
+- [x] 更新 TR10 周期合同与 compute watchdog，完成单时钟定向和固定 `20×100` 随机验证。
+- [x] 完成全仓回归 `475/475（1 skipped）`；进入 Vivado 2024.1 OOC。
+- [x] 运行同器件同约束 Vivado 2024.1 OOC，按 TR11/TR12 物理硬门裁定：`PHYSICAL_GATE=PASS`。
+- [x] 更新 OOC manifest、报告 SHA 和当前状态文档；PR #64 HEAD `f744bff2bdde68e138a7b2b348ce103bec1ab469` 的 GitHub CI 全绿。
 
 错误记录：首次 watchdog 搜索误写了不存在的 `tb_npu_eneuron_single_clock.sv`，`rg` 返回文件不存在；后续改用 `rg --files` 解析真实文件名，不重复该命令。该错误未修改文件，也不影响已完成测试。
 
