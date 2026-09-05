@@ -53,6 +53,28 @@ NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`，NP7 已签核。
 - **器件边界必须统一**：P15 目标是 `xc7z020clg400-1`；旧 Host Bridge OOC 使用 `xc7a35tcpg236-1`，只能作历史结构参考，不得替代 XC7Z020 资源、时序或 CDC 证据。
 - 在上述合同补齐前，状态保持 `P15_T0_REVIEW_REQUIRED / NO_RTL_AUTHORIZATION`，不得创建 T1 顶层 RTL。
 
+### P15-T0 附录二次复核（2026-09-05）
+
+对 `NPU_ZYNQ7020_TOPLEVEL_T0_DECISION_ADDENDUM_V1.md`、`NPU_ZYNQ7020_TOPLEVEL_T0_TEST_CONTRACT_V1.md`、`NPU_SINGLE_CLOCK_RTL_PORT_TABLE_V1.md`、V2 实施合同和当前 skeleton 的只读交叉审计仍发现以下 T1 阻断。它们不是对方案 A 的否定，而是必须在批准稿中写成唯一可实现语义：
+
+- **A3 没有冻结 fence 的线级格式**：附录第 36–39 行只指定保留 opcode `0xA` 和“带 fence ID 的响应”，没有规定 fence ID 位段、响应成功类别、错误码、响应字段布局，也没有说明 fence 被 wrapper 接受时如何阻止它泄漏到核心。当前 PORT_TABLE 只定义了 `0xE` 错误响应；T1 无法据此实现或逐拍比对 fence 确认。
+- **严格 TLAST 与流式丢弃语义存在实现矛盾**：附录第 22–28 行要求晚到/缺失 TLAST 的整帧“不送入核心”，但若样本 beat 已逐拍穿过 FIFO，直到第 8 个 beat 或下一帧才发现错误就无法撤回；要满足该保证必须明确整帧预缓冲，或改为允许已送入的 beat 被取消。结果流是 wrapper 的输出，不能与样本输入共用同一套“接收 TLAST 检查”语句。与此同时，旧裁定稿第 49–51 行仍说 TLAST 只是提示、8/10 beat 不依赖 TLAST，必须明确哪一份被废止。
+- **fence 前样本准入边界未定义**：附录第 37–40 行规定一个 fence 只授权一笔样本，但没有规定 fence 前 `sample_ready` 是否必须为 0、sample FIFO 是否允许预填、已有预填 beat 在拒绝/复位时如何丢弃。由于 sample FIFO 不携带 TLAST/帧号，T1 若不先冻结该规则，不能证明一笔 fence 对应恰好 8 个 beat。
+- **A3 的“命令完成”层级不清**： “此前命令已完成核心握手”没有区分命令 FIFO 出队、核心 `cmd_valid&&cmd_ready` 握手、mask published 生效和状态操作实际完成；成功配置命令又不产生普通响应。必须指定 fence 的等待条件、与 response FIFO 满的 backpressure/拒绝优先级，否则可能在配置尚未可见时放行样本。
+- **A4 的 busy 门控可能破坏 ready/valid 稳定合同**：附录第 48–50 行把任一域 busy 解释为四条流的 ready/valid 都关闭；若 result FIFO 已有 `valid=1` 且下游 `ready=0`，busy 变化不能撤销 valid 或改变 payload。应冻结为“禁止新事务握手，但在非复位期间保持已呈现事务稳定”，并定义 busy 重新开放的状态机。
+- **A1 保留位检查尚未落到错误优先级**：附录要求 `[123:120]` 和 `[87:32]` 为零，但 skeleton 当前按 opcode 直接解码，未定义 wrapper 对非零保留位、未知 opcode、冻结状态和 payload/地址错误的检查先后。T0 测试合同虽要求非法字段向量，仍需把错误码、被拒字段和无副作用顺序写入批准的线级合同。
+- **Host 状态/epoch 不是普通逐 bit 同步问题**：A4/A6 只说同步摘要；32-bit `mask_epoch` 若逐 bit 两级同步可能产生撕裂值，Host 会把结果匹配到不存在的 epoch。必须使用稳定握手、快照+有效标志或等价原子总线 CDC，并冻结 error/IRQ 的 sticky 与清除语义；否则 A6 的结果匹配合同不可验证。
+- **A5 的参数来源仍有两套**：附录第 55–64 行只明确 depth/FWFT/auto，而 T0 测试合同第 48–50 行又加了 `read_latency=0`、`CDC_SYNC_STAGES=2`、`SIM_ASSERT_CHK=1`。这些实现参数和仿真专用参数必须在批准稿中标为唯一权威，不能让 T1 自行取 XPM 默认值。
+
+上述问题尚未改变当前门：`P15_T0_REVIEW_REQUIRED / PROPOSED / ADMIN_REVIEW_REQUIRED / NO_RTL_AUTHORIZATION`。在 fence 字段、帧错误恢复策略、样本准入、busy 稳定性和状态 CDC 语义补齐并获批准前，不创建 T1 RTL。
+
+### P15-T0 提案修订状态（2026-09-05）
+
+- A2 已按 KISS 修订为“V2 8/10 beat 计数唯一权威，T1 不解释 TLAST”；严格 TLAST/整帧检查移到外层 packetizer，避免无预缓冲流式 wrapper 无法回滚的问题。
+- A3 已补充建议线级格式：wrapper-only `0xA`、`fence_id=cmd_payload[31:0]`、成功响应类别 `0xD`、fence 前 `sample_ready=0` 且禁止预填、成功后只开放一个 8-beat 窗口。
+- A4/A6 已补充 ready/valid 稳定和状态 CDC 建议：busy 只禁止新握手，非复位期间不撤销已呈现 payload；`mask_epoch` 只通过 result/fence 原子 payload，不做逐 bit CDC。
+- A1/A5 已补充保留位/未知 opcode 错误优先级，以及 `FIFO_READ_LATENCY=0`、`CDC_SYNC_STAGES=2`、`SIM_ASSERT_CHK=1` 唯一参数。以上仍是待管理员批准的提案，不改变 `NO_RTL_AUTHORIZATION`。
+
 ## 状态校正与下一门
 
 - **当前权威基线**：V2 OOC report head 与 RTL 均绑定 `f744bff2bdde68e138a7b2b348ce103bec1ab469`；其变更已随 PR #64 合并为 `main@a53a040`。P15-T0 规划随 PR #65 合并为 `main@618c1e4`，端口裁定稿随 PR #66 合并为 `main@a1457bb`。不要把旧 report head=`39e41d4` 的 0 DSP 结果或 V1 `5055073` 失败结果当作当前物理状态。

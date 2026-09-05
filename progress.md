@@ -1339,3 +1339,9 @@
 - 已重跑失败 job，结果相同；该 CI 结果只能标记为 `NOT_RUN_BILLING_BLOCKED`，不能视为代码失败或通过。PR #68 暂不合并，等待计费/额度恢复后重新运行。
 - 已新增 `docs/planning/NPU_ZYNQ7020_TOPLEVEL_T0_DECISION_ADDENDUM_V1.md`，将七项阻断转成 A1-A7 可逐项批准的建议；在管理员确认前仍不授权 T1 RTL。
 - 已新增 `docs/planning/NPU_ZYNQ7020_TOPLEVEL_T0_TEST_CONTRACT_V1.md`，为 A1-A7 定义 T1/T2/T3 的正向、负向、CDC、资源和停止条件；仍未创建 RTL。
+
+## 2026-09-05 P15-T0 附录二次复核与修订
+
+- 只读复核确认 8 个新增阻断：fence 编码/响应未完整冻结、严格 TLAST 与流式丢弃矛盾、fence 前样本预填边界、命令完成层级、busy 对 valid 稳定性的影响、A1 错误优先级、32-bit epoch 原子 CDC、XPM 参数集合不一致。
+- 已修订 A1-A6 建议：T1 TLAST 改为外层提示；明确 `SAMPLE_FENCE` 编码和单样本窗口；禁止 fence 前预填；busy 只禁止新握手；epoch 只经原子 FIFO/响应；补齐 XPM 参数和错误优先级。
+- Nexus 二次复核摘要已由子代理更新；未修改 RTL，T1 仍被阻塞。

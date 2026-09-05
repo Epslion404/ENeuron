@@ -27,19 +27,21 @@
 ## 4. A2 framing 与 sideband
 
 - 合法样本必须是 8 个 beat，合法结果必须是 10 个 beat；数据位级比较采用 V2 nibble 顺序。
-- 分别注入早到 TLAST、晚到 TLAST、缺失 TLAST、`TKEEP/TSTRB` 非全 1 和 beat 间 `sample_id` 改变。
-- 每个错误向量必须证明：错误帧不进入核心、shim 能重新对齐下一帧、错误通过 response FIFO 报告且不伪造 result beat。
+- T1 将 `TLAST` 视为外层提示并忽略其值；在 beat 数仍完整的向量中改变 TLAST，不得改变核心结果。严格 TLAST/包完整性检查不属于本 wrapper，由外层 packetizer 验证。
+- `TKEEP/TSTRB`、`TID/TDEST` 使用冻结 tie-off；T1 不在已进入核心的部分帧上承诺回滚或伪造 framing error。
+- beat 间 `sample_id` 改变必须按 A2 sideband 合同处理：若选择逐 beat 检查，必须在首 beat 前缓存整帧；在 T0 未批准该额外缓存前，不得声称已有错误回滚能力。
 - 合法 AXI tie-off：32-bit 流 `TKEEP/TSTRB=4'b1111`，128-bit 流 `TKEEP/TSTRB=16'hffff`，`TID/TDEST=0`。
 
 ## 5. A3 跨流 fence
 
 - 在不同 host/npu 相位下并发提交 `MASK_COMMIT`、`STATE_CLEAR`、`FREEZE_SET` 与样本 FIFO，验证未完成配置不会被样本首 beat 使用。
-- `SAMPLE_FENCE` 必须只授权一笔完整 8-beat 样本；无 fence 的样本必须保持反压或返回确定错误，不能按 FIFO 到达偶然放行。
+- `SAMPLE_FENCE` 的 `fence_id` 固定为 `cmd_payload[31:0]`，成功响应类别固定为 `0xD`，错误使用 `0xE`；fence 前 `sample_ready=0` 且 sample FIFO 不得预填，成功后只授权一个 8-beat 窗口。
+- fence 只有在此前命令已经核心握手、`runtime_idle=1`、响应槽为空且两域状态有效时才成功；无 fence 的样本必须保持反压，不能按 FIFO 到达偶然放行。
 - 结果必须用 `sample_id`/`mask_epoch` 与 fence 账本匹配；不能假定 response FIFO 与 result FIFO 全局有序。
 
 ## 6. A4 复位与 CDC
 
-- 覆盖 host/npu 同频、整数频比、非整数频比和随机相位；两域 busy 任一为 1 时四条流均不得握手。
+- 覆盖 host/npu 同频、整数频比、非整数频比和随机相位；两域 busy 任一为 1 时禁止新事务握手，但非复位期间已呈现的 valid/payload 必须稳定。
 - 在命令、样本和结果的每个 beat 位置注入 reset，确认半事务按合同丢弃，复位后不泄漏旧 payload 或旧状态。
 - 验证 `bridge_rst` 至少覆盖两个域各 4 个上升沿，域状态同步后连续 2 个本地沿才重新开放 ready。
 
@@ -51,7 +53,7 @@
 
 ## 8. A6 状态、错误和中断
 
-- 验证 Host 域看到的 `model_valid`、`mask_valid`、`infer_frozen`、`mask_epoch`、FIFO busy、framing/protocol error 均来自同步摘要。
+- 验证 Host 域看到的单 bit 状态来自同步摘要；`mask_epoch` 只从 result FIFO/fence 响应的原子 payload 获取，不做逐 bit CDC；error/IRQ sticky 和清除规则逐项验证。
 - 验证 response FIFO 只报告错误、fence 确认和核心既有响应；result FIFO 只传结果及 sideband。
 - 对每个错误注入向量检查 sticky/清除规则、IRQ 触发条件和 response 背压。
 

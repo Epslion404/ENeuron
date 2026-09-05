@@ -8,6 +8,15 @@
 - 当前骨架/端口表采用 `[127:124]` 4-bit opcode；Oracle V3 采用 `[7:0]` 8-bit opcode。现有随机 TB 也使用高 nibble+epoch，且只做样本后再改 mask 的串行测试，不能证明四 FIFO 并发下的顺序合同。
 - 当前仍是 `P15_T0_REVIEW_REQUIRED / NO_RTL_AUTHORIZATION`；审计不授权创建顶层 RTL。
 
+## 2026-09-05 P15-T0 附录二次复核
+
+- 复核发现原 A2 的严格 TLAST/整帧丢弃承诺无法与无预缓冲的逐 beat 流式 wrapper 同时成立；建议改为 T1 只采用 V2 8/10 beat 计数，TLAST 仅作外层提示，严格包检查交给更外层 packetizer。
+- A3 需要冻结 wrapper-only `SAMPLE_FENCE` 的完整编码、成功响应类别、fence ID、sample FIFO 预填和 `sample_ready` 窗口；建议使用 opcode `0xA`、`fence_id=cmd_payload[31:0]`、响应类别 `0xD`，fence 前不允许样本预填，成功后只开放一个 8-beat 窗口。
+- ready/valid 合同必须区分“禁止新握手”和“撤销已呈现事务”：busy 变化不能在非复位期间撤销已呈现 valid/payload；复位才是取消边界。
+- `mask_epoch` 不能逐 bit CDC；建议只通过 result FIFO/fence 响应的原子 payload 传递，Host 状态只同步单 bit 摘要。
+- A1/A5 还需把保留位/未知 opcode 错误优先级以及 XPM `FIFO_READ_LATENCY=0`、`CDC_SYNC_STAGES=2`、`SIM_ASSERT_CHK=1` 写成唯一参数。
+- 以上结论已写入 Nexus 二次复核摘要；A1-A7 仍为提案，当前不授权 T1 RTL。
+
 ## NPU 局部剪枝 NP4B 实施授权（2026-08-29）
 
 - 八项决定已批准，后续不再为两输入输出兼容、核心 opcode 扩展、共享 gate 或 Host Bridge 集成保留分支。

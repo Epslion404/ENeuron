@@ -62,7 +62,7 @@ V2 OOC 物理门已通过，PR #64 已合并为 `main@a53a040`；PR #65 已合�
 
 - `docs/planning/NPU_ZYNQ7020_TOPLEVEL_INTEGRATION_V1.md` 与 `NPU_ZYNQ7020_TOPLEVEL_DECISION_SHEET_V1.md` 已合并为 `main@a1457bb`。
 - 推荐方案 A：保留 128-bit 命令/响应异步 FIFO，新增完整 payload 为 64-bit 样本 FIFO 和 96-bit 结果 FIFO；AXI-Stream 放在 FIFO 外，AXI-Lite/DMA/Ethernet/PS7 留在后续层。
-- 当前状态为 `PROPOSED / ADMIN_REVIEW_REQUIRED / NO_RTL_AUTHORIZATION`。`docs/planning/NPU_ZYNQ7020_TOPLEVEL_T0_AUDIT_V1.md` 已记录七项 T1 阻断：命令字段/版本、V1/V2 framing、跨流 fence、reset-busy/状态 CDC、AXI sideband 错误语义、FIFO 参数和器件约束。T1 纯 RTL 适配器、T2 双时钟协同仿真和 T3 顶层 OOC 均等待 T0 补齐并批准。
+- 当前状态为 `PROPOSED / ADMIN_REVIEW_REQUIRED / NO_RTL_AUTHORIZATION`。`docs/planning/NPU_ZYNQ7020_TOPLEVEL_T0_AUDIT_V1.md` 及其二次复核已记录字段/版本、V1/V2 framing、跨流 fence、reset-busy/状态 CDC、AXI sideband 错误语义、FIFO 参数和器件约束等阻断；A1-A7 建议已修订但尚待批准。T1 纯 RTL 适配器、T2 双时钟协同仿真和 T3 顶层 OOC 均等待 T0 补齐并批准。
 - 保护文件仍为 `local_prune_rtl_results.json`、`np4b_signoff_summary.json`、`np75_tmp_sparse_protocol.ys`，不得纳入后续提交。
 
 ## 2026-09-04 V2 KISS 实施地图
