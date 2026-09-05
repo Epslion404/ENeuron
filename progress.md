@@ -1350,3 +1350,10 @@
 
 - 核对 skeleton 状态逻辑后，修正 A3 中过严的 `runtime_idle` 条件；改用 `sample_ready`、结果/响应空闲、wrapper 窗口和 staging 闭合条件，避免已发布 mask 等待首 beat 时死锁。
 - 同步修订 T0 测试合同和 findings；仍未创建 RTL，等待管理员批准。
+
+## 2026-09-05 P15-T0 当前审批门复核
+
+- 再次核对 PR #68：管理员尚未回复 A1-A7，当前仍为 `P15_T0_REVIEW_REQUIRED / NO_RTL_AUTHORIZATION`，因此不创建 T1 顶层 RTL。
+- 最新 Actions run `33975176800` 的 Classify changes 与 PR Gate 在 runner 启动前因账户付款/额度问题失败，其余 job 被跳过；按 `NOT_RUN_BILLING_BLOCKED` 记录，不能当作代码失败或通过。
+- 本机 webhook `/healthz` 当前连接被拒绝；GitHub Checks/API 仍是权威终态来源。
+- 轻量本地验证通过：CI-Fast `8/8`、`git diff --check` 和 P15-T0 文档锚点检查；一次附加探针误把决策状态要求到测试合同，已确认是探针职责错误而非文档漂移。

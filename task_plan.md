@@ -1,5 +1,16 @@
 # 单神经元硬件基石模拟计划
 
+## 2026-09-05 P15-T0 当前审批门复核
+
+- [x] 再次确认管理员已同意 TR7-TR12；V2 RTL、功能回归和 Vivado OOC 已完成，不重复修改计算核。
+- [x] 核对 PR #68：A1-A7 尚未收到管理员逐项裁定，当前仍为 `P15_T0_REVIEW_REQUIRED / NO_RTL_AUTHORIZATION`。
+- [x] 核对 PR #68 CI：最新 run `33975176800` 在 runner 启动前因账户付款/额度问题失败；按 `NOT_RUN_BILLING_BLOCKED` 记录，不视为代码失败或通过。
+- [x] 本机 webhook `http://127.0.0.1:2355/healthz` 当前连接被拒绝；GitHub Checks/API 继续作为 CI 权威来源。
+- [x] 轻量验证通过：CI-Fast `8/8`、`git diff --check`；P15-T0 文档锚点检查通过。
+- [ ] 等待管理员批准 P15-T0 方案 A 与 A1-A7；批准前不创建 T1 顶层 RTL。
+
+本轮误报记录：附加探针曾把 `NO_RTL_AUTHORIZATION` 错要求出现在 T0 测试合同；实际该状态属于决策附录/决策表，测试合同使用 `T1_BLOCKED`，已通过文档职责核对纠正，未修改合同语义。
+
 ## 2026-09-05 V2 时序修复实施启动
 
 - [x] 复核 `main@bef5979`、DSP V1 全部 22 个失败端点与 TR7-TR12 审批边界。
