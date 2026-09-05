@@ -1205,3 +1205,12 @@
 ### V2 RED 证据
 
 `test_npu_single_clock_compute.NpuSingleClockComputeTests.test_timing_repair_v2_contract` 在旧 RTL 上返回失败：首个样本完成时没有任何 L0/L1 WRITEBACK，实际为 `l0=0/32、l1=0/10`。结构测试还确认旧 RTL 没有四个 `lane_activation_latched_*`、两个 WRITEBACK 状态，且隐藏层/输出层各有多个直接写点。该 RED 是实施前门，不代表功能缺陷已经修复。
+## 2026-09-05 V2 实施与物理签核
+
+- TR7-TR12 已批准并完成实现；V2 在旧 RTL 上的 RED 先行证据、激活锁存/统一 WRITEBACK RTL、C1-C4 周期合同和逐组白盒门均已闭环。
+- 定向专项、固定 `20×100=2000` 样本逐 beat 随机协同仿真和完整回归均通过：`475 tests / OK (skipped=1)`。
+- V2 周期为 C1=`1902`、C2=`1898`、C3=`718`、C4=`1900` 拍；compute watchdog 调整到 9500，精确周期门未放宽。
+- Vivado 2024.1 OOC 绑定 `f744bff2bdde68e138a7b2b348ce103bec1ab469`：`2126 LUT / 1916 FF / 0 BRAM / 4 DSP48E1`，`WNS=+0.060 ns / TNS=0 / WHS=+0.040 ns / THS=0`，setup/hold/route/DRC 零失败。
+- V1 的 `5055073` setup 失败路径已降级为历史审计证据，不再代表当前物理状态；当前 manifest 状态为 `VIVADO_OOC_PASS`。
+- PR #64 HEAD 与上述实现提交一致，GitHub Actions run `33946568679` 全绿；Webhook 掉线仅记录为通知通道缺失。
+- OOC 结论仍不覆盖板级 I/O、DMA、PS、Ethernet、动态功耗和持续学习；下一阶段必须另行完成顶层与板级签核。

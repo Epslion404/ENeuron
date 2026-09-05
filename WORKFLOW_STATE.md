@@ -4,13 +4,13 @@
 
 最后更新：2026-09-05
 
-状态：`ACTIVE / NP7_MERGED / I1_I6_APPROVED / OF1_OF6_V3_APPROVED / OF6_ORACLE_SIGNOFF / RTL_DESIGN_CONTRACT_V2_APPROVED / PR62_MERGED / TR1_TR6_APPROVED / TR7_TR12_APPROVED / TIMING_REPAIR_V2_IN_PROGRESS / VIVADO_ALLOWED_AFTER_FUNCTIONAL_GATES / VIVADO_OOC_SETUP_FAIL`
+状态：`ACTIVE / NP7_MERGED / I1_I6_APPROVED / OF1_OF6_V3_APPROVED / OF6_ORACLE_SIGNOFF / RTL_DESIGN_CONTRACT_V2_APPROVED / PR62_MERGED / TR1_TR6_APPROVED / TR7_TR12_APPROVED / TIMING_REPAIR_V2_FUNCTIONAL_GREEN / VIVADO_OOC_100MHZ_PASS`
 
 ## 当前活动目标
 
-NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定及 TR1-TR6 已批准。管理员于 2026-09-05 批准 TR7-TR12，V2 现进入测试先行和 RTL 实施阶段。DSP V1 实现、真实 OOC 失败证据和全部 22 个失败端点审计已经合入；V2 KISS 审核材料经 PR #62 合入 `main@e8dc947`。
+NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定及 TR1-TR6 已批准。管理员于 2026-09-05 批准 TR7-TR12，V2 已完成测试先行、RTL 实施、功能回归和 Vivado 2024.1 OOC。DSP V1 实现、真实 OOC 失败证据和全部 22 个失败端点审计已经合入；V2 KISS 审核材料经 PR #62 合入 `main@e8dc947`，V2 实现提交为 `f744bff2bdde68e138a7b2b348ce103bec1ab469`。
 
-活动合同：`docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V1.md`、`docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_TEST_CONTRACT_V1.md` 和 `docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V2.md`。当前 RTL 已完成共享四 DSP lane、三拍组计算、active-mask 门控和全部功能回归。Vivado 2024.1 OOC 已确认恰好 4 个 DSP48E1，route/DRC 无错误且 hold 通过，但 100 MHz setup 仍未通过；板级、网口、DMA、功耗仍不在本阶段。
+活动合同：`docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V1.md`、`docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_TEST_CONTRACT_V1.md` 和 `docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V2.md`。当前 RTL 已完成共享四 DSP lane、三拍组计算、V2 激活锁存、统一 WRITEBACK、active-mask 门控和全部功能回归。Vivado 2024.1 OOC 已确认恰好 4 个 DSP48E1，100 MHz 下 setup/hold、route/DRC 全部通过；板级、网口、DMA、功耗仍不在本阶段。
 
 ## 当前事实
 
@@ -48,7 +48,15 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 
 ## 下一动作
 
-TR7-TR12 已获管理员批准。当前按“独立 V2 测试 RED → 最小 RTL → 定向/随机/全仓回归 → Vivado 2024.1 OOC”执行；V2 复用现有 `mac_accumulator`，预计只新增四个 8-bit 激活锁存器。功能门全部通过前不运行 Vivado，也不进入 XC7Z020 顶层规划。
+V2 OOC 物理门已通过。下一步是等待 PR #64 的 GitHub CI 并完成合并评审；随后再规划 XC7Z020 顶层、DMA/PS/网口和板级活动功耗。当前 OOC 仍不等价于板级、网口、DMA、PS 或持续学习签核。
+
+## 2026-09-05 V2 OOC 签核结果
+
+- 实现提交：`f744bff2bdde68e138a7b2b348ce103bec1ab469`；工具：Vivado 2024.1；器件：`xc7z020clg400-1`；顶层：`npu_eneuron_single_clock_skeleton`；时钟：100 MHz。
+- 资源：`2126 LUT / 1916 FF / 0 BRAM36 / 0 BRAM18 / 4 DSP48E1`；DSP utilization 与实现网表双重硬门均通过。
+- 时序：`WNS=+0.060 ns / TNS=0`，`WHS=+0.040 ns / THS=0`；setup/hold 失败端点均为 0。
+- 实现状态：`ROUTE_ERRORS=0 / DRC_ERRORS=0 / PHYSICAL_GATE=PASS`。该结论仅覆盖 OOC，不能外推真实 I/O delay、DMA、PS、Ethernet、SAIF 活动、动态功耗或板级吞吐。
+- OOC 报告及 SHA-256 已同步到 `artifacts/results/npu_single_clock_ooc_manifest.json`；Webhook 当前不可用，CI 终态以 GitHub Checks/API 为权威。
 
 ## 2026-09-04 V2 KISS 实施地图
 

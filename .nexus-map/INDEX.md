@@ -21,13 +21,13 @@ ENeuron 是以 Python 黄金模型、SystemVerilog RTL、Icarus/Yosys/Vivado 验
 
 ## 当前状态
 
-NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`，NP7 已签核。管理员已批准并完成 TR1-TR6：共享四 DSP lane、三拍组计算、单时钟专项 8/8、固定 `20×100` 和完整仓库 473 项均通过。实现提交 `5055073` 的 OOC 已证明恰好 4 个 `DSP48E1`，hold/route/DRC 通过，但 100 MHz setup 为 `WNS=-0.673 ns / TNS=-6.462 ns / 22` 个失败端点。PR #62 已合并为 `main@e8dc947`，最终 HEAD `a4832cc3bddd96ba2f94c295ae99c1d12713abf3` 的 Actions run `33915028445` 为 success；Webhook 收到同 SHA，但 `signature_verified=false`，只作到达提示。当前状态为 `DSP_GATE_PASS / VIVADO_OOC_SETUP_FAIL / TR7_TR12_APPROVED / TIMING_REPAIR_V2_IN_PROGRESS`，正在先做 V2 RED 和 RTL 修复，不得宣称 100 MHz 或板级通过。
+NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`，NP7 已签核。TR7-TR12 已批准并完成 V2 实现：单时钟专项、固定 `20×100` 和完整仓库回归均通过。实现提交 `f744bff2bdde68e138a7b2b348ce103bec1ab469` 的 OOC 为 `2126 LUT / 1916 FF / 0 BRAM / 4 DSP48E1`，100 MHz `WNS=+0.060 ns / TNS=0 / WHS=+0.040 ns`，setup/hold/route/DRC 零失败。PR #64 HEAD 与该提交一致，Actions run `33946568679` 全绿，当前状态为 `TIMING_REPAIR_V2_FUNCTIONAL_GREEN / VIVADO_OOC_100MHZ_PASS`；Webhook 掉线仅影响到达提示，板级、DMA、PS、网口和功耗仍未签核。
 
 ## 单时钟 RTL 审核摘要
 
 - **V1 审计问题**：统一单命令流却定义 `MODEL_COMMIT` 与 `MASK_COMMIT` 同拍竞争；结果 sideband 引入未冻结的 `model_epoch` 且硬件槽位账本不足；首 beat mask 切换未说明 framing 错误的零副作用/回滚；`runtime_idle` 漏待消费错误、部分结果和同拍握手占用；验证门低于 I5 的 20 个固定 seed × 100 样本要求。
 - **V2 修正**：固定 8/10 beat 并取消外部 `last`；明确 nibble 位序和内部 beat 计数；删除 `model_epoch`，结果 metadata 仅为 sample ID 与 mask epoch；统一命令流按握手顺序串行，配置命令优先样本首 beat；idle 纳入错误响应、部分输出、统一槽位及同拍仲裁；验证门恢复至少 20×100 样本并保留 OF6 定向/负向覆盖。
-- **当前门槛**：TR1-TR6 已实现于 `5055073`。OOC 结果为 `2192 LUT / 1904 FF / 4 DSP48E1`，DSP 双重结构门、hold、route 和 DRC 通过；setup `WNS=-0.673 ns / TNS=-6.462 ns / 22` 个失败端点。扩展 50-path 报告已展开全部 22 个失败端点：14 个属于动态激活选择→DSP48E1→求和→`lane_sum_latched`，8 个属于 `compute_group_index`→`logit_values` 写使能。V2 实施地图冻结为复用 signed 32-bit `mac_accumulator`，不新增 `writeback_value_latched`，仅预计新增四个 signed 8-bit 激活锁存器（约 32 FF）；TR7-TR12 已批准，当前执行独立 V2 RED→RTL→功能回归→OOC。
+- **当前门槛**：V2 已实现于 `f744bff`。OOC 结果为 `2126 LUT / 1916 FF / 4 DSP48E1`，DSP 双重结构门、setup/hold、route 和 DRC 全部通过；`WNS=+0.060 ns / TNS=0 / WHS=+0.040 ns`。V1 的 22 个失败端点仍保留在独立审计文档中，仅作历史路径证据；当前 OOC 结果和哈希由 `artifacts/results/npu_single_clock_ooc_manifest.json` 绑定。
 - **第二条 RTL 切片**：`test_npu_single_clock_mask.py` 驱动公开接口验证完整 19-word 顺序装载；非法 word18 高 16 位产生 128-bit 单槽错误响应且隐式索引保持 18，响应消费后可重试；`MASK_COMMIT` 只发布，后续样本首 beat 才令 epoch 1 active 并置 `mask_valid`，两个连续样本结果均携带 epoch 1。
 - **第三条 RTL 切片**：`test_npu_single_clock_control.py` 验证部分 mask 可由 `MASK_ABORT` 丢弃；`STATE_CLEAR` 保留模型/mask；freeze 只在严格 idle 边界切换，冻结时样本仍可完成，而模型/mask 配置与动态清除返回稳定错误且不改变状态。
 - **真实计算状态**：`test_npu_single_clock_compute.py`/`tb_npu_eneuron_single_clock_compute.sv` 已锁定 uint4×INT8、隐藏饱和、INT32 logit 与 L0 mask 门控；四 lane FETCH/EXECUTE/COMMIT 引擎通过首组 137/-117、两层最后组 59、L1 bit79 关闭后 -1，以及忙态阻塞检查。
@@ -36,9 +36,9 @@ NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`，NP7 已签核。
 
 ## 状态校正与下一门
 
-- **当前权威基线**：`main@e8dc947`（merge commit `e8dc9477dbfc7a9311dd00c514a986580ad2b84b`）。DSP V1 实现与 OOC report head=`5055073`；V2 实施地图为 `docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V2_IMPLEMENTATION_MAP.md`，TR7-TR12 已批准但实施尚未完成。不要把旧 report head=`39e41d4` 的 0 DSP 结果当作当前实现结果。
+- **当前权威基线**：PR #64 HEAD `f744bff2bdde68e138a7b2b348ce103bec1ab469`（尚未合并 main）。V2 OOC report head 与 RTL 均绑定该提交；`main@e8dc947` 是合并前基线。不要把旧 report head=`39e41d4` 的 0 DSP 结果或 V1 `5055073` 失败结果当作当前物理状态。
 - **已完成证据**：单时钟专项 8/8、固定 `20 seeds × 100 samples = 2000` 个样本逐 beat 随机门、完整回归 `473/473（1 skipped）`，以及 4 DSP 网表证据。
-- **已完成物理阶段**：使用 Vivado 2024.1 对当前 RTL、器件 `xc7z020clg400-1`、100 MHz 约束执行了 OOC 综合/实现、资源、setup/hold 和 DRC；setup 失败证据已归档。在关键路径修复通过前，不宣称当前设计的板级、功耗或网络吞吐性能。
+- **已完成物理阶段**：使用 Vivado 2024.1 对 V2 RTL、器件 `xc7z020clg400-1`、100 MHz 约束执行了 OOC 综合/实现、资源、setup/hold 和 DRC，物理硬门通过。该结果不宣称板级、功耗或网络吞吐性能。
 - **历史保留**：下方审计条目保留设计演进背景；其中标注为 V1/OF6 历史阶段的缺口不覆盖上述当前签核结果。
 
 ## 必读路由

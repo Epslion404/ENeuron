@@ -1,10 +1,12 @@
 # 传统 NPU + ENeuron 集成材料包草案
 
-状态：`SUPERSEDED / I1-I6_APPROVED / OF1-OF6_V3_APPROVED / RTL_RANDOM_GATE_GREEN / PR54_MERGED / VIVADO_OOC_SETUP_FAIL / TIMING_REPAIR_REQUIRED`
+状态：`SUPERSEDED / V2_OOC_PASS`
 
 日期：2026-09-03
 
 适用范围：I1-I6 批准前的历史材料包。当前冻结审核以 [NPU Oracle 冻结审核 V3](NPU_ORACLE_FREEZE_REVIEW.md) 为准；本文不再作为当前实现合同，也不授权业务 RTL、Vivado 或板级测试。
+
+注：本文中的 V1 OOC 失败状态已被 V2 结果取代。当前单时钟实现提交为 `f744bff2bdde68e138a7b2b348ce103bec1ab469`，OOC 资源为 `2126 LUT / 1916 FF / 0 BRAM / 4 DSP48E1`，100 MHz `WNS=+0.060 ns`、setup/hold 零失败；这些结果仍仅覆盖 OOC，不覆盖板级、DMA、PS、网口或功耗。
 
 ## 1. 为什么要先补这份材料
 

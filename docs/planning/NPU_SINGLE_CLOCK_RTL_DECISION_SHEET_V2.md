@@ -1,6 +1,8 @@
 # 单时钟 RTL 设计裁定表 V2
 
-状态：`APPROVED_BY_ADMIN / RTL_RANDOM_GATE_GREEN / PR54_MERGED / VIVADO_OOC_NEXT`。管理员已于 2026-09-04 批准以下 8 项裁定；V2 现作为单时钟 RTL 基线。逐拍 RTL 协同仿真与固定随机门已通过，下一步可对 `main@2a33f12` 执行 Vivado 2024.1 OOC；板级验证仍后置。
+状态：`APPROVED_BY_ADMIN / RTL_RANDOM_GATE_GREEN / VIVADO_OOC_100MHZ_PASS`。管理员已于 2026-09-04 批准以下 8 项裁定；V2 单时钟 RTL 已完成实现和 OOC。实现提交为 `f744bff2bdde68e138a7b2b348ce103bec1ab469`，板级验证仍后置。
+
+当前物理结果：`2126 LUT / 1916 FF / 0 BRAM / 4 DSP48E1`，100 MHz post-route `WNS=+0.060 ns / TNS=0 / WHS=+0.040 ns / THS=0`，setup/hold/route/DRC 零失败。详细报告见 `artifacts/results/npu_single_clock_ooc_manifest.json`。
 
 ## 1. 样本输入流
 

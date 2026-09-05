@@ -1,5 +1,9 @@
 # Git 热点
 
+## 当前 V2 状态（2026-09-05）
+
+PR #64 当前为 `OPEN / CLEAN`，HEAD 与 OOC report head 均为 `f744bff2bdde68e138a7b2b348ce103bec1ab469`，Actions run `33946568679` 全绿。V2 OOC 资源为 `2126 LUT / 1916 FF / 4 DSP48E1`，100 MHz setup/hold/route/DRC 全部通过；Webhook 当前掉线，仅作通知通道状态记录。用户文件 `np75_tmp_sparse_protocol.ys` 继续排除在提交和 Nexus 文件树之外。
+
 generated_by: nexus-mapper v2 / manual synthesis
 verified_at: 2026-09-05
 provenance: `.nexus-map/raw/git_stats.json`（最后提交于 `c46320e`；仓库内未发现可复现生成脚本，后续基线由 Git 与 manifest 人工核对）

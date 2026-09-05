@@ -1,7 +1,7 @@
 Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
 ---------------------------------------------------------------------------------------------------------------------------------------------
 | Tool Version : Vivado v.2024.1 (win64) Build 5076996 Wed May 22 18:37:14 MDT 2024
-| Date         : Sat Sep  5 02:13:25 2026
+| Date         : Sat Sep  5 13:27:01 2026
 | Host         : LAPTOP-AJQHFMKI running 64-bit major release  (build 9200)
 | Command      : report_drc -file D:/Documents/Code/ENeuron/vivado_npu_single_clock_ooc_reports/drc_impl.rpt
 | Design       : npu_eneuron_single_clock_skeleton

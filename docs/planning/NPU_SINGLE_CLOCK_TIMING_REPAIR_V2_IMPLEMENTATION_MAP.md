@@ -1,10 +1,10 @@
 # 传统 NPU + ENeuron 单时钟 RTL 时序修复 V2 实施地图
 
-状态：`IMPLEMENTATION_APPROVED / RTL_IN_PROGRESS`
+状态：`IMPLEMENTED / FUNCTIONAL_GREEN / VIVADO_OOC_100MHZ_PASS`
 
 日期：2026-09-04
 
-基线：`main@bef5979`
+基线：`f744bff2bdde68e138a7b2b348ce103bec1ab469`
 
 ## 1. 结论
 
@@ -12,7 +12,7 @@ TR7-TR12 的两个核心动作仍然正确：FETCH 锁存四个激活操作数�
 
 因此 V2 的逻辑新增状态从原估计约 64 bit 降为约 32 bit：只增加四个 signed 8-bit 激活锁存器。两个 WRITEBACK 状态仍可放入现有 4-bit 状态编码，不增加状态寄存器宽度。准确综合增量必须由实施后的 Vivado 报告裁定。
 
-管理员已于 2026-09-05 批准 TR7-TR12。本文件现作为实施合同：允许修改计算 RTL 和独立 V2 testbench，但 Vivado 仍需等待功能门全部通过。
+管理员已于 2026-09-05 批准 TR7-TR12。本文件已完成实施闭环：V2 RTL、独立测试合同、完整回归和 Vivado OOC 均已通过；后续板级工作仍需单独立项。
 
 ## 2. 为什么可以复用 `mac_accumulator`
 
@@ -124,12 +124,14 @@ V2 latency = 676 + 42 + 2E = 718 + 2E
 
 前三个 watchdog 无需调整。compute 虽不会超时，但低于 V1 合同要求的 1200 拍规划余量；获批后将其定向调整为 9500 拍，预计余量 1622.5 拍。精确周期断言继续负责拒绝多余停顿，因此这一调整不放宽功能合同。
 
-## 6. 当前执行顺序
+## 6. 实施结果与签核
 
-1. 新建独立 V2 测试合同。
-2. 更新 C1-C4 和白盒状态检查，证明旧 RTL 精确 RED。
-3. 最小修改计算 RTL，复用 accumulator，不改变外部协议。
-4. 运行单时钟定向测试和固定 `20×100` 随机逐 beat。
-5. 运行完整仓库回归。
-6. 仅在功能门全部通过后运行 Vivado 2024.1 OOC。
-7. 只有恰好 4 DSP、setup/hold 零失败、route/DRC 零错误时签核；否则保存报告并重新审核，不自动增加流水。
+1. [x] 新建独立 V2 测试合同，并在旧 RTL 上取得精确 RED。
+2. [x] 更新 C1-C4 和白盒状态检查，证明旧 RTL 精确 RED。
+3. [x] 最小修改计算 RTL，复用 accumulator，不改变外部协议。
+4. [x] 运行单时钟定向测试和固定 `20×100` 随机逐 beat。
+5. [x] 运行完整仓库回归：`475 tests / OK (skipped=1)`。
+6. [x] 运行 Vivado 2024.1 OOC：`xc7z020clg400-1 / 100 MHz`。
+7. [x] 通过物理硬门：`2126 LUT / 1916 FF / 0 BRAM / 4 DSP48E1`，`WNS=+0.060 ns / TNS=0`，`WHS=+0.040 ns / THS=0`，setup/hold/route/DRC 零失败。
+
+PR #64 当前 HEAD 为 `f744bff2bdde68e138a7b2b348ce103bec1ab469`，GitHub Actions run `33946568679` 已全绿。OOC 证据已绑定到 `artifacts/results/npu_single_clock_ooc_manifest.json`；Webhook 掉线不改变 GitHub Checks/API 的权威性。
