@@ -9,6 +9,7 @@
 - [G4 T3 执行规格](design/g4_t3_execution_spec.md)
 - [Host Bridge V1 设计](design/host_bridge_v1_proposal.md)
 - [片外 Host 训练协议](design/host_protocol.md)
+- [XC7Z020 顶层集成规划 V1](planning/NPU_ZYNQ7020_TOPLEVEL_INTEGRATION_V1.md)
 - [局部 2:4 剪枝 RTL 合同](design/LOCAL_PRUNE_RTL_CONTRACT.md)
 - [原始 Goal 对齐审核](design/original_goal_alignment_review.md)
 - [推荐神经元设计](design/recommended_design.md)

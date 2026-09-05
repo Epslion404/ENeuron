@@ -37,7 +37,7 @@
 - [ ] Python 参考模型能在旁路/门控两种模式下逐样本复现输出与门控决策。
 - [ ] 明确最坏情况：门控全开、全关、频繁切换、背压和状态清除。
 - [x] 明确资源预算：LUT、FF、BRAM、DSP、时钟和可接受 WNS；V2 OOC 实测 `2126 LUT / 1916 FF / 0 BRAM / 4 DSP48E1`，100 MHz `WNS=+0.060 ns`、setup/hold 零失败。
-- [x] 形成独立集成顶层与 testbench 任务后实现并完成当前 RTL 随机门；当前只允许进入关键路径时序修复，不允许把 OOC 失败结果写成部署通过。
+- [x] 形成独立集成顶层与 testbench 任务后实现并完成当前 RTL 随机门；V2 OOC 已通过，后续按 `NPU_ZYNQ7020_TOPLEVEL_INTEGRATION_V1.md` 的 T0→T4 分阶段推进，不把核心 OOC 结果写成板级部署通过。
 
 ## 6. 禁止的提前结论
 

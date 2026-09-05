@@ -1,5 +1,7 @@
 # 系统边界
 
+当前状态校正（2026-09-05）：PR #64 已合并为 `main@a53a040`；V2 OOC 100 MHz 通过，资源为 `2126 LUT / 1916 FF / 4 DSP48E1`。首段旧快照中的 V1 失败数据仅作历史记录。
+
 状态更新（2026-09-05）：PR #64 当前 OPEN，HEAD 为 `f744bff2bdde68e138a7b2b348ce103bec1ab469`。TR7-TR12 已实现并完成 C1-C4、单时钟专项、固定 `20×100` 和完整仓库回归。V2 OOC 已确认 `2126 LUT / 1916 FF / 4 DSP48E1`，100 MHz `WNS=+0.060 ns / TNS=0 / WHS=+0.040 ns`，setup/hold/route/DRC 全部通过。V1 失败端点审计仍保留为历史证据；当前状态为 `TIMING_REPAIR_V2_FUNCTIONAL_GREEN / VIVADO_OOC_100MHZ_PASS`。
 
 generated_by: nexus-mapper v2 / manual synthesis
