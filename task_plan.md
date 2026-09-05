@@ -30,6 +30,10 @@
 
 修订后探针：`P15_T0_REVISED_CONTRACT_CHECK=PASS`；已核对 TLAST 外层提示、fence 编码、64/96-bit FIFO 表和 Nexus JSON。
 
+交叉文档探针第一次因依赖 Markdown 反引号和精确中文句式而误报；拆分为语义锚点（`0xA`、`sample_ready`、TLAST 外层提示、64/96-bit 表和阻断状态）后重跑通过，未发现合同漂移。
+
+交叉探针第二次仍把测试合同中未重复出现的 `0xA` 和 Nexus 的不同中文状态句当作必需匹配，断言失败；改为按各文档职责分别检查后，`P15_T0_CROSS_DOC_CHECK=PASS`。
+
 错误记录：首次 watchdog 搜索误写了不存在的 `tb_npu_eneuron_single_clock.sv`，`rg` 返回文件不存在；后续改用 `rg --files` 解析真实文件名，不重复该命令。该错误未修改文件，也不影响已完成测试。
 
 本轮新增错误记录：第一次合同探针使用了不存在的带连字符中文表述（`64-bit 样本 FIFO` 等），导致断言失败；拆分断言并按文档实际表格文本重跑后通过，未修改合同内容。
