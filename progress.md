@@ -1324,3 +1324,10 @@
 - Webhook 当前掉线；该状态只影响本机到达提示，不影响 GitHub Checks/API 权威结果。OOC 仍不覆盖板级 I/O、DMA、PS、Ethernet、SAIF 活动、动态功耗或持续学习。
 - 2026-09-05：PR #64 合并为 `main@a53a040`，PR #65 合并为 `main@618c1e4`，PR #66 合并为 `main@a1457bb`。V2 OOC 与 P15 顶层规划均已入库。
 - 2026-09-05：P15-T0 形成端口与适配边界裁定稿，推荐方案 A（128-bit 命令/响应 + 独立 32-bit 样本/结果 FIFO，AXI 在 FIFO 外）。该文档只提出方案，不授权 T1 RTL；等待管理员批准。
+
+## 2026-09-05 P15-T0 阻断审计补充
+
+- 完成四流、ready/valid、复位、AXI 外置和现有核心字段的只读审计，并新增 `docs/planning/NPU_ZYNQ7020_TOPLEVEL_T0_AUDIT_V1.md`。
+- 确认样本/结果完整 FIFO payload 分别为 64/96 bit；同时发现命令字段布局、V1/V2 framing、跨 FIFO fence、reset-busy 汇合、TLAST/TUSER 错误语义、FIFO 参数和目标器件七项尚未冻结。
+- 现有随机 TB 仅覆盖串行样本/结果与 mask 操作，不能替代新四 FIFO 并发顺序验证。
+- 未修改 RTL；T1 顶层实现仍被 `P15_T0_REVIEW_REQUIRED` 阻塞。

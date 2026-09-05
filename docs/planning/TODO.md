@@ -528,6 +528,8 @@ P0-P8 已完成并签核
 - [x] 冻结核心与 Host Bridge 的复用边界：核心保持 128-bit 命令/响应、固定 8/10 beat，双时钟只经异步 FIFO。
 - [x] 冻结 T0→T4 阶段：合同、纯 RTL 适配器、双时钟协同仿真、XC7Z020 顶层物理门、网口/训练闭环。
 - [x] 形成 T0 端口与适配边界裁定稿：`docs/planning/NPU_ZYNQ7020_TOPLEVEL_DECISION_SHEET_V1.md`。
+- [x] 完成 P15-T0 静态审计：`docs/planning/NPU_ZYNQ7020_TOPLEVEL_T0_AUDIT_V1.md`，确认样本/结果完整 FIFO payload 为 64/96 bit，并记录七项 T1 阻断。
+- [ ] 在开放 T1 前裁定命令字段唯一格式、V1/V2 framing 权威、跨流 fence、reset-busy 汇合、AXI sideband 错误语义、FIFO 参数和 XC7Z020 物理约束。
 - [ ] 评审 V1 顶层端口命名、AXI 外部适配位置和 PS/DMA 责任边界。
 - [ ] 实现纯 RTL 顶层薄封装并完成逐 beat、背压、复位和负向协同仿真。
 - [ ] 对“核心 + 适配器 + FIFO”运行 XC7Z020 OOC，单独归因新增 LUT/FF/BRAM/DSP 与时序。

@@ -35,8 +35,8 @@
 
 1. 命令：Host→NPU，128 bit，复用现有 command FIFO。
 2. 响应：NPU→Host，128 bit，复用现有 response FIFO。
-3. 样本：Host→NPU，32 bit 数据加 32 bit `sample_id` sideband，新增 sample FIFO。
-4. 结果：NPU→Host，32 bit结果数据加 32 bit `sample_id` 与 32 bit `mask_epoch` sideband，新增 result FIFO。
+3. 样本：Host→NPU，32 bit 数据加 32 bit `sample_id` sideband；sample FIFO 的完整逻辑 payload 为 64 bit。
+4. 结果：NPU→Host，32 bit 结果数据加 32 bit `sample_id` 与 32 bit `mask_epoch` sideband；result FIFO 的完整逻辑 payload 为 96 bit。
 
 样本和结果 FIFO 只传输 beat，不改变核心固定 8/10 beat framing。`sample_id` 在一个样本的 8 个 beat 中保持不变；结果 sideband 在一个结果的 10 个 beat 中保持不变。
 
@@ -44,11 +44,13 @@
 
 T1 不把 AXI4-Lite 寄存器地图写入 NPU 适配器。AXI4-Stream shim 位于 Host FIFO 外侧，负责把 `TVALID/TREADY/TDATA/TUSER/TLAST` 映射为四条内部流；AXI-Lite、AXI DMA、Ethernet MAC 和 PS 软件留在更外层。
 
-第一版 AXI-Stream 约定：
+第一版 AXI-Stream 约定（FIFO 内部仍须保留完整 sideband）：
 
 - 命令/响应：`TDATA[127:0]`，`TLAST` 只作为外层包提示，内部以 opcode/响应合同为准。
 - 样本：`TDATA[31:0]`，`TUSER[31:0]=sample_id`；8 beat 由内部计数完成，不依赖 `TLAST`。
 - 结果：`TDATA[31:0]`，`TUSER[63:32]=sample_id`、`TUSER[31:0]=mask_epoch`；10 beat 由内部计数完成。
+
+因此“32-bit 样本/结果流”只描述 AXI `TDATA`，不描述 FIFO 的完整 payload；T1 端口表必须分别标出 `sample_fifo_payload[63:0]` 和 `result_fifo_payload[95:0]`，不得把 sideband 丢到 FIFO 外的组合旁路。
 
 ### T0-D：复位与错误
 

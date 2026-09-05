@@ -1,5 +1,13 @@
 # 调研与实验发现
 
+## 2026-09-05 P15-T0 静态合同审计
+
+- 四条逻辑流的职责已经清楚：128 位命令、128 位响应、样本输入和结果输出；AXI-Stream 位于异步 FIFO 外侧，T1 不接 AXI-Lite、DMA、Ethernet 或 PS7。
+- 样本的完整 FIFO 载荷是 `data[31:0] + sample_id[31:0]`，实际为 64 位；结果的完整 FIFO 载荷是 `data[31:0] + sample_id[31:0] + mask_epoch[31:0]`，实际为 96 位。32 位只表示 AXI `TDATA`，不能代表 FIFO 宽度。
+- 只读审计发现七项 T1 阻断：命令字段布局冲突、V1/V2 framing 冲突、命令与样本跨 FIFO 顺序未定义、reset-busy/ready 跨域汇合未冻结、TLAST/TUSER 错误语义不完整、FIFO 参数和资源归因不足、目标器件与旧 Host Bridge OOC 不一致。
+- 当前骨架/端口表采用 `[127:124]` 4-bit opcode；Oracle V3 采用 `[7:0]` 8-bit opcode。现有随机 TB 也使用高 nibble+epoch，且只做样本后再改 mask 的串行测试，不能证明四 FIFO 并发下的顺序合同。
+- 当前仍是 `P15_T0_REVIEW_REQUIRED / NO_RTL_AUTHORIZATION`；审计不授权创建顶层 RTL。
+
 ## NPU 局部剪枝 NP4B 实施授权（2026-08-29）
 
 - 八项决定已批准，后续不再为两输入输出兼容、核心 opcode 扩展、共享 gate 或 Host Bridge 集成保留分支。

@@ -42,6 +42,17 @@ NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`，NP7 已签核。
 - 推荐方案 A：命令/响应继续使用现有 128-bit 异步 FIFO；新增独立 32-bit 样本输入和结果输出 FIFO，并在 FIFO 外侧放置 AXI-Stream shim。样本固定 8 beat，结果固定 10 beat，`sample_id`/`mask_epoch` sideband 在各自事务内保持稳定。
 - 当前状态：`P15_T0_REVIEW_REQUIRED / PROPOSED / ADMIN_REVIEW_REQUIRED / NO_RTL_AUTHORIZATION`。管理员批准方案 A、四条流 sideband/固定 beat 语义以及 AXI 外置边界后，才开放 T1 纯 RTL 适配器；T0 期间不修改计算核，不接入 AXI-Lite、DMA、Ethernet 或 PS7。
 
+### P15-T0 只读审计结论（2026-09-05）
+
+- **命令格式必须先选唯一权威**：当前 `npu_eneuron_single_clock_skeleton.sv` 与 `NPU_SINGLE_CLOCK_RTL_PORT_TABLE_V1.md` 使用高位 4-bit opcode（`[127:124]`）、epoch（`[119:88]`）和 word（`[31:0]`）；历史 `NPU_ORACLE_SINGLE_CLOCK_CONTRACT_V3.md` 仍描述低位 8-bit opcode/txn 格式。P15 不能只说“沿用核心协议”，T1 前必须明确采用当前 skeleton 格式，或同步修改 RTL/Oracle。
+- **V1/V2 framing 不得混用**：V1 文档曾要求内部 `last` 和 `model_epoch`；V2 已删除二者，固定 8/10 beat 由内部计数器结束。P15 的 AXI `TLAST` 只能在明确早/晚/缺失时的检查或忽略语义后使用，不能把旧 `last` 接入核心。
+- **四条流仅各自有序，跨流 fence 尚未冻结**：独立 command/sample FIFO 会使 `MASK_COMMIT`、`STATE_CLEAR`、`FREEZE_SET` 与样本首 beat 的相对顺序不确定；样本首 beat 的 mask 绑定发生在 NPU 域 core handshake，而非必然发生在 Host FIFO 写入沿。T1 必须定义控制完成栅栏或显式串行化策略。
+- **reset-busy/状态 CDC 尚未形成可实现合同**：当前旧 Bridge 的 ready 只门控本侧 FIFO busy，不能直接证明“任一域 busy 时四流均不 ready”。Host 侧 `model_valid`、mask/epoch、错误和 FIFO domain-up 的同步方式、复位重入/半包丢弃边界都必须冻结。
+- **AXI sideband 与错误路由仍缺字段**：需明确 sample `sample_id` 是否逐 beat 校验（core 当前只采样首 beat）、result sideband 在 10 beat 的保持、`TLAST`/`TKEEP`/`TSTRB`/`TID`/`TDEST` tie-off，以及样本 framing/sideband 错误如何在没有旁路错误包时报告。
+- **FIFO 参数与资源归因未冻结**：新增 sample FIFO 实际为 64-bit、result FIFO 为 96-bit；depth、FWFT/latency、CDC stages、memory type 尚未定义，不能先验声称 BRAM/LUT/FF 增量。应以四个 FIFO 的实际 XPM 参数和 post-route 报告分别归因。
+- **器件边界必须统一**：P15 目标是 `xc7z020clg400-1`；旧 Host Bridge OOC 使用 `xc7a35tcpg236-1`，只能作历史结构参考，不得替代 XC7Z020 资源、时序或 CDC 证据。
+- 在上述合同补齐前，状态保持 `P15_T0_REVIEW_REQUIRED / NO_RTL_AUTHORIZATION`，不得创建 T1 顶层 RTL。
+
 ## 状态校正与下一门
 
 - **当前权威基线**：V2 OOC report head 与 RTL 均绑定 `f744bff2bdde68e138a7b2b348ce103bec1ab469`；其变更已随 PR #64 合并为 `main@a53a040`。P15-T0 规划随 PR #65 合并为 `main@618c1e4`，端口裁定稿随 PR #66 合并为 `main@a1457bb`。不要把旧 report head=`39e41d4` 的 0 DSP 结果或 V1 `5055073` 失败结果当作当前物理状态。
