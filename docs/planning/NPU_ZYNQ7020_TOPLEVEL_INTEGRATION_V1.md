@@ -52,7 +52,7 @@ AXI4-Stream、AXI DMA 和 Ethernet 适配放在该端口层之外或第二个薄
 - [x] 记录核心 OOC 结果、提交身份和未覆盖的板级边界。
 - [x] 明确 Host Bridge 可复用部分与 4→2→2 Tile 专用部分。
 - [x] 冻结最小流适配器、时钟、复位、背压和 beat 顺序。
-- [ ] 评审并批准 V1 顶层端口命名和 AXI 外部适配位置。
+- [ ] 依据 `NPU_ZYNQ7020_TOPLEVEL_DECISION_SHEET_V1.md` 评审并批准 V1 顶层端口命名和 AXI 外部适配位置。
 
 ### T1：纯 RTL 顶层适配器
 
