@@ -1,6 +1,6 @@
 # 传统 NPU + ENeuron 单时钟 RTL 时序修复 V2 实施地图
 
-状态：`REVIEW_READY / RTL_CHANGES_BLOCKED`
+状态：`IMPLEMENTATION_APPROVED / RTL_IN_PROGRESS`
 
 日期：2026-09-04
 
@@ -12,7 +12,7 @@ TR7-TR12 的两个核心动作仍然正确：FETCH 锁存四个激活操作数�
 
 因此 V2 的逻辑新增状态从原估计约 64 bit 降为约 32 bit：只增加四个 signed 8-bit 激活锁存器。两个 WRITEBACK 状态仍可放入现有 4-bit 状态编码，不增加状态寄存器宽度。准确综合增量必须由实施后的 Vivado 报告裁定。
 
-本文件只把批准后的修改位置和验证门冻结清楚，不修改 RTL、testbench 或周期常量。
+管理员已于 2026-09-05 批准 TR7-TR12。本文件现作为实施合同：允许修改计算 RTL 和独立 V2 testbench，但 Vivado 仍需等待功能门全部通过。
 
 ## 2. 为什么可以复用 `mac_accumulator`
 
@@ -82,7 +82,7 @@ compute_state   <= WRITEBACK
 
 ### 3.4 日志语义
 
-`COMPUTE_COMPLETE` 只在最终 `L1_WRITEBACK && unit==9` 输出，此时结果槽真正建立。日志仍保留 `path=COMMIT` 与 `path=MASK_BYPASS`，直接读取当前样本稳定的最终 active-mask 位区分两种来源；日志位于 `ifndef SYNTHESIS`，不新增硬件状态。
+`COMPUTE_COMPLETE` 只在最终 `L1_WRITEBACK && unit==9` 输出，此时结果槽真正建立，路径标记统一为 `path=WRITEBACK`。日志位于 `ifndef SYNTHESIS`，不新增硬件状态。
 
 ## 4. V2 测试实施地图
 
@@ -124,7 +124,7 @@ V2 latency = 676 + 42 + 2E = 718 + 2E
 
 前三个 watchdog 无需调整。compute 虽不会超时，但低于 V1 合同要求的 1200 拍规划余量；获批后将其定向调整为 9500 拍，预计余量 1622.5 拍。精确周期断言继续负责拒绝多余停顿，因此这一调整不放宽功能合同。
 
-## 6. 批准后的执行顺序
+## 6. 当前执行顺序
 
 1. 新建独立 V2 测试合同。
 2. 更新 C1-C4 和白盒状态检查，证明旧 RTL 精确 RED。

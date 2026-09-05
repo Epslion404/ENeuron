@@ -1,6 +1,6 @@
 # 传统 NPU + ENeuron 单时钟 RTL 时序修复 V2 审核稿
 
-状态：`REVIEW_REQUIRED / RTL_CHANGES_BLOCKED`
+状态：`IMPLEMENTATION_APPROVED / RTL_IN_PROGRESS`
 
 日期：2026-09-04
 
@@ -39,7 +39,7 @@ TR1-TR6 已完成实现与验证：四条共享 signed 8×8 lane 被 Vivado 2024
 
 用 DSP 级联通路完成乘积累加，可能减少通用布线，但会把当前简单推断式 RTL变成器件专用结构，验证、符号扩展和级联布局风险更高。当前仅差 0.673 ns，不建议在 A 未验证前采用。
 
-## 4. 待管理员批准的六项裁定
+## 4. 已批准的六项裁定
 
 ### TR7：FETCH 锁存四个激活操作数
 
@@ -72,6 +72,6 @@ L0/L1 共用现有 signed 32-bit `mac_accumulator` 作为最终写回值，不�
 
 新建独立 V2 测试合同，先更新 C1-C4 的周期与白盒状态检查并证明旧 RTL 精确 RED，再修改 RTL。compute testbench watchdog 可从 9000 定向调整为 9500 拍，精确周期断言继续拒绝额外停顿；其他 watchdog 不变。随后依次运行单时钟专项、固定 `20×100`、完整仓库回归和同器件同约束 Vivado OOC。只有 `DSP=4`、setup/hold 失败端点均为 0、route/DRC error 为 0 才能签核。若方案 A 仍失败，保留完整报告并重新审核方案 B，不自动继续加流水。
 
-## 5. 审核停止点
+## 5. 执行停止点
 
-当前仅形成 V2 方案和任务边界，不修改 RTL、不更新测试周期。等待管理员批准 TR7-TR12；批准后才按“测试 RED → 最小 RTL → 功能回归 → Vivado OOC”执行。
+管理员已于 2026-09-05 批准 TR7-TR12。本阶段按“测试 RED → 最小 RTL → 功能回归 → Vivado OOC”执行：先建立独立 V2 合同并在旧 RTL 上取得精确 RED，再修改计算 RTL。Vivado 仍必须等待定向、固定 `20×100`、完整回归和结构门全部通过；方案 A 若 setup 仍失败，只保留证据并重新审核方案 B，不自动增加流水。

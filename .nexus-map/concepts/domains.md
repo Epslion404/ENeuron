@@ -17,7 +17,7 @@ provenance: NP4B/NP6/NP7 TODO、工作流状态与 RTL 文件；集成边界来�
 - `VIVADO_OOC_SETUP_FAIL`：当前单时钟 NPU + ENeuron 集成的物理签核状态。DSP V1 OOC 绑定 `5055073`，route/DRC error=0、hold 通过、DSP 双重门通过，但 setup `WNS=-0.673 ns`、22 个端点失败，因此不能宣称 100 MHz 收敛或板级性能。
 - `DSP_GATE_PASS`：Vivado utilization 为 `DSP=4`，实现网表 `DSP48E1_COUNT=4`，四个 cell 对应 `lane_product_0..3`；只表示强制 DSP 结构合同成立，不代替 setup 签核。
 - `TIMING_REPAIR_V1_FUNCTIONAL_GREEN`：TR1-TR6 已实现，共享四 DSP lane、FETCH/EXECUTE/COMMIT、C1-C4、固定 `20×100` 和完整回归均通过；因 setup 失败，该状态不等于物理通过。
-- `TIMING_REPAIR_V2_REVIEW_REQUIRED`：扩展报告已展开全部 22 个 setup 失败端点，其中 14 条经过动态激活选择、DSP 和求和到 `lane_sum_latched`，8 条从 `compute_group_index` 到 `logit_values` 写使能。`NPU_SINGLE_CLOCK_TIMING_REPAIR_V2.md` 提出 FETCH 锁存激活值和统一 WRITEBACK 的 TR7-TR12；`NPU_SINGLE_CLOCK_TIMING_REPAIR_V2_IMPLEMENTATION_MAP.md` 将 KISS 实现冻结为复用 signed 32-bit `mac_accumulator`、不新增 `writeback_value_latched`、仅预计增加四个 signed 8-bit 激活锁存器（约 32 FF）。TR7-TR12 尚未批准，批准前禁止继续修改 RTL。
+- `TIMING_REPAIR_V2_IN_PROGRESS`：扩展报告已展开全部 22 个 setup 失败端点，其中 14 条经过动态激活选择、DSP 和求和到 `lane_sum_latched`，8 条从 `compute_group_index` 到 `logit_values` 写使能。管理员已批准 `NPU_SINGLE_CLOCK_TIMING_REPAIR_V2.md` 中 FETCH 锁存激活值和统一 WRITEBACK 的 TR7-TR12；`NPU_SINGLE_CLOCK_TIMING_REPAIR_V2_IMPLEMENTATION_MAP.md` 将 KISS 实现冻结为复用 signed 32-bit `mac_accumulator`、不新增 `writeback_value_latched`、仅预计增加四个 signed 8-bit 激活锁存器（约 32 FF）。当前先做独立 V2 RED、RTL 和功能回归，Vivado 仍受功能门约束。
 - `B-V1+V2`：NP7 已批准的单槽弹性流水合同，允许零路径同拍完成及非零结果退出与下一事务接受重叠；其收益只由逐拍账本证明。
 - `CI-Fast V1`：按变更路径选择验证范围的 Action 编排；Action 基线已从 `actions/checkout@v4`、`actions/setup-python@v5` 升级为二者 `@v7`（Node 24）。已完成 workflow 全量、文档轻量与 NPU-only 定向路径验证；任何 workflow 变更必须运行全量门，未知代码触发全仓回归，手动运行触发全部专项门。
 - `PR Gate`：始终执行的汇总状态；只允许被选专项门 `success` 或 `skipped`，任何失败均拒绝合并。分支保护应只要求该状态。

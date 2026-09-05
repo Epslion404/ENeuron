@@ -9,6 +9,12 @@ module tb_npu_eneuron_single_clock_compute;
     localparam logic [3:0] OP_MASK_COMMIT  = 4'h6;
 
 `ifdef TIMING_REPAIR_V1_CONTRACT
+`define TIMING_REPAIR_CONTRACT
+`elsif TIMING_REPAIR_V2_CONTRACT
+`define TIMING_REPAIR_CONTRACT
+`endif
+
+`ifdef TIMING_REPAIR_CONTRACT
     // 三拍流水的冻结状态编码，仅用于白盒合同，不增加综合端口。
     localparam logic [3:0] COMPUTE_IDLE             = 4'd0;
     localparam logic [3:0] COMPUTE_L0_BIAS_FETCH    = 4'd1;
@@ -19,6 +25,10 @@ module tb_npu_eneuron_single_clock_compute;
     localparam logic [3:0] COMPUTE_L1_GROUP_FETCH   = 4'd8;
     localparam logic [3:0] COMPUTE_L1_GROUP_EXECUTE = 4'd9;
     localparam logic [3:0] COMPUTE_L1_GROUP_COMMIT  = 4'd10;
+`ifdef TIMING_REPAIR_V2_CONTRACT
+    localparam logic [3:0] COMPUTE_L0_WRITEBACK      = 4'd11;
+    localparam logic [3:0] COMPUTE_L1_WRITEBACK      = 4'd12;
+`endif
 `endif
 
     logic clk = 1'b0;
@@ -43,7 +53,7 @@ module tb_npu_eneuron_single_clock_compute;
     wire [31:0] state_clear_count;
 
     integer clock_count = 0;
-`ifdef TIMING_REPAIR_V1_CONTRACT
+`ifdef TIMING_REPAIR_CONTRACT
     integer compute_start_cycle = 0;
     integer observed_compute_cycles = 0;
     integer execute_count = 0;
@@ -61,6 +71,10 @@ module tb_npu_eneuron_single_clock_compute;
     logic [5:0] pending_unit = '0;
     logic [4:0] pending_group = '0;
     logic [31:0] pending_model_word = '0;
+    logic signed [7:0] pending_activation_0 = '0;
+    logic signed [7:0] pending_activation_1 = '0;
+    logic signed [7:0] pending_activation_2 = '0;
+    logic signed [7:0] pending_activation_3 = '0;
     logic pending_closed_fetch = 1'b0;
     logic pending_closed_layer = 1'b0;
     logic [5:0] pending_closed_unit = '0;
@@ -72,6 +86,10 @@ module tb_npu_eneuron_single_clock_compute;
     logic [3:0] previous_compute_state = '0;
     logic signed [31:0] previous_lane_sum = '0;
     logic monitor_initialized = 1'b0;
+    integer l0_writeback_count = 0;
+    integer l1_writeback_count = 0;
+    integer expected_l0_writeback_count = 32;
+    integer expected_l1_writeback_count = 10;
 `endif
 
     always @(posedge clk)
@@ -122,7 +140,7 @@ module tb_npu_eneuron_single_clock_compute;
 
     task automatic send_sample(input logic [31:0] id);
         integer beat;
-`ifdef TIMING_REPAIR_V1_CONTRACT
+`ifdef TIMING_REPAIR_CONTRACT
         integer scan_bit;
         integer enabled_groups;
 `endif
@@ -137,7 +155,7 @@ module tb_npu_eneuron_single_clock_compute;
                 @(posedge clk);
                 while (!sample_ready) @(posedge clk);
                 @(negedge clk);
-`ifdef TIMING_REPAIR_V1_CONTRACT
+`ifdef TIMING_REPAIR_CONTRACT
                 if (beat == 7) begin
                     compute_start_cycle = clock_count;
                     enabled_groups = 0;
@@ -183,7 +201,7 @@ module tb_npu_eneuron_single_clock_compute;
         end
     endtask
 
-`ifdef TIMING_REPAIR_V1_CONTRACT
+`ifdef TIMING_REPAIR_CONTRACT
     task automatic start_contract(
         input integer groups,
         input integer l0_groups,
@@ -200,6 +218,8 @@ module tb_npu_eneuron_single_clock_compute;
             commit_count = 0;
             l0_execute_count = 0;
             l1_execute_count = 0;
+            l0_writeback_count = 0;
+            l1_writeback_count = 0;
             pending_execute = 1'b0;
             pending_closed_fetch = 1'b0;
             fetch_seen = '0;
@@ -249,15 +269,24 @@ module tb_npu_eneuron_single_clock_compute;
                             dut.compute_unit_index !== pending_closed_unit ||
                             dut.compute_group_index !== (pending_closed_group + 5'd1))
                             $fatal(1, "disabled L0 group did not advance directly in FETCH");
-                    end else if (pending_closed_unit != 6'd31) begin
+                    end else begin
+`ifdef TIMING_REPAIR_V2_CONTRACT
+                        if (dut.compute_state != COMPUTE_L0_WRITEBACK ||
+                            dut.compute_unit_index !== pending_closed_unit ||
+                            dut.compute_group_index !== 5'd0)
+                            $fatal(1, "disabled final L0 group did not enter WRITEBACK");
+`else
+                        if (pending_closed_unit != 6'd31) begin
                         if (dut.compute_state != COMPUTE_L0_BIAS_FETCH ||
                             dut.compute_unit_index !== (pending_closed_unit + 6'd1) ||
                             dut.compute_group_index !== 5'd0)
                             $fatal(1, "disabled final L0 group did not advance to next bias");
-                    end else if (dut.compute_state != COMPUTE_L1_BIAS_FETCH ||
+                        end else if (dut.compute_state != COMPUTE_L1_BIAS_FETCH ||
                                  dut.compute_unit_index !== 6'd0 ||
                                  dut.compute_group_index !== 5'd0) begin
                         $fatal(1, "disabled final L0 layer group did not cross to L1 bias");
+                        end
+`endif
                     end
                 end else begin
                     if (pending_closed_group != 5'd7) begin
@@ -265,13 +294,22 @@ module tb_npu_eneuron_single_clock_compute;
                             dut.compute_unit_index !== pending_closed_unit ||
                             dut.compute_group_index !== (pending_closed_group + 5'd1))
                             $fatal(1, "disabled L1 group did not advance directly in FETCH");
-                    end else if (pending_closed_unit != 6'd9) begin
+                    end else begin
+`ifdef TIMING_REPAIR_V2_CONTRACT
+                        if (dut.compute_state != COMPUTE_L1_WRITEBACK ||
+                            dut.compute_unit_index !== pending_closed_unit ||
+                            dut.compute_group_index !== 5'd0)
+                            $fatal(1, "disabled final L1 group did not enter WRITEBACK");
+`else
+                        if (pending_closed_unit != 6'd9) begin
                         if (dut.compute_state != COMPUTE_L1_BIAS_FETCH ||
                             dut.compute_unit_index !== (pending_closed_unit + 6'd1) ||
                             dut.compute_group_index !== 5'd0)
                             $fatal(1, "disabled final L1 group did not advance to next bias");
-                    end else if (dut.compute_state != COMPUTE_IDLE || !result_valid) begin
+                        end else if (dut.compute_state != COMPUTE_IDLE || !result_valid) begin
                         $fatal(1, "disabled final output group did not establish result slot");
+                        end
+`endif
                     end
                 end
                 pending_closed_fetch = 1'b0;
@@ -310,6 +348,25 @@ module tb_npu_eneuron_single_clock_compute;
                 pending_unit = dut.compute_unit_index;
                 pending_group = dut.compute_group_index;
                 pending_model_word = dut.model_word_latched;
+                pending_activation_0 = dut.lane_activation_latched_0;
+                pending_activation_1 = dut.lane_activation_latched_1;
+                pending_activation_2 = dut.lane_activation_latched_2;
+                pending_activation_3 = dut.lane_activation_latched_3;
+`ifdef TIMING_REPAIR_V2_CONTRACT
+                if (!pending_layer) begin
+                    if (dut.lane_activation_latched_0 !== $signed({4'b0000, dut.input_pixels[(pending_group * 4) + 0]}) ||
+                        dut.lane_activation_latched_1 !== $signed({4'b0000, dut.input_pixels[(pending_group * 4) + 1]}) ||
+                        dut.lane_activation_latched_2 !== $signed({4'b0000, dut.input_pixels[(pending_group * 4) + 2]}) ||
+                        dut.lane_activation_latched_3 !== $signed({4'b0000, dut.input_pixels[(pending_group * 4) + 3]}))
+                        $fatal(1, "L0 FETCH activation latch mismatch unit=%0d group=%0d",
+                               pending_unit, pending_group);
+                end else if (dut.lane_activation_latched_0 !== $signed({1'b0, dut.hidden_values[(pending_group * 4) + 0]}) ||
+                             dut.lane_activation_latched_1 !== $signed({1'b0, dut.hidden_values[(pending_group * 4) + 1]}) ||
+                             dut.lane_activation_latched_2 !== $signed({1'b0, dut.hidden_values[(pending_group * 4) + 2]}) ||
+                             dut.lane_activation_latched_3 !== $signed({1'b0, dut.hidden_values[(pending_group * 4) + 3]}))
+                    $fatal(1, "L1 FETCH activation latch mismatch unit=%0d group=%0d",
+                           pending_unit, pending_group);
+`endif
                 execute_count = execute_count + 1;
                 if (pending_layer) begin
                     l1_execute_count = l1_execute_count + 1;
@@ -340,6 +397,13 @@ module tb_npu_eneuron_single_clock_compute;
                     dut.compute_group_index !== pending_group ||
                     dut.model_word_latched !== pending_model_word)
                     $fatal(1, "unit/group/model word changed before COMMIT");
+`ifdef TIMING_REPAIR_V2_CONTRACT
+                if (dut.lane_activation_latched_0 !== pending_activation_0 ||
+                    dut.lane_activation_latched_1 !== pending_activation_1 ||
+                    dut.lane_activation_latched_2 !== pending_activation_2 ||
+                    dut.lane_activation_latched_3 !== pending_activation_3)
+                    $fatal(1, "activation latch changed between EXECUTE and COMMIT");
+`endif
                 if (pending_layer)
                     active_mask_bit = 512 + (pending_unit * 8) + pending_group;
                 else
@@ -353,6 +417,19 @@ module tb_npu_eneuron_single_clock_compute;
                          dut.compute_state == COMPUTE_L1_GROUP_COMMIT) begin
                 $fatal(1, "COMMIT observed without preceding EXECUTE");
             end
+
+`ifdef TIMING_REPAIR_V2_CONTRACT
+            if (dut.compute_state == COMPUTE_L0_WRITEBACK) begin
+                if (dut.compute_unit_index > 6'd31)
+                    $fatal(1, "invalid L0 WRITEBACK unit=%0d", dut.compute_unit_index);
+                l0_writeback_count = l0_writeback_count + 1;
+            end
+            if (dut.compute_state == COMPUTE_L1_WRITEBACK) begin
+                if (dut.compute_unit_index > 6'd9)
+                    $fatal(1, "invalid L1 WRITEBACK unit=%0d", dut.compute_unit_index);
+                l1_writeback_count = l1_writeback_count + 1;
+            end
+`endif
 
             if (result_valid && !contract_done) begin
                 if (pending_execute || pending_closed_fetch)
@@ -368,6 +445,15 @@ module tb_npu_eneuron_single_clock_compute;
                         $fatal(1, "COMMIT bitmap differs from active mask bit=%0d", verify_bit);
                 end
                 observed_compute_cycles = clock_count - compute_start_cycle;
+`ifdef TIMING_REPAIR_V2_CONTRACT
+                if (l0_writeback_count != expected_l0_writeback_count ||
+                    l1_writeback_count != expected_l1_writeback_count)
+                    $fatal(1, "WRITEBACK count mismatch l0=%0d/%0d l1=%0d/%0d",
+                           l0_writeback_count, expected_l0_writeback_count,
+                           l1_writeback_count, expected_l1_writeback_count);
+                if (previous_compute_state != COMPUTE_L1_WRITEBACK)
+                    $fatal(1, "result slot established outside final L1 WRITEBACK");
+`endif
                 contract_done = 1'b1;
                 contract_active = 1'b0;
             end
@@ -417,8 +503,12 @@ module tb_npu_eneuron_single_clock_compute;
 
         // hidden0=600→127，hidden1=-60+100=40，logit0=137；
         // hidden31 的最后一组为 60，output9 最后一组得到 60-1=59。
-`ifdef TIMING_REPAIR_V1_CONTRACT
+`ifdef TIMING_REPAIR_CONTRACT
+`ifdef TIMING_REPAIR_V2_CONTRACT
+        start_contract(592, 512, 80, 1902);
+`else
         start_contract(592, 512, 80, 1860);
+`endif
 `endif
         send_sample(32'h101);
         if (sample_ready || cmd_ready || runtime_idle)
@@ -426,37 +516,49 @@ module tb_npu_eneuron_single_clock_compute;
         // 当前样本计算期间并发发布下一 mask；它只能影响下一样本。
         publish_mask(32'd1, 1);
         check_result(32'h101, 32'd0, 32'sd137, 32'sd59);
-`ifdef TIMING_REPAIR_V1_CONTRACT
+`ifdef TIMING_REPAIR_CONTRACT
         check_contract();
+`ifdef TIMING_REPAIR_V2_CONTRACT
+        start_contract(590, 511, 79, 1898);
+`else
         start_contract(590, 511, 79, 1856);
+`endif
 `endif
 
         // 下一样本首 beat 激活新版本：logit0=-117，output9 只剩 bias=-1。
         send_sample(32'h102);
         check_result(32'h102, 32'd1, -32'sd117, -32'sd1);
-`ifdef TIMING_REPAIR_V1_CONTRACT
+`ifdef TIMING_REPAIR_CONTRACT
         check_contract();
 `endif
 
         // epoch2 全关：所有权重组都在 FETCH 直接跳过，bias 仍然有效。
         publish_mask(32'd2, 2);
-`ifdef TIMING_REPAIR_V1_CONTRACT
+`ifdef TIMING_REPAIR_CONTRACT
+`ifdef TIMING_REPAIR_V2_CONTRACT
+        start_contract(0, 0, 0, 718);
+`else
         start_contract(0, 0, 0, 676);
+`endif
 `endif
         send_sample(32'h103);
         check_result(32'h103, 32'd2, 32'sd3, -32'sd1);
-`ifdef TIMING_REPAIR_V1_CONTRACT
+`ifdef TIMING_REPAIR_CONTRACT
         check_contract();
 `endif
 
         // epoch3 只关闭 L0 unit0/group15；此前 group0 已产生非零累加。
         publish_mask(32'd3, 3);
-`ifdef TIMING_REPAIR_V1_CONTRACT
+`ifdef TIMING_REPAIR_CONTRACT
+`ifdef TIMING_REPAIR_V2_CONTRACT
+        start_contract(591, 511, 80, 1900);
+`else
         start_contract(591, 511, 80, 1858);
+`endif
 `endif
         send_sample(32'h104);
         check_result(32'h104, 32'd3, 32'sd137, 32'sd59);
-`ifdef TIMING_REPAIR_V1_CONTRACT
+`ifdef TIMING_REPAIR_CONTRACT
         check_contract();
 `endif
 
@@ -465,7 +567,11 @@ module tb_npu_eneuron_single_clock_compute;
     end
 
     initial begin
+`ifdef TIMING_REPAIR_V2_CONTRACT
+        repeat (9500) @(posedge clk);
+`else
         repeat (9000) @(posedge clk);
+`endif
         $fatal(1, "watchdog: compute tracer did not finish");
     end
 endmodule

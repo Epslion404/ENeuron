@@ -2,13 +2,13 @@
 
 模式：`PERSISTENT_WORKFLOW_V1`
 
-最后更新：2026-09-04
+最后更新：2026-09-05
 
-状态：`ACTIVE / NP7_MERGED / I1_I6_APPROVED / OF1_OF6_V3_APPROVED / OF6_ORACLE_SIGNOFF / RTL_DESIGN_CONTRACT_V2_APPROVED / PR62_MERGED / TR1_TR6_APPROVED / RTL_TIMING_REPAIR_GREEN / FULL_REGRESSION_GREEN / DSP_GATE_PASS / VIVADO_OOC_SETUP_FAIL / TIMING_REPAIR_V2_REVIEW_REQUIRED`
+状态：`ACTIVE / NP7_MERGED / I1_I6_APPROVED / OF1_OF6_V3_APPROVED / OF6_ORACLE_SIGNOFF / RTL_DESIGN_CONTRACT_V2_APPROVED / PR62_MERGED / TR1_TR6_APPROVED / TR7_TR12_APPROVED / TIMING_REPAIR_V2_IN_PROGRESS / VIVADO_ALLOWED_AFTER_FUNCTIONAL_GATES / VIVADO_OOC_SETUP_FAIL`
 
 ## 当前活动目标
 
-NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定及 TR1-TR6 已批准。DSP V1 实现、真实 OOC 失败证据和全部 22 个失败端点审计已经合入；V2 KISS 审核材料经 PR #62 合入 `main@e8dc947`。当前目标是审核下一轮最小时序修复，未经 TR7-TR12 新批准不继续修改 RTL。
+NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定及 TR1-TR6 已批准。管理员于 2026-09-05 批准 TR7-TR12，V2 现进入测试先行和 RTL 实施阶段。DSP V1 实现、真实 OOC 失败证据和全部 22 个失败端点审计已经合入；V2 KISS 审核材料经 PR #62 合入 `main@e8dc947`。
 
 活动合同：`docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V1.md`、`docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_TEST_CONTRACT_V1.md` 和 `docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V2.md`。当前 RTL 已完成共享四 DSP lane、三拍组计算、active-mask 门控和全部功能回归。Vivado 2024.1 OOC 已确认恰好 4 个 DSP48E1，route/DRC 无错误且 hold 通过，但 100 MHz setup 仍未通过；板级、网口、DMA、功耗仍不在本阶段。
 
@@ -48,7 +48,7 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 
 ## 下一动作
 
-请求管理员审核 `docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V2.md` 的 TR7-TR12。V2 已通过 KISS 审计改为复用现有 `mac_accumulator`，只预计新增四个 8-bit 激活锁存器；获批后才进入独立 V2 测试 RED、最小 RTL、定向/随机/全仓回归和同条件 OOC，通过前不进入 XC7Z020 顶层规划。
+TR7-TR12 已获管理员批准。当前按“独立 V2 测试 RED → 最小 RTL → 定向/随机/全仓回归 → Vivado 2024.1 OOC”执行；V2 复用现有 `mac_accumulator`，预计只新增四个 8-bit 激活锁存器。功能门全部通过前不运行 Vivado，也不进入 XC7Z020 顶层规划。
 
 ## 2026-09-04 V2 KISS 实施地图
 
@@ -56,7 +56,7 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 - V2 首选仍是 FETCH 锁存四个激活操作数并增加统一 WRITEBACK，但最终值复用现有 signed 32-bit `mac_accumulator`，不再新增 `writeback_value_latched`。
 - routed checkpoint 的 32 个 accumulator 数据端定向 setup 最差 slack 为 `+5.272 ns`；该证据支持优先尝试复用方案，但不保证修改后的布局布线结果。
 - 预计只新增四个 signed 8-bit 激活锁存器约 32 FF；每样本固定增加 42 拍，继续要求 Vivado utilization 与实现网表均证明恰好 4 个 DSP48E1。
-- 实施地图为 `docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V2_IMPLEMENTATION_MAP.md`；当前保持 `REVIEW_REQUIRED / RTL_CHANGES_BLOCKED`，等待 TR7-TR12 明确批准。
+- 实施地图为 `docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V2_IMPLEMENTATION_MAP.md`；状态已切换为 `IMPLEMENTATION_APPROVED / RTL_IN_PROGRESS`，Vivado 仍受功能门约束。
 
 ## 2026-09-04 Vivado OOC 物理门收口
 

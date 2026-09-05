@@ -1191,3 +1191,17 @@
 - 每个样本仍固定增加 42 个 WRITEBACK 周期，C1/C2/C3/C4 预计为 `1902/1898/718/1900`。compute testbench 的 9000 拍 watchdog 预计只剩 1122.5 拍余量，批准后应定向调到 9500；精确周期断言不放宽。
 - `COMPUTE_COMPLETE` 必须延后到最终 `L1_WRITEBACK && unit==9`，但可直接读取当前稳定 active-mask 的末位保留 `path=COMMIT` / `path=MASK_BYPASS`，无需新增硬件来源状态。
 - 当前仍为 `REVIEW_REQUIRED / RTL_CHANGES_BLOCKED`；本轮只冻结实施地图和测试边界，不修改 RTL、测试周期或 OOC 证据。
+## 2026-09-05 TR7-TR12 批准后的事实
+
+- TR7：FETCH 锁存四个 signed 8-bit 激活值；EXECUTE 不再从输入/隐藏数组动态选数。
+- TR8：四个乘法 lane 的操作数在 EXECUTE 期间来自稳定锁存器，保持当前 signed INT8/INT32 语义。
+- TR9：L0/L1 最终数组写入统一后移到 WRITEBACK；复用现有 signed 32-bit `mac_accumulator`，不新增第二个 32-bit 写回寄存器。
+- TR10：每个样本新增 32 个隐藏单元和 10 个输出单元的 WRITEBACK，共 42 拍；C1/C2/C3/C4 为 1902/1898/718/1900 拍。
+- TR11：综合和实现网表继续要求恰好 4 个 DSP48E1；禁止乘法退回 LUT，也禁止以 DSP 实现求和/写回。
+- TR12：先在旧 RTL 上取得独立 V2 合同 RED，再做最小 RTL 修改和功能回归；只有功能门通过后才允许 Vivado OOC。方案 A setup 仍失败时保留报告并重新审核方案 B。
+
+批准解除的是 RTL 实施阻断，不是物理签核。当前尚未证明 V2 资源、时序、功耗或板级吞吐；这些结论必须等待新的 Vivado 2024.1 OOC 报告。
+
+### V2 RED 证据
+
+`test_npu_single_clock_compute.NpuSingleClockComputeTests.test_timing_repair_v2_contract` 在旧 RTL 上返回失败：首个样本完成时没有任何 L0/L1 WRITEBACK，实际为 `l0=0/32、l1=0/10`。结构测试还确认旧 RTL 没有四个 `lane_activation_latched_*`、两个 WRITEBACK 状态，且隐藏层/输出层各有多个直接写点。该 RED 是实施前门，不代表功能缺陷已经修复。

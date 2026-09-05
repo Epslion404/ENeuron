@@ -1,7 +1,7 @@
 # Pulse-Mini 开发计划
 
 日期：2026-08-19  
-状态：`TIMING_REPAIR_DSP_V1_SETUP_FAIL / V2_REVIEW_REQUIRED`；实施状态：`P8_NETWORK_SIGNED_OFF / PR58_MERGED / TR1_TR6_APPROVED / RTL_TIMING_REPAIR_GREEN / FULL_REGRESSION_GREEN / DSP_GATE_PASS / VIVADO_OOC_SETUP_FAIL`
+状态：`TIMING_REPAIR_DSP_V1_SETUP_FAIL / V2_IMPLEMENTATION_IN_PROGRESS`；实施状态：`P8_NETWORK_SIGNED_OFF / PR58_MERGED / TR1_TR6_APPROVED / TR7_TR12_APPROVED / RTL_TIMING_REPAIR_GREEN / FULL_REGRESSION_GREEN / DSP_GATE_PASS / VIVADO_OOC_SETUP_FAIL`
 基线：`ENeuron 1.0`，提交 `499fc8a`，标签 `v1.0`；当前 Pulse-Mini 工作基线：`64aff70`
 
 本文件是 `v1.0` 之后的 Pulse-Mini 规划，不回写或扩大 ENeuron 1.0 的声明。当前工作树已提交；后续修改应以本文件的阶段门为准，不能把“逻辑容量估算”写成“已 routed 的硬件容量”。
@@ -515,7 +515,7 @@ P0-P8 已完成并签核
 - [x] PR #61 将端点审计后的持久状态同步合并为当前 `main@bef5979`。
 - [x] 完成 V2 KISS 实施审计：复用现有 signed 32-bit `mac_accumulator`，不新增 `writeback_value_latched`；预计只新增四个 signed 8-bit 激活锁存器约 32 FF，并形成独立实施地图。
 - [x] V2 审核材料与总 TODO 漂移修正经 PR #62 的最终 HEAD `a4832cc`、run `33915028445` 通过后合并为 `main@e8dc947`；仍未开放 RTL 实施授权。
-- [ ] 管理员批准 TR7-TR12；批准前不修改 RTL、不把 V2 周期常量落地到 testbench、不重跑 Vivado。
+- [x] 管理员于 2026-09-05 批准 TR7-TR12；开放 V2 RTL 与独立测试合同实施，Vivado 仍受功能门约束。
 - [ ] 新建独立 V2 测试合同，更新 C1-C4、WRITEBACK/激活锁存白盒门与 compute watchdog，并在旧 RTL 上取得精确 RED。
 - [ ] 最小修改计算 RTL：FETCH 锁存四个激活、EXECUTE 只读锁存操作数、统一 WRITEBACK 复用 `mac_accumulator`，继续强制恰好 4 个 DSP48E1。
 - [ ] 依次通过单时钟定向、固定 `20×100` 随机逐 beat 和完整仓库回归；任何数值、协议或周期差异立即停止。
