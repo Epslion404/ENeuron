@@ -36,7 +36,7 @@
 
 - 在不同 host/npu 相位下并发提交 `MASK_COMMIT`、`STATE_CLEAR`、`FREEZE_SET` 与样本 FIFO，验证未完成配置不会被样本首 beat 使用。
 - `SAMPLE_FENCE` 的 `fence_id` 固定为 `cmd_payload[31:0]`，成功响应类别固定为 `0xD`，错误使用 `0xE`；fence 前 `sample_ready=0` 且 sample FIFO 不得预填，成功后只授权一个 8-beat 窗口。
-- fence 只有在此前命令已经核心握手、`runtime_idle=1`、响应槽为空且两域状态有效时才成功；无 fence 的样本必须保持反压，不能按 FIFO 到达偶然放行。
+- fence 只有在此前命令已经核心握手、核心 `sample_ready=1`、没有 `result_valid/rsp_valid`、wrapper 没有开放中的样本窗口且模型/mask staging 事务已闭合时才成功；测试必须覆盖已发布 mask 等待首 beat 的状态，不能把 `runtime_idle=0` 误判为不可 fence。无 fence 的样本必须保持反压，不能按 FIFO 到达偶然放行。
 - 结果必须用 `sample_id`/`mask_epoch` 与 fence 账本匹配；不能假定 response FIFO 与 result FIFO 全局有序。
 
 ## 6. A4 复位与 CDC

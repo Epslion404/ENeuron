@@ -35,7 +35,7 @@
 **建议选择：wrapper-only `SAMPLE_FENCE`，不修改计算核。**
 
 - 复用当前线级命令格式的保留 opcode `0xA`，仅由 P15 wrapper 消费，不转发给核心；`fence_id = cmd_payload[31:0]`，其余字段必须为零。
-- wrapper 在 NPU 域按“命令 FIFO 优先”处理配置命令；只有 fence 之前的命令已经在核心完成 `cmd_valid && cmd_ready` 握手、核心处于 `runtime_idle`、响应槽为空且两域状态有效时，才接受 fence。
+- wrapper 在 NPU 域按“命令 FIFO 优先”处理配置命令；只有 fence 之前的命令已经在核心完成 `cmd_valid && cmd_ready` 握手、核心 `sample_ready=1`、当前没有 `result_valid/rsp_valid`、wrapper 没有开放中的样本窗口且模型/mask staging 事务已闭合时，才接受 fence。不能把核心 `runtime_idle` 作为唯一条件，因为已发布但尚未在下一样本首 beat 激活的 mask 可能使该摘要暂时为 0。
 - fence 前 Host-facing `sample_ready` 固定为 0，sample FIFO 不允许预填；fence 成功后只开放一个 8-beat 窗口，收满后立即重新关闭。复位或 fence 拒绝时窗口内数据全部丢弃。
 - fence 成功返回 wrapper 响应类别 `0xD`：`[127:124]=0xD`、`[123:120]=0`、`[119:116]=0xA`、`[115:112]=0`、`[111:80]=fence_id`、`[79:48]=active_epoch`、`[47:0]=0`。拒绝使用 `0xE` 错误响应和明确错误码。
 - `sample_id` 仍以核心实际首 beat 握手沿锁存，不能以 Host 写 FIFO 的时间代替；`STATE_CLEAR`、`MASK_COMMIT`、`FREEZE_SET` 等配置命令必须在对应 fence 前完成。

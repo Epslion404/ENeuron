@@ -1345,3 +1345,8 @@
 - 只读复核确认 8 个新增阻断：fence 编码/响应未完整冻结、严格 TLAST 与流式丢弃矛盾、fence 前样本预填边界、命令完成层级、busy 对 valid 稳定性的影响、A1 错误优先级、32-bit epoch 原子 CDC、XPM 参数集合不一致。
 - 已修订 A1-A6 建议：T1 TLAST 改为外层提示；明确 `SAMPLE_FENCE` 编码和单样本窗口；禁止 fence 前预填；busy 只禁止新握手；epoch 只经原子 FIFO/响应；补齐 XPM 参数和错误优先级。
 - Nexus 二次复核摘要已由子代理更新；未修改 RTL，T1 仍被阻塞。
+
+## 2026-09-05 fence 条件再校正
+
+- 核对 skeleton 状态逻辑后，修正 A3 中过严的 `runtime_idle` 条件；改用 `sample_ready`、结果/响应空闲、wrapper 窗口和 staging 闭合条件，避免已发布 mask 等待首 beat 时死锁。
+- 同步修订 T0 测试合同和 findings；仍未创建 RTL，等待管理员批准。

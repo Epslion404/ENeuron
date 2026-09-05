@@ -24,6 +24,7 @@
 - [x] 形成 P15-T0 A1-A7 决策附录，覆盖命令格式、V2 framing、跨流 fence、复位汇合、FIFO 参数、状态可见性和 XC7Z020 物理基线；等待管理员逐项裁定后才开放 T1。
 - [x] 形成 P15-T0 T1/T2/T3 测试合同，覆盖 A1-A7 的正向/负向/CDC/资源证据与停止条件；等待管理员裁定后执行。
 - [x] 完成 A1-A7 附录二次复核与修订，收敛 fence、TLAST、预填、ready/valid、epoch CDC、错误优先级和 XPM 参数语义；仍等待管理员批准。
+- [x] 再校正 A3 fence 条件，避免依赖已发布 mask 状态下可能为 0 的 `runtime_idle` 摘要；测试合同增加对应边界向量。
 
 本轮本地合同探针：`P15_T0_DOC_CONTRACT_CHECK=PASS`；检查 A1-A7 标题、sample/result 64/96-bit FIFO 表、T1 阻断语义和 Nexus JSON。
 

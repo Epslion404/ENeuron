@@ -71,7 +71,7 @@ NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`，NP7 已签核。
 ### P15-T0 提案修订状态（2026-09-05）
 
 - A2 已按 KISS 修订为“V2 8/10 beat 计数唯一权威，T1 不解释 TLAST”；严格 TLAST/整帧检查移到外层 packetizer，避免无预缓冲流式 wrapper 无法回滚的问题。
-- A3 已补充建议线级格式：wrapper-only `0xA`、`fence_id=cmd_payload[31:0]`、成功响应类别 `0xD`、fence 前 `sample_ready=0` 且禁止预填、成功后只开放一个 8-beat 窗口。
+- A3 已补充建议线级格式：wrapper-only `0xA`、`fence_id=cmd_payload[31:0]`、成功响应类别 `0xD`、fence 前 `sample_ready=0` 且禁止预填、成功后只开放一个 8-beat 窗口。fence 成功条件不得依赖核心 `runtime_idle`（`MASK_PUBLISHED` 等待首 beat 时该摘要为假，可能自锁）；应使用核心 `sample_ready=1`、核心 `result_valid=0`、核心 `rsp_valid=0`、wrapper 无活动样本窗口，以及 model/mask staging 已闭合（允许 `MASK_PUBLISHED` 等待首 beat 激活）作为准入条件。
 - A4/A6 已补充 ready/valid 稳定和状态 CDC 建议：busy 只禁止新握手，非复位期间不撤销已呈现 payload；`mask_epoch` 只通过 result/fence 原子 payload，不做逐 bit CDC。
 - A1/A5 已补充保留位/未知 opcode 错误优先级，以及 `FIFO_READ_LATENCY=0`、`CDC_SYNC_STAGES=2`、`SIM_ASSERT_CHK=1` 唯一参数。以上仍是待管理员批准的提案，不改变 `NO_RTL_AUTHORIZATION`。
 

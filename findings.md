@@ -17,6 +17,12 @@
 - A1/A5 还需把保留位/未知 opcode 错误优先级以及 XPM `FIFO_READ_LATENCY=0`、`CDC_SYNC_STAGES=2`、`SIM_ASSERT_CHK=1` 写成唯一参数。
 - 以上结论已写入 Nexus 二次复核摘要；A1-A7 仍为提案，当前不授权 T1 RTL。
 
+## 2026-09-05 P15-T0 fence 条件再校正
+
+- 发现若把核心 `runtime_idle=1` 作为 `SAMPLE_FENCE` 必要条件，已发布但尚未在下一样本首 beat 激活的 mask 可能使摘要暂时为 0，导致首次样本死锁。
+- 已将建议条件改为核心 `sample_ready=1`、无 `result_valid/rsp_valid`、wrapper 无开放样本窗口，并由 wrapper 追踪模型/mask staging 是否闭合；该条件不依赖不可见的 `mask_state` 内部编码。
+- 测试合同已加入“已发布 mask 等待首 beat”向量，防止把 `runtime_idle=0` 错当成 fence 不可接受。
+
 ## NPU 局部剪枝 NP4B 实施授权（2026-08-29）
 
 - 八项决定已批准，后续不再为两输入输出兼容、核心 opcode 扩展、共享 gate 或 Host Bridge 集成保留分支。
