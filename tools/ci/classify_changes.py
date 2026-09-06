@@ -9,7 +9,7 @@ from typing import Iterable
 
 
 LOGGER = logging.getLogger(__name__)
-SCOPES = ("npu_oracle", "full_repository", "xpm_cdc", "np7_functional", "np7_physical")
+SCOPES = ("npu_oracle", "full_repository", "xpm_cdc", "np7_functional", "np7_physical", "t1_repro")
 
 
 def classify_paths(paths: Iterable[str], *, run_all: bool = False) -> dict[str, bool]:
@@ -29,6 +29,8 @@ def classify_paths(paths: Iterable[str], *, run_all: bool = False) -> dict[str, 
             selected["npu_oracle"] = True
         elif _matches(path, "host_bridge_xpm*", "test_host_bridge_xpm_wrapper.py", "xpm_fifo_async*"):
             selected["xpm_cdc"] = True
+        elif _matches(path, "npu_zynq7020_t1_wrapper.sv", "tb_npu_zynq7020_t1_wrapper.sv", "tools/repro/*", "REPRODUCE.md"):
+            selected["t1_repro"] = True
         elif _matches(
             path,
             "vivado_np7_*",

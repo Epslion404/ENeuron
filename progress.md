@@ -1,5 +1,21 @@
 # 进度记录
 
+## 2026-09-07 GitHub 可复现性门规划
+
+- 对当前 `HEAD=fc47dc9` 生成 `git archive` 隔离快照，在快照内运行 CI-Fast、NPU Oracle 和 artifact layout，共 57 项通过。
+- 确认该结果只覆盖已提交基线的一部分；本地 T1 wrapper 仍不能编译，相关文件尚未全部进入 GitHub，不能宣称 T1 可复现。
+- 完成依赖、运行入口、Vivado 路径、manifest、artifact 索引和 Actions 固定方式审计。
+- 新增 `docs/planning/GITHUB_REPRODUCIBILITY_GATE_V1.md`，冻结 G0-G3 四层目标并提出 R1-R9 待管理员批准事项。
+- 本轮未修改生产 RTL、T1 testbench、GitHub Actions 或 Vivado 报告，未提交用户已有的三个保护文件。
+
+## 2026-09-07 GitHub 可复现性门实施
+
+- 新增统一入口、依赖/工具链锁、仓库 manifest 和 T1 复现检查器。
+- T1 wrapper/testbench 由入口在临时目录执行 Icarus 编译与仿真，要求 `T1_PROTOCOL_SKELETON_PASS`。
+- CI 分类新增 `t1_repro`，工作流新增 T1 专项 job；合同测试与 CI-Fast 定向测试通过。
+- Vivado runner 支持 `-VivadoRoot`/`VIVADO_ROOT`，artifact 索引已修正为当前 `VIVADO_OOC_PASS`。
+- 仍未宣称 T1-01～T1-12 完整通过；T2/T3/G3 未完成。
+
 ## 2026-09-03 仓库外 Webhook 接收服务复核
 
 - 确认本机接收服务独立部署在 `C:\Users\Epsilon\ENeuronWebhook`，未写入 ENeuron 仓库。

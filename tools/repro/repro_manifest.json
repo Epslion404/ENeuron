@@ -1,0 +1,20 @@
+{
+  "schema": "eneuron_repro_manifest_v1",
+  "required_tracked_files": [
+    "README.md",
+    "REPRODUCE.md",
+    "requirements-repro.txt",
+    "xpm_fifo_async_sim.sv",
+    "npu_eneuron_single_clock_skeleton.sv",
+    "npu_zynq7020_t1_wrapper.sv",
+    "tb_npu_zynq7020_t1_wrapper.sv",
+    "docs/planning/NPU_ZYNQ7020_T1_TEST_PLAN_V1.md",
+    "tools/repro/verify_repository.py",
+    "tools/repro/repro_manifest.json",
+    "tools/repro/toolchain.lock.json",
+    "run_vivado_npu_single_clock_ooc.ps1",
+    "vivado_npu_single_clock_ooc.tcl",
+    "artifacts/results/npu_single_clock_ooc_manifest.json"
+  ],
+  "t1_expected_marker": "T1_PROTOCOL_SKELETON_PASS"
+}

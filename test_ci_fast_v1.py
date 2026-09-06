@@ -41,8 +41,8 @@ class ClassifyChangesTest(unittest.TestCase):
 
     def test_actions_use_node24_compatible_majors(self):
         workflow = Path(".github/workflows/pr-gate.yml").read_text(encoding="utf-8")
-        self.assertEqual(workflow.count("uses: actions/checkout@v7"), 6)
-        self.assertEqual(workflow.count("uses: actions/setup-python@v7"), 5)
+        self.assertEqual(workflow.count("uses: actions/checkout@v7"), 7)
+        self.assertEqual(workflow.count("uses: actions/setup-python@v7"), 6)
         self.assertNotIn("uses: actions/checkout@v4", workflow)
         self.assertNotIn("uses: actions/setup-python@v5", workflow)
 

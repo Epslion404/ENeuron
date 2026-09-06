@@ -1,3 +1,7 @@
+param(
+    [string]$VivadoRoot = $env:VIVADO_ROOT
+)
+
 $ErrorActionPreference = 'Stop'
 
 # 使用项目记录的 Vivado 2024.1；bat 负责建立完整 Vivado 环境。
@@ -9,7 +13,9 @@ $log = Join-Path $out 'vivado_run.log'
 $head = (& git -C $root rev-parse HEAD).Trim()
 New-Item -ItemType Directory -Force -Path $out | Out-Null
 
-& 'G:\Xilinx\Vivado\2024.1\bin\vivado.bat' -mode batch -nolog -nojournal -notrace `
+$vivadoBat = if ($VivadoRoot) { Join-Path $VivadoRoot 'bin\vivado.bat' } else { 'G:\Xilinx\Vivado\2024.1\bin\vivado.bat' }
+if (-not (Test-Path -LiteralPath $vivadoBat)) { throw "Vivado 未找到: $vivadoBat；请设置 VIVADO_ROOT 或 -VivadoRoot。" }
+& $vivadoBat -mode batch -nolog -nojournal -notrace `
     -source (Join-Path $root 'vivado_npu_single_clock_ooc.tcl') `
     -tclargs $head $out 2>&1 | Tee-Object -FilePath $log
 if ($LASTEXITCODE -ne 0) {

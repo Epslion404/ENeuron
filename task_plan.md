@@ -1,5 +1,18 @@
 # 单神经元硬件基石模拟计划
 
+## 2026-09-07 GitHub 可复现性门审核
+
+- [x] 从 `git archive HEAD` 创建隔离快照并运行 CI-Fast、NPU Oracle、artifact layout，共 57 项通过。
+- [x] 审计 T1 未提交文件、Python 依赖、Vivado runner、manifest、artifact 索引和 GitHub Actions 固定方式。
+- [x] 形成 `docs/planning/GITHUB_REPRODUCIBILITY_GATE_V1.md`，提出 G0-G3 四层门和 R1-R9 九项决定。
+- [x] 实施 R1-R3、R5 协议切片和 R6：统一入口、依赖/工具链锁、仓库 manifest、T1 runner、Vivado 路径参数化。
+- [x] 新增复现合同测试，并让 CI 分类触发 T1 专项门。
+- [ ] 完成 T1-01～T1-12 全覆盖、T2 双时钟协同仿真、T3 XC7Z020 OOC 和 G3 板级闭环。
+
+实施记录：首次整包补丁因错误假设 Vivado runner 已有 `param` 块而被原子拒绝，未产生部分修改；后续改为测试先行和逐文件小补丁。
+
+当前状态：`G0_G1_IMPLEMENTED / T1_PROTOCOL_SLICE_PROVEN / T1_FULL_PENDING`。
+
 ## 2026-09-06 P15-T0 当前审批门复核
 
 - [x] 再次确认管理员已同意 TR7-TR12；V2 RTL、功能回归和 Vivado OOC 已完成，不重复修改计算核。
@@ -15,7 +28,12 @@
 - [ ] 等待管理员批准 P15-T0 方案 A 与 A1-A7；批准前不创建 T1 顶层 RTL。
 - [x] 管理员已批准 A1-A7；状态更新为 `T0_APPROVED / T1_RTL_AUTHORIZED`。
 - [x] 完成 XC7Z020 资源裁剪审查 V1；区分固定模型/推理专用/固定拓扑等可配置裁剪与不可裁剪的 CDC、原子性、四 DSP 和 fence 合同。
-- [ ] 等待管理员审查资源裁剪候选；未获批准前不删除当前签核 RTL。
+- [x] 记录管理员决定：首次完整端到端运行成功之前，不实施任何 FPGA 资源裁剪。
+- [ ] 完成 T1 纯 RTL wrapper、T2 双时钟协同仿真、T3 `xc7z020clg400-1` OOC 以及首次完整端到端运行，并形成可追溯证据。
+- [ ] 首次端到端运行通过后，重新评估 C1-C9；优先顺序为 telemetry off、模型存储 BRAM 化、推理专用构建和固定拓扑特化。
+- [ ] 在上述门槛满足前，禁止删除训练/推理状态、FIFO/CDC、原子 sideband、SAMPLE_FENCE、四 DSP 或诊断路径；任何收益只允许作为估算，不得写成物理实测。
+
+当前状态：`RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN`。本记录不代表 T1/T2/T3 或端到端运行已经完成。
 
 本轮误报记录：附加探针曾把 `NO_RTL_AUTHORIZATION` 错要求出现在 T0 测试合同；实际该状态属于决策附录/决策表，测试合同使用 `T1_BLOCKED`，已通过文档职责核对纠正，未修改合同语义。
 
