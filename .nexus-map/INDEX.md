@@ -1,7 +1,7 @@
 # ENeuron 知识库入口
 
 generated_by: nexus-mapper v2 / manual synthesis from raw probe
-verified_at: 2026-09-05
+verified_at: 2026-09-07
 provenance: `.nexus-map/raw/ast_nodes.json`, `git_stats.json`, `file_tree.txt`（最后提交于 `c46320e`，文件树按版本化基线排除工作区未跟踪文件）；其后的单时钟 RTL、测试与 OOC 证据由版本化文件、manifest 和文档人工核对
 
 ENeuron 是以 Python 黄金模型、SystemVerilog RTL、Icarus/Yosys/Vivado 验证组成的数字脉冲神经元与 NPU 局部剪枝研究仓库。
@@ -23,7 +23,7 @@ ENeuron 是以 Python 黄金模型、SystemVerilog RTL、Icarus/Yosys/Vivado 验
 
 状态校正（2026-09-05）：PR #64 已合并为 `main@a53a040`；PR #65 已合并为 `main@618c1e4`；PR #66 已合并为 `main@a1457bb`。下文若仍出现旧的“OPEN”或“等待合并”措辞，均属于生成快照中的历史内容，不覆盖本条和 `WORKFLOW_STATE.md` 的当前状态。
 
-NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`，NP7 已签核。TR7-TR12 已批准并完成 V2 实现：单时钟专项、固定 `20×100` 和完整仓库回归均通过。实现提交 `f744bff2bdde68e138a7b2b348ce103bec1ab469` 的 OOC 为 `2126 LUT / 1916 FF / 0 BRAM / 4 DSP48E1`，100 MHz `WNS=+0.060 ns / TNS=0 / WHS=+0.040 ns`，setup/hold/route/DRC 零失败。PR #64 已合并为 `main@a53a040`，PR #65 已合并为 `main@618c1e4`，PR #66 已合并为 `main@a1457bb`。PR #68 审计快照绑定 `55ec08e` 与 run `33976357259`：`OPEN / MERGEABLE / UNSTABLE`，runner 因账户付款/额度限制未启动，归类为 `NOT_RUN_BILLING_BLOCKED`；这组编号是可追溯快照，不是会随提交自动更新的“当前值”。当前状态为 `TIMING_REPAIR_V2_FUNCTIONAL_GREEN / VIVADO_OOC_100MHZ_PASS / P15_T0_APPROVED / T1_RTL_AUTHORIZED / RESOURCE_CUT_REVIEW_REQUIRED`。P15-T0 推荐方案 A 已获批准，A1-A7 已逐项通过；T1 可开始，T2/T3 仍需独立验收。Webhook 已收到该快照对应的 `workflow_run completed/failure`，但 `signature_verified=false`，只作触发提示；2026-09-06 官方 ping delivery `ee543f6e-aa08-11f1-84fd-d4849c4dec76` 已证明公网隧道恢复为 HTTP 200。GitHub Checks/API 仍为 CI 权威来源；板级、DMA、PS、网口和功耗仍未签核。
+NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`，NP7 已签核。TR7-TR12 已批准并完成 V2 实现：单时钟专项、固定 `20×100` 和完整仓库回归均通过。实现提交 `f744bff2bdde68e138a7b2b348ce103bec1ab469` 的 OOC 为 `2126 LUT / 1916 FF / 0 BRAM / 4 DSP48E1`，100 MHz `WNS=+0.060 ns / TNS=0 / WHS=+0.040 ns`，setup/hold/route/DRC 零失败。PR #64 已合并为 `main@a53a040`，PR #65 已合并为 `main@618c1e4`，PR #66 已合并为 `main@a1457bb`。PR #68 审计快照绑定 `55ec08e` 与 run `33976357259`：`OPEN / MERGEABLE / UNSTABLE`，runner 因账户付款/额度限制未启动，归类为 `NOT_RUN_BILLING_BLOCKED`；这组编号是可追溯快照，不是会随提交自动更新的“当前值”。当前状态为 `TIMING_REPAIR_V2_FUNCTIONAL_GREEN / VIVADO_OOC_100MHZ_PASS / P15_T0_APPROVED / T1_RTL_AUTHORIZED / T1_NOT_IMPLEMENTED / RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN`。P15-T0 推荐方案 A 与 A1-A7 已逐项批准，只开放 T1 纯 RTL wrapper 实施；当前尚无 T1 RTL、T2 双时钟协同仿真或 T3 XC7Z020 OOC 完成证据。资源裁剪候选已经审查，但管理员决定等第一次完整端到端运行成功后再考虑实施。Webhook 已收到该快照对应的 `workflow_run completed/failure`，但 `signature_verified=false`，只作触发提示；2026-09-06 官方 ping delivery `ee543f6e-aa08-11f1-84fd-d4849c4dec76` 已证明公网隧道恢复为 HTTP 200。GitHub Checks/API 仍为 CI 权威来源；板级、DMA、PS、网口和功耗仍未签核。
 
 ## 单时钟 RTL 审核摘要
 
@@ -40,9 +40,11 @@ NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`，NP7 已签核。
 
 - 规划文档：`docs/planning/NPU_ZYNQ7020_TOPLEVEL_INTEGRATION_V1.md`；裁定稿：`docs/planning/NPU_ZYNQ7020_TOPLEVEL_DECISION_SHEET_V1.md`。
 - 推荐方案 A：命令/响应继续使用现有 128-bit 异步 FIFO；新增独立 32-bit 样本输入和结果输出 FIFO，并在 FIFO 外侧放置 AXI-Stream shim。样本固定 8 beat，结果固定 10 beat，`sample_id`/`mask_epoch` sideband 在各自事务内保持稳定。
-- 当前状态：`P15_T0_APPROVED / T1_RTL_AUTHORIZED / RESOURCE_CUT_REVIEW_REQUIRED`。方案 A、四条流 sideband/固定 beat 语义以及 AXI 外置边界已获批准；T1 纯 RTL 适配器可开始，但不接入 AXI-Lite、DMA、Ethernet 或 PS7，直到后续阶段单独批准。
+- 当前状态：`P15_T0_APPROVED / T1_RTL_AUTHORIZED / T1_NOT_IMPLEMENTED / RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN`。方案 A、A1-A7、四条流 sideband/固定 beat 语义以及 AXI 外置边界已获批准；T1 纯 RTL 适配器可开始，但尚未完成，也不接入 AXI-Lite、DMA、Ethernet 或 PS7，直到后续阶段单独批准。资源裁剪只保留为首次端到端跑通后的候选，不进入当前实施基线。
 
-### P15-T0 只读审计结论（2026-09-05）
+### P15-T0 只读审计结论（2026-09-05，历史快照）
+
+本节保留批准前的审计依据。下列阻断已由 2026-09-07 批准的 A1-A7 形成唯一合同并解除，不覆盖上方当前状态，也不能再据此推导 `NO_RTL_AUTHORIZATION`。
 
 - **命令格式必须先选唯一权威**：当前 `npu_eneuron_single_clock_skeleton.sv` 与 `NPU_SINGLE_CLOCK_RTL_PORT_TABLE_V1.md` 使用高位 4-bit opcode（`[127:124]`）、epoch（`[119:88]`）和 word（`[31:0]`）；历史 `NPU_ORACLE_SINGLE_CLOCK_CONTRACT_V3.md` 仍描述低位 8-bit opcode/txn 格式。P15 不能只说“沿用核心协议”，T1 前必须明确采用当前 skeleton 格式，或同步修改 RTL/Oracle。
 - **V1/V2 framing 不得混用**：V1 文档曾要求内部 `last` 和 `model_epoch`；V2 已删除二者，固定 8/10 beat 由内部计数器结束。P15 的 AXI `TLAST` 只能在明确早/晚/缺失时的检查或忽略语义后使用，不能把旧 `last` 接入核心。
@@ -51,9 +53,9 @@ NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`，NP7 已签核。
 - **AXI sideband 与错误路由仍缺字段**：需明确 sample `sample_id` 是否逐 beat 校验（core 当前只采样首 beat）、result sideband 在 10 beat 的保持、`TLAST`/`TKEEP`/`TSTRB`/`TID`/`TDEST` tie-off，以及样本 framing/sideband 错误如何在没有旁路错误包时报告。
 - **FIFO 参数与资源归因未冻结**：新增 sample FIFO 实际为 64-bit、result FIFO 为 96-bit；depth、FWFT/latency、CDC stages、memory type 尚未定义，不能先验声称 BRAM/LUT/FF 增量。应以四个 FIFO 的实际 XPM 参数和 post-route 报告分别归因。
 - **器件边界必须统一**：P15 目标是 `xc7z020clg400-1`；旧 Host Bridge OOC 使用 `xc7a35tcpg236-1`，只能作历史结构参考，不得替代 XC7Z020 资源、时序或 CDC 证据。
-- 在上述合同补齐前，状态保持 `P15_T0_REVIEW_REQUIRED / NO_RTL_AUTHORIZATION`，不得创建 T1 顶层 RTL。
+- 历史结论：在上述合同补齐前，状态保持 `P15_T0_REVIEW_REQUIRED / NO_RTL_AUTHORIZATION`，不得创建 T1 顶层 RTL。当前这些合同已补齐并获批准，状态已转为 `P15_T0_APPROVED / T1_RTL_AUTHORIZED`。
 
-### P15-T0 附录二次复核（2026-09-05）
+### P15-T0 附录二次复核（2026-09-05，历史快照）
 
 对 `NPU_ZYNQ7020_TOPLEVEL_T0_DECISION_ADDENDUM_V1.md`、`NPU_ZYNQ7020_TOPLEVEL_T0_TEST_CONTRACT_V1.md`、`NPU_SINGLE_CLOCK_RTL_PORT_TABLE_V1.md`、V2 实施合同和当前 skeleton 的只读交叉审计仍发现以下 T1 阻断。它们不是对方案 A 的否定，而是必须在批准稿中写成唯一可实现语义：
 
@@ -66,14 +68,20 @@ NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`，NP7 已签核。
 - **Host 状态/epoch 不是普通逐 bit 同步问题**：A4/A6 只说同步摘要；32-bit `mask_epoch` 若逐 bit 两级同步可能产生撕裂值，Host 会把结果匹配到不存在的 epoch。必须使用稳定握手、快照+有效标志或等价原子总线 CDC，并冻结 error/IRQ 的 sticky 与清除语义；否则 A6 的结果匹配合同不可验证。
 - **A5 的参数来源仍有两套**：附录第 55–64 行只明确 depth/FWFT/auto，而 T0 测试合同第 48–50 行又加了 `read_latency=0`、`CDC_SYNC_STAGES=2`、`SIM_ASSERT_CHK=1`。这些实现参数和仿真专用参数必须在批准稿中标为唯一权威，不能让 T1 自行取 XPM 默认值。
 
-上述问题尚未改变当前门：`P15_T0_REVIEW_REQUIRED / PROPOSED / ADMIN_REVIEW_REQUIRED / NO_RTL_AUTHORIZATION`。在 fence 字段、帧错误恢复策略、样本准入、busy 稳定性和状态 CDC 语义补齐并获批准前，不创建 T1 RTL。
+历史结论：上述问题在当时尚未改变门槛，状态为 `P15_T0_REVIEW_REQUIRED / PROPOSED / ADMIN_REVIEW_REQUIRED / NO_RTL_AUTHORIZATION`。2026-09-07 管理员批准 A1-A7 后，该结论不再是当前门；T1 已授权但尚未完成。
 
-### P15-T0 提案修订状态（2026-09-05）
+### P15-T0 提案修订状态（2026-09-05，历史提案；2026-09-07 已批准）
 
 - A2 已按 KISS 修订为“V2 8/10 beat 计数唯一权威，T1 不解释 TLAST”；严格 TLAST/整帧检查移到外层 packetizer，避免无预缓冲流式 wrapper 无法回滚的问题。
 - A3 已补充建议线级格式：wrapper-only `0xA`、`fence_id=cmd_payload[31:0]`、成功响应类别 `0xD`、fence 前 `sample_ready=0` 且禁止预填、成功后只开放一个 8-beat 窗口。fence 成功条件不得依赖核心 `runtime_idle`（`MASK_PUBLISHED` 等待首 beat 时该摘要为假，可能自锁）；应使用核心 `sample_ready=1`、核心 `result_valid=0`、核心 `rsp_valid=0`、wrapper 无活动样本窗口，以及 model/mask staging 已闭合（允许 `MASK_PUBLISHED` 等待首 beat 激活）作为准入条件。
 - A4/A6 已补充 ready/valid 稳定和状态 CDC 建议：busy 只禁止新握手，非复位期间不撤销已呈现 payload；`mask_epoch` 只通过 result/fence 原子 payload，不做逐 bit CDC。
-- A1/A5 已补充保留位/未知 opcode 错误优先级，以及 `FIFO_READ_LATENCY=0`、`CDC_SYNC_STAGES=2`、`SIM_ASSERT_CHK=1` 唯一参数。以上仍是待管理员批准的提案，不改变 `NO_RTL_AUTHORIZATION`。
+- A1/A5 已补充保留位/未知 opcode 错误优先级，以及 `FIFO_READ_LATENCY=0`、`CDC_SYNC_STAGES=2`、`SIM_ASSERT_CHK=1` 唯一参数。该组 A1-A7 提案已于 2026-09-07 获管理员批准，当前已改变为 `T1_RTL_AUTHORIZED`，但不等于 T1/T2/T3 完成。
+
+## 资源裁剪门
+
+- `docs/planning/NPU_ZYNQ7020_RESOURCE_CUT_REVIEW_V1.md` 已记录可裁、可配置裁与不可裁候选；其中收益仍是待 A/B Vivado OOC 验证的估算，不是物理实测。
+- 管理员决定在第一次完整端到端运行成功前不实施任何资源裁剪，不修改当前训练/推理、FIFO、CDC、原子 sideband、fence、四 DSP 或诊断基线。
+- 首次端到端跑通后，才按 telemetry、模型存储 BRAM 化、独立 `INFER_ONLY` 构建、固定拓扑特化的顺序重新评审。
 
 ## 状态校正与下一门
 

@@ -1,5 +1,16 @@
 # 调研与实验发现
 
+## 2026-09-07 GitHub 可复现性审计
+
+- `git archive HEAD` 的隔离快照可完成 CI-Fast、NPU Oracle 和 artifact layout 共 57 项测试，说明当前已提交基线的一部分能脱离原工作树重放。
+- T1 wrapper、testbench 和测试计划仍在本地 WIP；wrapper 当前存在未声明 `core_cmd_ready` 及前向隐式 wire 问题，不能编译，所以 GitHub 尚不足以复现 T1。
+- 当前没有统一 Python 依赖锁；数据 fixture 生成器直接依赖 scikit-learn。复现入口必须区分“消费已提交 fixture”和“从源重新生成 fixture”。
+- `run_vivado_npu_single_clock_ooc.ps1` 把 Vivado 固定到个人 `G:` 盘，破坏跨机器入口；应改为参数/环境变量定位，同时严格核对 Vivado 2024.1。
+- 单时钟 OOC manifest 已正确绑定 RTL、runner、Tcl、报告、器件、100 MHz 和 4 DSP，是 G2 的基础；重新运行应比较机器判据，不应要求含路径/时间戳的全部报告逐字节相同。
+- `artifacts/README.md` 的单时钟 OOC 描述仍停在历史 setup 失败，与当前 V2 manifest 的 `VIVADO_OOC_PASS` 冲突，实施可复现性门时必须修正。
+- GitHub 官方当前说明：完整 commit SHA 是 action 不可变引用方式；当前工作流使用可移动的大版本标签，应在 R8 获批后改为 SHA 固定并保留标签注释。
+- AMD 当前 UG894 继续支持用 batch Tcl、命令参数和 `report_* -file` 固化可重放流程；现有非工程模式 Tcl 方向正确，主要缺口是入口路径、统一验证器和干净快照门。
+
 ## 2026-09-05 P15-T0 静态合同审计
 
 - 四条逻辑流的职责已经清楚：128 位命令、128 位响应、样本输入和结果输出；AXI-Stream 位于异步 FIFO 外侧，T1 不接 AXI-Lite、DMA、Ethernet 或 PS7。

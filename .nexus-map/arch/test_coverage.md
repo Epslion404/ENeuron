@@ -1,12 +1,14 @@
 # 测试面与缺口
 
 generated_by: nexus-mapper v2 / manual synthesis
-verified_at: 2026-09-05
+verified_at: 2026-09-07
 provenance: repository test names, signoff summaries, workflow state, latest GitHub/Webhook evidence
 
 已覆盖：Python/RTL 协同仿真、有限形式安全与可达性、负向 mutation、Tile/System Vivado OOC、XPM 仿真、NP4B 三模型 60000 事务签核；CI-Fast V1 已完成 workflow 全量、文档轻量和 NPU-only 定向路径验证。CI Action 已升级到 `actions/checkout@v7` 与 `actions/setup-python@v7` 的 Node 24 基线，分类合同要求任何 workflow 变更运行全量门。NPU oracle 新增并通过 `test_zero_activity_with_closed_gate_emits_no_reads_or_macs`、`test_frequent_epoch_switches_never_mix_masks`、`test_pending_slot_backpressure_rejects_overwrite` 三项最坏情况测试。
 
 NP6 结论为部分通过，NP7 已签核。OF1-OF6 Python oracle 保持 48/48。V2 已通过单时钟专项、固定 `20×100` 和完整仓库 `475 tests / OK (skipped=1)`；PR #64 run `33946568679` 的必需门全部成功。Vivado 已确认 4 个 DSP48E1、setup/hold/route/DRC 全部通过；板级性能仍未完成。
+
+P15-T0 方案 A 与 A1-A7 已获批准，但当前只有实施授权：T1 纯 RTL wrapper、四条 XPM async FIFO 与 AXI shim 尚无完成测试证据；T2 可变双时钟、复位/背压/重入验证和 T3 `xc7z020clg400-1` OOC 也尚未通过。资源裁剪审查不构成实现证据，且所有裁剪已推迟到第一次完整端到端跑通之后。
 
 ## 当前签核门（V2 OOC 后）
 
