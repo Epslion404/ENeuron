@@ -1,0 +1,37 @@
+{
+  "$schema": "eneuron/board-hardware-definition/v1",
+  "verified_at": "2026-09-07",
+  "status": "B1A_HW_DEFINITION_COMPLETE",
+  "source_commit": "18fd65c8465f047fbfb0fe63c81a39412a9ea6e5",
+  "target": {
+    "board": "HelloZynq",
+    "part": "xc7z020clg484-2",
+    "vivado": "2024.1"
+  },
+  "implementation": {
+    "entrypoint": "boards/hellozynq/b1a_hw/run_b1a_build.ps1",
+    "summary": "artifacts/results/hellozynq_b1a_hw_summary.json",
+    "bitstream_sha256": "5d0940ebbff57585ce80d3b1a8c11ad16e499bfff20bf0d202b2c5dfe847e6d6",
+    "xsa_sha256": "053fc032428da48882d62e6f9081d99f864e7bd64dc7b7b52b422c94d4ab81df",
+    "resources": {"lut": 136, "flip_flop": 257, "bram_tile": 0, "dsp": 0, "bufgctrl": 4, "mmcm": 1},
+    "timing": {"setup_wns_ns": 0.240, "hold_whs_ns": 0.150, "setup_failures": 0, "hold_failures": 0},
+    "route_errors": 0,
+    "drc_errors": 0,
+    "drc_critical_warnings": 0,
+    "rgmii_tx_missing_output_delays": 0
+  },
+  "resolved_facts": {
+    "ddr": "Physical MT41K256M16TW-107:P uses Vivado MT41K256M16 RE-125 preset at 533.333333 MHz; -107 is compatible with the slower preset timing point",
+    "phy_reset": "R46 is NC, so H17 is not a controllable RTL8211E hard reset; use full power cycle and MDIO software reset",
+    "physical_phy_address": "Do not preset; B1C scans 0-31 and validates PHY ID",
+    "rgmii_timing": "IP generated RX constraints plus a separate LATE top-level TX XDC; missing TX output delays are a build failure"
+  },
+  "known_warnings": {
+    "mdio_timing_18": "One missing input delay remains; validate MDIO function in B1C",
+    "timing_54": "Four GMII-to-RGMII generated false-path checks have AMD IP generated waivers",
+    "reqp_1577": "One GMII-to-RGMII internal MMCM buffer-alignment warning"
+  },
+  "b1a_complete": true,
+  "b1_gate_pass": false,
+  "next_gate": "B1B_PS7_UART_DDR_FIELD_VALIDATION"
+}

@@ -13,6 +13,13 @@
 - 修正路径后的XDC顺序探针通过：实现期IP clocks XDC索引3、板级XDC索引4，确认 `PROCESSING_ORDER=LATE` 能使顶层TX约束在generated clock创建后执行。
 - 第二次正式重建发现整份板级XDC设为LATE会让RX输入时钟晚于IP RX约束，且Vivado XDC不支持普通 `if`。已停止该无效实现并拆分约束：主XDC恢复原顺序，新增仅含TX delay的独立LATE XDC；不再在XDC中使用流程控制。
 - 拆分后的compile-order探针通过：实现期主XDC/IP clocks XDC/TX XDC顺序为3/4/5，下一步只需最终完整构建。
+- 最终完整构建在干净提交 `18fd65c8465f047fbfb0fe63c81a39412a9ea6e5` 上通过，输出 `B1A_BUILD_PASS`；bitstream SHA-256=`5d0940eb...e6d6`，XSA SHA-256=`053fc032...81df`。正式摘要确认RGMII TX缺失output delay为0。
+- Nexus收尾首次按旧摘要中的 `.nexus-map` 根路径读取失败；当前仓库实际知识库根路径需重新用 `rg --files` 定位，未修改文件，不重复假定旧路径。
+- 已定位知识库实际路径为 `.nexus-map/arch/` 与 `.nexus-map/concepts/`。B1A-HW需新增独立概念JSON，不覆盖历史来源审计JSON，并同步P16、系统、依赖、覆盖和领域入口。
+- B1A状态/JSON定向检查通过，但首次轻量测试为9/10：`test_artifact_layout`按预期拒绝未登记的新 `hellozynq_b1a_hw_summary.json`。这是归档索引缺失，不是硬件失败；下一步只把该结果加入既有artifact清单并重跑同一轻量门。
+- 清理前的首个PowerShell容量枚举在 `foreach` 后直接接管道时触发 `ParserError: empty pipe element`，未删除或修改任何文件。下一次先收集到数组再格式化，不重复该管道写法。
+- 已验证绝对路径均位于 `D:\Documents\Code\ENeuron-board-b0` 后，将约26.5 MB可重建临时物移入Windows回收站：B0旧build、B1A工程/探针/运行日志、`.Xil`、Python缓存及根Vivado临时文件。保留B1A bitstream、XSA、manifest、签核摘要和正式报告供B1B直接使用。
+- 收尾定向验证通过：artifact layout与CI-Fast共10/10，B1A四份关键JSON解析及状态合同通过，保留的bitstream/XSA哈希与机器摘要一致，`git diff --check`通过。测试新生成的Python缓存已再次移入回收站。
 
 ## 2026-09-06 本机验收与计费边界
 

@@ -1,5 +1,7 @@
 # ENeuron 知识库入口
 
+B1A-HW更新（2026-09-07）：可重建硬件定义已在干净提交 `18fd65c` 上通过Vivado 2024.1实现，机器摘要为 `artifacts/results/hellozynq_b1a_hw_summary.json`，知识条目为 `.nexus-map/concepts/board_phase2_b1a_hw.json`。当前执行点前移到B1B UART/DDR实板验证；`B1-GATE`仍为false。
+
 阶段 2 实板校正（2026-09-07）：PR #69 已合并为 `main@102dee2a004283ce4144aaf6ee0a2cee3ebd2887`，B0正式进入主线；Fastlane V1已进入 `main@308bdecd9573e71340359729fdbb2f3fcb7723c7`。B1A来源审计已完成，当前执行点是解决DDR型号、物理PHY复位、物理PHY地址和RGMII时序后生成可重建硬件定义；B1-D1软件栈裁定并行进行。来源审计完成不等于B1A或B1通过。
 
 发布终态（2026-09-07）：PR #69最终HEAD为 `02514b5f4ffd3b5c6a033a2f2d9e6f7b6bcaef92`，于 `2026-09-07T16:17:15Z` 合并，merge commit为 `102dee2a004283ce4144aaf6ee0a2cee3ebd2887`。Actions关闭且checks为空；合并依据是本机Vivado/JTAG/实板证据、17项定向测试、37份JSON和PR CLEAN/MERGEABLE。

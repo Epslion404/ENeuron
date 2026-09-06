@@ -10,6 +10,9 @@
 - `report_compile_order -constraints` 已确认实现期顺序：IP clocks XDC 为第3项，板级 `hello_zynq_b1a.xdc` 为第4项，两者均为LATE但板级文件明确后读；generated TX clock在板级约束执行前可用。
 - Vivado XDC不支持普通 `if`；同时RX `create_clock` 必须早于IP clocks XDC，而TX delay必须晚于它。最终结构拆成普通主XDC与独立LATE TX XDC，避免互相冲突。
 - 拆分后的实现期顺序已确认：主XDC为NORMAL索引3、IP clocks XDC为LATE索引4、TX XDC为LATE索引5，满足RX早于IP、TX晚于IP的双向顺序要求。
+- 干净提交 `18fd65c8465f047fbfb0fe63c81a39412a9ea6e5` 的Vivado 2024.1完整构建通过：setup/hold失败端点0/0、route error 0、DRC error/critical 0/0、RGMII TX缺失output delay 0。只保留1条MDIO input delay方法学warning和1条GMII-to-RGMII内部 `REQP-1577` DRC warning。
+- 方法学报告仍列出4条 `TIMING-54`，但同一IP生成XDC包含AMD创建的对应waiver；按已确认的IP约束语义记录，不作为B1A-HW阻断。
+- 最终资源为136 LUT、257 FF、0 BRAM、0 DSP、4 BUFGCTRL、1 MMCM；本地B1A build目录约26.9 MB。仓库忽略项中可安全清理的当前产物包括B1A build、`.Xil`、Python缓存、根Vivado日志和`clockInfo.txt`；B0 build包含历史实板流程产物，本轮不扩大清理范围。
 
 - 2026-09-06：额度边界确认。GitHub Actions 当前因账户额度耗尽不可作为本阶段验收依赖；后续不主动触发或等待 hosted runner。GitHub 仓库、分支和 PR 仅用于版本归档与人工审查；未运行的 Actions 统一记录为 `NOT_RUN_BILLING_BLOCKED`，不得当作代码失败或通过。
 - 2026-09-06：本机复现证据闭环。`python -X utf8 -m unittest -v test_reproducibility test_ci_fast_v1` 返回 12/12 通过；`python -X utf8 tools/repro/verify_repository.py --t1` 返回 `REPRO_G0_MANIFEST_PASS` 与 `REPRO_G1_T1_PROTOCOL_SLICE_PASS`。
