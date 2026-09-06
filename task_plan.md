@@ -4,12 +4,13 @@
 
 - [x] 再次确认管理员已同意 TR7-TR12；V2 RTL、功能回归和 Vivado OOC 已完成，不重复修改计算核。
 - [x] 核对 PR #68：A1-A7 尚未收到管理员逐项裁定，当前仍为 `P15_T0_REVIEW_REQUIRED / NO_RTL_AUTHORIZATION`。
-- [x] 核对 PR #68 CI：提交 `8cac035` 触发的最新 run `33975784335` 在 runner 启动前因账户付款/额度问题失败；annotation 已确认原文，按 `NOT_RUN_BILLING_BLOCKED` 记录，不视为代码失败或通过。
-- [x] 已重启本机 webhook；`http://127.0.0.1:2355/healthz` 返回 HTTP 200，但 `latest.json` 仍是历史 PR #63 事件，不能替代 GitHub Checks/API 权威结果。
+- [x] 核对 PR #68 CI 历史观测：提交 `8cac035` 触发的 run `33975784335` 在 runner 启动前因账户付款/额度问题失败；annotation 已确认原文，按 `NOT_RUN_BILLING_BLOCKED` 记录，不视为代码失败或通过。
+- [x] 完成 webhook 接收器恢复初检：当时 `/healthz` 已返回 HTTP 200，而 `latest.json` 尚停留在历史 PR #63；随后已由官方 ping 和真实 PR 推送完成全链路验收。
 - [x] 轻量验证通过：CI-Fast `8/8`、`git diff --check`；P15-T0 文档锚点检查通过。
 - [x] 修正持久状态建模：PR HEAD/run 只记录为提交绑定的审计快照，不再写成会因本 PR 下一次提交立刻过期的“当前值”。
 - [x] 仓库外 webhook 改由 Windows 计划任务 `ENeuronWebhook` 直接托管 Python 进程；任务保持 `Running`，健康检查返回 HTTP 200，启动脚本可幂等复用。
 - [x] 恢复 chmlfrp 公网隧道并完成端到端验证：本地/公网 `/healthz` 均为 HTTP 200，GitHub 官方 ping delivery `ee543f6e-aa08-11f1-84fd-d4849c4dec76` 返回 200 并写入 `latest.json`；只保留 ChmlFrpLauncher 管理的单个 frpc 进程。
+- [x] 恢复后首个真实 PR 推送闭环：HEAD `a409512` 的 run `34043097374` 由 webhook delivery `6ece08a0-aa09-11f1-944a-b2b2aad065d2` 同 SHA 收到；GitHub annotation 仍证明为 `NOT_RUN_BILLING_BLOCKED`。
 - [ ] 等待管理员批准 P15-T0 方案 A 与 A1-A7；批准前不创建 T1 顶层 RTL。
 
 本轮误报记录：附加探针曾把 `NO_RTL_AUTHORIZATION` 错要求出现在 T0 测试合同；实际该状态属于决策附录/决策表，测试合同使用 `T1_BLOCKED`，已通过文档职责核对纠正，未修改合同语义。

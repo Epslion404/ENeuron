@@ -1354,8 +1354,8 @@
 ## 2026-09-06 P15-T0 当前审批门复核
 
 - 再次核对 PR #68：管理员尚未回复 A1-A7，当前仍为 `P15_T0_REVIEW_REQUIRED / NO_RTL_AUTHORIZATION`，因此不创建 T1 顶层 RTL。
-- 提交 `8cac035` 触发的最新 Actions run `33975784335` 的 Classify changes 与 PR Gate 在 runner 启动前因账户付款/额度问题失败，其余 job 被跳过；GitHub annotation 已确认原文，按 `NOT_RUN_BILLING_BLOCKED` 记录，不能当作代码失败或通过。
-- 本机 webhook 已重启，`/healthz` 返回 HTTP 200；`latest.json` 仍停留在历史 PR #63 事件，只作到达提示，GitHub Checks/API 仍是权威终态来源。
+- 提交 `8cac035` 触发的 Actions run `33975784335` 是一次历史观测：Classify changes 与 PR Gate 在 runner 启动前因账户付款/额度问题失败，其余 job 被跳过；GitHub annotation 已确认原文，按 `NOT_RUN_BILLING_BLOCKED` 记录，不能当作代码失败或通过。
+- 本机 webhook 恢复初检时 `/healthz` 已返回 HTTP 200，而 `latest.json` 尚停留在历史 PR #63；随后已由官方 ping 和真实 PR 推送完成全链路验收。
 - 轻量本地验证通过：CI-Fast `8/8`、`git diff --check` 和 P15-T0 文档锚点检查；一次附加探针误把决策状态要求到测试合同，已确认是探针职责错误而非文档漂移。
 - Nexus 审计发现 `.nexus-map/hotspots/git_forensics.md` 仍把已合并 PR #64 写成 OPEN，`concept_model.json` 的状态指针停在 PR #66；已修正为 PR #68 的提交绑定审计快照。
 - PR #68 的 HEAD/run 不再被描述为自动更新的“当前值”：快照绑定 `55ec08e` 与 run `33976357259`；后续提交不会使该历史证据失真。
@@ -1364,3 +1364,4 @@
 - 隧道侧随后定位为 `ChmlFrpc` 未运行，GitHub hook `last_response=502 connection_error`。用户恢复 ChmlFrpLauncher 后，本地与公网 `/healthz` 均为 HTTP 200。
 - GitHub 官方 ping delivery `39fa1340-aa08-11f1-8930-aff79715b2ab` 和 `ee543f6e-aa08-11f1-84fd-d4849c4dec76` 均返回 HTTP 200；后者已写入 `latest.json`，hook `last_response` 恢复为 `200 active`。
 - 清理了诊断阶段产生的重复 frpc：保留 ChmlFrpLauncher 管理的实例，停止额外计划任务实例；公网健康检查在单实例状态下继续通过。
+- 恢复后的真实推送 HEAD `a409512629717845ddbaa42dd6addfb4fab563f7` 触发 run `34043097374`；webhook delivery `6ece08a0-aa09-11f1-944a-b2b2aad065d2` 收到同 SHA 的 `workflow_run completed/failure`，GitHub annotation 仍为账户付款/额度阻断，通知链与权威 API 结论一致。
