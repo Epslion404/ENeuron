@@ -2,9 +2,9 @@
 
 模式：`PERSISTENT_WORKFLOW_V1`
 
-最后更新：2026-09-05
+最后更新：2026-09-06
 
-状态：`ACTIVE / NP7_MERGED / I1_I6_APPROVED / OF1_OF6_V3_APPROVED / OF6_ORACLE_SIGNOFF / RTL_DESIGN_CONTRACT_V2_APPROVED / PR62_MERGED / PR64_MERGED / PR65_MERGED / PR66_MERGED / TR1_TR6_APPROVED / TR7_TR12_APPROVED / TIMING_REPAIR_V2_FUNCTIONAL_GREEN / VIVADO_OOC_100MHZ_PASS / P15_T0_APPROVED / T1_RTL_AUTHORIZED / RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN`
+状态：`ACTIVE / NP7_MERGED / I1_I6_APPROVED / OF1_OF6_V3_APPROVED / OF6_ORACLE_SIGNOFF / RTL_DESIGN_CONTRACT_V2_APPROVED / PR62_MERGED / PR64_MERGED / PR65_MERGED / PR66_MERGED / TR1_TR6_APPROVED / TR7_TR12_APPROVED / TIMING_REPAIR_V2_FUNCTIONAL_GREEN / VIVADO_OOC_100MHZ_PASS / P15_T0_APPROVED / T1_RTL_AUTHORIZED / T1_PROTOCOL_SLICE_PROVEN / T1_FULL_PENDING / RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN / GITHUB_ACTIONS_BILLING_BLOCKED`
 
 ## 当前活动目标
 
@@ -48,7 +48,7 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 
 ## 下一动作
 
-V2 OOC 物理门已通过，PR #64 已合并为 `main@a53a040`；PR #65 已合并为 `main@618c1e4`，PR #66 已合并为 `main@a1457bb`。下一步是由管理员评审并批准 P15-T0 端口与适配边界，批准前不创建顶层 RTL。当前 OOC 仍不等价于板级、网口、DMA、PS 或持续学习签核。
+V2 OOC 物理门已通过，PR #64 已合并为 `main@a53a040`；PR #65 已合并为 `main@618c1e4`，PR #66 已合并为 `main@a1457bb`。A1-A7 已批准并已实现 T1 纯 RTL 协议切片；下一步是补齐 T1-01～T1-12 全量测试，再进入 T2 双时钟和 T3 XC7Z020 OOC。当前 OOC 仍不等价于板级、网口、DMA、PS 或持续学习签核。
 
 ## 2026-09-05 V2 OOC 签核结果
 
@@ -73,7 +73,16 @@ V2 OOC 物理门已通过，PR #64 已合并为 `main@a53a040`；PR #65 已合�
 - 仓库外 webhook 已收到同一 SHA 的完成事件；接收器改由 Windows 计划任务 `ENeuronWebhook` 直接托管 Python，任务为 `Running` 且 `/healthz` 返回 HTTP 200。签名未验证，故通知仍不作为合并证据。
 - chmlfrp 隧道已于 2026-09-06 恢复；本地和公网 `/healthz` 均为 HTTP 200，GitHub 官方 ping delivery `ee543f6e-aa08-11f1-84fd-d4849c4dec76` 返回 200 并写入 `latest.json`。当前只保留 ChmlFrpLauncher 管理的一个 frpc 实例；通知链恢复但仍不替代 GitHub Checks/API。
 - 恢复后首个真实 PR 推送 HEAD `a409512` 的 run `34043097374` 已由 webhook delivery `6ece08a0-aa09-11f1-944a-b2b2aad065d2` 同 SHA 接收；CI 仍为 `NOT_RUN_BILLING_BLOCKED`，证明通知链恢复但计费阻断未解除。
-- 后续提交 `c2523a9` 的 run `34043377382` 的 requested/completed delivery 分别为 `2e16b130-aa0a-11f1-86ef-dd7a956d4ed9` / `3201ce10-aa0a-11f1-8238-2c657afd3f1d`，PR 评论 delivery 为 `4be59cd0-aa0a-11f1-88f2-e2e0e3608dc3`；均已由 webhook 接收。本地/公网 health 均 200，CI 仍是 `NOT_RUN_BILLING_BLOCKED`，A1-A7 仍待管理员批准。
+- 后续提交 `c2523a9` 的 run `34043377382` 的 requested/completed delivery 分别为 `2e16b130-aa0a-11f1-86ef-dd7a956d4ed9` / `3201ce10-aa0a-11f1-8238-2c657afd3f1d`，PR 评论 delivery 为 `4be59cd0-aa0a-11f1-88f2-e2e0e3608dc3`；均已由 webhook 接收。本地/公网 health 均 200，CI 仍是 `NOT_RUN_BILLING_BLOCKED`。该快照中的“A1-A7 仍待批准”仅代表当时状态，随后已获批准。
+
+## 2026-09-06 T1 协议切片与本机验收
+
+- T1 wrapper、testbench、XPM 仿真模型、manifest 和复现入口已进入当前工作树；本机 Icarus 编译/仿真返回 `compile=0 sim=0` 并输出 `T1_PROTOCOL_SKELETON_PASS`。
+- `test_reproducibility` 与 `test_ci_fast_v1` 共 12 项全部通过；隔离入口返回 `REPRO_G0_MANIFEST_PASS` 与 `REPRO_G1_T1_PROTOCOL_SLICE_PASS`。
+- 当前只证明协议切片，覆盖复位、非法字段、模型装载、fence、固定 8 beat、结果背压、10 beat 输出和 mask epoch 回显；T1-01～T1-12 全量、T2、T3、G3 仍未完成。
+- 非法 fence、mask staging 未闭合、真实 active epoch、四流 FIFO `rst_busy` 汇合、Host 窗口/错误二级 CDC 等修复已记录在当前提交 `88905a9`。
+- GitHub Actions 额度耗尽后不再主动触发或等待 hosted runner；GitHub 仅用于版本管理和人工 PR 审查，未运行结果标记为 `NOT_RUN_BILLING_BLOCKED`。
+- 资源裁剪仍保持 `RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN`；三个保护文件不得纳入提交。
 
 ## 2026-09-04 V2 KISS 实施地图
 

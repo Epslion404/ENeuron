@@ -6,6 +6,7 @@
 - 本机回归：`python -X utf8 -m unittest -v test_reproducibility test_ci_fast_v1`，共 12 项，全部通过。
 - 隔离复现：`python -X utf8 tools/repro/verify_repository.py --t1`，返回 `REPRO_G0_MANIFEST_PASS`、`REPRO_G1_T1_PROTOCOL_SLICE_PASS`。
 - 当前工作树已包含非法 fence、mask staging/epoch、FIFO busy 汇合、CDC 二级同步和 fence epoch 回显修复；尚未提交。
+- T1 testbench 已扩展并在同频 100 MHz 下通过：响应背压字段稳定、样本进行中 mask epoch 原子性、复位重入旧数据清除；当前切片覆盖 T1-01/03/04/05/07/08/10/11 的主要路径。
 - 保护文件继续保留且不暂存：`local_prune_rtl_results.json`、`np4b_signoff_summary.json`、`np75_tmp_sparse_protocol.ys`。
 - 当前状态保持 `T1_PROTOCOL_SLICE_PROVEN / T1_FULL_PENDING`；T1-01～T1-12、T2、T3 和首次完整端到端运行未完成，资源裁剪不得提前实施。
 

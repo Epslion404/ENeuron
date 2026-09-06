@@ -125,6 +125,30 @@ module tb_npu_zynq7020_t1_wrapper;
         end
     endtask
 
+    task automatic expect_stalled_error_response;
+        logic [127:0] observed;
+        integer stall_cycle;
+        begin
+            host_rsp_ready = 1'b0;
+            while (!host_rsp_valid) @(posedge host_clk);
+            observed = host_rsp_data;
+            if (observed[127:124] !== RSP_ERROR)
+                $fatal(1, "stalled response category=%h", observed[127:124]);
+            if (observed[47:0] !== 48'd0)
+                $fatal(1, "stalled error reserved bits are nonzero: %h", observed[47:0]);
+            for (stall_cycle = 0; stall_cycle < 5; stall_cycle = stall_cycle + 1) begin
+                @(posedge host_clk);
+                if (!host_rsp_valid || host_rsp_data !== observed)
+                    $fatal(1, "response changed under backpressure");
+            end
+            @(negedge host_clk);
+            host_rsp_ready = 1'b1;
+            @(posedge host_clk);
+            @(negedge host_clk);
+            host_rsp_ready = 1'b0;
+        end
+    endtask
+
     task automatic expect_fence_response(input logic [31:0] id, input logic [31:0] epoch);
         logic [127:0] observed;
         integer timeout;
@@ -163,7 +187,8 @@ module tb_npu_zynq7020_t1_wrapper;
 
         // T1-03：保留位和未知 opcode 必须握手后产生一个错误，无副作用。
         send_cmd(4'hF, 4'h0, 32'd0, 56'd0, 32'd0);
-        expect_response(RSP_ERROR, 32'd0);
+        // T1-04：响应未被消费时 valid/payload 必须保持稳定。
+        expect_stalled_error_response();
         // 非法 fence 必须只产生错误响应，不能同时打开样本窗口或产生 0xD。
         send_cmd(OP_SAMPLE_FENCE, 4'h1, 32'd0, 56'd0, 32'h0000_00F1);
         expect_response(RSP_ERROR, 32'd0);
@@ -208,8 +233,15 @@ module tb_npu_zynq7020_t1_wrapper;
         send_cmd(OP_SAMPLE_FENCE, 4'h0, 32'd0, 56'd0, 32'h0000_00A5);
         expect_fence_response(32'h0000_00A5, 32'd0);
 
-        // T1-07：一次 fence 只开放一个 8-beat 样本窗口。
-        for (i = 0; i < 8; i = i + 1) send_sample_beat(i, 32'h1234_5678);
+        // T1-07/T1-10：首 beat 锁存 epoch=1；样本进行中发布 epoch=2，
+        // 当前结果仍必须回显 epoch=1，不能被后续 mask 污染。
+        send_sample_beat(0, 32'h1234_5678);
+        send_cmd(OP_MASK_BEGIN, 4'h0, 32'd2, 56'd0, 32'd0);
+        for (i = 0; i < 19; i = i + 1)
+            send_cmd(OP_MASK_DATA, 4'h0, 32'd0, 56'd0,
+                     (i == 18) ? 32'h0000_ffff : 32'hffff_ffff);
+        send_cmd(OP_MASK_COMMIT, 4'h0, 32'd2, 56'd0, 32'd0);
+        for (i = 1; i < 8; i = i + 1) send_sample_beat(i, 32'h1234_5678);
         @(posedge host_clk);
         if (host_sample_ready) $fatal(1, "sample window remained open after 8 beats");
 
@@ -245,6 +277,28 @@ module tb_npu_zynq7020_t1_wrapper;
 
         send_cmd(OP_SAMPLE_FENCE, 4'h0, 32'd0, 56'd0, 32'h0000_00A6);
         expect_fence_response(32'h0000_00A6, 32'd1);
+
+        // 下一样本首 beat 才激活 epoch=2；验证新结果使用新 epoch。
+        for (i = 0; i < 8; i = i + 1) send_sample_beat(i, 32'h8765_4321);
+        host_result_ready = 1'b1;
+        for (i = 0; i < 10; i = i + 1) begin
+            while (!host_result_valid) @(posedge host_clk);
+            if (host_result_sample_id !== 32'h8765_4321)
+                $fatal(1, "second result sample id changed");
+            if (host_result_mask_epoch !== 32'd2)
+                $fatal(1, "second result mask epoch changed: %h", host_result_mask_epoch);
+            @(posedge host_clk);
+        end
+
+        // T1-11：复位重入后不得泄漏旧响应或旧结果。
+        bridge_rst = 1'b1;
+        repeat (8) @(posedge host_clk);
+        if (host_cmd_ready || host_sample_ready || host_rsp_valid || host_result_valid)
+            $fatal(1, "ready/valid leaked during reset re-entry");
+        bridge_rst = 1'b0;
+        repeat (8) @(posedge host_clk);
+        if (host_rsp_valid || host_result_valid)
+            $fatal(1, "stale payload leaked after reset re-entry");
 
         $display("T1_PROTOCOL_SKELETON_PASS");
         $finish;
