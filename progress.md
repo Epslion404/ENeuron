@@ -1351,9 +1351,13 @@
 - 核对 skeleton 状态逻辑后，修正 A3 中过严的 `runtime_idle` 条件；改用 `sample_ready`、结果/响应空闲、wrapper 窗口和 staging 闭合条件，避免已发布 mask 等待首 beat 时死锁。
 - 同步修订 T0 测试合同和 findings；仍未创建 RTL，等待管理员批准。
 
-## 2026-09-05 P15-T0 当前审批门复核
+## 2026-09-06 P15-T0 当前审批门复核
 
 - 再次核对 PR #68：管理员尚未回复 A1-A7，当前仍为 `P15_T0_REVIEW_REQUIRED / NO_RTL_AUTHORIZATION`，因此不创建 T1 顶层 RTL。
 - 提交 `8cac035` 触发的最新 Actions run `33975784335` 的 Classify changes 与 PR Gate 在 runner 启动前因账户付款/额度问题失败，其余 job 被跳过；GitHub annotation 已确认原文，按 `NOT_RUN_BILLING_BLOCKED` 记录，不能当作代码失败或通过。
 - 本机 webhook 已重启，`/healthz` 返回 HTTP 200；`latest.json` 仍停留在历史 PR #63 事件，只作到达提示，GitHub Checks/API 仍是权威终态来源。
 - 轻量本地验证通过：CI-Fast `8/8`、`git diff --check` 和 P15-T0 文档锚点检查；一次附加探针误把决策状态要求到测试合同，已确认是探针职责错误而非文档漂移。
+- Nexus 审计发现 `.nexus-map/hotspots/git_forensics.md` 仍把已合并 PR #64 写成 OPEN，`concept_model.json` 的状态指针停在 PR #66；已修正为 PR #68 的提交绑定审计快照。
+- PR #68 的 HEAD/run 不再被描述为自动更新的“当前值”：快照绑定 `55ec08e` 与 run `33976357259`；后续提交不会使该历史证据失真。
+- 仓库外 webhook 已收到该 SHA 的 `workflow_run completed/failure`，与 GitHub API 的计费阻断结论一致；签名仍未验证，只作触发提示。
+- 本地接收器原先由短命 `Start-Process` 间接拉起，会随宿主回收。现已注册 Windows 计划任务 `ENeuronWebhook`，直接托管 `C:\Python314\python.exe -u webhook_server.py`；任务状态持续为 `Running`，`/healthz` 返回 HTTP 200。

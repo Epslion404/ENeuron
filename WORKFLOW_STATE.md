@@ -56,7 +56,7 @@ V2 OOC 物理门已通过，PR #64 已合并为 `main@a53a040`；PR #65 已合�
 - 资源：`2126 LUT / 1916 FF / 0 BRAM36 / 0 BRAM18 / 4 DSP48E1`；DSP utilization 与实现网表双重硬门均通过。
 - 时序：`WNS=+0.060 ns / TNS=0`，`WHS=+0.040 ns / THS=0`；setup/hold 失败端点均为 0。
 - 实现状态：`ROUTE_ERRORS=0 / DRC_ERRORS=0 / PHYSICAL_GATE=PASS`。该结论仅覆盖 OOC，不能外推真实 I/O delay、DMA、PS、Ethernet、SAIF 活动、动态功耗或板级吞吐。
-- OOC 报告及 SHA-256 已同步到 `artifacts/results/npu_single_clock_ooc_manifest.json`；Webhook 当前不可用，CI 终态以 GitHub Checks/API 为权威。
+- OOC 报告及 SHA-256 已同步到 `artifacts/results/npu_single_clock_ooc_manifest.json`；Webhook 只作到达提示，CI 终态以 GitHub Checks/API 为权威。
 
 ## 2026-09-05 P15-T0 当前门
 
@@ -64,6 +64,12 @@ V2 OOC 物理门已通过，PR #64 已合并为 `main@a53a040`；PR #65 已合�
 - 推荐方案 A：保留 128-bit 命令/响应异步 FIFO，新增完整 payload 为 64-bit 样本 FIFO 和 96-bit 结果 FIFO；AXI-Stream 放在 FIFO 外，AXI-Lite/DMA/Ethernet/PS7 留在后续层。
 - 当前状态为 `PROPOSED / ADMIN_REVIEW_REQUIRED / NO_RTL_AUTHORIZATION`。`docs/planning/NPU_ZYNQ7020_TOPLEVEL_T0_AUDIT_V1.md` 及其二次复核已记录字段/版本、V1/V2 framing、跨流 fence、reset-busy/状态 CDC、AXI sideband 错误语义、FIFO 参数和器件约束等阻断；A1-A7 建议已修订但尚待批准。T1 纯 RTL 适配器、T2 双时钟协同仿真和 T3 顶层 OOC 均等待 T0 补齐并批准。
 - 保护文件仍为 `local_prune_rtl_results.json`、`np4b_signoff_summary.json`、`np75_tmp_sparse_protocol.ys`，不得纳入后续提交。
+
+## 2026-09-06 P15-T0 审计快照与通知通道
+
+- PR #68 的持久证据按审计快照记录，不再把开放 PR 的 HEAD/run 声明为自动更新的当前值；实时状态必须查询 GitHub API。
+- 快照 HEAD `55ec08e` 对应 run `33976357259`，runner 因账户付款/额度问题未启动，状态为 `NOT_RUN_BILLING_BLOCKED`。
+- 仓库外 webhook 已收到同一 SHA 的完成事件；接收器改由 Windows 计划任务 `ENeuronWebhook` 直接托管 Python，任务为 `Running` 且 `/healthz` 返回 HTTP 200。签名未验证，故通知仍不作为合并证据。
 
 ## 2026-09-04 V2 KISS 实施地图
 

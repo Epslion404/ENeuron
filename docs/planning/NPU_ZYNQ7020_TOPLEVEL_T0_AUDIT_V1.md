@@ -13,11 +13,11 @@
 - `docs/planning/NPU_ORACLE_SINGLE_CLOCK_CONTRACT_V3.md`
 - `docs/planning/NPU_ZYNQ7020_TOPLEVEL_T0_DECISION_ADDENDUM_V1.md`
 
-## 0. 当前审核窗口（2026-09-05）
+## 0. 审计快照（2026-09-06）
 
-- 当前 PR 为 #68，状态 `OPEN / MERGEABLE / UNSTABLE`，审计 HEAD 为 `6a2f30e5385f246262fa399c8f9a5faff3fea863`。
-- 最新 Actions run `33976158999` 在 runner 启动前因账户付款/额度限制阻断，归类为 `NOT_RUN_BILLING_BLOCKED`；这不是代码失败，也不是通过证据。
-- 本地 webhook `http://127.0.0.1:2355/healthz` 已恢复 HTTP 200，但 `latest.json` 仍为历史 PR #63 事件；CI 终态以 GitHub Checks/API 为权威。
+- 本节是一次可追溯快照，不承担自动更新“当前 HEAD”的职责：PR #68 在 HEAD `55ec08eb74f68c46a8a65a016242faa3875c239d` 时为 `OPEN / MERGEABLE / UNSTABLE`。
+- 对应 Actions run `33976357259` 在 runner 启动前因账户付款/额度限制阻断，归类为 `NOT_RUN_BILLING_BLOCKED`；这不是代码失败，也不是通过证据。
+- 仓库外 webhook 已收到同一 SHA 的 `workflow_run completed/failure`，但 `signature_verified=false`；CI 终态以 GitHub Checks/API 为权威。
 - A1-A7 仍为待管理员批准的提案；TR7-TR12 已批准，V2 单时钟 OOC 已通过（`2126 LUT / 1916 FF / 0 BRAM / 4 DSP48E1`，100 MHz `WNS=+0.060 ns / TNS=0 / WHS=+0.040 ns`，setup/hold/route/DRC 零失败）。
 
 ## 1. 审计结论

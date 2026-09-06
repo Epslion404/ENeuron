@@ -1,15 +1,19 @@
 # 单神经元硬件基石模拟计划
 
-## 2026-09-05 P15-T0 当前审批门复核
+## 2026-09-06 P15-T0 当前审批门复核
 
 - [x] 再次确认管理员已同意 TR7-TR12；V2 RTL、功能回归和 Vivado OOC 已完成，不重复修改计算核。
 - [x] 核对 PR #68：A1-A7 尚未收到管理员逐项裁定，当前仍为 `P15_T0_REVIEW_REQUIRED / NO_RTL_AUTHORIZATION`。
 - [x] 核对 PR #68 CI：提交 `8cac035` 触发的最新 run `33975784335` 在 runner 启动前因账户付款/额度问题失败；annotation 已确认原文，按 `NOT_RUN_BILLING_BLOCKED` 记录，不视为代码失败或通过。
 - [x] 已重启本机 webhook；`http://127.0.0.1:2355/healthz` 返回 HTTP 200，但 `latest.json` 仍是历史 PR #63 事件，不能替代 GitHub Checks/API 权威结果。
 - [x] 轻量验证通过：CI-Fast `8/8`、`git diff --check`；P15-T0 文档锚点检查通过。
+- [x] 修正持久状态建模：PR HEAD/run 只记录为提交绑定的审计快照，不再写成会因本 PR 下一次提交立刻过期的“当前值”。
+- [x] 仓库外 webhook 改由 Windows 计划任务 `ENeuronWebhook` 直接托管 Python 进程；任务保持 `Running`，健康检查返回 HTTP 200，启动脚本可幂等复用。
 - [ ] 等待管理员批准 P15-T0 方案 A 与 A1-A7；批准前不创建 T1 顶层 RTL。
 
 本轮误报记录：附加探针曾把 `NO_RTL_AUTHORIZATION` 错要求出现在 T0 测试合同；实际该状态属于决策附录/决策表，测试合同使用 `T1_BLOCKED`，已通过文档职责核对纠正，未修改合同语义。
+
+本轮错误记录：首次计划任务仍调用短命 `start_webhook.ps1`，Python 子进程被任务宿主回收；改为计划任务直接执行 `C:\Python314\python.exe -u webhook_server.py` 后稳定。一次启停联测超过命令输出等待窗口，只显示停止阶段；后续从任务状态、进程和 HTTP 200 证明启动已完成。独立 P15 子代理因外部服务额度返回 403，未产生修改；所需审计由当前任务和 Nexus 子代理完成。
 
 ## 2026-09-05 V2 时序修复实施启动
 

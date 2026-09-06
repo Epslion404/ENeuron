@@ -1238,3 +1238,11 @@
 - PR #64 HEAD 与上述实现提交一致，GitHub Actions run `33946568679` 全绿；Webhook 掉线仅记录为通知通道缺失。
 - OOC 结论仍不覆盖板级 I/O、DMA、PS、Ethernet、动态功耗和持续学习；下一阶段必须另行完成顶层与板级签核。
 - 2026-09-05：P15-T0 审查结论为“方案 A 最小且可归因”：现有 Host Bridge 不能直接承载 32-bit 样本/结果，因此不把样本塞入 128-bit 配置流；新增 FIFO 的资源与时序必须在 T1/T3 单独测量。AXI、DMA、Ethernet、PS7 暂不进入核心。
+
+## 2026-09-06 P15-T0 状态与 webhook 持久性审计
+
+- 在同一开放 PR 中把 HEAD 和 Actions run 写成“当前值”会产生自指漂移：提交该文档后 HEAD/run 必然改变。正确做法是明确写成“审计快照”，绑定当时 SHA 与 run，实时状态始终从 GitHub API 查询。
+- PR #68 快照绑定 HEAD `55ec08eb74f68c46a8a65a016242faa3875c239d` 与 run `33976357259`。GitHub annotation 明确 runner 因账户付款/额度问题未启动，状态是 `NOT_RUN_BILLING_BLOCKED`，不是代码失败，也不是通过证据。
+- 仓库外 webhook 成功收到同一 SHA 的 `workflow_run completed/failure`，说明 chmlfrp 到本机的事件路径实际可用；`signature_verified=false`，因此只能触发复核，不能取代 GitHub Checks/API。
+- `start_webhook.ps1` 使用 `Start-Process` 启动后台 Python 时，在当前任务宿主下子进程会在调用环境结束后被回收。将 Windows 计划任务的 Action 改为直接运行 Python 后，计划任务保持 `Running`，健康检查稳定返回 HTTP 200。
+- 仓库外启动/停止脚本已改为优先控制计划任务；未安装计划任务时才退回旧的直接进程路径。该运维修订不进入 ENeuron 仓库。
