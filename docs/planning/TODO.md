@@ -8,6 +8,7 @@
 - [ ] 若批准 C1/C2，先建立独立 A/B OOC 顶层和逐拍等价测试，不覆盖训练基线。
 - [ ] C3 固定拓扑特化、C4 ID/epoch 缩短、C5 调试端口关闭暂不实施，等待 C1/C2 实测收益。
 - [ ] C6-C9（删除快照、原地更新、FIFO 合并/缩深、位宽缩减）必须单独形成新裁定，当前禁止直接改签核 RTL。
+- [x] 管理员决定：所有资源裁剪延后到第一次完整端到端运行成功之后；此前只完成 T1/T2/T3 证据，不改裁剪基线。
 
 日期：2026-08-19  
 状态：`V2_IMPLEMENTED / VIVADO_OOC_100MHZ_PASS`；实施状态：`P8_NETWORK_SIGNED_OFF / PR64_MERGED / TR1_TR6_APPROVED / TR7_TR12_APPROVED / RTL_TIMING_REPAIR_GREEN / FULL_REGRESSION_GREEN / DSP_GATE_PASS / VIVADO_OOC_PASS`

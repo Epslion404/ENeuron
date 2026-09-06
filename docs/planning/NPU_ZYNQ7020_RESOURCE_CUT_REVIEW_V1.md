@@ -1,6 +1,6 @@
 # XC7Z020 资源裁剪审查 V1
 
-状态：`REVIEW_REQUIRED / 不执行 RTL 删除`
+状态：`DEFERRED_UNTIL_FIRST_END_TO_END_RUN / 不执行 RTL 删除`
 
 日期：2026-09-07
 
@@ -157,3 +157,16 @@
 ## 5. 结论
 
 当前最有价值的资源路线不是删除神经元核心行为，而是把“训练期硬件”和“冻结推理期硬件”拆成两个构建配置：训练版保留 M1-M4 的完整证据，推理版删除在线模型上传、eligibility、snapshot 和调制提交，并把模型放入初始化 ROM/BRAM。这样风险可隔离、收益可实测，也不会误伤已经批准的 A1-A7、CDC、原子性和四 DSP 合同。
+
+## 6. 管理员决策记录
+
+管理员决定：**等项目第一次完整端到端运行成功后，再考虑实施本审查中的资源裁剪。**
+
+在首次跑通之前：
+
+- 不实施 C1-C9；
+- 不删除学习状态、snapshot、工作副本、FIFO、CDC、sideband 或 debug/telemetry；
+- 不把推测的资源收益写入当前物理基线；
+- 只允许继续完成 T1/T2/T3 的功能、双时钟、Vivado OOC 和端到端证据。
+
+首次跑通后，按 C5a telemetry off、C1 model BRAM 化、C2 `INFER_ONLY` 三个方向重新排序，并分别建立 A/B 版本、回归证据和 XC7Z020 Vivado 资源差值。
