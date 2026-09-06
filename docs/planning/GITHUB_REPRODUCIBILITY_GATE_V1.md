@@ -2,7 +2,7 @@
 
 状态：`G0_G1_IMPLEMENTED / T1_PROTOCOL_SLICE_PROVEN / G2_REQUIRES_VIVADO`
 
-日期：2026-09-07
+日期：2026-09-06
 
 ## 1. 目标
 
@@ -15,11 +15,11 @@
 当前可判定为 `PARTIAL / T1_PROTOCOL_SLICE_PROVEN`：
 
 - 从 `git archive HEAD` 解出的干净快照中，CI-Fast、NPU Oracle 和产物索引共 57 项测试通过，证明已提交基线的一部分不依赖当前工作树。
-- 当前 T1 的 `npu_zynq7020_t1_wrapper.sv`、`tb_npu_zynq7020_t1_wrapper.sv` 和测试计划尚未全部进入 GitHub；wrapper 仍有未声明信号和声明顺序问题，不能编译，因此不得把 T1 写成可复现。
+- T1 wrapper、testbench、测试计划和 XPM 仿真模型已进入 GitHub；协议切片可在隔离归档中重放，但 T1-01～T1-12 全覆盖仍未完成。
 - 已新增 `requirements-repro.txt` 和工具链锁定文件；完整数据集重新生成仍需单独验证 scikit-learn 版本兼容性。
 - Vivado runner 已支持 `-VivadoRoot` 或 `VIVADO_ROOT`；未提供参数时仍保留本机默认路径，便于当前维护机直接运行。
 - 现有 OOC manifest 已绑定 RTL、Tcl、runner、报告 SHA-256、器件、时钟与 Vivado 版本；已新增 `REPRODUCE.md` 与统一检查器。
-- `artifacts/README.md` 仍把当前单时钟 OOC 描述为 setup 未收敛，与 `npu_single_clock_ooc_manifest.json` 的 V2 `VIVADO_OOC_PASS` 不一致，必须修正。
+- `artifacts/README.md` 已修正为当前单时钟 OOC 的 `VIVADO_OOC_PASS` 状态。
 - GitHub Actions 使用 `actions/checkout@v7`、`actions/setup-python@v7` 等可移动标签。GitHub 当前安全建议是使用完整 commit SHA 才能得到不可变 action 版本；实施时应锁定 SHA，并在同行注释保留对应发布标签。
 
 ## 3. 复现层级
@@ -100,6 +100,10 @@ GitHub-hosted runner 执行 G0/G1 和已提交物理证据的完整性检查；V
 ### R9：发布阻断
 
 首次端到端跑通、资源裁剪版本或新的物理性能声明，在对应 G0-G3 门未通过前不得合并为“已复现”状态。CI 因账户计费未启动时只能记录 `NOT_RUN_BILLING_BLOCKED`，本地通过不能冒充同一 HEAD 的 GitHub CI 通过。
+
+## 8. GitHub 计费边界（2026-09-06）
+
+管理员已明确当前额度耗尽，不再使用 GitHub 的付费功能。因此后续验收不主动触发或等待 GitHub-hosted Actions；本阶段以本机工具链、`git archive` 隔离重放和本机 Vivado 为权威证据。GitHub 仓库、分支和 PR 仍用于版本归档与人工审查，但未运行的 Actions 只能标记为 `NOT_RUN_BILLING_BLOCKED`。
 
 ## 5. 验收标准
 

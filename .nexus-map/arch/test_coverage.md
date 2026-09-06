@@ -8,7 +8,7 @@ provenance: repository test names, signoff summaries, workflow state, latest Git
 
 NP6 结论为部分通过，NP7 已签核。OF1-OF6 Python oracle 保持 48/48。V2 已通过单时钟专项、固定 `20×100` 和完整仓库 `475 tests / OK (skipped=1)`；PR #64 run `33946568679` 的必需门全部成功。Vivado 已确认 4 个 DSP48E1、setup/hold/route/DRC 全部通过；板级性能仍未完成。
 
-P15-T0 方案 A 与 A1-A7 已获批准，但当前只有实施授权：T1 纯 RTL wrapper、四条 XPM async FIFO 与 AXI shim 尚无完成测试证据；T2 可变双时钟、复位/背压/重入验证和 T3 `xc7z020clg400-1` OOC 也尚未通过。资源裁剪审查不构成实现证据，且所有裁剪已推迟到第一次完整端到端跑通之后。
+P15-T0 方案 A 与 A1-A7 已获批准。T1 wrapper、testbench、四条 XPM async FIFO、AXI shim 和复现 manifest 已进入仓库，统一入口在隔离快照中通过 G0/G1 与 T1 协议切片；当前证据只覆盖复位、非法字段、模型装载、fence、固定 8 beat、结果背压和 10 beat 输出等协议场景，不构成 T1-01～T1-12 全量签核。T2 可变双时钟、复位/背压/重入扩展验证和 T3 `xc7z020clg400-1` OOC 仍未通过。资源裁剪审查不构成实现证据，且所有裁剪已推迟到第一次完整端到端跑通之后。
 
 ## 当前签核门（V2 OOC 后）
 

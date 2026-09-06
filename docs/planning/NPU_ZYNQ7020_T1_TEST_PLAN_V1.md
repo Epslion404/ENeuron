@@ -1,8 +1,8 @@
 # XC7Z020 顶层 T1 纯 RTL 验证方案 V1
 
-状态：`TEST_SKELETON_READY / DUT_PENDING`
+状态：`PROTOCOL_SLICE_GREEN / FULL_MATRIX_PENDING`
 
-日期：2026-09-07
+日期：2026-09-06
 
 关联合同：
 
@@ -14,7 +14,7 @@
 
 本方案只验证 T1 纯 RTL 适配器：四条异步 FIFO、命令仲裁、SAMPLE_FENCE、固定 8/10 beat、错误响应、ready/valid 稳定性和复位丢弃。它不验证 AXI-Lite、DMA、Ethernet、PS7 或板级吞吐，也不修改 `npu_eneuron_single_clock_skeleton.sv`。
 
-当前工作树已有 P15 T1 wrapper 初版，但尚未完成编译和合同审查；因此 `tb_npu_zynq7020_t1_wrapper.sv` 仍是待签核 DUT 的测试骨架，不构成仿真通过证据。DUT 接口稳定后，先在 T1 同频 100 MHz 运行；不同频比与随机相位属于 T2。
+当前已完成同频 100 MHz 协议切片：Icarus 编译和仿真均返回 0，并输出 `T1_PROTOCOL_SKELETON_PASS`。该切片覆盖 T1-01、T1-03、T1-05、T1-07、T1-08 的主要路径；其余 T1 项目仍需独立测试，不得写成完整 T1 通过。不同频比与随机相位属于 T2。
 
 ## 2. 推荐 DUT 端口
 
@@ -83,7 +83,7 @@ C:\msys64\ucrt64\bin\vvp.exe artifacts\t1_wrapper.vvp
 
 ## 7. T1 通过门
 
-- T1-01～T1-12 均有确定结果；负向场景必须确实失败于被测错误，而不是 testbench 超时。
+- 当前协议切片已通过；T1-01～T1-12 全量签核仍要求每项有独立确定结果，负向场景必须确实失败于被测错误，而不是 testbench 超时。
 - 同频 100 MHz 下逐 beat、sideband、错误和 reset 行为通过；数值结果与单时钟参考模型一致。
 - 不把 T1 结果写成 T2 CDC 全覆盖或 T3 XC7Z020 资源/时序通过。
 - T1 未通过前不得实施资源裁剪、接入 DMA/Ethernet 或合并板级结论。

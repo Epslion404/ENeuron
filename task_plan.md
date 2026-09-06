@@ -1,3 +1,12 @@
+# 2026-09-06 本机验收与 GitHub 计费边界
+
+- [x] 确认当前 GitHub Actions 额度耗尽；后续不主动触发或等待 GitHub-hosted Actions。
+- [x] 本机执行 `python -X utf8 -m unittest -v test_reproducibility test_ci_fast_v1`：12/12 通过。
+- [x] 本机执行 `python -X utf8 tools/repro/verify_repository.py --t1`：`REPRO_G0_MANIFEST_PASS`、`REPRO_G1_T1_PROTOCOL_SLICE_PASS`。
+- [x] 核对 T1 修复：非法 fence、mask staging/epoch、四流 FIFO busy 汇合、CDC 二级同步和 fence 响应回显均已纳入当前工作树。
+- [ ] 将本轮修复提交到当前分支；提交前继续排除 `local_prune_rtl_results.json`、`np4b_signoff_summary.json`、`np75_tmp_sparse_protocol.ys`。
+- [ ] T1-01～T1-12 全覆盖、T2 双时钟、T3 XC7Z020 OOC 和首次完整端到端运行仍待完成；资源裁剪继续延期。
+
 # 单神经元硬件基石模拟计划
 
 ## 2026-09-07 GitHub 可复现性门审核

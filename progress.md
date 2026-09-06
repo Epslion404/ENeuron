@@ -1,5 +1,14 @@
 # 进度记录
 
+## 2026-09-06 本机验收与计费边界
+
+- 管理员确认当前 GitHub Actions 额度耗尽，后续不再使用 GitHub 付费功能；本阶段不主动触发或等待 GitHub-hosted Actions。GitHub 仍保留版本管理、PR 和人工审查用途。
+- 本机回归：`python -X utf8 -m unittest -v test_reproducibility test_ci_fast_v1`，共 12 项，全部通过。
+- 隔离复现：`python -X utf8 tools/repro/verify_repository.py --t1`，返回 `REPRO_G0_MANIFEST_PASS`、`REPRO_G1_T1_PROTOCOL_SLICE_PASS`。
+- 当前工作树已包含非法 fence、mask staging/epoch、FIFO busy 汇合、CDC 二级同步和 fence epoch 回显修复；尚未提交。
+- 保护文件继续保留且不暂存：`local_prune_rtl_results.json`、`np4b_signoff_summary.json`、`np75_tmp_sparse_protocol.ys`。
+- 当前状态保持 `T1_PROTOCOL_SLICE_PROVEN / T1_FULL_PENDING`；T1-01～T1-12、T2、T3 和首次完整端到端运行未完成，资源裁剪不得提前实施。
+
 ## 2026-09-07 GitHub 可复现性门规划
 
 - 对当前 `HEAD=fc47dc9` 生成 `git archive` 隔离快照，在快照内运行 CI-Fast、NPU Oracle 和 artifact layout，共 57 项通过。

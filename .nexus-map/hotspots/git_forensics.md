@@ -1,10 +1,10 @@
 # Git 热点
 
-当前状态校正（2026-09-07）：PR #64 已合并为 `main@a53a040`；V2 OOC 报告绑定 `f744bff`，GitHub Actions run `33948293095` 全绿。PR #68 的可追溯审计快照绑定 HEAD `55ec08e` 与 run `33976357259`，不把它们声明为会自动更新的当前值。P15-T0 的 A1-A7 已获管理员批准，当前为 `P15_T0_APPROVED / T1_RTL_AUTHORIZED / T1_NOT_IMPLEMENTED`；资源裁剪已记录但推迟至首次完整端到端运行成功后。
+当前状态校正（2026-09-07）：PR #64 已合并为 `main@a53a040`；V2 OOC 报告绑定 `f744bff`，GitHub Actions run `33948293095` 全绿。PR #68 的 `55ec08e`/run `33976357259` 是历史可追溯审计快照，不是当前值。P15-T0 的 A1-A7 已获管理员批准，当前为 `P15_T0_APPROVED / T1_RTL_AUTHORIZED / T1_PROTOCOL_SLICE_PROVEN / T1_FULL_PENDING`；资源裁剪已记录但推迟至首次完整端到端运行成功后。
 
-## 当前 V2 状态（2026-09-05）
+## V2 历史审计快照（2026-09-05）
 
-该审计快照中 PR #68 为 `OPEN / MERGEABLE / UNSTABLE`。Actions run `33976357259` 在 runner 启动前因账户付款/额度限制阻断，归类为 `NOT_RUN_BILLING_BLOCKED`，不能视为代码失败或通过；仓库外 webhook 已收到同一 SHA 的 `workflow_run completed/failure`，但签名未验证，GitHub Checks/API 为权威来源。2026-09-06 chmlfrp 恢复后，本地/公网 health 均为 200，GitHub 官方 ping delivery `ee543f6e-aa08-11f1-84fd-d4849c4dec76` 返回 200 并写入接收器。V2 OOC 仍绑定 `f744bff2bdde68e138a7b2b348ce103bec1ab469`，资源为 `2126 LUT / 1916 FF / 4 DSP48E1`，100 MHz setup/hold/route/DRC 全部通过；TR7-TR12 已批准。P15-T0 方案 A 和 A1-A7 已批准，T1 纯 RTL wrapper 仅获授权、尚未完成；T2/T3 仍待证据。资源裁剪候选不得在首次完整端到端跑通前实施。用户文件 `np75_tmp_sparse_protocol.ys` 继续排除在提交和 Nexus 文件树之外。
+该审计快照中 PR #68 为 `OPEN / MERGEABLE / UNSTABLE`。Actions run `33976357259` 在 runner 启动前因账户付款/额度限制阻断，归类为 `NOT_RUN_BILLING_BLOCKED`，不能视为代码失败或通过；仓库外 webhook 已收到同一 SHA 的 `workflow_run completed/failure`，但签名未验证，GitHub Checks/API 为权威来源。2026-09-06 chmlfrp 恢复后，本地/公网 health 均为 200，GitHub 官方 ping delivery `ee543f6e-aa08-11f1-84fd-d4849c4dec76` 返回 200 并写入接收器。V2 OOC 仍绑定 `f744bff2bdde68e138a7b2b348ce103bec1ab469`，资源为 `2126 LUT / 1916 FF / 4 DSP48E1`，100 MHz setup/hold/route/DRC 全部通过；TR7-TR12 已批准。P15-T0 方案 A 和 A1-A7 已批准；T1 协议切片已进入仓库并可由本地 G0/G1 复现，但 T1 全量、T2/T3 仍待证据。当前 PR #68 head=`3006174` 对应 run `34051222089`，GitHub Checks 显示 `Classify changes=fail`、`PR Gate=fail`、`T1 reproducibility slice=skipped`；不得把本地协议切片 PASS 写成 GitHub CI PASS。资源裁剪候选不得在首次完整端到端跑通前实施。用户文件 `np75_tmp_sparse_protocol.ys` 继续排除在提交和 Nexus 文件树之外。
 
 generated_by: nexus-mapper v2 / manual synthesis
 verified_at: 2026-09-07

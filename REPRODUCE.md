@@ -1,6 +1,6 @@
 # ENeuron 复现入口
 
-在全新 clone 或 `git archive HEAD` 快照根目录执行：
+在全新 clone 或 `git archive HEAD` 快照根目录执行（不依赖 GitHub Actions）：
 
 ```powershell
 python -X utf8 tools/repro/verify_repository.py --t1
@@ -16,4 +16,4 @@ $env:VIVADO_ROOT = 'G:\Xilinx\Vivado\2024.1'
 .\run_vivado_npu_single_clock_ooc.ps1 -VivadoRoot $env:VIVADO_ROOT
 ```
 
-物理门只覆盖单时钟 OOC，不覆盖网口、DMA、PS、板级吞吐或功耗。
+物理门只覆盖单时钟 OOC，不覆盖网口、DMA、PS、板级吞吐或功耗。当前额度耗尽后不再把 GitHub-hosted Actions 作为验收依赖；本机结果必须绑定 Git HEAD 并保留命令输出。

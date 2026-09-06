@@ -1,7 +1,7 @@
 `timescale 1ns/1ps
 
-// P15 T1 协议骨架。当前工作树已有 wrapper 初版，但尚未完成编译签核；
-// DUT 修正后按文档中的 T1-01..T1-12 执行。
+// P15 T1 协议切片。当前覆盖复位、非法字段、模型装载、fence、
+// 单样本窗口和结果背压；尚未声称 T1-01..T1-12 全部通过。
 // 仅使用同频 100 MHz；非整数频比和随机相位属于 T2。
 module tb_npu_zynq7020_t1_wrapper;
     localparam logic [3:0] OP_MODEL_BEGIN  = 4'h1;
@@ -10,6 +10,7 @@ module tb_npu_zynq7020_t1_wrapper;
     localparam logic [3:0] OP_MASK_BEGIN   = 4'h4;
     localparam logic [3:0] OP_MASK_DATA    = 4'h5;
     localparam logic [3:0] OP_MASK_COMMIT  = 4'h6;
+    localparam logic [3:0] OP_MASK_ABORT   = 4'h7;
     localparam logic [3:0] OP_STATE_CLEAR  = 4'h8;
     localparam logic [3:0] OP_FREEZE_SET   = 4'h9;
     localparam logic [3:0] OP_SAMPLE_FENCE = 4'hA;
@@ -124,6 +125,23 @@ module tb_npu_zynq7020_t1_wrapper;
         end
     endtask
 
+    task automatic expect_fence_response(input logic [31:0] id, input logic [31:0] epoch);
+        logic [127:0] observed;
+        integer timeout;
+        begin
+            host_rsp_ready = 1'b1;
+            timeout = 0;
+            while (!host_rsp_valid && timeout < 200) begin @(posedge host_clk); timeout = timeout + 1; end
+            if (!host_rsp_valid) $fatal(1, "timeout waiting fence response");
+            observed = host_rsp_data;
+            if (observed[127:124] !== RSP_FENCE) $fatal(1, "fence response category=%h", observed[127:124]);
+            if (observed[111:80] !== id) $fatal(1, "fence id=%h expected=%h", observed[111:80], id);
+            if (observed[79:48] !== epoch) $fatal(1, "fence epoch=%h expected=%h", observed[79:48], epoch);
+            @(negedge host_clk);
+            host_rsp_ready = 1'b0;
+        end
+    endtask
+
     task automatic expect_no_sample_ready(input integer cycles);
         integer i;
         begin
@@ -146,6 +164,10 @@ module tb_npu_zynq7020_t1_wrapper;
         // T1-03：保留位和未知 opcode 必须握手后产生一个错误，无副作用。
         send_cmd(4'hF, 4'h0, 32'd0, 56'd0, 32'd0);
         expect_response(RSP_ERROR, 32'd0);
+        // 非法 fence 必须只产生错误响应，不能同时打开样本窗口或产生 0xD。
+        send_cmd(OP_SAMPLE_FENCE, 4'h1, 32'd0, 56'd0, 32'h0000_00F1);
+        expect_response(RSP_ERROR, 32'd0);
+        expect_no_sample_ready(4);
         send_cmd(OP_MODEL_BEGIN, 4'h1, 32'd0, 56'd0, 32'd0);
         expect_response(RSP_ERROR, 32'd0);
         send_cmd(OP_MODEL_BEGIN, 4'h0, 32'd0, 56'd1, 32'd0);
@@ -159,17 +181,32 @@ module tb_npu_zynq7020_t1_wrapper;
         begin : model_sync_wait
             integer sync_cycles;
             sync_cycles = 0;
-            while (!host_model_valid && sync_cycles < 16) begin
+        while (!host_model_valid && sync_cycles < 16) begin
                 @(posedge host_clk);
                 sync_cycles = sync_cycles + 1;
-            end
+        end
             if (!host_model_valid) $fatal(1, "model_valid did not assert after commit");
+
+        // T1-06：mask staging 未闭合时 fence 必须拒绝且不得开放样本窗口。
+        send_cmd(OP_MASK_BEGIN, 4'h0, 32'd1, 56'd0, 32'd0);
+        send_cmd(OP_MASK_DATA, 4'h0, 32'd0, 56'd0, 32'h0000_0001);
+        send_cmd(OP_SAMPLE_FENCE, 4'h0, 32'd0, 56'd0, 32'h0000_00F2);
+        expect_response(RSP_ERROR, 32'd0);
+        expect_no_sample_ready(4);
+        send_cmd(OP_MASK_ABORT, 4'h0, 32'd0, 56'd0, 32'd0);
+
+        // 发布 epoch=1 mask，首个样本激活后，后续 fence 必须回显 active epoch=1。
+        send_cmd(OP_MASK_BEGIN, 4'h0, 32'd1, 56'd0, 32'd0);
+        for (i = 0; i < 19; i = i + 1)
+            send_cmd(OP_MASK_DATA, 4'h0, 32'd0, 56'd0,
+                     (i == 18) ? 32'h0000_ffff : 32'hffff_ffff);
+        send_cmd(OP_MASK_COMMIT, 4'h0, 32'd1, 56'd0, 32'd0);
         end
 
         // T1-05：fence 前禁止样本握手，不能预填 sample FIFO。
         expect_no_sample_ready(8);
         send_cmd(OP_SAMPLE_FENCE, 4'h0, 32'd0, 56'd0, 32'h0000_00A5);
-        expect_response(RSP_FENCE, 32'h0000_00A5);
+        expect_fence_response(32'h0000_00A5, 32'd0);
 
         // T1-07：一次 fence 只开放一个 8-beat 样本窗口。
         for (i = 0; i < 8; i = i + 1) send_sample_beat(i, 32'h1234_5678);
@@ -201,8 +238,13 @@ module tb_npu_zynq7020_t1_wrapper;
             while (!host_result_valid) @(posedge host_clk);
             if (host_result_sample_id !== 32'h1234_5678)
                 $fatal(1, "result sample id changed");
+            if (host_result_mask_epoch !== 32'd1)
+                $fatal(1, "result mask epoch changed: %h", host_result_mask_epoch);
             @(posedge host_clk);
         end
+
+        send_cmd(OP_SAMPLE_FENCE, 4'h0, 32'd0, 56'd0, 32'h0000_00A6);
+        expect_fence_response(32'h0000_00A6, 32'd1);
 
         $display("T1_PROTOCOL_SKELETON_PASS");
         $finish;

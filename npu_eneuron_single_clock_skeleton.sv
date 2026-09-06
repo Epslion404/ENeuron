@@ -30,7 +30,10 @@ module npu_eneuron_single_clock_skeleton (
     output logic        model_valid,
     output logic        mask_valid,
     output logic        infer_frozen,
-    output logic [31:0] state_clear_count
+    output logic [31:0] state_clear_count,
+    // 仅用于顶层 fence 判定和原子 epoch 回显，不改变计算数据路径。
+    output logic [31:0] active_mask_epoch,
+    output logic        mask_staging_open
 );
     localparam logic [3:0] OP_MODEL_BEGIN  = 4'h1;
     localparam logic [3:0] OP_MODEL_DATA   = 4'h2;
@@ -222,6 +225,8 @@ module npu_eneuron_single_clock_skeleton (
         result_data = result_active ? logit_values[result_beat_index] : 32'd0;
         result_sample_id = result_sample_id_reg;
         result_mask_epoch = result_mask_epoch_reg;
+        active_mask_epoch = mask_active_epoch;
+        mask_staging_open = (mask_state == MASK_LOADING) || (mask_state == MASK_COMPLETE);
         runtime_idle = !sample_active && !compute_active && !result_active && !rsp_valid &&
                        ((model_state == MODEL_EMPTY) || (model_state == MODEL_COMMITTED)) &&
                        (mask_state == MASK_EMPTY) &&

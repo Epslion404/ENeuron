@@ -78,6 +78,8 @@ module npu_zynq7020_t1_wrapper #(
     logic [31:0] core_sample_data, core_sample_id;
     logic core_runtime_idle, core_model_valid, core_mask_valid, core_infer_frozen;
     logic [31:0] core_state_clear_count;
+    logic [31:0] core_active_mask_epoch;
+    logic core_mask_staging_open;
 
     logic sample_window_open_npu;
     logic [3:0] sample_count_npu;
@@ -92,7 +94,13 @@ module npu_zynq7020_t1_wrapper #(
     logic [1:0] model_valid_host_sync, mask_valid_host_sync, infer_frozen_host_sync;
     logic [1:0] error_host_sync;
     logic [31:0] fence_id_npu;
-    logic host_window_active_npu_d1, host_window_active_npu_d2;
+    // Host 窗口状态不能直接在 npu_clk 域采样；这里使用两级同步器。
+    logic sample_window_open_host_npu_d1, sample_window_open_host_npu_d2;
+    // 四条 FIFO 的远端 busy 通过两级同步后汇合，避免某一条流单独泄漏握手。
+    logic [1:0] host_cmd_rd_busy_sync, host_rsp_wr_busy_sync;
+    logic [1:0] host_sample_rd_busy_sync, host_result_wr_busy_sync;
+    logic [1:0] npu_cmd_wr_busy_sync, npu_rsp_rd_busy_sync;
+    logic [1:0] npu_sample_wr_busy_sync, npu_result_rd_busy_sync;
 
     xpm_fifo_async #(
         .FIFO_MEMORY_TYPE("auto"), .ECC_MODE("no_ecc"), .RELATED_CLOCKS(0),
@@ -177,13 +185,50 @@ module npu_zynq7020_t1_wrapper #(
         ((command_opcode != 4'h9) && (|cmd_dout[123:120])) ||
         ((command_opcode == 4'h9) && (|cmd_dout[123:121])) ||
         (command_is_fence && (|cmd_dout[119:88]));
-    wire command_fifo_ready_npu = !npu_rst && !cmd_rd_rst_busy && !sample_rd_rst_busy;
-    wire response_fifo_ready_npu = !npu_rst && !rsp_wr_rst_busy && !rsp_full;
-    wire result_fifo_ready_npu = !npu_rst && !result_wr_rst_busy && !result_full;
+    wire command_fifo_ready_npu = !npu_rst && !npu_any_fifo_busy;
+    wire response_fifo_ready_npu = !npu_rst && !npu_any_fifo_busy && !rsp_full;
+    wire result_fifo_ready_npu = !npu_rst && !npu_any_fifo_busy && !result_full;
+    wire fence_staging_blocked = command_is_fence && core_mask_staging_open;
+    wire host_any_fifo_busy = cmd_wr_rst_busy || sample_wr_rst_busy ||
+        rsp_rd_rst_busy || result_rd_rst_busy ||
+        host_cmd_rd_busy_sync[1] || host_rsp_wr_busy_sync[1] ||
+        host_sample_rd_busy_sync[1] || host_result_wr_busy_sync[1];
+    wire npu_any_fifo_busy = cmd_rd_rst_busy || sample_rd_rst_busy ||
+        rsp_wr_rst_busy || result_wr_rst_busy ||
+        npu_cmd_wr_busy_sync[1] || npu_rsp_rd_busy_sync[1] ||
+        npu_sample_wr_busy_sync[1] || npu_result_rd_busy_sync[1];
 
-    assign host_cmd_ready = !host_rst && !cmd_wr_rst_busy && !cmd_full;
+    always_ff @(posedge host_clk) begin
+        if (host_rst) begin
+            host_cmd_rd_busy_sync <= 2'b11;
+            host_rsp_wr_busy_sync <= 2'b11;
+            host_sample_rd_busy_sync <= 2'b11;
+            host_result_wr_busy_sync <= 2'b11;
+        end else begin
+            host_cmd_rd_busy_sync <= {host_cmd_rd_busy_sync[0], cmd_rd_rst_busy};
+            host_rsp_wr_busy_sync <= {host_rsp_wr_busy_sync[0], rsp_wr_rst_busy};
+            host_sample_rd_busy_sync <= {host_sample_rd_busy_sync[0], sample_rd_rst_busy};
+            host_result_wr_busy_sync <= {host_result_wr_busy_sync[0], result_wr_rst_busy};
+        end
+    end
+
+    always_ff @(posedge npu_clk) begin
+        if (npu_rst) begin
+            npu_cmd_wr_busy_sync <= 2'b11;
+            npu_rsp_rd_busy_sync <= 2'b11;
+            npu_sample_wr_busy_sync <= 2'b11;
+            npu_result_rd_busy_sync <= 2'b11;
+        end else begin
+            npu_cmd_wr_busy_sync <= {npu_cmd_wr_busy_sync[0], cmd_wr_rst_busy};
+            npu_rsp_rd_busy_sync <= {npu_rsp_rd_busy_sync[0], rsp_rd_rst_busy};
+            npu_sample_wr_busy_sync <= {npu_sample_wr_busy_sync[0], sample_wr_rst_busy};
+            npu_result_rd_busy_sync <= {npu_result_rd_busy_sync[0], result_rd_rst_busy};
+        end
+    end
+
+    assign host_cmd_ready = !host_rst && !host_any_fifo_busy && !cmd_full;
     assign cmd_wr_en = host_cmd_valid && host_cmd_ready;
-    assign host_rsp_valid = !host_rst && !rsp_rd_rst_busy && !rsp_empty;
+    assign host_rsp_valid = !host_rst && !host_any_fifo_busy && !rsp_empty;
     assign host_rsp_data = rsp_dout;
     assign rsp_rd_en = host_rsp_valid && host_rsp_ready;
     assign host_status_irq = host_rsp_valid;
@@ -212,11 +257,11 @@ module npu_zynq7020_t1_wrapper #(
         end
     end
 
-    assign host_sample_ready = !host_rst && !sample_wr_rst_busy && !sample_full
+    assign host_sample_ready = !host_rst && !host_any_fifo_busy && !sample_full
         && sample_window_open_host && (sample_write_count_host < 4'd8);
     assign sample_wr_en = host_sample_valid && host_sample_ready;
 
-    assign host_result_valid = !host_rst && !result_rd_rst_busy && !result_empty;
+    assign host_result_valid = !host_rst && !host_any_fifo_busy && !result_empty;
     assign host_result_data = result_dout[31:0];
     assign host_result_sample_id = result_dout[63:32];
     assign host_result_mask_epoch = result_dout[95:64];
@@ -225,7 +270,7 @@ module npu_zynq7020_t1_wrapper #(
     assign host_model_valid = model_valid_host_sync[1];
     assign host_mask_valid = mask_valid_host_sync[1];
     assign host_infer_frozen = infer_frozen_host_sync[1];
-    assign host_error = error_host_sync;
+    assign host_error = error_host_sync[1];
 
     // 命令 FIFO 只有在核心能够接收、或 fence 能够原子地产生确认时才出队。
     assign core_cmd_valid = command_fifo_ready_npu && !cmd_empty && !command_is_fence &&
@@ -233,8 +278,10 @@ module npu_zynq7020_t1_wrapper #(
     assign cmd_rd_en = command_fifo_ready_npu && !cmd_empty &&
         ((command_is_fence && !fence_response_pending && response_fifo_ready_npu &&
           core_sample_ready && !core_result_valid && !core_rsp_valid &&
-          !sample_window_open_npu && !host_window_active_npu_d2) ||
-         (command_fields_bad && !fence_response_pending && !error_response_pending &&
+          !sample_window_open_npu && !sample_window_open_host_npu_d2 &&
+          !core_mask_staging_open) ||
+         ((command_fields_bad || fence_staging_blocked) &&
+          !fence_response_pending && !error_response_pending &&
           response_fifo_ready_npu && !core_rsp_valid) ||
          (!command_is_fence && !command_fields_bad && !error_response_pending &&
           core_cmd_ready_wire));
@@ -261,7 +308,8 @@ module npu_zynq7020_t1_wrapper #(
         .result_mask_epoch(core_result_mask_epoch), .result_valid(core_result_valid),
         .result_ready(core_result_ready), .runtime_idle(core_runtime_idle),
         .model_valid(core_model_valid), .mask_valid(core_mask_valid),
-        .infer_frozen(core_infer_frozen), .state_clear_count(core_state_clear_count)
+        .infer_frozen(core_infer_frozen), .state_clear_count(core_state_clear_count),
+        .active_mask_epoch(core_active_mask_epoch), .mask_staging_open(core_mask_staging_open)
     );
 
     always_ff @(posedge npu_clk) begin
@@ -274,19 +322,19 @@ module npu_zynq7020_t1_wrapper #(
             error_response_payload <= '0;
             fence_id_npu <= '0;
             error_sticky_npu <= 1'b0;
-            host_window_active_npu_d1 <= 1'b0;
-            host_window_active_npu_d2 <= 1'b0;
+            sample_window_open_host_npu_d1 <= 1'b0;
+            sample_window_open_host_npu_d2 <= 1'b0;
         end else begin
-            host_window_active_npu_d1 <= sample_window_open_host;
-            host_window_active_npu_d2 <= host_window_active_npu_d1;
-            if (cmd_rd_en && command_is_fence) begin
+            sample_window_open_host_npu_d1 <= sample_window_open_host;
+            sample_window_open_host_npu_d2 <= sample_window_open_host_npu_d1;
+            if (cmd_rd_en && command_is_fence && !command_fields_bad && !core_mask_staging_open) begin
                 sample_window_open_npu <= 1'b1;
                 sample_count_npu <= '0;
                 sample_window_toggle_npu <= ~sample_window_toggle_npu;
                 fence_response_pending <= 1'b1;
                 fence_id_npu <= cmd_dout[31:0];
             end
-            if (cmd_rd_en && command_fields_bad) begin
+            if (cmd_rd_en && (command_fields_bad || fence_staging_blocked)) begin
                 error_response_pending <= 1'b1;
                 error_response_payload <= {
                     RSP_FENCE + 1'b1, 4'h1, command_opcode, 4'hf,
@@ -318,7 +366,7 @@ module npu_zynq7020_t1_wrapper #(
     assign rsp_wr_en = fence_rsp_valid || error_rsp_valid || (core_rsp_valid && core_rsp_ready);
     assign rsp_payload_mux = fence_response_pending ?
         {RSP_FENCE, 4'd0, OP_SAMPLE_FENCE, 4'd0, fence_id_npu,
-         32'd0, 48'd0} :
+         core_active_mask_epoch, 48'd0} :
         error_response_pending ? error_response_payload : core_rsp_payload_raw;
 
     // 状态摘要在 Host 域同步，避免把 NPU 域状态直接组合跨域。

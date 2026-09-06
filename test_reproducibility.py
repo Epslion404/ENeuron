@@ -23,6 +23,16 @@ class ReproducibilityContractTests(unittest.TestCase):
         selected = classify_paths(["npu_zynq7020_t1_wrapper.sv"])
         self.assertTrue(selected["t1_repro"])
 
+    def test_host_window_state_uses_npu_domain_synchronizer(self) -> None:
+        source = (ROOT / "npu_zynq7020_t1_wrapper.sv").read_text(encoding="utf-8")
+        self.assertIn("sample_window_open_host_npu_d1", source)
+        self.assertIn("sample_window_open_host_npu_d2", source)
+        self.assertNotIn("host_window_active_npu_d1 <= sample_window_open_host", source)
+
+    def test_error_status_uses_second_cdc_stage(self) -> None:
+        source = (ROOT / "npu_zynq7020_t1_wrapper.sv").read_text(encoding="utf-8")
+        self.assertIn("assign host_error = error_host_sync[1]", source)
+
 
 if __name__ == "__main__":
     unittest.main()
