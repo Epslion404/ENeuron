@@ -85,3 +85,6 @@ tight_setup_hold_pins.txt
 
 # Local HelloZynq B0 implementation and JTAG logs.
 boards/hellozynq/b0_smoke/build/
+
+# Local HelloZynq B1A project, implementation reports, bitstream and XSA.
+boards/hellozynq/b1a_hw/build/

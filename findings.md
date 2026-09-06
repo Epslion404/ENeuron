@@ -1,5 +1,16 @@
 # 调研与实验发现
 
+## 2026-09-07 B1A-HW 快速收敛
+
+- GMII-to-RGMII v4.1 自动生成的 clocks XDC 已为 4 条 `TIMING-54` 创建 AMD IP 内部 waiver，并说明该接口的时钟间 false path 可安全忽略；不再将这 4 条已豁免项作为 B1A 阻断。
+- 当前 6 条 `TIMING-18` 中，5 条是顶层 `RGMII_0_td[3:0]` / `RGMII_0_tx_ctl` 缺少 output delay，1 条是 MDIO 双向口缺少 input delay。RGMII TX 是上板链路正确性的直接阻断；低速 MDIO 项单独裁定。
+- `REQP-1577` 为 GMII-to-RGMII IP 内部 MMCM 输出采用不同 buffer 类型的 DRC warning；在 setup/hold、route 和 DRC error/critical warning 均通过时暂不扩展处理，除非实板链路暴露相关问题。
+- routed checkpoint 快速探针能找到 1 个 TX generated clock 和 5 个顶层 TX 端口，但按 IP 原 XDC 的 add/overwrite 组合补约束后，`TIMING-18` 仍为 6；下一步验证四条 rise/fall、min/max 约束全部显式保留的组合。
+- 第二种约束组合验证通过：首条 max 后，其余 min、fall max、fall min 均使用 `-add_delay`，`TIMING-18` 从 6 降为 1；5 条 RGMII TX 缺失全部消失，仅剩 MDIO 输入项。该组合应落入板级 XDC。
+- `report_compile_order -constraints` 已确认实现期顺序：IP clocks XDC 为第3项，板级 `hello_zynq_b1a.xdc` 为第4项，两者均为LATE但板级文件明确后读；generated TX clock在板级约束执行前可用。
+- Vivado XDC不支持普通 `if`；同时RX `create_clock` 必须早于IP clocks XDC，而TX delay必须晚于它。最终结构拆成普通主XDC与独立LATE TX XDC，避免互相冲突。
+- 拆分后的实现期顺序已确认：主XDC为NORMAL索引3、IP clocks XDC为LATE索引4、TX XDC为LATE索引5，满足RX早于IP、TX晚于IP的双向顺序要求。
+
 - 2026-09-06：额度边界确认。GitHub Actions 当前因账户额度耗尽不可作为本阶段验收依赖；后续不主动触发或等待 hosted runner。GitHub 仓库、分支和 PR 仅用于版本归档与人工审查；未运行的 Actions 统一记录为 `NOT_RUN_BILLING_BLOCKED`，不得当作代码失败或通过。
 - 2026-09-06：本机复现证据闭环。`python -X utf8 -m unittest -v test_reproducibility test_ci_fast_v1` 返回 12/12 通过；`python -X utf8 tools/repro/verify_repository.py --t1` 返回 `REPRO_G0_MANIFEST_PASS` 与 `REPRO_G1_T1_PROTOCOL_SLICE_PASS`。
 - 2026-09-06：T1 协议切片修复已在工作树核对：非法 `SAMPLE_FENCE` 只产生错误响应；mask staging 未闭合时拒绝 fence；fence 响应回显真实 active epoch；四条 FIFO 的远端 `rst_busy` 经两级同步后汇合；Host 状态和错误标志使用 CDC 二级同步。该证据仍不等于 T1-01～T1-12 全量、T2、T3 或板级完成。
