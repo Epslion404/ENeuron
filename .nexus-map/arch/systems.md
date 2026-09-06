@@ -2,7 +2,7 @@
 
 历史基线（2026-09-05）：PR #64 已合并为 `main@a53a040`；PR #65 已合并为 `main@618c1e4`；PR #66 已合并为 `main@a1457bb`。V2 OOC 100 MHz 通过，资源为 `2126 LUT / 1916 FF / 4 DSP48E1`。首段旧快照中的 V1 失败数据仅作历史记录。
 
-状态更新（2026-09-07）：TR7-TR12 已实现并完成 C1-C4、单时钟专项、固定 `20×100` 和完整仓库回归。V2 OOC 已确认 `2126 LUT / 1916 FF / 4 DSP48E1`，100 MHz `WNS=+0.060 ns / TNS=0 / WHS=+0.040 ns`，setup/hold/route/DRC 全部通过。V1 失败端点审计仍保留为历史证据；P15-T0 方案 A 与 A1-A7 已批准，T1 wrapper、testbench、XPM 模型和复现入口已进入仓库并通过协议切片复现，完整 T1-01～T1-12、T2、T3 仍待验收。
+状态更新（2026-09-06）：TR7-TR12 已实现并完成 C1-C4、单时钟专项、固定 `20×100` 和完整仓库回归。V2 OOC 已确认 `2126 LUT / 1916 FF / 4 DSP48E1`，100 MHz `WNS=+0.060 ns / TNS=0 / WHS=+0.040 ns`，setup/hold/route/DRC 全部通过。V1 失败端点审计仍保留为历史证据；P15-T0 方案 A 与 A1-A7 已批准，T1 wrapper、testbench、XPM 模型和复现入口已进入仓库并通过协议切片复现，已验证本机基线提交 `47a3c1e`。完整 T1-01～T1-12、T2、T3 仍待验收。
 
 generated_by: nexus-mapper v2 / manual synthesis
 verified_at: 2026-09-07
