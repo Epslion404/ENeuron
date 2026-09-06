@@ -1365,3 +1365,4 @@
 - GitHub 官方 ping delivery `39fa1340-aa08-11f1-8930-aff79715b2ab` 和 `ee543f6e-aa08-11f1-84fd-d4849c4dec76` 均返回 HTTP 200；后者已写入 `latest.json`，hook `last_response` 恢复为 `200 active`。
 - 清理了诊断阶段产生的重复 frpc：保留 ChmlFrpLauncher 管理的实例，停止额外计划任务实例；公网健康检查在单实例状态下继续通过。
 - 恢复后的真实推送 HEAD `a409512629717845ddbaa42dd6addfb4fab563f7` 触发 run `34043097374`；webhook delivery `6ece08a0-aa09-11f1-944a-b2b2aad065d2` 收到同 SHA 的 `workflow_run completed/failure`，GitHub annotation 仍为账户付款/额度阻断，通知链与权威 API 结论一致。
+- 随后提交 `c2523a9ab396013f9df7454314cdba4305f67050` 触发 run `34043377382`；GitHub API 显示 `Classify changes`、`PR Gate` 均 `steps=[]`，其余门跳过，状态继续为 `NOT_RUN_BILLING_BLOCKED`。webhook 收到该 run 的 requested/completed delivery（`2e16b130-aa0a-11f1-86ef-dd7a956d4ed9` / `3201ce10-aa0a-11f1-8238-2c657afd3f1d`）和本次 PR 评论 delivery `4be59cd0-aa0a-11f1-88f2-e2e0e3608dc3`，证明通知链仍然工作。

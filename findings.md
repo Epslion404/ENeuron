@@ -1249,3 +1249,4 @@
 - 接收器与隧道是两个独立故障域：本机 `127.0.0.1:2355` 正常不代表 GitHub 能到达公网 `23.147.68.16:22682`。本次 GitHub delivery 的 502 与公网 TCP 失败共同定位到 frpc 隧道未运行。
 - chmlfrp 恢复后，本地/公网 `/healthz` 均返回 HTTP 200；GitHub 官方 ping delivery `ee543f6e-aa08-11f1-84fd-d4849c4dec76` 的状态为 `OK / 200`，同一 delivery 出现在接收器 `latest.json`，证明 GitHub→公网隧道→本地接收器全链路恢复。
 - 诊断期间曾同时存在 ChmlFrpLauncher 与计划任务两个 frpc 实例。最终保留用户 launcher 管理的单实例并停止额外任务实例，公网 health 仍通过，排除了“依赖重复隧道才可用”的可能。
+- 恢复后的第二个真实仓库事件再次闭环：`c2523a9` → run `34043377382`，webhook 收到 requested delivery `2e16b130-aa0a-11f1-86ef-dd7a956d4ed9` 和 completed delivery `3201ce10-aa0a-11f1-8238-2c657afd3f1d`；PR 评论 delivery 为 `4be59cd0-aa0a-11f1-88f2-e2e0e3608dc3`。此前 `6ece08a0…` 属于 `a409512`，已纠正映射。因此公网隧道、接收器和 GitHub hook 均可用，唯一未解除的是 Actions 账户计费阻断。

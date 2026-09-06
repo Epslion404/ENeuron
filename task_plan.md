@@ -11,6 +11,7 @@
 - [x] 仓库外 webhook 改由 Windows 计划任务 `ENeuronWebhook` 直接托管 Python 进程；任务保持 `Running`，健康检查返回 HTTP 200，启动脚本可幂等复用。
 - [x] 恢复 chmlfrp 公网隧道并完成端到端验证：本地/公网 `/healthz` 均为 HTTP 200，GitHub 官方 ping delivery `ee543f6e-aa08-11f1-84fd-d4849c4dec76` 返回 200 并写入 `latest.json`；只保留 ChmlFrpLauncher 管理的单个 frpc 进程。
 - [x] 恢复后首个真实 PR 推送闭环：HEAD `a409512` 的 run `34043097374` 由 webhook delivery `6ece08a0-aa09-11f1-944a-b2b2aad065d2` 同 SHA 收到；GitHub annotation 仍证明为 `NOT_RUN_BILLING_BLOCKED`。
+- [x] 本轮最终观测：提交 `c2523a9` 的 run `34043377382` 仍在 runner 启动前因账户付款/额度问题阻断；webhook 已收到该 run 的 requested/completed delivery（`2e16b130-aa0a-11f1-86ef-dd7a956d4ed9` / `3201ce10-aa0a-11f1-8238-2c657afd3f1d`）及本次 PR 评论 delivery `4be59cd0-aa0a-11f1-88f2-e2e0e3608dc3`，本地/公网 health 继续为 HTTP 200。
 - [ ] 等待管理员批准 P15-T0 方案 A 与 A1-A7；批准前不创建 T1 顶层 RTL。
 
 本轮误报记录：附加探针曾把 `NO_RTL_AUTHORIZATION` 错要求出现在 T0 测试合同；实际该状态属于决策附录/决策表，测试合同使用 `T1_BLOCKED`，已通过文档职责核对纠正，未修改合同语义。
