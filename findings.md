@@ -1246,3 +1246,6 @@
 - 仓库外 webhook 成功收到同一 SHA 的 `workflow_run completed/failure`，说明 chmlfrp 到本机的事件路径实际可用；`signature_verified=false`，因此只能触发复核，不能取代 GitHub Checks/API。
 - `start_webhook.ps1` 使用 `Start-Process` 启动后台 Python 时，在当前任务宿主下子进程会在调用环境结束后被回收。将 Windows 计划任务的 Action 改为直接运行 Python 后，计划任务保持 `Running`，健康检查稳定返回 HTTP 200。
 - 仓库外启动/停止脚本已改为优先控制计划任务；未安装计划任务时才退回旧的直接进程路径。该运维修订不进入 ENeuron 仓库。
+- 接收器与隧道是两个独立故障域：本机 `127.0.0.1:2355` 正常不代表 GitHub 能到达公网 `23.147.68.16:22682`。本次 GitHub delivery 的 502 与公网 TCP 失败共同定位到 frpc 隧道未运行。
+- chmlfrp 恢复后，本地/公网 `/healthz` 均返回 HTTP 200；GitHub 官方 ping delivery `ee543f6e-aa08-11f1-84fd-d4849c4dec76` 的状态为 `OK / 200`，同一 delivery 出现在接收器 `latest.json`，证明 GitHub→公网隧道→本地接收器全链路恢复。
+- 诊断期间曾同时存在 ChmlFrpLauncher 与计划任务两个 frpc 实例。最终保留用户 launcher 管理的单实例并停止额外任务实例，公网 health 仍通过，排除了“依赖重复隧道才可用”的可能。

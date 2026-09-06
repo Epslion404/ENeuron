@@ -70,6 +70,7 @@ V2 OOC 物理门已通过，PR #64 已合并为 `main@a53a040`；PR #65 已合�
 - PR #68 的持久证据按审计快照记录，不再把开放 PR 的 HEAD/run 声明为自动更新的当前值；实时状态必须查询 GitHub API。
 - 快照 HEAD `55ec08e` 对应 run `33976357259`，runner 因账户付款/额度问题未启动，状态为 `NOT_RUN_BILLING_BLOCKED`。
 - 仓库外 webhook 已收到同一 SHA 的完成事件；接收器改由 Windows 计划任务 `ENeuronWebhook` 直接托管 Python，任务为 `Running` 且 `/healthz` 返回 HTTP 200。签名未验证，故通知仍不作为合并证据。
+- chmlfrp 隧道已于 2026-09-06 恢复；本地和公网 `/healthz` 均为 HTTP 200，GitHub 官方 ping delivery `ee543f6e-aa08-11f1-84fd-d4849c4dec76` 返回 200 并写入 `latest.json`。当前只保留 ChmlFrpLauncher 管理的一个 frpc 实例；通知链恢复但仍不替代 GitHub Checks/API。
 
 ## 2026-09-04 V2 KISS 实施地图
 

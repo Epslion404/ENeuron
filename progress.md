@@ -1361,3 +1361,6 @@
 - PR #68 的 HEAD/run 不再被描述为自动更新的“当前值”：快照绑定 `55ec08e` 与 run `33976357259`；后续提交不会使该历史证据失真。
 - 仓库外 webhook 已收到该 SHA 的 `workflow_run completed/failure`，与 GitHub API 的计费阻断结论一致；签名仍未验证，只作触发提示。
 - 本地接收器原先由短命 `Start-Process` 间接拉起，会随宿主回收。现已注册 Windows 计划任务 `ENeuronWebhook`，直接托管 `C:\Python314\python.exe -u webhook_server.py`；任务状态持续为 `Running`，`/healthz` 返回 HTTP 200。
+- 隧道侧随后定位为 `ChmlFrpc` 未运行，GitHub hook `last_response=502 connection_error`。用户恢复 ChmlFrpLauncher 后，本地与公网 `/healthz` 均为 HTTP 200。
+- GitHub 官方 ping delivery `39fa1340-aa08-11f1-8930-aff79715b2ab` 和 `ee543f6e-aa08-11f1-84fd-d4849c4dec76` 均返回 HTTP 200；后者已写入 `latest.json`，hook `last_response` 恢复为 `200 active`。
+- 清理了诊断阶段产生的重复 frpc：保留 ChmlFrpLauncher 管理的实例，停止额外计划任务实例；公网健康检查在单实例状态下继续通过。
