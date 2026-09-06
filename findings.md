@@ -4,6 +4,7 @@
 - 2026-09-06：本机复现证据闭环。`python -X utf8 -m unittest -v test_reproducibility test_ci_fast_v1` 返回 12/12 通过；`python -X utf8 tools/repro/verify_repository.py --t1` 返回 `REPRO_G0_MANIFEST_PASS` 与 `REPRO_G1_T1_PROTOCOL_SLICE_PASS`。
 - 2026-09-06：T1 协议切片修复已在工作树核对：非法 `SAMPLE_FENCE` 只产生错误响应；mask staging 未闭合时拒绝 fence；fence 响应回显真实 active epoch；四条 FIFO 的远端 `rst_busy` 经两级同步后汇合；Host 状态和错误标志使用 CDC 二级同步。该证据仍不等于 T1-01～T1-12 全量、T2、T3 或板级完成。
 - 2026-09-06：扩展 T1 同频切片通过。新增响应背压 5 拍稳定性检查；样本首 beat 已绑定 epoch=1 后，在剩余 beat 期间发布 epoch=2，当前结果仍回显 1，下一样本结果回显 2；复位重入后 ready/valid 与旧 payload 均未泄漏。Icarus `compile=0 sim=0`，输出 `T1_PROTOCOL_SKELETON_PASS`。这仍只覆盖部分 T1 项目，不替代 T1-01～T1-12 全量、T2 或 T3。
+- 2026-09-06：T1-02 首轮断言曾因只等待 3 个 NPU 时钟而误报 `STATE_CLEAR` 未生效；日志确认核心已接受 `op=8`。将 testbench 改为带 100 拍上限的状态等待后通过，并验证 `FREEZE_SET` 进入/退出及冻结期间配置拒绝。该修正是观察时序校准，不改变 RTL。
 - 2026-09-06：为恢复免费 Git 推送，管理员已将仓库 Actions 权限设置为 `enabled=false`。三个本地提交已推送到现有 PR #68，远端 head 为 `3227162d8f8e321f4e6b479923db34403b84f87c`；API 返回 PR `OPEN / MERGEABLE` 且无 checks。空 checks 列表只表示 Actions 暂停，不能作为通过证据。
 
 ## 2026-09-07 GitHub 可复现性审计

@@ -177,6 +177,8 @@ module tb_npu_zynq7020_t1_wrapper;
     endtask
 
     integer i;
+    integer clear_wait_cycles;
+    logic [31:0] clear_count_before;
     initial begin
         // T1-01：复位期间禁止新握手，释放后等待两域稳定。
         repeat (8) @(posedge host_clk);
@@ -184,6 +186,34 @@ module tb_npu_zynq7020_t1_wrapper;
         bridge_rst = 1'b0;
         repeat (8) @(posedge host_clk);
         wait_host_ready();
+
+        // T1-02：合法控制命令各只消费一次；冻结期间配置命令必须被拒绝。
+        clear_count_before = dut.core.state_clear_count;
+        send_cmd(OP_STATE_CLEAR, 4'h0, 32'd0, 56'd0, 32'd0);
+        clear_wait_cycles = 0;
+        while (dut.core.state_clear_count === clear_count_before && clear_wait_cycles < 100) begin
+            @(posedge npu_clk);
+            clear_wait_cycles = clear_wait_cycles + 1;
+        end
+        if (dut.core.state_clear_count !== clear_count_before + 32'd1)
+            $fatal(1, "STATE_CLEAR count mismatch: before=%0d after=%0d",
+                   clear_count_before, dut.core.state_clear_count);
+        send_cmd(OP_FREEZE_SET, 4'h1, 32'd0, 56'd0, 32'd0);
+        clear_wait_cycles = 0;
+        while (!host_infer_frozen && clear_wait_cycles < 100) begin
+            @(posedge host_clk);
+            clear_wait_cycles = clear_wait_cycles + 1;
+        end
+        if (!host_infer_frozen) $fatal(1, "FREEZE_SET did not assert");
+        send_cmd(OP_MODEL_BEGIN, 4'h0, 32'd0, 56'd0, 32'd0);
+        expect_response(RSP_ERROR, 32'd0);
+        send_cmd(OP_FREEZE_SET, 4'h0, 32'd0, 56'd0, 32'd0);
+        clear_wait_cycles = 0;
+        while (host_infer_frozen && clear_wait_cycles < 100) begin
+            @(posedge host_clk);
+            clear_wait_cycles = clear_wait_cycles + 1;
+        end
+        if (host_infer_frozen) $fatal(1, "FREEZE_SET did not release");
 
         // T1-03：保留位和未知 opcode 必须握手后产生一个错误，无副作用。
         send_cmd(4'hF, 4'h0, 32'd0, 56'd0, 32'd0);

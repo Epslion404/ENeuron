@@ -14,7 +14,7 @@
 
 本方案只验证 T1 纯 RTL 适配器：四条异步 FIFO、命令仲裁、SAMPLE_FENCE、固定 8/10 beat、错误响应、ready/valid 稳定性和复位丢弃。它不验证 AXI-Lite、DMA、Ethernet、PS7 或板级吞吐，也不修改 `npu_eneuron_single_clock_skeleton.sv`。
 
-当前已完成同频 100 MHz 协议切片：Icarus 编译和仿真均返回 0，并输出 `T1_PROTOCOL_SKELETON_PASS`。该切片覆盖 T1-01、T1-03、T1-04、T1-05、T1-07、T1-08、T1-10、T1-11 的主要路径；T1-02、T1-06、T1-09、T1-12 仍需独立测试，不得写成完整 T1 通过。不同频比与随机相位属于 T2。
+当前已完成同频 100 MHz 协议切片：Icarus 编译和仿真均返回 0，并输出 `T1_PROTOCOL_SKELETON_PASS`。该切片覆盖 T1-01、T1-02、T1-03、T1-04、T1-05、T1-07、T1-08、T1-10、T1-11 的主要路径；T1-06、T1-09、T1-12 仍需独立测试，不得写成完整 T1 通过。不同频比与随机相位属于 T2。
 
 ## 2. 推荐 DUT 端口
 
