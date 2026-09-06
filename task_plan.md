@@ -13,6 +13,9 @@
 - [x] 恢复后首个真实 PR 推送闭环：HEAD `a409512` 的 run `34043097374` 由 webhook delivery `6ece08a0-aa09-11f1-944a-b2b2aad065d2` 同 SHA 收到；GitHub annotation 仍证明为 `NOT_RUN_BILLING_BLOCKED`。
 - [x] 本轮最终观测：提交 `c2523a9` 的 run `34043377382` 仍在 runner 启动前因账户付款/额度问题阻断；webhook 已收到该 run 的 requested/completed delivery（`2e16b130-aa0a-11f1-86ef-dd7a956d4ed9` / `3201ce10-aa0a-11f1-8238-2c657afd3f1d`）及本次 PR 评论 delivery `4be59cd0-aa0a-11f1-88f2-e2e0e3608dc3`，本地/公网 health 继续为 HTTP 200。
 - [ ] 等待管理员批准 P15-T0 方案 A 与 A1-A7；批准前不创建 T1 顶层 RTL。
+- [x] 管理员已批准 A1-A7；状态更新为 `T0_APPROVED / T1_RTL_AUTHORIZED`。
+- [x] 完成 XC7Z020 资源裁剪审查 V1；区分固定模型/推理专用/固定拓扑等可配置裁剪与不可裁剪的 CDC、原子性、四 DSP 和 fence 合同。
+- [ ] 等待管理员审查资源裁剪候选；未获批准前不删除当前签核 RTL。
 
 本轮误报记录：附加探针曾把 `NO_RTL_AUTHORIZATION` 错要求出现在 T0 测试合同；实际该状态属于决策附录/决策表，测试合同使用 `T1_BLOCKED`，已通过文档职责核对纠正，未修改合同语义。
 

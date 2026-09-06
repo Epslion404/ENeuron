@@ -1,10 +1,10 @@
 # XC7Z020 顶层 T0 决策附录 V1
 
-状态：`PROPOSED / ADMIN_REVIEW_REQUIRED / NO_RTL_AUTHORIZATION`
+状态：`T0_APPROVED / T1_RTL_AUTHORIZED`
 
 日期：2026-09-05
 
-目的：把 `NPU_ZYNQ7020_TOPLEVEL_T0_AUDIT_V1.md` 发现的阻断项转换为可逐项批准的实现合同。以下均为建议，不等于管理员已经批准。
+目的：把 `NPU_ZYNQ7020_TOPLEVEL_T0_AUDIT_V1.md` 发现的阻断项转换为已批准的实现合同。管理员已批准 A1-A7；本批准只开放 T1 纯 RTL 适配器，不代表 T1/T2/T3 已完成。
 
 ## A1：命令字段唯一权威
 
@@ -79,4 +79,4 @@
 
 ## 批准门
 
-管理员需要逐项批准 A1-A7，或明确修改某一项。全部批准后，才把状态改为 `T0_APPROVED / T1_RTL_AUTHORIZED` 并创建纯 RTL 薄封装；在此之前不创建顶层 RTL。
+管理员已逐项批准 A1-A7。状态为 `T0_APPROVED / T1_RTL_AUTHORIZED`，可创建纯 RTL 薄封装并执行 T1；T2 双时钟协同仿真和 T3 XC7Z020 OOC 仍需各自通过验收，不得把本批准写成已完成的顶层实现证据。

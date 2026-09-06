@@ -1250,3 +1250,6 @@
 - chmlfrp 恢复后，本地/公网 `/healthz` 均返回 HTTP 200；GitHub 官方 ping delivery `ee543f6e-aa08-11f1-84fd-d4849c4dec76` 的状态为 `OK / 200`，同一 delivery 出现在接收器 `latest.json`，证明 GitHub→公网隧道→本地接收器全链路恢复。
 - 诊断期间曾同时存在 ChmlFrpLauncher 与计划任务两个 frpc 实例。最终保留用户 launcher 管理的单实例并停止额外任务实例，公网 health 仍通过，排除了“依赖重复隧道才可用”的可能。
 - 恢复后的第二个真实仓库事件再次闭环：`c2523a9` → run `34043377382`，webhook 收到 requested delivery `2e16b130-aa0a-11f1-86ef-dd7a956d4ed9` 和 completed delivery `3201ce10-aa0a-11f1-8238-2c657afd3f1d`；PR 评论 delivery 为 `4be59cd0-aa0a-11f1-88f2-e2e0e3608dc3`。此前 `6ece08a0…` 属于 `a409512`，已纠正映射。因此公网隧道、接收器和 GitHub hook 均可用，唯一未解除的是 Actions 账户计费阻断。
+- 2026-09-07：管理员批准 A1-A7，P15-T0 状态更新为 `T0_APPROVED / T1_RTL_AUTHORIZED`；该批准仅开放 T1，不代表双时钟顶层已完成。
+- 2026-09-07：资源审计确认单时钟 NPU 基线为 `2126 LUT / 1916 FF / 0 BRAM / 4 DSP`，其中 `1014 LUT` 报告为 LUTRAM；模型配置存储是首要裁剪候选，但不能把 1014 LUT 全部直接归因给某个数组。
+- 2026-09-07：最值得做的候选是 C1 固定模型改 ROM/BRAM、C2 推理专用 ENeuron 删除学习状态和提交路径、C3 固定拓扑特化。C6-C9 会破坏延迟学习、事务原子性、跨流协议或定点语义，不能作为普通省资源改动。

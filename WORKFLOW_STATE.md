@@ -4,7 +4,7 @@
 
 最后更新：2026-09-05
 
-状态：`ACTIVE / NP7_MERGED / I1_I6_APPROVED / OF1_OF6_V3_APPROVED / OF6_ORACLE_SIGNOFF / RTL_DESIGN_CONTRACT_V2_APPROVED / PR62_MERGED / PR64_MERGED / PR65_MERGED / PR66_MERGED / TR1_TR6_APPROVED / TR7_TR12_APPROVED / TIMING_REPAIR_V2_FUNCTIONAL_GREEN / VIVADO_OOC_100MHZ_PASS / P15_T0_REVIEW_REQUIRED`
+状态：`ACTIVE / NP7_MERGED / I1_I6_APPROVED / OF1_OF6_V3_APPROVED / OF6_ORACLE_SIGNOFF / RTL_DESIGN_CONTRACT_V2_APPROVED / PR62_MERGED / PR64_MERGED / PR65_MERGED / PR66_MERGED / TR1_TR6_APPROVED / TR7_TR12_APPROVED / TIMING_REPAIR_V2_FUNCTIONAL_GREEN / VIVADO_OOC_100MHZ_PASS / P15_T0_APPROVED / T1_RTL_AUTHORIZED / RESOURCE_CUT_REVIEW_REQUIRED`
 
 ## 当前活动目标
 
@@ -62,7 +62,7 @@ V2 OOC 物理门已通过，PR #64 已合并为 `main@a53a040`；PR #65 已合�
 
 - `docs/planning/NPU_ZYNQ7020_TOPLEVEL_INTEGRATION_V1.md` 与 `NPU_ZYNQ7020_TOPLEVEL_DECISION_SHEET_V1.md` 已合并为 `main@a1457bb`。
 - 推荐方案 A：保留 128-bit 命令/响应异步 FIFO，新增完整 payload 为 64-bit 样本 FIFO 和 96-bit 结果 FIFO；AXI-Stream 放在 FIFO 外，AXI-Lite/DMA/Ethernet/PS7 留在后续层。
-- 当前状态为 `PROPOSED / ADMIN_REVIEW_REQUIRED / NO_RTL_AUTHORIZATION`。`docs/planning/NPU_ZYNQ7020_TOPLEVEL_T0_AUDIT_V1.md` 及其二次复核已记录字段/版本、V1/V2 framing、跨流 fence、reset-busy/状态 CDC、AXI sideband 错误语义、FIFO 参数和器件约束等阻断；A1-A7 建议已修订但尚待批准。T1 纯 RTL 适配器、T2 双时钟协同仿真和 T3 顶层 OOC 均等待 T0 补齐并批准。
+- A1-A7 已获管理员批准，状态改为 `T0_APPROVED / T1_RTL_AUTHORIZED`。批准只开放 T1 纯 RTL 适配器；T2 双时钟协同仿真和 T3 XC7Z020 OOC 仍需独立验收。当前新增资源裁剪审查门，未授权直接删除已签核功能。
 - 保护文件仍为 `local_prune_rtl_results.json`、`np4b_signoff_summary.json`、`np75_tmp_sparse_protocol.ys`，不得纳入后续提交。
 
 ## 2026-09-06 P15-T0 审计快照与通知通道

@@ -1,5 +1,14 @@
 # Pulse-Mini 开发计划
 
+## 2026-09-07 资源裁剪审查门
+
+- [x] 完成 `NPU_ZYNQ7020_RESOURCE_CUT_REVIEW_V1.md`，基于当前 Vivado/RTL 证据列出可裁、可配置裁和不可裁项目。
+- [ ] 管理员选择是否实施 C1 固定模型 ROM/BRAM 配置。
+- [ ] 管理员选择是否实施 C2 `INFER_ONLY` ENeuron 构建配置。
+- [ ] 若批准 C1/C2，先建立独立 A/B OOC 顶层和逐拍等价测试，不覆盖训练基线。
+- [ ] C3 固定拓扑特化、C4 ID/epoch 缩短、C5 调试端口关闭暂不实施，等待 C1/C2 实测收益。
+- [ ] C6-C9（删除快照、原地更新、FIFO 合并/缩深、位宽缩减）必须单独形成新裁定，当前禁止直接改签核 RTL。
+
 日期：2026-08-19  
 状态：`V2_IMPLEMENTED / VIVADO_OOC_100MHZ_PASS`；实施状态：`P8_NETWORK_SIGNED_OFF / PR64_MERGED / TR1_TR6_APPROVED / TR7_TR12_APPROVED / RTL_TIMING_REPAIR_GREEN / FULL_REGRESSION_GREEN / DSP_GATE_PASS / VIVADO_OOC_PASS`
 基线：`ENeuron 1.0`，提交 `499fc8a`，标签 `v1.0`；当前 Pulse-Mini 工作基线：`64aff70`

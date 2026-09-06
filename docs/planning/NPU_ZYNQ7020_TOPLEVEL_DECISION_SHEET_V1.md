@@ -1,6 +1,6 @@
 # XC7Z020 顶层 T0 端口与适配边界裁定稿
 
-状态：`PROPOSED / ADMIN_REVIEW_REQUIRED / NO_RTL_AUTHORIZATION`
+状态：`T0_APPROVED / T1_RTL_AUTHORIZED`
 
 日期：2026-09-05
 
@@ -74,4 +74,4 @@ T0 通过条件：
 3. 管理员确认 AXI-Stream shim 在 FIFO 外，T1 不创建 AXI-Lite/DMA/Ethernet RTL。
 4. 确认后才开放 T1：纯 RTL 薄封装、双时钟协同仿真和资源/时序 OOC。
 
-当前结论：方案 A 是最小、可归因、最贴近现有核心合同的路径；本文本身不构成 RTL 实施授权。
+当前结论：方案 A 是最小、可归因、最贴近现有核心合同的路径。管理员已批准 A1-A7，本文现在构成 T1 纯 RTL 薄封装实施授权；T2/T3 仍需独立验收。
