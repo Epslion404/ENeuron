@@ -16,7 +16,10 @@ def _run(command: list[str], cwd: Path = ROOT) -> subprocess.CompletedProcess[st
 
 
 def _tracked(relative: str) -> bool:
-    return _run(["git", "ls-files", "--error-unmatch", relative]).returncode == 0
+    if (ROOT / ".git").exists():
+        return _run(["git", "ls-files", "--error-unmatch", relative]).returncode == 0
+    # git archive 快照没有 .git；文件已存在即表示它来自提交闭包。
+    return (ROOT / relative).is_file()
 
 
 def _manifest_errors() -> list[str]:
