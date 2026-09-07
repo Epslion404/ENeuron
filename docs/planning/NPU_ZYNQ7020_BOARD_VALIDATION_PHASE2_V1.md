@@ -1,6 +1,6 @@
 # XC7Z020 实板验证阶段 2 规划 V1
 
-状态：`ACTIVE / FASTLANE_V1 / B0_COMPLETE / B1_DECISION_PENDING`
+状态：`ACTIVE / FASTLANE_V1 / B0_COMPLETE / B1A_SOURCE_AUDIT_COMPLETE / B1_DECISION_PENDING`
 
 日期：2026-09-07
 
@@ -11,6 +11,8 @@
 每次正式实板运行必须绑定 Git commit、Vivado版本、完整 part、RTL/XDC/脚本哈希、bitstream SHA-256、JTAG设备、输入、机器输出和现场观测。不同 bitstream 或源码的证据不得拼成同一次通过。
 
 板厂参考仓库固定为 `master@73d529d8f159ca372b7d9855eddc80880ecd9d05`，本地克隆已获授权保留。PR #69 已合并为 `main@102dee2a004283ce4144aaf6ee0a2cee3ebd2887`，B0 已关闭。
+
+B1A 来源审计已完成，详见 `HELLOZYNQ_B1A_SOURCE_AUDIT_V1.md`。审计发现板上 DDR 型号与参考 PS7 配置不一致，且参考工程未引出物理 PHY reset；因此当前只允许声明来源审计完成，不能声明 B1A 或 B1 通过。
 
 ## Fastlane V1：更快进入主线
 
@@ -41,6 +43,7 @@
 ## B1：PS7、DDR、UART 和 PHY
 
 - 从固定板厂提交提取可重建的 PS7/DDR/EMIO配置，消除绝对路径依赖。板载网口实际为 PS GEM经 EMIO输出 GMII、PL侧 `GMII TO RGMII` 后连接 PHY，不能按纯 MIO网口处理。
+- 来源审计与软件栈裁定并行。先按实际 `MT41K256M16` 重新冻结 DDR 参数，增加 H17 物理 PHY reset，并解决 PHY地址和RGMII时序，再生成仓库内独立硬件定义。
 - B0 通过后裁定首轮使用 bare-metal + lwIP 或 Linux；推荐先用 bare-metal + lwIP 减少变量。
 - 依次验证 UART启动、DDR读写、PHY reset/MDIO ID、链路协商、网线重插和最小 UDP 收发。
 - B1 只证明板级基础设施，不声明 NPU 已接入。

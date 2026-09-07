@@ -1,0 +1,126 @@
+{
+  "$schema": "eneuron/board-source-audit/v1",
+  "audit_id": "hellozynq-b1a-source-audit-v1",
+  "verified_at": "2026-09-07",
+  "status": "B1A_SOURCE_AUDIT_COMPLETE",
+  "b1a_complete": false,
+  "hardware_definition_status": "PENDING_FACT_RESOLUTION",
+  "source_repository": "https://gitee.com/GLSZ/LXB-ZYNQ.git",
+  "source_commit": "73d529d8f159ca372b7d9855eddc80880ecd9d05",
+  "target": {
+    "board": "HelloZynq",
+    "part": "xc7z020clg484-2",
+    "reference_vivado": "2024.1"
+  },
+  "sources": [
+    {
+      "role": "board_overview",
+      "path": "02_HelloZynq简介/HelloZynq简介.md",
+      "git_blob": "ee22c7e63a6066eae1b62f076f241f8d02e67155",
+      "sha256": "13fc340b061f08fce3148c077010ecbbe199a188a12cc5425dec93768011470d"
+    },
+    {
+      "role": "schematic",
+      "path": "10_硬件原理图/ZYNQ-7000原理图V2.0.pdf",
+      "git_blob": "41562b2cfa78aaa5fda5c6dbccd2fecca1bc7cce",
+      "sha256": "801afa644ddbbb650301c18029eb1d80a6684d7b152ad9e324be9c54e77fbbec"
+    },
+    {
+      "role": "vivado_project",
+      "path": "12_ZYNQ_Code/12_ZYNQ-7000-PS_Code/HelloZynqPS_Linux_ETH/HelloZynqPS_Linux_ETH.xpr",
+      "git_blob": "60f540c271bb7dd61715241a47699f84606d8528",
+      "sha256": "221c92e616b63d2e2a9e2efe6d72b348f31b1eba25900b81ccf58c408eb09b70"
+    },
+    {
+      "role": "block_design",
+      "path": "12_ZYNQ_Code/12_ZYNQ-7000-PS_Code/HelloZynqPS_Linux_ETH/HelloZynqPS_Linux_ETH.srcs/sources_1/bd/design_1/design_1.bd",
+      "git_blob": "b7df815ad01b5dc4d180dba532919324dfb002ec",
+      "sha256": "1f01b82ad1c7440a63de7945e3f0d2f5059c82431d7c6757dbddb8d1841748e0"
+    },
+    {
+      "role": "pl_constraints",
+      "path": "12_ZYNQ_Code/12_ZYNQ-7000-PS_Code/HelloZynqPS_Linux_ETH/HelloZynqPS_Linux_ETH.srcs/constrs_1/new/HelloZynq_Linux_ETH.xdc",
+      "git_blob": "04c104b15af76750a1f82bf701739d4a9219809e",
+      "sha256": "cf398fbf8b3027f6489cb78a35f7e0c7012fb62c8725a1cbf36b3ff8c62639b9"
+    },
+    {
+      "role": "ps7_generated_parameters",
+      "path": "12_ZYNQ_Code/12_ZYNQ-7000-PS_Code/HelloZynqPS_Linux_ETH/HelloZynqPS_Linux_ETH.gen/sources_1/bd/design_1/ip/design_1_processing_system7_0_0/ps7_parameters.xml",
+      "git_blob": "08679e5bcc460b404f96ba2fdd5d7585a5dbf541",
+      "sha256": "5997cd75a4450b013e6c5a7159bb924c868c50b11526b274eead9d2f44562dfb"
+    },
+    {
+      "role": "gmii_to_rgmii_generated_parameters",
+      "path": "12_ZYNQ_Code/12_ZYNQ-7000-PS_Code/HelloZynqPS_Linux_ETH/HelloZynqPS_Linux_ETH.gen/sources_1/bd/design_1/ip/design_1_gmii_to_rgmii_0_0/design_1_gmii_to_rgmii_0_0.xml",
+      "git_blob": "87381d8a6195cc7ab7235de9d80754325d53603c",
+      "sha256": "fa3933689d0d3dfd45607a7b651c87db4fea8af8a86660bb1f5680144d5bd296"
+    }
+  ],
+  "confirmed": {
+    "board_ddr": {"part": "MT41K256M16", "capacity_mib": 512, "data_width_bits": 16},
+    "board_phy": {"part": "RTL8211E-VB-CG", "reset_pin": "H17"},
+    "ps7": {
+      "ip": "xilinx.com:ip:processing_system7:5.5",
+      "fclk0_hz": 200000000,
+      "gem0_actual_clock_mhz": 125.0,
+      "gem0_io": "EMIO",
+      "mdio_io": "EMIO",
+      "uart0_io": "EMIO",
+      "uart0_baud": 115200
+    },
+    "reference_ddr_configuration": {
+      "part": "MT41J256M16 RE-125",
+      "frequency_mhz": 533.333333,
+      "data_width_bits": 16,
+      "high_address": "0x1FFFFFFF"
+    },
+    "gmii_to_rgmii": {
+      "ip": "xilinx.com:ip:gmii_to_rgmii:4.1",
+      "external_clock": false,
+      "use_idelay_ctrl": true,
+      "converter_mdio_address": 8,
+      "rgmii_txc_skew": 0,
+      "reset_source": "inverted PS7 FCLK_RESET0_N"
+    },
+    "pins": {
+      "uart0_txd": "L17",
+      "uart0_rxd": "M17",
+      "mdc": "G21",
+      "mdio": "H22",
+      "rgmii_rxd": ["A22", "A18", "A19", "B20"],
+      "rgmii_rx_ctl": "A21",
+      "rgmii_rxc": "B19",
+      "rgmii_txd": ["E21", "F21", "F22", "G20"],
+      "rgmii_tx_ctl": "G22",
+      "rgmii_txc": "D21",
+      "phy_reset_n": "H17"
+    }
+  },
+  "blocking_facts": [
+    {
+      "id": "DDR_PART_MISMATCH",
+      "board": "MT41K256M16",
+      "reference_ps7_config": "MT41J256M16 RE-125",
+      "required_resolution": "regenerate and freeze PS7 DDR parameters for the actual fitted part"
+    },
+    {
+      "id": "PHY_RESET_NOT_EXPOSED",
+      "required_resolution": "add H17 active-low physical PHY reset and freeze its timing"
+    },
+    {
+      "id": "PHYSICAL_PHY_ADDRESS_UNKNOWN",
+      "note": "GMII-to-RGMII C_PHYADDR=8 is the converter address, not the RTL8211E address",
+      "required_resolution": "confirm by MDIO scan and PHY ID read"
+    },
+    {
+      "id": "RGMII_BOARD_TIMING_INCOMPLETE",
+      "required_resolution": "audit RTL8211E timing and freeze board-level input/output delays"
+    }
+  ],
+  "validation": {
+    "vivado_run": false,
+    "reason": "documentation and JSON only; no RTL, XDC, BD, Tcl or IP identity changed",
+    "allowed_claim": "source audit complete",
+    "forbidden_claims": ["B1A complete", "B1 gate pass", "PS7 board pass", "DDR board pass", "Ethernet board pass"]
+  }
+}

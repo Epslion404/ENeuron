@@ -582,7 +582,8 @@ P15 硬门：双时钟逐 beat bit-exact；reset/ready-valid/FIFO 满空无丢�
 - [x] 文档/JSON变更只运行解析、状态一致性和差异检查；软件变更不重建未变化的PL；只有RTL/XDC/BD/Tcl/IP配置身份变化才重跑Vivado。
 - [x] 实板步骤在一次连接会话内按依赖顺序批量执行；不因中间文档提交重复下载、重启或重复测量。
 - [x] Actions关闭期间不等待空checks；本机定向门、PR CLEAN/MERGEABLE和证据边界是合并依据。
-- [ ] B1A：完成板厂配置/引脚事实提取、可重建BD Tcl和硬件构建入口，经定向检查后立即提交小PR。
+- [x] B1A-SOURCE：完成固定板厂提交的配置、器件和引脚来源审计，形成带 Git blob/SHA-256 的文档与机器清单；该切片不代表 B1A 完成。
+- [ ] B1A-HW：解决 DDR 型号、H17 PHY reset、物理 PHY地址和RGMII时序四项事实，形成可重建BD Tcl/XDC与硬件构建入口，经定向检查后立即提交小PR。
 - [ ] B1B：在B1A主线基线上完成PS7、UART和DDR实板门并立即提交小PR。
 - [ ] B1C：在B1B主线基线上完成PHY、MDIO和最小UDP实板门，形成B1-GATE最终摘要。
 
@@ -607,10 +608,11 @@ P15 硬门：双时钟逐 beat bit-exact；reset/ready-valid/FIFO 满空无丢�
 
 #### P16-B1：PS7、DDR、UART、PHY和最小 UDP
 
-- [ ] B1-00：入口 `main@102dee2...` 已满足 `B0-GATE=PASS`，并已创建 `codex/zynq7020-b1-fastlane`；继续记录板卡启动方式、串口连接、网线连接、Host网卡、固定/动态 IP方案及 Vivado/Vitis版本。
+- [x] B1-00：入口已满足 `B0-GATE=PASS`；Fastlane V1 已进入 `main@308bdecd9573e71340359729fdbb2f3fcb7723c7`，B1A 来源审计从该主线启动。
 - [ ] B1-D1：在 B0 通过后裁定首轮软件栈。推荐 `bare-metal + lwIP`，以减少 Linux启动、驱动和文件系统变量；Linux保留为后续部署候选，不作为首轮 bring-up 前提。
-- [ ] B1-01：从固定板厂提交提取 PS7 配置、16-bit DDR3参数、UART0、GEM0-EMIO、`GMII TO RGMII`、200 MHz `FCLK_CLK0`、复位和约束；列出每个参数的原始文件与行级来源，再重写为仓库内可重建 Tcl，不引用板厂工程的绝对路径和生成目录。
-- [ ] B1-02：核对板级连接：UART0 TX/RX、RGMII、MDIO、PHY reset、参考时钟方向和 I/O standard；最终引脚表逐项记录“网络名、FPGA引脚、Bank、电压、板上器件引脚、资料来源”，任何冲突先停在文档审计。
+- [x] B1-01A：从固定板厂提交提取 PS7、DDR、UART0、GEM0-EMIO、GMII-to-RGMII、200 MHz FCLK0、复位和XDC来源；机器清单绑定每个关键文件的Git blob与SHA-256。
+- [ ] B1-01B：按实际 `MT41K256M16` 重新冻结DDR参数，重写仓库内可重建 Tcl；不得直接沿用参考工程的 `MT41J256M16 RE-125` 配置或绝对路径。
+- [ ] B1-02：UART0/RGMII/MDIO引脚和I/O标准已核对；继续确认板修订、H17 PHY reset时序、物理PHY地址、Bank/电压/器件引脚和完整RGMII板级时序。
 - [ ] B1-03：冻结启动路径和串口合同：首轮由 JTAG 下载硬件与 ELF，串口参数、banner格式、启动超时和重复上电步骤写入脚本；SD/QSPI自启动作为后续独立验证，不混入首次 PS bring-up。
 - [ ] B1-04：生成 PS7+基础设施 bitstream和硬件平台导出文件；保存 block design Tcl、生成命令、XSA哈希、资源、两个相关时钟域的setup/hold、route/DRC和 bitstream SHA-256。
 - [ ] B1-05：编写最小启动程序，UART输出固定 banner、软件 Git提交、XSA/bitstream哈希、CPU/FCLK频率、DDR测试范围、PHY状态和复位原因；冷启动3次均需在冻结超时内得到完整且字段一致的日志。

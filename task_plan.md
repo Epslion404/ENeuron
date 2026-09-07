@@ -1357,7 +1357,25 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 - [x] 将隔离B0工作树切换并快进到 `main@102dee2...`，保留旧T0工作树及其未提交修改。
 - [x] 创建 `codex/zynq7020-b1-fastlane` 作为B1入口。
 - [x] 冻结按身份复用Vivado结果、按改动运行定向门、实板单会话批量验证和阶段末集中收口规则。
-- [ ] 裁定B1-D1软件栈后启动B1A，不在裁定前编写板级软件。
+- [x] B1A来源审计与B1-D1解耦；不在软件栈裁定前编写BSP或应用软件。
+
+### 2026-09-07 B1A 板级事实与硬件定义
+
+目标：在不依赖B1-D1软件栈选择的前提下，先完成PS7、DDR、UART、GEM/EMIO、GMII-to-RGMII、PHY及引脚事实提取，形成可复核的B1A输入清单。
+
+- [x] 确认主线入口为 `main@308bdecd9573e71340359729fdbb2f3fcb7723c7`，工作树干净。
+- [x] 确认 `D:\Desktop\Note\Zynq7020` 当前只包含笔记目录，未在三层内发现Git仓库；不能把该路径当作已定位的板厂克隆。
+- [x] 排除 `D:\Documents\Code\Zynq7020`：该目录是本地Vivado练习工程且没有 `.git`，不是固定板厂克隆。
+- [x] 定位用户已授权保留的板厂 `LXB-ZYNQ` 本地克隆：稳定读取路径采用 `C:\Users\Epsilon\_tmp\LXB-ZYNQ`；工作树干净，`master`/`origin/master`/HEAD均为固定提交 `73d529d8f159ca372b7d9855eddc80880ecd9d05`。
+- [x] 提取B1A权威源文件、参数和引脚锚点，明确冲突与未知项。
+- [x] 形成仓库内B1A来源审计文档和机器可读清单；未获B1-D1批准前不编写板级软件。
+- [x] 文档/JSON解析、状态一致性、关键锚点、硬件身份未变和 `git diff --check` 定向门通过；准备提交小PR。本切片只代表来源审计完成，不代表B1A或B1-GATE通过。
+
+成功条件：每个关键板级参数均有固定提交、精确源文件和稳定锚点；冲突项不静默裁定；清单可直接驱动后续可重建BD Tcl和XDC实现。
+
+错误记录：首次将 `D:\Documents\Code\Zynq7020` 作为候选Git仓库执行 `git status/rev-parse/ls-tree`，全部返回“not a git repository”。目录只含本地Vivado工程；后续按 `.git/config` remote URL定位，不再按目录名猜测。
+
+扫描记录：跨 `D:\Documents\Code`、`D:\Desktop`、`C:\Users\Epsilon` 的 `.git/config` 扫描最终退出码为1，但在结束前成功定位两个 `GLSZ/LXB-ZYNQ` 克隆；后续不重复全盘扫描，直接使用已验证的稳定路径。
 
 错误记录：首次加入 `artifacts/results/hellozynq_b0_smoke_summary.json` 后，`test_artifact_layout.py` 按设计拒绝未登记的新结果文件。已将该正式摘要加入精确白名单并同步 `artifacts/README.md`，未放宽目录检查规则。
 
