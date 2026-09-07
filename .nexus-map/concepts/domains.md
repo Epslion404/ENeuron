@@ -19,8 +19,8 @@ provenance: NP4B/NP6/NP7 TODO、工作流状态与 RTL 文件；集成边界来�
 - `TIMING_REPAIR_V1_FUNCTIONAL_GREEN`：TR1-TR6 已实现，共享四 DSP lane、FETCH/EXECUTE/COMMIT、C1-C4、固定 `20×100` 和完整回归均通过；因 setup 失败，该状态不等于物理通过。
 - `TIMING_REPAIR_V2_FUNCTIONAL_GREEN`：TR7-TR12 已实施，V2 独立 RED、定向门、固定 `20×100`、完整回归和逐组 WRITEBACK/激活锁存合同均通过；C1-C4 为 `1902/1898/718/1900` 拍。
 - `P15_T0_APPROVED / T1_RTL_AUTHORIZED`：方案 A 与 A1-A7 已批准，允许实现纯 RTL wrapper、四条异步 FIFO 和 FIFO 外 AXI-Stream shim；这是实施授权，不是完成证据。当前 T1/T2/T3 均未签核。
-- `T1_PROTOCOL_SLICE_PROVEN / T1_FULL_PENDING`：T1 wrapper、testbench、XPM 仿真模型、manifest 和统一复现入口已进入仓库；隔离快照中的 G0/G1 与 Icarus 协议切片通过。T1-02 的 `STATE_CLEAR` exactly-once、`FREEZE_SET` 同步及冻结期间配置拒绝主要路径已在本机 `7c55c7c` 通过。该状态只覆盖当前协议场景，不等于 T1-01～T1-12 全量、T2 双时钟、T3 XC7Z020 OOC 或板级完成。
-- `T1_NEXT_MINIMAL_SET`：T1-02 已从执行集移出；剩余按 `T1-04 → T1-10 → T1-11 → T1-12` 扩展。先做 response 背压，再做 mask 首 beat 原子边界、复位重入和四 FIFO 空满/回绕/长背压；每项独立通过后才可推进 T1 全量状态。
+- `T1_PROTOCOL_SLICE_PROVEN / T1_FULL_PENDING`：既有 T1 wrapper、testbench、XPM 仿真模型、manifest 和统一复现入口已进入仓库；T1-02 的 `STATE_CLEAR` exactly-once、`FREEZE_SET` 同步及冻结期间配置拒绝主要路径、T1-06 fence 独立切片，以及 T1-12 四 FIFO 边界切片，已在本机 `e4d48dd` 工作树通过。XPM wrapper 定向回归恢复为 5/5，depth=16+FWFT 的外部可见容量按 17 处理。本机 18 项目标单测与 G0/G1 复现均通过；该状态也不等于 T1-01～T1-12 全量、T2 双时钟、T3 XC7Z020 OOC 或板级完成。
+- `T1_NEXT_MINIMAL_SET`：T1-02、T1-06 与 T1-12 已从执行集移出；剩余为 T1-09 的 TLAST 外层 shim/N-A 裁定。若增加外层 shim，需独立验证改变、提前或缺失 TLAST 不改变完整核心结果；若当前 DUT 明确不暴露 TLAST，则记录 N/A 裁定，不得伪造 T1 核心通过。
 - `RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN`：资源裁剪候选已完成风险审查，但第一次完整端到端运行成功前不得实施；当前优先保持功能、CDC、原子性和诊断基线完成 T1/T2/T3。
 - `B-V1+V2`：NP7 已批准的单槽弹性流水合同，允许零路径同拍完成及非零结果退出与下一事务接受重叠；其收益只由逐拍账本证明。
 - `CI-Fast V1`：按变更路径选择验证范围的 Action 编排；Action 基线已从 `actions/checkout@v4`、`actions/setup-python@v5` 升级为二者 `@v7`（Node 24）。已完成 workflow 全量、文档轻量与 NPU-only 定向路径验证；任何 workflow 变更必须运行全量门，未知代码触发全仓回归，手动运行触发全部专项门。
