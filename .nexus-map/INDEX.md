@@ -29,6 +29,8 @@ NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`，NP7 已签核。
 
 - T2 FIFO 矩阵切片（当前工作树提交候选，尚未提交）：`tb_xpm_fifo_async_matrix.sv` 对命令、响应、样本和结果四通道做固定 8 组 `(NPU_HALF,PHASE)` × 3 个 seed，共 24 次逐序列 scoreboard；入口 `python -X utf8 tools/repro/verify_repository.py --t2-fifo-matrix` 输出 `REPRO_G2_T2_FIFO_MATRIX_PASS`。该结果是本机 Icarus 等价 FIFO 模型证据，不是 AMD XPM/xsim、Vivado T3 或 GitHub Actions 结果；T2 全矩阵和真实 XPM/xsim 仍待完成。
 
+- T2 wrapper 交错/复位切片（当前工作树提交候选，尚未提交）：`tb_npu_zynq7020_t2_interleave_reset.sv` 在 `(NPU_HALF, NPU_PHASE)=(2,0),(3,1),(7,2),(11,4)` 四组配置下验证命令与样本交错、配置中途复位、结果背压复位、半帧复位和旧 payload 清除，入口 `python -X utf8 tools/repro/verify_repository.py --t2-interleave-reset` 输出 `REPRO_G2_T2_INTERLEAVE_RESET_PASS`。这是 Icarus wrapper 切片证据，不是 T2 全矩阵、AMD XPM/xsim、Vivado T3 或 GitHub Actions 结果。
+
 ## 单时钟 RTL 审核摘要
 
 - **V1 审计问题**：统一单命令流却定义 `MODEL_COMMIT` 与 `MASK_COMMIT` 同拍竞争；结果 sideband 引入未冻结的 `model_epoch` 且硬件槽位账本不足；首 beat mask 切换未说明 framing 错误的零副作用/回滚；`runtime_idle` 漏待消费错误、部分结果和同拍握手占用；验证门低于 I5 的 20 个固定 seed × 100 样本要求。

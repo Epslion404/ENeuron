@@ -130,11 +130,41 @@ def _run_t2_fifo_matrix() -> list[str]:
     return []
 
 
+def _run_t2_interleave_reset() -> list[str]:
+    tools = _tools()
+    if tools is None:
+        return ["找不到 Icarus Verilog；Windows 约定路径为 C:/msys64/ucrt64/bin"]
+    cases = [(2, 0), (3, 1), (7, 2), (11, 4)]
+    with tempfile.TemporaryDirectory(prefix="eneuron-repro-t2-interleave-") as temp:
+        for npu_half, npu_phase in cases:
+            name = f"t2_interleave_{npu_half}_{npu_phase}"
+            output = Path(temp) / f"{name}.vvp"
+            compile_result = _run([
+                tools[0], "-g2012", "-Wall", "-s", "tb_npu_zynq7020_t2_interleave_reset",
+                "-P", f"tb_npu_zynq7020_t2_interleave_reset.NPU_HALF={npu_half}",
+                "-P", f"tb_npu_zynq7020_t2_interleave_reset.NPU_PHASE={npu_phase}",
+                "-o", str(output), "xpm_fifo_async_sim.sv", "npu_eneuron_single_clock_skeleton.sv",
+                "npu_zynq7020_t1_wrapper.sv", "tb_npu_zynq7020_t2_interleave_reset.sv",
+            ])
+            if compile_result.returncode:
+                return [f"{name} 编译失败:\n" + compile_result.stderr[-4000:]]
+            simulation = subprocess.run(
+                [tools[1], str(output)], cwd=ROOT, text=True,
+                capture_output=True, encoding="utf-8"
+            )
+            text = simulation.stdout + simulation.stderr
+            marker = f"T2_INTERLEAVE_RESET_PASS NPU_HALF={npu_half} NPU_PHASE={npu_phase}"
+            if simulation.returncode or marker not in text:
+                return [f"{name} 仿真失败或缺少通过标记:\n" + text[-4000:]]
+    return []
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--t1", action="store_true", help="运行 T1 协议切片")
     parser.add_argument("--t2", action="store_true", help="运行 T2 非整数时钟切片")
     parser.add_argument("--t2-fifo-matrix", action="store_true", help="运行 T2 FIFO 压力矩阵")
+    parser.add_argument("--t2-interleave-reset", action="store_true", help="运行 T2 wrapper 交错与复位切片")
     args = parser.parse_args()
     errors = _manifest_errors()
     if args.t1:
@@ -143,6 +173,8 @@ def main() -> int:
         errors.extend(_run_t2())
     if args.t2_fifo_matrix:
         errors.extend(_run_t2_fifo_matrix())
+    if args.t2_interleave_reset:
+        errors.extend(_run_t2_interleave_reset())
     for error in errors:
         print(f"ERROR: {error}")
     if errors:
@@ -154,6 +186,8 @@ def main() -> int:
         print("REPRO_G2_T2_VARIABLE_CLOCKS_PASS")
     if args.t2_fifo_matrix:
         print("REPRO_G2_T2_FIFO_MATRIX_PASS")
+    if args.t2_interleave_reset:
+        print("REPRO_G2_T2_INTERLEAVE_RESET_PASS")
     return 0
 
 

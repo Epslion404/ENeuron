@@ -6,6 +6,8 @@
 
 当前工作树另有 T2 FIFO 矩阵切片候选：`tb_xpm_fifo_async_matrix.sv` 对四条 FIFO 通道执行 8 组时钟/相位×3 seed 的 24 次固定 scoreboard，入口输出 `REPRO_G2_T2_FIFO_MATRIX_PASS`。它只覆盖 Icarus 等价模型的顺序、满空、回绕/背压和复位压力，不代表 AMD XPM/xsim、XC7Z020 T3 或板级证据；该候选尚未提交。
 
+当前工作树另有 T2 wrapper 交错/复位切片候选：`tb_npu_zynq7020_t2_interleave_reset.sv` 在 `(2,0)/(3,1)/(7,2)/(11,4)` 四组配置下验证命令/样本交错和多个复位位置，4/4 输出 `REPRO_G2_T2_INTERLEAVE_RESET_PASS`。它只覆盖 Icarus wrapper 切片，不代表 T2 全矩阵、AMD XPM/xsim、XC7Z020 T3 或 Actions 结果；该候选尚未提交。
+
 generated_by: nexus-mapper v2 / manual synthesis
 verified_at: 2026-09-07
 provenance: Python AST/file-tree probe plus SystemVerilog文件树和项目文档人工核对

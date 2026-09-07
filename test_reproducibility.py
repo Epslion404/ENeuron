@@ -32,6 +32,13 @@ class ReproducibilityContractTests(unittest.TestCase):
         self.assertIn('parser.add_argument("--t2-fifo-matrix"', verifier)
         self.assertIn("REPRO_G2_T2_FIFO_MATRIX_PASS", verifier)
 
+    def test_t2_interleave_reset_has_reproducible_entrypoint(self) -> None:
+        manifest = json.loads((ROOT / "tools/repro/repro_manifest.json").read_text(encoding="utf-8"))
+        verifier = (ROOT / "tools/repro/verify_repository.py").read_text(encoding="utf-8")
+        self.assertIn("tb_npu_zynq7020_t2_interleave_reset.sv", manifest["required_tracked_files"])
+        self.assertIn('parser.add_argument("--t2-interleave-reset"', verifier)
+        self.assertIn("REPRO_G2_T2_INTERLEAVE_RESET_PASS", verifier)
+
     def test_t1_changes_select_repro_gate(self) -> None:
         selected = classify_paths(["npu_zynq7020_t1_wrapper.sv"])
         self.assertTrue(selected["t1_repro"])

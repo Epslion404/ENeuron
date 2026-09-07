@@ -1405,3 +1405,4 @@
 - 2026-09-07：将 T2 确定性时钟覆盖扩展到六组 `(7,2)/(9,1)/(4,3)/(5,0)/(11,4)/(3,1)`；统一入口仍返回 G0/G2 PASS。状态为扩展切片绿色，随机频率/相位全矩阵、FIFO scoreboard、T3、Vivado 和板级闭环仍未完成。
 - 2026-09-07：T2 FIFO 压力矩阵按测试先行原则先加入复现合同测试；当前已故意 RED，因为 manifest 和 `verify_repository.py` 还没有新矩阵文件与 `--t2-fifo-matrix` 入口。下一步是实现隔离四 FIFO scoreboard，不修改生产 RTL。
 - 2026-09-07：T2 FIFO 矩阵实现并通过 24/24 固定配置；T1、现有 T2 wrapper 六组切片和 19 项相关单测也通过。新文件为 `tb_xpm_fifo_async_matrix.sv`，统一入口为 `--t2-fifo-matrix`；当前状态是 FIFO 切片 GREEN，T2 wrapper 并发命令/多位置 reset、T3 和板级仍待完成。
+- 2026-09-07：新增 `tb_npu_zynq7020_t2_interleave_reset.sv`，在4组代表性时钟配置下验证命令/sample 交错和三类 reset 注入；统一入口返回 `REPRO_G2_T2_INTERLEAVE_RESET_PASS`。与 FIFO 矩阵一样，这是本机 Icarus 切片，T2 全矩阵、T3、Vivado 和板级仍未完成。

@@ -1274,6 +1274,13 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 
 证据边界：该矩阵验证 Icarus 接口等价 FIFO 模型的逻辑容量与顺序；它与 wrapper 协议切片合起来增强 T2 本机证据，但不代替 T3 真实 AMD XPM/xsim 和 XC7Z020 OOC。
 
+## 2026-09-07 T2 wrapper 交错与复位切片
+
+- [x] RED：为 `--t2-interleave-reset` 复现入口增加合同测试，先确认闭包缺失并记录失败。
+- [x] GREEN：在同一个 Host 时间窗口交错发送命令和 sample beat，并在模型装载中、sample 帧中、结果背压中注入 reset，4 组时钟配置均通过。
+- [x] 回归：保持已通过的 T1、T2 可变时钟切片和 FIFO 矩阵不变，20 项相关 Python 单测也通过。
+- [x] 文档/版本：已同步测试计划、TODO、REPRODUCE、findings、progress 和 WORKFLOW_STATE；Nexus 待同步后提交。
+
 本轮错误记录：第一次直接用 PowerShell 拼接 Icarus `-P` 参数时，Icarus 将参数拆解为文件名并拒绝 elaboration；改为把 `-P` 与 defparam 名称作为独立 argv 传入复现脚本。第一次收尾只等待 80 个 Host 周期，通道 1 出现写入 34、读出 17 的未排空差异；改为显式只读排空 500 个 Host 周期后，24/24 全部通过。两次失败均未修改生产 RTL 或 FIFO 模型。
 
 ## 2026-09-04 单时钟 RTL 时序修复设计审核

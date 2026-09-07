@@ -1,6 +1,6 @@
 # XC7Z020 顶层 T2 双时钟协同测试计划 V1
 
-状态：`VARIABLE_CLOCK_SLICE_GREEN / CONCURRENT_EPOCH_SLICE_GREEN / EXTENDED_CLOCK_SLICE_GREEN / FIFO_MATRIX_SLICE_GREEN / FULL_MATRIX_PENDING`
+状态：`VARIABLE_CLOCK_SLICE_GREEN / CONCURRENT_EPOCH_SLICE_GREEN / EXTENDED_CLOCK_SLICE_GREEN / FIFO_MATRIX_SLICE_GREEN / INTERLEAVE_RESET_SLICE_GREEN / FULL_MATRIX_PENDING`
 
 日期：2026-09-07
 
@@ -33,14 +33,18 @@ T2 在已通过的 T1 wrapper 上改变 `host_clk` 与 `npu_clk` 的频率和相
 
 统一入口：`python -X utf8 tools/repro/verify_repository.py --t2-fifo-matrix`。该矩阵是固定的伪随机样本，不是所有频率/相位的数学穷举；也只验证 Icarus 接口等价模型。
 
+## wrapper 交错与复位切片
+
+`tb_npu_zynq7020_t2_interleave_reset.sv` 在 4 组 `(NPU_HALF,NPU_PHASE)=(2,0),(3,1),(7,2),(11,4)` 下验证：模型装载中途复位不会提交半模型；同一 Host 时间段内 mask 命令和 sample beat 可交错接受；结果背压中复位会丢弃未消费结果；sample 第 4 beat 前复位不会泄漏半帧。入口是 `python -X utf8 tools/repro/verify_repository.py --t2-interleave-reset`，返回 `REPRO_G2_T2_INTERLEAVE_RESET_PASS` 后仍保留 T2 全矩阵待完成状态。
+
 ## 观察窗口
 
 核心固定计算最坏约 1900 个 NPU 周期；较慢 NPU 配置下，结果等待上限必须按 NPU 周期预算换算，不能使用过短的 Host 周期上限。曾出现的 600 Host 周期超时是 testbench 观察窗口错误，修正为 5000 后三组均通过；该记录不构成 RTL 缺陷。
 
 ## 尚未完成
 
-- 八组配置×三个 seed 的 FIFO 独立 scoreboard 已通过；它不是所有频率/相位的数学穷举。
-- 仍需覆盖 wrapper 中并发命令与样本、多位置 reset 注入，并在 T3 使用真实 AMD XPM/xsim 和 XC7Z020 OOC。
+- 八组配置×三个 seed 的 FIFO 独立 scoreboard 已通过；wrapper 交错命令/sample 与三类 reset 切片也已通过；这些都不是所有频率/相位的数学穷举。
+- 仍需在 T3 使用真实 AMD XPM/xsim 和 XC7Z020 OOC，并补齐 wrapper 的并发命令与样本更广泛的输入交错和多位置 reset 矩阵。
 - T3 `xc7z020clg400-1` OOC、真实 XPM/xsim、AXI/DMA/网口和板级证据仍未完成。
 
 统一入口：
