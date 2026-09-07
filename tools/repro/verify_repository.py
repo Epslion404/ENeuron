@@ -69,13 +69,42 @@ def _run_t1() -> list[str]:
     return []
 
 
+def _run_t2() -> list[str]:
+    tools = _tools()
+    if tools is None:
+        return ["找不到 Icarus Verilog；Windows 约定路径为 C:/msys64/ucrt64/bin"]
+    cases = [(7, 2), (9, 1), (4, 3)]
+    with tempfile.TemporaryDirectory(prefix="eneuron-repro-t2-") as temp:
+        for npu_half, npu_phase in cases:
+            name = f"t2_variable_{npu_half}_{npu_phase}"
+            output = Path(temp) / f"{name}.vvp"
+            compile_result = _run([tools[0], "-g2012", "-Wall", "-s", "tb_npu_zynq7020_t2_variable_clocks",
+                                   f"-Ptb_npu_zynq7020_t2_variable_clocks.NPU_HALF={npu_half}",
+                                   f"-Ptb_npu_zynq7020_t2_variable_clocks.NPU_PHASE={npu_phase}",
+                                   "-o", str(output), "xpm_fifo_async_sim.sv",
+                                   "npu_eneuron_single_clock_skeleton.sv", "npu_zynq7020_t1_wrapper.sv",
+                                   "tb_npu_zynq7020_t2_variable_clocks.sv"])
+            if compile_result.returncode:
+                return [f"{name} 编译失败:\n" + compile_result.stderr[-4000:]]
+            simulation = subprocess.run([tools[1], str(output)], cwd=ROOT, text=True,
+                                        capture_output=True, encoding="utf-8")
+            text = simulation.stdout + simulation.stderr
+            marker = f"T2_VARIABLE_CLOCKS_PASS NPU_HALF={npu_half} NPU_PHASE={npu_phase}"
+            if simulation.returncode or marker not in text:
+                return [f"{name} 仿真失败或缺少通过标记:\n" + text[-4000:]]
+    return []
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--t1", action="store_true", help="运行 T1 协议切片")
+    parser.add_argument("--t2", action="store_true", help="运行 T2 非整数时钟切片")
     args = parser.parse_args()
     errors = _manifest_errors()
     if args.t1:
         errors.extend(_run_t1())
+    if args.t2:
+        errors.extend(_run_t2())
     for error in errors:
         print(f"ERROR: {error}")
     if errors:
@@ -83,6 +112,8 @@ def main() -> int:
     print("REPRO_G0_MANIFEST_PASS")
     if args.t1:
         print("REPRO_G1_T1_PROTOCOL_SLICE_PASS")
+    if args.t2:
+        print("REPRO_G2_T2_VARIABLE_CLOCKS_PASS")
     return 0
 
 

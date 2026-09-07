@@ -8,6 +8,7 @@
 - 2026-09-06：T1-12 FIFO 边界切片通过。新增 `tb_npu_zynq7020_t1_fifo_boundary.sv`，对 128/128/64/96 bit 四种 payload 分别验证空读 underflow、depth=16+FWFT 外部容量 17、满写 overflow、读写指针回绕、FWFT 长背压稳定性和有序排空。既有 `test_host_bridge_xpm_wrapper` 也恢复为 5/5 通过；此前失败来自把外部可见容量误设为 16，不是 XPM 模型缺陷。
 - 2026-09-07：T1-06 独立 fence 验收通过。新增 `tb_npu_zynq7020_t1_fence_accept.sv`：模型有效且 mask staging 未闭合时，`SAMPLE_FENCE` 只返回 `0xE` 且样本窗口保持关闭；完整发布 next epoch 后，fence 返回 `0xD`，逐字段核对 opcode、fence ID、active epoch=0 和保留位，并确认只打开一个样本窗口。Icarus 编译退出码 0，输出 `T1_FENCE_ACCEPT_PASS`。这不等于 T1 全量，也不覆盖 TLAST/T2/T3。
 - 2026-09-07：T1-09 已按批准的 A2 形成独立边界裁定：当前 T1 wrapper 没有 TLAST 端口，因此记为 `NA_FOR_T1_WRAPPER`，不伪造 TLAST 仿真通过；未来外层 AXI-Stream shim/packetizer 仍需单独测试早到、晚到和缺失 TLAST。
+- 2026-09-07：T2 首个可变时钟切片通过。参数化 testbench 在 `(NPU_HALF,PHASE)=(7,2),(9,1),(4,3)` 三组非整数关系下均完成跨域错误响应背压、模型/mask/fence 顺序、8/10 beat sideband、单窗口和复位重入，统一入口输出 `REPRO_G2_T2_VARIABLE_CLOCKS_PASS`。曾有一次 600 Host 周期结果等待误报，根因是慢 NPU 的观察窗口不足，改为 5000 后通过。
 - 2026-09-06：为恢复免费 Git 推送，管理员已将仓库 Actions 权限设置为 `enabled=false`。三个本地提交已推送到现有 PR #68，远端 head 为 `3227162d8f8e321f4e6b479923db34403b84f87c`；API 返回 PR `OPEN / MERGEABLE` 且无 checks。空 checks 列表只表示 Actions 暂停，不能作为通过证据。
 
 ## 2026-09-07 GitHub 可复现性审计

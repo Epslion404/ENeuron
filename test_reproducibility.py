@@ -19,7 +19,9 @@ class ReproducibilityContractTests(unittest.TestCase):
         self.assertIn("tb_npu_zynq7020_t1_wrapper.sv", required)
         self.assertIn("tb_npu_zynq7020_t1_fifo_boundary.sv", required)
         self.assertIn("tb_npu_zynq7020_t1_fence_accept.sv", required)
+        self.assertIn("tb_npu_zynq7020_t2_variable_clocks.sv", required)
         self.assertIn("docs/planning/NPU_ZYNQ7020_T1_TLAST_BOUNDARY_V1.md", required)
+        self.assertIn("docs/planning/NPU_ZYNQ7020_T2_TEST_PLAN_V1.md", required)
         self.assertIn("xpm_fifo_async_sim.sv", required)
 
     def test_t1_changes_select_repro_gate(self) -> None:

@@ -4,10 +4,11 @@
 
 ```powershell
 python -X utf8 tools/repro/verify_repository.py --t1
+python -X utf8 tools/repro/verify_repository.py --t2
 python -X utf8 -m unittest -v test_ci_fast_v1 test_artifact_layout test_reproducibility
 ```
 
-Windows T1 明确使用 `C:\msys64\ucrt64\bin\iverilog.exe` 与 `C:\msys64\ucrt64\bin\vvp.exe`。通过标记仅代表 T1 协议切片，不代表 T1-01～T1-12、T2、T3 或板级闭环全部通过。
+Windows T1/T2 明确使用 `C:\msys64\ucrt64\bin\iverilog.exe` 与 `C:\msys64\ucrt64\bin\vvp.exe`。`--t1` 通过标记仅代表 T1 协议切片；`--t2` 通过标记仅代表三组非整数时钟切片，不代表 T1/T2 全矩阵、T3 或板级闭环全部通过。
 
 Vivado 2024.1 不放入仓库。设置 `VIVADO_ROOT` 后运行：
 
