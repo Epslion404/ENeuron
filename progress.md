@@ -1449,3 +1449,4 @@
 - 2026-09-07：暂存时Git提示run-2机器文件将CRLF归一化为LF，因此在提交前增加Git blob字节哈希审计，避免manifest只匹配Windows工作树、不匹配仓库对象。属性检查第一次因工具参数拼写错误未执行，记录错误的补丁调用又因JavaScript输出语句拼写错误未执行；两次均未改变仓库状态，随后改用正确调用。
 - 2026-09-07：跨平台哈希补丁首次因断电manifest中的实际Tcl哈希与预期上下文不同而整体拒绝，未发生部分写入；读取实际结构后拆分重试。确认run-1、断电探针和run-2的采集时文本哈希均受CRLF/LF影响，因此保留原始SHA-256字段，并补充LF规范SHA-256；B0证据测试改用规范哈希验证跨平台仓库字节，符合根 `.gitattributes` 的 `eol=lf` 合同。
 - 2026-09-07：规范哈希修正后复验通过：B0证据、artifact布局与CI-Fast仍为 `17/17 PASS`，37份JSON解析通过，`git diff --check`通过。换行提示仅说明Git将按既有 `.gitattributes` 写入LF，规范哈希已覆盖该转换。
+- 2026-09-08：提交后Git blob复核第一次因 `sha256sum` 未加入PATH而中止，改用已安装的 `C:\msys64\usr\bin\sha256sum.exe`；run-1、断电探针和run-2三个已提交transcript的LF字节哈希全部匹配manifest。随后PR边界检查误把B0原有README路径本身当作诊断改动，产生假阳性；正确条件是远端HEAD不得包含未提交的“M19时钟诊断”章节，六个诊断文件也不得出现在PR路径中。
