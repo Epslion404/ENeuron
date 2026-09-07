@@ -1,5 +1,26 @@
 # 进度记录
 
+## 2026-09-07 B1A-HW 快速收敛
+
+- 用户要求缩短验证、尽快进入主线并清理无用文件。本轮停止扩大文档和全仓验证，只处理会阻止 B1A 上板的约束问题。
+- 已读取 `planning-with-files` 与 `karpathy-guidelines`；成功标准收敛为：RGMII TX output delay 可被 Vivado 识别、既有 setup/hold/route 硬门保持通过、生成可上板 bitstream/XSA、构建临时目录最终移入回收站。
+- 已确认 GMII-to-RGMII IP 自动 XDC 自带 4 条 `TIMING-54` waiver，这些已豁免方法学项不再作为阻断。方法学报告中实际剩余的 6 条 `TIMING-18` 为 5 条 RGMII TX 和 1 条 MDIO。
+- 第一个 routed checkpoint 探针约 30 秒完成：TX clock/port 对象计数为 `1/5`，但方法学结果未变化；未修改生产 XDC，转入第二种约束组合。
+- 第二个探针因 Vivado 2024.1 不存在 `get_output_delays` Tcl 命令而在报告前退出；此前四条 `set_output_delay` 已执行但未保存，也未修改生产文件。下一次移除该非必要诊断命令，直接以 `report_methodology` 判定，不重复失败命令。
+- 移除无效诊断命令后，routed checkpoint 方法学探针成功：`TIMING-18=1`，只剩 `MDIO_PHY_0_mdio_io`；RGMII TX 5 个顶层端口均不再缺 output delay。
+- 首次正式重建发现板级XDC默认在IP clocks XDC之前读取，generated clock尚不存在，产生4条 `set_output_delay` critical warning；已主动停止无效实现。修正为板级XDC `PROCESSING_ORDER=LATE`，并增加clock/port计数的早失败门，避免再次浪费完整实现时间。
+- 第一次XDC顺序探针把工程文件误写成多一层目录，Vivado立即报project file不存在并退出，未修改工程；已按 `create_project` 实际输出位置修正，不重复错误路径。
+- 修正路径后的XDC顺序探针通过：实现期IP clocks XDC索引3、板级XDC索引4，确认 `PROCESSING_ORDER=LATE` 能使顶层TX约束在generated clock创建后执行。
+- 第二次正式重建发现整份板级XDC设为LATE会让RX输入时钟晚于IP RX约束，且Vivado XDC不支持普通 `if`。已停止该无效实现并拆分约束：主XDC恢复原顺序，新增仅含TX delay的独立LATE XDC；不再在XDC中使用流程控制。
+- 拆分后的compile-order探针通过：实现期主XDC/IP clocks XDC/TX XDC顺序为3/4/5，下一步只需最终完整构建。
+- 最终完整构建在干净提交 `18fd65c8465f047fbfb0fe63c81a39412a9ea6e5` 上通过，输出 `B1A_BUILD_PASS`；bitstream SHA-256=`5d0940eb...e6d6`，XSA SHA-256=`053fc032...81df`。正式摘要确认RGMII TX缺失output delay为0。
+- Nexus收尾首次按旧摘要中的 `.nexus-map` 根路径读取失败；当前仓库实际知识库根路径需重新用 `rg --files` 定位，未修改文件，不重复假定旧路径。
+- 已定位知识库实际路径为 `.nexus-map/arch/` 与 `.nexus-map/concepts/`。B1A-HW需新增独立概念JSON，不覆盖历史来源审计JSON，并同步P16、系统、依赖、覆盖和领域入口。
+- B1A状态/JSON定向检查通过，但首次轻量测试为9/10：`test_artifact_layout`按预期拒绝未登记的新 `hellozynq_b1a_hw_summary.json`。这是归档索引缺失，不是硬件失败；下一步只把该结果加入既有artifact清单并重跑同一轻量门。
+- 清理前的首个PowerShell容量枚举在 `foreach` 后直接接管道时触发 `ParserError: empty pipe element`，未删除或修改任何文件。下一次先收集到数组再格式化，不重复该管道写法。
+- 已验证绝对路径均位于 `D:\Documents\Code\ENeuron-board-b0` 后，将约26.5 MB可重建临时物移入Windows回收站：B0旧build、B1A工程/探针/运行日志、`.Xil`、Python缓存及根Vivado临时文件。保留B1A bitstream、XSA、manifest、签核摘要和正式报告供B1B直接使用。
+- 收尾定向验证通过：artifact layout与CI-Fast共10/10，B1A四份关键JSON解析及状态合同通过，保留的bitstream/XSA哈希与机器摘要一致，`git diff --check`通过。测试新生成的Python缓存已再次移入回收站。
+
 ## 2026-09-06 本机验收与计费边界
 
 - 管理员确认当前 GitHub Actions 额度耗尽，后续不再使用 GitHub 付费功能；本阶段不主动触发或等待 GitHub-hosted Actions。GitHub 仍保留版本管理、PR 和人工审查用途。
@@ -1465,3 +1486,5 @@
 - 2026-09-07：首次用 PowerShell 解析源 BD 时误把组件路径写成 `design.cells`；实际顶层字段为 `design.components`，因此取值为 null 并触发 `You cannot call a method on a null-valued expression`。没有修改源资料；下一次改用已探明的结构，不重复错误路径。
 - 2026-09-07：完成B1A固定来源审计并形成 `HELLOZYNQ_B1A_SOURCE_AUDIT_V1.md` 与机器清单；同步P16状态为来源审计完成、硬件定义待解决四项事实。没有修改RTL/XDC/BD/Tcl/IP，按Fastlane V1只运行文档/JSON定向门，不启动Vivado。
 - 2026-09-07：B1A定向验证通过：两份JSON解析与状态断言PASS、六个文档关键锚点PASS、`git diff --check` PASS、硬件身份文件零变化。未运行Vivado和全仓回归，符合Fastlane V1的变更分类。
+- 2026-09-07：B1A-HW开始于 `main@342c3d1`。参考BD已由Vivado 2024.1成功导出；首次直接调用用户给出的unwrapped `vivado.exe`返回exit 1且无输出，改用受支持的 `bin/vivado.bat` 后成功，不再重复错误入口。
+- 2026-09-07：首次尝试用预期的Poppler `pdftotext.exe`路径提取Micron手册失败，该二进制不存在；没有修改来源文件。后续先枚举实际可用PDF文本工具或使用Python PDF库，不重复该路径。

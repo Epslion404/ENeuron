@@ -6,10 +6,10 @@
     "board": "HelloZynq",
     "part": "xc7z020clg484-2"
   },
-  "status": "P16_B0_COMPLETE / FASTLANE_V1 / B1A_SOURCE_AUDIT_COMPLETE / B1_DECISION_PENDING",
+  "status": "P16_B0_COMPLETE / FASTLANE_V1 / B1A_HW_DEFINITION_COMPLETE / B1B_PENDING / B1_DECISION_PENDING",
   "stage2_complete": false,
-  "current_gate": "B1A-HW-DEFINITION",
-  "current_execution_point": "RESOLVE_DDR_PHY_RESET_ADDRESS_AND_RGMII_TIMING",
+  "current_gate": "B1B-PS7-UART-DDR",
+  "current_execution_point": "DECIDE_SOFTWARE_STACK_AND_RUN_PS7_UART_DDR",
   "b0": {
     "source_commit": "f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06",
     "bitstream_sha256": "df16ed6ccd9124f2dc4391d96e868ebd7846aebf3df335099b742cc7cd318971",
@@ -63,17 +63,20 @@
     "gate_pass": true
   },
   "next_action": {
-    "action": "RESOLVE_DDR_PHY_RESET_ADDRESS_AND_RGMII_TIMING",
+    "action": "DECIDE_SOFTWARE_STACK_AND_RUN_PS7_UART_DDR",
     "run_2_started": true,
-    "completion_condition": "Freeze actual DDR parameters, physical PHY reset, physical PHY address verification and RGMII timing, then generate reproducible BD Tcl and XDC; decide the software stack in parallel"
+    "completion_condition": "Select the first bring-up software stack, then prove UART boot and DDR read/write on the B1A hardware definition"
   },
   "b1a": {
     "source_audit_status": "COMPLETE",
     "source_audit_manifest": ".nexus-map/concepts/board_phase2_b1a.json",
     "source_audit_report": "docs/planning/HELLOZYNQ_B1A_SOURCE_AUDIT_V1.md",
-    "hardware_definition_status": "PENDING_FACT_RESOLUTION",
-    "blocking_facts": ["DDR_PART_MISMATCH", "PHY_RESET_NOT_EXPOSED", "PHYSICAL_PHY_ADDRESS_UNKNOWN", "RGMII_BOARD_TIMING_INCOMPLETE"],
-    "b1a_complete": false,
+    "hardware_definition_status": "COMPLETE",
+    "hardware_definition_manifest": ".nexus-map/concepts/board_phase2_b1a_hw.json",
+    "hardware_definition_summary": "artifacts/results/hellozynq_b1a_hw_summary.json",
+    "source_commit": "18fd65c8465f047fbfb0fe63c81a39412a9ea6e5",
+    "blocking_facts": [],
+    "b1a_complete": true,
     "b1_gate_pass": false
   },
   "fastlane_v1": {
@@ -85,7 +88,7 @@
     "actions_disabled_rule": "do not wait for empty checks; use local targeted evidence and PR mergeability"
   },
   "stages": [
-    {"id":"B1","requires":"B0-GATE=PASS on main","scope":"PS7, DDR, UART, PHY, minimal UDP","status":"IN_PROGRESS_SOURCE_AUDIT_COMPLETE"},
+    {"id":"B1","requires":"B0-GATE=PASS on main","scope":"PS7, DDR, UART, PHY, minimal UDP","status":"IN_PROGRESS_B1A_COMPLETE_B1B_PENDING"},
     {"id":"B2","requires":"B1-GATE=PASS","scope":"AXI DMA, DDR ownership/cache contract, PL loopback, fixed frame adapter","status":"BLOCKED_BY_PREDECESSOR_GATE"},
     {"id":"B3","requires":"B2-GATE=PASS","scope":"64x32x10 traditional NPU plus ENeuron fixed-vector board validation","status":"BLOCKED_BY_PREDECESSOR_GATE"},
     {"id":"B4","requires":"B3-GATE=PASS","scope":"Ethernet end-to-end dense/gated reproducible A/B","status":"BLOCKED_BY_PREDECESSOR_GATE"}

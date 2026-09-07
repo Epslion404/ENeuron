@@ -4,6 +4,8 @@ generated_by: nexus-mapper v2 / manual synthesis
 verified_at: 2026-09-07
 provenance: NP4B/NP6/NP7 TODO、工作流状态与 RTL 文件；集成边界来自审核材料包
 
+- `B1A_HW_DEFINITION_COMPLETE`：HelloZynq `xc7z020clg484-2` 的可重建PS7/DDR/UART0/GEM0/MDIO/GMII-to-RGMII硬件定义已通过Vivado 2024.1实现并生成bitstream/XSA；它不表示UART、DDR、PHY、UDP或B1-GATE已在实板通过。
+
 - `TICK`：推进一个样本或网络时刻。
 - `OBSERVE`/`evidence`：读取已提交学习证据，不读取 live 工作副本。
 - `2:4`：每四个连接恰保留两个，提交必须原子完成。

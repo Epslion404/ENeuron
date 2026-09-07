@@ -1,3 +1,11 @@
+# 2026-09-07 B1A-HW 快速收敛
+
+- [x] 将范围收敛为上板阻断项，不扩大全仓回归和文档审计。
+- [x] 修正 RGMII TX `TIMING-18`，5个顶层TX端口缺失数降为0。
+- [x] 运行最小必要 Vivado 验证并生成可上板 bitstream/XSA。
+- [x] 同步最小机器证据与阶段状态，保持 `b1_gate_pass=false`。
+- [ ] 将证据提交、推送并合并B1A小PR；无用构建临时目录已移入系统回收站。
+
 # 2026-09-06 本机验收与 GitHub 计费边界
 
 - [x] 确认当前 GitHub Actions 额度耗尽；后续不主动触发或等待 GitHub-hosted Actions。

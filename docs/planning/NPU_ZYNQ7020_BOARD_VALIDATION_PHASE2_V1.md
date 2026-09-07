@@ -1,6 +1,6 @@
 # XC7Z020 实板验证阶段 2 规划 V1
 
-状态：`ACTIVE / FASTLANE_V1 / B0_COMPLETE / B1A_SOURCE_AUDIT_COMPLETE / B1_DECISION_PENDING`
+状态：`ACTIVE / FASTLANE_V1 / B0_COMPLETE / B1A_HW_DEFINITION_COMPLETE / B1B_PENDING / B1_DECISION_PENDING`
 
 日期：2026-09-07
 
@@ -12,7 +12,7 @@
 
 板厂参考仓库固定为 `master@73d529d8f159ca372b7d9855eddc80880ecd9d05`，本地克隆已获授权保留。PR #69 已合并为 `main@102dee2a004283ce4144aaf6ee0a2cee3ebd2887`，B0 已关闭。
 
-B1A 来源审计已完成，详见 `HELLOZYNQ_B1A_SOURCE_AUDIT_V1.md`。审计发现板上 DDR 型号与参考 PS7 配置不一致，且参考工程未引出物理 PHY reset；因此当前只允许声明来源审计完成，不能声明 B1A 或 B1 通过。
+B1A来源审计及可重建硬件定义均已完成。干净提交 `18fd65c` 在Vivado 2024.1上生成bitstream/XSA，setup/hold/route/DRC硬门和RGMII TX顶层output delay门通过。B1A完成只表示硬件定义进入主线候选；UART、DDR读写、PHY、链路和UDP仍须B1B/B1C实板验证，`B1-GATE`保持未通过。
 
 ## Fastlane V1：更快进入主线
 

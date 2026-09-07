@@ -1,5 +1,7 @@
 # 系统边界
 
+B1A-HW状态（2026-09-07）：`boards/hellozynq/b1a_hw/` 已在干净提交 `18fd65c` 上通过Vivado 2024.1完整实现，生成可重建PS7/DDR/UART0/GEM0/MDIO/GMII-to-RGMII硬件定义。该切片状态为 `B1A_HW_DEFINITION_COMPLETE / B1_GATE_PASS=false`；下一系统边界是B1B的UART与DDR实板验证。
+
 阶段2实板状态（2026-09-07）：实际板卡目标固定为 `xc7z020clg484-2`。B0双运行与完整断电证据已通过PR #69合并为 `main@102dee2...`。当前状态为 `B0_COMPLETE / FASTLANE_V1 / B1_DECISION_PENDING`。
 
 P16最终硬门仍按B0→B1→B2→B3→B4串行，但代码按Fastlane V1小步合并。B1A/B1B/B1C中间切片可进入main但不改变阶段通过状态；B2–B4仍不得提前声明实现或签核。

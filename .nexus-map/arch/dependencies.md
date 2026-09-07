@@ -1,5 +1,7 @@
 # 依赖关系
 
+B1A-HW依赖（2026-09-07）：B0实板配置链 → B1A来源审计 → `boards/hellozynq/b1a_hw/` 可重建硬件定义 → B1B UART/DDR实板门 → B1C PHY/UDP与最终B1-GATE。B1A只提供bitstream/XSA和时序约束，不能替代后续软件与实板证据。
+
 当前校正（2026-09-07）：T3 真实 AMD XPM/xsim 与 XC7Z020 OOC 已在 `c2bc03f` 重跑通过；下方旧链路中的 `822cf93` 仅为历史快照。
 
 generated_by: nexus-mapper v2 / manual synthesis
@@ -23,7 +25,8 @@ graph TD
   npu -. P15 T0, plan A .-> p15[XC7Z020 top-level adapter]
   p15 -. A1-A7 approved; T1-02/T1-06/T1-12 local pass; T1-09 N/A; T2 full matrix and outer shim pending; T3 real XPM/xsim + XC7Z020 OOC pass .-> vivado
   p15 --> b0[P16 B0: PL clock and LED]
-  b0 --> b1[P16 B1: PS7 DDR UART PHY UDP]
+  b0 --> b1a[P16 B1A: reproducible PS7 and RGMII hardware]
+  b1a --> b1[P16 B1B/B1C: UART DDR PHY UDP]
   b1 --> b2[P16 B2: AXI DMA and fixed frame protocol]
   b2 --> b3[P16 B3: traditional NPU plus ENeuron]
   b3 --> b4[P16 B4: Ethernet end-to-end A/B]
