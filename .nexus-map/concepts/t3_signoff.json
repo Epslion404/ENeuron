@@ -1,0 +1,49 @@
+{
+  "$schema": "nexus-mapper/t3-signoff/v1",
+  "verified_at": "2026-09-07",
+  "git_head": "c2bc03f",
+  "xsim": {
+    "result": "PASS",
+    "vivado_version": "2024.1",
+    "part": "xc7z020clg400-1",
+    "xpm_libraries": "XPM_FIFO",
+    "real_model": "AMD_XPM_FIFO",
+    "top": "tb_npu_zynq7020_t1_wrapper"
+  },
+  "ooc": {
+    "physical_gate": "PASS",
+    "lut": 2467,
+    "ff": 2301,
+    "ramb36": 6,
+    "ramb18": 1,
+    "dsp48e1_count": 4,
+    "host_clock_mhz": 100.0,
+    "npu_clock_mhz": 100.0,
+    "host_wns_ns": 3.639,
+    "host_whs_ns": 0.105,
+    "npu_wns_ns": 0.214,
+    "npu_whs_ns": 0.042,
+    "setup_failing_endpoints": 0,
+    "hold_failing_endpoints": 0,
+    "route_errors": 0,
+    "drc_errors": 0,
+    "external_cdc_critical": 0,
+    "external_cdc_warning": 0,
+    "xpm_internal_cdc_warning": 8
+  },
+  "scope_exclusions": [
+    "AXI",
+    "DMA",
+    "PS7",
+    "Ethernet",
+    "bitstream",
+    "board_io_throughput",
+    "power",
+    "first_end_to_end_run",
+    "GitHub Actions"
+  ],
+  "authoritative_reports": [
+    "vivado_npu_zynq7020_t3_xsim/xsim_signoff_summary.txt",
+    "vivado_npu_zynq7020_t3_ooc_reports/signoff_summary.txt"
+  ]
+}

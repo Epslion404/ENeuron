@@ -24,6 +24,10 @@ class ClassifyChangesTest(unittest.TestCase):
         self.assertTrue(selected["xpm_cdc"])
         self.assertFalse(selected["full_repository"])
 
+    def test_t2_fifo_matrix_selects_repro_gate(self):
+        selected = classify_paths(["tb_xpm_fifo_async_matrix.sv"])
+        self.assertTrue(selected["t1_repro"])
+
     def test_np7_source_selects_functional_and_physical_gates(self):
         selected = classify_paths(["np7_shared_lane_exec.sv"])
         self.assertTrue(selected["np7_functional"])
@@ -41,8 +45,8 @@ class ClassifyChangesTest(unittest.TestCase):
 
     def test_actions_use_node24_compatible_majors(self):
         workflow = Path(".github/workflows/pr-gate.yml").read_text(encoding="utf-8")
-        self.assertEqual(workflow.count("uses: actions/checkout@v7"), 6)
-        self.assertEqual(workflow.count("uses: actions/setup-python@v7"), 5)
+        self.assertEqual(workflow.count("uses: actions/checkout@v7"), 7)
+        self.assertEqual(workflow.count("uses: actions/setup-python@v7"), 6)
         self.assertNotIn("uses: actions/checkout@v4", workflow)
         self.assertNotIn("uses: actions/setup-python@v5", workflow)
 

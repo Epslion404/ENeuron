@@ -1,0 +1,31 @@
+{
+  "schema": "eneuron_repro_manifest_v1",
+  "required_tracked_files": [
+    "README.md",
+    "REPRODUCE.md",
+    "requirements-repro.txt",
+    "xpm_fifo_async_sim.sv",
+    "npu_eneuron_single_clock_skeleton.sv",
+    "npu_zynq7020_t1_wrapper.sv",
+    "tb_npu_zynq7020_t1_wrapper.sv",
+    "tb_npu_zynq7020_t1_fifo_boundary.sv",
+    "tb_npu_zynq7020_t1_fence_accept.sv",
+    "tb_npu_zynq7020_t2_variable_clocks.sv",
+    "tb_xpm_fifo_async_matrix.sv",
+    "tb_npu_zynq7020_t2_interleave_reset.sv",
+    "run_vivado_npu_zynq7020_t3_xsim.ps1",
+    "vivado_npu_zynq7020_t3_xsim.tcl",
+    "run_vivado_npu_zynq7020_t3_ooc.ps1",
+    "vivado_npu_zynq7020_t3_ooc.tcl",
+    "docs/planning/NPU_ZYNQ7020_T1_TEST_PLAN_V1.md",
+    "docs/planning/NPU_ZYNQ7020_T1_TLAST_BOUNDARY_V1.md",
+    "docs/planning/NPU_ZYNQ7020_T2_TEST_PLAN_V1.md",
+    "tools/repro/verify_repository.py",
+    "tools/repro/repro_manifest.json",
+    "tools/repro/toolchain.lock.json",
+    "run_vivado_npu_single_clock_ooc.ps1",
+    "vivado_npu_single_clock_ooc.tcl",
+    "artifacts/results/npu_single_clock_ooc_manifest.json"
+  ],
+  "t1_expected_marker": "T1_PROTOCOL_SKELETON_PASS"
+}

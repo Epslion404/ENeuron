@@ -28,6 +28,6 @@
 | `results/np7_software_cost_manifest.json` | `python -X utf8 generate_np7_manifest.py` |
 | `results/np7_vivado_xsim_summary.json` | `python -X utf8 run_np7_vivado_xsim.py`（需 Vivado 2024.2 受控机） |
 | `results/np7_vivado_ooc_summary.json` | `python -X utf8 run_np7_vivado_ooc.py`（需 Vivado 2024.2 受控机） |
-| `results/npu_single_clock_ooc_manifest.json` | Vivado 2024.1 单时钟 NPU + ENeuron OOC 资源/时序/route/DRC 与报告 SHA-256 清单（当前 setup 未收敛） |
+| `results/npu_single_clock_ooc_manifest.json` | Vivado 2024.1 单时钟 NPU + ENeuron OOC 资源/时序/route/DRC 与报告 SHA-256 清单（`VIVADO_OOC_PASS`） |
 
 所有路径均以仓库根目录为基准。除明确标注为标准输出的 B0 摘要外，生成器应直接写入 `artifacts/results/`；调用方保存 B0 摘要时也应使用表中路径。不得在根目录创建兼容副本。

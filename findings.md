@@ -1,5 +1,50 @@
 # 调研与实验发现
 
+- 2026-09-06：额度边界确认。GitHub Actions 当前因账户额度耗尽不可作为本阶段验收依赖；后续不主动触发或等待 hosted runner。GitHub 仓库、分支和 PR 仅用于版本归档与人工审查；未运行的 Actions 统一记录为 `NOT_RUN_BILLING_BLOCKED`，不得当作代码失败或通过。
+- 2026-09-06：本机复现证据闭环。`python -X utf8 -m unittest -v test_reproducibility test_ci_fast_v1` 返回 12/12 通过；`python -X utf8 tools/repro/verify_repository.py --t1` 返回 `REPRO_G0_MANIFEST_PASS` 与 `REPRO_G1_T1_PROTOCOL_SLICE_PASS`。
+- 2026-09-06：T1 协议切片修复已在工作树核对：非法 `SAMPLE_FENCE` 只产生错误响应；mask staging 未闭合时拒绝 fence；fence 响应回显真实 active epoch；四条 FIFO 的远端 `rst_busy` 经两级同步后汇合；Host 状态和错误标志使用 CDC 二级同步。该证据仍不等于 T1-01～T1-12 全量、T2、T3 或板级完成。
+- 2026-09-06：扩展 T1 同频切片通过。新增响应背压 5 拍稳定性检查；样本首 beat 已绑定 epoch=1 后，在剩余 beat 期间发布 epoch=2，当前结果仍回显 1，下一样本结果回显 2；复位重入后 ready/valid 与旧 payload 均未泄漏。Icarus `compile=0 sim=0`，输出 `T1_PROTOCOL_SKELETON_PASS`。这仍只覆盖部分 T1 项目，不替代 T1-01～T1-12 全量、T2 或 T3。
+- 2026-09-06：T1-02 首轮断言曾因只等待 3 个 NPU 时钟而误报 `STATE_CLEAR` 未生效；日志确认核心已接受 `op=8`。将 testbench 改为带 100 拍上限的状态等待后通过，并验证 `FREEZE_SET` 进入/退出及冻结期间配置拒绝。该修正是观察时序校准，不改变 RTL。
+- 2026-09-06：T1-12 FIFO 边界切片通过。新增 `tb_npu_zynq7020_t1_fifo_boundary.sv`，对 128/128/64/96 bit 四种 payload 分别验证空读 underflow、depth=16+FWFT 外部容量 17、满写 overflow、读写指针回绕、FWFT 长背压稳定性和有序排空。既有 `test_host_bridge_xpm_wrapper` 也恢复为 5/5 通过；此前失败来自把外部可见容量误设为 16，不是 XPM 模型缺陷。
+- 2026-09-07：T1-06 独立 fence 验收通过。新增 `tb_npu_zynq7020_t1_fence_accept.sv`：模型有效且 mask staging 未闭合时，`SAMPLE_FENCE` 只返回 `0xE` 且样本窗口保持关闭；完整发布 next epoch 后，fence 返回 `0xD`，逐字段核对 opcode、fence ID、active epoch=0 和保留位，并确认只打开一个样本窗口。Icarus 编译退出码 0，输出 `T1_FENCE_ACCEPT_PASS`。这不等于 T1 全量，也不覆盖 TLAST/T2/T3。
+- 2026-09-07：T1-09 已按批准的 A2 形成独立边界裁定：当前 T1 wrapper 没有 TLAST 端口，因此记为 `NA_FOR_T1_WRAPPER`，不伪造 TLAST 仿真通过；未来外层 AXI-Stream shim/packetizer 仍需单独测试早到、晚到和缺失 TLAST。
+- 2026-09-07：T2 首个可变时钟切片通过。参数化 testbench 在 `(NPU_HALF,PHASE)=(7,2),(9,1),(4,3)` 三组非整数关系下均完成跨域错误响应背压、模型/mask/fence 顺序、8/10 beat sideband、单窗口和复位重入，统一入口输出 `REPRO_G2_T2_VARIABLE_CLOCKS_PASS`。曾有一次 600 Host 周期结果等待误报，根因是慢 NPU 的观察窗口不足，改为 5000 后通过。
+- 2026-09-06：为恢复免费 Git 推送，管理员已将仓库 Actions 权限设置为 `enabled=false`。三个本地提交已推送到现有 PR #68，远端 head 为 `3227162d8f8e321f4e6b479923db34403b84f87c`；API 返回 PR `OPEN / MERGEABLE` 且无 checks。空 checks 列表只表示 Actions 暂停，不能作为通过证据。
+
+## 2026-09-07 GitHub 可复现性审计
+
+- `git archive HEAD` 的隔离快照可完成 CI-Fast、NPU Oracle 和 artifact layout 共 57 项测试，说明当前已提交基线的一部分能脱离原工作树重放。
+- T1 wrapper、testbench 和测试计划仍在本地 WIP；wrapper 当前存在未声明 `core_cmd_ready` 及前向隐式 wire 问题，不能编译，所以 GitHub 尚不足以复现 T1。
+- 当前没有统一 Python 依赖锁；数据 fixture 生成器直接依赖 scikit-learn。复现入口必须区分“消费已提交 fixture”和“从源重新生成 fixture”。
+- `run_vivado_npu_single_clock_ooc.ps1` 把 Vivado 固定到个人 `G:` 盘，破坏跨机器入口；应改为参数/环境变量定位，同时严格核对 Vivado 2024.1。
+- 单时钟 OOC manifest 已正确绑定 RTL、runner、Tcl、报告、器件、100 MHz 和 4 DSP，是 G2 的基础；重新运行应比较机器判据，不应要求含路径/时间戳的全部报告逐字节相同。
+- `artifacts/README.md` 的单时钟 OOC 描述仍停在历史 setup 失败，与当前 V2 manifest 的 `VIVADO_OOC_PASS` 冲突，实施可复现性门时必须修正。
+- GitHub 官方当前说明：完整 commit SHA 是 action 不可变引用方式；当前工作流使用可移动的大版本标签，应在 R8 获批后改为 SHA 固定并保留标签注释。
+- AMD 当前 UG894 继续支持用 batch Tcl、命令参数和 `report_* -file` 固化可重放流程；现有非工程模式 Tcl 方向正确，主要缺口是入口路径、统一验证器和干净快照门。
+
+## 2026-09-05 P15-T0 静态合同审计
+
+- 四条逻辑流的职责已经清楚：128 位命令、128 位响应、样本输入和结果输出；AXI-Stream 位于异步 FIFO 外侧，T1 不接 AXI-Lite、DMA、Ethernet 或 PS7。
+- 样本的完整 FIFO 载荷是 `data[31:0] + sample_id[31:0]`，实际为 64 位；结果的完整 FIFO 载荷是 `data[31:0] + sample_id[31:0] + mask_epoch[31:0]`，实际为 96 位。32 位只表示 AXI `TDATA`，不能代表 FIFO 宽度。
+- 只读审计发现七项 T1 阻断：命令字段布局冲突、V1/V2 framing 冲突、命令与样本跨 FIFO 顺序未定义、reset-busy/ready 跨域汇合未冻结、TLAST/TUSER 错误语义不完整、FIFO 参数和资源归因不足、目标器件与旧 Host Bridge OOC 不一致。
+- 当前骨架/端口表采用 `[127:124]` 4-bit opcode；Oracle V3 采用 `[7:0]` 8-bit opcode。现有随机 TB 也使用高 nibble+epoch，且只做样本后再改 mask 的串行测试，不能证明四 FIFO 并发下的顺序合同。
+- 当前仍是 `P15_T0_REVIEW_REQUIRED / NO_RTL_AUTHORIZATION`；审计不授权创建顶层 RTL。
+
+## 2026-09-05 P15-T0 附录二次复核
+
+- 复核发现原 A2 的严格 TLAST/整帧丢弃承诺无法与无预缓冲的逐 beat 流式 wrapper 同时成立；建议改为 T1 只采用 V2 8/10 beat 计数，TLAST 仅作外层提示，严格包检查交给更外层 packetizer。
+- A3 需要冻结 wrapper-only `SAMPLE_FENCE` 的完整编码、成功响应类别、fence ID、sample FIFO 预填和 `sample_ready` 窗口；建议使用 opcode `0xA`、`fence_id=cmd_payload[31:0]`、响应类别 `0xD`，fence 前不允许样本预填，成功后只开放一个 8-beat 窗口。
+- ready/valid 合同必须区分“禁止新握手”和“撤销已呈现事务”：busy 变化不能在非复位期间撤销已呈现 valid/payload；复位才是取消边界。
+- `mask_epoch` 不能逐 bit CDC；建议只通过 result FIFO/fence 响应的原子 payload 传递，Host 状态只同步单 bit 摘要。
+- A1/A5 还需把保留位/未知 opcode 错误优先级以及 XPM `FIFO_READ_LATENCY=0`、`CDC_SYNC_STAGES=2`、`SIM_ASSERT_CHK=1` 写成唯一参数。
+- 以上结论已写入 Nexus 二次复核摘要；A1-A7 仍为提案，当前不授权 T1 RTL。
+
+## 2026-09-05 P15-T0 fence 条件再校正
+
+- 发现若把核心 `runtime_idle=1` 作为 `SAMPLE_FENCE` 必要条件，已发布但尚未在下一样本首 beat 激活的 mask 可能使摘要暂时为 0，导致首次样本死锁。
+- 已将建议条件改为核心 `sample_ready=1`、无 `result_valid/rsp_valid`、wrapper 无开放样本窗口，并由 wrapper 追踪模型/mask staging 是否闭合；该条件不依赖不可见的 `mask_state` 内部编码。
+- 测试合同已加入“已发布 mask 等待首 beat”向量，防止把 `runtime_idle=0` 错当成 fence 不可接受。
+
 ## NPU 局部剪枝 NP4B 实施授权（2026-08-29）
 
 - 八项决定已批准，后续不再为两输入输出兼容、核心 opcode 扩展、共享 gate 或 Host Bridge 集成保留分支。
@@ -1215,3 +1260,35 @@
 - PR #64 HEAD 与上述实现提交一致，GitHub Actions run `33946568679` 全绿；Webhook 掉线仅记录为通知通道缺失。
 - OOC 结论仍不覆盖板级 I/O、DMA、PS、Ethernet、动态功耗和持续学习；下一阶段必须另行完成顶层与板级签核。
 - 2026-09-05：P15-T0 审查结论为“方案 A 最小且可归因”：现有 Host Bridge 不能直接承载 32-bit 样本/结果，因此不把样本塞入 128-bit 配置流；新增 FIFO 的资源与时序必须在 T1/T3 单独测量。AXI、DMA、Ethernet、PS7 暂不进入核心。
+
+## 2026-09-06 P15-T0 状态与 webhook 持久性审计
+
+- 在同一开放 PR 中把 HEAD 和 Actions run 写成“当前值”会产生自指漂移：提交该文档后 HEAD/run 必然改变。正确做法是明确写成“审计快照”，绑定当时 SHA 与 run，实时状态始终从 GitHub API 查询。
+- PR #68 快照绑定 HEAD `55ec08eb74f68c46a8a65a016242faa3875c239d` 与 run `33976357259`。GitHub annotation 明确 runner 因账户付款/额度问题未启动，状态是 `NOT_RUN_BILLING_BLOCKED`，不是代码失败，也不是通过证据。
+- 仓库外 webhook 成功收到同一 SHA 的 `workflow_run completed/failure`，说明 chmlfrp 到本机的事件路径实际可用；`signature_verified=false`，因此只能触发复核，不能取代 GitHub Checks/API。
+- `start_webhook.ps1` 使用 `Start-Process` 启动后台 Python 时，在当前任务宿主下子进程会在调用环境结束后被回收。将 Windows 计划任务的 Action 改为直接运行 Python 后，计划任务保持 `Running`，健康检查稳定返回 HTTP 200。
+- 仓库外启动/停止脚本已改为优先控制计划任务；未安装计划任务时才退回旧的直接进程路径。该运维修订不进入 ENeuron 仓库。
+- 接收器与隧道是两个独立故障域：本机 `127.0.0.1:2355` 正常不代表 GitHub 能到达公网 `23.147.68.16:22682`。本次 GitHub delivery 的 502 与公网 TCP 失败共同定位到 frpc 隧道未运行。
+- chmlfrp 恢复后，本地/公网 `/healthz` 均返回 HTTP 200；GitHub 官方 ping delivery `ee543f6e-aa08-11f1-84fd-d4849c4dec76` 的状态为 `OK / 200`，同一 delivery 出现在接收器 `latest.json`，证明 GitHub→公网隧道→本地接收器全链路恢复。
+- 诊断期间曾同时存在 ChmlFrpLauncher 与计划任务两个 frpc 实例。最终保留用户 launcher 管理的单实例并停止额外任务实例，公网 health 仍通过，排除了“依赖重复隧道才可用”的可能。
+- 恢复后的第二个真实仓库事件再次闭环：`c2523a9` → run `34043377382`，webhook 收到 requested delivery `2e16b130-aa0a-11f1-86ef-dd7a956d4ed9` 和 completed delivery `3201ce10-aa0a-11f1-8238-2c657afd3f1d`；PR 评论 delivery 为 `4be59cd0-aa0a-11f1-88f2-e2e0e3608dc3`。此前 `6ece08a0…` 属于 `a409512`，已纠正映射。因此公网隧道、接收器和 GitHub hook 均可用，唯一未解除的是 Actions 账户计费阻断。
+- 2026-09-07：管理员批准 A1-A7，P15-T0 状态更新为 `T0_APPROVED / T1_RTL_AUTHORIZED`；该批准仅开放 T1，不代表双时钟顶层已完成。
+- 2026-09-07：资源审计确认单时钟 NPU 基线为 `2126 LUT / 1916 FF / 0 BRAM / 4 DSP`，其中 `1014 LUT` 报告为 LUTRAM；模型配置存储是首要裁剪候选，但不能把 1014 LUT 全部直接归因给某个数组。
+- 2026-09-07：最值得做的候选是 C1 固定模型改 ROM/BRAM、C2 推理专用 ENeuron 删除学习状态和提交路径、C3 固定拓扑特化。C6-C9 会破坏延迟学习、事务原子性、跨流协议或定点语义，不能作为普通省资源改动。
+- 2026-09-07：管理员决定将全部资源裁剪延后到第一次完整端到端运行成功之后；在此之前不实施 C1-C9，不修改当前训练/推理基线，不把估算收益写成物理实测。
+- 2026-09-07：T2 并发 epoch 切片通过。首个样本 8 beat 已进入 FIFO 后，Host 在 NPU 计算期间发布 epoch=2；当前结果仍逐 beat 回显 epoch=1，随后 fence 仍回显 active=1，下一样本结果回显 epoch=2。三组可变时钟 `(7,2)/(9,1)/(4,3)` 均通过；该证据仍不等于 T2 全矩阵或 T3。
+- 2026-09-07：T2 时钟覆盖扩展为六组 `(7,2)/(9,1)/(4,3)/(5,0)/(11,4)/(3,1)`；每组继续覆盖并发 epoch、8/10 beat、背压和复位重入。该结果是扩展确定性切片，不等于随机频率/相位全矩阵。
+- 2026-09-07：T2 全矩阵需要拆分两类证据。现有 wrapper 测试负责 fence、epoch、8/10 beat 和背压协议；新的独立 FIFO 矩阵负责四种实际宽度/方向下的满空、回绕、长背压和无丢失/重复/乱序。单独测试 Icarus FIFO 模型不能代替真实 AMD XPM/xsim，该边界必须保留到 T3。
+- 2026-09-07：T2 FIFO 矩阵 24/24 通过：8 组 `NPU_HALF/NPU_PHASE` × 3 个固定 seed。四条通道分别比对实际写入和读出序列；测试包含填满、排空、随机读写、读端长背压和中途 reset。本地验证命令是 `python -X utf8 tools/repro/verify_repository.py --t2-fifo-matrix`；结果仍不等于真实 XPM/xsim、T3 或板级。
+- 2026-09-07：T2 wrapper 交错/复位切片在4组 `(2,0)/(3,1)/(7,2)/(11,4)` 通过。实际并行验证中，mask 命令和 sample beat 交错接受；模型装载中途、结果背压中、sample 第 4 beat 前的 reset 均能清除半事务，未观察旧响应/结果泄漏。该切片仍使用 Icarus 等价 FIFO 模型，不代替 AMD XPM/xsim 和 T3。
+- 2026-09-07：T3 无需新增架构裁定。已批准 A7 明确 `xc7z020clg400-1`、Host/NPU 双 100 MHz 和真实 XPM；`npu_zynq7020_t1_wrapper.sv` 已实例化四个 depth-16、FWFT、`SIM_ASSERT_CHK=1`、`CDC_SYNC_STAGES=2` 的 XPM FIFO，宽度为 128/128/64/96 bit。
+- 2026-09-07：现有 `vivado_xpm_wrapper_sim.tcl` 面向旧 `digital_snn_host_bridge` 和 `xc7a35t`，不能作为当前 NPU wrapper 的 T3 证据；现有 `vivado_npu_single_clock_ooc.tcl` 只覆盖单时钟核心。T3 应新增独立 runner，不改写这两份历史证据入口。
+- 2026-09-07：T3 真实 AMD XPM/xsim 协同仿真通过；XC7Z020 OOC 通过。顶层准确资源为 `2467 LUT / 2301 FF / 6 RAMB36 / 1 RAMB18 / 4 DSP48E1`，Host/NPU WNS/WHS 分别为 `+3.639/+0.105 ns` 与 `+0.214/+0.042 ns`，setup/hold、route、DRC 和 external CDC 均无失败。Actions 已关闭，正式证据必须在提交后重新绑定新 HEAD。
+- 2026-09-07：上述 T3 证据已在实现提交 `c2bc03f` 上重新运行并确认 SHA 一致；随后仅提交 Nexus 与计划文档（`439ac6b`），不改变 RTL。故当前物理结论绑定 `c2bc03f`，文档状态提交绑定 `439ac6b`。
+- 2026-09-07：`tb_npu_zynq7020_t1_wrapper.sv` 只对白盒 `dut.core.state_clear_count` 有一处层次引用，真实 XPM 不影响该路径，因此可直接复用；xsim 入口必须排除 `xpm_fifo_async_sim.sv`，由 Vivado 项目的 `XPM_LIBRARIES {XPM_FIFO}` 提供真实 FIFO。
+
+## 2026-09-07 T2 固定种子随机矩阵收口
+
+- 固定种子 `20260907` 生成 24 个唯一 `(NPU_HALF,NPU_PHASE)` 组合，半周期范围为 2-17 ns；统一入口返回 `REPRO_G2_T2_RANDOM_MATRIX_PASS`。
+- 固定 5000 Host 周期在慢 NPU 组合下不足。观察预算改为 `2000 + 400 × NPU_HALF`，只改变 testbench 等待上限，不改变 DUT、事务顺序或通过判据。
+- 恢复审计确认上一轮只有状态汇报，没有改变权威状态；本轮继续完成 Nexus、复验、提交和推送闭环。

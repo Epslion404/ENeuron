@@ -22,6 +22,7 @@ jobs:
       xpm_cdc: ${{ steps.classify.outputs.xpm_cdc }}
       np7_functional: ${{ steps.classify.outputs.np7_functional }}
       np7_physical: ${{ steps.classify.outputs.np7_physical }}
+      t1_repro: ${{ steps.classify.outputs.t1_repro }}
     steps:
       - name: Checkout PR head
         uses: actions/checkout@v7
@@ -205,15 +206,36 @@ jobs:
       - name: Run physical-evidence mutation checks
         run: python -X utf8 test_np7_physical_mutations.py
 
+  t1-repro:
+    name: T1 reproducibility slice
+    needs: classify-changes
+    if: needs['classify-changes'].outputs.t1_repro == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Install Icarus Verilog
+        run: sudo apt-get update && sudo apt-get install --no-install-recommends -y iverilog
+      - name: Run repository reproducibility gate
+        run: python -X utf8 tools/repro/verify_repository.py --t1
+
   pr-gate:
     name: PR Gate
     if: always()
-    needs: [classify-changes, fast-check, full-repository, windows-xpm-cdc, np7-functional, np7-physical-evidence]
+    needs: [classify-changes, fast-check, full-repository, windows-xpm-cdc, np7-functional, np7-physical-evidence, t1-repro]
     runs-on: ubuntu-latest
     steps:
       - name: Require selected scopes to pass
         env:
-          RESULTS: ${{ needs['classify-changes'].result }} ${{ needs['fast-check'].result }} ${{ needs['full-repository'].result }} ${{ needs['windows-xpm-cdc'].result }} ${{ needs['np7-functional'].result }} ${{ needs['np7-physical-evidence'].result }}
+          RESULTS: ${{ needs['classify-changes'].result }} ${{ needs['fast-check'].result }} ${{ needs['full-repository'].result }} ${{ needs['windows-xpm-cdc'].result }} ${{ needs['np7-functional'].result }} ${{ needs['np7-physical-evidence'].result }} ${{ needs['t1-repro'].result }}
         shell: bash
         run: |
           echo "results=${RESULTS}"

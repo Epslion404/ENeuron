@@ -1,0 +1,8 @@
+{
+  "schema": "eneuron_repro_toolchain_v1",
+  "python": {"major": 3, "minor": 12},
+  "iverilog": {"minimum_major": 11},
+  "yosys": {"minimum_version": "0.40"},
+  "vivado": {"required_version": "2024.1", "required_part": "xc7z020clg400-1"},
+  "windows_icarus_path": "C:/msys64/ucrt64/bin/iverilog.exe"
+}

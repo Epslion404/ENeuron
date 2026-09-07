@@ -1,5 +1,15 @@
 # Pulse-Mini 开发计划
 
+## 2026-09-07 资源裁剪审查门
+
+- [x] 完成 `NPU_ZYNQ7020_RESOURCE_CUT_REVIEW_V1.md`，基于当前 Vivado/RTL 证据列出可裁、可配置裁和不可裁项目。
+- [ ] 管理员选择是否实施 C1 固定模型 ROM/BRAM 配置。
+- [ ] 管理员选择是否实施 C2 `INFER_ONLY` ENeuron 构建配置。
+- [ ] 若批准 C1/C2，先建立独立 A/B OOC 顶层和逐拍等价测试，不覆盖训练基线。
+- [ ] C3 固定拓扑特化、C4 ID/epoch 缩短、C5 调试端口关闭暂不实施，等待 C1/C2 实测收益。
+- [ ] C6-C9（删除快照、原地更新、FIFO 合并/缩深、位宽缩减）必须单独形成新裁定，当前禁止直接改签核 RTL。
+- [x] 管理员决定：所有资源裁剪延后到第一次完整端到端运行成功之后；此前只完成 T1/T2/T3 证据，不改裁剪基线。
+
 日期：2026-08-19  
 状态：`V2_IMPLEMENTED / VIVADO_OOC_100MHZ_PASS`；实施状态：`P8_NETWORK_SIGNED_OFF / PR64_MERGED / TR1_TR6_APPROVED / TR7_TR12_APPROVED / RTL_TIMING_REPAIR_GREEN / FULL_REGRESSION_GREEN / DSP_GATE_PASS / VIVADO_OOC_PASS`
 基线：`ENeuron 1.0`，提交 `499fc8a`，标签 `v1.0`；当前 Pulse-Mini 工作基线：`64aff70`
@@ -528,10 +538,20 @@ P0-P8 已完成并签核
 - [x] 冻结核心与 Host Bridge 的复用边界：核心保持 128-bit 命令/响应、固定 8/10 beat，双时钟只经异步 FIFO。
 - [x] 冻结 T0→T4 阶段：合同、纯 RTL 适配器、双时钟协同仿真、XC7Z020 顶层物理门、网口/训练闭环。
 - [x] 形成 T0 端口与适配边界裁定稿：`docs/planning/NPU_ZYNQ7020_TOPLEVEL_DECISION_SHEET_V1.md`。
-- [ ] 评审 V1 顶层端口命名、AXI 外部适配位置和 PS/DMA 责任边界。
-- [ ] 实现纯 RTL 顶层薄封装并完成逐 beat、背压、复位和负向协同仿真。
-- [ ] 对“核心 + 适配器 + FIFO”运行 XC7Z020 OOC，单独归因新增 LUT/FF/BRAM/DSP 与时序。
+- [x] 完成 P15-T0 静态审计：`docs/planning/NPU_ZYNQ7020_TOPLEVEL_T0_AUDIT_V1.md`，确认样本/结果完整 FIFO payload 为 64/96 bit，并记录七项 T1 阻断。
+- [x] 在开放 T1 前裁定命令字段唯一格式、V1/V2 framing 权威、跨流 fence、reset-busy 汇合、AXI sideband 错误语义、FIFO 参数和 XC7Z020 物理约束（A1-A7 已批准）。
+- [x] 评审 V1 顶层端口命名、AXI 外部适配位置和 PS/DMA 责任边界；AXI/PS/DMA 保持在 T3 之外。
+- [x] 实现纯 RTL 顶层薄封装并完成已定义的逐 beat、背压、复位和负向协议切片；T1 全量矩阵仍待完成。
+- [x] 对“核心 + 适配器 + FIFO”运行 XC7Z020 OOC，单独归因新增 LUT/FF/BRAM/DSP 与时序；T3 证据绑定 `c2bc03f`。
 - [ ] 选定开发板、Ethernet/PS 软件栈和真实 XDC 后，运行含 PS7/AXI/DMA 的顶层实现门。
 - [ ] 以旁路 NPU 与 ENeuron 门控 NPU 做网口输入 A/B，报告有效 MAC、周期、准确率、丢包和动态功耗。
+
+已完成的阶段性切片：T2 可变时钟 testbench 已在三组非整数频率/相位下覆盖 pending mask epoch 与当前样本计算重叠；旧结果保持 epoch=1，下一 fence/样本才切到 epoch=2。该切片不等于 T2 全矩阵、T3 或板级闭环。
+
+T2 FIFO 独立矩阵已通过 8 组固定时钟配置×3 个 seed，四通道逐项比对实际写入/读出序列，覆盖满空、回绕、同拍读写、长背压和 reset 清空。证据入口是 `python -X utf8 tools/repro/verify_repository.py --t2-fifo-matrix`；这只是 Icarus FIFO 等价模型的固定伪随机切片，不代替真实 XPM/xsim 或 T3。
+
+wrapper 交错/复位切片已在 4 组时钟配置下通过：模型装载中途、结果背压中和 sample 第 4 beat 前注入 reset 均不会留下旧 payload；mask 命令与 sample beat 在同一 Host 时间段可交错接受。证据入口是 `python -X utf8 tools/repro/verify_repository.py --t2-interleave-reset`；这只是 wrapper 切片，不代替 T2 数学穷举或 T3。
+
+T2 wrapper 时钟覆盖已补齐 16 组确定性组合和固定种子 `20260907` 生成的 24 组唯一随机组合；入口分别为 `--t2-full-matrix` 与 `--t2-random-matrix`。慢时钟组合的结果观察预算按 `2000 + 400 × NPU_HALF` 个 Host 周期缩放。两组矩阵均已通过，但仍只属于有限可复现压力集，不得称为所有频率/相位的数学穷举。
 
 P15 硬门：双时钟逐 beat bit-exact；reset/ready-valid/FIFO 满空无丢失、重复、乱序；核心 OOC 基线不被错误覆盖；顶层 routed `WNS>=0`、`TNS=0`、setup/hold/route/DRC 零失败；板级吞吐和功耗必须使用真实板级证据。

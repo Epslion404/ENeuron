@@ -53,6 +53,8 @@ clockInfo.txt
 xsim.dir/
 vivado_xpm_wrapper_sim/project/**
 vivado_pulse_original_sim/
+vivado_npu_zynq7020_t3_xsim/
+vivado_npu_zynq7020_t3_ooc_reports/
 
 # Keep the minimum routed Tile evidence required by verify_goal.py.
 !vivado_tile_reports/digital_snn_tile_4x2x2_impl.dcp

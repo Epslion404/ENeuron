@@ -1,0 +1,3 @@
+# 已提交 fixture 的复现测试依赖；Python 标准库测试无需第三方包。
+numpy==2.4.4
+scikit-learn==1.8.0

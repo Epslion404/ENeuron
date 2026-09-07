@@ -30,7 +30,10 @@ module npu_eneuron_single_clock_skeleton (
     output logic        model_valid,
     output logic        mask_valid,
     output logic        infer_frozen,
-    output logic [31:0] state_clear_count
+    output logic [31:0] state_clear_count,
+    // 仅用于顶层 fence 判定和原子 epoch 回显，不改变计算数据路径。
+    output logic [31:0] active_mask_epoch,
+    output logic        mask_staging_open
 );
     localparam logic [3:0] OP_MODEL_BEGIN  = 4'h1;
     localparam logic [3:0] OP_MODEL_DATA   = 4'h2;
@@ -180,21 +183,14 @@ module npu_eneuron_single_clock_skeleton (
     // L0/L1 共用同一组四个 signed 8×8 乘法器。数组只在 FETCH 提供激活值，
     // EXECUTE 只使用稳定锁存器；每个乘积先符号扩展到 INT32 再求和。
     always_comb begin
-        lane_activation_0 = 8'sd0;
-        lane_activation_1 = 8'sd0;
-        lane_activation_2 = 8'sd0;
-        lane_activation_3 = 8'sd0;
+        lane_activation_0 = lane_activation_latched_0;
+        lane_activation_1 = lane_activation_latched_1;
+        lane_activation_2 = lane_activation_latched_2;
+        lane_activation_3 = lane_activation_latched_3;
         lane_weight_0 = $signed(model_word_latched[7:0]);
         lane_weight_1 = $signed(model_word_latched[15:8]);
         lane_weight_2 = $signed(model_word_latched[23:16]);
         lane_weight_3 = $signed(model_word_latched[31:24]);
-        if (compute_state == COMPUTE_L0_GROUP_EXECUTE ||
-            compute_state == COMPUTE_L1_GROUP_EXECUTE) begin
-            lane_activation_0 = lane_activation_latched_0;
-            lane_activation_1 = lane_activation_latched_1;
-            lane_activation_2 = lane_activation_latched_2;
-            lane_activation_3 = lane_activation_latched_3;
-        end
     end
 
     assign lane_product_0 = lane_activation_0 * lane_weight_0;
@@ -222,6 +218,8 @@ module npu_eneuron_single_clock_skeleton (
         result_data = result_active ? logit_values[result_beat_index] : 32'd0;
         result_sample_id = result_sample_id_reg;
         result_mask_epoch = result_mask_epoch_reg;
+        active_mask_epoch = mask_active_epoch;
+        mask_staging_open = (mask_state == MASK_LOADING) || (mask_state == MASK_COMPLETE);
         runtime_idle = !sample_active && !compute_active && !result_active && !rsp_valid &&
                        ((model_state == MODEL_EMPTY) || (model_state == MODEL_COMMITTED)) &&
                        (mask_state == MASK_EMPTY) &&

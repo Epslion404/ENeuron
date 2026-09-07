@@ -11,6 +11,7 @@
 - [片外 Host 训练协议](design/host_protocol.md)
 - [XC7Z020 顶层集成规划 V1](planning/NPU_ZYNQ7020_TOPLEVEL_INTEGRATION_V1.md)
 - [XC7Z020 顶层 T0 端口裁定稿](planning/NPU_ZYNQ7020_TOPLEVEL_DECISION_SHEET_V1.md)
+- [GitHub 可复现性门 V1](planning/GITHUB_REPRODUCIBILITY_GATE_V1.md)
 - [局部 2:4 剪枝 RTL 合同](design/LOCAL_PRUNE_RTL_CONTRACT.md)
 - [原始 Goal 对齐审核](design/original_goal_alignment_review.md)
 - [推荐神经元设计](design/recommended_design.md)

@@ -1,5 +1,38 @@
 # 进度记录
 
+## 2026-09-06 本机验收与计费边界
+
+- 管理员确认当前 GitHub Actions 额度耗尽，后续不再使用 GitHub 付费功能；本阶段不主动触发或等待 GitHub-hosted Actions。GitHub 仍保留版本管理、PR 和人工审查用途。
+- 本机回归：`python -X utf8 -m unittest -v test_reproducibility test_ci_fast_v1`，共 12 项，全部通过。
+- 隔离复现：`python -X utf8 tools/repro/verify_repository.py --t1`，返回 `REPRO_G0_MANIFEST_PASS`、`REPRO_G1_T1_PROTOCOL_SLICE_PASS`。
+- 提交 `88905a9` 已包含非法 fence、mask staging/epoch、FIFO busy 汇合、CDC 二级同步和 fence epoch 回显修复；随后提交 `47a3c1e` 扩展了 T1 背压、epoch 切换和复位重入切片。
+- T1 testbench 已扩展并在同频 100 MHz 下通过：响应背压字段稳定、样本进行中 mask epoch 原子性、复位重入旧数据清除；当前切片覆盖 T1-01/03/04/05/07/08/10/11 的主要路径。
+- T1-02 主要路径现已通过：`STATE_CLEAR` exactly-once、`FREEZE_SET` 状态同步以及冻结期间拒绝配置；当前切片覆盖范围增加 T1-02。
+- T1-12 FIFO 边界切片已通过：四种 payload 宽度均完成空读、17 槽外部可见满写、overflow、回绕、长背压和顺序排空；T1-12 仍需后续与 wrapper 并发账本合并复核。
+- T1-06 独立 fence 验收已通过：staging 未闭合时拒绝且不开放窗口，发布后返回 `0xD` 并回显 fence ID/active epoch，`T1_FENCE_ACCEPT_PASS` 已接入本机复现入口；T1-09 仍因 TLAST 位于外层 shim 而待裁定/独立验收。
+- T1-09 边界裁定已落档为 `NA_FOR_T1_WRAPPER / OUTER_SHIM_PENDING`；静态合同测试确认当前 wrapper 无 TLAST 端口，外层 shim 尚未实现，因此不把该项写成当前 T1 仿真通过。
+- T2 首个三配置可变时钟切片已通过：`NPU_HALF/PHASE=7/2、9/1、4/3`，完成跨域事务、背压、sideband 和复位重入验证；`tb_npu_zynq7020_t2_variable_clocks.sv` 与 `verify_repository.py --t2` 已加入复现闭包。
+- 提交 `c55a8b6` 已将 T1 FIFO 边界 testbench、复现清单闭包和本机复现入口推送到 PR #68；远端 head 已核对为该提交，Actions 仍暂停且 checks 为空。
+- 已通过 GitHub API 暂停仓库 Actions（`enabled=false`），随后将 `88905a9`、`47a3c1e`、`3227162` 推送到 PR #68 分支；远端 PR head 已核对，未触发或等待任何 hosted runner。
+- 保护文件继续保留且不暂存：`local_prune_rtl_results.json`、`np4b_signoff_summary.json`、`np75_tmp_sparse_protocol.ys`。
+- 当前状态保持 `T1_PROTOCOL_SLICE_PROVEN / T1_FULL_PENDING`；T1-01～T1-12、T2、T3 和首次完整端到端运行未完成，资源裁剪不得提前实施。
+
+## 2026-09-07 GitHub 可复现性门规划
+
+- 对当前 `HEAD=fc47dc9` 生成 `git archive` 隔离快照，在快照内运行 CI-Fast、NPU Oracle 和 artifact layout，共 57 项通过。
+- 确认该结果只覆盖已提交基线的一部分；本地 T1 wrapper 仍不能编译，相关文件尚未全部进入 GitHub，不能宣称 T1 可复现。
+- 完成依赖、运行入口、Vivado 路径、manifest、artifact 索引和 Actions 固定方式审计。
+- 新增 `docs/planning/GITHUB_REPRODUCIBILITY_GATE_V1.md`，冻结 G0-G3 四层目标并提出 R1-R9 待管理员批准事项。
+- 本轮未修改生产 RTL、T1 testbench、GitHub Actions 或 Vivado 报告，未提交用户已有的三个保护文件。
+
+## 2026-09-07 GitHub 可复现性门实施
+
+- 新增统一入口、依赖/工具链锁、仓库 manifest 和 T1 复现检查器。
+- T1 wrapper/testbench 由入口在临时目录执行 Icarus 编译与仿真，要求 `T1_PROTOCOL_SKELETON_PASS`。
+- CI 分类新增 `t1_repro`，工作流新增 T1 专项 job；合同测试与 CI-Fast 定向测试通过。
+- Vivado runner 支持 `-VivadoRoot`/`VIVADO_ROOT`，artifact 索引已修正为当前 `VIVADO_OOC_PASS`。
+- 仍未宣称 T1-01～T1-12 完整通过；T2/T3/G3 未完成。
+
 ## 2026-09-03 仓库外 Webhook 接收服务复核
 
 - 确认本机接收服务独立部署在 `C:\Users\Epsilon\ENeuronWebhook`，未写入 ENeuron 仓库。
@@ -1324,3 +1357,59 @@
 - Webhook 当前掉线；该状态只影响本机到达提示，不影响 GitHub Checks/API 权威结果。OOC 仍不覆盖板级 I/O、DMA、PS、Ethernet、SAIF 活动、动态功耗或持续学习。
 - 2026-09-05：PR #64 合并为 `main@a53a040`，PR #65 合并为 `main@618c1e4`，PR #66 合并为 `main@a1457bb`。V2 OOC 与 P15 顶层规划均已入库。
 - 2026-09-05：P15-T0 形成端口与适配边界裁定稿，推荐方案 A（128-bit 命令/响应 + 独立 32-bit 样本/结果 FIFO，AXI 在 FIFO 外）。该文档只提出方案，不授权 T1 RTL；等待管理员批准。
+
+## 2026-09-05 P15-T0 阻断审计补充
+
+- 完成四流、ready/valid、复位、AXI 外置和现有核心字段的只读审计，并新增 `docs/planning/NPU_ZYNQ7020_TOPLEVEL_T0_AUDIT_V1.md`。
+- 确认样本/结果完整 FIFO payload 分别为 64/96 bit；同时发现命令字段布局、V1/V2 framing、跨 FIFO fence、reset-busy 汇合、TLAST/TUSER 错误语义、FIFO 参数和目标器件七项尚未冻结。
+- 现有随机 TB 仅覆盖串行样本/结果与 mask 操作，不能替代新四 FIFO 并发顺序验证。
+- 未修改 RTL；T1 顶层实现仍被 `P15_T0_REVIEW_REQUIRED` 阻塞。
+
+## 2026-09-05 PR #68 CI 调度结果
+
+- PR #68（`ed4d55b`）的 `Classify changes` 成功，正确识别为文档变更并跳过无关重门。
+- `Fast Python and diff check` 与最终 `PR Gate` 两次均在 runner 启动前失败；GitHub annotation 明确原因为账户近期付款失败或 spending limit 需要提高，`runner_id=0` 且无任何执行步骤。
+- 已重跑失败 job，结果相同；该 CI 结果只能标记为 `NOT_RUN_BILLING_BLOCKED`，不能视为代码失败或通过。PR #68 暂不合并，等待计费/额度恢复后重新运行。
+- 已新增 `docs/planning/NPU_ZYNQ7020_TOPLEVEL_T0_DECISION_ADDENDUM_V1.md`，将七项阻断转成 A1-A7 可逐项批准的建议；在管理员确认前仍不授权 T1 RTL。
+- 已新增 `docs/planning/NPU_ZYNQ7020_TOPLEVEL_T0_TEST_CONTRACT_V1.md`，为 A1-A7 定义 T1/T2/T3 的正向、负向、CDC、资源和停止条件；仍未创建 RTL。
+
+## 2026-09-05 P15-T0 附录二次复核与修订
+
+- 只读复核确认 8 个新增阻断：fence 编码/响应未完整冻结、严格 TLAST 与流式丢弃矛盾、fence 前样本预填边界、命令完成层级、busy 对 valid 稳定性的影响、A1 错误优先级、32-bit epoch 原子 CDC、XPM 参数集合不一致。
+- 已修订 A1-A6 建议：T1 TLAST 改为外层提示；明确 `SAMPLE_FENCE` 编码和单样本窗口；禁止 fence 前预填；busy 只禁止新握手；epoch 只经原子 FIFO/响应；补齐 XPM 参数和错误优先级。
+- Nexus 二次复核摘要已由子代理更新；未修改 RTL，T1 仍被阻塞。
+
+## 2026-09-05 fence 条件再校正
+
+- 核对 skeleton 状态逻辑后，修正 A3 中过严的 `runtime_idle` 条件；改用 `sample_ready`、结果/响应空闲、wrapper 窗口和 staging 闭合条件，避免已发布 mask 等待首 beat 时死锁。
+- 同步修订 T0 测试合同和 findings；仍未创建 RTL，等待管理员批准。
+
+## 2026-09-06 P15-T0 当前审批门复核
+
+- 再次核对 PR #68：管理员尚未回复 A1-A7，当前仍为 `P15_T0_REVIEW_REQUIRED / NO_RTL_AUTHORIZATION`，因此不创建 T1 顶层 RTL。
+- 提交 `8cac035` 触发的 Actions run `33975784335` 是一次历史观测：Classify changes 与 PR Gate 在 runner 启动前因账户付款/额度问题失败，其余 job 被跳过；GitHub annotation 已确认原文，按 `NOT_RUN_BILLING_BLOCKED` 记录，不能当作代码失败或通过。
+- 本机 webhook 恢复初检时 `/healthz` 已返回 HTTP 200，而 `latest.json` 尚停留在历史 PR #63；随后已由官方 ping 和真实 PR 推送完成全链路验收。
+- 轻量本地验证通过：CI-Fast `8/8`、`git diff --check` 和 P15-T0 文档锚点检查；一次附加探针误把决策状态要求到测试合同，已确认是探针职责错误而非文档漂移。
+- Nexus 审计发现 `.nexus-map/hotspots/git_forensics.md` 仍把已合并 PR #64 写成 OPEN，`concept_model.json` 的状态指针停在 PR #66；已修正为 PR #68 的提交绑定审计快照。
+- PR #68 的 HEAD/run 不再被描述为自动更新的“当前值”：快照绑定 `55ec08e` 与 run `33976357259`；后续提交不会使该历史证据失真。
+- 仓库外 webhook 已收到该 SHA 的 `workflow_run completed/failure`，与 GitHub API 的计费阻断结论一致；签名仍未验证，只作触发提示。
+- 本地接收器原先由短命 `Start-Process` 间接拉起，会随宿主回收。现已注册 Windows 计划任务 `ENeuronWebhook`，直接托管 `C:\Python314\python.exe -u webhook_server.py`；任务状态持续为 `Running`，`/healthz` 返回 HTTP 200。
+- 隧道侧随后定位为 `ChmlFrpc` 未运行，GitHub hook `last_response=502 connection_error`。用户恢复 ChmlFrpLauncher 后，本地与公网 `/healthz` 均为 HTTP 200。
+- GitHub 官方 ping delivery `39fa1340-aa08-11f1-8930-aff79715b2ab` 和 `ee543f6e-aa08-11f1-84fd-d4849c4dec76` 均返回 HTTP 200；后者已写入 `latest.json`，hook `last_response` 恢复为 `200 active`。
+- 清理了诊断阶段产生的重复 frpc：保留 ChmlFrpLauncher 管理的实例，停止额外计划任务实例；公网健康检查在单实例状态下继续通过。
+- 恢复后的真实推送 HEAD `a409512629717845ddbaa42dd6addfb4fab563f7` 触发 run `34043097374`；webhook delivery `6ece08a0-aa09-11f1-944a-b2b2aad065d2` 收到同 SHA 的 `workflow_run completed/failure`，GitHub annotation 仍为账户付款/额度阻断，通知链与权威 API 结论一致。
+- 随后提交 `c2523a9ab396013f9df7454314cdba4305f67050` 触发 run `34043377382`；GitHub API 显示 `Classify changes`、`PR Gate` 均 `steps=[]`，其余门跳过，状态继续为 `NOT_RUN_BILLING_BLOCKED`。webhook 收到该 run 的 requested/completed delivery（`2e16b130-aa0a-11f1-86ef-dd7a956d4ed9` / `3201ce10-aa0a-11f1-8238-2c657afd3f1d`）和本次 PR 评论 delivery `4be59cd0-aa0a-11f1-88f2-e2e0e3608dc3`，证明通知链仍然工作。
+- 2026-09-07：完成 `docs/planning/NPU_ZYNQ7020_RESOURCE_CUT_REVIEW_V1.md`。本轮只做基于 RTL/Vivado 证据的方案审查，没有修改计算 RTL；当前工作树用户已有的 `local_prune_rtl_results.json`、`np4b_signoff_summary.json`、`np75_tmp_sparse_protocol.ys` 未纳入任何提交。
+- 2026-09-07：管理员确认资源裁剪暂缓，等第一次完整端到端运行成功后再评估；当前优先完成 T1/T2/T3 功能、双时钟、Vivado OOC 和端到端证据。
+- 2026-09-07：完成 T2 并发 epoch 原子性切片。`tb_npu_zynq7020_t2_variable_clocks.sv` 在三组非整数时钟/相位下验证 pending epoch=2 与当前样本计算重叠时不污染旧结果；下一 fence/样本才激活 epoch=2。`python -X utf8 tools/repro/verify_repository.py --t2` 返回 `REPRO_G0_MANIFEST_PASS` 与 `REPRO_G2_T2_VARIABLE_CLOCKS_PASS`。T2 全矩阵、T3、Vivado 和板级闭环仍未完成。
+- 2026-09-07：将 T2 确定性时钟覆盖扩展到六组 `(7,2)/(9,1)/(4,3)/(5,0)/(11,4)/(3,1)`；统一入口仍返回 G0/G2 PASS。状态为扩展切片绿色，随机频率/相位全矩阵、FIFO scoreboard、T3、Vivado 和板级闭环仍未完成。
+- 2026-09-07：T2 FIFO 压力矩阵按测试先行原则先加入复现合同测试；当前已故意 RED，因为 manifest 和 `verify_repository.py` 还没有新矩阵文件与 `--t2-fifo-matrix` 入口。下一步是实现隔离四 FIFO scoreboard，不修改生产 RTL。
+- 2026-09-07：T2 FIFO 矩阵实现并通过 24/24 固定配置；T1、现有 T2 wrapper 六组切片和 19 项相关单测也通过。新文件为 `tb_xpm_fifo_async_matrix.sv`，统一入口为 `--t2-fifo-matrix`；当前状态是 FIFO 切片 GREEN，T2 wrapper 并发命令/多位置 reset、T3 和板级仍待完成。
+- 2026-09-07：新增 `tb_npu_zynq7020_t2_interleave_reset.sv`，在4组代表性时钟配置下验证命令/sample 交错和三类 reset 注入；统一入口返回 `REPRO_G2_T2_INTERLEAVE_RESET_PASS`。与 FIFO 矩阵一样，这是本机 Icarus 切片，T2 全矩阵、T3、Vivado 和板级仍未完成。
+- 2026-09-07：启动 T3。已复核当前分支 `fd12afd`、A7/T3 合同、四个 XPM 实例和现有 Vivado runner；确认采用“新增真实 XPM/xsim runner + 新增 XC7Z020 双时钟 OOC runner”的最小路径，不修改计算核和三个保护文件。
+- 2026-09-07：GitHub Actions 保持关闭；SSH 推送已验证可用。后续 PR #68 的远端 checks 为空只表示未运行，T3 以本机 Vivado 2024.1 和仓库可复现入口为当前证据。
+- 2026-09-07：T3 本机终态：真实 AMD XPM/xsim 输出 `RESULT=PASS` 与 `T1_PROTOCOL_SKELETON_PASS`；XC7Z020 OOC `PHYSICAL_GATE=PASS`，准确资源 `2467 LUT / 2301 FF / 6 RAMB36 / 1 RAMB18 / 4 DSP48E1`，Host/NPU WNS/WHS 为 `+3.639/+0.105 ns`、`+0.214/+0.042 ns`。提交前摘要暂绑定旧 HEAD，需在正式提交后重跑并更新。
+- 2026-09-07：已在代码提交 `c2bc03f` 上重跑 T3，真实 XPM/xsim 与 XC7Z020 OOC 摘要均绑定该 SHA；Nexus/T2 计划收口提交为 `439ac6b` 并已推送 PR #68。后续文档提交不改变 RTL，因此物理证据继续以 `c2bc03f` 为实现基线。
+- 2026-09-07：按测试先行补齐 T2 wrapper 有限时钟/相位矩阵：先以合同测试复现 `--t2-full-matrix` 缺失，再加入 16 组确定性组合。`python -X utf8 tools/repro/verify_repository.py --t2-full-matrix` 返回 `REPRO_G0_MANIFEST_PASS` 与 `REPRO_G2_T2_FULL_MATRIX_PASS`；这不是频率/相位数学穷举，T2 随机矩阵和外层 shim仍待后续。
+- 2026-09-07：继续按测试先行加入固定种子随机矩阵：先复现 `--t2-random-matrix` 缺失，再用种子 `20260907` 生成 24 组唯一时钟/相位组合。初版固定 5000 Host 周期在 `NPU_HALF=14` 暴露观察预算不足，改为 `2000 + 400 × NPU_HALF` 后 24 组全部通过，入口返回 `REPRO_G2_T2_RANDOM_MATRIX_PASS`。
+- 2026-09-07：随机矩阵收口复验通过：`test_reproducibility test_ci_fast_v1` 为 `22/22 PASS`；统一复现命令同时返回 G0、G1 以及 T2 variable/full/random/FIFO/interleave-reset 六类通过标记。Nexus JSON 与差异检查通过，生产 RTL 未改变。

@@ -181,8 +181,9 @@ module xpm_fifo_async #(
         wr_ack = 1'b0;
         wr_rst_busy = 1'b1;
         rd_rst_busy = 1'b1;
-        if (FIFO_WRITE_DEPTH != 16 || WRITE_DATA_WIDTH != 128
-                || READ_DATA_WIDTH != 128 || READ_MODE != "fwft"
+        if (FIFO_WRITE_DEPTH != 16 || READ_DATA_WIDTH != WRITE_DATA_WIDTH
+                || (WRITE_DATA_WIDTH != 64 && WRITE_DATA_WIDTH != 96 && WRITE_DATA_WIDTH != 128)
+                || READ_MODE != "fwft"
                 || FIFO_READ_LATENCY != 0 || CDC_SYNC_STAGES != 2)
             $fatal(1, "xpm_fifo_async_sim parameter mismatch");
     end
