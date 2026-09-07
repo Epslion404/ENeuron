@@ -546,4 +546,6 @@ P0-P8 已完成并签核
 - [ ] 选定开发板、Ethernet/PS 软件栈和真实 XDC 后，运行含 PS7/AXI/DMA 的顶层实现门。
 - [ ] 以旁路 NPU 与 ENeuron 门控 NPU 做网口输入 A/B，报告有效 MAC、周期、准确率、丢包和动态功耗。
 
+已完成的阶段性切片：T2 可变时钟 testbench 已在三组非整数频率/相位下覆盖 pending mask epoch 与当前样本计算重叠；旧结果保持 epoch=1，下一 fence/样本才切到 epoch=2。该切片不等于 T2 全矩阵、T3 或板级闭环。
+
 P15 硬门：双时钟逐 beat bit-exact；reset/ready-valid/FIFO 满空无丢失、重复、乱序；核心 OOC 基线不被错误覆盖；顶层 routed `WNS>=0`、`TNS=0`、setup/hold/route/DRC 零失败；板级吞吐和功耗必须使用真实板级证据。

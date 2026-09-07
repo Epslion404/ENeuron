@@ -1,6 +1,6 @@
 # Git 热点
 
-当前状态校正（2026-09-07）：PR #64 已合并为 `main@a53a040`；V2 OOC 报告绑定 `f744bff`，GitHub Actions run `33948293095` 全绿。PR #68 的 `55ec08e`/run `33976357259` 是历史可追溯审计快照，不是当前值。P15-T0 的 A1-A7 已获管理员批准，当前为 `P15_T0_APPROVED / T1_RTL_AUTHORIZED / T1_PROTOCOL_SLICE_PROVEN / T1_FULL_PENDING / T2_VARIABLE_CLOCK_SLICE_GREEN / T2_FULL_MATRIX_PENDING`；本机 `a616d60` 已通过 T1-02、T1-06、T1-12 及三组 T2 可变时钟切片，T1-09 已记录为 `NA_FOR_T1_WRAPPER / OUTER_SHIM_PENDING`；资源裁剪已记录但推迟至首次完整端到端运行成功后。
+当前状态校正（2026-09-07）：PR #64 已合并为 `main@a53a040`；V2 OOC 报告绑定 `f744bff`，GitHub Actions run `33948293095` 全绿。PR #68 的 `55ec08e`/run `33976357259` 是历史可追溯审计快照，不是当前值。P15-T0 的 A1-A7 已获管理员批准，当前为 `P15_T0_APPROVED / T1_RTL_AUTHORIZED / T1_PROTOCOL_SLICE_PROVEN / T1_FULL_PENDING / T2_VARIABLE_CLOCK_SLICE_GREEN / T2_CONCURRENT_EPOCH_SLICE_GREEN / T2_FULL_MATRIX_PENDING`；`872fa90` 已通过 T1-02、T1-06、T1-12 及三组 T2 可变时钟并发 epoch 切片，旧结果/fence 保持 active epoch=1，下一样本使用 epoch=2；T1-09 已记录为 `NA_FOR_T1_WRAPPER / OUTER_SHIM_PENDING`；资源裁剪已记录但推迟至首次完整端到端运行成功后。
 
 ## V2 历史审计快照（2026-09-05）
 
