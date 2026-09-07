@@ -8,7 +8,7 @@ provenance: repository test names, signoff summaries, workflow state, latest Git
 
 NP6 结论为部分通过，NP7 已签核。OF1-OF6 Python oracle 保持 48/48。V2 已通过单时钟专项、固定 `20×100` 和完整仓库 `475 tests / OK (skipped=1)`；PR #64 run `33946568679` 的必需门全部成功。Vivado 已确认 4 个 DSP48E1、setup/hold/route/DRC 全部通过；板级性能仍未完成。
 
-P15-T0 方案 A 与 A1-A7 已获批准。既有 T1 wrapper、四条 XPM async FIFO、AXI shim 和复现入口已进入仓库；T1-12 边界 testbench、T1-06 fence testbench、T1-09 N/A 文档、manifest/runner/classify_changes 扩展和相关测试计划证据已随 `e4d48dd` 纳入当前提交基线。当前证据覆盖复位、非法字段、模型装载、`STATE_CLEAR`/`FREEZE_SET` 控制、fence 拒绝/成功、固定 8 beat、结果背压和 10 beat 输出等协议场景，对应 T1-01、T1-02、T1-03、T1-04、T1-05、T1-06、T1-07、T1-08、T1-10、T1-11 的主要路径，T1-12 四 FIFO 边界独立切片也已通过（128/128/64/96 bit，depth=16+FWFT 外部容量 17、overflow、回绕和长背压）。既有 XPM wrapper 回归恢复为 5/5 通过；此前失败是容量假设错误，不是 XPM 模型缺陷。T1-06 独立切片已通过（`T1_FENCE_ACCEPT_PASS`，staging 拒绝、`0xD`/fence ID/active epoch 回显和单窗口开放）。T1-09 依据 A2 记录为 `NA_FOR_T1_WRAPPER / OUTER_SHIM_PENDING`，不能外推为当前 TLAST 仿真通过。T2 可变双时钟、T3 `xc7z020clg400-1` OOC 和板级验证仍未通过。资源裁剪审查不构成实现证据，且所有裁剪已推迟到第一次完整端到端跑通之后。
+P15-T0 方案 A 与 A1-A7 已获批准。既有 T1 wrapper、四条 XPM async FIFO、AXI shim 和复现入口已进入仓库；T1-12 边界、T1-06 fence、T1-09 N/A 文档与复现扩展已随 `e4d48dd` 纳入基线，T2 参数化可变时钟 testbench 与 `--t2` 入口已随 `a616d60` 纳入基线。T1 证据覆盖复位、非法字段、模型装载、`STATE_CLEAR`/`FREEZE_SET` 控制、fence 拒绝/成功、固定 8 beat、结果背压和 10 beat 输出等主要路径，另有 T1-12 四 FIFO 边界独立切片（128/128/64/96 bit，depth=16+FWFT 外部容量 17、overflow、回绕和长背压）及 T1-06 独立切片（`T1_FENCE_ACCEPT_PASS`）。T1-09 依据 A2 记录为 `NA_FOR_T1_WRAPPER / OUTER_SHIM_PENDING`，不能外推为当前 TLAST 仿真通过。T2 三组 `(NPU_HALF,PHASE)=(7,2),(9,1),(4,3)` 均输出 `T2_VARIABLE_CLOCKS_PASS`，覆盖跨域错误响应背压、模型/mask/fence、8/10 beat sideband、单窗口和复位重入；这仍是 T2 切片，不是全矩阵。T1/T2 全矩阵、T3 `xc7z020clg400-1` OOC 和板级验证仍未通过。资源裁剪审查不构成实现证据，且所有裁剪已推迟到第一次完整端到端跑通之后。
 
 ## 当前签核门（V2 OOC 后）
 
