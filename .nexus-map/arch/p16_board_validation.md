@@ -12,7 +12,9 @@ P16-B0 已完成。当前源码 `f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06`、bit
 
 用户随后确认板卡完全断电。`2026-09-07T15:02:49Z` 的正式只读探针精确匹配 target `localhost:3121/xilinx_tcf/Digilent/210251A08870` 1 个，但 `target_opened=0`、`accessible_device_count=0`，Vivado transcript 明确报告 `No devices detected`。证据位于 `artifacts/logs/hellozynq_b0/20260907T150221Z_df16ed6c_power_off/`，结果 SHA-256 为 `fe594c87...3776e`，transcript SHA-256 为 `3a953999...1f634`，完整断电确认 PASS。
 
-重新上电后只读探针确认同一Digilent target上的唯一 `xc7z020_1` 恢复且下载前未配置；run-2于 `2026-09-07T15:26:56Z` 下载同一bitstream，三项DONE=`1/1/1`、错误位为0，现场10周期 `13.4 s`。PR #69已合并为 `main@102dee2...`，当前状态为 `B0_COMPLETE / B1_DECISION_PENDING / FASTLANE_V1`。
+重新上电后只读探针确认同一Digilent target上的唯一 `xc7z020_1` 恢复且下载前未配置；run-2于 `2026-09-07T15:26:56Z` 下载同一bitstream，三项DONE=`1/1/1`、错误位为0，现场10周期 `13.4 s`。PR #69已合并为 `main@102dee2...`，Fastlane V1已进入 `main@308bdec...`。当前状态为 `B0_COMPLETE / B1A_SOURCE_AUDIT_COMPLETE / B1_DECISION_PENDING / FASTLANE_V1`。
+
+B1A来源审计固定在板厂 `73d529d8...`，确认GEM0/MDIO/UART0经EMIO、FCLK0=200 MHz和PL引脚，同时发现四项未决事实：板上 `MT41K256M16` 与参考PS7配置 `MT41J256M16 RE-125` 不一致、H17物理PHY复位未引出、物理PHY地址未确认、RGMII板级input/output delay未冻结。详见 `docs/planning/HELLOZYNQ_B1A_SOURCE_AUDIT_V1.md` 和 `.nexus-map/concepts/board_phase2_b1a.json`；当前不得声明B1A或B1通过。
 
 run-1 机器归档由 `boards/hellozynq/b0_smoke/archive_b0_program_run.ps1` 生成。归档 manifest 绑定当前 bitstream `df16ed6c...8971`、program log SHA-256 `0152fe32...a49e`。`field_observation.json` 已更新为稳定闪烁、10周期 `13.42 s` 与 `status=PASS`，当前 SHA-256 为 `d93bcc25...ab083`。run-1已形成机器与现场闭环。
 

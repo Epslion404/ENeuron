@@ -1355,3 +1355,13 @@
 - 新增只读 `probe_b0_power_off.tcl` 与 `run_b0_power_off_probe.ps1`，固定target、拒绝覆盖既有证据目录，并要求线缆target恰好1个、可访问器件0个和PASS marker。正式运行时间为 `2026-09-07T15:02:49Z`，transcript SHA-256为 `3a953999...1f634`。
 - 2026-09-07：HelloZynq B0-GATE 已形成完整实板闭环。固定源码 `f3b8174...` 与 bitstream `df16ed6c...8971` 在同一 Digilent target/`xc7z020_1` 上完成 run-1，随后由 JTAG不可访问和 `No devices detected` 证明完整断电；重新上电时器件为未配置状态，再次下载同一文件后 run-2 三项 DONE=`1/1/1`、错误位为0。两次10周期分别为 `13.42 s`、`13.4 s`，均通过预冻结 `12.6～14.2 s` 窗口。该证据只关闭 PL配置、M19时钟和P20路径，不外推到PS/DDR/网口/NPU/ENeuron。
 - 2026-09-07：阶段2的主要延迟来自重复收口而非硬件执行：同一身份反复跑Vivado、每个观察点都更新多份状态文件、等待已关闭Actions的空checks都不增加证据强度。Fastlane V1保留最终硬门，但按输入身份缓存物理证据、按变更运行定向门、把B1拆为A/B/C小PR，并在阶段末统一收口，可显著缩短进入主线的时间。
+- 2026-09-07：B1A与B1-D1可以解耦。PS7/DDR/UART/GEM/PHY的板级事实和可重建硬件定义对bare-metal与Linux相同，可以先审计；只有BSP、启动代码和lwIP/Linux驱动实现必须等待软件栈裁定。
+- 2026-09-07：`D:\Desktop\Note\Zynq7020` 目前可见内容为Obsidian笔记、模块和速查，没有在三层目录内发现Git仓库。板厂固定克隆位置尚需定位，不能用网页记忆或未绑定版本的文件替代固定提交证据。
+- 2026-09-07：`D:\Documents\Code\Zynq7020` 不是 `LXB-ZYNQ` 克隆：没有 `.git`，内容为 `1_LED`、`LED_float`、`Advanced_Timer`、`Key_read` 等本地Vivado工程。它可作为用户实验资料，但不能作为板厂固定提交的权威源。
+- 2026-09-07：已定位两个板厂克隆：`C:\Users\Epsilon\AppData\Local\Temp\LXB-ZYNQ-codex-20260907` 与 `C:\Users\Epsilon\_tmp\LXB-ZYNQ`。两者remote均为 `https://gitee.com/GLSZ/LXB-ZYNQ.git`，工作树干净且HEAD为 `73d529d8f159ca372b7d9855eddc80880ecd9d05`。B1A采用后者作为稳定只读来源；前者是临时副本，不作为文档路径。
+- 2026-09-07：固定提交中 `12_ZYNQ_Code/12_ZYNQ-7000-PS_Code/HelloZynqPS_ETH/` 是B1A最集中参考：含 `design_1.bd`、processing_system7生成配置和以太网工程；`05_HelloZynqPS/04_HelloZynqPS_Linux_ETH/HelloZynqPS_Linux_ETH.md` 解释GEM0经EMIO输出GMII、`GMII TO RGMII`转换、FCLK_CLK0=200 MHz、低有效PS复位需反相，并列出RGMII/MDIO XDC。
+- 2026-09-07：初步引脚证据：MDC=G21、MDIO=H22；RGMII RXD[0..3]=A22/A18/A19/B20、RX_CTL=A21、RXC=B19、TXD[0..3]=E21/F21/F22/G20、TX_CTL=G22、TXC=D21，文档将这些PL侧端口设为LVCMOS33并为RXC创建8 ns时钟。仍需从实际XDC/BD复核，不能只依赖教程正文。
+- 2026-09-07：已从固定提交的实际源 XDC `project_1.srcs/constrs_1/new/HelloZynq_Linux_ETH.xdc` 复核上述以太网引脚；同时确认 UART0 PL 侧引脚为 TX=L17、RX=M17，均为 LVCMOS33，RGMII RXC 约束为 8 ns。后续只读取源 BD、源 XDC 和导入 wrapper，不再扫描 `.gen/.runs/ip_user_files`。
+- 2026-09-07：固定提交的源 BD 直接确认 `processing_system7:5.5`、`gmii_to_rgmii:4.1` 与 `util_vector_logic:2.0` 三个实例；GEM0 的 GMII/MDIO 接入转换器，FCLK_CLK0 接 `clkin`，FCLK_RESET0_N 经逻辑反相后同时接收发复位。源 wrapper 确认 32-bit DDR 数据总线、UART0、MDIO 与完整 RGMII 顶层端口。
+- 2026-09-07：六个旧 PR5/PR6 detached 审查工作树均为干净状态，合计约 109 MB；重复临时板厂克隆同样干净，约 1.76 GB。它们不再承担权威输入，稳定板厂克隆 `C:\Users\Epsilon\_tmp\LXB-ZYNQ` 保留。
+- 2026-09-07：B1A来源审计发现两个直接阻塞硬件定义的冲突：板卡资料/原理图为 `MT41K256M16`，参考PS7配置为 `MT41J256M16 RE-125`；PS Ethernet参考工程只复位GMII-to-RGMII IP，没有引出H17物理PHY reset。另有物理PHY地址和RGMII板级时序未冻结。当前只能标记 `B1A_SOURCE_AUDIT_COMPLETE`，不得标记B1A或B1通过。

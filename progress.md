@@ -1454,3 +1454,14 @@
 - 2026-09-07：B0工作树已切换到本地 `main` 并以 `--ff-only` 快进至 `origin/main@102dee2...`，未触碰旧T0工作树的未提交修改和三个保护文件；随后创建 `codex/zynq7020-b1-fastlane`。
 - 2026-09-07：形成Fastlane V1：B1拆为B1A板级事实/硬件定义、B1B PS7/UART/DDR、B1C PHY/UDP；只跑受影响验证，RTL/XDC/BD/Tcl/IP身份未变时不重跑Vivado，实板步骤单会话批量执行，报告/Nexus按切片合并前集中同步，Actions关闭时不等待空checks。
 - 2026-09-07：Fastlane文档切片验证通过：artifact布局与CI-Fast共 `10/10 PASS`，6份Nexus JSON解析通过，旧活动状态/异常补丁文本扫描和 `git diff --check` 均通过；本轮没有RTL/XDC/BD/Tcl/IP变化，按新规则不启动Vivado或全仓回归。
+- 2026-09-07：继续B1A。读取 `planning-with-files` 与 `karpathy-guidelines` 后冻结本轮边界：先做与软件栈无关的板级事实审计，不在B1-D1未批准时编写应用软件。主线入口为 `308bdec`；`D:\Desktop\Note\Zynq7020` 未发现本地Git克隆，下一步改为在已知代码/资料目录中定位固定板厂仓库。
+- 2026-09-07：候选 `D:\Documents\Code\Zynq7020` 的Git命令均失败，确认其不是仓库；未修改该目录。下一步改为扫描本地 `.git/config` 中的Gitee/LXB remote，定位用户已授权保留的真实克隆。
+- 2026-09-07：remote扫描定位到两个 `LXB-ZYNQ` 克隆；核验后均为干净的 `master@73d529d8...`。固定采用 `C:\Users\Epsilon\_tmp\LXB-ZYNQ` 作为B1A只读权威源，下一步在该固定提交中搜索PS7、DDR、UART、GEM/EMIO与PHY配置。
+- 2026-09-07：固定提交全树搜索产生大量生成文件命中并被输出截断；未丢失关键结论，但后续缩小到 `HelloZynqPS_ETH` 的源BD/XDC/顶层与教程，排除 `.gen/.runs/ip_user_files` 等派生文件。已找到GEM0-EMIO、GMII-to-RGMII、200 MHz FCLK和以太网引脚初步锚点。
+- 2026-09-07：现有 B1A 修改已从 `main@308bdec` 隔离到 `codex/zynq7020-b1a-board-facts`。实际源 XDC 已复核以太网与 UART0 引脚；本轮仍无 RTL/XDC/BD/Tcl/IP 写入，因此不触发 Vivado。
+- 2026-09-07：旧审查工作树清理审计的首个 PowerShell 循环在管道拼接处触发 `ParserError: An empty pipe element is not allowed`，没有执行清理或修改文件。后续改用逐项文本输出，不重复该写法。
+- 2026-09-07：改用逐项输出完成清理前审计：六个旧 PR5/PR6 detached 工作树和重复临时 `LXB-ZYNQ` 克隆全部干净，未发现用户修改；计划通过系统回收站回收，并保留稳定板厂克隆与旧 T0 工作树。
+- 2026-09-07：六个旧 PR5/PR6 审查工作树与重复临时板厂克隆已移入 Windows 回收站，可恢复；随后 `git worktree prune` 清除六条失效登记。当前只保留旧 T0 和 B1A 两个 ENeuron 工作树。
+- 2026-09-07：首次用 PowerShell 解析源 BD 时误把组件路径写成 `design.cells`；实际顶层字段为 `design.components`，因此取值为 null 并触发 `You cannot call a method on a null-valued expression`。没有修改源资料；下一次改用已探明的结构，不重复错误路径。
+- 2026-09-07：完成B1A固定来源审计并形成 `HELLOZYNQ_B1A_SOURCE_AUDIT_V1.md` 与机器清单；同步P16状态为来源审计完成、硬件定义待解决四项事实。没有修改RTL/XDC/BD/Tcl/IP，按Fastlane V1只运行文档/JSON定向门，不启动Vivado。
+- 2026-09-07：B1A定向验证通过：两份JSON解析与状态断言PASS、六个文档关键锚点PASS、`git diff --check` PASS、硬件身份文件零变化。未运行Vivado和全仓回归，符合Fastlane V1的变更分类。
