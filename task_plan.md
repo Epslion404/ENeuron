@@ -12,7 +12,7 @@
 - [x] 完成 T2 首个可变时钟切片：三组非整数频率/相位配置通过跨域错误响应、模型/mask/fence、8/10 beat、背压和复位重入验证。
 - [x] 暂停仓库 GitHub Actions 并推送本地 T1/Nexus 提交；远端 PR #68 head 已核对，checks 为空按“Actions 已暂停”解释。
 - [x] 将本轮修复提交到当前分支；提交前继续排除 `local_prune_rtl_results.json`、`np4b_signoff_summary.json`、`np75_tmp_sparse_protocol.ys`。
-- [ ] T1-01～T1-12 全覆盖（T1-09 已有批准的当前 DUT N/A 裁定，外层 shim 仍待实现）、T2 双时钟全矩阵（当前仅三组切片）、T3 XC7Z020 OOC 和首次完整端到端运行仍待完成；资源裁剪继续延期。
+- [ ] T1-01～T1-12 全覆盖（T1-09 已有批准的当前 DUT N/A 裁定，外层 shim 仍待实现）、T2 wrapper 全矩阵（当前为六组切片+FIFO 固定伪随机矩阵）、T3 XC7Z020 OOC 和首次完整端到端运行仍待完成；资源裁剪继续延期。
 
 # 单神经元硬件基石模拟计划
 
@@ -1264,6 +1264,18 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 
 证据入口：`python -X utf8 tools/repro/verify_repository.py --t2`；本切片不外推为 T2 全量、T3、Vivado 或板级完成。
 
+## 2026-09-07 T2 FIFO 压力矩阵
+
+- [x] RED：为 `--t2-fifo-matrix` 可复现入口增加契约测试，先确认现有闭包缺失并记录失败。
+- [x] GREEN：新增四条异步 FIFO 的 8 组时钟配置×3 个固定 seed 压力矩阵，覆盖满/空、回绕、同拍读写、长背压、reset 清空与顺序一致。
+- [x] 回归：`--t1 --t2`、`--t2-fifo-matrix`和 19 项相关 Python 单测均通过，`git diff --check` 通过。
+- [x] 文档：已同步 TODO、T2 测试计划、REPRODUCE、findings、progress、WORKFLOW_STATE 和 Nexus，并明确本地 Icarus 与 T3 真实 XPM/xsim 的证据边界。
+- [ ] 版本：不纳入三个保护文件，按“功能/证据→文档/Nexus”提交并推送 PR #68。
+
+证据边界：该矩阵验证 Icarus 接口等价 FIFO 模型的逻辑容量与顺序；它与 wrapper 协议切片合起来增强 T2 本机证据，但不代替 T3 真实 AMD XPM/xsim 和 XC7Z020 OOC。
+
+本轮错误记录：第一次直接用 PowerShell 拼接 Icarus `-P` 参数时，Icarus 将参数拆解为文件名并拒绝 elaboration；改为把 `-P` 与 defparam 名称作为独立 argv 传入复现脚本。第一次收尾只等待 80 个 Host 周期，通道 1 出现写入 34、读出 17 的未排空差异；改为显式只读排空 500 个 Host 周期后，24/24 全部通过。两次失败均未修改生产 RTL 或 FIFO 模型。
+
 ## 2026-09-04 单时钟 RTL 时序修复设计审核
 
 - [x] 读取 `timing_impl.rpt` 并完成最差 setup 路径分类。
@@ -1309,3 +1321,5 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 - [x] 推送实现与证据并创建 PR #58；以两路独立反审计修正 V2 写回语义、路径覆盖边界和持久状态残留。
 - [x] 修订 HEAD `c7e1247` 的全仓回归与 PR Gate 同 SHA 全绿，PR 为 CLEAN/MERGEABLE；PR #58 已合并为 `main@999038f`。
 - [ ] 等待管理员批准 TR7-TR12；批准前禁止继续修改计算 RTL。
+
+- 2026-09-07：两次无筛选 python -X utf8 -m unittest -q 在 30 秒窗口内未返回，并留下本轮启动的 Python/vvp 进程；已按命令行核对后终止对应进程。该全量回归不记为通过，改用明确受影响测试集合和专项复现入口。

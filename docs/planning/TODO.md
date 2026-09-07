@@ -548,4 +548,6 @@ P0-P8 已完成并签核
 
 已完成的阶段性切片：T2 可变时钟 testbench 已在三组非整数频率/相位下覆盖 pending mask epoch 与当前样本计算重叠；旧结果保持 epoch=1，下一 fence/样本才切到 epoch=2。该切片不等于 T2 全矩阵、T3 或板级闭环。
 
+T2 FIFO 独立矩阵已通过 8 组固定时钟配置×3 个 seed，四通道逐项比对实际写入/读出序列，覆盖满空、回绕、同拍读写、长背压和 reset 清空。证据入口是 `python -X utf8 tools/repro/verify_repository.py --t2-fifo-matrix`；这只是 Icarus FIFO 等价模型的固定伪随机切片，不代替真实 XPM/xsim 或 T3。
+
 P15 硬门：双时钟逐 beat bit-exact；reset/ready-valid/FIFO 满空无丢失、重复、乱序；核心 OOC 基线不被错误覆盖；顶层 routed `WNS>=0`、`TNS=0`、setup/hold/route/DRC 零失败；板级吞吐和功耗必须使用真实板级证据。

@@ -1,6 +1,6 @@
 # XC7Z020 顶层 T2 双时钟协同测试计划 V1
 
-状态：`VARIABLE_CLOCK_SLICE_GREEN / CONCURRENT_EPOCH_SLICE_GREEN / EXTENDED_CLOCK_SLICE_GREEN / FULL_MATRIX_PENDING`
+状态：`VARIABLE_CLOCK_SLICE_GREEN / CONCURRENT_EPOCH_SLICE_GREEN / EXTENDED_CLOCK_SLICE_GREEN / FIFO_MATRIX_SLICE_GREEN / FULL_MATRIX_PENDING`
 
 日期：2026-09-07
 
@@ -27,14 +27,20 @@ T2 在已通过的 T1 wrapper 上改变 `host_clk` 与 `npu_clk` 的频率和相
 
 在同一 testbench 中增加了跨域并发场景：首个样本的 8 个 beat 已进入 Host→NPU FIFO 后，Host 立即发送下一组 mask（epoch=2），而 NPU 同时计算当前样本。结果逐 beat 仍回显 sample `CAFE_0001`、epoch=1；随后 fence 响应仍回显 active epoch=1，下一样本才回显 epoch=2。该场景在三组可变时钟配置下均通过，证明 pending mask 不会穿透当前样本，也不会被 fence 提前激活。
 
+## FIFO 独立压力矩阵
+
+`tb_xpm_fifo_async_matrix.sv` 对命令、响应、样本和结果四条通道分别记录实际写入序列和实际读出序列，在末尾逐项比对。固定矩阵为 8 组 NPU 半周期/初始相位（`(2,0)`、`(3,1)`、`(4,3)`、`(5,0)`、`(7,2)`、`(9,1)`、`(11,4)`、`(13,5)`）× 3 个固定 seed（`1/7/29`），共 24 次。每次包含填满、排空、随机读写、读端长背压和中途 reset 后重复测试，四通道均返回 `T2_FIFO_MATRIX_PASS`。
+
+统一入口：`python -X utf8 tools/repro/verify_repository.py --t2-fifo-matrix`。该矩阵是固定的伪随机样本，不是所有频率/相位的数学穷举；也只验证 Icarus 接口等价模型。
+
 ## 观察窗口
 
 核心固定计算最坏约 1900 个 NPU 周期；较慢 NPU 配置下，结果等待上限必须按 NPU 周期预算换算，不能使用过短的 Host 周期上限。曾出现的 600 Host 周期超时是 testbench 观察窗口错误，修正为 5000 后三组均通过；该记录不构成 RTL 缺陷。
 
 ## 尚未完成
 
-- 六组配置和并发 epoch 是扩展协同切片，不是随机频率/相位全矩阵。
-- 仍需覆盖并发命令与样本、四 FIFO 满空/回绕在可变时钟下的独立 scoreboard，以及多次 reset 注入。
+- 八组配置×三个 seed 的 FIFO 独立 scoreboard 已通过；它不是所有频率/相位的数学穷举。
+- 仍需覆盖 wrapper 中并发命令与样本、多位置 reset 注入，并在 T3 使用真实 AMD XPM/xsim 和 XC7Z020 OOC。
 - T3 `xc7z020clg400-1` OOC、真实 XPM/xsim、AXI/DMA/网口和板级证据仍未完成。
 
 统一入口：

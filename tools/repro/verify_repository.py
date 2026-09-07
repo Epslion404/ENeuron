@@ -95,16 +95,54 @@ def _run_t2() -> list[str]:
     return []
 
 
+def _run_t2_fifo_matrix() -> list[str]:
+    tools = _tools()
+    if tools is None:
+        return ["找不到 Icarus Verilog；Windows 约定路径为 C:/msys64/ucrt64/bin"]
+    # 固定 seed 的伪随机矩阵，覆盖 NPU 慢于、快于和接近 Host 的时钟关系。
+    cases = [(2, 0), (3, 1), (4, 3), (5, 0), (7, 2), (9, 1), (11, 4), (13, 5)]
+    seeds = (1, 7, 29)
+    with tempfile.TemporaryDirectory(prefix="eneuron-repro-t2-fifo-") as temp:
+        for npu_half, npu_phase in cases:
+            for seed in seeds:
+                name = f"t2_fifo_{npu_half}_{npu_phase}_{seed}"
+                output = Path(temp) / f"{name}.vvp"
+                compile_result = _run([
+                    tools[0], "-g2012", "-Wall", "-s", "tb_xpm_fifo_async_matrix",
+                    "-P", f"tb_xpm_fifo_async_matrix.NPU_HALF={npu_half}",
+                    "-P", f"tb_xpm_fifo_async_matrix.NPU_PHASE={npu_phase}",
+                    "-P", f"tb_xpm_fifo_async_matrix.SEED={seed}",
+                    "-o", str(output), "xpm_fifo_async_sim.sv", "tb_xpm_fifo_async_matrix.sv",
+                ])
+                if compile_result.returncode:
+                    return [f"{name} 编译失败:\n" + compile_result.stderr[-4000:]]
+                simulation = subprocess.run(
+                    [tools[1], str(output)], cwd=ROOT, text=True,
+                    capture_output=True, encoding="utf-8"
+                )
+                text = simulation.stdout + simulation.stderr
+                marker = (
+                    f"T2_FIFO_MATRIX_PASS NPU_HALF={npu_half} "
+                    f"NPU_PHASE={npu_phase} SEED={seed}"
+                )
+                if simulation.returncode or marker not in text:
+                    return [f"{name} 仿真失败或缺少通过标记:\n" + text[-4000:]]
+    return []
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--t1", action="store_true", help="运行 T1 协议切片")
     parser.add_argument("--t2", action="store_true", help="运行 T2 非整数时钟切片")
+    parser.add_argument("--t2-fifo-matrix", action="store_true", help="运行 T2 FIFO 压力矩阵")
     args = parser.parse_args()
     errors = _manifest_errors()
     if args.t1:
         errors.extend(_run_t1())
     if args.t2:
         errors.extend(_run_t2())
+    if args.t2_fifo_matrix:
+        errors.extend(_run_t2_fifo_matrix())
     for error in errors:
         print(f"ERROR: {error}")
     if errors:
@@ -114,6 +152,8 @@ def main() -> int:
         print("REPRO_G1_T1_PROTOCOL_SLICE_PASS")
     if args.t2:
         print("REPRO_G2_T2_VARIABLE_CLOCKS_PASS")
+    if args.t2_fifo_matrix:
+        print("REPRO_G2_T2_FIFO_MATRIX_PASS")
     return 0
 
 

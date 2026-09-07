@@ -1403,3 +1403,5 @@
 - 2026-09-07：管理员确认资源裁剪暂缓，等第一次完整端到端运行成功后再评估；当前优先完成 T1/T2/T3 功能、双时钟、Vivado OOC 和端到端证据。
 - 2026-09-07：完成 T2 并发 epoch 原子性切片。`tb_npu_zynq7020_t2_variable_clocks.sv` 在三组非整数时钟/相位下验证 pending epoch=2 与当前样本计算重叠时不污染旧结果；下一 fence/样本才激活 epoch=2。`python -X utf8 tools/repro/verify_repository.py --t2` 返回 `REPRO_G0_MANIFEST_PASS` 与 `REPRO_G2_T2_VARIABLE_CLOCKS_PASS`。T2 全矩阵、T3、Vivado 和板级闭环仍未完成。
 - 2026-09-07：将 T2 确定性时钟覆盖扩展到六组 `(7,2)/(9,1)/(4,3)/(5,0)/(11,4)/(3,1)`；统一入口仍返回 G0/G2 PASS。状态为扩展切片绿色，随机频率/相位全矩阵、FIFO scoreboard、T3、Vivado 和板级闭环仍未完成。
+- 2026-09-07：T2 FIFO 压力矩阵按测试先行原则先加入复现合同测试；当前已故意 RED，因为 manifest 和 `verify_repository.py` 还没有新矩阵文件与 `--t2-fifo-matrix` 入口。下一步是实现隔离四 FIFO scoreboard，不修改生产 RTL。
+- 2026-09-07：T2 FIFO 矩阵实现并通过 24/24 固定配置；T1、现有 T2 wrapper 六组切片和 19 项相关单测也通过。新文件为 `tb_xpm_fifo_async_matrix.sv`，统一入口为 `--t2-fifo-matrix`；当前状态是 FIFO 切片 GREEN，T2 wrapper 并发命令/多位置 reset、T3 和板级仍待完成。

@@ -5,10 +5,11 @@
 ```powershell
 python -X utf8 tools/repro/verify_repository.py --t1
 python -X utf8 tools/repro/verify_repository.py --t2
+python -X utf8 tools/repro/verify_repository.py --t2-fifo-matrix
 python -X utf8 -m unittest -v test_ci_fast_v1 test_artifact_layout test_reproducibility
 ```
 
-Windows T1/T2 明确使用 `C:\msys64\ucrt64\bin\iverilog.exe` 与 `C:\msys64\ucrt64\bin\vvp.exe`。`--t1` 通过标记仅代表 T1 协议切片；`--t2` 通过标记仅代表三组非整数时钟切片，不代表 T1/T2 全矩阵、T3 或板级闭环全部通过。
+Windows T1/T2 明确使用 `C:\msys64\ucrt64\bin\iverilog.exe` 与 `C:\msys64\ucrt64\bin\vvp.exe`。`--t1` 通过标记仅代表 T1 协议切片；`--t2` 通过标记代表六组 wrapper 时钟切片；`--t2-fifo-matrix` 代表 8 组时钟配置×3 个 seed 的四 FIFO 独立 scoreboard 通过。两个 T2 入口都不代表 T2 数学穷举、T3、Vivado 或板级闭环全部通过。
 
 Vivado 2024.1 不放入仓库。设置 `VIVADO_ROOT` 后运行：
 

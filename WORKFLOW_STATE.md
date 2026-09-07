@@ -4,7 +4,7 @@
 
 最后更新：2026-09-07
 
-状态：`ACTIVE / NP7_MERGED / I1_I6_APPROVED / OF1_OF6_V3_APPROVED / OF6_ORACLE_SIGNOFF / RTL_DESIGN_CONTRACT_V2_APPROVED / PR62_MERGED / PR64_MERGED / PR65_MERGED / PR66_MERGED / TR1_TR6_APPROVED / TR7_TR12_APPROVED / TIMING_REPAIR_V2_FUNCTIONAL_GREEN / VIVADO_OOC_100MHZ_PASS / P15_T0_APPROVED / T1_RTL_AUTHORIZED / T1_PROTOCOL_SLICE_PROVEN / T1_FULL_PENDING / T2_VARIABLE_CLOCK_SLICE_GREEN / T2_CONCURRENT_EPOCH_SLICE_GREEN / T2_EXTENDED_CLOCK_SLICE_GREEN / T2_FULL_MATRIX_PENDING / RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN / GITHUB_ACTIONS_BILLING_BLOCKED / GITHUB_ACTIONS_DISABLED`
+状态：`ACTIVE / NP7_MERGED / I1_I6_APPROVED / OF1_OF6_V3_APPROVED / OF6_ORACLE_SIGNOFF / RTL_DESIGN_CONTRACT_V2_APPROVED / PR62_MERGED / PR64_MERGED / PR65_MERGED / PR66_MERGED / TR1_TR6_APPROVED / TR7_TR12_APPROVED / TIMING_REPAIR_V2_FUNCTIONAL_GREEN / VIVADO_OOC_100MHZ_PASS / P15_T0_APPROVED / T1_RTL_AUTHORIZED / T1_PROTOCOL_SLICE_PROVEN / T1_FULL_PENDING / T2_VARIABLE_CLOCK_SLICE_GREEN / T2_CONCURRENT_EPOCH_SLICE_GREEN / T2_EXTENDED_CLOCK_SLICE_GREEN / T2_FIFO_MATRIX_SLICE_GREEN / T2_FULL_MATRIX_PENDING / RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN / GITHUB_ACTIONS_BILLING_BLOCKED / GITHUB_ACTIONS_DISABLED`
 
 ## 当前活动目标
 
@@ -96,6 +96,13 @@ V2 OOC 物理门已通过，PR #64 已合并为 `main@a53a040`；PR #65 已合�
 - `tb_npu_zynq7020_t2_variable_clocks.sv` 在三组 `(NPU_HALF,PHASE)=(7,2),(9,1),(4,3)` 下验证：epoch=2 在当前样本计算期间发布时，当前结果保持 epoch=1；下一 fence 仍回显 active=1，下一样本才回显 epoch=2。
 - 本机目标单测 `18/18`、T1 复现和 T2 复现均通过；`REPRO_G0_MANIFEST_PASS`、`REPRO_G1_T1_PROTOCOL_SLICE_PASS`、`REPRO_G2_T2_VARIABLE_CLOCKS_PASS` 为本机证据，不是 GitHub Actions 结果。
 - 当前下一动作是 T2 全矩阵（随机频率/相位、FIFO 满空/回绕 scoreboard、并发命令和多位置 reset），再进入 T3；资源裁剪仍推迟到第一次完整端到端运行成功之后。
+
+## 2026-09-07 T2 FIFO 矩阵
+
+- `tb_xpm_fifo_async_matrix.sv` 对命令/响应/样本/结果四条异步 FIFO 分别记录实际写入和读出序列，以逐项比对证明无丢失、重复或乱序。
+- 固定 8 组 `(NPU_HALF,NPU_PHASE)` × 3 个 seed（`1/7/29`）共 24/24 通过；每次包含填满、排空、随机读写、长背压和中途 reset。
+- 证据入口：`python -X utf8 tools/repro/verify_repository.py --t2-fifo-matrix`，只代表本机 Icarus 等价 FIFO 模型证据；不代表 AMD XPM/xsim、Vivado、T3、Actions 或板级通过。
+- 完整 `python -X utf8 -m unittest -q` 本轮两次均超出 30 秒观察窗口，未计为通过；明确受影响测试集合的 20/20 以及 T1/T2/FIFO 三个复现入口通过。
 - 六组确定性时钟/相位扩展已在 `f54e762` 通过；随机频率/相位全矩阵、FIFO scoreboard、并发命令和多位置 reset 仍待完成。
 - Nexus 六组矩阵摘要已在 `af520b2` 更新；随后 `1a3c371` 只补充工作流状态指针。当前 PR #68 head 为 `1a3c371`，功能证据仍按 `f54e762`/`872fa90` 分层引用。
 

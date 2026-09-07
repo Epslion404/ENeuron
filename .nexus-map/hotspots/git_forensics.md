@@ -1,6 +1,8 @@
 # Git 热点
 
-当前状态校正（2026-09-07）：PR #64 已合并为 `main@a53a040`；V2 OOC 报告绑定 `f744bff`，GitHub Actions run `33948293095` 全绿。PR #68 的 `55ec08e`/run `33976357259` 是历史可追溯审计快照，不是当前值。P15-T0 的 A1-A7 已获管理员批准，当前为 `P15_T0_APPROVED / T1_RTL_AUTHORIZED / T1_PROTOCOL_SLICE_PROVEN / T1_FULL_PENDING / T2_VARIABLE_CLOCK_SLICE_GREEN / T2_CONCURRENT_EPOCH_SLICE_GREEN / T2_EXTENDED_CLOCK_SLICE_GREEN / T2_FULL_MATRIX_PENDING`；功能证据仍绑定 `872fa90`；本轮工作树扩展到六组 T2 可变时钟并发 epoch 切片，旧结果/fence 保持 active epoch=1，下一样本使用 epoch=2；T1-09 已记录为 `NA_FOR_T1_WRAPPER / OUTER_SHIM_PENDING`；资源裁剪已记录但推迟至首次完整端到端运行成功后。
+当前状态校正（2026-09-07）：PR #64 已合并为 `main@a53a040`；V2 OOC 报告绑定 `f744bff`，GitHub Actions run `33948293095` 全绿。PR #68 的 `55ec08e`/run `33976357259` 是历史可追溯审计快照，不是当前值。P15-T0 的 A1-A7 已获管理员批准，当前为 `P15_T0_APPROVED / T1_RTL_AUTHORIZED / T1_PROTOCOL_SLICE_PROVEN / T1_FULL_PENDING / T2_VARIABLE_CLOCK_SLICE_GREEN / T2_CONCURRENT_EPOCH_SLICE_GREEN / T2_EXTENDED_CLOCK_SLICE_GREEN / T2_FULL_MATRIX_PENDING`；T2 功能证据分层绑定为基础切片 `a616d60`、六组扩展 `f54e762` 和并发 epoch 场景 `872fa90`，文档状态同步为 `af520b2`/`1a3c371`/`8eab78e`；六组配置下旧结果/fence 保持 active epoch=1，下一样本使用 epoch=2；统一入口的 `REPRO_G2_T2_VARIABLE_CLOCKS_PASS` 仅是本机复现证据，Actions 已暂停，不能写成 CI 通过。T1-09 已记录为 `NA_FOR_T1_WRAPPER / OUTER_SHIM_PENDING`；资源裁剪已记录但推迟至首次完整端到端运行成功后。
+
+当前未提交候选新增 `tb_xpm_fifo_async_matrix.sv` 及 `--t2-fifo-matrix` 复现入口：8 组 `(NPU_HALF,PHASE)`×3 个固定 seed 共 24 次，四通道逐序列 scoreboard 均通过，摘要标记为 `REPRO_G2_T2_FIFO_MATRIX_PASS`。该证据绑定当前工作树而非 Git commit；它来自 Icarus 等价 FIFO 模型，不是 AMD XPM/xsim、T3 或 Actions 结果，不能清除 `T2_FULL_MATRIX_PENDING`。
 
 ## V2 历史审计快照（2026-09-05）
 

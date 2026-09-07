@@ -24,6 +24,14 @@ class ReproducibilityContractTests(unittest.TestCase):
         self.assertIn("docs/planning/NPU_ZYNQ7020_T2_TEST_PLAN_V1.md", required)
         self.assertIn("xpm_fifo_async_sim.sv", required)
 
+    def test_t2_fifo_matrix_has_reproducible_entrypoint(self) -> None:
+        manifest = json.loads((ROOT / "tools/repro/repro_manifest.json").read_text(encoding="utf-8"))
+        required = set(manifest["required_tracked_files"])
+        verifier = (ROOT / "tools/repro/verify_repository.py").read_text(encoding="utf-8")
+        self.assertIn("tb_xpm_fifo_async_matrix.sv", required)
+        self.assertIn('parser.add_argument("--t2-fifo-matrix"', verifier)
+        self.assertIn("REPRO_G2_T2_FIFO_MATRIX_PASS", verifier)
+
     def test_t1_changes_select_repro_gate(self) -> None:
         selected = classify_paths(["npu_zynq7020_t1_wrapper.sv"])
         self.assertTrue(selected["t1_repro"])

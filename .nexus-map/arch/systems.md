@@ -2,7 +2,9 @@
 
 历史基线（2026-09-05）：PR #64 已合并为 `main@a53a040`；PR #65 已合并为 `main@618c1e4`；PR #66 已合并为 `main@a1457bb`。V2 OOC 100 MHz 通过，资源为 `2126 LUT / 1916 FF / 4 DSP48E1`。首段旧快照中的 V1 失败数据仅作历史记录。
 
-状态更新（2026-09-07）：TR7-TR12 已实现并完成 C1-C4、单时钟专项、固定 `20×100` 和完整仓库回归。V2 OOC 已确认 `2126 LUT / 1916 FF / 4 DSP48E1`，100 MHz `WNS=+0.060 ns / TNS=0 / WHS=+0.040 ns`，setup/hold/route/DRC 全部通过。V1 失败端点审计仍保留为历史证据；P15-T0 方案 A 与 A1-A7 已批准，T1-12 边界闭环、T1-06 fence testbench、T1-09 N/A 文档及复现扩展已在 `e4d48dd` 纳入提交基线；T2 六组参数化可变时钟及并发 epoch 切片已在本轮工作树通过 `(7,2)/(9,1)/(4,3)/(5,0)/(11,4)/(3,1)`：epoch=2 在旧样本计算期间发布，旧结果和下一 fence 仍回显 active epoch=1，下一样本才回显 epoch=2。完整 T1-01～T1-12、T2 全矩阵、T3 仍待验收，GitHub Actions 暂停期间不以远端 checks 作为证据。
+状态更新（2026-09-07）：TR7-TR12 已实现并完成 C1-C4、单时钟专项、固定 `20×100` 和完整仓库回归。V2 OOC 已确认 `2126 LUT / 1916 FF / 4 DSP48E1`，100 MHz `WNS=+0.060 ns / TNS=0 / WHS=+0.040 ns`，setup/hold/route/DRC 全部通过。V1 失败端点审计仍保留为历史证据；P15-T0 方案 A 与 A1-A7 已批准，T1-12 边界闭环、T1-06 fence testbench、T1-09 N/A 文档及复现扩展已在 `e4d48dd` 纳入提交基线；T2 基础可变时钟切片由 `a616d60` 建立，六组参数扩展由 `f54e762` 固定，并发 epoch 场景由 `872fa90` 加入，当前工作树在 `(7,2)/(9,1)/(4,3)/(5,0)/(11,4)/(3,1)` 六组配置下通过：epoch=2 在旧样本计算期间发布，旧结果和下一 fence 仍回显 active epoch=1，下一样本才回显 epoch=2。完整 T1-01～T1-12、T2 全矩阵、T3 仍待验收；`REPRO_G2_T2_VARIABLE_CLOCKS_PASS` 是本机复现结果，GitHub Actions 已暂停，远端 checks 不作通过或失败证据。
+
+当前工作树另有 T2 FIFO 矩阵切片候选：`tb_xpm_fifo_async_matrix.sv` 对四条 FIFO 通道执行 8 组时钟/相位×3 seed 的 24 次固定 scoreboard，入口输出 `REPRO_G2_T2_FIFO_MATRIX_PASS`。它只覆盖 Icarus 等价模型的顺序、满空、回绕/背压和复位压力，不代表 AMD XPM/xsim、XC7Z020 T3 或板级证据；该候选尚未提交。
 
 generated_by: nexus-mapper v2 / manual synthesis
 verified_at: 2026-09-07
