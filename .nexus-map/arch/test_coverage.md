@@ -14,6 +14,8 @@ FIFO 矩阵切片已在当前工作树候选中通过 24/24：`tb_xpm_fifo_async
 
 T2 wrapper 交错/复位切片已在当前工作树候选中通过 4/4：`tb_npu_zynq7020_t2_interleave_reset.sv` 固定 `(2,0)/(3,1)/(7,2)/(11,4)` 四组时钟/相位，覆盖命令与样本交错、模型装载中途复位、结果背压期间复位、半帧复位及复位后旧响应/结果清除。统一入口 `python -X utf8 tools/repro/verify_repository.py --t2-interleave-reset` 返回 `REPRO_G2_T2_INTERLEAVE_RESET_PASS`；该结果仅为 Icarus wrapper 切片，不能外推为 T2 全矩阵、AMD XPM/xsim、Vivado T3 或 GitHub Actions 通过，且尚未提交。
 
+T2 新增证据已归档：FIFO 矩阵对应 `ee3a351`，wrapper 交错/复位对应 `8457a20`。两者都是本机 Icarus 切片，不改变 T2 全矩阵与 T3 仍待验收的状态。
+
 ## 当前签核门（V2 OOC 后）
 
 - 实现与 report head=`f744bff`；C1-C4 的启用组/周期为 `592/1902`、`590/1898`、`0/718`、`591/1900`，逐组 bitmap、模型地址、激活锁存和 WRITEBACK 均通过。

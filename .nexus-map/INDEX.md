@@ -33,6 +33,8 @@ NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`，NP7 已签核。
 
 ## 单时钟 RTL 审核摘要
 
+Nexus 归档校正：T2 FIFO 矩阵已提交 `ee3a351`，wrapper 交错/复位切片已提交 `8457a20`。
+
 - **V1 审计问题**：统一单命令流却定义 `MODEL_COMMIT` 与 `MASK_COMMIT` 同拍竞争；结果 sideband 引入未冻结的 `model_epoch` 且硬件槽位账本不足；首 beat mask 切换未说明 framing 错误的零副作用/回滚；`runtime_idle` 漏待消费错误、部分结果和同拍握手占用；验证门低于 I5 的 20 个固定 seed × 100 样本要求。
 - **V2 修正**：固定 8/10 beat 并取消外部 `last`；明确 nibble 位序和内部 beat 计数；删除 `model_epoch`，结果 metadata 仅为 sample ID 与 mask epoch；统一命令流按握手顺序串行，配置命令优先样本首 beat；idle 纳入错误响应、部分输出、统一槽位及同拍仲裁；验证门恢复至少 20×100 样本并保留 OF6 定向/负向覆盖。
 - **当前门槛**：V2 已实现于 `f744bff`。OOC 结果为 `2126 LUT / 1916 FF / 4 DSP48E1`，DSP 双重结构门、setup/hold、route 和 DRC 全部通过；`WNS=+0.060 ns / TNS=0 / WHS=+0.040 ns`。V1 的 22 个失败端点仍保留在独立审计文档中，仅作历史路径证据；当前 OOC 结果和哈希由 `artifacts/results/npu_single_clock_ooc_manifest.json` 绑定。

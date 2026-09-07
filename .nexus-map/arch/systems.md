@@ -8,6 +8,8 @@
 
 当前工作树另有 T2 wrapper 交错/复位切片候选：`tb_npu_zynq7020_t2_interleave_reset.sv` 在 `(2,0)/(3,1)/(7,2)/(11,4)` 四组配置下验证命令/样本交错和多个复位位置，4/4 输出 `REPRO_G2_T2_INTERLEAVE_RESET_PASS`。它只覆盖 Icarus wrapper 切片，不代表 T2 全矩阵、AMD XPM/xsim、XC7Z020 T3 或 Actions 结果；该候选尚未提交。
 
+T2 归档校正：FIFO 矩阵已提交于 `ee3a351`，wrapper 交错/复位切片已提交于 `8457a20`；原有“工作树候选”文字只作提交前快照。
+
 generated_by: nexus-mapper v2 / manual synthesis
 verified_at: 2026-09-07
 provenance: Python AST/file-tree probe plus SystemVerilog文件树和项目文档人工核对
