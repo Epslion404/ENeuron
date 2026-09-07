@@ -582,7 +582,7 @@ P15 硬门：双时钟逐 beat bit-exact；reset/ready-valid/FIFO 满空无丢�
 - [ ] B0-08：用户现场观察 P20 至少10个完整亮灭周期；预期单次翻转约0.671秒、完整周期约1.342秒、10周期约13.42秒，要求无常亮、常灭、停顿或明显乱闪。
 - [ ] B0-09：关闭板卡电源并确认供电完全断开，再重新上电、连接 JTAG；对同一 `df16ed6c...8971` 再次 program，重新读取三项 DONE并重复至少10周期 LED观察。
 - [ ] B0-10：将两次当前产物 program记录、两次现场观察和断电复测写入 `artifacts/results/hellozynq_b0_smoke_summary.json` 与 B0 报告；没有现场确认时状态只能为 `LED_OBSERVATION_PENDING`。
-- [ ] B0-11：复核 Nexus、artifact索引、文档状态与摘要 JSON，运行轻量回归和差异检查，提交、推送并创建 B0 PR。
+- [x] B0-11：已复核 Nexus、artifact索引、文档状态与摘要 JSON，轻量回归和差异检查通过；提交、推送并创建 PR #69。PR当前为 `OPEN / CLEAN / MERGEABLE`，Actions关闭且checks为空，现场观察和断电复测完成前不合并。
 - [ ] B0-GATE：只有当前 bitstream 的构建、两次 program、三项 DONE、上电现场观察和断电重启后复测全部绑定一致，才将 B0 标记为 PASS并进入 B1。
 
 #### P16-B1：PS7、DDR、UART、PHY和最小 UDP

@@ -45,3 +45,11 @@ Vivado 2024.1 当前正式候选构建结果：
 2. 板卡断电后重新上电，再次通过 JTAG 下载同一 `df16ed6c...8971`，并复核配置状态与 LED。
 
 两项通过后才能将 B0 提升为 `B0_COMPLETE`，随后进入 B1 的 PS7、DDR、UART 与 PHY 基础设施验证。
+
+## 发布状态审计快照
+
+- PR #69 已创建，base 为 `main@7857d32561cbd5f86d02b1a21ee0edfb3ae895f1`。
+- 2026-09-07 的观测状态为 `OPEN / CLEAN / MERGEABLE`。
+- 审计时 HEAD 为 `8db816d29beabc490851719c34a83a6f603fc321`；这是固定历史快照，不是会随 PR 后续提交自动更新的“当前 HEAD”。
+- GitHub Actions 已关闭，`statusCheckRollup` 为空；空 checks 只表示未运行，不是通过证据。
+- P20 现场观察和断电复测仍为 pending，因此 PR #69 暂不合并。

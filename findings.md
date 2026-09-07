@@ -1326,3 +1326,4 @@
 - 原始 `program_run.log` SHA-256为 `0152fe3258cefb16f6e7efd3b12058e5da6cd352c8416f3d12a290e21d6ea49e`。当前剩余证据仅是用户观察P20和断电后对同一bitstream复测。
 - 远端刷新后 `origin/main=7857d325...`，当前B0分支相对主线为 `1 ahead / 2 behind`，merge-base仍是批准基线 `e2a1bfa...`。由于正式构建和program证据绑定源码提交 `f3b8174...`，不能用rebase/cherry-pick改写该提交；证据提交后应将 `origin/main` 合入当前分支，保留硬件证据身份。
 - Nexus子任务已按当前实板证据更新七个 `.nexus-map` 文件，并正确保留现场观察/断电复测pending。主代理复核发现 `concept_model.json` 的 `current_main_head` 与 `latest_merge` 仍停在PR #68合并前状态，已校正为 `7857d325...`；其余B0 build/program字段与原始日志一致。
+- PR #69首次GitHub审计快照为 base `main@7857d325...`、HEAD `8db816d...`、`OPEN / CLEAN / MERGEABLE`、空checks。因为Actions已关闭，空checks只能解释为未运行；Nexus已将该HEAD明确限定为固定快照，后续提交不会使历史描述失真。

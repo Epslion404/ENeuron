@@ -1337,7 +1337,7 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 - [x] 将 `docs/planning/TODO.md` 的 B0～B4 扩展为可执行、可验收、可保留失败证据的详细清单。
 - [x] 验证 P16结构、B0新旧证据身份、Nexus JSON、artifact layout、CI-Fast和差异边界。
 - [x] 提交B0机器证据并合入最新 `origin/main`，保持硬件证据绑定的源码提交号不变。
-- [ ] 推送B0分支、创建PR并记录PR状态；现场观察和断电复测完成前不合并。
+- [x] 推送B0分支、创建PR #69并记录 `OPEN / CLEAN / MERGEABLE`；现场观察和断电复测完成前不合并。
 
 当前状态：机器侧构建与重复 program通过；没有现场观察和断电复测，不得将 B0标为完成。
 

@@ -49,6 +49,21 @@
     "second_attempt_before": {"done_internal": 1, "done_pin": 1, "isc_done": 1},
     "second_attempt_after": {"done_internal": 1, "done_pin": 1, "isc_done": 1}
   },
+  "publication_audit_snapshot": {
+    "observed_on": "2026-09-07",
+    "pull_request": 69,
+    "base_ref": "main",
+    "base_commit": "7857d32561cbd5f86d02b1a21ee0edfb3ae895f1",
+    "head_commit_at_observation": "8db816d29beabc490851719c34a83a6f603fc321",
+    "head_semantics": "immutable audit snapshot; not an auto-updating current PR head",
+    "state": "OPEN",
+    "merge_state_status": "CLEAN",
+    "mergeable": "MERGEABLE",
+    "actions_enabled": false,
+    "status_check_rollup": [],
+    "status_check_interpretation": "NOT_RUN_ACTIONS_DISABLED; empty checks are not pass evidence",
+    "merge_decision": "DO_NOT_MERGE_UNTIL_FIELD_OBSERVATION_AND_POWER_CYCLE_PASS"
+  },
   "pending": [
     "user observes the P20 LED blinking at the expected rate",
     "power-cycle, reprogram, and repeat configuration/LED observation"

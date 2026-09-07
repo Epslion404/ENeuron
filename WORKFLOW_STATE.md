@@ -14,6 +14,7 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 
 ## 当前事实
 
+- 2026-09-07：B0分支已推送并创建 PR #69；GitHub观测为 `OPEN / CLEAN / MERGEABLE`，base为 `main@7857d325...`。Actions按管理员要求关闭，空checks不作为通过证据；现场LED和断电复测完成前不合并。
 - 2026-09-07：PR #68 在精确 HEAD `e2a1bfa...` 上通过 G0、T1和全部已定义 T2入口后合并，merge commit为 `7857d325...`。
 - 2026-09-07：B0 当前源码 `f3b8174...` 和 bitstream `df16ed6c...8971` 的正式实现与JTAG program均通过；target为 Digilent `210251A08870`、device为 `xc7z020_1`，三项 DONE为1，CRC/IDCODE/security error为0。LED观察和断电复测仍 pending。
 - 2026-09-07：Actions 已按管理员要求暂时关闭（仓库 API `enabled=false`），因此 PR #68 的 checks 为空不解释为通过或失败；本阶段以本机 Vivado 2024.1 证据为准。
@@ -56,7 +57,7 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 
 ## 下一动作
 
-等待用户确认当前 `df16ed6c...8971` 驱动的 P20 LED至少10个完整周期；随后断电重启、重新连接并对同一 bitstream复测。两项通过后关闭 B0、推送证据 PR，再裁定 B1 软件栈。
+等待用户确认当前 `df16ed6c...8971` 驱动的 P20 LED至少10个完整周期；随后断电重启、重新连接并对同一 bitstream复测。两项通过后更新并合并 PR #69、关闭B0，再裁定B1软件栈。
 
 ## 2026-09-05 V2 OOC 签核结果
 

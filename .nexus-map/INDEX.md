@@ -2,6 +2,8 @@
 
 阶段 2 实板校正（2026-09-07）：PR #68 已合并为 `main@7857d32561cbd5f86d02b1a21ee0edfb3ae895f1`。B0 当前源码提交为 `f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06`，目标为 `xc7z020clg484-2`，路径为 M19 50 MHz → 26-bit counter → P20。当前 bitstream `df16ed6c...8971` 已于 `2026-09-07T10:22:56Z` 在指定 Digilent target 的 `xc7z020_1` 正式 program PASS，三项 DONE 为 `1/1/1`，CRC/IDCODE/security error 为 0。历史 `c16a1f8...e3d1` 的两次 program 边界继续保留。现场 LED 观察和断电复测仍待完成，因此状态为 `CURRENT_BITSTREAM_PROGRAM_PASS / B0_FIELD_OBSERVATION_PENDING`，不得标记 B0 完成。详见 `.nexus-map/arch/board_phase2_b0.md` 与 `.nexus-map/concepts/board_phase2_b0.json`。
 
+发布审计快照（2026-09-07）：PR #69 已创建，base 固定为 `main@7857d32561cbd5f86d02b1a21ee0edfb3ae895f1`；观测时为 `OPEN / CLEAN / MERGEABLE`。`8db816d29beabc490851719c34a83a6f603fc321` 仅是本次审计时的 PR HEAD 快照，不表示会自动跟随 PR 更新。Actions 已关闭，`statusCheckRollup` 为空，不构成验证通过证据。因 P20 现场观察和断电复测仍待完成，PR #69 暂不合并。
+
 当前校正（2026-09-07）：T3 证据已用提交 `c2bc03f` 重跑并绑定；顶层资源为 `2467 LUT / 2301 FF / 6 RAMB36 / 1 RAMB18 / 4 DSP48E1`。下方旧快照中的 `822cf93` 仅保留历史来源，不覆盖本条。
 
 generated_by: nexus-mapper v2 / manual synthesis from raw probe

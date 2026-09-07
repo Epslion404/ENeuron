@@ -1428,3 +1428,5 @@
 - 2026-09-07：Nexus子任务完成B0当前program证据更新；主代理逐项复核后修正 `concept_model.json` 两个主线指针为 `7857d325...`。知识库状态保持 `CURRENT_BITSTREAM_PROGRAM_PASS / B0_FIELD_OBSERVATION_PENDING`。
 - 2026-09-07：B0机器证据、详细TODO、报告和Nexus提交为 `6161a0c docs(board): record B0 machine evidence`；源码提交 `f3b8174...` 保持独立可追溯。
 - 2026-09-07：将 `origin/main@7857d325...` 合入B0分支，merge commit为 `411d2b1`，未改写 `f3b8174...`。合入后轻量回归10/10、B0物理证据身份和三份JSON再次通过。
+- 2026-09-07：分支推送后创建 PR #69；GitHub实际返回 `OPEN / CLEAN / MERGEABLE`，base=`main@7857d325...`、观测HEAD=`8db816d...`、checks为空。Actions已关闭，PR暂不合并。
+- 2026-09-07：Nexus子任务仅在三个B0入口记录PR #69固定审计快照；主代理复核确认base、观测状态、Actions边界和暂不合并条件与GitHub API一致，未把快照HEAD写成自动更新状态。
