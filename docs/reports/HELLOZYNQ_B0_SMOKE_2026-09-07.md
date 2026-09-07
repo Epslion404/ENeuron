@@ -1,0 +1,73 @@
+# HelloZynq B0 实板 smoke 阶段报告
+
+状态：`CURRENT_BITSTREAM_PROGRAM_PASS / LED_OBSERVATION_PENDING / POWER_CYCLE_PENDING`
+
+日期：2026-09-07
+
+## 本轮范围
+
+本轮只验证 `xc7z020clg484-2` 的 PL配置链、M19 50 MHz时钟约束和 P20 LED最小路径。设计不含 PS7、DDR、Ethernet、ILA、DMA、NPU或 ENeuron。
+
+## 身份
+
+- PR #68 merge commit：`7857d32561cbd5f86d02b1a21ee0edfb3ae895f1`。
+- 当前 B0 源码提交：`f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06`。
+- 历史两次 program 对应源码提交：`367c81316dc6fdc48105d6c657952a66314436bd`。
+- 板厂参考提交：`73d529d8f159ca372b7d9855eddc80880ecd9d05`。
+- Vivado：2024.1，目标：`xc7z020clg484-2`。
+- 当前正式候选 bitstream SHA-256：`df16ed6ccd9124f2dc4391d96e868ebd7846aebf3df335099b742cc7cd318971`。
+- 历史已 program bitstream SHA-256：`c16a1f8a035c9f5d70677cf71e433b8b19e040ff336d58c85efc89761e85e3d1`。
+
+## 当前正式候选实现结果
+
+| 项目 | 结果 |
+|---|---:|
+| LUT | 1 |
+| FF | 26 |
+| BRAM | 0 |
+| DSP | 0 |
+| BUFG | 1 |
+| WNS / TNS | +17.918 ns / 0 |
+| WHS / THS | +0.251 ns / 0 |
+| route errors | 0 |
+| DRC Error / Critical Warning | 0 / 0 |
+
+唯一 DRC Warning 为 `ZPS7-1`。它来自批准的 PL-only B0 不实例化 PS7；本轮明确不把该实现用于验证 PS默认配置。B1 接入 PS7 后必须重新做完整顶层 DRC，不能沿用本次解释。
+
+当前构建时工作树含尚未提交的文档和证据更新，因此 manifest 如实记录 `git_worktree_clean=false`。RTL、XDC、构建/编程脚本哈希和源码提交均已绑定；这不影响实现结果，但最终报告必须保留该事实。
+
+## 当前产物 JTAG 实测
+
+当前 `df16ed6c...8971` 于 `2026-09-07T10:22:56Z` 通过正式入口下载到：
+
+- target：`localhost:3121/xilinx_tcf/Digilent/210251A08870`
+- device：`xc7z020_1`
+- `DONE_INTERNAL=1`
+- `DONE_PIN=1`
+- `ISC_DONE=1`
+- CRC error / IDCODE error / security error：`0 / 0 / 0`
+- program log SHA-256：`0152fe3258cefb16f6e7efd3b12058e5da6cd352c8416f3d12a290e21d6ea49e`
+
+脚本终态为 `B0_PROGRAM_PASS`，并再次输出实际下载哈希 `df16ed6c...8971`。这证明当前候选已被目标器件接受，但仍不替代对P20输出的现场观察。
+
+## 历史 JTAG 实测
+
+目标为 `localhost:3121/xilinx_tcf/Digilent/210251A08870/xc7z020_1`。
+
+第一次下载前 Vivado明确报告 `DONE=0`。下载命令成功后：
+
+- `DONE_INTERNAL=1`
+- `DONE_PIN=1`
+- `ISC_DONE=1`
+- End of startup：HIGH
+
+第二次对同一 SHA-256 bitstream 重复下载也成功，下载前后上述 DONE状态均保持为 1。两次运行分别记录于 `2026-09-07T09:49:51Z` 和 `2026-09-07T09:51:40Z`。
+
+这两次记录绑定历史 bitstream `c16a1f8...e3d1`，只保留为配置链重复性历史证据；当前状态由上一节的 `df16ed6c...8971` program记录决定。
+
+## 尚未关闭的硬门
+
+- 用户现场确认 P20 LED稳定闪烁，并观察至少10个完整周期。
+- 板卡断电重启后重新连接 JTAG、下载同一 `df16ed6c...8971` 并再次观察。
+
+在这两项完成前，准确状态是“当前实现和program硬门通过、现场功能与断电恢复待验证”，不是 B0 最终通过。当前证据不证明 PS、DDR、Ethernet、DMA、NPU或 ENeuron。

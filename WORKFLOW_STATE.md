@@ -4,16 +4,18 @@
 
 最后更新：2026-09-07
 
-状态：`ACTIVE / NP7_MERGED / I1_I6_APPROVED / OF1_OF6_V3_APPROVED / OF6_ORACLE_SIGNOFF / RTL_DESIGN_CONTRACT_V2_APPROVED / PR62_MERGED / PR64_MERGED / PR65_MERGED / PR66_MERGED / TR1_TR6_APPROVED / TR7_TR12_APPROVED / TIMING_REPAIR_V2_FUNCTIONAL_GREEN / VIVADO_OOC_100MHZ_PASS / P15_T0_APPROVED / T1_RTL_AUTHORIZED / T1_PROTOCOL_SLICE_PROVEN / T1_FULL_PENDING / T2_VARIABLE_CLOCK_SLICE_GREEN / T2_CONCURRENT_EPOCH_SLICE_GREEN / T2_EXTENDED_CLOCK_SLICE_GREEN / T2_FIFO_MATRIX_SLICE_GREEN / T2_INTERLEAVE_RESET_SLICE_GREEN / T2_FINITE_CLOCK_MATRIX_GREEN / T2_RANDOM_CLOCK_MATRIX_GREEN / T2_FULL_MATRIX_PENDING / T3_XPM_XSIM_PASS / T3_XC7Z020_OOC_PASS / RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN / GITHUB_ACTIONS_BILLING_BLOCKED / GITHUB_ACTIONS_DISABLED`
+状态：`ACTIVE / PHASE2_BOARD_ACTIVE / B0_CURRENT_PROGRAM_PASS / B0_LED_OBSERVATION_PENDING / B0_POWER_CYCLE_PENDING / XC7Z020CLG484_2_CONFIRMED / T3_XPM_XSIM_PASS / T3_XC7Z020_OOC_PASS / RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN / GITHUB_ACTIONS_DISABLED`
 
 ## 当前活动目标
 
 NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定及 TR1-TR6 已批准。管理员于 2026-09-05 批准 TR7-TR12，V2 已完成测试先行、RTL 实施、功能回归和 Vivado 2024.1 OOC。DSP V1 实现、真实 OOC 失败证据和全部 22 个失败端点审计已经合入；V2 KISS 审核材料经 PR #62 合入 `main@e8dc947`，V2 实现提交为 `f744bff2bdde68e138a7b2b348ce103bec1ab469`。
 
-活动合同：`docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V1.md`、`docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_TEST_CONTRACT_V1.md` 和 `docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V2.md`。当前 RTL 已完成共享四 DSP lane、三拍组计算、V2 激活锁存、统一 WRITEBACK、active-mask 门控和全部功能回归。Vivado 2024.1 OOC 已确认恰好 4 个 DSP48E1，100 MHz 下 setup/hold、route/DRC 全部通过；板级、网口、DMA、功耗仍不在本阶段。
+活动合同：`docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`。阶段 2 只用真实板卡证据关闭任务；仿真与 OOC 继续作为开发辅助和历史基线。
 
 ## 当前事实
 
+- 2026-09-07：PR #68 在精确 HEAD `e2a1bfa...` 上通过 G0、T1和全部已定义 T2入口后合并，merge commit为 `7857d325...`。
+- 2026-09-07：B0 当前源码 `f3b8174...` 和 bitstream `df16ed6c...8971` 的正式实现与JTAG program均通过；target为 Digilent `210251A08870`、device为 `xc7z020_1`，三项 DONE为1，CRC/IDCODE/security error为0。LED观察和断电复测仍 pending。
 - 2026-09-07：Actions 已按管理员要求暂时关闭（仓库 API `enabled=false`），因此 PR #68 的 checks 为空不解释为通过或失败；本阶段以本机 Vivado 2024.1 证据为准。
 - 2026-09-07：T3 真实 AMD XPM/xsim 协同仿真通过，OOC 通过。摘要绑定本轮提交前的工作树快照，正式提交后必须用新 HEAD 重跑并更新 SHA。
 - 2026-09-07：T3 已在实现提交 `c2bc03f` 上重新运行，xsim/OOC 摘要均绑定该 SHA；随后 Nexus 与 T2 计划以 `439ac6b` 推送。Actions 仍关闭，远端 checks 不作为本轮通过证据。
@@ -54,7 +56,7 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 
 ## 下一动作
 
-V2 OOC 物理门已通过，PR #64 已合并为 `main@a53a040`；PR #65 已合并为 `main@618c1e4`，PR #66 已合并为 `main@a1457bb`。A1-A7 已批准并已实现 T1 纯 RTL 协议切片；下一步是补齐 T1-01～T1-12 全量测试，再进入 T2 双时钟和 T3 XC7Z020 OOC。当前 OOC 仍不等价于板级、网口、DMA、PS 或持续学习签核。
+等待用户确认当前 `df16ed6c...8971` 驱动的 P20 LED至少10个完整周期；随后断电重启、重新连接并对同一 bitstream复测。两项通过后关闭 B0、推送证据 PR，再裁定 B1 软件栈。
 
 ## 2026-09-05 V2 OOC 签核结果
 

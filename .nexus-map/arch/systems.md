@@ -1,5 +1,7 @@
 # 系统边界
 
+阶段 2 实板状态（2026-09-07）：实际板卡目标固定为 `xc7z020clg484-2`。B0 使用 M19 50 MHz → 26-bit counter → P20，当前源码提交为 `f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06`。正式候选构建为 `1 LUT / 26 FF / 0 BRAM / 0 DSP`，`WNS=+17.918 ns`、`WHS=+0.251 ns`，route error 0，DRC error/critical warning 0；bitstream SHA-256 为 `df16ed6c...8971`。该 bitstream 已于 `2026-09-07T10:22:56Z` 在 Digilent target `localhost:3121/xilinx_tcf/Digilent/210251A08870` 的 `xc7z020_1` 正式 program PASS，`DONE_INTERNAL/DONE_PIN/ISC_DONE=1/1/1` 且 CRC/IDCODE/security error 为 0。历史 `c16a1f8...e3d1` 两次 JTAG program 边界继续保留。当前状态为 `CURRENT_BITSTREAM_PROGRAM_PASS / B0_FIELD_OBSERVATION_PENDING`；尚缺现场 LED 和断电复测。
+
 当前校正（2026-09-07）：T3 真实 XPM/xsim 与 XC7Z020 OOC 证据绑定 `c2bc03f`；顶层 `2467 LUT / 2301 FF / 6 RAMB36 / 1 RAMB18 / 4 DSP48E1`，host/npu WNS/WHS 为 `+3.639/+0.105 ns`、`+0.214/+0.042 ns`。下方 `822cf93` 为历史快照。
 
 历史基线（2026-09-05）：PR #64 已合并为 `main@a53a040`；PR #65 已合并为 `main@618c1e4`；PR #66 已合并为 `main@a1457bb`。V2 OOC 100 MHz 通过，资源为 `2126 LUT / 1916 FF / 4 DSP48E1`。首段旧快照中的 V1 失败数据仅作历史记录。
@@ -20,7 +22,7 @@ generated_by: nexus-mapper v2 / manual synthesis
 verified_at: 2026-09-07
 provenance: Python AST/file-tree probe plus SystemVerilog文件树和项目文档人工核对
 
-仓库分为七个边界：神经元 RTL 与 Python 参考模型、Tile/Host 网络、局部剪枝控制器、NP7 共享 BRAM/lane 执行器、传统 NPU + ENeuron 集成参考模型、XC7Z020 顶层适配规划、验证与签核工具。CI-Fast V1 是验证编排边界，不改变业务硬件合同。跨边界的主要合同是逐周期/逐位比较、原子提交、INFER 状态冻结和 fail-closed SHA-256 摘要。
+仓库分为八个边界：神经元 RTL 与 Python 参考模型、Tile/Host 网络、局部剪枝控制器、NP7 共享 BRAM/lane 执行器、传统 NPU + ENeuron 集成参考模型、XC7Z020 顶层适配、HelloZynq 阶段 2 实板验证、验证与签核工具。CI-Fast V1 是验证编排边界，不改变业务硬件合同。跨边界的主要合同是逐周期/逐位比较、原子提交、INFER 状态冻结和 fail-closed SHA-256 摘要。
 
 NP6 物理评估正式状态为 `NP6_PHYSICAL_COST_PARTIAL`；NP7 已签核。传统 NPU + ENeuron 的 V2 实现为 report head=`f744bff`：`2126 LUT / 1916 FF / 4 DSP48E1`，100 MHz OOC 通过；仍不得外推板级吞吐、动态功耗或部署性能。`np75_tmp_sparse_protocol.ys` 被明确排除在提交、Nexus 文件树和原始探针之外。
 

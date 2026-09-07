@@ -1,0 +1,57 @@
+{
+  "$schema": "nexus-mapper/evidence/v1",
+  "evidence_id": "board-phase2-b0",
+  "verified_at": "2026-09-07",
+  "status": "CURRENT_BITSTREAM_PROGRAM_PASS / B0_FIELD_OBSERVATION_PENDING",
+  "complete": false,
+  "main_merge_commit": "7857d32561cbd5f86d02b1a21ee0edfb3ae895f1",
+  "source_commit": "f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06",
+  "part": "xc7z020clg484-2",
+  "design": {
+    "clock_pin": "M19",
+    "clock_hz": 50000000,
+    "counter_bits": 26,
+    "led_pin": "P20"
+  },
+  "build": {
+    "tool": "Vivado 2024.1",
+    "clean_build": false,
+    "result": "PASS",
+    "resources": {"lut": 1, "ff": 26, "bram": 0, "dsp": 0},
+    "setup_wns_ns": 17.918,
+    "hold_whs_ns": 0.251,
+    "route_errors": 0,
+    "drc_errors": 0,
+    "drc_critical_warnings": 0,
+    "drc_warnings": ["ZPS7-1: pure PL B0 design does not instantiate PS7"],
+    "bitstream_sha256": "df16ed6ccd9124f2dc4391d96e868ebd7846aebf3df335099b742cc7cd318971"
+  },
+  "current_jtag": {
+    "source_commit": "f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06",
+    "bitstream_sha256": "df16ed6ccd9124f2dc4391d96e868ebd7846aebf3df335099b742cc7cd318971",
+    "program_time_utc": "2026-09-07T10:22:56Z",
+    "target": "localhost:3121/xilinx_tcf/Digilent/210251A08870",
+    "device": "xc7z020_1",
+    "result": "PASS",
+    "done_internal": 1,
+    "done_pin": 1,
+    "isc_done": 1,
+    "crc_error": 0,
+    "idcode_error": 0,
+    "security_error": 0
+  },
+  "historical_jtag": {
+    "source_commit": "367c81316dc6fdc48105d6c657952a66314436bd",
+    "bitstream_sha256": "c16a1f8a035c9f5d70677cf71e433b8b19e040ff336d58c85efc89761e85e3d1",
+    "applies_to_current_build": false,
+    "program_attempts": 2,
+    "program_passes": 2,
+    "second_attempt_before": {"done_internal": 1, "done_pin": 1, "isc_done": 1},
+    "second_attempt_after": {"done_internal": 1, "done_pin": 1, "isc_done": 1}
+  },
+  "pending": [
+    "user observes the P20 LED blinking at the expected rate",
+    "power-cycle, reprogram, and repeat configuration/LED observation"
+  ],
+  "scope_limit": "Does not prove B0 complete and does not cover NPU, ENeuron, PS7, DDR, DMA, Ethernet, throughput, accuracy, or power."
+}

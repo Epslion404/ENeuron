@@ -1,5 +1,7 @@
 # 测试面与缺口
 
+阶段 2 B0 校正（2026-09-07）：`xc7z020clg484-2` 当前最小板级候选 `df16ed6c...8971` 的实现通过，资源为 `1 LUT / 26 FF / 0 BRAM / 0 DSP`，`WNS=+17.918 ns`、`WHS=+0.251 ns`，route/DRC error 为 0。当前产物已于 `2026-09-07T10:22:56Z` 正式 program PASS，`DONE_INTERNAL/DONE_PIN/ISC_DONE=1/1/1`，CRC/IDCODE/security error 为 0。历史 `c16a1f8...e3d1` 两次 JTAG program 边界继续保留。覆盖状态为 `CURRENT_BITSTREAM_PROGRAM_PASS / B0_FIELD_OBSERVATION_PENDING`；P20 观察和断电复测完成前不能记 B0 完成。
+
 当前校正（2026-09-07）：T3 signoff 已在 `c2bc03f` 重跑并通过；真实 XPM/xsim 与 OOC 摘要均绑定该 HEAD。下方旧快照中的 `822cf93` 不代表当前证据绑定。
 
 当前 T2 增量（2026-09-07）：统一复现入口新增 `--t2-full-matrix`，对 16 组半周期/相位组合运行完整 wrapper 场景并返回 `REPRO_G2_T2_FULL_MATRIX_PASS`。这是有限确定性矩阵，不是频率/相位数学穷举；固定种子随机矩阵已另行通过，仍待更广泛并发交错。

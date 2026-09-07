@@ -1320,6 +1320,29 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 错误记录：第二次真实 XPM/xsim 同样完成并打印通过 marker，但 Tcl 在 `close_sim` 前读取仍未完全刷新的 `simulate.log`，误判 marker 缺失。当前落盘日志已核对包含 marker；runner 改为先 `close_sim` 再读取日志。
 首轮 OOC 结果：资源/双时钟时序/route/DRC/四 DSP 已通过，但 `report_cdc` 显示 wrapper 自身同步器缺少 `ASYNC_REG`，并把 8 条逐 FIFO `rst_busy` 交叉同步识别为 critical。处理为给全部显式同步链加属性，并将 busy CDC 收敛为“各域本地寄存汇总 + 两个单 bit 同步”；OOC runner 同时新增 external CDC hard gate，修后必须重跑。
 
+## 2026-09-07 项目阶段 2 / B0 实板 smoke
+
+- [x] 在 PR #68精确 HEAD上重跑 G0/T1/T2全部入口并合并为 `main@7857d325...`。
+- [x] 从 `e2a1bfa...` 建立隔离 board worktree和分支。
+- [x] 实现最小 M19→26-bit计数器→P20顶层、XDC、构建和编程脚本。
+- [x] 提交 `367c813...` 后在干净工作树重建；1 LUT / 26 FF、WNS +17.918 ns、WHS +0.251 ns、route/DRC硬门通过。
+- [x] 对 SHA-256 `c16a1f8...e3d1` 连续 program两次，读取 DONE内部/引脚和 ISC_DONE均为1。
+- [ ] 用户现场观察至少10个完整 LED周期。
+- [ ] 断电重启、重新连接并对同一 bitstream做第三次 program和 LED复测。
+- [ ] 更新最终摘要、Nexus、提交、推送并创建 B0 PR。
+- [x] 将编程脚本收紧为 `DONE_INTERNAL/DONE_PIN/ISC_DONE` 三项同时通过的硬门，并在 `f3b8174...` 上正式重建。
+- [x] 记录新构建 bitstream `df16ed6c...8971` 与旧已编程 bitstream `c16a1f8...e3d1` 的身份边界，禁止拼接证据。
+- [x] 对当前 `df16ed6c...8971` 重新 program，取得三项 DONE 硬门日志。
+- [ ] 用户完成当前 `df16ed6c...8971` 的 P20 LED现场观察。
+- [x] 将 `docs/planning/TODO.md` 的 B0～B4 扩展为可执行、可验收、可保留失败证据的详细清单。
+- [x] 验证 P16结构、B0新旧证据身份、Nexus JSON、artifact layout、CI-Fast和差异边界。
+
+当前状态：机器侧构建与重复 program通过；没有现场观察和断电复测，不得将 B0标为完成。
+
+错误记录：首次加入 `artifacts/results/hellozynq_b0_smoke_summary.json` 后，`test_artifact_layout.py` 按设计拒绝未登记的新结果文件。已将该正式摘要加入精确白名单并同步 `artifacts/README.md`，未放宽目录检查规则。
+
+错误记录：一次上下文读取尝试访问仓库根目录不存在的 `TODO.md`；权威总 TODO 实际位于 `docs/planning/TODO.md`。该错误未修改文件，后续使用已确认路径。
+
 ## 2026-09-04 单时钟 RTL 时序修复设计审核
 
 - [x] 读取 `timing_impl.rpt` 并完成最差 setup 路径分类。

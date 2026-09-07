@@ -555,3 +555,94 @@ wrapper 交错/复位切片已在 4 组时钟配置下通过：模型装载中�
 T2 wrapper 时钟覆盖已补齐 16 组确定性组合和固定种子 `20260907` 生成的 24 组唯一随机组合；入口分别为 `--t2-full-matrix` 与 `--t2-random-matrix`。慢时钟组合的结果观察预算按 `2000 + 400 × NPU_HALF` 个 Host 周期缩放。两组矩阵均已通过，但仍只属于有限可复现压力集，不得称为所有频率/相位的数学穷举。
 
 P15 硬门：双时钟逐 beat bit-exact；reset/ready-valid/FIFO 满空无丢失、重复、乱序；核心 OOC 基线不被错误覆盖；顶层 routed `WNS>=0`、`TNS=0`、setup/hold/route/DRC 零失败；板级吞吐和功耗必须使用真实板级证据。
+
+### P16：项目阶段 2——XC7Z020 实板验证
+
+目标是在 HelloZynq `xc7z020clg484-2` 上依次打通 PL、PS/DDR/网口、DMA、`64→32→10` 传统 NPU、ENeuron 局部门控和网口端到端 A/B。阶段 2 只由实板证据关闭任务；仿真和 OOC 可用于定位，但不得替代 bitstream、JTAG、UART、Host/网口采集和现场观测。
+
+#### P16-E：公共证据合同
+
+- [x] 固定板卡与参考源：HelloZynq、`xc7z020clg484-2`、板厂 `master@73d529d8f159ca372b7d9855eddc80880ecd9d05`、Digilent JTAG `210251A08870`。
+- [x] 固定软件/硬件基线：PR #68 已在精确 HEAD 完成本地 G0/T1/T2 复现并合并为 `main@7857d32561cbd5f86d02b1a21ee0edfb3ae895f1`。
+- [x] 使用隔离工作树 `D:\Documents\Code\ENeuron-board-b0` 和分支 `codex/zynq7020-board-b0`，不携带主工作树未提交修改。
+- [ ] 每个正式 bitstream 保存：Git commit、Vivado完整版本、完整 part、顶层、RTL/XDC/Tcl/PowerShell哈希、bitstream SHA-256、资源、时序、route/DRC结果和构建时间。
+- [ ] 每次实板运行保存：bitstream SHA-256、JTAG target/device、测试开始时间、输入向量/数据集哈希、软件提交、串口或 Host 原始日志、机器判定和人工观测。
+- [ ] 禁止跨证据包拼接：不同 commit、源文件哈希或 bitstream SHA-256 的构建、program、现场输出不能合并成同一次 PASS。
+- [ ] 失败时保留首个失败输入、完整输出、错误码、关键状态和复现命令；修复后创建新的证据包，不覆盖原始失败记录。
+
+#### P16-B0：PL 配置、50 MHz 时钟和 LED
+
+- [x] B0-01：冻结最小设计为 M19 50 MHz → 26-bit自由计数器 → P20 LED；不实例化 PS7、DDR、Ethernet、ILA、DMA或 NPU。
+- [x] B0-02：实现顶层 RTL、M19/P20 `LVCMOS33` XDC、Vivado非工程模式构建入口和仅配置 PL 的 JTAG入口。
+- [x] B0-03：编程入口把 `DONE_INTERNAL=1`、`DONE_PIN=1`、`ISC_DONE=1` 同时设为硬通过条件；任一不为1时返回失败。
+- [x] B0-04：在当前源码提交 `f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06` 上完成 Vivado 2024.1 实现：`1 LUT / 26 FF / 0 BRAM / 0 DSP / 1 BUFG`，`WNS=+17.918 ns`、`WHS=+0.251 ns`，setup/hold失败端点、route Error、DRC Error/Critical Warning均为0。
+- [x] B0-05：生成当前正式候选 bitstream，SHA-256 为 `df16ed6ccd9124f2dc4391d96e868ebd7846aebf3df335099b742cc7cd318971`。构建时因文档尚未提交，manifest 正确记录 `git_worktree_clean=false`；源文件哈希和源码提交已绑定。
+- [x] B0-06：保留历史证据边界：旧 bitstream `c16a1f8...e3d1` 已连续两次 program 且三项 DONE 为1，但不能替代当前 `df16ed6c...8971` 的 program 证据。
+- [x] B0-07：当前 `df16ed6c...8971` 已于 `2026-09-07T10:22:56Z` 完成第一次正式 JTAG program；target为 Digilent `210251A08870`、device为 `xc7z020_1`，`DONE_INTERNAL/DONE_PIN/ISC_DONE=1/1/1`，CRC/IDCODE/security error为0，原始日志 SHA-256为 `0152fe32...a49e`。
+- [ ] B0-08：用户现场观察 P20 至少10个完整亮灭周期；预期单次翻转约0.671秒、完整周期约1.342秒、10周期约13.42秒，要求无常亮、常灭、停顿或明显乱闪。
+- [ ] B0-09：关闭板卡电源并确认供电完全断开，再重新上电、连接 JTAG；对同一 `df16ed6c...8971` 再次 program，重新读取三项 DONE并重复至少10周期 LED观察。
+- [ ] B0-10：将两次当前产物 program记录、两次现场观察和断电复测写入 `artifacts/results/hellozynq_b0_smoke_summary.json` 与 B0 报告；没有现场确认时状态只能为 `LED_OBSERVATION_PENDING`。
+- [ ] B0-11：复核 Nexus、artifact索引、文档状态与摘要 JSON，运行轻量回归和差异检查，提交、推送并创建 B0 PR。
+- [ ] B0-GATE：只有当前 bitstream 的构建、两次 program、三项 DONE、上电现场观察和断电重启后复测全部绑定一致，才将 B0 标记为 PASS并进入 B1。
+
+#### P16-B1：PS7、DDR、UART、PHY和最小 UDP
+
+- [ ] B1-D1：在 B0 通过后裁定首轮软件栈。推荐 `bare-metal + lwIP`，以减少 Linux启动、驱动和文件系统变量；Linux保留为后续部署候选，不作为首轮 bring-up 前提。
+- [ ] B1-01：从固定板厂提交提取 PS7 配置、DDR参数、UART0、GEM0-EMIO、`GMII TO RGMII`、200 MHz `FCLK_CLK0`、复位和约束；重写为仓库内可重建 Tcl，不引用板厂工程的绝对路径和生成目录。
+- [ ] B1-02：核对板级连接：UART0 TX/RX、RGMII、MDIO、PHY reset、时钟方向和 I/O standard；将最终引脚表与板厂原理图/参考 XDC逐项对照并记录来源。
+- [ ] B1-03：生成 PS-only/基础设施 bitstream和硬件平台导出文件；记录 Vivado资源、时序、route/DRC和 bitstream SHA-256。
+- [ ] B1-04：编写最小启动程序，UART输出固定 banner、软件提交、硬件平台哈希、CPU时钟、DDR测试范围和复位原因；上电后重复启动3次均应得到完整日志。
+- [ ] B1-05：DDR先在关闭缓存或显式维护缓存的条件下执行地址线、walking-1、walking-0、固定模式和固定种子伪随机读写；先跑小范围定位，再跑冻结的大范围，所有地址和值必须零错误。
+- [ ] B1-06：读取并保存 PHY ID、基本状态、协商结果和链路速度；验证 PHY reset 后可重新发现，目标为1000 Mbps全双工。若网络侧不支持千兆，必须记录实际能力并阻断后续性能结论。
+- [ ] B1-07：实现最小 UDP echo或固定响应服务；分别测试64、512、1472-byte payload，每档至少1000包，核对 sequence、长度、payload和源/目的地址。
+- [ ] B1-08：在持续发送期间拔插网线，要求链路状态可观测、软件不死锁、重插后无需重新烧写 bitstream即可恢复收发。
+- [ ] B1-09：保存 UART原始日志、DDR摘要、MDIO寄存器、Host发包/收包账本、丢包和恢复时间，形成 B1 机器摘要与报告。
+- [ ] B1-GATE：UART稳定、DDR零错误、PHY可识别且千兆链路成立、UDP三档payload零错序/零内容错误、拔插可恢复后，才能进入 DMA；B1 不声明 NPU已经接入。
+
+#### P16-B2：AXI DMA和固定帧流协议
+
+- [ ] B2-D1：冻结首轮 DMA方案。推荐 AXI DMA simple mode + polling先跑通，再增加 interrupt；scatter-gather不进入首轮，除非 simple mode无法满足已冻结吞吐目标。
+- [ ] B2-01：冻结 PS DDR缓冲区地址、大小、对齐、所有权、cache flush/invalidate顺序、超时和复位恢复合同；Host/CPU不得在 DMA拥有缓冲区时修改内容。
+- [ ] B2-02：先实现 PL AXI-Stream loopback，不接 NPU；发送端和接收端都记录 byte数、beat数、TLAST位置、sequence和硬件周期。
+- [ ] B2-03：覆盖0长度拒绝、1/4/16/64/512/1472-byte、跨cache-line、最大冻结帧长、连续帧和环形缓冲区回绕；合法帧逐字节一致，非法帧返回明确错误且下一帧可恢复。
+- [ ] B2-04：加入接收背压和发送间歇，证明 AXI-Stream稳定性；运行至少10000帧固定种子压力，禁止丢失、重复、乱序和静默截断。
+- [ ] B2-05：实现外层 packetizer/depacketizer，把 DMA帧映射为现有128-bit命令/响应、8-beat样本和10-beat结果；TLAST只在外层检查，不能改变已冻结核心 framing合同。
+- [ ] B2-06：覆盖早到/晚到/缺失 TLAST、错误长度、未知消息类型、错误保留位、超时和中途复位；错误帧不得留下半条命令、半个样本或旧结果。
+- [ ] B2-07：同时记录 PS软件时间戳、DMA中断/轮询状态、PL周期计数和 NPU侧接受/完成计数，为后续拆分“网口、软件、DMA、计算”耗时建立基线。
+- [ ] B2-08：形成真实 DMA回环和协议适配摘要，保存输入/输出二进制、CRC、sequence账本、错误注入结果、资源和时序。
+- [ ] B2-GATE：真实 DDR↔DMA↔PL双向搬运和协议适配在正常、背压、边界、错误、复位场景均零丢失/重复/乱序后，才能接入 NPU；B2通过前不报告剪枝加速。
+
+#### P16-B3：传统 NPU + ENeuron 固定向量
+
+- [ ] B3-01：保持当前 `64→32→10`、634个模型word、8-beat样本和10-beat结果不变；冻结模型、量化参数、样本集合、期望10-logit、预测类别和所有文件 SHA-256。
+- [ ] B3-02：把已签核 NPU wrapper、DMA适配、周期计数器和最小可观测寄存器接入同一顶层；不得为调试修改数值语义、mask原子性或四 DSP合同。
+- [ ] B3-03：完成完整 bitstream实现，检查顶层两个时钟域 setup/hold、CDC、route、DRC、恰好4个 DSP48E1以及核心/wrapper/FIFO/DMA分层资源。
+- [ ] B3-04：先运行 dense/bypass；逐样本核对10个结果beat、sample ID、mask epoch和预测类别与冻结黄金输出完全一致。
+- [ ] B3-05：运行 gate启用但全开 mask，结果必须与 dense/bypass bit-exact一致；这一步隔离“门控通路自身改变数值”的错误。
+- [ ] B3-06：运行合法 mixed mask，包括冻结的严格 `2:4` 候选；逐样本保存执行组、跳过组、硬件周期和输出。全关只作协议负向或负载下界，不得伪装为合法 `2:4` 模式。
+- [ ] B3-07：在样本计算进行中发布下一 mask epoch，证明当前结果仍绑定旧 epoch；只有 fence和下一样本边界后才激活新 epoch。
+- [ ] B3-08：覆盖响应背压、结果背压、错误命令、非法 epoch、模型/掩码中途复位和重新装载；恢复后首个合法样本不得混入旧状态。
+- [ ] B3-09：固定测试规模分两档：小集合用于逐beat定位，完整集合用于至少10000样本连续运行；两档都保存首错即停的原始证据。
+- [ ] B3-10：形成 B3 摘要，分别报告正确性、每样本硬件周期、有效组/跳过组和资源；不把理论稀疏率直接写成端到端性能提升。
+- [ ] B3-GATE：dense、全开和 mixed三类模式的协议、黄金输出、epoch原子性和复位恢复全部通过，且同一 bitstream 的物理实现硬门通过，才能进入网口 A/B。
+
+#### P16-B4：网口端到端 dense/gated A/B
+
+- [ ] B4-01：冻结应用层协议版本，至少携带 message type、payload length、sequence、sample ID、model ID、mask epoch和错误码；所有多字节字段固定字节序。
+- [ ] B4-02：实现可复现 Host工具，负责模型/掩码装载、样本发送、结果接收、超时重试、逐包账本、黄金输出比较和 JSON/CSV摘要；原始包必须可回放。
+- [ ] B4-03：固定同一 bitstream、软件、模型、样本顺序、时钟和网络连接，只切换 dense/bypass与 gated模式；禁止为某一模式单独调频、改变batch或预处理。
+- [ ] B4-04：先运行1000样本预热，再对每个模式运行至少10000样本；整个 A/B至少重复5轮并交替顺序，避免只取一次偶然最好值。
+- [ ] B4-05：同时采集端到端吞吐、p50/p95/p99延迟、超时/丢包、结果一致性、PS软件时间、DMA时间、NPU硬件周期、执行组和跳过组。
+- [ ] B4-06：加入持续流、突发流和小间隔流三档负载；发生拥塞时必须可见地背压或返回错误，不允许静默丢包、重复结果或错配 sample ID。
+- [ ] B4-07：正确性硬门优先：dense和全开必须 bit-exact，gated必须符合冻结黄金输出/精度合同；任何结果错配都使该轮性能数据无效。
+- [ ] B4-08：性能结论只报告实测差值和置信范围，不预设必须提升。若 gated无加速，按网口、软件、DMA、固定开销、NPU计算五段计数定位瓶颈。
+- [ ] B4-09：只有外部功耗仪器、供电测点、采样率、空闲基线和同步方法冻结后才测功耗；否则明确写 `POWER_NOT_MEASURED`，不得用 Vivado估算冒充板上功耗。
+- [ ] B4-10：完成首次完整 A/B 后，重新打开 C1～C9资源裁剪评审；每项裁剪都必须重跑 B3正确性和 B4同条件 A/B。
+- [ ] B4-GATE：同一完整证据包证明网口输入→PS/DDR→DMA→传统 NPU+ENeuron→网口输出闭环，正确性硬门通过并完成可重复 A/B后，阶段 2 才可标记完成。
+
+#### P16-S：统一停止条件
+
+- [ ] 若器件、板卡版本、PHY型号、内存型号或关键引脚与固定资料不一致，停止构建并先更新硬件基线。
+- [ ] 若某次运行无法确认 commit、bitstream SHA-256或输入哈希，该次结果仅作调试，不进入正式报告。
+- [ ] 若结果错误、丢包、乱序、超时或复位恢复失败，先保存首个失败证据并修复正确性；不得继续用该运行计算性能提升。
+- [ ] 若需要改变公开协议、数值格式、模型形状、DMA模式或软件栈，先形成决策点并由管理员批准，再修改实现。

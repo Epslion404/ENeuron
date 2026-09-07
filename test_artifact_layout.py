@@ -36,6 +36,7 @@ EXPECTED_RESULTS = {
     "np7_vivado_ooc_summary.json",
     "np7_vivado_xsim_summary.json",
     "npu_single_clock_ooc_manifest.json",
+    "hellozynq_b0_smoke_summary.json",
 }
 
 

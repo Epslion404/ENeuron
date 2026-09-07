@@ -1292,3 +1292,37 @@
 - 固定种子 `20260907` 生成 24 个唯一 `(NPU_HALF,NPU_PHASE)` 组合，半周期范围为 2-17 ns；统一入口返回 `REPRO_G2_T2_RANDOM_MATRIX_PASS`。
 - 固定 5000 Host 周期在慢 NPU 组合下不足。观察预算改为 `2000 + 400 × NPU_HALF`，只改变 testbench 等待上限，不改变 DUT、事务顺序或通过判据。
 - 恢复审计确认上一轮只有状态汇报，没有改变权威状态；本轮继续完成 Nexus、复验、提交和推送闭环。
+
+## 2026-09-07 HelloZynq B0 实板
+
+- 板厂固定提交同时证明 M19/P20为 HelloZynq PL时钟/LED引脚，B0 XDC使用 LVCMOS33；目标完整 part固定为 `xc7z020clg484-2`。
+- 最小 26-bit计数器实现只使用1 LUT、26 FF和1 BUFG，0 BRAM/0 DSP；50 MHz下 P20完整周期为1.34217728秒。
+- 干净提交 `367c813...` 的实现 WNS/WHS为 `+17.918/+0.251 ns`，route error 0，DRC Error/Critical Warning为0。唯一 `ZPS7-1` Warning来自刻意不实例化 PS7的 PL-only范围，不能外推到 B1。
+- bitstream SHA-256为 `c16a1f8a035c9f5d70677cf71e433b8b19e040ff336d58c85efc89761e85e3d1`。首次下载前 Vivado报告 DONE=0；两次下载后 CONFIG_STATUS明确给出 DONE_INTERNAL=1、DONE_PIN=1，IR给出 ISC_DONE=1。
+- 机器证据证明配置链和 FPGA startup成功，但不能单独证明 M19时钟或 P20 LED工作；必须等待用户现场观察和断电复测。
+
+## 2026-09-07 B0 正式重建与阶段 2 TODO 细化
+
+- 当前 B0 源码提交已由 amend 更新为 `f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06`，主要变化是编程脚本把 `DONE_INTERNAL`、`DONE_PIN`、`ISC_DONE` 三项同时为 1 设为硬失败门。
+- Vivado 2024.1 对该提交完成正式重建：`B0_BUILD_PASS`，0 Error、0 Critical Warning；资源与时序保持 `1 LUT / 26 FF / 0 BRAM / 0 DSP`、`WNS=+17.918 ns`、`WHS=+0.251 ns`。
+- 新构建 manifest 绑定 `f3b8174...`，bitstream SHA-256 为 `df16ed6ccd9124f2dc4391d96e868ebd7846aebf3df335099b742cc7cd318971`。构建时工作树含未提交文档，因此 manifest 的 `git_worktree_clean=false`；源文件哈希和提交身份仍已记录。
+- 已完成的两次 JTAG program 绑定旧 bitstream `c16a1f8...e3d1`；新 bitstream `df16ed6c...8971` 尚未 program。按照阶段 2 的单一证据包原则，不能把旧 program 结果直接写成新 bitstream 的通过证据。
+- B0 最终闭环必须对 `df16ed6c...8971` 重新执行 JTAG program、三项 DONE 硬门和现场 LED 观察；断电后再次对同一哈希复测。完成前状态保持 pending。
+- 阶段 2 TODO 将按 B0～B4 分解为准备条件、实现任务、实板测试、证据产物和停止条件；B1 首轮软件栈仍建议 `bare-metal + lwIP`，但需在 B0 完全通过后由管理员正式裁定。
+- 本轮一次读取误把总 TODO 假定在仓库根目录，`D:\Documents\Code\ENeuron-board-b0\TODO.md` 不存在；已确认权威文件为 `docs/planning/TODO.md`，后续不重复错误路径。
+- 固定板厂提交中的 PS Ethernet 参考设计确认：该板没有直接引出 PS GEM 的 MIO 网口，而是由 PS GEM 经 EMIO 输出 GMII，再通过 PL 中的 `GMII TO RGMII` IP 连接板载 PHY；因此 B1 不能只配置 PS MIO，必须保留 PL 侧转换、时钟、复位和 RGMII/MDIO约束。
+- 板厂参考设计给出的关键配置包括 UART0、16-bit DDR3、PS `FCLK_CLK0=200 MHz` 供 `GMII TO RGMII` 使用；参考 XDC 中 UART TX/RX 为 L17/M17，MDIO MDC/MDIO 为 G21/H22，RGMII位于 Bank 35相关引脚。上述信息只作为 B1 重建输入，正式配置仍需由仓库脚本生成并在实板逐项验收。
+- 板载以太网 PHY 资料位于固定板厂仓库的 RTL8211F 数据手册目录；B1 应先通过 MDIO读取 PHY ID和链路状态，再运行 UDP，避免把协议栈或 IP 配置错误误判为物理链路问题。
+- 当前传统 NPU RTL 在 `npu_eneuron_single_clock_skeleton.sv` 中明确冻结为 `64→32→10`，模型为 634 个 32-bit word，样本为 8 beat、结果为 10 beat；B3 固定向量和后续图像流测试应直接复用这一形状，避免在实板 bring-up 阶段同时改变网络规模。
+- 一次搜索误用了不存在的 `npu_eneuron_single_clock.sv` 路径；真实文件名为 `npu_eneuron_single_clock_skeleton.sv`。错误未修改仓库，已通过 `rg --files` 纠正，后续不重复该路径。
+- 证据身份校正后，`artifacts/README.md` 仍把 B0摘要概括为“干净构建和两次 program”，`concept_model.json` 仍使用 `machine_evidence_pass_field_observation_pending`；两处都需改为“当前构建通过、当前 program pending、历史 program单列”，否则入口摘要会再次误导审查者。
+
+## 2026-09-07 B0 当前产物正式 program 执行
+
+- 执行前复核确认工作树 HEAD 为 `f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06`，本地 bitstream SHA-256 与 manifest 一致，均为 `df16ed6ccd9124f2dc4391d96e868ebd7846aebf3df335099b742cc7cd318971`。
+- `run_b0_program.ps1` 在启动 Vivado前强制比对 bitstream和manifest哈希；Tcl只接受单一硬件target和单一XC7Z020器件，并在program后检查 `PROGRAM.FILE` 与请求路径一致。
+- 编程成功的硬门是 `DONE_INTERNAL=1`、`DONE_PIN=1`、`ISC_DONE=1` 三项同时成立；脚本还输出 UTC时间、目标、器件、前后配置状态和相关硬件属性，可直接进入正式证据摘要。
+- 当前 bitstream `df16ed6c...8971` 的正式 program 已于 `2026-09-07T10:22:56Z` 完成，脚本和Vivado均返回PASS；三项DONE为 `1/1/1`，CRC、IDCODE、security error均为0。
+- 原始 `program_run.log` SHA-256为 `0152fe3258cefb16f6e7efd3b12058e5da6cd352c8416f3d12a290e21d6ea49e`。当前剩余证据仅是用户观察P20和断电后对同一bitstream复测。
+- 远端刷新后 `origin/main=7857d325...`，当前B0分支相对主线为 `1 ahead / 2 behind`，merge-base仍是批准基线 `e2a1bfa...`。由于正式构建和program证据绑定源码提交 `f3b8174...`，不能用rebase/cherry-pick改写该提交；证据提交后应将 `origin/main` 合入当前分支，保留硬件证据身份。
+- Nexus子任务已按当前实板证据更新七个 `.nexus-map` 文件，并正确保留现场观察/断电复测pending。主代理复核发现 `concept_model.json` 的 `current_main_head` 与 `latest_merge` 仍停在PR #68合并前状态，已校正为 `7857d325...`；其余B0 build/program字段与原始日志一致。

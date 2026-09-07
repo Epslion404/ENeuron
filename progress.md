@@ -1413,3 +1413,16 @@
 - 2026-09-07：按测试先行补齐 T2 wrapper 有限时钟/相位矩阵：先以合同测试复现 `--t2-full-matrix` 缺失，再加入 16 组确定性组合。`python -X utf8 tools/repro/verify_repository.py --t2-full-matrix` 返回 `REPRO_G0_MANIFEST_PASS` 与 `REPRO_G2_T2_FULL_MATRIX_PASS`；这不是频率/相位数学穷举，T2 随机矩阵和外层 shim仍待后续。
 - 2026-09-07：继续按测试先行加入固定种子随机矩阵：先复现 `--t2-random-matrix` 缺失，再用种子 `20260907` 生成 24 组唯一时钟/相位组合。初版固定 5000 Host 周期在 `NPU_HALF=14` 暴露观察预算不足，改为 `2000 + 400 × NPU_HALF` 后 24 组全部通过，入口返回 `REPRO_G2_T2_RANDOM_MATRIX_PASS`。
 - 2026-09-07：随机矩阵收口复验通过：`test_reproducibility test_ci_fast_v1` 为 `22/22 PASS`；统一复现命令同时返回 G0、G1 以及 T2 variable/full/random/FIFO/interleave-reset 六类通过标记。Nexus JSON 与差异检查通过，生产 RTL 未改变。
+- 2026-09-07：PR #68精确 HEAD的 G0/T1/T2复现全部通过，已合并为 `main@7857d325...`。从批准的 `e2a1bfa...` 创建独立 board worktree，提交 B0最小设计为 `367c813...`。
+- 2026-09-07：在干净 B0提交上完成 Vivado 2024.1 `xc7z020clg484-2`实现和 bitstream；1 LUT / 26 FF、WNS +17.918 ns、WHS +0.251 ns、route/DRC硬门通过，bitstream SHA-256为 `c16a1f8...e3d1`。
+- 2026-09-07：同一 bitstream连续两次 JTAG配置成功，CONFIG_STATUS返回 DONE_INTERNAL/DONE_PIN=1，IR返回 ISC_DONE=1。当前等待用户现场观察 P20和断电复测，B0仍为 pending。
+- 2026-09-07：B0 编程脚本加入三项 DONE 同时为 1 的硬门后，源码提交 amend 为 `f3b8174...`；Vivado 2024.1 正式重建通过，新 bitstream SHA-256 为 `df16ed6c...8971`。该新产物尚未下载，不能沿用旧 `c16a1f8...e3d1` 的两次 program 记录。
+- 2026-09-07：开始把阶段 2 TODO 细化为 B0～B4 的逐项执行与验收清单；明确当前 bitstream 重下、现场 LED、断电复测是 B0 的三个未闭环门。
+- 2026-09-07：完成 P16 详细 TODO：新增公共证据合同、B0 11项、B1 9项、B2 8项、B3 10项、B4 10项和统一停止条件；每阶段均有独立 GATE，阶段 2 仍只以实板证据关闭。
+- 2026-09-07：同步修正阶段计划、B0报告、机器摘要、WORKFLOW_STATE和 Nexus，把当前 `f3b8174.../df16ed6c...8971` 构建与历史 `367c813.../c16a1f8...e3d1` program证据分开记录。
+- 2026-09-07：TODO与身份校正验证通过：`test_artifact_layout.py + test_ci_fast_v1.py` 为10/10，B0摘要身份合同、P16结构锚点、Nexus JSON解析、陈旧活动状态扫描和 `git diff --check` 均通过。
+- 2026-09-07：最终差异边界确认未包含三个保护文件，也未包含 `boards/hellozynq/b0_smoke/build/` 生成目录；本轮未执行 JTAG program、断电、commit或push。
+- 2026-09-07：继续执行 B0-07；已核对 `f3b8174...`、当前 bitstream `df16ed6c...8971`、manifest和program脚本硬门，下一动作是正式JTAG下载。
+- 2026-09-07：B0-07完成。`df16ed6c...8971` 正式JTAG program返回0并输出 `B0_PROGRAM_PASS`；`DONE_INTERNAL/DONE_PIN/ISC_DONE=1/1/1`，CRC/IDCODE/security error=0。下一门为用户现场观察P20至少10周期。
+- 2026-09-07：已刷新远端，`origin/main=7857d325...`；B0分支相对主线为1 ahead/2 behind。为保留已被实板证据绑定的 `f3b8174...`，后续采用合入 `origin/main`，不使用会改写提交号的rebase。
+- 2026-09-07：Nexus子任务完成B0当前program证据更新；主代理逐项复核后修正 `concept_model.json` 两个主线指针为 `7857d325...`。知识库状态保持 `CURRENT_BITSTREAM_PROGRAM_PASS / B0_FIELD_OBSERVATION_PENDING`。
