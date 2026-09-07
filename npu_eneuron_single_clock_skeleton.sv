@@ -183,21 +183,14 @@ module npu_eneuron_single_clock_skeleton (
     // L0/L1 共用同一组四个 signed 8×8 乘法器。数组只在 FETCH 提供激活值，
     // EXECUTE 只使用稳定锁存器；每个乘积先符号扩展到 INT32 再求和。
     always_comb begin
-        lane_activation_0 = 8'sd0;
-        lane_activation_1 = 8'sd0;
-        lane_activation_2 = 8'sd0;
-        lane_activation_3 = 8'sd0;
+        lane_activation_0 = lane_activation_latched_0;
+        lane_activation_1 = lane_activation_latched_1;
+        lane_activation_2 = lane_activation_latched_2;
+        lane_activation_3 = lane_activation_latched_3;
         lane_weight_0 = $signed(model_word_latched[7:0]);
         lane_weight_1 = $signed(model_word_latched[15:8]);
         lane_weight_2 = $signed(model_word_latched[23:16]);
         lane_weight_3 = $signed(model_word_latched[31:24]);
-        if (compute_state == COMPUTE_L0_GROUP_EXECUTE ||
-            compute_state == COMPUTE_L1_GROUP_EXECUTE) begin
-            lane_activation_0 = lane_activation_latched_0;
-            lane_activation_1 = lane_activation_latched_1;
-            lane_activation_2 = lane_activation_latched_2;
-            lane_activation_3 = lane_activation_latched_3;
-        end
     end
 
     assign lane_product_0 = lane_activation_0 * lane_weight_0;

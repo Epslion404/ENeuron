@@ -27,7 +27,7 @@ report_cdc -details -file [file join $out_dir cdc_synth.rpt]
 
 opt_design
 place_design
-phys_opt_design
+phys_opt_design -directive AggressiveExplore
 route_design
 
 set timing_report [file join $out_dir timing_impl.rpt]

@@ -1408,3 +1408,4 @@
 - 2026-09-07：新增 `tb_npu_zynq7020_t2_interleave_reset.sv`，在4组代表性时钟配置下验证命令/sample 交错和三类 reset 注入；统一入口返回 `REPRO_G2_T2_INTERLEAVE_RESET_PASS`。与 FIFO 矩阵一样，这是本机 Icarus 切片，T2 全矩阵、T3、Vivado 和板级仍未完成。
 - 2026-09-07：启动 T3。已复核当前分支 `fd12afd`、A7/T3 合同、四个 XPM 实例和现有 Vivado runner；确认采用“新增真实 XPM/xsim runner + 新增 XC7Z020 双时钟 OOC runner”的最小路径，不修改计算核和三个保护文件。
 - 2026-09-07：GitHub Actions 保持关闭；SSH 推送已验证可用。后续 PR #68 的远端 checks 为空只表示未运行，T3 以本机 Vivado 2024.1 和仓库可复现入口为当前证据。
+- 2026-09-07：T3 本机终态：真实 AMD XPM/xsim 输出 `RESULT=PASS` 与 `T1_PROTOCOL_SKELETON_PASS`；XC7Z020 OOC `PHYSICAL_GATE=PASS`，准确资源 `2467 LUT / 2301 FF / 6 RAMB36 / 1 RAMB18 / 4 DSP48E1`，Host/NPU WNS/WHS 为 `+3.639/+0.105 ns`、`+0.214/+0.042 ns`。提交前摘要暂绑定旧 HEAD，需在正式提交后重跑并更新。

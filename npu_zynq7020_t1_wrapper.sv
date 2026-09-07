@@ -83,8 +83,6 @@ module npu_zynq7020_t1_wrapper #(
 
     logic sample_window_open_npu;
     logic [3:0] sample_count_npu;
-    logic sample_window_toggle_npu;
-    (* ASYNC_REG = "TRUE" *) logic sample_window_toggle_host_d1, sample_window_toggle_host_d2;
     logic sample_window_open_host;
     logic [3:0] sample_write_count_host;
     logic fence_response_pending;
@@ -225,17 +223,14 @@ module npu_zynq7020_t1_wrapper #(
     assign rsp_rd_en = host_rsp_valid && host_rsp_ready;
     assign host_status_irq = host_rsp_valid;
 
-    // fence 完成 toggle 只负责打开 Host 侧的一个样本写入窗口。
+    // Host 只在实际消费 fence 响应后打开一个样本写入窗口。
     always_ff @(posedge host_clk) begin
         if (host_rst) begin
-            sample_window_toggle_host_d1 <= 1'b0;
-            sample_window_toggle_host_d2 <= 1'b0;
             sample_window_open_host <= 1'b0;
             sample_write_count_host <= '0;
         end else begin
-            sample_window_toggle_host_d1 <= sample_window_toggle_npu;
-            sample_window_toggle_host_d2 <= sample_window_toggle_host_d1;
-            if (sample_window_toggle_host_d2 != sample_window_toggle_host_d1) begin
+            // 以 Host 域实际消费的 fence 响应作为窗口授权，避免额外的手写 toggle CDC。
+            if (rsp_rd_en && rsp_dout[127:124] == RSP_FENCE) begin
                 sample_window_open_host <= 1'b1;
                 sample_write_count_host <= '0;
             end else if (sample_window_open_host && sample_wr_en) begin
@@ -308,7 +303,6 @@ module npu_zynq7020_t1_wrapper #(
         if (npu_rst) begin
             sample_window_open_npu <= 1'b0;
             sample_count_npu <= '0;
-            sample_window_toggle_npu <= 1'b0;
             fence_response_pending <= 1'b0;
             error_response_pending <= 1'b0;
             error_response_payload <= '0;
@@ -322,7 +316,6 @@ module npu_zynq7020_t1_wrapper #(
             if (cmd_rd_en && command_is_fence && !command_fields_bad && !core_mask_staging_open) begin
                 sample_window_open_npu <= 1'b1;
                 sample_count_npu <= '0;
-                sample_window_toggle_npu <= ~sample_window_toggle_npu;
                 fence_response_pending <= 1'b1;
                 fence_id_npu <= cmd_dout[31:0];
             end

@@ -1286,13 +1286,13 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 ## 2026-09-07 T3 真实 XPM/xsim 与 XC7Z020 OOC
 
 - [x] 复核 A7/T3 合同：器件 `xc7z020clg400-1`，Host/NPU 双 100 MHz，四个 depth-16 FWFT XPM FIFO，核心必须保持恰好 4 个 DSP48E1。
-- [ ] 新增真实 AMD XPM/xsim 入口，复用 T1 协议 testbench，不编译仓库内 `xpm_fifo_async_sim.sv`。
-- [ ] 新增“核心 + wrapper + 四 FIFO”OOC 入口，报告分层资源、CDC、双时钟 setup/hold、route 与 DRC。
-- [ ] 运行 Vivado 2024.1，并以日志通过标记、退出码和签核摘要共同判定。
-- [ ] 更新复现清单、T3 文档、工作流状态和 Nexus；运行受影响 Python 合同测试与 `git diff --check`。
+- [x] 新增真实 AMD XPM/xsim 入口，复用 T1 协议 testbench，不编译仓库内 `xpm_fifo_async_sim.sv`。
+- [x] 新增“核心 + wrapper + 四 FIFO”OOC 入口，报告分层资源、CDC、双时钟 setup/hold、route 与 DRC。
+- [x] 运行 Vivado 2024.1，并以日志通过标记、退出码和签核摘要共同判定。
+- [x] 更新复现清单、T3 文档、工作流状态和 Nexus；运行受影响 Python 合同测试与 `git diff --check`。
 - [ ] 排除三个保护文件后提交、推送 PR #68；Actions 关闭期间只记录本机证据，不把空 checks 解释为通过。
 
-成功条件：真实 XPM/xsim 跑完同一 T1 协议判据；OOC 必须 `DSP48E1_COUNT=4`、两个时钟域 setup/hold 零失败、route/DRC error 为 0，并能从层次化 utilization 区分核心、wrapper 和四个 FIFO。该门不覆盖 AXI、DMA、PS7、Ethernet、板级 I/O、功耗或首次网口端到端运行。
+成功条件：真实 XPM/xsim 跑完同一 T1 协议判据；OOC 必须 `DSP48E1_COUNT=4`、两个时钟域 setup/hold 零失败、route/DRC error 为 0，并能从层次化 utilization 区分核心、wrapper 和四个 FIFO。该门不覆盖 AXI、DMA、PS7、Ethernet、板级 I/O、功耗或首次网口端到端运行。当前 T3 已满足这些本机条件，Actions 关闭期间不等待 hosted CI。
 
 错误记录：首次使用 Windows PowerShell 5.1 启动 xsim runner 时，无 BOM 的 UTF-8 中文错误字符串被错误解码并导致脚本解析失败；Vivado 尚未启动。处理为将两个 `.ps1` runner 的提示文本改为 ASCII，再重跑同一验证入口。
 错误记录：真实 XPM/xsim 首跑已经打印 `T1_PROTOCOL_SKELETON_PASS`，但 runner 在仿真后用 `get_objects /tb.../dut` 做了不必要的对象检查，导致 Tcl 返回码 1。该检查不参与合同判定，已移除；保留仿真退出、日志 marker 和禁止文本检查。

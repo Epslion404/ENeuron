@@ -63,6 +63,7 @@ class ReproducibilityContractTests(unittest.TestCase):
         self.assertIn("PHYSICAL_GATE", ooc)
         self.assertIn("EXTERNAL_CDC_CRITICAL", ooc)
         self.assertIn("EXTERNAL_CDC_WARNING", ooc)
+        self.assertIn("phys_opt_design -directive AggressiveExplore", ooc)
 
     def test_t1_changes_select_repro_gate(self) -> None:
         selected = classify_paths(["npu_zynq7020_t1_wrapper.sv"])
@@ -78,6 +79,11 @@ class ReproducibilityContractTests(unittest.TestCase):
         source = (ROOT / "npu_zynq7020_t1_wrapper.sv").read_text(encoding="utf-8")
         self.assertIn("assign host_error = error_host_sync[1]", source)
 
+    def test_lane_products_are_not_gated_by_compute_state(self) -> None:
+        source = (ROOT / "npu_eneuron_single_clock_skeleton.sv").read_text(encoding="utf-8")
+        self.assertIn("lane_activation_0 = lane_activation_latched_0", source)
+        self.assertNotIn("if (compute_state == COMPUTE_L0_GROUP_EXECUTE", source)
+
     def test_fifo_busy_crossing_is_aggregated_and_registered(self) -> None:
         source = (ROOT / "npu_zynq7020_t1_wrapper.sv").read_text(encoding="utf-8")
         self.assertIn("host_local_fifo_busy_reg", source)
@@ -86,6 +92,12 @@ class ReproducibilityContractTests(unittest.TestCase):
         self.assertIn("npu_busy_host_sync", source)
         self.assertNotIn("host_cmd_rd_busy_sync", source)
         self.assertNotIn("npu_cmd_wr_busy_sync", source)
+
+    def test_fence_window_opens_from_host_side_response(self) -> None:
+        source = (ROOT / "npu_zynq7020_t1_wrapper.sv").read_text(encoding="utf-8")
+        self.assertIn("rsp_rd_en && rsp_dout[127:124] == RSP_FENCE", source)
+        self.assertNotIn("sample_window_toggle_npu", source)
+        self.assertNotIn("sample_window_toggle_host_sync", source)
 
     def test_t1_tlast_boundary_is_explicitly_outer(self) -> None:
         source = (ROOT / "npu_zynq7020_t1_wrapper.sv").read_text(encoding="utf-8").lower()
