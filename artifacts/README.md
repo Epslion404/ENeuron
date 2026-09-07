@@ -29,6 +29,8 @@
 | `results/np7_vivado_xsim_summary.json` | `python -X utf8 run_np7_vivado_xsim.py`（需 Vivado 2024.2 受控机） |
 | `results/np7_vivado_ooc_summary.json` | `python -X utf8 run_np7_vivado_ooc.py`（需 Vivado 2024.2 受控机） |
 | `results/npu_single_clock_ooc_manifest.json` | Vivado 2024.1 单时钟 NPU + ENeuron OOC 资源/时序/route/DRC 与报告 SHA-256 清单（`VIVADO_OOC_PASS`） |
-| `results/hellozynq_b0_smoke_summary.json` | HelloZynq B0 当前构建身份、历史两次 JTAG program和剩余硬门摘要；当前 bitstream下载、现场 LED与断电复测完成前状态为 pending |
+| `results/hellozynq_b0_smoke_summary.json` | HelloZynq B0 当前构建身份、历史两次 JTAG program和剩余硬门摘要；当前 bitstream第一次正式下载已完成，现场 LED、完整断电和第二次下载/观察完成前状态为 pending |
 
 所有路径均以仓库根目录为基准。除明确标注为标准输出的 B0 摘要外，生成器应直接写入 `artifacts/results/`；调用方保存 B0 摘要时也应使用表中路径。不得在根目录创建兼容副本。
+
+HelloZynq B0 每次正式下载的原始机器证据保存在 `logs/hellozynq_b0/<唯一运行标识>/`。目录内包含 program result、完整 transcript、构建 manifest和归档 manifest；归档只证明机器下载记录，现场 LED观察必须单独确认。

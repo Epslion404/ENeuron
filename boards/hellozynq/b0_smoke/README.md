@@ -28,3 +28,11 @@ M19 / sys_clk_50m
 ```
 
 脚本只通过 Hardware Manager 配置链上的 `xc7z020`，不会写入 QSPI 或 SD 卡。下载后仍需现场确认 P20 连续闪烁；program 命令成功不能代替 LED 观测。
+
+每次正式下载后、下一次下载前，应先固化当前机器原始证据：
+
+```powershell
+.\boards\hellozynq\b0_smoke\archive_b0_program_run.ps1 -RunLabel <唯一运行标识>
+```
+
+归档会写入 `artifacts/logs/hellozynq_b0/<唯一运行标识>/`，保存下载结果、完整 transcript、构建 manifest及各文件 SHA-256。已存在的运行目录会被拒绝，避免后一次测试覆盖前一次证据。现场 LED观察仍需另行记录，归档 manifest在确认前保持 `observation_status=PENDING`。

@@ -40,6 +40,14 @@
     "idcode_error": 0,
     "security_error": 0
   },
+  "run_1_machine_archive": {
+    "script": "boards/hellozynq/b0_smoke/archive_b0_program_run.ps1",
+    "path": "artifacts/logs/hellozynq_b0/20260907T102256Z_df16ed6c_run1_machine/",
+    "bitstream_sha256": "df16ed6ccd9124f2dc4391d96e868ebd7846aebf3df335099b742cc7cd318971",
+    "program_log_sha256": "0152fe3258cefb16f6e7efd3b12058e5da6cd352c8416f3d12a290e21d6ea49e",
+    "observation_status": "PENDING",
+    "run_complete": false
+  },
   "historical_jtag": {
     "source_commit": "367c81316dc6fdc48105d6c657952a66314436bd",
     "bitstream_sha256": "c16a1f8a035c9f5d70677cf71e433b8b19e040ff336d58c85efc89761e85e3d1",
@@ -65,8 +73,12 @@
     "merge_decision": "DO_NOT_MERGE_UNTIL_FIELD_OBSERVATION_AND_POWER_CYCLE_PASS"
   },
   "pending": [
-    "user observes the P20 LED blinking at the expected rate",
-    "power-cycle, reprogram, and repeat configuration/LED observation"
+    "first field observation of board PL_LED1 / FPGA P20 for at least 10 complete periods",
+    "add field observation to the existing immutable run-1 machine archive and close its PENDING observation status",
+    "confirm complete board power-off rather than a warm reconnect",
+    "second formal program of the same df16ed6c...8971 bitstream after power restoration",
+    "second PL_LED1 / P20 observation and immutable run-2 archive",
+    "final summary binds both programs, both observations, full power-cycle, run directories, and log hashes"
   ],
   "scope_limit": "Does not prove B0 complete and does not cover NPU, ENeuron, PS7, DDR, DMA, Ethernet, throughput, accuracy, or power."
 }

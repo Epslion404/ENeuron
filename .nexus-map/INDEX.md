@@ -4,6 +4,8 @@
 
 发布审计快照（2026-09-07）：PR #69 已创建，base 固定为 `main@7857d32561cbd5f86d02b1a21ee0edfb3ae895f1`；观测时为 `OPEN / CLEAN / MERGEABLE`。`8db816d29beabc490851719c34a83a6f603fc321` 仅是本次审计时的 PR HEAD 快照，不表示会自动跟随 PR 更新。Actions 已关闭，`statusCheckRollup` 为空，不构成验证通过证据。因 P20 现场观察和断电复测仍待完成，PR #69 暂不合并。
 
+P16 阶段 2 总路线见 `.nexus-map/arch/p16_board_validation.md` 和 `.nexus-map/concepts/p16_board_validation.json`。当前执行点为 B0 第一次 `PL_LED1/P20` 现场观察；第一次 program 机器证据已固化到 `20260907T102256Z_df16ed6c_run1_machine`，但 manifest 仍为 `observation_status=PENDING`，完整 run-1、完整断电、第二次 program/观察仍待完成。B1–B4 严格按 `B0→B1→B2→B3→B4` 门串行推进。Host 静态 `2:4` mask 仅验证 NPU 门控执行器，不能作为 live-ENeuron 自动决策证据；两类结果必须分开验收和统计。
+
 当前校正（2026-09-07）：T3 证据已用提交 `c2bc03f` 重跑并绑定；顶层资源为 `2467 LUT / 2301 FF / 6 RAMB36 / 1 RAMB18 / 4 DSP48E1`。下方旧快照中的 `822cf93` 仅保留历史来源，不覆盖本条。
 
 generated_by: nexus-mapper v2 / manual synthesis from raw probe
@@ -27,6 +29,7 @@ ENeuron 是以 Python 黄金模型、SystemVerilog RTL、Icarus/Yosys/Vivado 验
 - 单时钟 OOC 入口：`run_vivado_npu_single_clock_ooc.ps1`、`vivado_npu_single_clock_ooc.tcl`、`artifacts/results/npu_single_clock_ooc_manifest.json`、`vivado_npu_single_clock_ooc_reports/`
 - CI 编排：`.github/workflows/pr-gate.yml`、`tools/ci/classify_changes.py`、`test_ci_fast_v1.py`（路径分类、条件专项门和唯一 `PR Gate` 汇总）
 - 阶段 2 实板 B0：`boards/hellozynq/b0_smoke/`；机器证据已通过，现场 LED 观察和断电复测待完成
+- P16 阶段 2 路线：B0 PL → B1 PS/DDR/UART/UDP → B2 DMA/固定帧 → B3 NPU+ENeuron 固定向量 → B4 网口端到端 A/B
 
 ## 当前状态
 

@@ -47,8 +47,12 @@
 - `ISC_DONE=1`
 - CRC error / IDCODE error / security error：`0 / 0 / 0`
 - program log SHA-256：`0152fe3258cefb16f6e7efd3b12058e5da6cd352c8416f3d12a290e21d6ea49e`
+- run-1 机器证据目录：`artifacts/logs/hellozynq_b0/20260907T102256Z_df16ed6c_run1_machine/`
+- 现场观察状态：`PENDING`
 
 脚本终态为 `B0_PROGRAM_PASS`，并再次输出实际下载哈希 `df16ed6c...8971`。这证明当前候选已被目标器件接受，但仍不替代对P20输出的现场观察。
+
+run-1 已在第二次下载前固化，归档包含原始 program result、完整 transcript、构建 manifest及各文件 SHA-256；后续 run-2 不得覆盖该目录。归档时工作树含尚未提交的规划和归档脚本，manifest 已明确记录 `archive_worktree_clean=false`，未伪装为干净提交证据。
 
 ## 历史 JTAG 实测
 

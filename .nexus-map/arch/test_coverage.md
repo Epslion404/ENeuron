@@ -1,6 +1,6 @@
 # 测试面与缺口
 
-阶段 2 B0 校正（2026-09-07）：`xc7z020clg484-2` 当前最小板级候选 `df16ed6c...8971` 的实现通过，资源为 `1 LUT / 26 FF / 0 BRAM / 0 DSP`，`WNS=+17.918 ns`、`WHS=+0.251 ns`，route/DRC error 为 0。当前产物已于 `2026-09-07T10:22:56Z` 正式 program PASS，`DONE_INTERNAL/DONE_PIN/ISC_DONE=1/1/1`，CRC/IDCODE/security error 为 0。历史 `c16a1f8...e3d1` 两次 JTAG program 边界继续保留。覆盖状态为 `CURRENT_BITSTREAM_PROGRAM_PASS / B0_FIELD_OBSERVATION_PENDING`；P20 观察和断电复测完成前不能记 B0 完成。
+阶段 2 B0 校正（2026-09-07）：`xc7z020clg484-2` 当前最小板级候选 `df16ed6c...8971` 的实现通过，资源为 `1 LUT / 26 FF / 0 BRAM / 0 DSP`，`WNS=+17.918 ns`、`WHS=+0.251 ns`，route/DRC error 为 0。当前产物已于 `2026-09-07T10:22:56Z` 完成第一次正式 program，`DONE_INTERNAL/DONE_PIN/ISC_DONE=1/1/1`，CRC/IDCODE/security error 为 0。第一次 program 机器证据已固化到独立 run-1 目录，program log 为 `0152fe32...a49e`，但 manifest 明确为 `observation_status=PENDING`。历史 `c16a1f8...e3d1` 两次 JTAG program 边界继续保留。第一次 `PL_LED1/P20` 现场观察、完整 run-1、完整断电、第二次 program/观察和 run-2 汇总均未完成，因此覆盖状态仍为 `CURRENT_BITSTREAM_PROGRAM_PASS / B0_FIELD_OBSERVATION_PENDING`，不能记 B0 完成；B1–B4 尚未进入实测。
 
 当前校正（2026-09-07）：T3 signoff 已在 `c2bc03f` 重跑并通过；真实 XPM/xsim 与 OOC 摘要均绑定该 HEAD。下方旧快照中的 `822cf93` 不代表当前证据绑定。
 

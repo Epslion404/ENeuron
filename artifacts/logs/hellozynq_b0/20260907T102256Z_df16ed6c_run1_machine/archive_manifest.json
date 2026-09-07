@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "run_label": "20260907T102256Z_df16ed6c_run1_machine",
+  "archived_at_utc": "2026-09-07T10:54:49.4522390Z",
+  "archive_git_head": "73859b18c7243bdece7ab62d44206b7de84bfc17",
+  "archive_worktree_clean": false,
+  "archive_script_sha256": "0374e69ad9c28c041fe3d801438984a41f140af4e58fbce3df50544984e2c075",
+  "build_git_head": "f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06",
+  "bitstream_sha256": "df16ed6ccd9124f2dc4391d96e868ebd7846aebf3df335099b742cc7cd318971",
+  "program_result_sha256": "fab9b0d961d4a201004bc697d09d89df824abc68d0aa8e368ea2698dd2b0e68b",
+  "program_log_sha256": "0152fe3258cefb16f6e7efd3b12058e5da6cd352c8416f3d12a290e21d6ea49e",
+  "build_manifest_sha256": "21bf9f3aeda6ec58d9bb7258334e25888d8b94aa90ed57128bbab30cb3c78b83",
+  "observation_status": "PENDING"
+}

@@ -1430,3 +1430,6 @@
 - 2026-09-07：将 `origin/main@7857d325...` 合入B0分支，merge commit为 `411d2b1`，未改写 `f3b8174...`。合入后轻量回归10/10、B0物理证据身份和三份JSON再次通过。
 - 2026-09-07：分支推送后创建 PR #69；GitHub实际返回 `OPEN / CLEAN / MERGEABLE`，base=`main@7857d325...`、观测HEAD=`8db816d...`、checks为空。Actions已关闭，PR暂不合并。
 - 2026-09-07：Nexus子任务仅在三个B0入口记录PR #69固定审计快照；主代理复核确认base、观测状态、Actions边界和暂不合并条件与GitHub API一致，未把快照HEAD写成自动更新状态。
+- 2026-09-07：按管理员同意将阶段2 TODO进一步细化。P16现包含公共证据目录/字段/失败语义，B0完整断电双运行步骤，B1 PS/DDR/PHY/UDP逐层门，B2 DMA所有权/缓存/协议/恢复门，B3 dense→full-open→Host静态2:4→live-ENeuron隔离门，以及B4同条件端到端A/B计量合同。
+- 2026-09-07：详细化没有改变当前执行状态；下一项仍是用户观察 `PL_LED1/P20` 至少10个完整周期。首次原始 program证据必须在断电前固化为run-1，随后才执行同一 `df16ed6c...8971` 的冷启动run-2。
+- 2026-09-07：新增可复现的 `archive_b0_program_run.ps1`，并在任何第二次下载前把当前 `df16ed6c...8971` 首次 program输出固化到唯一 run-1目录；bitstream、program result、transcript和build manifest哈希已写入archive manifest，现场状态保持 `PENDING`。

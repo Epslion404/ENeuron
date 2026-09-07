@@ -2,6 +2,10 @@
 
 阶段 2 实板状态（2026-09-07）：实际板卡目标固定为 `xc7z020clg484-2`。B0 使用 M19 50 MHz → 26-bit counter → P20，当前源码提交为 `f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06`。正式候选构建为 `1 LUT / 26 FF / 0 BRAM / 0 DSP`，`WNS=+17.918 ns`、`WHS=+0.251 ns`，route error 0，DRC error/critical warning 0；bitstream SHA-256 为 `df16ed6c...8971`。该 bitstream 已于 `2026-09-07T10:22:56Z` 在 Digilent target `localhost:3121/xilinx_tcf/Digilent/210251A08870` 的 `xc7z020_1` 正式 program PASS，`DONE_INTERNAL/DONE_PIN/ISC_DONE=1/1/1` 且 CRC/IDCODE/security error 为 0。历史 `c16a1f8...e3d1` 两次 JTAG program 边界继续保留。当前状态为 `CURRENT_BITSTREAM_PROGRAM_PASS / B0_FIELD_OBSERVATION_PENDING`；尚缺现场 LED 和断电复测。
 
+P16 阶段 2 系统边界按硬门串行扩展：B0 只验证 PL 配置、板载 50 MHz 时钟和 LED；B1 才引入 PS7、DDR、UART、PHY 和最小 UDP；B2 增加 AXI DMA、DDR/cache 所有权和外层固定帧协议；B3 接入 `64→32→10` 传统 NPU 与 ENeuron；B4 才进行同条件网口端到端 A/B。当前 B0 未关闭，B1–B4 均不得以实现或通过状态记录。
+
+B3/B4 包含两条不同证据链：Host 静态 `2:4` mask 是由 Host 重放冻结 mask，只证明 NPU 门控执行、位序、epoch 和跳过计数；live-ENeuron 是由实板神经元证据生成严格 `2:4` 决策，经 pending bank 和 fence 原子生效。只有后者可证明神经元参与自动剪枝，两类数据不得混合。
+
 当前校正（2026-09-07）：T3 真实 XPM/xsim 与 XC7Z020 OOC 证据绑定 `c2bc03f`；顶层 `2467 LUT / 2301 FF / 6 RAMB36 / 1 RAMB18 / 4 DSP48E1`，host/npu WNS/WHS 为 `+3.639/+0.105 ns`、`+0.214/+0.042 ns`。下方 `822cf93` 为历史快照。
 
 历史基线（2026-09-05）：PR #64 已合并为 `main@a53a040`；PR #65 已合并为 `main@618c1e4`；PR #66 已合并为 `main@a1457bb`。V2 OOC 100 MHz 通过，资源为 `2126 LUT / 1916 FF / 4 DSP48E1`。首段旧快照中的 V1 失败数据仅作历史记录。

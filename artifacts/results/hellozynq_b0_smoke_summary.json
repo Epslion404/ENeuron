@@ -77,6 +77,8 @@
       "post_idcode_error": 0,
       "post_security_error": 0,
       "program_log_sha256": "0152fe3258cefb16f6e7efd3b12058e5da6cd352c8416f3d12a290e21d6ea49e",
+      "machine_evidence_archive": "artifacts/logs/hellozynq_b0/20260907T102256Z_df16ed6c_run1_machine",
+      "observation_status": "PENDING",
       "program_command": "PASS"
     }
   ],

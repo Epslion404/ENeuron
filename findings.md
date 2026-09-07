@@ -1327,3 +1327,14 @@
 - 远端刷新后 `origin/main=7857d325...`，当前B0分支相对主线为 `1 ahead / 2 behind`，merge-base仍是批准基线 `e2a1bfa...`。由于正式构建和program证据绑定源码提交 `f3b8174...`，不能用rebase/cherry-pick改写该提交；证据提交后应将 `origin/main` 合入当前分支，保留硬件证据身份。
 - Nexus子任务已按当前实板证据更新七个 `.nexus-map` 文件，并正确保留现场观察/断电复测pending。主代理复核发现 `concept_model.json` 的 `current_main_head` 与 `latest_merge` 仍停在PR #68合并前状态，已校正为 `7857d325...`；其余B0 build/program字段与原始日志一致。
 - PR #69首次GitHub审计快照为 base `main@7857d325...`、HEAD `8db816d...`、`OPEN / CLEAN / MERGEABLE`、空checks。因为Actions已关闭，空checks只能解释为未运行；Nexus已将该HEAD明确限定为固定快照，后续提交不会使历史描述失真。
+
+## 2026-09-07 阶段 2 TODO 详细化复核
+
+- B0 当前脚本使用固定工作文件名，第二次 program 会覆盖第一次的 `program_result.txt` 与 `program_run.log`；因此正式流程必须在断电前先把 run-1 复制到独立证据目录并计算哈希。未固化原始文件就继续 run-2，会破坏“两次独立运行”的可审查性。
+- 板厂资料与当前 XDC 的映射一致：FPGA P20 对应板上 `PL_LED1`。现场任务必须同时写板上丝印和 FPGA引脚，避免观察相邻 `PL_LED2/P21`。
+- B3 原清单把合法 mixed mask 与自动剪枝放在同一层，存在把 Host预制 mask误报为 ENeuron自动决策的风险。现拆成 dense、full-open、Host静态 `2:4`、live-ENeuron四级隔离验证。
+- B4 的性能比较只有在同一 bitstream、ELF、模型、样本顺序、网络和计时定义下才成立；局部 NPU周期下降不自动等于网口端到端吞吐提升，必须同时保存分段计数。
+- 本轮只修改规划与工作记录；没有运行 JTAG、Vivado或实板测试，没有改变 RTL、bitstream、B0机器证据和三个保护文件。
+- 当前 `run_b0_program.ps1` 的固定输出已在任何第二次下载之前固化为 run-1；归档目录保存 result、transcript、build manifest和archive manifest。归档脚本拒绝覆盖已有运行目录，并复核 bitstream哈希与两个 PASS marker。
+- run-1 归档时仓库存在未提交规划与脚本改动，因此 archive manifest如实记录 `archive_git_head=73859b1`、`archive_worktree_clean=false`；build manifest仍绑定实际生成 bitstream的 `f3b8174...`，两种身份不能混为一个干净构建声明。
+- 一次文件搜索在 Windows 上直接向 `rg` 传入 `test_*.py` 路径通配符，返回路径语法错误；未修改仓库，后续改用明确目录和 `-g '*.py'` 过滤，不重复该调用方式。

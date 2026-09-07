@@ -1,0 +1,56 @@
+{
+  "$schema": "nexus-mapper/plan/v1",
+  "plan_id": "p16-board-validation-phase2",
+  "verified_at": "2026-09-07",
+  "target": {
+    "board": "HelloZynq",
+    "part": "xc7z020clg484-2"
+  },
+  "status": "P16_B0_ACTIVE / CURRENT_BITSTREAM_PROGRAM_PASS / B0_FIELD_OBSERVATION_PENDING",
+  "stage2_complete": false,
+  "current_gate": "B0-GATE",
+  "current_execution_point": "B0-08_FIRST_PL_LED1_P20_OBSERVATION",
+  "b0": {
+    "source_commit": "f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06",
+    "bitstream_sha256": "df16ed6ccd9124f2dc4391d96e868ebd7846aebf3df335099b742cc7cd318971",
+    "first_program_pass": true,
+    "first_led_observation_pass": false,
+    "run_1_machine_archive_created": true,
+    "run_1_machine_archive_path": "artifacts/logs/hellozynq_b0/20260907T102256Z_df16ed6c_run1_machine/",
+    "run_1_program_log_sha256": "0152fe3258cefb16f6e7efd3b12058e5da6cd352c8416f3d12a290e21d6ea49e",
+    "run_1_observation_status": "PENDING",
+    "run_1_complete": false,
+    "full_power_cycle_confirmed": false,
+    "second_program_pass": false,
+    "second_led_observation_pass": false,
+    "run_2_archived": false,
+    "gate_pass": false
+  },
+  "stages": [
+    {"id":"B1","requires":"B0-GATE=PASS on main","scope":"PS7, DDR, UART, PHY, minimal UDP","status":"BLOCKED_BY_PREDECESSOR_GATE"},
+    {"id":"B2","requires":"B1-GATE=PASS","scope":"AXI DMA, DDR ownership/cache contract, PL loopback, fixed frame adapter","status":"BLOCKED_BY_PREDECESSOR_GATE"},
+    {"id":"B3","requires":"B2-GATE=PASS","scope":"64x32x10 traditional NPU plus ENeuron fixed-vector board validation","status":"BLOCKED_BY_PREDECESSOR_GATE"},
+    {"id":"B4","requires":"B3-GATE=PASS","scope":"Ethernet end-to-end dense/gated reproducible A/B","status":"BLOCKED_BY_PREDECESSOR_GATE"}
+  ],
+  "mask_mode_boundary": {
+    "host_static_2of4": "Host replays a frozen legal mask to validate the NPU gating executor; this is not ENeuron automatic decision evidence.",
+    "live_eneuron": "ENeuron evidence generates a strict 2:4 decision that is atomically published through pending bank and fence, with decision evidence, gain, epoch, and effective sample recorded.",
+    "reporting_rule": "Correctness, cycle, executed/skipped group, and performance results must be reported separately for host-static and live-ENeuron modes."
+  },
+  "pull_request": {
+    "number": 69,
+    "merged": false,
+    "base_commit": "7857d32561cbd5f86d02b1a21ee0edfb3ae895f1",
+    "audit_head_snapshot": "8db816d29beabc490851719c34a83a6f603fc321",
+    "audit_state": "OPEN / CLEAN / MERGEABLE",
+    "actions_enabled": false,
+    "empty_checks_mean": "NOT_RUN, NOT PASS",
+    "merge_policy": "DO_NOT_MERGE_BEFORE_B0 FIELD OBSERVATION AND POWER-CYCLE RETEST"
+  },
+  "authoritative_sources": [
+    "docs/planning/TODO.md",
+    "task_plan.md",
+    "findings.md",
+    "progress.md"
+  ]
+}
