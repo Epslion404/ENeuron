@@ -584,9 +584,9 @@ P15 硬门：双时钟逐 beat bit-exact；reset/ready-valid/FIFO 满空无丢�
 - [x] B0-05：生成当前正式候选 bitstream，SHA-256 为 `df16ed6ccd9124f2dc4391d96e868ebd7846aebf3df335099b742cc7cd318971`。构建时因文档尚未提交，manifest 正确记录 `git_worktree_clean=false`；源文件哈希和源码提交已绑定。
 - [x] B0-06：保留历史证据边界：旧 bitstream `c16a1f8...e3d1` 已连续两次 program 且三项 DONE 为1，但不能替代当前 `df16ed6c...8971` 的 program 证据。
 - [x] B0-07：当前 `df16ed6c...8971` 已于 `2026-09-07T10:22:56Z` 完成第一次正式 JTAG program；target为 Digilent `210251A08870`、device为 `xc7z020_1`，`DONE_INTERNAL/DONE_PIN/ISC_DONE=1/1/1`，CRC/IDCODE/security error为0，原始日志 SHA-256为 `0152fe32...a49e`。
-- [ ] B0-08：用户已确认所观察 LED 稳定闪烁，并澄清所称完整“亮→灭→再亮”周期目测约1秒；该值比理论1.342秒短约25%，但尚未使用长窗口计时。下一次从一次“刚亮”到第10次再次“刚亮”测总时长，理论值约13.42秒；人工秒表通过窗在获知结果前冻结为12.6～14.2秒。窗内通过，窗外转入时钟/引脚诊断。定量完成前保持未通过。
+- [x] B0-08：用户确认 `PL_LED1/P20` 稳定闪烁；从一次“刚亮”到第10次再次“刚亮”实测13.42秒，理论13.4217728秒，误差约-0.013%，位于预先冻结的12.6～14.2秒人工秒表通过窗内。先前“约1秒”的单周期目测疑点已由长窗口测量排除。
 - [x] B0-09：已将第一次机器输出固化到 `artifacts/logs/hellozynq_b0/20260907T102256Z_df16ed6c_run1_machine/`；保存 program result、完整 transcript、build manifest和独立 archive manifest，program log SHA-256仍为 `0152fe32...a49e`，现场状态明确为 `PENDING`。
-- [ ] B0-10：已把用户原话和“稳定闪烁”写入 run-1 的 `field_observation.json`，当前状态为 `PERIOD_QUANTIFICATION_PENDING`；取得定量结果后补充实际翻转间隔/完整周期，再决定 PASS或 `FIELD_PERIOD_MISMATCH`。在此之前不得执行完整断电 run-2。
+- [x] B0-10：run-1 的 `field_observation.json` 已保存初始目测、10周期13.42秒实测、冻结通过窗、误差和 PASS判定；archive manifest同步为 `observation_status=PASS`。run-1机器下载与现场功能证据闭环。
 - [ ] B0-11：关闭板卡主电源，确认板上供电指示消失且原 JTAG device 不再可访问；记录断电确认后再重新上电、连接 JTAG。若不能证明完全断电，本次只能算热重连，不能关闭冷启动门。
 - [ ] B0-12：重新核对本地 bitstream SHA-256 仍为 `df16ed6c...8971`，对同一文件执行第二次正式 program；再次要求唯一 target/device、请求路径一致、三项 DONE=`1/1/1` 且 CRC/IDCODE/security error为0。
 - [ ] B0-13：第二次观察同一 `PL_LED1/P20` 至少10个完整周期，使用与第一次相同判据；立即用归档脚本将第二次机器输出和观察记录固化为唯一 run-2，禁止覆盖 run-1。

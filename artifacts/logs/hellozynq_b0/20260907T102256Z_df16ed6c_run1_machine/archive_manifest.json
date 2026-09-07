@@ -10,6 +10,6 @@
   "program_result_sha256": "fab9b0d961d4a201004bc697d09d89df824abc68d0aa8e368ea2698dd2b0e68b",
   "program_log_sha256": "0152fe3258cefb16f6e7efd3b12058e5da6cd352c8416f3d12a290e21d6ea49e",
   "build_manifest_sha256": "21bf9f3aeda6ec58d9bb7258334e25888d8b94aa90ed57128bbab30cb3c78b83",
-  "field_observation_sha256": "3d54ffeb93d5379921f0f12b5ded20bd218dc7cf3dea107d114f15c58ee0fa55",
-  "observation_status": "PERIOD_QUANTIFICATION_PENDING"
+  "field_observation_sha256": "d93bcc25f9fff017534a27a17fc82592a996cca2bb8be7e2ae396f36a49ab083",
+  "observation_status": "PASS"
 }

@@ -15,9 +15,9 @@ P16 的目标是在 HelloZynq `xc7z020clg484-2` 上依次打通 PL、PS/DDR/网�
 3. 10 周期理论总时长为 `13.4217728 s`，人工秒表通过窗冻结为 `12.6–14.2 s`。
 4. 周期量化通过后补全 run-1，再恢复完整断电和同一 bitstream 的第二次 program/观察。
 
-因此状态为 `B0_LED_STABLE / PERIOD_QUANTIFICATION_PENDING`，不是硬件 FAIL；`B0-GATE` 未通过，断电 run-2 暂停，B1 不得启动。
+因此状态为 `B0_RUN1_FIELD_PASS / POWER_CYCLE_PENDING`；`B0-GATE` 未通过，下一步是完整断电确认，B1不得启动。
 
-run-1 机器归档由 `boards/hellozynq/b0_smoke/archive_b0_program_run.ps1` 生成。归档 manifest 绑定当前 bitstream `df16ed6c...8971`、program log SHA-256 `0152fe32...a49e`。`field_observation.json` 已更新为稳定闪烁、近似完整周期 `1.0 s`，当前 SHA-256 为 `3d54ffeb...0fa55`；旧 `fb0d9318...ea9e` 仅为更新前版本。
+run-1 机器归档由 `boards/hellozynq/b0_smoke/archive_b0_program_run.ps1` 生成。归档 manifest 绑定当前 bitstream `df16ed6c...8971`、program log SHA-256 `0152fe32...a49e`。`field_observation.json` 已更新为稳定闪烁、10周期 `13.42 s` 与 `status=PASS`，当前 SHA-256 为 `d93bcc25...ab083`。run-1已形成机器与现场闭环。
 
 ## B1–B4 串行门
 

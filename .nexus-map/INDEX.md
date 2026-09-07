@@ -1,10 +1,10 @@
 # ENeuron 知识库入口
 
-阶段 2 实板校正（2026-09-07）：PR #68 已合并为 `main@7857d32561cbd5f86d02b1a21ee0edfb3ae895f1`。B0 当前源码提交为 `f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06`，目标为 `xc7z020clg484-2`，路径为 M19 50 MHz → 26-bit counter → P20。当前 bitstream `df16ed6c...8971` 已于 `2026-09-07T10:22:56Z` 正式 program PASS。用户已确认 LED 稳定闪烁，并近似估计完整周期约 `1.0 s`，相对理论 `1.34217728 s` 可能约快 `25.5%`；该值不是精确测量或硬门结果。当前状态是 `B0_LED_STABLE / PERIOD_QUANTIFICATION_PENDING`，需测量 10 个完整周期总时长；定量完成前暂停断电 run-2，不得标记 B0 完成。详见 `.nexus-map/arch/board_phase2_b0.md` 与 `.nexus-map/concepts/board_phase2_b0.json`。
+阶段 2 实板校正（2026-09-07）：PR #68 已合并为 `main@7857d32561cbd5f86d02b1a21ee0edfb3ae895f1`。B0 当前源码提交为 `f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06`，目标为 `xc7z020clg484-2`，路径为 M19 50 MHz → 26-bit counter → P20。当前 bitstream `df16ed6c...8971` 已于 `2026-09-07T10:22:56Z` 正式 program PASS。用户确认 `PL_LED1/P20` 稳定闪烁，10个完整周期实测 `13.42 s`，与理论 `13.4217728 s` 误差约 `-0.0132%`，通过预冻结 `12.6–14.2 s` 窗口。当前状态是 `B0_RUN1_FIELD_PASS / POWER_CYCLE_PENDING`；下一门是完整断电和同一bitstream的run-2，B0尚未完成。详见 `.nexus-map/arch/board_phase2_b0.md` 与 `.nexus-map/concepts/board_phase2_b0.json`。
 
 发布审计快照（2026-09-07）：PR #69 已创建，base 固定为 `main@7857d32561cbd5f86d02b1a21ee0edfb3ae895f1`；观测时为 `OPEN / CLEAN / MERGEABLE`。`8db816d29beabc490851719c34a83a6f603fc321` 仅是本次审计时的 PR HEAD 快照，不表示会自动跟随 PR 更新。Actions 已关闭，`statusCheckRollup` 为空，不构成验证通过证据。因 P20 现场观察和断电复测仍待完成，PR #69 暂不合并。
 
-P16 阶段 2 总路线见 `.nexus-map/arch/p16_board_validation.md` 和 `.nexus-map/concepts/p16_board_validation.json`。当前执行点为确认观察对象 `PL_LED1/P20`，并测量 10 个完整亮灭周期的总时长。run-1 的 `field_observation.json` 已记录稳定闪烁，但状态为 `PERIOD_QUANTIFICATION_PENDING`；完整 run-1、完整断电、第二次 program/观察仍待完成。B1–B4 严格按 `B0→B1→B2→B3→B4` 门串行推进。Host 静态 `2:4` mask 仅验证 NPU 门控执行器，不能作为 live-ENeuron 自动决策证据；两类结果必须分开验收和统计。
+P16 阶段 2 总路线见 `.nexus-map/arch/p16_board_validation.md` 和 `.nexus-map/concepts/p16_board_validation.json`。run-1 的机器下载、稳定闪烁和周期量化均已通过并形成闭环；当前执行点为确认板卡完整断电。完整断电、第二次 program/观察和run-2汇总仍待完成。B1–B4 严格按 `B0→B1→B2→B3→B4` 门串行推进。Host 静态 `2:4` mask 仅验证 NPU 门控执行器，不能作为 live-ENeuron 自动决策证据；两类结果必须分开验收和统计。
 
 当前校正（2026-09-07）：T3 证据已用提交 `c2bc03f` 重跑并绑定；顶层资源为 `2467 LUT / 2301 FF / 6 RAMB36 / 1 RAMB18 / 4 DSP48E1`。下方旧快照中的 `822cf93` 仅保留历史来源，不覆盖本条。
 
