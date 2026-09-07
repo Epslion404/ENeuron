@@ -1,6 +1,6 @@
 # XC7Z020 顶层 T2 双时钟协同测试计划 V1
 
-状态：`VARIABLE_CLOCK_SLICE_GREEN / CONCURRENT_EPOCH_SLICE_GREEN / EXTENDED_CLOCK_SLICE_GREEN / FIFO_MATRIX_SLICE_GREEN / INTERLEAVE_RESET_SLICE_GREEN / FULL_MATRIX_PENDING`
+状态：`VARIABLE_CLOCK_SLICE_GREEN / CONCURRENT_EPOCH_SLICE_GREEN / EXTENDED_CLOCK_SLICE_GREEN / FIFO_MATRIX_SLICE_GREEN / INTERLEAVE_RESET_SLICE_GREEN / T3_XPM_XSIM_PASS / T3_XC7Z020_OOC_PASS / FULL_MATRIX_PENDING`
 
 日期：2026-09-07
 
@@ -44,8 +44,8 @@ T2 在已通过的 T1 wrapper 上改变 `host_clk` 与 `npu_clk` 的频率和相
 ## 尚未完成
 
 - 八组配置×三个 seed 的 FIFO 独立 scoreboard 已通过；wrapper 交错命令/sample 与三类 reset 切片也已通过；这些都不是所有频率/相位的数学穷举。
-- 仍需在 T3 使用真实 AMD XPM/xsim 和 XC7Z020 OOC，并补齐 wrapper 的并发命令与样本更广泛的输入交错和多位置 reset 矩阵。
-- T3 `xc7z020clg400-1` OOC、真实 XPM/xsim、AXI/DMA/网口和板级证据仍未完成。
+- T3 的真实 AMD XPM/xsim 和 `xc7z020clg400-1` OOC 已完成并通过；证据绑定 `c2bc03f`，不覆盖 AXI/DMA/PS7/Ethernet、bitstream、板级 I/O、吞吐、功耗或首次完整端到端运行。
+- 仍需补齐 T2 wrapper 的随机频率/相位全矩阵、并发命令与样本更广泛的交错和多位置 reset；外层 AXI-Stream shim 若实现，也必须单独验证 TLAST 语义。
 
 统一入口：
 
