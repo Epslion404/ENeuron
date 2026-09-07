@@ -6,10 +6,10 @@
     "board": "HelloZynq",
     "part": "xc7z020clg484-2"
   },
-  "status": "P16_B0_ACTIVE / B0_RUN1_FIELD_PASS / POWER_CYCLE_PENDING",
+  "status": "P16_B0_ACTIVE / B0_RUN1_FIELD_PASS / COMPLETE_POWER_OFF_PASS / RUN2_PENDING",
   "stage2_complete": false,
   "current_gate": "B0-GATE",
-  "current_execution_point": "B0_COMPLETE_POWER_OFF_CONFIRMATION",
+  "current_execution_point": "REPOWER_AND_RUN2",
   "b0": {
     "source_commit": "f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06",
     "bitstream_sha256": "df16ed6ccd9124f2dc4391d96e868ebd7846aebf3df335099b742cc7cd318971",
@@ -42,16 +42,24 @@
     "run_1_previous_field_observation_sha256": "fb0d9318bfdb82f3d21c3279698b8188b53f826a6e15f3b809f20d14f660ea9e",
     "run_1_observation_status": "PASS",
     "run_1_complete": true,
-    "full_power_cycle_confirmed": false,
+    "full_power_cycle_confirmed": true,
+    "complete_power_off_probe_path": "artifacts/logs/hellozynq_b0/20260907T150221Z_df16ed6c_power_off/",
+    "complete_power_off_probe_time_utc": "2026-09-07T15:02:49Z",
+    "complete_power_off_matching_target_count": 1,
+    "complete_power_off_target_opened": false,
+    "complete_power_off_accessible_device_count": 0,
+    "complete_power_off_result": "PASS",
+    "complete_power_off_result_sha256": "fe594c87bf4795fcfd7566322a0abb6e53d2c5b9fdf17683cd66cc24ce43776e",
+    "complete_power_off_transcript_sha256": "3a953999dc611332f19fa9a12c7fcafc04f9fdbd425cb8dc92fc0b4a0da1f634",
     "second_program_pass": false,
     "second_led_observation_pass": false,
     "run_2_archived": false,
     "gate_pass": false
   },
   "next_action": {
-    "action": "CONFIRM_COMPLETE_POWER_OFF",
+    "action": "REPOWER_AND_RUN2",
     "run_2_started": false,
-    "completion_condition": "Power indicator is off and the previous JTAG device is inaccessible before power restoration"
+    "completion_condition": "Restore power, program the same df16ed6c...8971 bitstream a second time, observe PL_LED1/P20, and archive run-2 evidence"
   },
   "stages": [
     {"id":"B1","requires":"B0-GATE=PASS on main","scope":"PS7, DDR, UART, PHY, minimal UDP","status":"BLOCKED_BY_PREDECESSOR_GATE"},

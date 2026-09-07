@@ -1,10 +1,10 @@
 # ENeuron 知识库入口
 
-阶段 2 实板校正（2026-09-07）：PR #68 已合并为 `main@7857d32561cbd5f86d02b1a21ee0edfb3ae895f1`。B0 当前源码提交为 `f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06`，目标为 `xc7z020clg484-2`，路径为 M19 50 MHz → 26-bit counter → P20。当前 bitstream `df16ed6c...8971` 已于 `2026-09-07T10:22:56Z` 正式 program PASS。用户确认 `PL_LED1/P20` 稳定闪烁，10个完整周期实测 `13.42 s`，与理论 `13.4217728 s` 误差约 `-0.0132%`，通过预冻结 `12.6–14.2 s` 窗口。当前状态是 `B0_RUN1_FIELD_PASS / POWER_CYCLE_PENDING`；下一门是完整断电和同一bitstream的run-2，B0尚未完成。详见 `.nexus-map/arch/board_phase2_b0.md` 与 `.nexus-map/concepts/board_phase2_b0.json`。
+阶段 2 实板校正（2026-09-07）：PR #68 已合并为 `main@7857d32561cbd5f86d02b1a21ee0edfb3ae895f1`。B0 当前源码提交为 `f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06`，目标为 `xc7z020clg484-2`，路径为 M19 50 MHz → 26-bit counter → P20。当前 bitstream `df16ed6c...8971` 已于 `2026-09-07T10:22:56Z` 正式 program PASS。用户确认 `PL_LED1/P20` 稳定闪烁，10个完整周期实测 `13.42 s`，与理论 `13.4217728 s` 误差约 `-0.0132%`，通过预冻结 `12.6–14.2 s` 窗口。完整断电只读探针于 `2026-09-07T15:02:49Z` 确认 target 无法打开、可访问器件数为 0，并由 Vivado 报告 `No devices detected`，结果 PASS。当前状态是 `B0_RUN1_FIELD_PASS / COMPLETE_POWER_OFF_PASS / RUN2_PENDING`；下一门是重新上电并执行同一 bitstream 的 run-2，B0 尚未完成。详见 `.nexus-map/arch/board_phase2_b0.md` 与 `.nexus-map/concepts/board_phase2_b0.json`。
 
-发布审计快照（2026-09-07）：PR #69 已创建，base 固定为 `main@7857d32561cbd5f86d02b1a21ee0edfb3ae895f1`；观测时为 `OPEN / CLEAN / MERGEABLE`。`8db816d29beabc490851719c34a83a6f603fc321` 仅是本次审计时的 PR HEAD 快照，不表示会自动跟随 PR 更新。Actions 已关闭，`statusCheckRollup` 为空，不构成验证通过证据。因 P20 现场观察和断电复测仍待完成，PR #69 暂不合并。
+发布审计快照（2026-09-07）：PR #69 已创建，base 固定为 `main@7857d32561cbd5f86d02b1a21ee0edfb3ae895f1`；观测时为 `OPEN / CLEAN / MERGEABLE`。`8db816d29beabc490851719c34a83a6f603fc321` 仅是本次审计时的 PR HEAD 快照，不表示会自动跟随 PR 更新。Actions 已关闭，`statusCheckRollup` 为空，不构成验证通过证据。run-1 和完整断电已通过，但 run-2 与 B0-GATE 尚未完成，PR #69 暂不合并。
 
-P16 阶段 2 总路线见 `.nexus-map/arch/p16_board_validation.md` 和 `.nexus-map/concepts/p16_board_validation.json`。run-1 的机器下载、稳定闪烁和周期量化均已通过并形成闭环；当前执行点为确认板卡完整断电。完整断电、第二次 program/观察和run-2汇总仍待完成。B1–B4 严格按 `B0→B1→B2→B3→B4` 门串行推进。Host 静态 `2:4` mask 仅验证 NPU 门控执行器，不能作为 live-ENeuron 自动决策证据；两类结果必须分开验收和统计。
+P16 阶段 2 总路线见 `.nexus-map/arch/p16_board_validation.md` 和 `.nexus-map/concepts/p16_board_validation.json`。run-1 的机器下载、稳定闪烁和周期量化均已通过并形成闭环，完整断电探针也已通过；当前执行点为重新上电并执行 run-2。第二次 program/观察和 run-2 汇总仍待完成。B1–B4 严格按 `B0→B1→B2→B3→B4` 门串行推进。Host 静态 `2:4` mask 仅验证 NPU 门控执行器，不能作为 live-ENeuron 自动决策证据；两类结果必须分开验收和统计。
 
 当前校正（2026-09-07）：T3 证据已用提交 `c2bc03f` 重跑并绑定；顶层资源为 `2467 LUT / 2301 FF / 6 RAMB36 / 1 RAMB18 / 4 DSP48E1`。下方旧快照中的 `822cf93` 仅保留历史来源，不覆盖本条。
 
@@ -28,7 +28,7 @@ ENeuron 是以 Python 黄金模型、SystemVerilog RTL、Icarus/Yosys/Vivado 验
 - 集成材料包：`docs/planning/NPU_NEURON_INTEGRATION_MATERIALS.md`、`docs/planning/NPU_ORACLE_FREEZE_REVIEW.md`、`docs/planning/NPU_ORACLE_SINGLE_CLOCK_CONTRACT_V3.md`、`docs/planning/NPU_MODEL_COMMIT_CONTRACT_V3.md`、`docs/planning/NPU_SINGLE_CLOCK_RTL_DECISION_SHEET_V2.md`（I1-I6、OF1-OF6 V3 与 V2 RTL 裁定已批准）；TR1-TR6 的实现与功能合同见 `NPU_SINGLE_CLOCK_TIMING_REPAIR_V1.md` 和 `NPU_SINGLE_CLOCK_TIMING_REPAIR_TEST_CONTRACT_V1.md`，下一轮审核稿与实施地图分别为 `NPU_SINGLE_CLOCK_TIMING_REPAIR_V2.md`、`NPU_SINGLE_CLOCK_TIMING_REPAIR_V2_IMPLEMENTATION_MAP.md`。
 - 单时钟 OOC 入口：`run_vivado_npu_single_clock_ooc.ps1`、`vivado_npu_single_clock_ooc.tcl`、`artifacts/results/npu_single_clock_ooc_manifest.json`、`vivado_npu_single_clock_ooc_reports/`
 - CI 编排：`.github/workflows/pr-gate.yml`、`tools/ci/classify_changes.py`、`test_ci_fast_v1.py`（路径分类、条件专项门和唯一 `PR Gate` 汇总）
-- 阶段 2 实板 B0：`boards/hellozynq/b0_smoke/`；机器证据已通过，现场 LED 观察和断电复测待完成
+- 阶段 2 实板 B0：`boards/hellozynq/b0_smoke/`；run-1 机器/现场与完整断电证据已通过，run-2 待完成
 - P16 阶段 2 路线：B0 PL → B1 PS/DDR/UART/UDP → B2 DMA/固定帧 → B3 NPU+ENeuron 固定向量 → B4 网口端到端 A/B
 
 ## 当前状态

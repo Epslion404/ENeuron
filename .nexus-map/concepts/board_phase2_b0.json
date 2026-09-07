@@ -2,7 +2,7 @@
   "$schema": "nexus-mapper/evidence/v1",
   "evidence_id": "board-phase2-b0",
   "verified_at": "2026-09-07",
-  "status": "B0_RUN1_FIELD_PASS / POWER_CYCLE_PENDING",
+  "status": "B0_RUN1_FIELD_PASS / COMPLETE_POWER_OFF_PASS / RUN2_PENDING",
   "complete": false,
   "main_merge_commit": "7857d32561cbd5f86d02b1a21ee0edfb3ae895f1",
   "source_commit": "f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06",
@@ -78,6 +78,18 @@
     "observation_status": "PASS",
     "run_complete": true
   },
+  "complete_power_off_probe": {
+    "path": "artifacts/logs/hellozynq_b0/20260907T150221Z_df16ed6c_power_off/",
+    "probe_time_utc": "2026-09-07T15:02:49Z",
+    "expected_target": "localhost:3121/xilinx_tcf/Digilent/210251A08870",
+    "matching_target_count": 1,
+    "target_opened": false,
+    "accessible_device_count": 0,
+    "vivado_observation": "No devices detected",
+    "result": "PASS",
+    "result_sha256": "fe594c87bf4795fcfd7566322a0abb6e53d2c5b9fdf17683cd66cc24ce43776e",
+    "transcript_sha256": "3a953999dc611332f19fa9a12c7fcafc04f9fdbd425cb8dc92fc0b4a0da1f634"
+  },
   "historical_jtag": {
     "source_commit": "367c81316dc6fdc48105d6c657952a66314436bd",
     "bitstream_sha256": "c16a1f8a035c9f5d70677cf71e433b8b19e040ff336d58c85efc89761e85e3d1",
@@ -100,10 +112,9 @@
     "actions_enabled": false,
     "status_check_rollup": [],
     "status_check_interpretation": "NOT_RUN_ACTIONS_DISABLED; empty checks are not pass evidence",
-    "merge_decision": "DO_NOT_MERGE_UNTIL_FIELD_OBSERVATION_AND_POWER_CYCLE_PASS"
+    "merge_decision": "DO_NOT_MERGE_UNTIL_RUN2_AND_B0_GATE_PASS"
   },
   "pending": [
-    "confirm complete board power-off rather than a warm reconnect",
     "perform second formal program and PL_LED1/P20 observation of the same df16ed6c...8971 bitstream",
     "final summary binds both programs, both observations, full power-cycle, run directories, and log hashes"
   ],

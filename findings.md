@@ -1351,3 +1351,5 @@
 - 首次尝试把多行 PR正文直接作为 `gh pr edit --body` 参数时，PowerShell将正文拆成选项并返回 `unknown shorthand flag`；远端正文未改变。改用管道传给 `--body-file -` 后成功，后续多行正文统一使用标准输入。
 - 10个完整周期实测13.42秒，理论13.4217728秒，绝对误差-0.0017728秒、相对误差约-0.0132%，通过预先冻结的12.6～14.2秒门。长窗口结果推翻了“完整周期约1秒”的粗略目测疑点，无需为该疑点启动时钟诊断设计。
 - 本轮开始时工作树出现未跟踪的B0时钟诊断RTL/XDC/Tcl/PowerShell文件及相关README修改；它们不是本轮生成，也不再是当前通过门所需。全部保留、不修改、不暂存，避免覆盖未知来源工作。
+- 完整断电检查必须区分“调试线缆还在”与“FPGA仍可访问”。本次精确Digilent target仍能枚举，但`open_hw_target`明确报告 `No devices detected`，accessible device count=0；结合用户确认供电指示熄灭，构成比单纯找不到线缆更强的断电证据。
+- 新增只读 `probe_b0_power_off.tcl` 与 `run_b0_power_off_probe.ps1`，固定target、拒绝覆盖既有证据目录，并要求线缆target恰好1个、可访问器件0个和PASS marker。正式运行时间为 `2026-09-07T15:02:49Z`，transcript SHA-256为 `3a953999...1f634`。

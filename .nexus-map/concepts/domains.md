@@ -24,8 +24,8 @@ provenance: NP4B/NP6/NP7 TODO、工作流状态与 RTL 文件；集成边界来�
 - `T2_FINITE_CLOCK_MATRIX_GREEN`：`verify_repository.py --t2-full-matrix` 以 16 组确定性半周期/相位组合复用完整 wrapper 场景并通过；这是有限复现矩阵，不是数学穷举，固定种子随机矩阵已另行通过，仍待更广泛并发交错。
 - `T2_RANDOM_CLOCK_MATRIX_GREEN`：`verify_repository.py --t2-random-matrix` 以固定种子 `20260907` 生成 24 个唯一半周期/相位组合并返回 `REPRO_G2_T2_RANDOM_MATRIX_PASS`。结果观察预算按 `2000 + 400 × NPU_HALF` 个 Host 周期缩放，避免慢时钟组合因固定预算过早超时；该状态只证明可复现的有限随机压力集，不代表频率/相位数学穷举。
 - `T3_XPM_XSIM_PASS / T3_XC7Z020_OOC_PASS / T3_SIGNOFF_PASS`：真实 AMD XPM/xsim 协同仿真与 `xc7z020clg400-1` OOC 已完成，绑定 Vivado 2024.1、Git HEAD=`c2bc03f`。xsim `RESULT=PASS`，OOC `PHYSICAL_GATE=PASS`；顶层资源为 `2467 LUT / 2301 FF / 6 RAMB36 / 1 RAMB18 / 4 DSP48E1`，100 MHz host/npu 双时钟 setup/hold、route、DRC error 均为 0，wrapper 外部 CDC critical/warning 均为 0。XPM 内部 CDC 有 8 个工具 warning，DRC 仅有建议性 warning（DSP 未启用内部流水、无负载提示和 OOC 中未实例化 PS7），不改变 error gate。该签核不覆盖 AXI/DMA/PS7/Ethernet、bitstream、板级 I/O/吞吐、功耗或首次端到端运行。
-- `B0_RUN1_FIELD_PASS / POWER_CYCLE_PENDING`：当前 bitstream 第一次 program已通过，用户确认 `PL_LED1/P20` 稳定闪烁，10个完整周期实测 `13.42 s`，通过理论 `13.4217728 s` 与预冻结 `12.6–14.2 s` 窗口。run-1机器与现场证据已闭环；完整断电、第二次program/观察和run-2汇总仍未完成，因此不是 `B0_COMPLETE`。
-- `P16_B0_ACTIVE`：阶段 2 当前只进入 B0。run-1 机器归档和稳定闪烁观察已记录，但周期量化、完整 run-1、完整断电、同一 bitstream 第二次 program、第二次观察和 run-2 汇总仍 pending。定量结果前暂停断电 run-2；`B0-GATE` 通过前，B1–B4 只能是计划，不能记作实现或签核。
+- `B0_RUN1_FIELD_PASS / COMPLETE_POWER_OFF_PASS / RUN2_PENDING`：当前 bitstream 第一次 program、`PL_LED1/P20` 稳定闪烁和 10 周期 `13.42 s` 定量均已通过，run-1 机器与现场证据闭环。完整断电只读探针确认精确 target 无法打开、可访问器件数为 0，Vivado 报告 `No devices detected`，断电门 PASS。第二次 program/观察和 run-2 汇总仍未完成，因此不是 `B0_COMPLETE`。
+- `P16_B0_ACTIVE`：阶段 2 当前只进入 B0。run-1 与完整断电已通过，当前执行点为 `REPOWER_AND_RUN2`；同一 bitstream 第二次 program、第二次观察和 run-2 汇总仍 pending。`B0-GATE` 通过前，B1–B4 只能是计划，不能记作实现或签核。
 - `HOST_STATIC_2OF4`：Host 重放冻结的合法 `2:4` mask，用于验证 NPU 门控执行器、mask 位序、epoch 和执行/跳过组计数；不是 ENeuron 自动决策。
 - `LIVE_ENEURON`：由实板 ENeuron 证据形成组内候选和严格 `2:4` mask，经 pending bank 与 fence 原子提交，并记录证据、gain、epoch 和生效样本。只有该路径通过才可声称神经元参与局部自动剪枝。
 - `T1_NEXT_MINIMAL_SET`：T1-02、T1-06 与 T1-12 已从执行集移出；剩余为 T1-09 的 TLAST 外层 shim/N-A 裁定。若增加外层 shim，需独立验证改变、提前或缺失 TLAST 不改变完整核心结果；若当前 DUT 明确不暴露 TLAST，则记录 N/A 裁定，不得伪造 T1 核心通过。

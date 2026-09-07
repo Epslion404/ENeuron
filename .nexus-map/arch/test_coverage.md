@@ -1,6 +1,6 @@
 # 测试面与缺口
 
-阶段 2 B0 校正（2026-09-07）：`xc7z020clg484-2` 当前最小板级候选 `df16ed6c...8971` 的实现和第一次正式 program 已通过。run-1 的 `PL_LED1/P20` 稳定闪烁与10周期 `13.42 s` 实测均通过；理论为 `13.4217728 s`，预冻结窗口为 `12.6–14.2 s`，误差约 `-0.0132%`。`field_observation.json` 当前 SHA-256 为 `d93bcc25...ab083`。当前覆盖状态为 `B0_RUN1_FIELD_PASS / POWER_CYCLE_PENDING`；完整断电和run-2尚未完成，B0不完成，B1–B4尚未进入实测。
+阶段 2 B0 校正（2026-09-07）：`xc7z020clg484-2` 当前最小板级候选 `df16ed6c...8971` 的实现和第一次正式 program 已通过。run-1 的 `PL_LED1/P20` 稳定闪烁与10周期 `13.42 s` 实测均通过；理论为 `13.4217728 s`，预冻结窗口为 `12.6–14.2 s`，误差约 `-0.0132%`。`field_observation.json` 当前 SHA-256 为 `d93bcc25...ab083`。完整断电探针于 `2026-09-07T15:02:49Z` 取得 `target_opened=0`、`accessible_device_count=0` 和 Vivado `No devices detected`，结果 PASS；结果/transcript SHA-256 分别为 `fe594c87...3776e`、`3a953999...1f634`。当前覆盖状态为 `B0_RUN1_FIELD_PASS / COMPLETE_POWER_OFF_PASS / RUN2_PENDING`；run-2 尚未完成，B0 不完成，B1–B4 尚未进入实测。
 
 当前校正（2026-09-07）：T3 signoff 已在 `c2bc03f` 重跑并通过；真实 XPM/xsim 与 OOC 摘要均绑定该 HEAD。下方旧快照中的 `822cf93` 不代表当前证据绑定。
 

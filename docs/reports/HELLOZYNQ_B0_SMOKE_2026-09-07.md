@@ -1,6 +1,6 @@
 # HelloZynq B0 实板 smoke 阶段报告
 
-状态：`RUN1_PROGRAM_AND_LED_PASS / POWER_CYCLE_PENDING`
+状态：`RUN1_PROGRAM_AND_LED_PASS / COMPLETE_POWER_OFF_PASS / RUN2_PENDING`
 
 日期：2026-09-07
 
@@ -77,6 +77,11 @@ run-1 已在第二次下载前固化，归档包含原始 program result、完�
 
 ## 尚未关闭的硬门
 
-- 板卡断电重启后重新连接 JTAG、下载同一 `df16ed6c...8971` 并再次观察。
+完整断电已于 `2026-09-07T15:02:49Z` 通过只读 JTAG探针确认：精确 Digilent线缆仍被枚举，target无法打开且Vivado明确报告 `No devices detected`，可访问FPGA数为0。原始证据位于 `artifacts/logs/hellozynq_b0/20260907T150221Z_df16ed6c_power_off/`，transcript SHA-256为 `3a953999dc611332f19fa9a12c7fcafc04f9fdbd425cb8dc92fc0b4a0da1f634`。这排除了仅断开调试线或热重连的情况。
 
-在这两项完成前，准确状态是“当前实现和program硬门通过、现场功能与断电恢复待验证”，不是 B0 最终通过。当前证据不证明 PS、DDR、Ethernet、DMA、NPU或 ENeuron。
+尚未关闭：
+
+- 重新上电、连接JTAG并下载同一 `df16ed6c...8971`。
+- 再次观察 `PL_LED1/P20` 至少10个完整周期并固化run-2。
+
+run-2完成前，准确状态是“run-1与完整断电通过、重新上电恢复待验证”，不是 B0 最终通过。当前证据不证明 PS、DDR、Ethernet、DMA、NPU或 ENeuron。

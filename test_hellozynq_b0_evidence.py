@@ -76,6 +76,50 @@ class HelloZynqB0EvidenceTests(unittest.TestCase):
         self.assertIn("B0_PROGRAM_COMMAND=PASS", script)
         self.assertIn("B0_PROGRAM_PASS", script)
 
+    def test_complete_power_off_probe_is_archived_and_hashed(self) -> None:
+        power_cycle = self.summary["power_cycle"]
+        evidence_dir = ROOT / power_cycle["evidence_archive"]
+        manifest = json.loads(
+            (evidence_dir / "power_off_probe_manifest.json").read_text(encoding="utf-8-sig")
+        )
+        self.assertTrue(power_cycle["user_confirmed_complete_power_off"])
+        self.assertEqual(1, power_cycle["matching_cable_target_count"])
+        self.assertEqual(0, power_cycle["accessible_device_count"])
+        self.assertEqual("PASS", power_cycle["jtag_inaccessible_result"])
+        self.assertEqual("PASS", manifest["result"])
+        self.assertEqual(0, manifest["accessible_device_count"])
+        self.assertEqual(
+            manifest["result_sha256"], sha256(evidence_dir / "power_off_probe_result.txt")
+        )
+        self.assertEqual(
+            manifest["transcript_sha256"], sha256(evidence_dir / "power_off_probe_run.txt")
+        )
+        self.assertEqual(
+            manifest["tcl_sha256"],
+            sha256(ROOT / "boards" / "hellozynq" / "b0_smoke" / "probe_b0_power_off.tcl"),
+        )
+        self.assertEqual(
+            manifest["runner_sha256"],
+            sha256(
+                ROOT
+                / "boards"
+                / "hellozynq"
+                / "b0_smoke"
+                / "run_b0_power_off_probe.ps1"
+            ),
+        )
+        transcript = (evidence_dir / "power_off_probe_run.txt").read_text(
+            encoding="utf-8", errors="replace"
+        )
+        self.assertIn("No devices detected", transcript)
+        self.assertIn("B0_COMPLETE_POWER_OFF_JTAG_INACCESSIBLE=PASS", transcript)
+        runner = (
+            ROOT / "boards" / "hellozynq" / "b0_smoke" / "run_b0_power_off_probe.ps1"
+        ).read_text(encoding="utf-8-sig")
+        self.assertIn("will not be overwritten", runner)
+        self.assertIn("B0_POWER_OFF_MATCHING_TARGET_COUNT=1", runner)
+        self.assertIn("B0_POWER_OFF_ACCESSIBLE_DEVICE_COUNT=0", runner)
+
 
 if __name__ == "__main__":
     unittest.main()

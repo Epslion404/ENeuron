@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "RUN1_PROGRAM_AND_LED_PASS_POWER_CYCLE_PENDING",
+  "status": "RUN1_PASS_COMPLETE_POWER_OFF_PASS_RUN2_PENDING",
   "date": "2026-09-07",
   "baseline": {
     "pr_68_merge_commit": "7857d32561cbd5f86d02b1a21ee0edfb3ae895f1",
@@ -86,7 +86,19 @@
       "program_command": "PASS"
     }
   ],
+  "power_cycle": {
+    "user_confirmed_complete_power_off": true,
+    "probe_time_utc": "2026-09-07T15:02:49Z",
+    "expected_jtag_target": "localhost:3121/xilinx_tcf/Digilent/210251A08870",
+    "matching_cable_target_count": 1,
+    "target_opened": false,
+    "accessible_device_count": 0,
+    "jtag_inaccessible_result": "PASS",
+    "evidence_archive": "artifacts/logs/hellozynq_b0/20260907T150221Z_df16ed6c_power_off",
+    "result_sha256": "fe594c87bf4795fcfd7566322a0abb6e53d2c5b9fdf17683cd66cc24ce43776e",
+    "transcript_sha256": "3a953999dc611332f19fa9a12c7fcafc04f9fdbd425cb8dc92fc0b4a0da1f634"
+  },
   "pending": [
-    "Power-cycle, reconnect, reprogram and repeat LED observation"
+    "Restore board power, reconnect, reprogram the same bitstream and repeat LED observation"
   ]
 }

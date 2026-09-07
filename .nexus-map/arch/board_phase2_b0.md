@@ -4,9 +4,9 @@ verified_at: 2026-09-07
 
 ## 当前结论
 
-状态为 `B0_RUN1_FIELD_PASS / POWER_CYCLE_PENDING`，**B0 尚未完成**。
+状态为 `B0_RUN1_FIELD_PASS / COMPLETE_POWER_OFF_PASS / RUN2_PENDING`，**B0 尚未完成**。
 
-当前源码的正式构建、当前 bitstream 第一次 JTAG program 和 run-1 现场门均已通过。用户从一次刚亮到 10 个完整周期后的再次刚亮测得 `13.42 s`，位于预冻结通过窗 `12.6–14.2 s`；平均完整周期为 `1.342 s`，相对理论 `1.34217728 s` 的误差约 `-0.0132%`。先前目测约 `1.0 s` 仅保留为已被精确测量覆盖的历史估计。下一执行点是完整断电确认，run-2 尚未开始。
+当前源码的正式构建、当前 bitstream 第一次 JTAG program、run-1 现场门和完整断电确认均已通过。用户从一次刚亮到 10 个完整周期后的再次刚亮测得 `13.42 s`，位于预冻结通过窗 `12.6–14.2 s`；平均完整周期为 `1.342 s`，相对理论 `1.34217728 s` 的误差约 `-0.0132%`。先前目测约 `1.0 s` 仅保留为已被精确测量覆盖的历史估计。下一执行点是重新上电并执行同一 bitstream 的 run-2。
 
 ## 基线与最小电路
 
@@ -43,14 +43,12 @@ Vivado 2024.1 当前正式候选构建结果：
 - 历史 bitstream `c16a1f8...e3d1` 的两次 JTAG program 及其 DONE 证据继续保留，不与当前产物混算。
 - 配置寄存器证明当前产物已被器件接受，不直接证明外部 P20 LED 的肉眼行为。
 
-## 剩余验收
+## 完整断电证据与剩余验收
 
-1. 确认实际观察的是板上 `PL_LED1`，对应 FPGA P20，而不是相邻 LED。
-2. 从一次“刚亮”开始计时，到第 10 次完整周期后的“再次刚亮”停止，测量 10 个完整周期总时长。
-3. 理论总时长为 `13.4217728 s`；人工秒表通过窗预先冻结为 `12.6–14.2 s`。近似 `1.0 s/周期` 不能替代该定量结果。
-4. 若落在通过窗内，继续补全 run-1；若落在窗外，再核对观察对象和 M19 实际频率。当前不判 FAIL。
-5. 第一次 program 的机器日志已固化；定量观察通过后，将完整观察记录纳入 run-1 并关闭其 `PENDING` 状态。
-6. 只有周期合同通过后才恢复完整断电、同一 bitstream 第二次 program/观察和 run-2 固化。
+- 用户已确认板卡完全断电。正式只读探针于 `2026-09-07T15:02:49Z` 精确匹配 target `localhost:3121/xilinx_tcf/Digilent/210251A08870` 1 个，但无法打开 target，且可访问器件数为 0；Vivado transcript 明确报告 `No devices detected`，断电探针结果为 `PASS`。
+- 证据目录为 `artifacts/logs/hellozynq_b0/20260907T150221Z_df16ed6c_power_off/`；结果 SHA-256 为 `fe594c87bf4795fcfd7566322a0abb6e53d2c5b9fdf17683cd66cc24ce43776e`，transcript SHA-256 为 `3a953999dc611332f19fa9a12c7fcafc04f9fdbd425cb8dc92fc0b4a0da1f634`。
+- 下一步重新上电，使用同一 `df16ed6c...8971` bitstream 执行第二次正式 program，观察 `PL_LED1/P20` 并固化 run-2 机器与现场证据。
+- 最终摘要必须绑定两次 program、两次现场观察、完整断电证据、各运行目录和日志哈希。
 
 以上项目和最终双运行摘要全部通过后才能将 B0 提升为 `B0_COMPLETE`，随后进入 B1 的 PS7、DDR、UART 与 PHY 基础设施验证。
 
@@ -60,4 +58,4 @@ Vivado 2024.1 当前正式候选构建结果：
 - 2026-09-07 的观测状态为 `OPEN / CLEAN / MERGEABLE`。
 - 审计时 HEAD 为 `8db816d29beabc490851719c34a83a6f603fc321`；这是固定历史快照，不是会随 PR 后续提交自动更新的“当前 HEAD”。
 - GitHub Actions 已关闭，`statusCheckRollup` 为空；空 checks 只表示未运行，不是通过证据。
-- run-1 机器与现场已通过；完整断电和 run-2 仍 pending，因此 PR #69 暂不合并。
+- run-1 机器与现场及完整断电探针已通过；run-2 仍 pending，因此 PR #69 暂不合并。
