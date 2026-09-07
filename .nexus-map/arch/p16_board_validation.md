@@ -8,17 +8,16 @@ authoritative_sources: `docs/planning/TODO.md`、`task_plan.md`、`findings.md`�
 
 P16 的目标是在 HelloZynq `xc7z020clg484-2` 上依次打通 PL、PS/DDR/网口、DMA、`64→32→10` 传统 NPU、ENeuron 局部门控和网口端到端 A/B。阶段门只由同一身份链上的实板证据关闭；仿真和 OOC 可用于定位，但不能代替 bitstream、JTAG、UART、Host/网口日志与现场观察。
 
-当前执行点仍在 P16-B0。当前源码 `f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06`、bitstream `df16ed6ccd9124f2dc4391d96e868ebd7846aebf3df335099b742cc7cd318971` 的第一次正式 program 已通过，但以下项目仍未完成：
+当前执行点仍在 P16-B0。当前源码 `f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06`、bitstream `df16ed6ccd9124f2dc4391d96e868ebd7846aebf3df335099b742cc7cd318971` 的第一次正式 program 已通过。用户已确认 LED 稳定闪烁，并目测完整周期约 `1.0 s`（`approximate=true`）；相对理论 `1.34217728 s` 可能约快 `25.5%`。若精确周期确为 1 秒，可条件推断 M19 约 `67.109 MHz`，但当前尚不能判定周期合同通过或失败。
 
-1. 第一次现场观察板上 `PL_LED1`（FPGA P20）至少 10 个完整周期。
-2. 第一次 program 的机器证据已固化到 `artifacts/logs/hellozynq_b0/20260907T102256Z_df16ed6c_run1_machine/`；仍需补入现场观察，才能关闭完整 run-1。
-3. 确认完整断电，而不是热重连。
-4. 对同一 bitstream 执行第二次正式 program，并再次通过身份、DONE 和错误硬门。
-5. 第二次观察同一 `PL_LED1/P20`，固化 run-2，并汇总两次运行。
+1. 确认观察对象是板上 `PL_LED1`（FPGA P20）。
+2. 从一次刚亮到第 10 个完整周期后的再次刚亮，测量总时长。
+3. 10 周期理论总时长为 `13.4217728 s`，人工秒表通过窗冻结为 `12.6–14.2 s`。
+4. 周期量化通过后补全 run-1，再恢复完整断电和同一 bitstream 的第二次 program/观察。
 
-因此状态保持 `CURRENT_BITSTREAM_PROGRAM_PASS / B0_FIELD_OBSERVATION_PENDING`，`B0-GATE` 未通过，B1 不得启动。
+因此状态为 `B0_LED_STABLE / PERIOD_QUANTIFICATION_PENDING`，不是硬件 FAIL；`B0-GATE` 未通过，断电 run-2 暂停，B1 不得启动。
 
-run-1 机器归档由 `boards/hellozynq/b0_smoke/archive_b0_program_run.ps1` 生成。归档 manifest 绑定当前 bitstream `df16ed6c...8971`、program log SHA-256 `0152fe32...a49e`，并明确写入 `observation_status=PENDING`。该归档防止第一次 program 日志被后续运行覆盖，但不构成 LED 现场观察通过。
+run-1 机器归档由 `boards/hellozynq/b0_smoke/archive_b0_program_run.ps1` 生成。归档 manifest 绑定当前 bitstream `df16ed6c...8971`、program log SHA-256 `0152fe32...a49e`。`field_observation.json` 已更新为稳定闪烁、近似完整周期 `1.0 s`，当前 SHA-256 为 `3d54ffeb...0fa55`；旧 `fb0d9318...ea9e` 仅为更新前版本。
 
 ## B1–B4 串行门
 

@@ -49,9 +49,22 @@ class HelloZynqB0EvidenceTests(unittest.TestCase):
                 self.assertEqual(self.archive[field], sha256(self.archive_dir / filename))
 
     def test_field_gate_remains_pending(self) -> None:
-        self.assertEqual("PENDING", self.current_run["observation_status"])
-        self.assertEqual("PENDING", self.archive["observation_status"])
+        self.assertEqual("PERIOD_QUANTIFICATION_PENDING", self.current_run["observation_status"])
+        self.assertEqual("PERIOD_QUANTIFICATION_PENDING", self.archive["observation_status"])
         self.assertIn("PENDING", self.summary["status"])
+
+    def test_field_observation_records_stable_blink_without_inventing_period(self) -> None:
+        observation_path = ROOT / self.current_run["field_observation"]
+        observation = json.loads(observation_path.read_text(encoding="utf-8"))
+        self.assertEqual(self.archive["field_observation_sha256"], sha256(observation_path))
+        self.assertTrue(observation["stable_blinking_confirmed"])
+        self.assertEqual(1.0, observation["observed_complete_period_seconds"])
+        self.assertTrue(observation["observed_complete_period_is_approximate"])
+        self.assertIsNone(observation["observed_toggle_interval_seconds"])
+        self.assertEqual(12.6, observation["timed_10_period_acceptance_min_seconds"])
+        self.assertEqual(14.2, observation["timed_10_period_acceptance_max_seconds"])
+        self.assertIsNone(observation["timed_10_period_observed_seconds"])
+        self.assertEqual("PERIOD_QUANTIFICATION_PENDING", observation["status"])
 
     def test_archive_script_rejects_existing_run_directory(self) -> None:
         script = (

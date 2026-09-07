@@ -1,6 +1,6 @@
 # 系统边界
 
-阶段 2 实板状态（2026-09-07）：实际板卡目标固定为 `xc7z020clg484-2`。B0 使用 M19 50 MHz → 26-bit counter → P20，当前源码提交为 `f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06`。正式候选构建为 `1 LUT / 26 FF / 0 BRAM / 0 DSP`，`WNS=+17.918 ns`、`WHS=+0.251 ns`，route error 0，DRC error/critical warning 0；bitstream SHA-256 为 `df16ed6c...8971`。该 bitstream 已于 `2026-09-07T10:22:56Z` 在 Digilent target `localhost:3121/xilinx_tcf/Digilent/210251A08870` 的 `xc7z020_1` 正式 program PASS，`DONE_INTERNAL/DONE_PIN/ISC_DONE=1/1/1` 且 CRC/IDCODE/security error 为 0。历史 `c16a1f8...e3d1` 两次 JTAG program 边界继续保留。当前状态为 `CURRENT_BITSTREAM_PROGRAM_PASS / B0_FIELD_OBSERVATION_PENDING`；尚缺现场 LED 和断电复测。
+阶段 2 实板状态（2026-09-07）：实际板卡目标固定为 `xc7z020clg484-2`。B0 使用 M19 50 MHz → 26-bit counter → P20，当前源码提交为 `f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06`。正式候选构建与第一次 program 均已通过。用户确认 LED 稳定闪烁，并近似估计完整周期约 `1.0 s`，相对理论 `1.34217728 s` 可能约快 `25.5%`；这不是精确测量。`counter[25]` 在 50 MHz 下理论翻转间隔为 `0.67108864 s`；仓库 XDC、本地引脚速查和两个本地板级例程均支持 M19/P20 映射。当前状态为 `B0_LED_STABLE / PERIOD_QUANTIFICATION_PENDING`，不是直接 FAIL；先测量 10 个完整周期总时长，暂停断电 run-2。
 
 P16 阶段 2 系统边界按硬门串行扩展：B0 只验证 PL 配置、板载 50 MHz 时钟和 LED；B1 才引入 PS7、DDR、UART、PHY 和最小 UDP；B2 增加 AXI DMA、DDR/cache 所有权和外层固定帧协议；B3 接入 `64→32→10` 传统 NPU 与 ENeuron；B4 才进行同条件网口端到端 A/B。当前 B0 未关闭，B1–B4 均不得以实现或通过状态记录。
 

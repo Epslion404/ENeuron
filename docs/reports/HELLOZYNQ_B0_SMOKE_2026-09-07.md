@@ -1,6 +1,6 @@
 # HelloZynq B0 实板 smoke 阶段报告
 
-状态：`CURRENT_BITSTREAM_PROGRAM_PASS / LED_OBSERVATION_PENDING / POWER_CYCLE_PENDING`
+状态：`CURRENT_BITSTREAM_PROGRAM_PASS / LED_STABLE / PERIOD_QUANTIFICATION_PENDING / POWER_CYCLE_PENDING`
 
 日期：2026-09-07
 
@@ -48,11 +48,14 @@
 - CRC error / IDCODE error / security error：`0 / 0 / 0`
 - program log SHA-256：`0152fe3258cefb16f6e7efd3b12058e5da6cd352c8416f3d12a290e21d6ea49e`
 - run-1 机器证据目录：`artifacts/logs/hellozynq_b0/20260907T102256Z_df16ed6c_run1_machine/`
-- 现场观察状态：`PENDING`
+- 现场观察：用户确认稳定闪烁，并澄清其目测完整“亮→灭→再亮”周期约1秒。
+- 观察状态：`PERIOD_QUANTIFICATION_PENDING`
 
 脚本终态为 `B0_PROGRAM_PASS`，并再次输出实际下载哈希 `df16ed6c...8971`。这证明当前候选已被目标器件接受，但仍不替代对P20输出的现场观察。
 
 run-1 已在第二次下载前固化，归档包含原始 program result、完整 transcript、构建 manifest及各文件 SHA-256；后续 run-2 不得覆盖该目录。归档时工作树含尚未提交的规划和归档脚本，manifest 已明确记录 `archive_worktree_clean=false`，未伪装为干净提交证据。
+
+当前 RTL 为 `led=counter[25]`。在 50 MHz 下，LED 每 `2^25 / 50 MHz = 0.67108864 s` 翻转一次，即亮约0.671秒、灭约0.671秒；完整“亮→灭→再亮”周期为1.34217728秒。用户已澄清其目测完整周期约1秒，表面上比理论值短约25%，但单周期目测误差太大。下一步从一次“刚亮”到第10次再次“刚亮”测总时长，理论约13.42秒；在取得结果前将人工秒表通过窗冻结为12.6～14.2秒，避免根据结果事后改变判据。
 
 ## 历史 JTAG 实测
 
@@ -71,7 +74,7 @@ run-1 已在第二次下载前固化，归档包含原始 program result、完�
 
 ## 尚未关闭的硬门
 
-- 用户现场确认 P20 LED稳定闪烁，并观察至少10个完整周期。
+- 用户已确认 LED稳定闪烁；仍需确认观察对象确为 `PL_LED1/P20`，并定量区分0.671秒翻转间隔与1.342秒完整周期。
 - 板卡断电重启后重新连接 JTAG、下载同一 `df16ed6c...8971` 并再次观察。
 
 在这两项完成前，准确状态是“当前实现和program硬门通过、现场功能与断电恢复待验证”，不是 B0 最终通过。当前证据不证明 PS、DDR、Ethernet、DMA、NPU或 ENeuron。

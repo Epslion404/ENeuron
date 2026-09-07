@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "reported_at_utc": "2026-09-07T13:37:53.7933900Z",
+  "observation_target_expected": "board PL_LED1 / FPGA P20",
+  "observer_report": "稳定闪烁；随后确认所称完整周期约为1秒",
+  "stable_blinking_confirmed": true,
+  "observed_complete_period_seconds": 1.0,
+  "observed_complete_period_is_approximate": true,
+  "measurement_method": "visual estimate without a timed multi-period window",
+  "observed_toggle_interval_seconds": null,
+  "interpretation": "APPROXIMATE_PERIOD_SHORTER_THAN_EXPECTED_NEEDS_TIMED_10_PERIOD_MEASUREMENT",
+  "expected_toggle_interval_seconds": 0.67108864,
+  "expected_complete_period_seconds": 1.34217728,
+  "timed_10_period_expected_seconds": 13.4217728,
+  "timed_10_period_acceptance_min_seconds": 12.6,
+  "timed_10_period_acceptance_max_seconds": 14.2,
+  "timed_10_period_observed_seconds": null,
+  "status": "PERIOD_QUANTIFICATION_PENDING"
+}
