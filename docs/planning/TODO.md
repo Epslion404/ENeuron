@@ -539,10 +539,10 @@ P0-P8 已完成并签核
 - [x] 冻结 T0→T4 阶段：合同、纯 RTL 适配器、双时钟协同仿真、XC7Z020 顶层物理门、网口/训练闭环。
 - [x] 形成 T0 端口与适配边界裁定稿：`docs/planning/NPU_ZYNQ7020_TOPLEVEL_DECISION_SHEET_V1.md`。
 - [x] 完成 P15-T0 静态审计：`docs/planning/NPU_ZYNQ7020_TOPLEVEL_T0_AUDIT_V1.md`，确认样本/结果完整 FIFO payload 为 64/96 bit，并记录七项 T1 阻断。
-- [ ] 在开放 T1 前裁定命令字段唯一格式、V1/V2 framing 权威、跨流 fence、reset-busy 汇合、AXI sideband 错误语义、FIFO 参数和 XC7Z020 物理约束。
-- [ ] 评审 V1 顶层端口命名、AXI 外部适配位置和 PS/DMA 责任边界。
-- [ ] 实现纯 RTL 顶层薄封装并完成逐 beat、背压、复位和负向协同仿真。
-- [ ] 对“核心 + 适配器 + FIFO”运行 XC7Z020 OOC，单独归因新增 LUT/FF/BRAM/DSP 与时序。
+- [x] 在开放 T1 前裁定命令字段唯一格式、V1/V2 framing 权威、跨流 fence、reset-busy 汇合、AXI sideband 错误语义、FIFO 参数和 XC7Z020 物理约束（A1-A7 已批准）。
+- [x] 评审 V1 顶层端口命名、AXI 外部适配位置和 PS/DMA 责任边界；AXI/PS/DMA 保持在 T3 之外。
+- [x] 实现纯 RTL 顶层薄封装并完成已定义的逐 beat、背压、复位和负向协议切片；T1 全量矩阵仍待完成。
+- [x] 对“核心 + 适配器 + FIFO”运行 XC7Z020 OOC，单独归因新增 LUT/FF/BRAM/DSP 与时序；T3 证据绑定 `c2bc03f`。
 - [ ] 选定开发板、Ethernet/PS 软件栈和真实 XDC 后，运行含 PS7/AXI/DMA 的顶层实现门。
 - [ ] 以旁路 NPU 与 ENeuron 门控 NPU 做网口输入 A/B，报告有效 MAC、周期、准确率、丢包和动态功耗。
 

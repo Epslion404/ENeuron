@@ -1284,4 +1284,5 @@
 - 2026-09-07：T3 无需新增架构裁定。已批准 A7 明确 `xc7z020clg400-1`、Host/NPU 双 100 MHz 和真实 XPM；`npu_zynq7020_t1_wrapper.sv` 已实例化四个 depth-16、FWFT、`SIM_ASSERT_CHK=1`、`CDC_SYNC_STAGES=2` 的 XPM FIFO，宽度为 128/128/64/96 bit。
 - 2026-09-07：现有 `vivado_xpm_wrapper_sim.tcl` 面向旧 `digital_snn_host_bridge` 和 `xc7a35t`，不能作为当前 NPU wrapper 的 T3 证据；现有 `vivado_npu_single_clock_ooc.tcl` 只覆盖单时钟核心。T3 应新增独立 runner，不改写这两份历史证据入口。
 - 2026-09-07：T3 真实 AMD XPM/xsim 协同仿真通过；XC7Z020 OOC 通过。顶层准确资源为 `2467 LUT / 2301 FF / 6 RAMB36 / 1 RAMB18 / 4 DSP48E1`，Host/NPU WNS/WHS 分别为 `+3.639/+0.105 ns` 与 `+0.214/+0.042 ns`，setup/hold、route、DRC 和 external CDC 均无失败。Actions 已关闭，正式证据必须在提交后重新绑定新 HEAD。
+- 2026-09-07：上述 T3 证据已在实现提交 `c2bc03f` 上重新运行并确认 SHA 一致；随后仅提交 Nexus 与计划文档（`439ac6b`），不改变 RTL。故当前物理结论绑定 `c2bc03f`，文档状态提交绑定 `439ac6b`。
 - 2026-09-07：`tb_npu_zynq7020_t1_wrapper.sv` 只对白盒 `dut.core.state_clear_count` 有一处层次引用，真实 XPM 不影响该路径，因此可直接复用；xsim 入口必须排除 `xpm_fifo_async_sim.sv`，由 Vivado 项目的 `XPM_LIBRARIES {XPM_FIFO}` 提供真实 FIFO。

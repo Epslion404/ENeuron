@@ -1290,7 +1290,7 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 - [x] 新增“核心 + wrapper + 四 FIFO”OOC 入口，报告分层资源、CDC、双时钟 setup/hold、route 与 DRC。
 - [x] 运行 Vivado 2024.1，并以日志通过标记、退出码和签核摘要共同判定。
 - [x] 更新复现清单、T3 文档、工作流状态和 Nexus；运行受影响 Python 合同测试与 `git diff --check`。
-- [ ] 排除三个保护文件后提交、推送 PR #68；Actions 关闭期间只记录本机证据，不把空 checks 解释为通过。
+- [x] 排除三个保护文件后提交、推送 PR #68；提交 `439ac6b` 已推送，Actions 关闭期间只记录本机证据，不把空 checks 解释为通过。
 
 成功条件：真实 XPM/xsim 跑完同一 T1 协议判据；OOC 必须 `DSP48E1_COUNT=4`、两个时钟域 setup/hold 零失败、route/DRC error 为 0，并能从层次化 utilization 区分核心、wrapper 和四个 FIFO。该门不覆盖 AXI、DMA、PS7、Ethernet、板级 I/O、功耗或首次网口端到端运行。当前 T3 已满足这些本机条件，Actions 关闭期间不等待 hosted CI。
 
