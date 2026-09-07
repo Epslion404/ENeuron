@@ -1,5 +1,7 @@
 # ENeuron 知识库入口
 
+B1B入口就绪检查（2026-09-07）：PR #72已合并为 `main@065a68ce1fc87836ad3d0062883a226ba54e61d9`。B1A正式bitstream/XSA SHA-256分别恢复并核对为 `5d0940eb...e6d6`、`053fc032...81df`；XSCT 2024.1可打开XSA，JTAG可见APU、双Cortex-A9和`xc7z020`。Windows当前只枚举蓝牙COM6/COM7，板载CH340 UART未连接，因此 `B1-D1` 与 `B1B` 均保持 `PENDING`，不得声明UART、DDR或B1通过。以后只允许在临时XSA副本上执行 `hsi::open_hw_design`，不得直接操作正式build目录。
+
 B1A-HW更新（2026-09-07）：可重建硬件定义已在干净提交 `18fd65c` 上通过Vivado 2024.1实现，机器摘要为 `artifacts/results/hellozynq_b1a_hw_summary.json`，知识条目为 `.nexus-map/concepts/board_phase2_b1a_hw.json`。当前执行点前移到B1B UART/DDR实板验证；`B1-GATE`仍为false。
 
 阶段 2 实板校正（2026-09-07）：PR #69 已合并为 `main@102dee2a004283ce4144aaf6ee0a2cee3ebd2887`，B0正式进入主线；Fastlane V1已进入 `main@308bdecd9573e71340359729fdbb2f3fcb7723c7`。B1A来源审计已完成，当前执行点是解决DDR型号、物理PHY复位、物理PHY地址和RGMII时序后生成可重建硬件定义；B1-D1软件栈裁定并行进行。来源审计完成不等于B1A或B1通过。

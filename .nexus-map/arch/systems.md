@@ -1,5 +1,7 @@
 # 系统边界
 
+B1B入口状态（2026-09-07）：当前主线为 `065a68ce...`。B1A正式bitstream/XSA哈希已与冻结清单一致，XSCT 2024.1可读取XSA，JTAG可见APU、双Cortex-A9和`xc7z020`；但系统只发现蓝牙COM6/COM7，板载CH340 UART未连接。该状态只证明B1B工具链/JTAG入口部分就绪，`B1-D1`、B1B UART/DDR和 `B1-GATE`仍为 `PENDING`。`hsi::open_hw_design`会在XSA所在目录展开同名bitstream，因此后续必须使用临时XSA副本，正式B1A build目录保持只读。
+
 B1A-HW状态（2026-09-07）：`boards/hellozynq/b1a_hw/` 已在干净提交 `18fd65c` 上通过Vivado 2024.1完整实现，生成可重建PS7/DDR/UART0/GEM0/MDIO/GMII-to-RGMII硬件定义。该切片状态为 `B1A_HW_DEFINITION_COMPLETE / B1_GATE_PASS=false`；下一系统边界是B1B的UART与DDR实板验证。
 
 阶段2实板状态（2026-09-07）：实际板卡目标固定为 `xc7z020clg484-2`。B0双运行与完整断电证据已通过PR #69合并为 `main@102dee2...`。当前状态为 `B0_COMPLETE / FASTLANE_V1 / B1_DECISION_PENDING`。

@@ -1,10 +1,30 @@
+# 2026-09-07 B1B Fastlane V2
+
+- [x] 将进入B1B前的验证收敛为四项：B1A产物哈希、XSA可读、JTAG可见、UART设备定位。
+- [x] 冻结跳过项：B1A硬件身份未变时不重跑Vivado，不跑全仓回归，不提前展开PHY/UDP/NPU验证。
+- [x] 核对B1A build manifest；五份原始Vivado报告均被manifest哈希引用，保留证据链，不为不足1 MiB收益破坏身份复核。
+- [x] 修正JTAG只读查询并确认APU、双Cortex-A9和xc7z020可见；UART设备继续作为明确的现场阻塞项。
+- [x] 完成可在当前连接条件下完成的三项就绪检查；B1-D1获批后直接建立B1B软件与实板验证切片。
+- [x] 定位UART现场缺口：CH340驱动已安装，需连接板正面左上角编号2、标有`UART`的USB-C口，使`USB-SERIAL CH340 (COMx)`重新枚举。
+- [x] 处理XSCT打开XSA覆盖同目录bit的副作用：独立重建并验证配置载荷一致，精确恢复manifest冻结bit哈希；恢复工程已移入回收站。
+- [ ] B1B实现后只运行应用构建、UART/DDR证据验证器、JSON/差异检查和必要的实板运行。
+- [ ] 待批准Fastlane V2合并门：可复现构建加一次实板UART/DDR通过后先合并实现；三次完整冷启动保留为B1B最终签核门。
+
+# 2026-09-07 B1B PS7/UART/DDR 启动
+
+- [x] 复核 `main@065a68c`、B1A产物和B1B剩余门。
+- [ ] 完成本机Vitis/XSCT、XSA、JTAG和UART设备的低成本就绪检查。
+- [ ] 形成B1-D1软件栈裁定稿，说明bare-metal与Linux的实际成本并请求管理员批准。
+- [ ] 获批后实现最小UART banner和DDR测试，按三次冷启动形成实板证据。
+- [ ] 同步Nexus、提交小PR；B1B完成仍保持 `b1_gate_pass=false`。
+
 # 2026-09-07 B1A-HW 快速收敛
 
 - [x] 将范围收敛为上板阻断项，不扩大全仓回归和文档审计。
 - [x] 修正 RGMII TX `TIMING-18`，5个顶层TX端口缺失数降为0。
 - [x] 运行最小必要 Vivado 验证并生成可上板 bitstream/XSA。
 - [x] 同步最小机器证据与阶段状态，保持 `b1_gate_pass=false`。
-- [ ] 将证据提交、推送并合并B1A小PR；无用构建临时目录已移入系统回收站。
+- [x] 将证据提交、推送并合并B1A小PR；PR #72已合并为 `main@065a68c`，无用构建临时目录已移入系统回收站。
 
 # 2026-09-06 本机验收与 GitHub 计费边界
 

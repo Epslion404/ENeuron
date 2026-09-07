@@ -1,5 +1,7 @@
 # 测试面与缺口
 
+B1B入口检查（2026-09-07）：在 `main@065a68ce...` 上核对B1A正式bitstream/XSA哈希一致；XSCT 2024.1成功打开XSA，JTAG枚举到APU、两个Cortex-A9和`xc7z020`。UART设备检查仅得到蓝牙COM6/COM7，未发现板载CH340，因此UART banner、DDR读写和B1B实板门均未运行。此次检查不构成B1B或B1-GATE通过。另确认 `hsi::open_hw_design`可把XSA内嵌bitstream展开到同目录并覆盖正式文件；冻结bit已精确恢复，以后该命令只对临时副本运行。
+
 B1A-HW覆盖（2026-09-07）：干净提交 `18fd65c` 的Vivado 2024.1完整构建通过，资源 `136 LUT / 257 FF / 0 BRAM / 0 DSP`，WNS/WHS=`+0.240/+0.150 ns`，setup/hold失败端点、route error、DRC error/critical warning和RGMII TX缺失output delay均为0。保留1条MDIO input delay方法学warning和1条GMII-to-RGMII内部 `REQP-1577` warning；UART、DDR读写、PHY地址/链路和UDP仍未实板覆盖。
 
 阶段2 B0校正（2026-09-07）：`xc7z020clg484-2` 最小候选 `df16ed6c...8971` 的实现、两次正式program、两次现场测量和完整断电复测均通过。run-1/run-2的10周期分别为 `13.42 s`、`13.4 s`，均命中 `12.6–14.2 s` 窗口；观察文件SHA-256分别为 `d93bcc25...ab083`、`73c81d86...a25f8`。完整断电探针取得 `target_opened=0`、`accessible_device_count=0` 和Vivado `No devices detected`；run-2恢复后下载前器件为未配置，下载后三项DONE=`1/1/1`且错误位为0。当前覆盖状态为 `B0_COMPLETE`；B1–B4尚未进入实测。
