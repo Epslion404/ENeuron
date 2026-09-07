@@ -82,3 +82,6 @@ glbl.v
 # throwaway checkouts created by run_test_matrix.py
 .test_matrix/
 tight_setup_hold_pins.txt
+
+# Local HelloZynq B0 implementation and JTAG logs.
+boards/hellozynq/b0_smoke/build/
