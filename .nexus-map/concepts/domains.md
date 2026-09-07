@@ -18,11 +18,12 @@ provenance: NP4B/NP6/NP7 TODO、工作流状态与 RTL 文件；集成边界来�
 - `DSP_GATE_PASS`：Vivado utilization 为 `DSP=4`，实现网表 `DSP48E1_COUNT=4`，四个 cell 对应 `lane_product_0..3`；只表示强制 DSP 结构合同成立，不代替 setup 签核。
 - `TIMING_REPAIR_V1_FUNCTIONAL_GREEN`：TR1-TR6 已实现，共享四 DSP lane、FETCH/EXECUTE/COMMIT、C1-C4、固定 `20×100` 和完整回归均通过；因 setup 失败，该状态不等于物理通过。
 - `TIMING_REPAIR_V2_FUNCTIONAL_GREEN`：TR7-TR12 已实施，V2 独立 RED、定向门、固定 `20×100`、完整回归和逐组 WRITEBACK/激活锁存合同均通过；C1-C4 为 `1902/1898/718/1900` 拍。
-- `P15_T0_APPROVED / T1_RTL_AUTHORIZED`：方案 A 与 A1-A7 已批准，允许实现纯 RTL wrapper、四条异步 FIFO 和 FIFO 外 AXI-Stream shim；这是实施授权，不是完成证据。当前 T1/T2/T3 均未签核。
+- `P15_T0_APPROVED / T1_RTL_AUTHORIZED`：方案 A 与 A1-A7 已批准，允许实现纯 RTL wrapper、四条异步 FIFO 和 FIFO 外 AXI-Stream shim；这是实施授权，不是完成证据。当前 T1/T2 已有切片证据，T1/T2 全量与 T3 仍未签核。
 - `T1_PROTOCOL_SLICE_PROVEN / T1_FULL_PENDING`：既有 T1 wrapper、testbench、XPM 仿真模型、manifest 和统一复现入口已进入仓库；T1-02 的 `STATE_CLEAR` exactly-once、`FREEZE_SET` 同步及冻结期间配置拒绝主要路径、T1-06 fence 独立切片，以及 T1-12 四 FIFO 边界切片，已在本机 `e4d48dd` 工作树通过。XPM wrapper 定向回归恢复为 5/5，depth=16+FWFT 的外部可见容量按 17 处理。本机 18 项目标单测与 G0/G1 复现均通过；该状态也不等于 T1-01～T1-12 全量、T2 全矩阵、T3 XC7Z020 OOC 或板级完成。
-- `T2_VARIABLE_CLOCK_SLICE_GREEN / T2_CONCURRENT_EPOCH_SLICE_GREEN / T2_EXTENDED_CLOCK_SLICE_GREEN / FULL_MATRIX_PENDING`：`a616d60` 已加入参数化 Host/NPU 时钟 testbench，`872fa90` 绑定并发 mask epoch 语义；本轮工作树扩展到 `(7,2)、(9,1)、(4,3)、(5,0)、(11,4)、(3,1)` 六组非整数频率/相位切片通过错误响应背压、模型/mask/fence、8/10 beat、sideband、单窗口和复位重入。epoch=2 在旧样本计算期间发布，旧结果仍回显 epoch=1，下一 fence 仍回显 active=1，下一样本才回显 epoch=2；统一入口输出 `REPRO_G2_T2_VARIABLE_CLOCKS_PASS`。该状态不等于 T2 随机全矩阵或 T3 物理完成。
+- `T2_VARIABLE_CLOCK_SLICE_GREEN / T2_CONCURRENT_EPOCH_SLICE_GREEN / T2_EXTENDED_CLOCK_SLICE_GREEN / T2_FIFO_MATRIX_SLICE_GREEN / T2_INTERLEAVE_RESET_SLICE_GREEN / FULL_MATRIX_PENDING`：基础、六组时钟、并发 epoch、FIFO 24/24 scoreboard 和 wrapper 交错/复位 4/4 已分别绑定提交 `a616d60`、`f54e762`、`872fa90`、`ee3a351`、`8457a20`。这些状态只证明本机 Icarus/等价模型切片，不等于 T2 随机全矩阵、真实 AMD XPM/xsim 或 T3 XC7Z020 OOC 完成。
+- `T3_XPM_XSIM_OOC_PENDING`：下一阶段先用真实 AMD XPM 库和 xsim 重放四 FIFO/wrapper 协同场景，再对“核心 + 适配器 + 四 FIFO”执行 `xc7z020clg400-1` OOC。必须绑定 Vivado 版本、Git HEAD 和专用 XDC，分别报告 LUT/FF/BRAM/DSP、CDC、WNS/TNS/WHS/THS、route 和 DRC。PS7、AXI、DMA、Ethernet、bitstream、板级吞吐和功耗不属于本轮 T3 通过范围。
 - `T1_NEXT_MINIMAL_SET`：T1-02、T1-06 与 T1-12 已从执行集移出；剩余为 T1-09 的 TLAST 外层 shim/N-A 裁定。若增加外层 shim，需独立验证改变、提前或缺失 TLAST 不改变完整核心结果；若当前 DUT 明确不暴露 TLAST，则记录 N/A 裁定，不得伪造 T1 核心通过。
-- `RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN`：资源裁剪候选已完成风险审查，但第一次完整端到端运行成功前不得实施；当前优先保持功能、CDC、原子性和诊断基线完成 T1/T2/T3。
+- `RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN`：资源裁剪候选已完成风险审查，但第一次完整端到端运行成功前不得实施；当前优先以真实 AMD XPM/xsim 和 XC7Z020 OOC 完成 T3 证据，保持功能、CDC、原子性和诊断基线不变。
 - `B-V1+V2`：NP7 已批准的单槽弹性流水合同，允许零路径同拍完成及非零结果退出与下一事务接受重叠；其收益只由逐拍账本证明。
 - `CI-Fast V1`：按变更路径选择验证范围的 Action 编排；Action 基线已从 `actions/checkout@v4`、`actions/setup-python@v5` 升级为二者 `@v7`（Node 24）。已完成 workflow 全量、文档轻量与 NPU-only 定向路径验证；任何 workflow 变更必须运行全量门，未知代码触发全仓回归，手动运行触发全部专项门。
 - `PR Gate`：始终执行的汇总状态；只允许被选专项门 `success` 或 `skipped`，任何失败均拒绝合并。分支保护应只要求该状态。

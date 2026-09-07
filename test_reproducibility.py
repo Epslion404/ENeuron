@@ -39,6 +39,31 @@ class ReproducibilityContractTests(unittest.TestCase):
         self.assertIn('parser.add_argument("--t2-interleave-reset"', verifier)
         self.assertIn("REPRO_G2_T2_INTERLEAVE_RESET_PASS", verifier)
 
+    def test_t3_vivado_entries_are_reproducible(self) -> None:
+        manifest = json.loads((ROOT / "tools/repro/repro_manifest.json").read_text(encoding="utf-8"))
+        required = set(manifest["required_tracked_files"])
+        expected = {
+            "run_vivado_npu_zynq7020_t3_xsim.ps1",
+            "vivado_npu_zynq7020_t3_xsim.tcl",
+            "run_vivado_npu_zynq7020_t3_ooc.ps1",
+            "vivado_npu_zynq7020_t3_ooc.tcl",
+        }
+        self.assertTrue(expected.issubset(required))
+
+        xsim = (ROOT / "vivado_npu_zynq7020_t3_xsim.tcl").read_text(encoding="utf-8")
+        self.assertIn("xc7z020clg400-1", xsim)
+        self.assertIn("XPM_LIBRARIES {XPM_FIFO}", xsim)
+        self.assertIn("T1_PROTOCOL_SKELETON_PASS", xsim)
+        self.assertNotIn("xpm_fifo_async_sim.sv", xsim)
+
+        ooc = (ROOT / "vivado_npu_zynq7020_t3_ooc.tcl").read_text(encoding="utf-8")
+        self.assertIn("xc7z020clg400-1", ooc)
+        self.assertIn("npu_zynq7020_t1_wrapper", ooc)
+        self.assertIn("DSP48E1_COUNT", ooc)
+        self.assertIn("PHYSICAL_GATE", ooc)
+        self.assertIn("EXTERNAL_CDC_CRITICAL", ooc)
+        self.assertIn("EXTERNAL_CDC_WARNING", ooc)
+
     def test_t1_changes_select_repro_gate(self) -> None:
         selected = classify_paths(["npu_zynq7020_t1_wrapper.sv"])
         self.assertTrue(selected["t1_repro"])
@@ -52,6 +77,15 @@ class ReproducibilityContractTests(unittest.TestCase):
     def test_error_status_uses_second_cdc_stage(self) -> None:
         source = (ROOT / "npu_zynq7020_t1_wrapper.sv").read_text(encoding="utf-8")
         self.assertIn("assign host_error = error_host_sync[1]", source)
+
+    def test_fifo_busy_crossing_is_aggregated_and_registered(self) -> None:
+        source = (ROOT / "npu_zynq7020_t1_wrapper.sv").read_text(encoding="utf-8")
+        self.assertIn("host_local_fifo_busy_reg", source)
+        self.assertIn("npu_local_fifo_busy_reg", source)
+        self.assertIn("host_busy_npu_sync", source)
+        self.assertIn("npu_busy_host_sync", source)
+        self.assertNotIn("host_cmd_rd_busy_sync", source)
+        self.assertNotIn("npu_cmd_wr_busy_sync", source)
 
     def test_t1_tlast_boundary_is_explicitly_outer(self) -> None:
         source = (ROOT / "npu_zynq7020_t1_wrapper.sv").read_text(encoding="utf-8").lower()

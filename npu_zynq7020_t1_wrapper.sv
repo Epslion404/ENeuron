@@ -33,8 +33,8 @@ module npu_zynq7020_t1_wrapper #(
     localparam logic [3:0] OP_SAMPLE_FENCE = 4'ha;
     localparam logic [3:0] RSP_FENCE       = 4'hd;
 
-    logic [1:0] host_rst_sync = 2'b11;
-    logic [1:0] npu_rst_sync = 2'b11;
+    (* ASYNC_REG = "TRUE" *) logic [1:0] host_rst_sync = 2'b11;
+    (* ASYNC_REG = "TRUE" *) logic [1:0] npu_rst_sync = 2'b11;
     logic host_rst;
     logic npu_rst;
 
@@ -84,23 +84,25 @@ module npu_zynq7020_t1_wrapper #(
     logic sample_window_open_npu;
     logic [3:0] sample_count_npu;
     logic sample_window_toggle_npu;
-    logic sample_window_toggle_host_d1, sample_window_toggle_host_d2;
+    (* ASYNC_REG = "TRUE" *) logic sample_window_toggle_host_d1, sample_window_toggle_host_d2;
     logic sample_window_open_host;
     logic [3:0] sample_write_count_host;
     logic fence_response_pending;
     logic error_response_pending;
     logic [127:0] error_response_payload;
     logic error_sticky_npu;
-    logic [1:0] model_valid_host_sync, mask_valid_host_sync, infer_frozen_host_sync;
-    logic [1:0] error_host_sync;
+    (* ASYNC_REG = "TRUE" *) logic [1:0] model_valid_host_sync, mask_valid_host_sync, infer_frozen_host_sync;
+    (* ASYNC_REG = "TRUE" *) logic [1:0] error_host_sync;
     logic [31:0] fence_id_npu;
     // Host 窗口状态不能直接在 npu_clk 域采样；这里使用两级同步器。
-    logic sample_window_open_host_npu_d1, sample_window_open_host_npu_d2;
-    // 四条 FIFO 的远端 busy 通过两级同步后汇合，避免某一条流单独泄漏握手。
-    logic [1:0] host_cmd_rd_busy_sync, host_rsp_wr_busy_sync;
-    logic [1:0] host_sample_rd_busy_sync, host_result_wr_busy_sync;
-    logic [1:0] npu_cmd_wr_busy_sync, npu_rsp_rd_busy_sync;
-    logic [1:0] npu_sample_wr_busy_sync, npu_result_rd_busy_sync;
+    (* ASYNC_REG = "TRUE" *) logic sample_window_open_host_npu_d1, sample_window_open_host_npu_d2;
+    // 每个时钟域先寄存本地四条 FIFO 的 busy 汇总，再只跨域同步一个 fail-closed bit。
+    logic host_local_fifo_busy_reg = 1'b1;
+    logic npu_local_fifo_busy_reg = 1'b1;
+    (* ASYNC_REG = "TRUE" *) logic [1:0] host_busy_npu_sync = 2'b11;
+    (* ASYNC_REG = "TRUE" *) logic [1:0] npu_busy_host_sync = 2'b11;
+    wire npu_any_fifo_busy;
+    wire error_rsp_valid;
 
     xpm_fifo_async #(
         .FIFO_MEMORY_TYPE("auto"), .ECC_MODE("no_ecc"), .RELATED_CLOCKS(0),
@@ -189,40 +191,30 @@ module npu_zynq7020_t1_wrapper #(
     wire response_fifo_ready_npu = !npu_rst && !npu_any_fifo_busy && !rsp_full;
     wire result_fifo_ready_npu = !npu_rst && !npu_any_fifo_busy && !result_full;
     wire fence_staging_blocked = command_is_fence && core_mask_staging_open;
-    wire host_any_fifo_busy = cmd_wr_rst_busy || sample_wr_rst_busy ||
-        rsp_rd_rst_busy || result_rd_rst_busy ||
-        host_cmd_rd_busy_sync[1] || host_rsp_wr_busy_sync[1] ||
-        host_sample_rd_busy_sync[1] || host_result_wr_busy_sync[1];
-    wire npu_any_fifo_busy = cmd_rd_rst_busy || sample_rd_rst_busy ||
-        rsp_wr_rst_busy || result_wr_rst_busy ||
-        npu_cmd_wr_busy_sync[1] || npu_rsp_rd_busy_sync[1] ||
-        npu_sample_wr_busy_sync[1] || npu_result_rd_busy_sync[1];
+    wire host_local_fifo_busy = cmd_wr_rst_busy || sample_wr_rst_busy ||
+        rsp_rd_rst_busy || result_rd_rst_busy;
+    wire npu_local_fifo_busy = cmd_rd_rst_busy || sample_rd_rst_busy ||
+        rsp_wr_rst_busy || result_wr_rst_busy;
+    wire host_any_fifo_busy = host_local_fifo_busy_reg || npu_busy_host_sync[1];
+    assign npu_any_fifo_busy = npu_local_fifo_busy_reg || host_busy_npu_sync[1];
 
     always_ff @(posedge host_clk) begin
         if (host_rst) begin
-            host_cmd_rd_busy_sync <= 2'b11;
-            host_rsp_wr_busy_sync <= 2'b11;
-            host_sample_rd_busy_sync <= 2'b11;
-            host_result_wr_busy_sync <= 2'b11;
+            host_local_fifo_busy_reg <= 1'b1;
+            npu_busy_host_sync <= 2'b11;
         end else begin
-            host_cmd_rd_busy_sync <= {host_cmd_rd_busy_sync[0], cmd_rd_rst_busy};
-            host_rsp_wr_busy_sync <= {host_rsp_wr_busy_sync[0], rsp_wr_rst_busy};
-            host_sample_rd_busy_sync <= {host_sample_rd_busy_sync[0], sample_rd_rst_busy};
-            host_result_wr_busy_sync <= {host_result_wr_busy_sync[0], result_wr_rst_busy};
+            host_local_fifo_busy_reg <= host_local_fifo_busy;
+            npu_busy_host_sync <= {npu_busy_host_sync[0], npu_local_fifo_busy_reg};
         end
     end
 
     always_ff @(posedge npu_clk) begin
         if (npu_rst) begin
-            npu_cmd_wr_busy_sync <= 2'b11;
-            npu_rsp_rd_busy_sync <= 2'b11;
-            npu_sample_wr_busy_sync <= 2'b11;
-            npu_result_rd_busy_sync <= 2'b11;
+            npu_local_fifo_busy_reg <= 1'b1;
+            host_busy_npu_sync <= 2'b11;
         end else begin
-            npu_cmd_wr_busy_sync <= {npu_cmd_wr_busy_sync[0], cmd_wr_rst_busy};
-            npu_rsp_rd_busy_sync <= {npu_rsp_rd_busy_sync[0], rsp_rd_rst_busy};
-            npu_sample_wr_busy_sync <= {npu_sample_wr_busy_sync[0], sample_wr_rst_busy};
-            npu_result_rd_busy_sync <= {npu_result_rd_busy_sync[0], result_rd_rst_busy};
+            npu_local_fifo_busy_reg <= npu_local_fifo_busy;
+            host_busy_npu_sync <= {host_busy_npu_sync[0], host_local_fifo_busy_reg};
         end
     end
 
@@ -362,7 +354,7 @@ module npu_zynq7020_t1_wrapper #(
     end
 
     wire fence_rsp_valid = fence_response_pending && response_fifo_ready_npu;
-    wire error_rsp_valid = error_response_pending && !fence_response_pending && response_fifo_ready_npu;
+    assign error_rsp_valid = error_response_pending && !fence_response_pending && response_fifo_ready_npu;
     assign rsp_wr_en = fence_rsp_valid || error_rsp_valid || (core_rsp_valid && core_rsp_ready);
     assign rsp_payload_mux = fence_response_pending ?
         {RSP_FENCE, 4'd0, OP_SAMPLE_FENCE, 4'd0, fence_id_npu,

@@ -1283,6 +1283,22 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 
 本轮错误记录：第一次直接用 PowerShell 拼接 Icarus `-P` 参数时，Icarus 将参数拆解为文件名并拒绝 elaboration；改为把 `-P` 与 defparam 名称作为独立 argv 传入复现脚本。第一次收尾只等待 80 个 Host 周期，通道 1 出现写入 34、读出 17 的未排空差异；改为显式只读排空 500 个 Host 周期后，24/24 全部通过。两次失败均未修改生产 RTL 或 FIFO 模型。
 
+## 2026-09-07 T3 真实 XPM/xsim 与 XC7Z020 OOC
+
+- [x] 复核 A7/T3 合同：器件 `xc7z020clg400-1`，Host/NPU 双 100 MHz，四个 depth-16 FWFT XPM FIFO，核心必须保持恰好 4 个 DSP48E1。
+- [ ] 新增真实 AMD XPM/xsim 入口，复用 T1 协议 testbench，不编译仓库内 `xpm_fifo_async_sim.sv`。
+- [ ] 新增“核心 + wrapper + 四 FIFO”OOC 入口，报告分层资源、CDC、双时钟 setup/hold、route 与 DRC。
+- [ ] 运行 Vivado 2024.1，并以日志通过标记、退出码和签核摘要共同判定。
+- [ ] 更新复现清单、T3 文档、工作流状态和 Nexus；运行受影响 Python 合同测试与 `git diff --check`。
+- [ ] 排除三个保护文件后提交、推送 PR #68；Actions 关闭期间只记录本机证据，不把空 checks 解释为通过。
+
+成功条件：真实 XPM/xsim 跑完同一 T1 协议判据；OOC 必须 `DSP48E1_COUNT=4`、两个时钟域 setup/hold 零失败、route/DRC error 为 0，并能从层次化 utilization 区分核心、wrapper 和四个 FIFO。该门不覆盖 AXI、DMA、PS7、Ethernet、板级 I/O、功耗或首次网口端到端运行。
+
+错误记录：首次使用 Windows PowerShell 5.1 启动 xsim runner 时，无 BOM 的 UTF-8 中文错误字符串被错误解码并导致脚本解析失败；Vivado 尚未启动。处理为将两个 `.ps1` runner 的提示文本改为 ASCII，再重跑同一验证入口。
+错误记录：真实 XPM/xsim 首跑已经打印 `T1_PROTOCOL_SKELETON_PASS`，但 runner 在仿真后用 `get_objects /tb.../dut` 做了不必要的对象检查，导致 Tcl 返回码 1。该检查不参与合同判定，已移除；保留仿真退出、日志 marker 和禁止文本检查。
+错误记录：第二次真实 XPM/xsim 同样完成并打印通过 marker，但 Tcl 在 `close_sim` 前读取仍未完全刷新的 `simulate.log`，误判 marker 缺失。当前落盘日志已核对包含 marker；runner 改为先 `close_sim` 再读取日志。
+首轮 OOC 结果：资源/双时钟时序/route/DRC/四 DSP 已通过，但 `report_cdc` 显示 wrapper 自身同步器缺少 `ASYNC_REG`，并把 8 条逐 FIFO `rst_busy` 交叉同步识别为 critical。处理为给全部显式同步链加属性，并将 busy CDC 收敛为“各域本地寄存汇总 + 两个单 bit 同步”；OOC runner 同时新增 external CDC hard gate，修后必须重跑。
+
 ## 2026-09-04 单时钟 RTL 时序修复设计审核
 
 - [x] 读取 `timing_impl.rpt` 并完成最差 setup 路径分类。

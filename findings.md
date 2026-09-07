@@ -1281,3 +1281,6 @@
 - 2026-09-07：T2 全矩阵需要拆分两类证据。现有 wrapper 测试负责 fence、epoch、8/10 beat 和背压协议；新的独立 FIFO 矩阵负责四种实际宽度/方向下的满空、回绕、长背压和无丢失/重复/乱序。单独测试 Icarus FIFO 模型不能代替真实 AMD XPM/xsim，该边界必须保留到 T3。
 - 2026-09-07：T2 FIFO 矩阵 24/24 通过：8 组 `NPU_HALF/NPU_PHASE` × 3 个固定 seed。四条通道分别比对实际写入和读出序列；测试包含填满、排空、随机读写、读端长背压和中途 reset。本地验证命令是 `python -X utf8 tools/repro/verify_repository.py --t2-fifo-matrix`；结果仍不等于真实 XPM/xsim、T3 或板级。
 - 2026-09-07：T2 wrapper 交错/复位切片在4组 `(2,0)/(3,1)/(7,2)/(11,4)` 通过。实际并行验证中，mask 命令和 sample beat 交错接受；模型装载中途、结果背压中、sample 第 4 beat 前的 reset 均能清除半事务，未观察旧响应/结果泄漏。该切片仍使用 Icarus 等价 FIFO 模型，不代替 AMD XPM/xsim 和 T3。
+- 2026-09-07：T3 无需新增架构裁定。已批准 A7 明确 `xc7z020clg400-1`、Host/NPU 双 100 MHz 和真实 XPM；`npu_zynq7020_t1_wrapper.sv` 已实例化四个 depth-16、FWFT、`SIM_ASSERT_CHK=1`、`CDC_SYNC_STAGES=2` 的 XPM FIFO，宽度为 128/128/64/96 bit。
+- 2026-09-07：现有 `vivado_xpm_wrapper_sim.tcl` 面向旧 `digital_snn_host_bridge` 和 `xc7a35t`，不能作为当前 NPU wrapper 的 T3 证据；现有 `vivado_npu_single_clock_ooc.tcl` 只覆盖单时钟核心。T3 应新增独立 runner，不改写这两份历史证据入口。
+- 2026-09-07：`tb_npu_zynq7020_t1_wrapper.sv` 只对白盒 `dut.core.state_clear_count` 有一处层次引用，真实 XPM 不影响该路径，因此可直接复用；xsim 入口必须排除 `xpm_fifo_async_sim.sv`，由 Vivado 项目的 `XPM_LIBRARIES {XPM_FIFO}` 提供真实 FIFO。
