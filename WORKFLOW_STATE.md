@@ -97,6 +97,7 @@ V2 OOC 物理门已通过，PR #64 已合并为 `main@a53a040`；PR #65 已合�
 - 本机目标单测 `18/18`、T1 复现和 T2 复现均通过；`REPRO_G0_MANIFEST_PASS`、`REPRO_G1_T1_PROTOCOL_SLICE_PASS`、`REPRO_G2_T2_VARIABLE_CLOCKS_PASS` 为本机证据，不是 GitHub Actions 结果。
 - 当前下一动作是 T2 全矩阵（随机频率/相位、FIFO 满空/回绕 scoreboard、并发命令和多位置 reset），再进入 T3；资源裁剪仍推迟到第一次完整端到端运行成功之后。
 - 六组确定性时钟/相位扩展已在 `f54e762` 通过；随机频率/相位全矩阵、FIFO scoreboard、并发命令和多位置 reset 仍待完成。
+- Nexus 六组矩阵摘要已在 `af520b2` 更新；随后 `1a3c371` 只补充工作流状态指针。当前 PR #68 head 为 `1a3c371`，功能证据仍按 `f54e762`/`872fa90` 分层引用。
 
 ## 2026-09-04 V2 KISS 实施地图
 
