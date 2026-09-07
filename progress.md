@@ -1426,3 +1426,5 @@
 - 2026-09-07：B0-07完成。`df16ed6c...8971` 正式JTAG program返回0并输出 `B0_PROGRAM_PASS`；`DONE_INTERNAL/DONE_PIN/ISC_DONE=1/1/1`，CRC/IDCODE/security error=0。下一门为用户现场观察P20至少10周期。
 - 2026-09-07：已刷新远端，`origin/main=7857d325...`；B0分支相对主线为1 ahead/2 behind。为保留已被实板证据绑定的 `f3b8174...`，后续采用合入 `origin/main`，不使用会改写提交号的rebase。
 - 2026-09-07：Nexus子任务完成B0当前program证据更新；主代理逐项复核后修正 `concept_model.json` 两个主线指针为 `7857d325...`。知识库状态保持 `CURRENT_BITSTREAM_PROGRAM_PASS / B0_FIELD_OBSERVATION_PENDING`。
+- 2026-09-07：B0机器证据、详细TODO、报告和Nexus提交为 `6161a0c docs(board): record B0 machine evidence`；源码提交 `f3b8174...` 保持独立可追溯。
+- 2026-09-07：将 `origin/main@7857d325...` 合入B0分支，merge commit为 `411d2b1`，未改写 `f3b8174...`。合入后轻量回归10/10、B0物理证据身份和三份JSON再次通过。
