@@ -1449,8 +1449,8 @@
 - 2026-09-07：暂存时Git提示run-2机器文件将CRLF归一化为LF，因此在提交前增加Git blob字节哈希审计，避免manifest只匹配Windows工作树、不匹配仓库对象。属性检查第一次因工具参数拼写错误未执行，记录错误的补丁调用又因JavaScript输出语句拼写错误未执行；两次均未改变仓库状态，随后改用正确调用。
 - 2026-09-07：跨平台哈希补丁首次因断电manifest中的实际Tcl哈希与预期上下文不同而整体拒绝，未发生部分写入；读取实际结构后拆分重试。确认run-1、断电探针和run-2的采集时文本哈希均受CRLF/LF影响，因此保留原始SHA-256字段，并补充LF规范SHA-256；B0证据测试改用规范哈希验证跨平台仓库字节，符合根 `.gitattributes` 的 `eol=lf` 合同。
 - 2026-09-07：规范哈希修正后复验通过：B0证据、artifact布局与CI-Fast仍为 `17/17 PASS`，37份JSON解析通过，`git diff --check`通过。换行提示仅说明Git将按既有 `.gitattributes` 写入LF，规范哈希已覆盖该转换。
-- 2026-09-08：提交后Git blob复核第一次因 `sha256sum` 未加入PATH而中止，改用已安装的 `C:\msys64\usr\bin\sha256sum.exe`；run-1、断电探针和run-2三个已提交transcript的LF字节哈希全部匹配manifest。随后PR边界检查误把B0原有README路径本身当作诊断改动，产生假阳性；正确条件是远端HEAD不得包含未提交的“M19时钟诊断”章节，六个诊断文件也不得出现在PR路径中。
-- 2026-09-08：按管理员要求清理并加速。六个未提交B0时钟诊断文件已逐一校验路径后移入系统回收站，对应README未提交章节已撤销；B0工作树恢复干净。旧PR5/PR6审查工作树均为干净detached状态，但未扩大删除范围。
-- 2026-09-08：B0工作树已切换到本地 `main` 并以 `--ff-only` 快进至 `origin/main@102dee2...`，未触碰旧T0工作树的未提交修改和三个保护文件；随后创建 `codex/zynq7020-b1-fastlane`。
-- 2026-09-08：形成Fastlane V1：B1拆为B1A板级事实/硬件定义、B1B PS7/UART/DDR、B1C PHY/UDP；只跑受影响验证，RTL/XDC/BD/Tcl/IP身份未变时不重跑Vivado，实板步骤单会话批量执行，报告/Nexus按切片合并前集中同步，Actions关闭时不等待空checks。
-- 2026-09-08：Fastlane文档切片验证通过：artifact布局与CI-Fast共 `10/10 PASS`，6份Nexus JSON解析通过，旧活动状态/异常补丁文本扫描和 `git diff --check` 均通过；本轮没有RTL/XDC/BD/Tcl/IP变化，按新规则不启动Vivado或全仓回归。
+- 2026-09-07：提交后Git blob复核第一次因 `sha256sum` 未加入PATH而中止，改用已安装的 `C:\msys64\usr\bin\sha256sum.exe`；run-1、断电探针和run-2三个已提交transcript的LF字节哈希全部匹配manifest。随后PR边界检查误把B0原有README路径本身当作诊断改动，产生假阳性；正确条件是远端HEAD不得包含未提交的“M19时钟诊断”章节，六个诊断文件也不得出现在PR路径中。
+- 2026-09-07：按管理员要求清理并加速。六个未提交B0时钟诊断文件已逐一校验路径后移入系统回收站，对应README未提交章节已撤销；B0工作树恢复干净。旧PR5/PR6审查工作树均为干净detached状态，但未扩大删除范围。
+- 2026-09-07：B0工作树已切换到本地 `main` 并以 `--ff-only` 快进至 `origin/main@102dee2...`，未触碰旧T0工作树的未提交修改和三个保护文件；随后创建 `codex/zynq7020-b1-fastlane`。
+- 2026-09-07：形成Fastlane V1：B1拆为B1A板级事实/硬件定义、B1B PS7/UART/DDR、B1C PHY/UDP；只跑受影响验证，RTL/XDC/BD/Tcl/IP身份未变时不重跑Vivado，实板步骤单会话批量执行，报告/Nexus按切片合并前集中同步，Actions关闭时不等待空checks。
+- 2026-09-07：Fastlane文档切片验证通过：artifact布局与CI-Fast共 `10/10 PASS`，6份Nexus JSON解析通过，旧活动状态/异常补丁文本扫描和 `git diff --check` 均通过；本轮没有RTL/XDC/BD/Tcl/IP变化，按新规则不启动Vivado或全仓回归。

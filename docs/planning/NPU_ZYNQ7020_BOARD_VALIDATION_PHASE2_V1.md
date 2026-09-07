@@ -2,7 +2,7 @@
 
 状态：`ACTIVE / FASTLANE_V1 / B0_COMPLETE / B1_DECISION_PENDING`
 
-日期：2026-09-08
+日期：2026-09-07
 
 ## 目标和证据原则
 

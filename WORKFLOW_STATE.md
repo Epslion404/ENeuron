@@ -2,7 +2,7 @@
 
 模式：`PERSISTENT_WORKFLOW_V1`
 
-最后更新：2026-09-08
+最后更新：2026-09-07
 
 状态：`ACTIVE / PHASE2_FASTLANE_V1 / B0_COMPLETE_MAIN_102DEE2 / B1_DECISION_PENDING / XC7Z020CLG484_2_CONFIRMED / T3_XPM_XSIM_PASS / T3_XC7Z020_OOC_PASS / RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN / GITHUB_ACTIONS_DISABLED`
 
@@ -14,8 +14,8 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 
 ## 当前事实
 
-- 2026-09-08：PR #69已合并为 `main@102dee2a004283ce4144aaf6ee0a2cee3ebd2887`；B0正式进入主线。按管理员要求启用Fastlane V1：B1拆为B1A/B1B/B1C小PR，只跑受影响门，身份未变则复用Vivado产物，阶段末集中更新报告/Nexus。
-- 2026-09-08：六个未提交且不再需要的B0时钟诊断文件已移入系统回收站，对应README未提交章节已撤销。旧T0工作树及其未提交修改保持不变；新的主线入口工作树已快进并创建 `codex/zynq7020-b1-fastlane`。
+- 2026-09-07：PR #69已合并为 `main@102dee2a004283ce4144aaf6ee0a2cee3ebd2887`；B0正式进入主线。按管理员要求启用Fastlane V1：B1拆为B1A/B1B/B1C小PR，只跑受影响门，身份未变则复用Vivado产物，阶段末集中更新报告/Nexus。
+- 2026-09-07：六个未提交且不再需要的B0时钟诊断文件已移入系统回收站，对应README未提交章节已撤销。旧T0工作树及其未提交修改保持不变；新的主线入口工作树已快进并创建 `codex/zynq7020-b1-fastlane`。
 - 2026-09-07：B0分支已推送并创建 PR #69；GitHub观测为 `OPEN / CLEAN / MERGEABLE`，base为 `main@7857d325...`。Actions按管理员要求关闭，空checks不作为通过证据；现场LED和断电复测完成前不合并。
 - 2026-09-07：PR #68 在精确 HEAD `e2a1bfa...` 上通过 G0、T1和全部已定义 T2入口后合并，merge commit为 `7857d325...`。
 - 2026-09-07：B0 当前源码 `f3b8174...` 和 bitstream `df16ed6c...8971` 的正式实现、两次JTAG program、两次LED周期测量和完整断电复测均通过；target为 Digilent `210251A08870`、device为 `xc7z020_1`，两次下载后三项 DONE均为1，CRC/IDCODE/security error均为0。

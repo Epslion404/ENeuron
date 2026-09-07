@@ -1,8 +1,8 @@
 # ENeuron 知识库入口
 
-阶段 2 实板校正（2026-09-08）：PR #69 已合并为 `main@102dee2a004283ce4144aaf6ee0a2cee3ebd2887`，B0正式进入主线。B0固定源码 `f3b8174...` 与 bitstream `df16ed6c...8971` 在完整断电前后两次program、三项DONE、错误位和10周期现场测量全部通过。当前执行点为B1-D1软件栈裁定；已启用Fastlane V1，把B1拆为B1A/B1B/B1C小PR，只运行受影响验证，身份未变时复用Vivado物理证据。
+阶段 2 实板校正（2026-09-07）：PR #69 已合并为 `main@102dee2a004283ce4144aaf6ee0a2cee3ebd2887`，B0正式进入主线。B0固定源码 `f3b8174...` 与 bitstream `df16ed6c...8971` 在完整断电前后两次program、三项DONE、错误位和10周期现场测量全部通过。当前执行点为B1-D1软件栈裁定；已启用Fastlane V1，把B1拆为B1A/B1B/B1C小PR，只运行受影响验证，身份未变时复用Vivado物理证据。
 
-发布终态（2026-09-08）：PR #69最终HEAD为 `02514b5f4ffd3b5c6a033a2f2d9e6f7b6bcaef92`，于 `2026-09-07T16:17:15Z` 合并，merge commit为 `102dee2a004283ce4144aaf6ee0a2cee3ebd2887`。Actions关闭且checks为空；合并依据是本机Vivado/JTAG/实板证据、17项定向测试、37份JSON和PR CLEAN/MERGEABLE。
+发布终态（2026-09-07）：PR #69最终HEAD为 `02514b5f4ffd3b5c6a033a2f2d9e6f7b6bcaef92`，于 `2026-09-07T16:17:15Z` 合并，merge commit为 `102dee2a004283ce4144aaf6ee0a2cee3ebd2887`。Actions关闭且checks为空；合并依据是本机Vivado/JTAG/实板证据、17项定向测试、37份JSON和PR CLEAN/MERGEABLE。
 
 P16 阶段 2 总路线见 `.nexus-map/arch/p16_board_validation.md` 和 `.nexus-map/concepts/p16_board_validation.json`。B0-GATE已在main关闭。B1–B4最终门仍串行，但安全增量按Fastlane V1通过小PR进入主线；合并中间切片不等于阶段通过。Host静态 `2:4` mask与live-ENeuron结果继续分开验收和统计。
 
