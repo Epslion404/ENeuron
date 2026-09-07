@@ -552,4 +552,6 @@ T2 FIFO 独立矩阵已通过 8 组固定时钟配置×3 个 seed，四通道逐
 
 wrapper 交错/复位切片已在 4 组时钟配置下通过：模型装载中途、结果背压中和 sample 第 4 beat 前注入 reset 均不会留下旧 payload；mask 命令与 sample beat 在同一 Host 时间段可交错接受。证据入口是 `python -X utf8 tools/repro/verify_repository.py --t2-interleave-reset`；这只是 wrapper 切片，不代替 T2 数学穷举或 T3。
 
+T2 wrapper 时钟覆盖已补齐 16 组确定性组合和固定种子 `20260907` 生成的 24 组唯一随机组合；入口分别为 `--t2-full-matrix` 与 `--t2-random-matrix`。慢时钟组合的结果观察预算按 `2000 + 400 × NPU_HALF` 个 Host 周期缩放。两组矩阵均已通过，但仍只属于有限可复现压力集，不得称为所有频率/相位的数学穷举。
+
 P15 硬门：双时钟逐 beat bit-exact；reset/ready-valid/FIFO 满空无丢失、重复、乱序；核心 OOC 基线不被错误覆盖；顶层 routed `WNS>=0`、`TNS=0`、setup/hold/route/DRC 零失败；板级吞吐和功耗必须使用真实板级证据。

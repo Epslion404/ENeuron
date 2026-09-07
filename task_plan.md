@@ -1290,6 +1290,16 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 - [x] 验证：单项合同测试通过，`python -X utf8 tools/repro/verify_repository.py --t2-full-matrix` 返回 `REPRO_G0_MANIFEST_PASS` 与 `REPRO_G2_T2_FULL_MATRIX_PASS`。
 - [ ] 该有限矩阵不等于随机频率/相位数学穷举；仍需决定是否扩展随机种子/多位置 reset，以及是否实现外层 AXI-Stream shim。
 
+## 2026-09-07 T2 固定种子随机时钟/相位矩阵
+
+- [x] RED：新增 `test_t2_random_matrix_has_reproducible_entrypoint`，确认固定种子随机矩阵入口尚未存在。
+- [x] GREEN：使用种子 `20260907` 生成 24 组唯一组合，复用完整 T2 wrapper 场景。
+- [x] 修正观察预算：由固定 5000 Host 周期改为 `2000 + 400 × NPU_HALF`，覆盖慢时钟下模型装载和约 1900 个 NPU 周期。
+- [x] 验证：`python -X utf8 tools/repro/verify_repository.py --t2-random-matrix` 返回 `REPRO_G0_MANIFEST_PASS` 与 `REPRO_G2_T2_RANDOM_MATRIX_PASS`。
+- [ ] 该矩阵仍是固定种子的有限压力集，不等于数学穷举；并发命令/样本交错、多位置 reset 和外层 AXI-Stream shim 仍需独立扩展。
+
+错误记录：恢复检查时误用 `multi_tool_use.parallel` 调用了仅限 Plan 模式的输入工具和不存在的 wait cell，均未改变仓库或外部状态；随后两次整包补丁因 `findings.md` 上下文假设错误被原子拒绝，也未产生部分修改。已改用精确上下文的小补丁，不重复上述调用方式。
+
 ## 2026-09-07 T3 真实 XPM/xsim 与 XC7Z020 OOC
 
 - [x] 复核 A7/T3 合同：器件 `xc7z020clg400-1`，Host/NPU 双 100 MHz，四个 depth-16 FWFT XPM FIFO，核心必须保持恰好 4 个 DSP48E1。

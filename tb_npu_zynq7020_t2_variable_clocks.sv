@@ -6,6 +6,8 @@ module tb_npu_zynq7020_t2_variable_clocks #(
     parameter integer NPU_HALF = 7,
     parameter integer NPU_PHASE = 2
 );
+    // 计算约 1900 个 NPU 周期；慢时钟组合需要按半周期换算 Host 观察预算。
+    localparam integer RESULT_WAIT_HOST_CYCLES = 2000 + (NPU_HALF * 400);
     localparam logic [3:0] OP_MODEL_BEGIN  = 4'h1;
     localparam logic [3:0] OP_MODEL_DATA   = 4'h2;
     localparam logic [3:0] OP_MODEL_COMMIT = 4'h3;
@@ -216,7 +218,7 @@ module tb_npu_zynq7020_t2_variable_clocks #(
         host_result_ready = 1'b0;
         wait_cycles = 0;
         // 核心固定计算最坏约 1900 个 NPU 周期；慢时钟比下不能用 600 个 Host 周期误报超时。
-        while (!host_result_valid && wait_cycles < 5000) begin
+        while (!host_result_valid && wait_cycles < RESULT_WAIT_HOST_CYCLES) begin
             @(posedge host_clk);
             wait_cycles = wait_cycles + 1;
         end
@@ -251,7 +253,7 @@ module tb_npu_zynq7020_t2_variable_clocks #(
         for (i = 0; i < 8; i = i + 1)
             send_sample_beat(i, 32'hCAFE_0002);
         wait_cycles = 0;
-        while (!host_result_valid && wait_cycles < 5000) begin
+        while (!host_result_valid && wait_cycles < RESULT_WAIT_HOST_CYCLES) begin
             @(posedge host_clk);
             wait_cycles = wait_cycles + 1;
         end

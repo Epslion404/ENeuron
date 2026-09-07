@@ -44,6 +44,11 @@ class ReproducibilityContractTests(unittest.TestCase):
         self.assertIn('parser.add_argument("--t2-full-matrix"', verifier)
         self.assertIn("REPRO_G2_T2_FULL_MATRIX_PASS", verifier)
 
+    def test_t2_random_matrix_has_reproducible_entrypoint(self) -> None:
+        verifier = (ROOT / "tools/repro/verify_repository.py").read_text(encoding="utf-8")
+        self.assertIn('parser.add_argument("--t2-random-matrix"', verifier)
+        self.assertIn("REPRO_G2_T2_RANDOM_MATRIX_PASS", verifier)
+
     def test_t3_vivado_entries_are_reproducible(self) -> None:
         manifest = json.loads((ROOT / "tools/repro/repro_manifest.json").read_text(encoding="utf-8"))
         required = set(manifest["required_tracked_files"])

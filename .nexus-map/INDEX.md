@@ -33,6 +33,8 @@ NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`，NP7 已签核。
 
 - T2 FIFO 矩阵切片已提交于 `ee3a351`：`tb_xpm_fifo_async_matrix.sv` 对命令、响应、样本和结果四通道做固定 8 组 `(NPU_HALF,PHASE)` × 3 个 seed，共 24 次逐序列 scoreboard；入口 `python -X utf8 tools/repro/verify_repository.py --t2-fifo-matrix` 输出 `REPRO_G2_T2_FIFO_MATRIX_PASS`。该结果是本机 Icarus 等价 FIFO 模型证据，不是 AMD XPM/xsim、Vivado T3 或 GitHub Actions 结果；T2 全矩阵和真实 XPM/xsim 仍待完成。
 
+- T2 固定种子随机时钟/相位矩阵已通过：入口 `python -X utf8 tools/repro/verify_repository.py --t2-random-matrix` 使用种子 `20260907` 生成 24 个唯一 `(NPU_HALF,NPU_PHASE)` 组合，结果为 `REPRO_G2_T2_RANDOM_MATRIX_PASS`。每组结果观察预算为 `2000 + 400 × NPU_HALF` 个 Host 周期，以覆盖慢 NPU 时钟下的完整场景；状态记为 `T2_RANDOM_CLOCK_MATRIX_GREEN`。这是可复现的有限压力集，不是所有频率和相位的数学穷举。
+
 - T2 wrapper 交错/复位切片已提交于 `8457a20`：`tb_npu_zynq7020_t2_interleave_reset.sv` 在 `(NPU_HALF, NPU_PHASE)=(2,0),(3,1),(7,2),(11,4)` 四组配置下验证命令与样本交错、配置中途复位、结果背压复位、半帧复位和旧 payload 清除，入口 `python -X utf8 tools/repro/verify_repository.py --t2-interleave-reset` 输出 `REPRO_G2_T2_INTERLEAVE_RESET_PASS`。这是 Icarus wrapper 切片证据，不是 T2 全矩阵、AMD XPM/xsim、Vivado T3 或 GitHub Actions 结果。
 
 ## 单时钟 RTL 审核摘要

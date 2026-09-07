@@ -14,6 +14,8 @@ T2 wrapper 交错/复位切片已提交于 `8457a20`：`tb_npu_zynq7020_t2_inter
 
 T2 归档校正：FIFO 矩阵已提交于 `ee3a351`，wrapper 交错/复位切片已提交于 `8457a20`；原有“工作树候选”文字只作提交前快照。
 
+T2 wrapper 固定种子随机矩阵状态为 `T2_RANDOM_CLOCK_MATRIX_GREEN`：`--t2-random-matrix` 使用种子 `20260907` 生成 24 个唯一时钟/相位组合，并以 `2000 + 400 × NPU_HALF` 个 Host 周期作为随慢时钟增长的观察预算，最终输出 `REPRO_G2_T2_RANDOM_MATRIX_PASS`。该证据扩展了有限确定性矩阵，但仍不是数学穷举。
+
 generated_by: nexus-mapper v2 / manual synthesis
 verified_at: 2026-09-07
 provenance: Python AST/file-tree probe plus SystemVerilog文件树和项目文档人工核对

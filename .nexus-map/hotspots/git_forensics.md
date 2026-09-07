@@ -10,6 +10,8 @@ T3 权威报告：`vivado_npu_zynq7020_t3_xsim/xsim_signoff_summary.txt` 为 `RE
 
 2026-09-07 归档校正：T2 FIFO 矩阵已提交 `ee3a351`，wrapper 交错/复位切片已提交 `8457a20`；原有“工作树候选”文字为提交前快照，不是当前状态。
 
+2026-09-07 T2 固定种子随机矩阵：入口 `--t2-random-matrix` 以种子 `20260907` 生成 24 个唯一 `(NPU_HALF,NPU_PHASE)` 组合；每组观察预算为 `2000 + 400 × NPU_HALF` 个 Host 周期，结果 `REPRO_G2_T2_RANDOM_MATRIX_PASS`，状态为 `T2_RANDOM_CLOCK_MATRIX_GREEN`。该记录是可复现有限压力证据，不得解释为频率/相位数学穷举或 GitHub Actions 结果。
+
 ## V2 历史审计快照（2026-09-05）
 
 该审计快照中 PR #68 为 `OPEN / MERGEABLE / UNSTABLE`。Actions run `33976357259` 在 runner 启动前因账户付款/额度限制阻断，归类为 `NOT_RUN_BILLING_BLOCKED`，不能视为代码失败或通过；仓库外 webhook 已收到同一 SHA 的 `workflow_run completed/failure`，但签名未验证，GitHub Checks/API 为权威来源。2026-09-06 chmlfrp 恢复后，本地/公网 health 均为 200，GitHub 官方 ping delivery `ee543f6e-aa08-11f1-84fd-d4849c4dec76` 返回 200 并写入接收器。V2 OOC 仍绑定 `f744bff2bdde68e138a7b2b348ce103bec1ab469`，资源为 `2126 LUT / 1916 FF / 4 DSP48E1`，100 MHz setup/hold/route/DRC 全部通过；TR7-TR12 已批准。P15-T0 方案 A 和 A1-A7 已批准；T1 协议切片已进入仓库并可由本地 G0/G1 复现，但 T1 全量、T2/T3 仍待证据。当前 PR #68 head=`3006174` 对应 run `34051222089`，GitHub Checks 显示 `Classify changes=fail`、`PR Gate=fail`、`T1 reproducibility slice=skipped`；不得把本地协议切片 PASS 写成 GitHub CI PASS。资源裁剪候选不得在首次完整端到端跑通前实施。用户文件 `np75_tmp_sparse_protocol.ys` 继续排除在提交和 Nexus 文件树之外。

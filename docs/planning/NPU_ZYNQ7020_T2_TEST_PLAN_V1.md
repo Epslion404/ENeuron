@@ -33,6 +33,12 @@ T2 在已通过的 T1 wrapper 上改变 `host_clk` 与 `npu_clk` 的频率和相
 
 该矩阵是有限的可复现实验，不是所有频率/相位的数学穷举；真实 AMD XPM/xsim 与 XC7Z020 OOC 证据已经在 T3 独立通过。
 
+## 固定种子随机矩阵
+
+`verify_repository.py --t2-random-matrix` 使用固定种子 `20260907` 生成 24 组唯一的半周期/相位组合，半周期范围为 2--17 ns。每组复用同一个完整 wrapper 场景，包含模型装载、mask/fence、并发 epoch、8/10 beat、背压和复位重入；本机结果为 `REPRO_G2_T2_RANDOM_MATRIX_PASS`。
+
+结果等待窗口按 `2000 + 400 × NPU_HALF` 个 Host 周期计算，覆盖模型装载和约 1900 个 NPU 周期的最慢组合。该窗口修正了固定 5000 周期在慢时钟下过早超时的问题；它只改变观察预算，不改变 DUT 或功能判据。
+
 ## FIFO 独立压力矩阵
 
 `tb_xpm_fifo_async_matrix.sv` 对命令、响应、样本和结果四条通道分别记录实际写入序列和实际读出序列，在末尾逐项比对。固定矩阵为 8 组 NPU 半周期/初始相位（`(2,0)`、`(3,1)`、`(4,3)`、`(5,0)`、`(7,2)`、`(9,1)`、`(11,4)`、`(13,5)`）× 3 个固定 seed（`1/7/29`），共 24 次。每次包含填满、排空、随机读写、读端长背压和中途 reset 后重复测试，四通道均返回 `T2_FIFO_MATRIX_PASS`。
@@ -51,7 +57,7 @@ T2 在已通过的 T1 wrapper 上改变 `host_clk` 与 `npu_clk` 的频率和相
 
 - 八组配置×三个 seed 的 FIFO 独立 scoreboard 已通过；wrapper 交错命令/sample 与三类 reset 切片也已通过；这些都不是所有频率/相位的数学穷举。
 - T3 的真实 AMD XPM/xsim 和 `xc7z020clg400-1` OOC 已完成并通过；证据绑定 `c2bc03f`，不覆盖 AXI/DMA/PS7/Ethernet、bitstream、板级 I/O、吞吐、功耗或首次完整端到端运行。
-- 仍需补齐 T2 wrapper 的随机频率/相位全矩阵、并发命令与样本更广泛的交错和多位置 reset；外层 AXI-Stream shim 若实现，也必须单独验证 TLAST 语义。
+- 固定种子随机矩阵已通过，但它仍不是频率/相位数学穷举；仍需补齐更广泛的并发命令/样本交错和多位置 reset，外层 AXI-Stream shim 若实现，也必须单独验证 TLAST 语义。
 
 统一入口：
 

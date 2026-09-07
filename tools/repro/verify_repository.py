@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import random
 import shutil
 import subprocess
 import tempfile
@@ -131,6 +132,41 @@ def _run_t2_full_matrix() -> list[str]:
     return []
 
 
+def _run_t2_random_matrix() -> list[str]:
+    """使用固定种子生成可复现的 wrapper 时钟/相位压力矩阵。"""
+    tools = _tools()
+    if tools is None:
+        return ["找不到 Icarus Verilog；Windows 约定路径为 C:/msys64/ucrt64/bin"]
+    rng = random.Random(20260907)
+    cases: set[tuple[int, int]] = set()
+    while len(cases) < 24:
+        npu_half = rng.randint(2, 17)
+        cases.add((npu_half, rng.randrange(npu_half)))
+    with tempfile.TemporaryDirectory(prefix="eneuron-repro-t2-random-") as temp:
+        for npu_half, npu_phase in sorted(cases):
+            name = f"t2_random_{npu_half}_{npu_phase}"
+            output = Path(temp) / f"{name}.vvp"
+            compile_result = _run([
+                tools[0], "-g2012", "-Wall", "-s", "tb_npu_zynq7020_t2_variable_clocks",
+                f"-Ptb_npu_zynq7020_t2_variable_clocks.NPU_HALF={npu_half}",
+                f"-Ptb_npu_zynq7020_t2_variable_clocks.NPU_PHASE={npu_phase}",
+                "-o", str(output), "xpm_fifo_async_sim.sv",
+                "npu_eneuron_single_clock_skeleton.sv", "npu_zynq7020_t1_wrapper.sv",
+                "tb_npu_zynq7020_t2_variable_clocks.sv",
+            ])
+            if compile_result.returncode:
+                return [f"{name} 编译失败:\n" + compile_result.stderr[-4000:]]
+            simulation = subprocess.run(
+                [tools[1], str(output)], cwd=ROOT, text=True,
+                capture_output=True, encoding="utf-8"
+            )
+            text = simulation.stdout + simulation.stderr
+            marker = f"T2_VARIABLE_CLOCKS_PASS NPU_HALF={npu_half} NPU_PHASE={npu_phase}"
+            if simulation.returncode or marker not in text:
+                return [f"{name} 仿真失败或缺少通过标记:\n" + text[-4000:]]
+    return []
+
+
 def _run_t2_fifo_matrix() -> list[str]:
     tools = _tools()
     if tools is None:
@@ -200,6 +236,7 @@ def main() -> int:
     parser.add_argument("--t1", action="store_true", help="运行 T1 协议切片")
     parser.add_argument("--t2", action="store_true", help="运行 T2 非整数时钟切片")
     parser.add_argument("--t2-full-matrix", action="store_true", help="运行 T2 wrapper 有限时钟/相位矩阵")
+    parser.add_argument("--t2-random-matrix", action="store_true", help="运行 T2 wrapper 固定种子随机矩阵")
     parser.add_argument("--t2-fifo-matrix", action="store_true", help="运行 T2 FIFO 压力矩阵")
     parser.add_argument("--t2-interleave-reset", action="store_true", help="运行 T2 wrapper 交错与复位切片")
     args = parser.parse_args()
@@ -210,6 +247,8 @@ def main() -> int:
         errors.extend(_run_t2())
     if args.t2_full_matrix:
         errors.extend(_run_t2_full_matrix())
+    if args.t2_random_matrix:
+        errors.extend(_run_t2_random_matrix())
     if args.t2_fifo_matrix:
         errors.extend(_run_t2_fifo_matrix())
     if args.t2_interleave_reset:
@@ -225,6 +264,8 @@ def main() -> int:
         print("REPRO_G2_T2_VARIABLE_CLOCKS_PASS")
     if args.t2_full_matrix:
         print("REPRO_G2_T2_FULL_MATRIX_PASS")
+    if args.t2_random_matrix:
+        print("REPRO_G2_T2_RANDOM_MATRIX_PASS")
     if args.t2_fifo_matrix:
         print("REPRO_G2_T2_FIFO_MATRIX_PASS")
     if args.t2_interleave_reset:

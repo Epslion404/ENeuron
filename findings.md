@@ -1286,3 +1286,9 @@
 - 2026-09-07：T3 真实 AMD XPM/xsim 协同仿真通过；XC7Z020 OOC 通过。顶层准确资源为 `2467 LUT / 2301 FF / 6 RAMB36 / 1 RAMB18 / 4 DSP48E1`，Host/NPU WNS/WHS 分别为 `+3.639/+0.105 ns` 与 `+0.214/+0.042 ns`，setup/hold、route、DRC 和 external CDC 均无失败。Actions 已关闭，正式证据必须在提交后重新绑定新 HEAD。
 - 2026-09-07：上述 T3 证据已在实现提交 `c2bc03f` 上重新运行并确认 SHA 一致；随后仅提交 Nexus 与计划文档（`439ac6b`），不改变 RTL。故当前物理结论绑定 `c2bc03f`，文档状态提交绑定 `439ac6b`。
 - 2026-09-07：`tb_npu_zynq7020_t1_wrapper.sv` 只对白盒 `dut.core.state_clear_count` 有一处层次引用，真实 XPM 不影响该路径，因此可直接复用；xsim 入口必须排除 `xpm_fifo_async_sim.sv`，由 Vivado 项目的 `XPM_LIBRARIES {XPM_FIFO}` 提供真实 FIFO。
+
+## 2026-09-07 T2 固定种子随机矩阵收口
+
+- 固定种子 `20260907` 生成 24 个唯一 `(NPU_HALF,NPU_PHASE)` 组合，半周期范围为 2-17 ns；统一入口返回 `REPRO_G2_T2_RANDOM_MATRIX_PASS`。
+- 固定 5000 Host 周期在慢 NPU 组合下不足。观察预算改为 `2000 + 400 × NPU_HALF`，只改变 testbench 等待上限，不改变 DUT、事务顺序或通过判据。
+- 恢复审计确认上一轮只有状态汇报，没有改变权威状态；本轮继续完成 Nexus、复验、提交和推送闭环。
