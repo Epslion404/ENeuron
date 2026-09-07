@@ -52,6 +52,7 @@ def _run_t1() -> list[str]:
         cases = [
             ("tb_npu_zynq7020_t1_wrapper", "tb_npu_zynq7020_t1_wrapper.sv", "T1_PROTOCOL_SKELETON_PASS"),
             ("tb_npu_zynq7020_t1_fifo_boundary", "tb_npu_zynq7020_t1_fifo_boundary.sv", "T1_FIFO_BOUNDARY_PASS"),
+            ("tb_npu_zynq7020_t1_fence_accept", "tb_npu_zynq7020_t1_fence_accept.sv", "T1_FENCE_ACCEPT_PASS"),
         ]
         for top, testbench, marker in cases:
             output = Path(temp) / f"{top}.vvp"

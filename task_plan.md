@@ -7,9 +7,11 @@
 - [x] 扩展同频 T1 切片：响应背压稳定性、样本进行中发布下一 mask epoch、复位重入后旧响应/结果清除均通过。
 - [x] 补齐 T1-02 主要路径：`STATE_CLEAR` exactly-once、`FREEZE_SET` 进入/退出及冻结期间配置拒绝均通过。
 - [x] 完成 T1-12 FIFO 边界切片：四种 payload 宽度覆盖空读、外部可见容量 17、overflow、回绕、长背压和顺序账本。
+- [x] 完成 T1-06 独立 fence 验收：staging 拒绝、成功响应字段和单样本窗口均有独立 Icarus 证据。
+- [x] 依据已批准 A2 完成 T1-09 边界裁定：当前 wrapper 无 TLAST 端口，标记为 N/A，外层 shim 测试延期到对应接口落地。
 - [x] 暂停仓库 GitHub Actions 并推送本地 T1/Nexus 提交；远端 PR #68 head 已核对，checks 为空按“Actions 已暂停”解释。
 - [x] 将本轮修复提交到当前分支；提交前继续排除 `local_prune_rtl_results.json`、`np4b_signoff_summary.json`、`np75_tmp_sparse_protocol.ys`。
-- [ ] T1-01～T1-12 全覆盖、T2 双时钟、T3 XC7Z020 OOC 和首次完整端到端运行仍待完成；资源裁剪继续延期。
+- [ ] T1-01～T1-12 全覆盖（T1-09 已有批准的当前 DUT N/A 裁定，外层 shim 仍待实现）、T2 双时钟、T3 XC7Z020 OOC 和首次完整端到端运行仍待完成；资源裁剪继续延期。
 
 # 单神经元硬件基石模拟计划
 

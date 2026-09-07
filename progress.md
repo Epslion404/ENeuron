@@ -9,6 +9,8 @@
 - T1 testbench 已扩展并在同频 100 MHz 下通过：响应背压字段稳定、样本进行中 mask epoch 原子性、复位重入旧数据清除；当前切片覆盖 T1-01/03/04/05/07/08/10/11 的主要路径。
 - T1-02 主要路径现已通过：`STATE_CLEAR` exactly-once、`FREEZE_SET` 状态同步以及冻结期间拒绝配置；当前切片覆盖范围增加 T1-02。
 - T1-12 FIFO 边界切片已通过：四种 payload 宽度均完成空读、17 槽外部可见满写、overflow、回绕、长背压和顺序排空；T1-12 仍需后续与 wrapper 并发账本合并复核。
+- T1-06 独立 fence 验收已通过：staging 未闭合时拒绝且不开放窗口，发布后返回 `0xD` 并回显 fence ID/active epoch，`T1_FENCE_ACCEPT_PASS` 已接入本机复现入口；T1-09 仍因 TLAST 位于外层 shim 而待裁定/独立验收。
+- T1-09 边界裁定已落档为 `NA_FOR_T1_WRAPPER / OUTER_SHIM_PENDING`；静态合同测试确认当前 wrapper 无 TLAST 端口，外层 shim 尚未实现，因此不把该项写成当前 T1 仿真通过。
 - 提交 `c55a8b6` 已将 T1 FIFO 边界 testbench、复现清单闭包和本机复现入口推送到 PR #68；远端 head 已核对为该提交，Actions 仍暂停且 checks 为空。
 - 已通过 GitHub API 暂停仓库 Actions（`enabled=false`），随后将 `88905a9`、`47a3c1e`、`3227162` 推送到 PR #68 分支；远端 PR head 已核对，未触发或等待任何 hosted runner。
 - 保护文件继续保留且不暂存：`local_prune_rtl_results.json`、`np4b_signoff_summary.json`、`np75_tmp_sparse_protocol.ys`。

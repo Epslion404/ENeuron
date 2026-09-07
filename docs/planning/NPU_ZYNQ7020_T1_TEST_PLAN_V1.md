@@ -14,7 +14,7 @@
 
 本方案只验证 T1 纯 RTL 适配器：四条异步 FIFO、命令仲裁、SAMPLE_FENCE、固定 8/10 beat、错误响应、ready/valid 稳定性和复位丢弃。它不验证 AXI-Lite、DMA、Ethernet、PS7 或板级吞吐，也不修改 `npu_eneuron_single_clock_skeleton.sv`。
 
-当前已完成同频 100 MHz 协议切片：Icarus 编译和仿真均返回 0，并输出 `T1_PROTOCOL_SKELETON_PASS`。该切片覆盖 T1-01、T1-02、T1-03、T1-04、T1-05、T1-07、T1-08、T1-10、T1-11 的主要路径；T1-06、T1-09、T1-12 仍需独立测试，不得写成完整 T1 通过。不同频比与随机相位属于 T2。
+当前已完成同频 100 MHz 协议切片：Icarus 编译和仿真均返回 0，并输出 `T1_PROTOCOL_SKELETON_PASS`；独立 fence 验收输出 `T1_FENCE_ACCEPT_PASS`。现有证据覆盖 T1-01、T1-02、T1-03、T1-04、T1-05、T1-06、T1-07、T1-08、T1-10、T1-11 的主要路径，另有 T1-12 独立 FIFO 边界切片；T1-09 仍需独立测试，不得写成完整 T1 通过。不同频比与随机相位属于 T2。
 
 ## 2. 推荐 DUT 端口
 
@@ -54,7 +54,7 @@
 | T1-06 | fence 成功 | 仅在此前命令已完成、核心 sample-ready、无结果/响应、staging 闭合时接受 `0xA`；返回类别 `0xD`，携带 fence ID 和 active epoch |
 | T1-07 | 单样本窗口 | fence 成功后只接受 8 个 sample beat；第 8 个握手后立即关闭下一窗口，未再次 fence 不得接受第 9 beat |
 | T1-08 | 结果固定帧 | 每样本输出恰好 10 beat；结果背压时 data/sample_id/mask_epoch/valid 全部稳定 |
-| T1-09 | TLAST 外层提示（若有） | 在 beat 数完整时改变、提前或缺失 TLAST 不改变 T1 核心结果；严格包错误不在本 DUT 断言 |
+| T1-09 | TLAST 外层提示（当前 DUT 为 N/A） | 当前 wrapper 没有 TLAST 端口，按 A2 只由外层 shim/packetizer 验收；不得把 N/A 写成当前 T1 仿真通过 |
 | T1-10 | mask 首 beat 边界 | 已发布 mask 在 fence 后、样本首 beat 才绑定；样本进行中提交的新 mask 不影响当前 10-beat 结果 |
 | T1-11 | 复位重入 | 在命令、样本第 1/4/8 beat、结果第 1/5/10 beat 注入 bridge_rst；半事务丢弃，复位后不得泄漏旧 payload/epoch |
 | T1-12 | 四 FIFO 边界 | 空读、满写、同时 push/pop、回绕、长背压；每条流无丢失、重复、乱序 |
@@ -84,7 +84,7 @@ C:\msys64\ucrt64\bin\vvp.exe artifacts\t1_wrapper.vvp
 
 ## 7. T1 通过门
 
-- 当前协议切片及 T1-12 FIFO 边界切片已通过；T1-01～T1-12 全量签核仍要求每项有独立确定结果，负向场景必须确实失败于被测错误，而不是 testbench 超时。
+- 当前协议切片、T1-06 独立 fence 验收及 T1-12 FIFO 边界切片已通过；T1-09 已依据 A2 记录为当前 wrapper 的 N/A，外层 AXI-Stream shim 仍待后续阶段。T1-01～T1-12 全量签核仍要求每项有独立确定结果或有批准的 N/A 裁定，负向场景必须确实失败于被测错误，而不是 testbench 超时。
 - 同频 100 MHz 下逐 beat、sideband、错误和 reset 行为通过；数值结果与单时钟参考模型一致。
 - 不把 T1 结果写成 T2 CDC 全覆盖或 T3 XC7Z020 资源/时序通过。
 - T1 未通过前不得实施资源裁剪、接入 DMA/Ethernet 或合并板级结论。

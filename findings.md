@@ -6,6 +6,8 @@
 - 2026-09-06：扩展 T1 同频切片通过。新增响应背压 5 拍稳定性检查；样本首 beat 已绑定 epoch=1 后，在剩余 beat 期间发布 epoch=2，当前结果仍回显 1，下一样本结果回显 2；复位重入后 ready/valid 与旧 payload 均未泄漏。Icarus `compile=0 sim=0`，输出 `T1_PROTOCOL_SKELETON_PASS`。这仍只覆盖部分 T1 项目，不替代 T1-01～T1-12 全量、T2 或 T3。
 - 2026-09-06：T1-02 首轮断言曾因只等待 3 个 NPU 时钟而误报 `STATE_CLEAR` 未生效；日志确认核心已接受 `op=8`。将 testbench 改为带 100 拍上限的状态等待后通过，并验证 `FREEZE_SET` 进入/退出及冻结期间配置拒绝。该修正是观察时序校准，不改变 RTL。
 - 2026-09-06：T1-12 FIFO 边界切片通过。新增 `tb_npu_zynq7020_t1_fifo_boundary.sv`，对 128/128/64/96 bit 四种 payload 分别验证空读 underflow、depth=16+FWFT 外部容量 17、满写 overflow、读写指针回绕、FWFT 长背压稳定性和有序排空。既有 `test_host_bridge_xpm_wrapper` 也恢复为 5/5 通过；此前失败来自把外部可见容量误设为 16，不是 XPM 模型缺陷。
+- 2026-09-07：T1-06 独立 fence 验收通过。新增 `tb_npu_zynq7020_t1_fence_accept.sv`：模型有效且 mask staging 未闭合时，`SAMPLE_FENCE` 只返回 `0xE` 且样本窗口保持关闭；完整发布 next epoch 后，fence 返回 `0xD`，逐字段核对 opcode、fence ID、active epoch=0 和保留位，并确认只打开一个样本窗口。Icarus 编译退出码 0，输出 `T1_FENCE_ACCEPT_PASS`。这不等于 T1 全量，也不覆盖 TLAST/T2/T3。
+- 2026-09-07：T1-09 已按批准的 A2 形成独立边界裁定：当前 T1 wrapper 没有 TLAST 端口，因此记为 `NA_FOR_T1_WRAPPER`，不伪造 TLAST 仿真通过；未来外层 AXI-Stream shim/packetizer 仍需单独测试早到、晚到和缺失 TLAST。
 - 2026-09-06：为恢复免费 Git 推送，管理员已将仓库 Actions 权限设置为 `enabled=false`。三个本地提交已推送到现有 PR #68，远端 head 为 `3227162d8f8e321f4e6b479923db34403b84f87c`；API 返回 PR `OPEN / MERGEABLE` 且无 checks。空 checks 列表只表示 Actions 暂停，不能作为通过证据。
 
 ## 2026-09-07 GitHub 可复现性审计
