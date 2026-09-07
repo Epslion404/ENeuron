@@ -27,6 +27,12 @@ T2 在已通过的 T1 wrapper 上改变 `host_clk` 与 `npu_clk` 的频率和相
 
 在同一 testbench 中增加了跨域并发场景：首个样本的 8 个 beat 已进入 Host→NPU FIFO 后，Host 立即发送下一组 mask（epoch=2），而 NPU 同时计算当前样本。结果逐 beat 仍回显 sample `CAFE_0001`、epoch=1；随后 fence 响应仍回显 active epoch=1，下一样本才回显 epoch=2。该场景在三组可变时钟配置下均通过，证明 pending mask 不会穿透当前样本，也不会被 fence 提前激活。
 
+## wrapper 有限全矩阵
+
+`verify_repository.py --t2-full-matrix` 复用同一 T2 wrapper testbench，运行 16 组确定性时钟/相位组合：半周期覆盖 2--11 ns，包含相位为 0、末相位、接近 Host 和明显快/慢于 Host 的组合。每组仍执行完整模型装载、mask/fence、8/10 beat、背压、并发 epoch 和复位重入场景；本轮本机结果为 `REPRO_G2_T2_FULL_MATRIX_PASS`。
+
+该矩阵是有限的可复现实验，不是所有频率/相位的数学穷举；真实 AMD XPM/xsim 与 XC7Z020 OOC 证据已经在 T3 独立通过。
+
 ## FIFO 独立压力矩阵
 
 `tb_xpm_fifo_async_matrix.sv` 对命令、响应、样本和结果四条通道分别记录实际写入序列和实际读出序列，在末尾逐项比对。固定矩阵为 8 组 NPU 半周期/初始相位（`(2,0)`、`(3,1)`、`(4,3)`、`(5,0)`、`(7,2)`、`(9,1)`、`(11,4)`、`(13,5)`）× 3 个固定 seed（`1/7/29`），共 24 次。每次包含填满、排空、随机读写、读端长背压和中途 reset 后重复测试，四通道均返回 `T2_FIFO_MATRIX_PASS`。

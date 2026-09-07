@@ -5,12 +5,13 @@
 ```powershell
 python -X utf8 tools/repro/verify_repository.py --t1
 python -X utf8 tools/repro/verify_repository.py --t2
+python -X utf8 tools/repro/verify_repository.py --t2-full-matrix
 python -X utf8 tools/repro/verify_repository.py --t2-fifo-matrix
 python -X utf8 tools/repro/verify_repository.py --t2-interleave-reset
 python -X utf8 -m unittest -v test_ci_fast_v1 test_artifact_layout test_reproducibility
 ```
 
-Windows T1/T2 明确使用 `C:\msys64\ucrt64\bin\iverilog.exe` 与 `C:\msys64\ucrt64\bin\vvp.exe`。`--t1` 通过标记仅代表 T1 协议切片；`--t2` 通过标记代表六组 wrapper 时钟切片；`--t2-fifo-matrix` 代表 8 组时钟配置×3 个 seed 的四 FIFO 独立 scoreboard 通过；`--t2-interleave-reset` 代表 4 组 wrapper 时钟配置下命令/sample 交错与三类 reset 边界通过。三个 T2 入口都不代表 T2 数学穷举、T3、Vivado 或板级闭环全部通过。
+Windows T1/T2 明确使用 `C:\msys64\ucrt64\bin\iverilog.exe` 与 `C:\msys64\ucrt64\bin\vvp.exe`。`--t1` 通过标记仅代表 T1 协议切片；`--t2` 通过标记代表六组 wrapper 时钟切片；`--t2-full-matrix` 代表 16 组有限时钟/相位矩阵通过；`--t2-fifo-matrix` 代表 8 组时钟配置×3 个 seed 的四 FIFO 独立 scoreboard 通过；`--t2-interleave-reset` 代表 4 组 wrapper 时钟配置下命令/sample 交错与三类 reset 边界通过。这些 T2 入口都不是数学穷举，也不代表 T3、Vivado 或板级闭环全部通过。
 
 Vivado 2024.1 不放入仓库。设置 `VIVADO_ROOT` 后运行：
 

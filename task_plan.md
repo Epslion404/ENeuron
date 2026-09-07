@@ -1283,6 +1283,13 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 
 本轮错误记录：第一次直接用 PowerShell 拼接 Icarus `-P` 参数时，Icarus 将参数拆解为文件名并拒绝 elaboration；改为把 `-P` 与 defparam 名称作为独立 argv 传入复现脚本。第一次收尾只等待 80 个 Host 周期，通道 1 出现写入 34、读出 17 的未排空差异；改为显式只读排空 500 个 Host 周期后，24/24 全部通过。两次失败均未修改生产 RTL 或 FIFO 模型。
 
+## 2026-09-07 T2 wrapper 有限时钟/相位矩阵
+
+- [x] RED：新增 `test_t2_full_matrix_has_reproducible_entrypoint`，确认统一复现入口尚无 `--t2-full-matrix`。
+- [x] GREEN：复用 T2 wrapper testbench，加入 16 组确定性半周期/相位组合，保持 5000 Host 周期观察预算。
+- [x] 验证：单项合同测试通过，`python -X utf8 tools/repro/verify_repository.py --t2-full-matrix` 返回 `REPRO_G0_MANIFEST_PASS` 与 `REPRO_G2_T2_FULL_MATRIX_PASS`。
+- [ ] 该有限矩阵不等于随机频率/相位数学穷举；仍需决定是否扩展随机种子/多位置 reset，以及是否实现外层 AXI-Stream shim。
+
 ## 2026-09-07 T3 真实 XPM/xsim 与 XC7Z020 OOC
 
 - [x] 复核 A7/T3 合同：器件 `xc7z020clg400-1`，Host/NPU 双 100 MHz，四个 depth-16 FWFT XPM FIFO，核心必须保持恰好 4 个 DSP48E1。

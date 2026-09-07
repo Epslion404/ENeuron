@@ -1410,3 +1410,4 @@
 - 2026-09-07：GitHub Actions 保持关闭；SSH 推送已验证可用。后续 PR #68 的远端 checks 为空只表示未运行，T3 以本机 Vivado 2024.1 和仓库可复现入口为当前证据。
 - 2026-09-07：T3 本机终态：真实 AMD XPM/xsim 输出 `RESULT=PASS` 与 `T1_PROTOCOL_SKELETON_PASS`；XC7Z020 OOC `PHYSICAL_GATE=PASS`，准确资源 `2467 LUT / 2301 FF / 6 RAMB36 / 1 RAMB18 / 4 DSP48E1`，Host/NPU WNS/WHS 为 `+3.639/+0.105 ns`、`+0.214/+0.042 ns`。提交前摘要暂绑定旧 HEAD，需在正式提交后重跑并更新。
 - 2026-09-07：已在代码提交 `c2bc03f` 上重跑 T3，真实 XPM/xsim 与 XC7Z020 OOC 摘要均绑定该 SHA；Nexus/T2 计划收口提交为 `439ac6b` 并已推送 PR #68。后续文档提交不改变 RTL，因此物理证据继续以 `c2bc03f` 为实现基线。
+- 2026-09-07：按测试先行补齐 T2 wrapper 有限时钟/相位矩阵：先以合同测试复现 `--t2-full-matrix` 缺失，再加入 16 组确定性组合。`python -X utf8 tools/repro/verify_repository.py --t2-full-matrix` 返回 `REPRO_G0_MANIFEST_PASS` 与 `REPRO_G2_T2_FULL_MATRIX_PASS`；这不是频率/相位数学穷举，T2 随机矩阵和外层 shim仍待后续。

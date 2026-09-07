@@ -2,6 +2,8 @@
 
 当前校正（2026-09-07）：T3 signoff 已在 `c2bc03f` 重跑并通过；真实 XPM/xsim 与 OOC 摘要均绑定该 HEAD。下方旧快照中的 `822cf93` 不代表当前证据绑定。
 
+当前 T2 增量（2026-09-07）：统一复现入口新增 `--t2-full-matrix`，对 16 组半周期/相位组合运行完整 wrapper 场景并返回 `REPRO_G2_T2_FULL_MATRIX_PASS`。这是有限确定性矩阵，不是频率/相位数学穷举；T2 随机全矩阵仍未签核。
+
 generated_by: nexus-mapper v2 / manual synthesis
 verified_at: 2026-09-07
 provenance: repository test names, signoff summaries, workflow state, latest GitHub/Webhook evidence
