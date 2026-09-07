@@ -1300,6 +1300,10 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 
 错误记录：恢复检查时误用 `multi_tool_use.parallel` 调用了仅限 Plan 模式的输入工具和不存在的 wait cell，均未改变仓库或外部状态；随后两次整包补丁因 `findings.md` 上下文假设错误被原子拒绝，也未产生部分修改。已改用精确上下文的小补丁，不重复上述调用方式。
 
+错误记录：Nexus 状态搜索直接传入 Windows 不支持的路径通配符 `.nexus-map/arch/git*`，`rg` 返回路径语法错误但其余明确文件仍完成搜索；后续改用明确文件或 `-g` 过滤。
+
+错误记录：首次批量 Nexus 补丁把同一文件拆成多个 `Update File` 操作，`apply_patch` 原子拒绝；改为逐文件顺序补丁。第二次在前六个文件成功后因匹配了不存在的状态名停止，已从实际文本定位剩余三份文件并补齐，未重复错误匹配。
+
 ## 2026-09-07 T3 真实 XPM/xsim 与 XC7Z020 OOC
 
 - [x] 复核 A7/T3 合同：器件 `xc7z020clg400-1`，Host/NPU 双 100 MHz，四个 depth-16 FWFT XPM FIFO，核心必须保持恰好 4 个 DSP48E1。
