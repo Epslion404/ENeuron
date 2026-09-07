@@ -73,7 +73,7 @@ def _run_t2() -> list[str]:
     tools = _tools()
     if tools is None:
         return ["找不到 Icarus Verilog；Windows 约定路径为 C:/msys64/ucrt64/bin"]
-    cases = [(7, 2), (9, 1), (4, 3)]
+    cases = [(7, 2), (9, 1), (4, 3), (5, 0), (11, 4), (3, 1)]
     with tempfile.TemporaryDirectory(prefix="eneuron-repro-t2-") as temp:
         for npu_half, npu_phase in cases:
             name = f"t2_variable_{npu_half}_{npu_phase}"

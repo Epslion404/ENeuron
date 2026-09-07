@@ -1,6 +1,6 @@
 `timescale 1ns/1ps
 
-// T2 首个协同切片：Host=100 MHz，NPU 使用参数化非整数频比和相位偏移。
+// T2 可变时钟协同切片：Host=100 MHz，NPU 使用参数化非整数频比和相位偏移。
 // 本测试只证明跨 FIFO 的事务完整性，不替代全矩阵随机 CDC 签核。
 module tb_npu_zynq7020_t2_variable_clocks #(
     parameter integer NPU_HALF = 7,

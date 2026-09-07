@@ -1260,6 +1260,8 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 - [x] 在 `(NPU_HALF,PHASE)=(7,2),(9,1),(4,3)` 三组配置下通过统一复现入口。
 - [ ] 继续完成 T2 随机频率/相位全矩阵、FIFO 满空/回绕 scoreboard、并发命令和多位置 reset 注入。
 
+- [x] 将 T2 确定性频率/相位覆盖从 3 组扩展到 6 组，并在每组复用并发 epoch 场景。
+
 证据入口：`python -X utf8 tools/repro/verify_repository.py --t2`；本切片不外推为 T2 全量、T3、Vivado 或板级完成。
 
 ## 2026-09-04 单时钟 RTL 时序修复设计审核
