@@ -613,6 +613,7 @@ P15 硬门：双时钟逐 beat bit-exact；reset/ready-valid/FIFO 满空无丢�
 - [x] B1-01A：从固定板厂提交提取 PS7、DDR、UART0、GEM0-EMIO、GMII-to-RGMII、200 MHz FCLK0、复位和XDC来源；机器清单绑定每个关键文件的Git blob与SHA-256。
 - [x] B1-01B：按板载 `MT41K256M16TW-107:P` 冻结为Vivado官方 `MT41K256M16 RE-125` 保守兼容配置，16-bit、533.333333 MHz；仓库内Tcl不依赖板厂绝对路径。
 - [ ] B1-02：UART0/RGMII/MDIO引脚和I/O标准已核对；继续确认板修订、H17 PHY reset时序、物理PHY地址、Bank/电压/器件引脚和完整RGMII板级时序。
+- [x] B1-02U：按管理员裁定将UART0重分配为`V14=TX`、`V15=RX`、LVCMOS33；B1B改用外置3.3 V USB-TTL，板载CH340不再作为串口入口，且测试期间不启用与V14/V15共网的HDMI并行RGB功能。
 - [ ] B1-03：冻结启动路径和串口合同：首轮由 JTAG 下载硬件与 ELF，串口参数、banner格式、启动超时和重复上电步骤写入脚本；SD/QSPI自启动作为后续独立验证，不混入首次 PS bring-up。
 - [x] B1-04：已生成PS7+UART0/GEM0/MDIO EMIO+GMII-to-RGMII bitstream与XSA；`136 LUT / 257 FF / 0 BRAM / 0 DSP`，WNS/WHS=`+0.240/+0.150 ns`，route/DRC error为0，bitstream/XSA SHA-256分别为 `5d0940eb...e6d6`、`053fc032...81df`。
 - [ ] B1-05：编写最小启动程序，UART输出固定 banner、软件 Git提交、XSA/bitstream哈希、CPU/FCLK频率、DDR测试范围、PHY状态和复位原因；冷启动3次均需在冻结超时内得到完整且字段一致的日志。

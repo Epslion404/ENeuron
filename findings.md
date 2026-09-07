@@ -1,5 +1,11 @@
 # 调研与实验发现
 
+## 2026-09-07 UART重分配 V14/V15
+
+- 用户明确裁定`V14→UART_TX`、`V15→UART_RX`。当前B1A工程未占用这两个管脚；板厂HDMI例程将V14/V15作为并行RGB低两位，说明它们属于可用PL I/O，但也表示实板上与HDMI发送器输入共网。
+- 新路径保持LVCMOS33。板载CH340物理连接仍在L17/M17，因此B1B必须使用外置3.3 V USB-TTL交叉连接：V14接适配器RX、V15接适配器TX并共地。
+- 该改动改变XDC和硬件身份，旧bitstream/XSA不再用于后续B1B；必须在新源码提交上重新运行Vivado实现并生成新清单。
+
 ## 2026-09-07 B1B Fastlane V2
 
 - 当前唯一由`git clean -ndX`列出的忽略目录是`boards/hellozynq/b1a_hw/build/`。该目录不能整体清理，因为B1B仍需复用其中的bitstream、XSA、build manifest和签核摘要。
