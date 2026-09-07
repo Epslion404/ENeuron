@@ -40,13 +40,13 @@ NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`，NP7 已签核。
 
 - 规划文档：`docs/planning/NPU_ZYNQ7020_TOPLEVEL_INTEGRATION_V1.md`；裁定稿：`docs/planning/NPU_ZYNQ7020_TOPLEVEL_DECISION_SHEET_V1.md`。
 - 推荐方案 A：命令/响应继续使用现有 128-bit 异步 FIFO；新增独立 32-bit 样本输入和结果输出 FIFO，并在 FIFO 外侧放置 AXI-Stream shim。样本固定 8 beat，结果固定 10 beat，`sample_id`/`mask_epoch` sideband 在各自事务内保持稳定。
-- 当前状态：`P15_T0_APPROVED / T1_RTL_AUTHORIZED / T1_PROTOCOL_SLICE_PROVEN / T1_FULL_PENDING / T2_VARIABLE_CLOCK_SLICE_GREEN / T2_CONCURRENT_EPOCH_SLICE_GREEN / T2_FULL_MATRIX_PENDING / RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN`。方案 A、A1-A7、四条流 sideband/固定 beat 语义以及 AXI 外置边界已获批准；T1 纯 RTL 适配器及协议切片已进入仓库并可由统一入口复现，T2 三组可变时钟及并发 epoch 切片也已通过本机复现，但 T1-01～T1-12 全覆盖、T2 全矩阵仍待完成，也不接入 AXI-Lite、DMA、Ethernet 或 PS7，直到后续阶段单独批准。资源裁剪只保留为首次端到端跑通后的候选，不进入当前实施基线。
+- 当前状态：`P15_T0_APPROVED / T1_RTL_AUTHORIZED / T1_PROTOCOL_SLICE_PROVEN / T1_FULL_PENDING / T2_VARIABLE_CLOCK_SLICE_GREEN / T2_CONCURRENT_EPOCH_SLICE_GREEN / T2_EXTENDED_CLOCK_SLICE_GREEN / T2_FULL_MATRIX_PENDING / RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN`。方案 A、A1-A7、四条流 sideband/固定 beat 语义以及 AXI 外置边界已获批准；T1 纯 RTL 适配器及协议切片已进入仓库并可由统一入口复现，T2 六组可变时钟及并发 epoch 切片也已通过本机复现，但 T1-01～T1-12 全覆盖、T2 全矩阵仍待完成，也不接入 AXI-Lite、DMA、Ethernet 或 PS7，直到后续阶段单独批准。资源裁剪只保留为首次端到端跑通后的候选，不进入当前实施基线。
 
 ### 下一阶段 T1 最小执行集（当前 DUT 已闭环）
 
 T1-02、T1-06 和 T1-12 的主要路径/独立切片已通过本机 Icarus 验证；T1-09 已形成 `NA_FOR_T1_WRAPPER / OUTER_SHIM_PENDING` 裁定。当前 T1 DUT 没有剩余独立测试项，外层 AXI-Stream shim 的 TLAST 测试留待后续接口落地，不改变四条流、8/10 beat 或 A1-A7 合同。
 
-T2 双时钟协同切片已通过：`tb_npu_zynq7020_t2_variable_clocks.sv` 在 `(7,2)/(9,1)/(4,3)` 三组参数下均通过；并发发布 epoch=2 时，旧样本结果仍为 epoch=1，下一 fence 仍回显 active=1，下一样本才为 epoch=2。统一入口为 `python -X utf8 tools/repro/verify_repository.py --t2`；下一步是 T2 全矩阵、并发 scoreboard 和 T3 OOC。外层 shim 若实现，再单独验证改变、提前或缺失 TLAST 不改变完整核心结果。严格包错误仍由外层 packetizer 负责，不能伪造 T1 核心通过。
+T2 双时钟协同切片已扩展通过：`tb_npu_zynq7020_t2_variable_clocks.sv` 在 `(7,2)/(9,1)/(4,3)/(5,0)/(11,4)/(3,1)` 六组参数下均通过；每组都包含并发 epoch 场景，旧样本结果仍为 epoch=1，下一 fence 仍回显 active=1，下一样本才为 epoch=2。统一入口为 `python -X utf8 tools/repro/verify_repository.py --t2`；下一步是随机频率/相位全矩阵、并发 scoreboard 和 T3 OOC。外层 shim 若实现，再单独验证改变、提前或缺失 TLAST 不改变完整核心结果。严格包错误仍由外层 packetizer 负责，不能伪造 T1 核心通过。
 
 ### P15-T0 只读审计结论（2026-09-05，历史快照）
 
