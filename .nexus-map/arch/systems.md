@@ -1,8 +1,8 @@
 # 系统边界
 
-阶段 2 实板状态（2026-09-07）：实际板卡目标固定为 `xc7z020clg484-2`。B0 使用 M19 50 MHz → 26-bit counter → P20，当前源码提交为 `f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06`。正式候选在完整断电前后完成两次program；用户两次测得10个完整周期 `13.42 s`、`13.4 s`，均通过理论 `13.4217728 s` 和预冻结 `12.6–14.2 s` 窗口。完整断电探针确认target无法打开、可访问器件数为0，结果PASS。当前状态为 `B0_COMPLETE / B1_PENDING_MAIN_MERGE`。
+阶段2实板状态（2026-09-07）：实际板卡目标固定为 `xc7z020clg484-2`。B0双运行与完整断电证据已通过PR #69合并为 `main@102dee2...`。当前状态为 `B0_COMPLETE / FASTLANE_V1 / B1_DECISION_PENDING`。
 
-P16 阶段 2 系统边界按硬门串行扩展：B0只验证PL配置、板载50 MHz时钟和LED，现已关闭；B1才引入PS7、DDR、UART、PHY和最小UDP；B2增加AXI DMA、DDR/cache所有权和外层固定帧协议；B3接入 `64→32→10` 传统NPU与ENeuron；B4才进行同条件网口端到端A/B。B1等待B0分支合并到main，B2–B4仍不得以实现或通过状态记录。
+P16最终硬门仍按B0→B1→B2→B3→B4串行，但代码按Fastlane V1小步合并。B1A/B1B/B1C中间切片可进入main但不改变阶段通过状态；B2–B4仍不得提前声明实现或签核。
 
 B3/B4 包含两条不同证据链：Host 静态 `2:4` mask 是由 Host 重放冻结 mask，只证明 NPU 门控执行、位序、epoch 和跳过计数；live-ENeuron 是由实板神经元证据生成严格 `2:4` 决策，经 pending bank 和 fence 原子生效。只有后者可证明神经元参与自动剪枝，两类数据不得混合。
 

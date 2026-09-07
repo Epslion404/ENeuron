@@ -1,6 +1,6 @@
 # XC7Z020 实板验证阶段 2 规划 V1
 
-状态：`ACTIVE / BOARD_EVIDENCE_REQUIRED / B0_CURRENT_PROGRAM_PASS / LED_AND_POWER_CYCLE_PENDING`
+状态：`ACTIVE / FASTLANE_V1 / B0_COMPLETE / B1_DECISION_PENDING`
 
 日期：2026-09-07
 
@@ -10,7 +10,17 @@
 
 每次正式实板运行必须绑定 Git commit、Vivado版本、完整 part、RTL/XDC/脚本哈希、bitstream SHA-256、JTAG设备、输入、机器输出和现场观测。不同 bitstream 或源码的证据不得拼成同一次通过。
 
-板厂参考仓库固定为 `master@73d529d8f159ca372b7d9855eddc80880ecd9d05`，本地克隆已获授权保留。PR #68 已合并为 `main@7857d32561cbd5f86d02b1a21ee0edfb3ae895f1`；B0 隔离分支从批准的精确 HEAD `e2a1bfa...` 建立。
+板厂参考仓库固定为 `master@73d529d8f159ca372b7d9855eddc80880ecd9d05`，本地克隆已获授权保留。PR #69 已合并为 `main@102dee2a004283ce4144aaf6ee0a2cee3ebd2887`，B0 已关闭。
+
+## Fastlane V1：更快进入主线
+
+- 最终硬门不变，但允许安全、可复现、默认不影响现有路径的阶段切片先通过小 PR 进入主线；合并切片不等于对应 B1～B4 阶段通过。
+- B1 拆为三段：B1A 板级事实与可重建硬件定义，B1B PS7/UART/DDR，B1C PHY/UDP。每段独立提交、验证和合并，避免整阶段互相等待。
+- 只运行受改动影响的最小验证集。文档/JSON只跑解析、状态一致性和 `git diff --check`；软件修改不重建未变化的 PL；RTL/XDC/BD/Tcl 身份未变化时复用已有 bitstream/XSA哈希，不重复跑 Vivado。
+- 同一失败不重复全量验证。先固定首错并运行最小复现，修复后重跑受影响切片；只在阶段最终门或共享合同变化时扩大回归。
+- 实板操作按一次连接会话批量执行：身份确认、下载、UART、DDR、MDIO和UDP依赖顺序不变，但不在每个中间文档提交后重新上电或重新下载。
+- 报告、Nexus和历史摘要在每段合并前同步一次；运行中的细节写入机器日志，不为每个观察点单独创建状态提交。
+- GitHub Actions关闭期间不等待空checks或webhook；本机定向验证通过、PR为CLEAN/MERGEABLE且证据边界正确即可合并。Actions恢复后再按变更分类运行对应门。
 
 ## B0：PL 配置、50 MHz 时钟和 LED
 
@@ -26,7 +36,7 @@
 - 用户现场观察至少 10 个完整 LED周期，节奏约 1.34 秒/周期。
 - 断电重启后重新连接、下载同一 bitstream 并再次观察通过。
 
-当前源码提交为 `f3b8174...`，正式重建 bitstream为 `df16ed6c...8971`，实现硬门已通过；该当前产物已于 `2026-09-07T10:22:56Z` 正式 program，三项 DONE为 `1/1/1`，CRC/IDCODE/security error为0。现场观察与断电复测仍未完成，因此 B0 不是最终 PASS。
+当前源码提交为 `f3b8174...`，正式 bitstream为 `df16ed6c...8971`。完整断电前后两次program、三项DONE、错误位和两次10周期现场测量全部通过，B0状态为 `B0_COMPLETE`。
 
 ## B1：PS7、DDR、UART 和 PHY
 

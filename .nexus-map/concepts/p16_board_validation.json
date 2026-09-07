@@ -6,10 +6,10 @@
     "board": "HelloZynq",
     "part": "xc7z020clg484-2"
   },
-  "status": "P16_B0_COMPLETE / B1_PENDING_MAIN_MERGE",
+  "status": "P16_B0_COMPLETE / FASTLANE_V1 / B1_DECISION_PENDING",
   "stage2_complete": false,
-  "current_gate": "B0-GATE",
-  "current_execution_point": "MERGE_PR69_THEN_START_B1",
+  "current_gate": "B1-D1",
+  "current_execution_point": "DECIDE_B1_SOFTWARE_STACK_THEN_START_B1A",
   "b0": {
     "source_commit": "f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06",
     "bitstream_sha256": "df16ed6ccd9124f2dc4391d96e868ebd7846aebf3df335099b742cc7cd318971",
@@ -63,12 +63,20 @@
     "gate_pass": true
   },
   "next_action": {
-    "action": "MERGE_PR69_THEN_START_B1",
+    "action": "DECIDE_B1_SOFTWARE_STACK_THEN_START_B1A",
     "run_2_started": true,
-    "completion_condition": "Merge the B0 evidence branch to main, then freeze the B1 bare-metal plus lwIP software and board configuration baseline"
+    "completion_condition": "Approve bare-metal plus lwIP or Linux, then complete and merge B1A board facts and reproducible hardware definition"
+  },
+  "fastlane_v1": {
+    "approved": true,
+    "merge_unit": "small independently reproducible PR",
+    "b1_slices": ["B1A_BOARD_FACTS_AND_HW_DEFINITION", "B1B_PS7_UART_DDR", "B1C_PHY_UDP_AND_B1_GATE"],
+    "vivado_rerun_rule": "rerun only when RTL, XDC, block-design Tcl or IP configuration identity changes",
+    "validation_rule": "run only affected gates; expand at shared-contract or final-stage gate",
+    "actions_disabled_rule": "do not wait for empty checks; use local targeted evidence and PR mergeability"
   },
   "stages": [
-    {"id":"B1","requires":"B0-GATE=PASS on main","scope":"PS7, DDR, UART, PHY, minimal UDP","status":"BLOCKED_BY_PREDECESSOR_GATE"},
+    {"id":"B1","requires":"B0-GATE=PASS on main","scope":"PS7, DDR, UART, PHY, minimal UDP","status":"DECISION_PENDING"},
     {"id":"B2","requires":"B1-GATE=PASS","scope":"AXI DMA, DDR ownership/cache contract, PL loopback, fixed frame adapter","status":"BLOCKED_BY_PREDECESSOR_GATE"},
     {"id":"B3","requires":"B2-GATE=PASS","scope":"64x32x10 traditional NPU plus ENeuron fixed-vector board validation","status":"BLOCKED_BY_PREDECESSOR_GATE"},
     {"id":"B4","requires":"B3-GATE=PASS","scope":"Ethernet end-to-end dense/gated reproducible A/B","status":"BLOCKED_BY_PREDECESSOR_GATE"}
@@ -80,15 +88,17 @@
   },
   "pull_request": {
     "number": 69,
-    "merged": false,
+    "merged": true,
     "base_commit": "7857d32561cbd5f86d02b1a21ee0edfb3ae895f1",
-    "audit_head_snapshot": "8db816d29beabc490851719c34a83a6f603fc321",
-    "audit_state": "OPEN / CLEAN / MERGEABLE",
+    "audit_head_snapshot": "02514b5f4ffd3b5c6a033a2f2d9e6f7b6bcaef92",
+    "audit_state": "MERGED",
+    "merge_commit": "102dee2a004283ce4144aaf6ee0a2cee3ebd2887",
+    "merged_at_utc": "2026-09-07T16:17:15Z",
     "run_1_evidence_commit": "ffc6f1134e5218cce63aa7c988313fbdbc4d352b",
     "run_1_evidence_commit_audit_state": "OPEN / CLEAN / MERGEABLE",
     "actions_enabled": false,
     "empty_checks_mean": "NOT_RUN, NOT PASS",
-    "merge_policy": "B0_GATE_PASS; MERGE_AFTER_FINAL_LOCAL_VALIDATION_AND_PR_REFRESH"
+    "merge_policy": "MERGED_AFTER_B0_GATE_PASS"
   },
   "authoritative_sources": [
     "docs/planning/TODO.md",
