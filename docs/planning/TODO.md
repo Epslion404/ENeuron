@@ -588,11 +588,11 @@ P15 硬门：双时钟逐 beat bit-exact；reset/ready-valid/FIFO 满空无丢�
 - [x] B0-09：已将第一次机器输出固化到 `artifacts/logs/hellozynq_b0/20260907T102256Z_df16ed6c_run1_machine/`；保存 program result、完整 transcript、build manifest和独立 archive manifest，program log SHA-256仍为 `0152fe32...a49e`，现场状态明确为 `PENDING`。
 - [x] B0-10：run-1 的 `field_observation.json` 已保存初始目测、10周期13.42秒实测、冻结通过窗、误差和 PASS判定；archive manifest同步为 `observation_status=PASS`。run-1机器下载与现场功能证据闭环。
 - [x] B0-11：用户确认关闭主电源且供电指示全部熄灭；Vivado 2024.1只读探针仍枚举到精确 Digilent线缆，但打开target明确报告 `No devices detected`，可访问FPGA数为0，`B0_COMPLETE_POWER_OFF_JTAG_INACCESSIBLE=PASS`。证据目录为 `artifacts/logs/hellozynq_b0/20260907T150221Z_df16ed6c_power_off/`，transcript SHA-256为 `3a953999...1f634`，证明本次是完整断电而非热重连。
-- [ ] B0-12：重新核对本地 bitstream SHA-256 仍为 `df16ed6c...8971`，对同一文件执行第二次正式 program；再次要求唯一 target/device、请求路径一致、三项 DONE=`1/1/1` 且 CRC/IDCODE/security error为0。
-- [ ] B0-13：第二次观察同一 `PL_LED1/P20` 至少10个完整周期，使用与第一次相同判据；立即用归档脚本将第二次机器输出和观察记录固化为唯一 run-2，禁止覆盖 run-1。
-- [ ] B0-14：将两次当前产物 program、两次现场观察和完整断电复测写入 `artifacts/results/hellozynq_b0_smoke_summary.json` 与 B0 报告，并列出两个运行目录和日志哈希；缺任一现场确认时状态只能为 `LED_OBSERVATION_PENDING` 或 `COLD_RESTART_PENDING`。
+- [x] B0-12：完整断电后重新上电，只读探针确认同一 Digilent `210251A08870` 上唯一 `xc7z020_1` 恢复且下载前 `DONE=0`、`PROGRAM.FILE` 为空。本地 bitstream SHA-256 仍为 `df16ed6c...8971`；第二次正式 program 后请求路径一致、三项 DONE=`1/1/1`，CRC/IDCODE/security error均为0。机器输出已固化到 `artifacts/logs/hellozynq_b0/20260907T152656Z_df16ed6c_run2_machine/`，现场观察仍为 `PENDING`。
+- [x] B0-13：第二次观察同一 `PL_LED1/P20` 10个完整周期实测 `13.4 s`，通过相同的 `12.6～14.2 s` 判据；机器输出和现场 JSON 已固化为唯一 run-2，目录为 `artifacts/logs/hellozynq_b0/20260907T152656Z_df16ed6c_run2_machine/`，未覆盖 run-1。
+- [x] B0-14：两次当前产物 program、两次现场观察和完整断电复测已写入 `artifacts/results/hellozynq_b0_smoke_summary.json` 与 B0 报告；run-1/run-2 program log SHA-256分别为 `0152fe32...a49e`、`1d4fada3...3613b`，状态提升为 `B0_COMPLETE`。
 - [x] B0-15：已复核 Nexus、artifact索引、文档状态与摘要 JSON，轻量回归和差异检查通过；提交、推送并创建 PR #69。PR当前为 `OPEN / CLEAN / MERGEABLE`，Actions关闭且checks为空，现场观察和断电复测完成前不合并。
-- [ ] B0-GATE：只有当前 bitstream 的构建、两次 program、三项 DONE、上电现场观察和断电重启后复测全部绑定一致，才将 B0 标记为 PASS并进入 B1。
+- [x] B0-GATE：当前 bitstream 的构建、两次 program、三项 DONE、两次现场观察和完整断电重启复测全部绑定一致，B0标记为 `PASS/B0_COMPLETE`。B1仍按 B1-00 等待本分支合并到 `main` 后启动。
 
 #### P16-B1：PS7、DDR、UART、PHY和最小 UDP
 

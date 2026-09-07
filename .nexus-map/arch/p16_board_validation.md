@@ -8,13 +8,15 @@ authoritative_sources: `docs/planning/TODO.md`、`task_plan.md`、`findings.md`�
 
 P16 的目标是在 HelloZynq `xc7z020clg484-2` 上依次打通 PL、PS/DDR/网口、DMA、`64→32→10` 传统 NPU、ENeuron 局部门控和网口端到端 A/B。阶段门只由同一身份链上的实板证据关闭；仿真和 OOC 可用于定位，但不能代替 bitstream、JTAG、UART、Host/网口日志与现场观察。
 
-当前执行点仍在 P16-B0。当前源码 `f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06`、bitstream `df16ed6ccd9124f2dc4391d96e868ebd7846aebf3df335099b742cc7cd318971` 的第一次正式 program 已通过。用户已确认 `PL_LED1/P20` 稳定闪烁，10 个完整周期实测 `13.42 s`，通过理论 `13.4217728 s` 与冻结窗口 `12.6–14.2 s`。run-1 机器与现场证据已闭环。
+P16-B0 已完成。当前源码 `f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06`、bitstream `df16ed6ccd9124f2dc4391d96e868ebd7846aebf3df335099b742cc7cd318971` 在同一target/device上完成两次正式program和现场观察；10个完整周期分别实测 `13.42 s`、`13.4 s`，均通过理论 `13.4217728 s` 与冻结窗口 `12.6–14.2 s`。
 
 用户随后确认板卡完全断电。`2026-09-07T15:02:49Z` 的正式只读探针精确匹配 target `localhost:3121/xilinx_tcf/Digilent/210251A08870` 1 个，但 `target_opened=0`、`accessible_device_count=0`，Vivado transcript 明确报告 `No devices detected`。证据位于 `artifacts/logs/hellozynq_b0/20260907T150221Z_df16ed6c_power_off/`，结果 SHA-256 为 `fe594c87...3776e`，transcript SHA-256 为 `3a953999...1f634`，完整断电确认 PASS。
 
-因此状态为 `B0_RUN1_FIELD_PASS / COMPLETE_POWER_OFF_PASS / RUN2_PENDING`；`B0-GATE` 未通过，下一步是重新上电并执行同一 bitstream 的第二次正式 program、`PL_LED1/P20` 观察和 run-2 归档，B1 不得启动。
+重新上电后只读探针确认同一Digilent target上的唯一 `xc7z020_1` 恢复且下载前未配置；run-2于 `2026-09-07T15:26:56Z` 下载同一bitstream，三项DONE=`1/1/1`、错误位为0，现场10周期 `13.4 s`。因此状态为 `B0_COMPLETE / B1_PENDING_MAIN_MERGE`；下一步是合并PR #69，再启动B1。
 
 run-1 机器归档由 `boards/hellozynq/b0_smoke/archive_b0_program_run.ps1` 生成。归档 manifest 绑定当前 bitstream `df16ed6c...8971`、program log SHA-256 `0152fe32...a49e`。`field_observation.json` 已更新为稳定闪烁、10周期 `13.42 s` 与 `status=PASS`，当前 SHA-256 为 `d93bcc25...ab083`。run-1已形成机器与现场闭环。
+
+run-2归档位于 `artifacts/logs/hellozynq_b0/20260907T152656Z_df16ed6c_run2_machine/`，program log与现场观察SHA-256分别为 `1d4fada3...3613b`、`73c81d86...a25f8`，`observation_status=PASS`。双运行和完整断电证据已进入最终B0摘要。
 
 ## B1–B4 串行门
 
@@ -33,4 +35,4 @@ run-1 机器归档由 `boards/hellozynq/b0_smoke/archive_b0_program_run.ps1` 生
 
 ## 发布状态
 
-PR #69 尚未合并。固定 base 为 `main@7857d32561cbd5f86d02b1a21ee0edfb3ae895f1`；run-1证据提交为 `ffc6f1134e5218cce63aa7c988313fbdbc4d352b`，推送后观测状态为 `OPEN / CLEAN / MERGEABLE`。较早的 `8db816d...` 继续作为历史审计快照。Actions 已关闭，空 `statusCheckRollup` 只表示未运行，不是通过证据。run-2 和 B0-GATE 完成前保持暂不合并。
+PR #69 尚未合并。固定 base 为 `main@7857d32561cbd5f86d02b1a21ee0edfb3ae895f1`；run-1证据提交为 `ffc6f1134e5218cce63aa7c988313fbdbc4d352b`，较早的 `8db816d...` 继续作为历史审计快照。Actions已关闭，空 `statusCheckRollup`只表示未运行。run-2与B0-GATE现已完成；最终本地验证和证据提交推送后重新读取PR状态，再决定合并。

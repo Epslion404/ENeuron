@@ -4,7 +4,7 @@
 
 最后更新：2026-09-07
 
-状态：`ACTIVE / PHASE2_BOARD_ACTIVE / B0_RUN1_PROGRAM_AND_LED_PASS / B0_COMPLETE_POWER_OFF_PASS / B0_RUN2_PENDING / XC7Z020CLG484_2_CONFIRMED / T3_XPM_XSIM_PASS / T3_XC7Z020_OOC_PASS / RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN / GITHUB_ACTIONS_DISABLED`
+状态：`ACTIVE / PHASE2_BOARD_ACTIVE / B0_COMPLETE / B1_PENDING_MAIN_MERGE / XC7Z020CLG484_2_CONFIRMED / T3_XPM_XSIM_PASS / T3_XC7Z020_OOC_PASS / RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN / GITHUB_ACTIONS_DISABLED`
 
 ## 当前活动目标
 
@@ -16,12 +16,13 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 
 - 2026-09-07：B0分支已推送并创建 PR #69；GitHub观测为 `OPEN / CLEAN / MERGEABLE`，base为 `main@7857d325...`。Actions按管理员要求关闭，空checks不作为通过证据；现场LED和断电复测完成前不合并。
 - 2026-09-07：PR #68 在精确 HEAD `e2a1bfa...` 上通过 G0、T1和全部已定义 T2入口后合并，merge commit为 `7857d325...`。
-- 2026-09-07：B0 当前源码 `f3b8174...` 和 bitstream `df16ed6c...8971` 的正式实现与JTAG program均通过；target为 Digilent `210251A08870`、device为 `xc7z020_1`，三项 DONE为1，CRC/IDCODE/security error为0。LED观察和断电复测仍 pending。
+- 2026-09-07：B0 当前源码 `f3b8174...` 和 bitstream `df16ed6c...8971` 的正式实现、两次JTAG program、两次LED周期测量和完整断电复测均通过；target为 Digilent `210251A08870`、device为 `xc7z020_1`，两次下载后三项 DONE均为1，CRC/IDCODE/security error均为0。
 - 2026-09-07：第一次 program机器证据已在第二次下载前固化到 `artifacts/logs/hellozynq_b0/20260907T102256Z_df16ed6c_run1_machine/`，program log SHA-256为 `0152fe32...a49e`，`observation_status=PENDING`。归档、详细 P16 TODO、Nexus和14项定向验证提交为 `ffc6f11` 并推送至 PR #69；远端观测仍为 `OPEN / CLEAN / MERGEABLE`。
 - 2026-09-07：用户确认 LED稳定闪烁，但报告周期明显短于预期。RTL/约束及两个本地板级例程均支持 M19=50 MHz、P20=`PL_LED1`；设计的理论行为是每0.67108864秒翻转、完整周期1.34217728秒。当前先定量澄清周期口径，暂停断电run-2。
 - 2026-09-07：用户进一步澄清所称完整周期目测约1秒。该粗略值相对理论1.342秒约短25%，但尚不足以判定时钟异常；当前要求使用10个完整周期的长窗口计时，理论总时长13.42秒。
 - 2026-09-07：用户实测10个完整周期为13.42秒，与理论13.4217728秒误差约-0.013%，通过事前冻结的12.6～14.2秒门。run-1程序下载、稳定闪烁和周期均通过；下一门为完整断电确认。
 - 2026-09-07：用户确认主电源关闭且供电指示全部熄灭。仓库内只读Vivado探针仍找到精确Digilent线缆，但target打开失败并报告 `No devices detected`，accessible device count=0，完整断电门PASS；原始transcript SHA-256为 `3a953999...1f634`。
+- 2026-09-07：重新上电后只读探针确认同一 target/device 恢复且下载前未配置；run-2 于 `15:26:56Z` 下载同一 bitstream，三项 DONE=`1/1/1`、错误位为0。用户实测10周期 `13.4 s`，通过12.6～14.2秒窗口；run-2 已归档到 `20260907T152656Z_df16ed6c_run2_machine`，B0-GATE通过。
 - 2026-09-07：Actions 已按管理员要求暂时关闭（仓库 API `enabled=false`），因此 PR #68 的 checks 为空不解释为通过或失败；本阶段以本机 Vivado 2024.1 证据为准。
 - 2026-09-07：T3 真实 AMD XPM/xsim 协同仿真通过，OOC 通过。摘要绑定本轮提交前的工作树快照，正式提交后必须用新 HEAD 重跑并更新 SHA。
 - 2026-09-07：T3 已在实现提交 `c2bc03f` 上重新运行，xsim/OOC 摘要均绑定该 SHA；随后 Nexus 与 T2 计划以 `439ac6b` 推送。Actions 仍关闭，远端 checks 不作为本轮通过证据。
@@ -62,7 +63,7 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 
 ## 下一动作
 
-请用户重新打开板卡主电源，等待供电指示稳定后回复“已重新上电”；随后主代理核对JTAG device恢复，并对同一 `df16ed6c...8971` 执行run-2正式下载。
+完成 B0 收口验证并更新 PR #69。PR 合并到 `main` 后进入 B1，先裁定并建立 `bare-metal + lwIP` 的 PS7、DDR、UART、PHY和最小UDP基线。
 
 ## 2026-09-05 V2 OOC 签核结果
 

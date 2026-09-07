@@ -1349,7 +1349,7 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 - [x] 明确区分 Host静态 `2:4` mask 与 live-ENeuron自动决策；只有后者才能作为“神经元参与局部自动剪枝”的实板证据。
 - [x] 运行任务编号、保护文件、差异和 Markdown 基础检查。
 
-当前执行点：run-1与完整断电均通过。下一步是用户重新上电；主代理确认同一Digilent target上的 `xc7z020_1` 恢复后，对同一 `df16ed6c...8971` 执行run-2正式下载、三项DONE检查、10周期观察和不可覆盖归档。B0关闭前不启动B1。
+当前执行点：run-1、完整断电、重新上电恢复和 run-2 机器下载均通过；run-2 已绑定同一 `df16ed6c...8971` 并固化到唯一证据目录。下一步是用户按相同判据测量 `PL_LED1/P20` 10个完整周期，随后写入现场 JSON、汇总报告并关闭 B0。B0关闭前不启动B1。
 
 错误记录：首次加入 `artifacts/results/hellozynq_b0_smoke_summary.json` 后，`test_artifact_layout.py` 按设计拒绝未登记的新结果文件。已将该正式摘要加入精确白名单并同步 `artifacts/README.md`，未放宽目录检查规则。
 

@@ -1,8 +1,8 @@
 # 系统边界
 
-阶段 2 实板状态（2026-09-07）：实际板卡目标固定为 `xc7z020clg484-2`。B0 使用 M19 50 MHz → 26-bit counter → P20，当前源码提交为 `f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06`。正式候选构建与第一次 program 均已通过。用户确认 `PL_LED1/P20` 稳定闪烁，10个完整周期实测 `13.42 s`，通过理论 `13.4217728 s` 和预冻结 `12.6–14.2 s` 窗口。完整断电探针确认 target 无法打开、可访问器件数为 0，结果 PASS。当前状态为 `B0_RUN1_FIELD_PASS / COMPLETE_POWER_OFF_PASS / RUN2_PENDING`；下一门为重新上电并执行同一 bitstream 的 run-2。
+阶段 2 实板状态（2026-09-07）：实际板卡目标固定为 `xc7z020clg484-2`。B0 使用 M19 50 MHz → 26-bit counter → P20，当前源码提交为 `f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06`。正式候选在完整断电前后完成两次program；用户两次测得10个完整周期 `13.42 s`、`13.4 s`，均通过理论 `13.4217728 s` 和预冻结 `12.6–14.2 s` 窗口。完整断电探针确认target无法打开、可访问器件数为0，结果PASS。当前状态为 `B0_COMPLETE / B1_PENDING_MAIN_MERGE`。
 
-P16 阶段 2 系统边界按硬门串行扩展：B0 只验证 PL 配置、板载 50 MHz 时钟和 LED；B1 才引入 PS7、DDR、UART、PHY 和最小 UDP；B2 增加 AXI DMA、DDR/cache 所有权和外层固定帧协议；B3 接入 `64→32→10` 传统 NPU 与 ENeuron；B4 才进行同条件网口端到端 A/B。当前 B0 未关闭，B1–B4 均不得以实现或通过状态记录。
+P16 阶段 2 系统边界按硬门串行扩展：B0只验证PL配置、板载50 MHz时钟和LED，现已关闭；B1才引入PS7、DDR、UART、PHY和最小UDP；B2增加AXI DMA、DDR/cache所有权和外层固定帧协议；B3接入 `64→32→10` 传统NPU与ENeuron；B4才进行同条件网口端到端A/B。B1等待B0分支合并到main，B2–B4仍不得以实现或通过状态记录。
 
 B3/B4 包含两条不同证据链：Host 静态 `2:4` mask 是由 Host 重放冻结 mask，只证明 NPU 门控执行、位序、epoch 和跳过计数；live-ENeuron 是由实板神经元证据生成严格 `2:4` 决策，经 pending bank 和 fence 原子生效。只有后者可证明神经元参与自动剪枝，两类数据不得混合。
 

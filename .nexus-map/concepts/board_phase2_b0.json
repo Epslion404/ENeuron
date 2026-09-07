@@ -2,8 +2,8 @@
   "$schema": "nexus-mapper/evidence/v1",
   "evidence_id": "board-phase2-b0",
   "verified_at": "2026-09-07",
-  "status": "B0_RUN1_FIELD_PASS / COMPLETE_POWER_OFF_PASS / RUN2_PENDING",
-  "complete": false,
+  "status": "B0_COMPLETE",
+  "complete": true,
   "main_merge_commit": "7857d32561cbd5f86d02b1a21ee0edfb3ae895f1",
   "source_commit": "f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06",
   "part": "xc7z020clg484-2",
@@ -37,7 +37,7 @@
   "current_jtag": {
     "source_commit": "f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06",
     "bitstream_sha256": "df16ed6ccd9124f2dc4391d96e868ebd7846aebf3df335099b742cc7cd318971",
-    "program_time_utc": "2026-09-07T10:22:56Z",
+    "program_time_utc": "2026-09-07T15:26:56Z",
     "target": "localhost:3121/xilinx_tcf/Digilent/210251A08870",
     "device": "xc7z020_1",
     "result": "PASS",
@@ -90,6 +90,36 @@
     "result_sha256": "fe594c87bf4795fcfd7566322a0abb6e53d2c5b9fdf17683cd66cc24ce43776e",
     "transcript_sha256": "3a953999dc611332f19fa9a12c7fcafc04f9fdbd425cb8dc92fc0b4a0da1f634"
   },
+  "run_2_machine_archive": {
+    "script": "boards/hellozynq/b0_smoke/archive_b0_program_run.ps1",
+    "path": "artifacts/logs/hellozynq_b0/20260907T152656Z_df16ed6c_run2_machine/",
+    "program_time_utc": "2026-09-07T15:26:56Z",
+    "bitstream_sha256": "df16ed6ccd9124f2dc4391d96e868ebd7846aebf3df335099b742cc7cd318971",
+    "program_result_sha256": "293307a86ef7bd2d54ac3cb43d628313b882bb7b40543ef04f9a7bf31d9c6caa",
+    "program_log_sha256": "1d4fada3b793ee125791c22c9886fac7eb0bd96476b60259c200142d4b03613b",
+    "field_observation_file": "field_observation.json",
+    "field_observation_sha256": "73c81d86c573d7157114eb3ec64a7f9a9e6b415c48ea58d98401ce7f2dda25f8",
+    "download_started_unconfigured": true,
+    "done_internal": 1,
+    "done_pin": 1,
+    "isc_done": 1,
+    "crc_error": 0,
+    "idcode_error": 0,
+    "security_error": 0,
+    "stable_blinking_confirmed": true,
+    "quantitative_measurement": {
+      "method": "start at just-lit edge and stop at the just-lit edge after 10 complete periods",
+      "period_count": 10,
+      "expected_total_seconds": 13.4217728,
+      "stopwatch_pass_window_seconds": {"minimum": 12.6, "maximum": 14.2},
+      "measured_total_seconds": 13.4,
+      "error_seconds": -0.0217728,
+      "error_percent": -0.1622200012207031,
+      "within_acceptance_window": true
+    },
+    "observation_status": "PASS",
+    "run_complete": true
+  },
   "historical_jtag": {
     "source_commit": "367c81316dc6fdc48105d6c657952a66314436bd",
     "bitstream_sha256": "c16a1f8a035c9f5d70677cf71e433b8b19e040ff336d58c85efc89761e85e3d1",
@@ -112,11 +142,8 @@
     "actions_enabled": false,
     "status_check_rollup": [],
     "status_check_interpretation": "NOT_RUN_ACTIONS_DISABLED; empty checks are not pass evidence",
-    "merge_decision": "DO_NOT_MERGE_UNTIL_RUN2_AND_B0_GATE_PASS"
+    "merge_decision": "B0_GATE_PASS; REFRESH_PR_AFTER_FINAL_EVIDENCE_PUSH"
   },
-  "pending": [
-    "perform second formal program and PL_LED1/P20 observation of the same df16ed6c...8971 bitstream",
-    "final summary binds both programs, both observations, full power-cycle, run directories, and log hashes"
-  ],
-  "scope_limit": "Does not prove B0 complete and does not cover NPU, ENeuron, PS7, DDR, DMA, Ethernet, throughput, accuracy, or power."
+  "pending": [],
+  "scope_limit": "B0 is complete. This does not cover NPU, ENeuron, PS7, DDR, DMA, Ethernet, throughput, accuracy, or power; those remain B1-B4 work."
 }

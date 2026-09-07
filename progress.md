@@ -1439,3 +1439,13 @@
 - 2026-09-07：10周期人工秒表门在取得结果前冻结为12.6～14.2秒；现场观察JSON、摘要、报告、TODO、工作流和Nexus已同步，15项定向检查与现场文件哈希通过。PR #69描述已更新为周期量化pending，继续不合并。
 - 2026-09-07：用户实测 `PL_LED1/P20` 10个完整周期13.42秒，通过理论13.4217728秒和冻结窗口12.6～14.2秒。run-1现场门转为PASS；下一步是完整断电确认与同一bitstream的run-2，PR #69仍不合并。
 - 2026-09-07：用户确认完全断电；两次只读JTAG检查均显示精确Digilent线缆存在但FPGA device不可访问。第二次由仓库脚本正式采集，输出 `B0_COMPLETE_POWER_OFF_JTAG_INACCESSIBLE=PASS`，证据目录 `20260907T150221Z_df16ed6c_power_off`，下一步为重新上电和run-2。
+- 2026-09-07：用户确认重新上电，开始 B0 run-2。首次哈希命令误用了不存在的 `build/hello_zynq_b0.bit`；权威 runner 默认文件名是 `build/hello_zynq_b0_smoke.bit`。本次失败未调用 Vivado、未访问 JTAG、未改写生成物；后续改为从 runner/manifest 解析路径后再校验。
+- 2026-09-07：标准输入方式运行 Vivado Tcl 未产生可审计输出，未据此裁定；改用显式临时 Tcl 后只读确认同一 Digilent `210251A08870` 和唯一 `xc7z020_1` 已恢复，下载前器件明确为未配置（DONE=0、PROGRAM.FILE为空）。
+- 2026-09-07：B0 run-2 机器门通过。本地 bitstream SHA-256 仍为 `df16ed6c...8971`；正式 program 返回 `B0_PROGRAM_PASS`，三项 DONE=`1/1/1`，CRC/IDCODE/security error均为0。机器证据已固化到 `artifacts/logs/hellozynq_b0/20260907T152656Z_df16ed6c_run2_machine/`，archive manifest保持 `observation_status=PENDING`；下一项为10周期现场测量。
+- 2026-09-07：用户完成 run-2 现场测量，10个完整周期为 `13.4 s`，位于冻结窗口 `12.6–14.2 s`，现场门 PASS。计算辅助命令首次误用 PowerShell 只读自动变量 `$Error` 作为标量，导致误差计算失败；未写入任何证据，后续改用非保留变量名重算。
+- 2026-09-07：使用非保留变量重算 run-2：平均完整周期 `1.34 s`、翻转间隔 `0.67 s`、相对理论10周期误差 `-0.0217728 s / -0.1622200012%`。已创建 run-2 `field_observation.json`，等待写入哈希并同步所有 B0 状态文件。
+- 2026-09-07：一次测试检索在 Windows PowerShell 中把 `test_*.py` 直接作为 `rg` 路径，触发路径语法错误；未修改文件。后续使用 `rg -g 'test_*.py'` 的 glob 参数。
+- 2026-09-07：B0 收口定向验证通过：B0证据、artifact布局与CI-Fast共 `17/17 PASS`；Nexus、结果和B0日志共37份JSON解析通过；run-2四个归档文件哈希与manifest一致，`git diff --check`通过。临时只读上电探针Tcl已移入系统回收站；未提交的时钟诊断文件和其README修改继续保留且排除在B0提交外。
+- 2026-09-07：暂存时Git提示run-2机器文件将CRLF归一化为LF，因此在提交前增加Git blob字节哈希审计，避免manifest只匹配Windows工作树、不匹配仓库对象。属性检查第一次因工具参数拼写错误未执行，记录错误的补丁调用又因JavaScript输出语句拼写错误未执行；两次均未改变仓库状态，随后改用正确调用。
+- 2026-09-07：跨平台哈希补丁首次因断电manifest中的实际Tcl哈希与预期上下文不同而整体拒绝，未发生部分写入；读取实际结构后拆分重试。确认run-1、断电探针和run-2的采集时文本哈希均受CRLF/LF影响，因此保留原始SHA-256字段，并补充LF规范SHA-256；B0证据测试改用规范哈希验证跨平台仓库字节，符合根 `.gitattributes` 的 `eol=lf` 合同。
+- 2026-09-07：规范哈希修正后复验通过：B0证据、artifact布局与CI-Fast仍为 `17/17 PASS`，37份JSON解析通过，`git diff --check`通过。换行提示仅说明Git将按既有 `.gitattributes` 写入LF，规范哈希已覆盖该转换。
