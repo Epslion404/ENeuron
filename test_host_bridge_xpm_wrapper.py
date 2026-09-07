@@ -342,7 +342,7 @@ TRANSPORT_TESTBENCH = (
         bridge_rst = 1'b0;
         wait (host_cmd_ready && tile_rsp_ready && tile_domain_up);
 
-        // XPM FWFT 的读侧预取槽使本配置可见有效容量为 17。
+        // depth=16 的 RAM 加 1 个 FWFT 读侧预取槽，外部可见容量为 17。
         for (i = 0; i < 17; i = i + 1)
             host_send_command(CMD_BASE + i);
         @(negedge host_clk);

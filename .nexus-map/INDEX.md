@@ -23,7 +23,7 @@ ENeuron 是以 Python 黄金模型、SystemVerilog RTL、Icarus/Yosys/Vivado 验
 
 状态校正（2026-09-07）：PR #64 已合并为 `main@a53a040`；PR #65 已合并为 `main@618c1e4`；PR #66 已合并为 `main@a1457bb`。下文若仍出现旧的“OPEN”或“等待合并”措辞，均属于生成快照中的历史内容，不覆盖本条和 `WORKFLOW_STATE.md` 的当前状态。
 
-NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`，NP7 已签核。TR7-TR12 已批准并完成 V2 实现：单时钟专项、固定 `20×100` 和完整仓库回归均通过。实现提交 `f744bff2bdde68e138a7b2b348ce103bec1ab469` 的 OOC 为 `2126 LUT / 1916 FF / 0 BRAM / 4 DSP48E1`，100 MHz `WNS=+0.060 ns / TNS=0 / WHS=+0.040 ns`，setup/hold/route/DRC 零失败。PR #64 已合并为 `main@a53a040`，PR #65 已合并为 `main@618c1e4`，PR #66 已合并为 `main@a1457bb`。PR #68 的 `55ec08e`/run `33976357259` 是历史审计快照：当时为 `OPEN / MERGEABLE / UNSTABLE`，runner 因账户付款/额度限制未启动，归类为 `NOT_RUN_BILLING_BLOCKED`；不得把该快照当作当前 CI。当前状态为 `TIMING_REPAIR_V2_FUNCTIONAL_GREEN / VIVADO_OOC_100MHZ_PASS / P15_T0_APPROVED / T1_RTL_AUTHORIZED / T1_PROTOCOL_SLICE_PROVEN / T1_FULL_PENDING / RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN`。T1 wrapper、testbench、XPM 模型、manifest 和复现入口已进入 GitHub，本地隔离快照可通过 G0/G1 与 T1 协议切片；T1-01～T1-12 全覆盖、T2 双时钟协同仿真和 T3 XC7Z020 OOC 仍未完成。当前本机工作树 HEAD=`88905a9`，其 T1 协议切片已通过；远端 PR #68 仍停在 head=`3006174`/run `34051222089`，GitHub Checks 显示 `Classify changes=fail`、`PR Gate=fail`、`T1 reproducibility slice=skipped`，因此本机 PASS 不替代 GitHub CI PASS。资源裁剪候选已经审查，但管理员决定等第一次完整端到端运行成功后再考虑实施。Webhook 未签名事件只作触发提示；GitHub Checks/API 仍为 CI 权威来源；板级、DMA、PS、网口和功耗仍未签核。
+NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`，NP7 已签核。TR7-TR12 已批准并完成 V2 实现：单时钟专项、固定 `20×100` 和完整仓库回归均通过。实现提交 `f744bff2bdde68e138a7b2b348ce103bec1ab469` 的 OOC 为 `2126 LUT / 1916 FF / 0 BRAM / 4 DSP48E1`，100 MHz `WNS=+0.060 ns / TNS=0 / WHS=+0.040 ns`，setup/hold/route/DRC 零失败。PR #64 已合并为 `main@a53a040`，PR #65 已合并为 `main@618c1e4`，PR #66 已合并为 `main@a1457bb`。PR #68 的 `55ec08e`/run `33976357259` 是历史审计快照：当时为 `OPEN / MERGEABLE / UNSTABLE`，runner 因账户付款/额度限制未启动，归类为 `NOT_RUN_BILLING_BLOCKED`；不得把该快照当作当前 CI。当前状态为 `TIMING_REPAIR_V2_FUNCTIONAL_GREEN / VIVADO_OOC_100MHZ_PASS / P15_T0_APPROVED / T1_RTL_AUTHORIZED / T1_PROTOCOL_SLICE_PROVEN / T1_FULL_PENDING / RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN`。T1 wrapper、testbench、XPM 模型、manifest 和复现入口已进入 GitHub；T1-02 主要路径已在本机 HEAD=`7c55c7c` 通过（`STATE_CLEAR` exactly-once、`FREEZE_SET` 同步及冻结期间配置拒绝），T1-12 四 FIFO 边界也已在当前工作树通过（`T1_FIFO_BOUNDARY_PASS`，包含 17 槽 FWFT 外部容量与长背压）。这两项均为本机证据，不是 GitHub CI 结果；新增边界 testbench 尚待纳入 Git 跟踪，当前 manifest 门不作已提交闭包判断。T1-01～T1-12 全覆盖、T2 双时钟协同仿真和 T3 XC7Z020 OOC 仍未完成；Actions 已暂停，远端 checks 缺失不作通过或失败判定。资源裁剪候选已经审查，但管理员决定等第一次完整端到端运行成功后再考虑实施。Webhook 未签名事件只作触发提示；GitHub Checks/API 仍为 CI 权威来源；板级、DMA、PS、网口和功耗仍未签核。
 
 ## 单时钟 RTL 审核摘要
 
@@ -42,17 +42,18 @@ NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`，NP7 已签核。
 - 推荐方案 A：命令/响应继续使用现有 128-bit 异步 FIFO；新增独立 32-bit 样本输入和结果输出 FIFO，并在 FIFO 外侧放置 AXI-Stream shim。样本固定 8 beat，结果固定 10 beat，`sample_id`/`mask_epoch` sideband 在各自事务内保持稳定。
 - 当前状态：`P15_T0_APPROVED / T1_RTL_AUTHORIZED / T1_PROTOCOL_SLICE_PROVEN / T1_FULL_PENDING / RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN`。方案 A、A1-A7、四条流 sideband/固定 beat 语义以及 AXI 外置边界已获批准；T1 纯 RTL 适配器及协议切片已进入仓库并可由统一入口复现，但 T1-01～T1-12 全覆盖仍待完成，也不接入 AXI-Lite、DMA、Ethernet 或 PS7，直到后续阶段单独批准。资源裁剪只保留为首次端到端跑通后的候选，不进入当前实施基线。
 
-### 下一阶段 T1 最小执行集
+### 下一阶段 T1 最小执行集（T1-02、T1-12 已覆盖）
 
-以下五项是完成协议切片后的最小增量，不改变四条流、8/10 beat 或 A1-A7 合同；每项都必须有独立通过/失败结果后，才能把状态推进到 `T1_FULL_PENDING` 以外：
+T1-02 和 T1-12 的主要路径已通过本机 Icarus 验证。以下两项是当前剩余的独立最小增量，不改变四条流、8/10 beat 或 A1-A7 合同；每项都必须有独立通过/失败结果后，才能把状态推进到 `T1_FULL_PENDING` 以外：
 
-- **T1-02 合法命令转发**：逐一发送 `0x1..0x9`（含 `MASK_ABORT`），在 Host 命令握手和 NPU 核心握手处各记一笔；逐字段比较 payload，确认每条命令最多消费一次、无重复/丢失，并确认非法字段错误路径不混入合法账本。
 - **T1-04 响应背压**：保持 `host_rsp_ready=0`，覆盖普通响应和错误响应；验证 `rsp_valid/payload` 稳定，响应 FIFO 满时停止命令出队，不以错误响应替代已排队响应；解除背压后按 FIFO 顺序逐笔消费。
 - **T1-10 mask 首 beat 边界**：先发布 epoch=N 的 mask 并 fence，样本 8 beat 进行中再提交 epoch=N+1；当前 10 beat 结果必须全带 N，下一次 fence/样本才允许带 N+1，且提交不得改写活动样本。
 - **T1-11 复位重入**：分别在命令握手、样本第 1/4/8 beat、结果第 1/5/10 beat 拉起 `bridge_rst`；复位期间禁止新握手，半事务全部丢弃，释放后不得泄漏旧 response/result/sample ID/epoch，随后可重新完成一笔干净事务。
-- **T1-12 四 FIFO 边界**：对 command/response/sample/result 分别覆盖空读、满写、同时 push/pop、至少一次深度回绕和长背压；用每条流独立 scoreboard 检查无丢失、重复、乱序，跨流只按已冻结 fence 语义比对。
 
-建议执行顺序为 `T1-02 → T1-04 → T1-10 → T1-11 → T1-12`：先锁定命令/响应账本，再验证活动 mask 边界，最后做复位和 FIFO 压力，便于故障归因。
+- **T1-06 fence 成功独立验收**：独立确认命令完成、核心 sample-ready、无结果/响应、staging 闭合时才接受 fence，并核对 `0xD` 响应、fence ID 和 active epoch。
+- **T1-09 TLAST 外层提示独立验收**：若外层暴露 TLAST，改变、提前或缺失 TLAST 不得改变完整 8/10 beat 核心结果；严格包错误仍由外层 packetizer 负责。
+
+建议执行顺序为 `T1-06 → T1-09`：T1-02、T1-04、T1-10、T1-11 和 T1-12 已有主要路径或独立边界证据，先补 fence 成功独立门，再确认 TLAST 外层提示不改变核心结果，便于故障归因。
 
 ### P15-T0 只读审计结论（2026-09-05，历史快照）
 
@@ -87,7 +88,7 @@ NP4B 已签核；NP6 已收口为 `NP6_PHYSICAL_COST_PARTIAL`，NP7 已签核。
 - A2 已按 KISS 修订为“V2 8/10 beat 计数唯一权威，T1 不解释 TLAST”；严格 TLAST/整帧检查移到外层 packetizer，避免无预缓冲流式 wrapper 无法回滚的问题。
 - A3 已补充建议线级格式：wrapper-only `0xA`、`fence_id=cmd_payload[31:0]`、成功响应类别 `0xD`、fence 前 `sample_ready=0` 且禁止预填、成功后只开放一个 8-beat 窗口。fence 成功条件不得依赖核心 `runtime_idle`（`MASK_PUBLISHED` 等待首 beat 时该摘要为假，可能自锁）；应使用核心 `sample_ready=1`、核心 `result_valid=0`、核心 `rsp_valid=0`、wrapper 无活动样本窗口，以及 model/mask staging 已闭合（允许 `MASK_PUBLISHED` 等待首 beat 激活）作为准入条件。
 - A4/A6 已补充 ready/valid 稳定和状态 CDC 建议：busy 只禁止新握手，非复位期间不撤销已呈现 payload；`mask_epoch` 只通过 result/fence 原子 payload，不做逐 bit CDC。
-- A1/A5 已补充保留位/未知 opcode 错误优先级，以及 `FIFO_READ_LATENCY=0`、`CDC_SYNC_STAGES=2`、`SIM_ASSERT_CHK=1` 唯一参数。该组 A1-A7 提案已于 2026-09-07 获管理员批准；当前为 `T1_RTL_AUTHORIZED / T1_PROTOCOL_SLICE_PROVEN / T1_FULL_PENDING`，不等于 T1 全量、T2 或 T3 完成。
+- A1/A5 已补充保留位/未知 opcode 错误优先级，以及 `FIFO_READ_LATENCY=0`、`CDC_SYNC_STAGES=2`、`SIM_ASSERT_CHK=1` 唯一参数。该组 A1-A7 提案已于 2026-09-07 获管理员批准；T1-02 主要路径与 T1-12 FIFO 边界已在本机 `7c55c7c` 工作树通过，当前仍为 `T1_RTL_AUTHORIZED / T1_PROTOCOL_SLICE_PROVEN / T1_FULL_PENDING`，不等于 T1 全量、T2 或 T3 完成。
 
 ## 资源裁剪门
 

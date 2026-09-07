@@ -17,6 +17,7 @@ class ReproducibilityContractTests(unittest.TestCase):
         required = set(manifest["required_tracked_files"])
         self.assertIn("npu_zynq7020_t1_wrapper.sv", required)
         self.assertIn("tb_npu_zynq7020_t1_wrapper.sv", required)
+        self.assertIn("tb_npu_zynq7020_t1_fifo_boundary.sv", required)
         self.assertIn("xpm_fifo_async_sim.sv", required)
 
     def test_t1_changes_select_repro_gate(self) -> None:

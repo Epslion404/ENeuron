@@ -8,6 +8,7 @@
     "npu_eneuron_single_clock_skeleton.sv",
     "npu_zynq7020_t1_wrapper.sv",
     "tb_npu_zynq7020_t1_wrapper.sv",
+    "tb_npu_zynq7020_t1_fifo_boundary.sv",
     "docs/planning/NPU_ZYNQ7020_T1_TEST_PLAN_V1.md",
     "tools/repro/verify_repository.py",
     "tools/repro/repro_manifest.json",

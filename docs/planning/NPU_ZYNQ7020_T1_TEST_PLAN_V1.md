@@ -38,6 +38,7 @@
 - response：同上，方向相反。
 - sample：完整 payload 为 `{sample_id, sample_data}`，64 bit、depth 16。
 - result：完整 payload 为 `{mask_epoch, sample_id, result_data}`，96 bit、depth 16。
+- 在当前 FWFT 仿真/实测合同中，depth=16 的 RAM 对外表现为 17 个可连续观察的槽位（16 个 RAM 字加 1 个读侧预取槽）；T1-12 必须按该外部可见容量检查满/空，不能把预取槽误判为额外可提交的 RAM 深度。
 - 一个样本严格 8 次 `host_sample_valid && host_sample_ready` 握手；一个结果严格 10 次 `host_result_valid && host_result_ready` 握手。
 - sample 的 `sample_id` 只在首 beat 绑定；result 的两个 sideband 在全部 10 beat 保持不变。
 
@@ -83,7 +84,7 @@ C:\msys64\ucrt64\bin\vvp.exe artifacts\t1_wrapper.vvp
 
 ## 7. T1 通过门
 
-- 当前协议切片已通过；T1-01～T1-12 全量签核仍要求每项有独立确定结果，负向场景必须确实失败于被测错误，而不是 testbench 超时。
+- 当前协议切片及 T1-12 FIFO 边界切片已通过；T1-01～T1-12 全量签核仍要求每项有独立确定结果，负向场景必须确实失败于被测错误，而不是 testbench 超时。
 - 同频 100 MHz 下逐 beat、sideband、错误和 reset 行为通过；数值结果与单时钟参考模型一致。
 - 不把 T1 结果写成 T2 CDC 全覆盖或 T3 XC7Z020 资源/时序通过。
 - T1 未通过前不得实施资源裁剪、接入 DMA/Ethernet 或合并板级结论。

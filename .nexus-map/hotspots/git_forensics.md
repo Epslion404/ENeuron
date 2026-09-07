@@ -1,6 +1,6 @@
 # Git 热点
 
-当前状态校正（2026-09-07）：PR #64 已合并为 `main@a53a040`；V2 OOC 报告绑定 `f744bff`，GitHub Actions run `33948293095` 全绿。PR #68 的 `55ec08e`/run `33976357259` 是历史可追溯审计快照，不是当前值。P15-T0 的 A1-A7 已获管理员批准，当前为 `P15_T0_APPROVED / T1_RTL_AUTHORIZED / T1_PROTOCOL_SLICE_PROVEN / T1_FULL_PENDING`；资源裁剪已记录但推迟至首次完整端到端运行成功后。
+当前状态校正（2026-09-07）：PR #64 已合并为 `main@a53a040`；V2 OOC 报告绑定 `f744bff`，GitHub Actions run `33948293095` 全绿。PR #68 的 `55ec08e`/run `33976357259` 是历史可追溯审计快照，不是当前值。P15-T0 的 A1-A7 已获管理员批准，当前为 `P15_T0_APPROVED / T1_RTL_AUTHORIZED / T1_PROTOCOL_SLICE_PROVEN / T1_FULL_PENDING`；本机最新提交 `7c55c7c` 的 T1-02 主要路径已通过，剩余 T1-04/T1-10/T1-11/T1-12 待执行；资源裁剪已记录但推迟至首次完整端到端运行成功后。
 
 ## V2 历史审计快照（2026-09-05）
 

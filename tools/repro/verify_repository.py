@@ -49,17 +49,22 @@ def _run_t1() -> list[str]:
     if tools is None:
         return ["找不到 Icarus Verilog；Windows 约定路径为 C:/msys64/ucrt64/bin"]
     with tempfile.TemporaryDirectory(prefix="eneuron-repro-") as temp:
-        output = Path(temp) / "t1.vvp"
-        compile_result = _run([tools[0], "-g2012", "-Wall", "-s", "tb_npu_zynq7020_t1_wrapper", "-o", str(output),
-                               "xpm_fifo_async_sim.sv", "npu_eneuron_single_clock_skeleton.sv",
-                               "npu_zynq7020_t1_wrapper.sv", "tb_npu_zynq7020_t1_wrapper.sv"])
-        if compile_result.returncode:
-            return ["T1 编译失败:\n" + compile_result.stderr[-4000:]]
-        simulation = subprocess.run([tools[1], str(output)], cwd=ROOT, text=True,
-                                    capture_output=True, encoding="utf-8")
-        text = simulation.stdout + simulation.stderr
-        if simulation.returncode or "T1_PROTOCOL_SKELETON_PASS" not in text:
-            return ["T1 仿真失败或缺少通过标记:\n" + text[-4000:]]
+        cases = [
+            ("tb_npu_zynq7020_t1_wrapper", "tb_npu_zynq7020_t1_wrapper.sv", "T1_PROTOCOL_SKELETON_PASS"),
+            ("tb_npu_zynq7020_t1_fifo_boundary", "tb_npu_zynq7020_t1_fifo_boundary.sv", "T1_FIFO_BOUNDARY_PASS"),
+        ]
+        for top, testbench, marker in cases:
+            output = Path(temp) / f"{top}.vvp"
+            compile_result = _run([tools[0], "-g2012", "-Wall", "-s", top, "-o", str(output),
+                                   "xpm_fifo_async_sim.sv", "npu_eneuron_single_clock_skeleton.sv",
+                                   "npu_zynq7020_t1_wrapper.sv", testbench])
+            if compile_result.returncode:
+                return [f"{top} 编译失败:\n" + compile_result.stderr[-4000:]]
+            simulation = subprocess.run([tools[1], str(output)], cwd=ROOT, text=True,
+                                        capture_output=True, encoding="utf-8")
+            text = simulation.stdout + simulation.stderr
+            if simulation.returncode or marker not in text:
+                return [f"{top} 仿真失败或缺少通过标记:\n" + text[-4000:]]
     return []
 
 

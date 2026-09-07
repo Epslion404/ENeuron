@@ -6,6 +6,7 @@
 - [x] 核对 T1 修复：非法 fence、mask staging/epoch、四流 FIFO busy 汇合、CDC 二级同步和 fence 响应回显均已纳入当前工作树。
 - [x] 扩展同频 T1 切片：响应背压稳定性、样本进行中发布下一 mask epoch、复位重入后旧响应/结果清除均通过。
 - [x] 补齐 T1-02 主要路径：`STATE_CLEAR` exactly-once、`FREEZE_SET` 进入/退出及冻结期间配置拒绝均通过。
+- [x] 完成 T1-12 FIFO 边界切片：四种 payload 宽度覆盖空读、外部可见容量 17、overflow、回绕、长背压和顺序账本。
 - [x] 暂停仓库 GitHub Actions 并推送本地 T1/Nexus 提交；远端 PR #68 head 已核对，checks 为空按“Actions 已暂停”解释。
 - [ ] 将本轮修复提交到当前分支；提交前继续排除 `local_prune_rtl_results.json`、`np4b_signoff_summary.json`、`np75_tmp_sparse_protocol.ys`。
 - [ ] T1-01～T1-12 全覆盖、T2 双时钟、T3 XC7Z020 OOC 和首次完整端到端运行仍待完成；资源裁剪继续延期。
