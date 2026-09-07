@@ -6,7 +6,7 @@
     "board": "HelloZynq",
     "part": "xc7z020clg484-2"
   },
-  "status": "P16_B0_COMPLETE / FASTLANE_V1 / B1A_HW_DEFINITION_COMPLETE / B1B_PENDING / B1_DECISION_PENDING",
+  "status": "P16_B0_COMPLETE / FASTLANE_V1 / B1A_HW_DEFINITION_COMPLETE / B1B_PREFLIGHT_PARTIAL / B1B_PENDING / B1_DECISION_PENDING",
   "stage2_complete": false,
   "current_gate": "B1B-PS7-UART-DDR",
   "current_execution_point": "DECIDE_SOFTWARE_STACK_AND_RUN_PS7_UART_DDR",
@@ -78,6 +78,34 @@
     "blocking_facts": [],
     "b1a_complete": true,
     "b1_gate_pass": false
+  },
+  "b1b_preflight": {
+    "status": "PARTIAL",
+    "observed_on_main": "065a68ce1fc87836ad3d0062883a226ba54e61d9",
+    "b1_decision_status": "PENDING",
+    "b1b_status": "PENDING",
+    "artifact_identity": {
+      "bitstream_sha256": "5d0940ebbff57585ce80d3b1a8c11ad16e499bfff20bf0d202b2c5dfe847e6d6",
+      "xsa_sha256": "053fc032428da48882d62e6f9081d99f864e7bd64dc7b7b52b422c94d4ab81df",
+      "matches_b1a_manifest": true
+    },
+    "xsct": {
+      "version": "2024.1",
+      "xsa_opened": true,
+      "formal_build_directory_rule": "Do not run hsi::open_hw_design in boards/hellozynq/b1a_hw/build; copy the XSA to a temporary directory first"
+    },
+    "jtag": {
+      "status": "PASS",
+      "visible_targets": ["APU", "Cortex-A9 #0", "Cortex-A9 #1", "xc7z020"]
+    },
+    "uart": {
+      "status": "BLOCKED_ADAPTER_NOT_CONNECTED",
+      "enumerated_ports": ["COM6 Bluetooth", "COM7 Bluetooth"],
+      "required_adapter": "CH340 board UART"
+    },
+    "b1b_complete": false,
+    "b1_gate_pass": false,
+    "forbidden_claims": ["B1-D1 approved", "B1B started", "UART board pass", "DDR board pass", "B1 gate pass"]
   },
   "fastlane_v1": {
     "approved": true,

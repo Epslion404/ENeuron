@@ -1,5 +1,27 @@
 # 调研与实验发现
 
+## 2026-09-07 B1B Fastlane V2
+
+- 当前唯一由`git clean -ndX`列出的忽略目录是`boards/hellozynq/b1a_hw/build/`。该目录不能整体清理，因为B1B仍需复用其中的bitstream、XSA、build manifest和签核摘要。
+- B1A RTL/XDC/BD/Tcl/IP身份未变，B1B入口无需重新运行Vivado；进入应用实现前只保留产物哈希、XSA可读、JTAG可见和UART设备定位四项低成本检查。
+- B1B不等待PHY、UDP、DMA、NPU或ENeuron验证；这些仍由B1C及后续阶段关闭。
+- bitstream和XSA SHA-256分别与manifest中的`5d0940eb...e6d6`、`053fc032...81df`一致。XSCT 2024.1可打开XSA，并识别`ps7_cortexa9_0/1`、`ps7_ddr_0`、`ps7_uart_0`和200 MHz FCLK0。
+- 五份原始Vivado报告均被`build_manifest.json.reports_sha256`引用，合计不足1 MiB；它们仍属于可复核证据，不作为本轮清理目标。
+- Windows仍只枚举蓝牙COM6/COM7，没有板载USB-UART端口。JTAG首次XSDB查询没有显式打印`targets`返回值，因此结果暂记为未裁定，不把空文本误判为无设备。
+- 修正输出后XSDB列出APU、两个运行中的Cortex-A9和`xc7z020`，JTAG就绪项通过。当前唯一前置缺口是UART接收通道，不能用蓝牙COM6/COM7替代。
+- 系统临时目录中12个早期ENeuron T1/T2调试日志共375084字节已移入Windows回收站；范围限定为明确的`eneuron_t1_*`、`eneuron_fifo_*`和`eneuron-t2-*`日志，可恢复。
+- 最短主线路径是把代码合并门与阶段签核门分开：可复现构建和一次实板UART/DDR通过足以证明实现可进入主线；三次完整断电冷启动仍用于关闭B1B，不应被取消。
+- 板厂资料明确板载`USB TO UART`使用CH340；Windows已安装`ch341ser.inf` 3.9.2024.9，并保留多个历史CH340 COM设备，但当前全部为`CM_PROB_PHANTOM`。因此无需先安装驱动，当前缺口是连接板正面左上角、拨码开关下方标有`UART`的USB-C口；Digilent `VID_0403:PID_6014`仅是JTAG通道。
+- XSCT 2024.1的`hsi::open_hw_design`会把XSA内嵌bit展开到XSA同目录并覆盖同名磁盘文件，因此不能直接在正式build目录打开XSA。初始预检时standalone bit为冻结哈希`5d0940eb...e6d6`；检查后磁盘bit变为XSA内嵌版本`bebb577b...b941`，XSA自身仍为`053fc032...81df`。B1B下载前必须恢复冻结standalone bit，后续XSA检查改在独立临时目录副本上执行。
+- 配置区核对证明XSA内嵌bit与独立重建bit从同步字后的4,045,516字节完全一致，payload SHA-256均为`b546109d...cfeb5`；两者只差160字节头中的生成时间。以manifest目标SHA穷举原构建时间字段得到`02:47:53`，恢复文件完整SHA精确命中`5d0940eb...e6d6`，正式bit身份已恢复。
+
+## 2026-09-07 B1B 工具链与设备就绪
+
+- 当前权威基线为 `main@065a68ce1fc87836ad3d0062883a226ba54e61d9`，B1A bitstream/XSA与正式报告仍保留在本地忽略目录，可直接进入软件bring-up。
+- 本机存在 `G:\Xilinx\Vitis\2024.1`，但 `xsct/xsdb/vitis/bootgen` 未加入当前PowerShell PATH；下一步从安装目录定位受支持入口。
+- Windows当前只枚举COM6/COM7两个蓝牙串口，没有发现明显的板载USB-UART设备。该事实不阻止先验证XSA/工具链，但阻止关闭UART实板门。
+
+
 ## 2026-09-07 B1A-HW 快速收敛
 
 - GMII-to-RGMII v4.1 自动生成的 clocks XDC 已为 4 条 `TIMING-54` 创建 AMD IP 内部 waiver，并说明该接口的时钟间 false path 可安全忽略；不再将这 4 条已豁免项作为 B1A 阻断。
