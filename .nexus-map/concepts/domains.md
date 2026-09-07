@@ -24,6 +24,10 @@ provenance: NP4B/NP6/NP7 TODO、工作流状态与 RTL 文件；集成边界来�
 - `T2_FINITE_CLOCK_MATRIX_GREEN`：`verify_repository.py --t2-full-matrix` 以 16 组确定性半周期/相位组合复用完整 wrapper 场景并通过；这是有限复现矩阵，不是数学穷举，固定种子随机矩阵已另行通过，仍待更广泛并发交错。
 - `T2_RANDOM_CLOCK_MATRIX_GREEN`：`verify_repository.py --t2-random-matrix` 以固定种子 `20260907` 生成 24 个唯一半周期/相位组合并返回 `REPRO_G2_T2_RANDOM_MATRIX_PASS`。结果观察预算按 `2000 + 400 × NPU_HALF` 个 Host 周期缩放，避免慢时钟组合因固定预算过早超时；该状态只证明可复现的有限随机压力集，不代表频率/相位数学穷举。
 - `T3_XPM_XSIM_PASS / T3_XC7Z020_OOC_PASS / T3_SIGNOFF_PASS`：真实 AMD XPM/xsim 协同仿真与 `xc7z020clg400-1` OOC 已完成，绑定 Vivado 2024.1、Git HEAD=`c2bc03f`。xsim `RESULT=PASS`，OOC `PHYSICAL_GATE=PASS`；顶层资源为 `2467 LUT / 2301 FF / 6 RAMB36 / 1 RAMB18 / 4 DSP48E1`，100 MHz host/npu 双时钟 setup/hold、route、DRC error 均为 0，wrapper 外部 CDC critical/warning 均为 0。XPM 内部 CDC 有 8 个工具 warning，DRC 仅有建议性 warning（DSP 未启用内部流水、无负载提示和 OOC 中未实例化 PS7），不改变 error gate。该签核不覆盖 AXI/DMA/PS7/Ethernet、bitstream、板级 I/O/吞吐、功耗或首次端到端运行。
+- `B0_COMPLETE`：当前 bitstream 在同一 target/device 上完成两次program和两次 `PL_LED1/P20` 长窗口测量，中间由JTAG不可访问、可访问器件数0和Vivado `No devices detected`证明完整断电。两次10周期为 `13.42 s`、`13.4 s`，均通过冻结窗口；两次三项DONE均为1且错误位为0，因此B0-GATE通过。
+- `P16_B0_COMPLETE / B1_PENDING_MAIN_MERGE`：阶段2的B0已经关闭，但B1-00要求B0证据先进入main。当前执行点为合并PR #69，随后才建立PS7、DDR、UART、PHY和最小UDP基线；B2–B4继续由前置门阻塞。
+- `HOST_STATIC_2OF4`：Host 重放冻结的合法 `2:4` mask，用于验证 NPU 门控执行器、mask 位序、epoch 和执行/跳过组计数；不是 ENeuron 自动决策。
+- `LIVE_ENEURON`：由实板 ENeuron 证据形成组内候选和严格 `2:4` mask，经 pending bank 与 fence 原子提交，并记录证据、gain、epoch 和生效样本。只有该路径通过才可声称神经元参与局部自动剪枝。
 - `T1_NEXT_MINIMAL_SET`：T1-02、T1-06 与 T1-12 已从执行集移出；剩余为 T1-09 的 TLAST 外层 shim/N-A 裁定。若增加外层 shim，需独立验证改变、提前或缺失 TLAST 不改变完整核心结果；若当前 DUT 明确不暴露 TLAST，则记录 N/A 裁定，不得伪造 T1 核心通过。
 - `RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN`：资源裁剪候选已完成风险审查，但第一次完整端到端运行成功前不得实施；当前优先以真实 AMD XPM/xsim 和 XC7Z020 OOC 完成 T3 证据，保持功能、CDC、原子性和诊断基线不变。
 - `B-V1+V2`：NP7 已批准的单槽弹性流水合同，允许零路径同拍完成及非零结果退出与下一事务接受重叠；其收益只由逐拍账本证明。

@@ -1413,3 +1413,40 @@
 - 2026-09-07：按测试先行补齐 T2 wrapper 有限时钟/相位矩阵：先以合同测试复现 `--t2-full-matrix` 缺失，再加入 16 组确定性组合。`python -X utf8 tools/repro/verify_repository.py --t2-full-matrix` 返回 `REPRO_G0_MANIFEST_PASS` 与 `REPRO_G2_T2_FULL_MATRIX_PASS`；这不是频率/相位数学穷举，T2 随机矩阵和外层 shim仍待后续。
 - 2026-09-07：继续按测试先行加入固定种子随机矩阵：先复现 `--t2-random-matrix` 缺失，再用种子 `20260907` 生成 24 组唯一时钟/相位组合。初版固定 5000 Host 周期在 `NPU_HALF=14` 暴露观察预算不足，改为 `2000 + 400 × NPU_HALF` 后 24 组全部通过，入口返回 `REPRO_G2_T2_RANDOM_MATRIX_PASS`。
 - 2026-09-07：随机矩阵收口复验通过：`test_reproducibility test_ci_fast_v1` 为 `22/22 PASS`；统一复现命令同时返回 G0、G1 以及 T2 variable/full/random/FIFO/interleave-reset 六类通过标记。Nexus JSON 与差异检查通过，生产 RTL 未改变。
+- 2026-09-07：PR #68精确 HEAD的 G0/T1/T2复现全部通过，已合并为 `main@7857d325...`。从批准的 `e2a1bfa...` 创建独立 board worktree，提交 B0最小设计为 `367c813...`。
+- 2026-09-07：在干净 B0提交上完成 Vivado 2024.1 `xc7z020clg484-2`实现和 bitstream；1 LUT / 26 FF、WNS +17.918 ns、WHS +0.251 ns、route/DRC硬门通过，bitstream SHA-256为 `c16a1f8...e3d1`。
+- 2026-09-07：同一 bitstream连续两次 JTAG配置成功，CONFIG_STATUS返回 DONE_INTERNAL/DONE_PIN=1，IR返回 ISC_DONE=1。当前等待用户现场观察 P20和断电复测，B0仍为 pending。
+- 2026-09-07：B0 编程脚本加入三项 DONE 同时为 1 的硬门后，源码提交 amend 为 `f3b8174...`；Vivado 2024.1 正式重建通过，新 bitstream SHA-256 为 `df16ed6c...8971`。该新产物尚未下载，不能沿用旧 `c16a1f8...e3d1` 的两次 program 记录。
+- 2026-09-07：开始把阶段 2 TODO 细化为 B0～B4 的逐项执行与验收清单；明确当前 bitstream 重下、现场 LED、断电复测是 B0 的三个未闭环门。
+- 2026-09-07：完成 P16 详细 TODO：新增公共证据合同、B0 11项、B1 9项、B2 8项、B3 10项、B4 10项和统一停止条件；每阶段均有独立 GATE，阶段 2 仍只以实板证据关闭。
+- 2026-09-07：同步修正阶段计划、B0报告、机器摘要、WORKFLOW_STATE和 Nexus，把当前 `f3b8174.../df16ed6c...8971` 构建与历史 `367c813.../c16a1f8...e3d1` program证据分开记录。
+- 2026-09-07：TODO与身份校正验证通过：`test_artifact_layout.py + test_ci_fast_v1.py` 为10/10，B0摘要身份合同、P16结构锚点、Nexus JSON解析、陈旧活动状态扫描和 `git diff --check` 均通过。
+- 2026-09-07：最终差异边界确认未包含三个保护文件，也未包含 `boards/hellozynq/b0_smoke/build/` 生成目录；本轮未执行 JTAG program、断电、commit或push。
+- 2026-09-07：继续执行 B0-07；已核对 `f3b8174...`、当前 bitstream `df16ed6c...8971`、manifest和program脚本硬门，下一动作是正式JTAG下载。
+- 2026-09-07：B0-07完成。`df16ed6c...8971` 正式JTAG program返回0并输出 `B0_PROGRAM_PASS`；`DONE_INTERNAL/DONE_PIN/ISC_DONE=1/1/1`，CRC/IDCODE/security error=0。下一门为用户现场观察P20至少10周期。
+- 2026-09-07：已刷新远端，`origin/main=7857d325...`；B0分支相对主线为1 ahead/2 behind。为保留已被实板证据绑定的 `f3b8174...`，后续采用合入 `origin/main`，不使用会改写提交号的rebase。
+- 2026-09-07：Nexus子任务完成B0当前program证据更新；主代理逐项复核后修正 `concept_model.json` 两个主线指针为 `7857d325...`。知识库状态保持 `CURRENT_BITSTREAM_PROGRAM_PASS / B0_FIELD_OBSERVATION_PENDING`。
+- 2026-09-07：B0机器证据、详细TODO、报告和Nexus提交为 `6161a0c docs(board): record B0 machine evidence`；源码提交 `f3b8174...` 保持独立可追溯。
+- 2026-09-07：将 `origin/main@7857d325...` 合入B0分支，merge commit为 `411d2b1`，未改写 `f3b8174...`。合入后轻量回归10/10、B0物理证据身份和三份JSON再次通过。
+- 2026-09-07：分支推送后创建 PR #69；GitHub实际返回 `OPEN / CLEAN / MERGEABLE`，base=`main@7857d325...`、观测HEAD=`8db816d...`、checks为空。Actions已关闭，PR暂不合并。
+- 2026-09-07：Nexus子任务仅在三个B0入口记录PR #69固定审计快照；主代理复核确认base、观测状态、Actions边界和暂不合并条件与GitHub API一致，未把快照HEAD写成自动更新状态。
+- 2026-09-07：按管理员同意将阶段2 TODO进一步细化。P16现包含公共证据目录/字段/失败语义，B0完整断电双运行步骤，B1 PS/DDR/PHY/UDP逐层门，B2 DMA所有权/缓存/协议/恢复门，B3 dense→full-open→Host静态2:4→live-ENeuron隔离门，以及B4同条件端到端A/B计量合同。
+- 2026-09-07：详细化没有改变当前执行状态；下一项仍是用户观察 `PL_LED1/P20` 至少10个完整周期。首次原始 program证据必须在断电前固化为run-1，随后才执行同一 `df16ed6c...8971` 的冷启动run-2。
+- 2026-09-07：新增可复现的 `archive_b0_program_run.ps1`，并在任何第二次下载前把当前 `df16ed6c...8971` 首次 program输出固化到唯一 run-1目录；bitstream、program result、transcript和build manifest哈希已写入archive manifest，现场状态保持 `PENDING`。
+- 2026-09-07：阶段2详细TODO、run-1原始机器证据、归档脚本/测试和Nexus提交为 `ffc6f11` 并推送 PR #69。GitHub复核为 `OPEN / CLEAN / MERGEABLE`、HEAD=`ffc6f11...`、checks为空；PR描述已更新为14项本地验证和现场门未关闭，未合并。
+- 2026-09-07：用户完成首次定性观察：LED稳定闪烁，但主观周期短于1.342秒。已核对RTL、XDC和本地板级例程，理论上0.671秒是一次亮灭翻转间隔、1.342秒才是完整周期；当前转为定量澄清，暂停断电run-2。
+- 2026-09-07：用户澄清完整周期目测约1秒。当前将其作为近似值记录，不作为时钟故障证据；下一门改为测量10个完整周期总时长（理论13.42秒）。
+- 2026-09-07：10周期人工秒表门在取得结果前冻结为12.6～14.2秒；现场观察JSON、摘要、报告、TODO、工作流和Nexus已同步，15项定向检查与现场文件哈希通过。PR #69描述已更新为周期量化pending，继续不合并。
+- 2026-09-07：用户实测 `PL_LED1/P20` 10个完整周期13.42秒，通过理论13.4217728秒和冻结窗口12.6～14.2秒。run-1现场门转为PASS；下一步是完整断电确认与同一bitstream的run-2，PR #69仍不合并。
+- 2026-09-07：用户确认完全断电；两次只读JTAG检查均显示精确Digilent线缆存在但FPGA device不可访问。第二次由仓库脚本正式采集，输出 `B0_COMPLETE_POWER_OFF_JTAG_INACCESSIBLE=PASS`，证据目录 `20260907T150221Z_df16ed6c_power_off`，下一步为重新上电和run-2。
+- 2026-09-07：用户确认重新上电，开始 B0 run-2。首次哈希命令误用了不存在的 `build/hello_zynq_b0.bit`；权威 runner 默认文件名是 `build/hello_zynq_b0_smoke.bit`。本次失败未调用 Vivado、未访问 JTAG、未改写生成物；后续改为从 runner/manifest 解析路径后再校验。
+- 2026-09-07：标准输入方式运行 Vivado Tcl 未产生可审计输出，未据此裁定；改用显式临时 Tcl 后只读确认同一 Digilent `210251A08870` 和唯一 `xc7z020_1` 已恢复，下载前器件明确为未配置（DONE=0、PROGRAM.FILE为空）。
+- 2026-09-07：B0 run-2 机器门通过。本地 bitstream SHA-256 仍为 `df16ed6c...8971`；正式 program 返回 `B0_PROGRAM_PASS`，三项 DONE=`1/1/1`，CRC/IDCODE/security error均为0。机器证据已固化到 `artifacts/logs/hellozynq_b0/20260907T152656Z_df16ed6c_run2_machine/`，archive manifest保持 `observation_status=PENDING`；下一项为10周期现场测量。
+- 2026-09-07：用户完成 run-2 现场测量，10个完整周期为 `13.4 s`，位于冻结窗口 `12.6–14.2 s`，现场门 PASS。计算辅助命令首次误用 PowerShell 只读自动变量 `$Error` 作为标量，导致误差计算失败；未写入任何证据，后续改用非保留变量名重算。
+- 2026-09-07：使用非保留变量重算 run-2：平均完整周期 `1.34 s`、翻转间隔 `0.67 s`、相对理论10周期误差 `-0.0217728 s / -0.1622200012%`。已创建 run-2 `field_observation.json`，等待写入哈希并同步所有 B0 状态文件。
+- 2026-09-07：一次测试检索在 Windows PowerShell 中把 `test_*.py` 直接作为 `rg` 路径，触发路径语法错误；未修改文件。后续使用 `rg -g 'test_*.py'` 的 glob 参数。
+- 2026-09-07：B0 收口定向验证通过：B0证据、artifact布局与CI-Fast共 `17/17 PASS`；Nexus、结果和B0日志共37份JSON解析通过；run-2四个归档文件哈希与manifest一致，`git diff --check`通过。临时只读上电探针Tcl已移入系统回收站；未提交的时钟诊断文件和其README修改继续保留且排除在B0提交外。
+- 2026-09-07：暂存时Git提示run-2机器文件将CRLF归一化为LF，因此在提交前增加Git blob字节哈希审计，避免manifest只匹配Windows工作树、不匹配仓库对象。属性检查第一次因工具参数拼写错误未执行，记录错误的补丁调用又因JavaScript输出语句拼写错误未执行；两次均未改变仓库状态，随后改用正确调用。
+- 2026-09-07：跨平台哈希补丁首次因断电manifest中的实际Tcl哈希与预期上下文不同而整体拒绝，未发生部分写入；读取实际结构后拆分重试。确认run-1、断电探针和run-2的采集时文本哈希均受CRLF/LF影响，因此保留原始SHA-256字段，并补充LF规范SHA-256；B0证据测试改用规范哈希验证跨平台仓库字节，符合根 `.gitattributes` 的 `eol=lf` 合同。
+- 2026-09-07：规范哈希修正后复验通过：B0证据、artifact布局与CI-Fast仍为 `17/17 PASS`，37份JSON解析通过，`git diff --check`通过。换行提示仅说明Git将按既有 `.gitattributes` 写入LF，规范哈希已覆盖该转换。
+- 2026-09-08：提交后Git blob复核第一次因 `sha256sum` 未加入PATH而中止，改用已安装的 `C:\msys64\usr\bin\sha256sum.exe`；run-1、断电探针和run-2三个已提交transcript的LF字节哈希全部匹配manifest。随后PR边界检查误把B0原有README路径本身当作诊断改动，产生假阳性；正确条件是远端HEAD不得包含未提交的“M19时钟诊断”章节，六个诊断文件也不得出现在PR路径中。

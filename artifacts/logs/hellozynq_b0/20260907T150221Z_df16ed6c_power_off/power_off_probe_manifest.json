@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "evidence_label": "20260907T150221Z_df16ed6c_power_off",
+  "git_head": "f373c74322743d963aaba2272bcc6b6236cca3df",
+  "git_worktree_clean": false,
+  "expected_target": "localhost:3121/xilinx_tcf/Digilent/210251A08870",
+  "accessible_device_count": 0,
+  "result": "PASS",
+  "result_sha256": "fe594c87bf4795fcfd7566322a0abb6e53d2c5b9fdf17683cd66cc24ce43776e",
+  "transcript_sha256": "3a953999dc611332f19fa9a12c7fcafc04f9fdbd425cb8dc92fc0b4a0da1f634",
+  "result_canonical_lf_sha256": "bf09f6d7bc5e38073e6f1bdb2177e4cf0818edab384e1301d148260dafa0f502",
+  "transcript_canonical_lf_sha256": "2559341d2654cbb6b2db674af9ce31a27c05e3e4619f0c215b9c6cfeb03ab234",
+  "tcl_sha256": "fce25279b91035001017fefdf86a5ad95359ac003f640f3ec98cf8465596a8da",
+  "runner_sha256": "5de6ab05dd75d13f43a19b3ef12f346df3df2750600ce60720002a5acc1e08a5"
+}

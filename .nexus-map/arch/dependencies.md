@@ -22,6 +22,13 @@ graph TD
   npu --> vivado
   npu -. P15 T0, plan A .-> p15[XC7Z020 top-level adapter]
   p15 -. A1-A7 approved; T1-02/T1-06/T1-12 local pass; T1-09 N/A; T2 full matrix and outer shim pending; T3 real XPM/xsim + XC7Z020 OOC pass .-> vivado
+  p15 --> b0[P16 B0: PL clock and LED]
+  b0 --> b1[P16 B1: PS7 DDR UART PHY UDP]
+  b1 --> b2[P16 B2: AXI DMA and fixed frame protocol]
+  b2 --> b3[P16 B3: traditional NPU plus ENeuron]
+  b3 --> b4[P16 B4: Ethernet end-to-end A/B]
+  hostmask[Host static 2:4 mask] -. validates NPU gating only .-> b3
+  live[live-ENeuron evidence and decision] -. proves automatic pruning path .-> b3
   changes[changed paths] --> classify[tools/ci/classify_changes.py]
   classify --> fast[fast-check]
   classify --> specialized[conditional specialized gates]

@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "reported_at_utc": "2026-09-07T15:30:27.3937071Z",
+  "observation_target_expected": "board PL_LED1 / FPGA P20",
+  "observer_report": "完整断电并重新上电、再次下载同一 bitstream 后稳定闪烁；实测10个完整周期总时长13.4秒",
+  "stable_blinking_confirmed": true,
+  "observed_complete_period_seconds": 1.34,
+  "observed_complete_period_is_approximate": false,
+  "measurement_method": "manual stopwatch over 10 complete just-lit to just-lit periods",
+  "observed_toggle_interval_seconds": 0.67,
+  "interpretation": "COLD_RESTART_TIMED_10_PERIOD_MEASUREMENT_MATCHES_EXPECTED",
+  "expected_toggle_interval_seconds": 0.67108864,
+  "expected_complete_period_seconds": 1.34217728,
+  "timed_10_period_expected_seconds": 13.4217728,
+  "timed_10_period_acceptance_min_seconds": 12.6,
+  "timed_10_period_acceptance_max_seconds": 14.2,
+  "timed_10_period_observed_seconds": 13.4,
+  "timed_10_period_error_seconds": -0.0217728,
+  "timed_10_period_error_percent": -0.1622200012207031,
+  "timed_10_period_within_acceptance_window": true,
+  "status": "PASS"
+}

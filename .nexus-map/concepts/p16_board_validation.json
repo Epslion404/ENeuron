@@ -1,0 +1,99 @@
+{
+  "$schema": "nexus-mapper/plan/v1",
+  "plan_id": "p16-board-validation-phase2",
+  "verified_at": "2026-09-07",
+  "target": {
+    "board": "HelloZynq",
+    "part": "xc7z020clg484-2"
+  },
+  "status": "P16_B0_COMPLETE / B1_PENDING_MAIN_MERGE",
+  "stage2_complete": false,
+  "current_gate": "B0-GATE",
+  "current_execution_point": "MERGE_PR69_THEN_START_B1",
+  "b0": {
+    "source_commit": "f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06",
+    "bitstream_sha256": "df16ed6ccd9124f2dc4391d96e868ebd7846aebf3df335099b742cc7cd318971",
+    "first_program_pass": true,
+    "stable_blinking_confirmed": true,
+    "first_led_observation_pass": true,
+    "period_quantification_pass": true,
+    "expected_toggle_interval_seconds": 0.67108864,
+    "expected_complete_period_seconds": 1.34217728,
+    "initial_visual_estimate_complete_period_seconds": 1.0,
+    "initial_visual_estimate_superseded": true,
+    "timed_measurement_reported_at_utc": "2026-09-07T14:33:01.3181071Z",
+    "observed_complete_period_seconds": 1.342,
+    "observed_toggle_interval_seconds": 0.671,
+    "quantitative_measurement": {
+      "method": "just-lit edge to just-lit edge after 10 complete periods",
+      "period_count": 10,
+      "expected_total_seconds": 13.4217728,
+      "stopwatch_pass_window_seconds": {"minimum": 12.6, "maximum": 14.2},
+      "measured_total_seconds": 13.42,
+      "error_seconds": -0.0017728,
+      "error_percent": -0.0132083892822226,
+      "within_acceptance_window": true
+    },
+    "run_1_machine_archive_created": true,
+    "run_1_machine_archive_path": "artifacts/logs/hellozynq_b0/20260907T102256Z_df16ed6c_run1_machine/",
+    "run_1_program_log_sha256": "0152fe3258cefb16f6e7efd3b12058e5da6cd352c8416f3d12a290e21d6ea49e",
+    "run_1_field_observation_sha256": "d93bcc25f9fff017534a27a17fc82592a996cca2bb8be7e2ae396f36a49ab083",
+    "run_1_field_observation_sha256_status": "CURRENT",
+    "run_1_previous_field_observation_sha256": "fb0d9318bfdb82f3d21c3279698b8188b53f826a6e15f3b809f20d14f660ea9e",
+    "run_1_observation_status": "PASS",
+    "run_1_complete": true,
+    "full_power_cycle_confirmed": true,
+    "complete_power_off_probe_path": "artifacts/logs/hellozynq_b0/20260907T150221Z_df16ed6c_power_off/",
+    "complete_power_off_probe_time_utc": "2026-09-07T15:02:49Z",
+    "complete_power_off_matching_target_count": 1,
+    "complete_power_off_target_opened": false,
+    "complete_power_off_accessible_device_count": 0,
+    "complete_power_off_result": "PASS",
+    "complete_power_off_result_sha256": "fe594c87bf4795fcfd7566322a0abb6e53d2c5b9fdf17683cd66cc24ce43776e",
+    "complete_power_off_transcript_sha256": "3a953999dc611332f19fa9a12c7fcafc04f9fdbd425cb8dc92fc0b4a0da1f634",
+    "second_program_pass": true,
+    "second_led_observation_pass": true,
+    "run_2_archived": true,
+    "run_2_machine_archive_path": "artifacts/logs/hellozynq_b0/20260907T152656Z_df16ed6c_run2_machine/",
+    "run_2_program_time_utc": "2026-09-07T15:26:56Z",
+    "run_2_program_log_sha256": "1d4fada3b793ee125791c22c9886fac7eb0bd96476b60259c200142d4b03613b",
+    "run_2_field_observation_sha256": "73c81d86c573d7157114eb3ec64a7f9a9e6b415c48ea58d98401ce7f2dda25f8",
+    "run_2_timed_10_period_observed_seconds": 13.4,
+    "run_2_observation_status": "PASS",
+    "gate_pass": true
+  },
+  "next_action": {
+    "action": "MERGE_PR69_THEN_START_B1",
+    "run_2_started": true,
+    "completion_condition": "Merge the B0 evidence branch to main, then freeze the B1 bare-metal plus lwIP software and board configuration baseline"
+  },
+  "stages": [
+    {"id":"B1","requires":"B0-GATE=PASS on main","scope":"PS7, DDR, UART, PHY, minimal UDP","status":"BLOCKED_BY_PREDECESSOR_GATE"},
+    {"id":"B2","requires":"B1-GATE=PASS","scope":"AXI DMA, DDR ownership/cache contract, PL loopback, fixed frame adapter","status":"BLOCKED_BY_PREDECESSOR_GATE"},
+    {"id":"B3","requires":"B2-GATE=PASS","scope":"64x32x10 traditional NPU plus ENeuron fixed-vector board validation","status":"BLOCKED_BY_PREDECESSOR_GATE"},
+    {"id":"B4","requires":"B3-GATE=PASS","scope":"Ethernet end-to-end dense/gated reproducible A/B","status":"BLOCKED_BY_PREDECESSOR_GATE"}
+  ],
+  "mask_mode_boundary": {
+    "host_static_2of4": "Host replays a frozen legal mask to validate the NPU gating executor; this is not ENeuron automatic decision evidence.",
+    "live_eneuron": "ENeuron evidence generates a strict 2:4 decision that is atomically published through pending bank and fence, with decision evidence, gain, epoch, and effective sample recorded.",
+    "reporting_rule": "Correctness, cycle, executed/skipped group, and performance results must be reported separately for host-static and live-ENeuron modes."
+  },
+  "pull_request": {
+    "number": 69,
+    "merged": false,
+    "base_commit": "7857d32561cbd5f86d02b1a21ee0edfb3ae895f1",
+    "audit_head_snapshot": "8db816d29beabc490851719c34a83a6f603fc321",
+    "audit_state": "OPEN / CLEAN / MERGEABLE",
+    "run_1_evidence_commit": "ffc6f1134e5218cce63aa7c988313fbdbc4d352b",
+    "run_1_evidence_commit_audit_state": "OPEN / CLEAN / MERGEABLE",
+    "actions_enabled": false,
+    "empty_checks_mean": "NOT_RUN, NOT PASS",
+    "merge_policy": "B0_GATE_PASS; MERGE_AFTER_FINAL_LOCAL_VALIDATION_AND_PR_REFRESH"
+  },
+  "authoritative_sources": [
+    "docs/planning/TODO.md",
+    "task_plan.md",
+    "findings.md",
+    "progress.md"
+  ]
+}

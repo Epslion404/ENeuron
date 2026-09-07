@@ -4,16 +4,25 @@
 
 最后更新：2026-09-07
 
-状态：`ACTIVE / NP7_MERGED / I1_I6_APPROVED / OF1_OF6_V3_APPROVED / OF6_ORACLE_SIGNOFF / RTL_DESIGN_CONTRACT_V2_APPROVED / PR62_MERGED / PR64_MERGED / PR65_MERGED / PR66_MERGED / TR1_TR6_APPROVED / TR7_TR12_APPROVED / TIMING_REPAIR_V2_FUNCTIONAL_GREEN / VIVADO_OOC_100MHZ_PASS / P15_T0_APPROVED / T1_RTL_AUTHORIZED / T1_PROTOCOL_SLICE_PROVEN / T1_FULL_PENDING / T2_VARIABLE_CLOCK_SLICE_GREEN / T2_CONCURRENT_EPOCH_SLICE_GREEN / T2_EXTENDED_CLOCK_SLICE_GREEN / T2_FIFO_MATRIX_SLICE_GREEN / T2_INTERLEAVE_RESET_SLICE_GREEN / T2_FINITE_CLOCK_MATRIX_GREEN / T2_RANDOM_CLOCK_MATRIX_GREEN / T2_FULL_MATRIX_PENDING / T3_XPM_XSIM_PASS / T3_XC7Z020_OOC_PASS / RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN / GITHUB_ACTIONS_BILLING_BLOCKED / GITHUB_ACTIONS_DISABLED`
+状态：`ACTIVE / PHASE2_BOARD_ACTIVE / B0_COMPLETE / B1_PENDING_MAIN_MERGE / XC7Z020CLG484_2_CONFIRMED / T3_XPM_XSIM_PASS / T3_XC7Z020_OOC_PASS / RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN / GITHUB_ACTIONS_DISABLED`
 
 ## 当前活动目标
 
 NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定及 TR1-TR6 已批准。管理员于 2026-09-05 批准 TR7-TR12，V2 已完成测试先行、RTL 实施、功能回归和 Vivado 2024.1 OOC。DSP V1 实现、真实 OOC 失败证据和全部 22 个失败端点审计已经合入；V2 KISS 审核材料经 PR #62 合入 `main@e8dc947`，V2 实现提交为 `f744bff2bdde68e138a7b2b348ce103bec1ab469`。
 
-活动合同：`docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V1.md`、`docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_TEST_CONTRACT_V1.md` 和 `docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V2.md`。当前 RTL 已完成共享四 DSP lane、三拍组计算、V2 激活锁存、统一 WRITEBACK、active-mask 门控和全部功能回归。Vivado 2024.1 OOC 已确认恰好 4 个 DSP48E1，100 MHz 下 setup/hold、route/DRC 全部通过；板级、网口、DMA、功耗仍不在本阶段。
+活动合同：`docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`。阶段 2 只用真实板卡证据关闭任务；仿真与 OOC 继续作为开发辅助和历史基线。
 
 ## 当前事实
 
+- 2026-09-07：B0分支已推送并创建 PR #69；GitHub观测为 `OPEN / CLEAN / MERGEABLE`，base为 `main@7857d325...`。Actions按管理员要求关闭，空checks不作为通过证据；现场LED和断电复测完成前不合并。
+- 2026-09-07：PR #68 在精确 HEAD `e2a1bfa...` 上通过 G0、T1和全部已定义 T2入口后合并，merge commit为 `7857d325...`。
+- 2026-09-07：B0 当前源码 `f3b8174...` 和 bitstream `df16ed6c...8971` 的正式实现、两次JTAG program、两次LED周期测量和完整断电复测均通过；target为 Digilent `210251A08870`、device为 `xc7z020_1`，两次下载后三项 DONE均为1，CRC/IDCODE/security error均为0。
+- 2026-09-07：第一次 program机器证据已在第二次下载前固化到 `artifacts/logs/hellozynq_b0/20260907T102256Z_df16ed6c_run1_machine/`，program log SHA-256为 `0152fe32...a49e`，`observation_status=PENDING`。归档、详细 P16 TODO、Nexus和14项定向验证提交为 `ffc6f11` 并推送至 PR #69；远端观测仍为 `OPEN / CLEAN / MERGEABLE`。
+- 2026-09-07：用户确认 LED稳定闪烁，但报告周期明显短于预期。RTL/约束及两个本地板级例程均支持 M19=50 MHz、P20=`PL_LED1`；设计的理论行为是每0.67108864秒翻转、完整周期1.34217728秒。当前先定量澄清周期口径，暂停断电run-2。
+- 2026-09-07：用户进一步澄清所称完整周期目测约1秒。该粗略值相对理论1.342秒约短25%，但尚不足以判定时钟异常；当前要求使用10个完整周期的长窗口计时，理论总时长13.42秒。
+- 2026-09-07：用户实测10个完整周期为13.42秒，与理论13.4217728秒误差约-0.013%，通过事前冻结的12.6～14.2秒门。run-1程序下载、稳定闪烁和周期均通过；下一门为完整断电确认。
+- 2026-09-07：用户确认主电源关闭且供电指示全部熄灭。仓库内只读Vivado探针仍找到精确Digilent线缆，但target打开失败并报告 `No devices detected`，accessible device count=0，完整断电门PASS；原始transcript SHA-256为 `3a953999...1f634`。
+- 2026-09-07：重新上电后只读探针确认同一 target/device 恢复且下载前未配置；run-2 于 `15:26:56Z` 下载同一 bitstream，三项 DONE=`1/1/1`、错误位为0。用户实测10周期 `13.4 s`，通过12.6～14.2秒窗口；run-2 已归档到 `20260907T152656Z_df16ed6c_run2_machine`，B0-GATE通过。
 - 2026-09-07：Actions 已按管理员要求暂时关闭（仓库 API `enabled=false`），因此 PR #68 的 checks 为空不解释为通过或失败；本阶段以本机 Vivado 2024.1 证据为准。
 - 2026-09-07：T3 真实 AMD XPM/xsim 协同仿真通过，OOC 通过。摘要绑定本轮提交前的工作树快照，正式提交后必须用新 HEAD 重跑并更新 SHA。
 - 2026-09-07：T3 已在实现提交 `c2bc03f` 上重新运行，xsim/OOC 摘要均绑定该 SHA；随后 Nexus 与 T2 计划以 `439ac6b` 推送。Actions 仍关闭，远端 checks 不作为本轮通过证据。
@@ -54,7 +63,7 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 
 ## 下一动作
 
-V2 OOC 物理门已通过，PR #64 已合并为 `main@a53a040`；PR #65 已合并为 `main@618c1e4`，PR #66 已合并为 `main@a1457bb`。A1-A7 已批准并已实现 T1 纯 RTL 协议切片；下一步是补齐 T1-01～T1-12 全量测试，再进入 T2 双时钟和 T3 XC7Z020 OOC。当前 OOC 仍不等价于板级、网口、DMA、PS 或持续学习签核。
+完成 B0 收口验证并更新 PR #69。PR 合并到 `main` 后进入 B1，先裁定并建立 `bare-metal + lwIP` 的 PS7、DDR、UART、PHY和最小UDP基线。
 
 ## 2026-09-05 V2 OOC 签核结果
 

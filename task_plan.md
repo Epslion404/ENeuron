@@ -1320,6 +1320,41 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 错误记录：第二次真实 XPM/xsim 同样完成并打印通过 marker，但 Tcl 在 `close_sim` 前读取仍未完全刷新的 `simulate.log`，误判 marker 缺失。当前落盘日志已核对包含 marker；runner 改为先 `close_sim` 再读取日志。
 首轮 OOC 结果：资源/双时钟时序/route/DRC/四 DSP 已通过，但 `report_cdc` 显示 wrapper 自身同步器缺少 `ASYNC_REG`，并把 8 条逐 FIFO `rst_busy` 交叉同步识别为 critical。处理为给全部显式同步链加属性，并将 busy CDC 收敛为“各域本地寄存汇总 + 两个单 bit 同步”；OOC runner 同时新增 external CDC hard gate，修后必须重跑。
 
+## 2026-09-07 项目阶段 2 / B0 实板 smoke
+
+- [x] 在 PR #68精确 HEAD上重跑 G0/T1/T2全部入口并合并为 `main@7857d325...`。
+- [x] 从 `e2a1bfa...` 建立隔离 board worktree和分支。
+- [x] 实现最小 M19→26-bit计数器→P20顶层、XDC、构建和编程脚本。
+- [x] 提交 `367c813...` 后在干净工作树重建；1 LUT / 26 FF、WNS +17.918 ns、WHS +0.251 ns、route/DRC硬门通过。
+- [x] 对 SHA-256 `c16a1f8...e3d1` 连续 program两次，读取 DONE内部/引脚和 ISC_DONE均为1。
+- [ ] 用户现场观察至少10个完整 LED周期。
+- [ ] 断电重启、重新连接并对同一 bitstream做第三次 program和 LED复测。
+- [ ] 更新最终摘要、Nexus、提交、推送并创建 B0 PR。
+- [x] 将编程脚本收紧为 `DONE_INTERNAL/DONE_PIN/ISC_DONE` 三项同时通过的硬门，并在 `f3b8174...` 上正式重建。
+- [x] 记录新构建 bitstream `df16ed6c...8971` 与旧已编程 bitstream `c16a1f8...e3d1` 的身份边界，禁止拼接证据。
+- [x] 对当前 `df16ed6c...8971` 重新 program，取得三项 DONE 硬门日志。
+- [ ] 用户完成当前 `df16ed6c...8971` 的 P20 LED现场观察。
+- [x] 将 `docs/planning/TODO.md` 的 B0～B4 扩展为可执行、可验收、可保留失败证据的详细清单。
+- [x] 验证 P16结构、B0新旧证据身份、Nexus JSON、artifact layout、CI-Fast和差异边界。
+- [x] 提交B0机器证据并合入最新 `origin/main`，保持硬件证据绑定的源码提交号不变。
+- [x] 推送B0分支、创建PR #69并记录 `OPEN / CLEAN / MERGEABLE`；现场观察和断电复测完成前不合并。
+
+当前状态：当前 bitstream 的机器侧构建、第一次 program和 run-1机器归档通过；没有现场观察、完整断电和第二次 program/观察，不得将 B0标为完成。
+
+### 2026-09-07 阶段 2 TODO 可执行化补充
+
+- [x] 将 P16 公共证据合同扩展为阶段入口、独立运行目录、原始日志不可覆盖、机器摘要字段、人工观察字段和脚本失败语义。
+- [x] 将 B0 现场门细分为第一次 `PL_LED1/P20` 观察、run-1 固化、完整断电确认、同一 bitstream 二次 program、run-2 观察和最终汇总。
+- [x] 将 B1/B2/B3/B4 分别补齐入口基线、逐层实现顺序、正式证据包和故障恢复路径。
+- [x] 明确区分 Host静态 `2:4` mask 与 live-ENeuron自动决策；只有后者才能作为“神经元参与局部自动剪枝”的实板证据。
+- [x] 运行任务编号、保护文件、差异和 Markdown 基础检查。
+
+当前执行点：run-1、完整断电、重新上电恢复和 run-2 机器下载均通过；run-2 已绑定同一 `df16ed6c...8971` 并固化到唯一证据目录。下一步是用户按相同判据测量 `PL_LED1/P20` 10个完整周期，随后写入现场 JSON、汇总报告并关闭 B0。B0关闭前不启动B1。
+
+错误记录：首次加入 `artifacts/results/hellozynq_b0_smoke_summary.json` 后，`test_artifact_layout.py` 按设计拒绝未登记的新结果文件。已将该正式摘要加入精确白名单并同步 `artifacts/README.md`，未放宽目录检查规则。
+
+错误记录：一次上下文读取尝试访问仓库根目录不存在的 `TODO.md`；权威总 TODO 实际位于 `docs/planning/TODO.md`。该错误未修改文件，后续使用已确认路径。
+
 ## 2026-09-04 单时钟 RTL 时序修复设计审核
 
 - [x] 读取 `timing_impl.rpt` 并完成最差 setup 路径分类。

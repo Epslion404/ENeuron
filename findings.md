@@ -1292,3 +1292,65 @@
 - 固定种子 `20260907` 生成 24 个唯一 `(NPU_HALF,NPU_PHASE)` 组合，半周期范围为 2-17 ns；统一入口返回 `REPRO_G2_T2_RANDOM_MATRIX_PASS`。
 - 固定 5000 Host 周期在慢 NPU 组合下不足。观察预算改为 `2000 + 400 × NPU_HALF`，只改变 testbench 等待上限，不改变 DUT、事务顺序或通过判据。
 - 恢复审计确认上一轮只有状态汇报，没有改变权威状态；本轮继续完成 Nexus、复验、提交和推送闭环。
+
+## 2026-09-07 HelloZynq B0 实板
+
+- 板厂固定提交同时证明 M19/P20为 HelloZynq PL时钟/LED引脚，B0 XDC使用 LVCMOS33；目标完整 part固定为 `xc7z020clg484-2`。
+- 最小 26-bit计数器实现只使用1 LUT、26 FF和1 BUFG，0 BRAM/0 DSP；50 MHz下 P20完整周期为1.34217728秒。
+- 干净提交 `367c813...` 的实现 WNS/WHS为 `+17.918/+0.251 ns`，route error 0，DRC Error/Critical Warning为0。唯一 `ZPS7-1` Warning来自刻意不实例化 PS7的 PL-only范围，不能外推到 B1。
+- bitstream SHA-256为 `c16a1f8a035c9f5d70677cf71e433b8b19e040ff336d58c85efc89761e85e3d1`。首次下载前 Vivado报告 DONE=0；两次下载后 CONFIG_STATUS明确给出 DONE_INTERNAL=1、DONE_PIN=1，IR给出 ISC_DONE=1。
+- 机器证据证明配置链和 FPGA startup成功，但不能单独证明 M19时钟或 P20 LED工作；必须等待用户现场观察和断电复测。
+
+## 2026-09-07 B0 正式重建与阶段 2 TODO 细化
+
+- 当前 B0 源码提交已由 amend 更新为 `f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06`，主要变化是编程脚本把 `DONE_INTERNAL`、`DONE_PIN`、`ISC_DONE` 三项同时为 1 设为硬失败门。
+- Vivado 2024.1 对该提交完成正式重建：`B0_BUILD_PASS`，0 Error、0 Critical Warning；资源与时序保持 `1 LUT / 26 FF / 0 BRAM / 0 DSP`、`WNS=+17.918 ns`、`WHS=+0.251 ns`。
+- 新构建 manifest 绑定 `f3b8174...`，bitstream SHA-256 为 `df16ed6ccd9124f2dc4391d96e868ebd7846aebf3df335099b742cc7cd318971`。构建时工作树含未提交文档，因此 manifest 的 `git_worktree_clean=false`；源文件哈希和提交身份仍已记录。
+- 已完成的两次 JTAG program 绑定旧 bitstream `c16a1f8...e3d1`；新 bitstream `df16ed6c...8971` 尚未 program。按照阶段 2 的单一证据包原则，不能把旧 program 结果直接写成新 bitstream 的通过证据。
+- B0 最终闭环必须对 `df16ed6c...8971` 重新执行 JTAG program、三项 DONE 硬门和现场 LED 观察；断电后再次对同一哈希复测。完成前状态保持 pending。
+- 阶段 2 TODO 将按 B0～B4 分解为准备条件、实现任务、实板测试、证据产物和停止条件；B1 首轮软件栈仍建议 `bare-metal + lwIP`，但需在 B0 完全通过后由管理员正式裁定。
+- 本轮一次读取误把总 TODO 假定在仓库根目录，`D:\Documents\Code\ENeuron-board-b0\TODO.md` 不存在；已确认权威文件为 `docs/planning/TODO.md`，后续不重复错误路径。
+- 固定板厂提交中的 PS Ethernet 参考设计确认：该板没有直接引出 PS GEM 的 MIO 网口，而是由 PS GEM 经 EMIO 输出 GMII，再通过 PL 中的 `GMII TO RGMII` IP 连接板载 PHY；因此 B1 不能只配置 PS MIO，必须保留 PL 侧转换、时钟、复位和 RGMII/MDIO约束。
+- 板厂参考设计给出的关键配置包括 UART0、16-bit DDR3、PS `FCLK_CLK0=200 MHz` 供 `GMII TO RGMII` 使用；参考 XDC 中 UART TX/RX 为 L17/M17，MDIO MDC/MDIO 为 G21/H22，RGMII位于 Bank 35相关引脚。上述信息只作为 B1 重建输入，正式配置仍需由仓库脚本生成并在实板逐项验收。
+- 板载以太网 PHY 资料位于固定板厂仓库的 RTL8211F 数据手册目录；B1 应先通过 MDIO读取 PHY ID和链路状态，再运行 UDP，避免把协议栈或 IP 配置错误误判为物理链路问题。
+- 当前传统 NPU RTL 在 `npu_eneuron_single_clock_skeleton.sv` 中明确冻结为 `64→32→10`，模型为 634 个 32-bit word，样本为 8 beat、结果为 10 beat；B3 固定向量和后续图像流测试应直接复用这一形状，避免在实板 bring-up 阶段同时改变网络规模。
+- 一次搜索误用了不存在的 `npu_eneuron_single_clock.sv` 路径；真实文件名为 `npu_eneuron_single_clock_skeleton.sv`。错误未修改仓库，已通过 `rg --files` 纠正，后续不重复该路径。
+- 证据身份校正后，`artifacts/README.md` 仍把 B0摘要概括为“干净构建和两次 program”，`concept_model.json` 仍使用 `machine_evidence_pass_field_observation_pending`；两处都需改为“当前构建通过、当前 program pending、历史 program单列”，否则入口摘要会再次误导审查者。
+
+## 2026-09-07 B0 当前产物正式 program 执行
+
+- 执行前复核确认工作树 HEAD 为 `f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06`，本地 bitstream SHA-256 与 manifest 一致，均为 `df16ed6ccd9124f2dc4391d96e868ebd7846aebf3df335099b742cc7cd318971`。
+- `run_b0_program.ps1` 在启动 Vivado前强制比对 bitstream和manifest哈希；Tcl只接受单一硬件target和单一XC7Z020器件，并在program后检查 `PROGRAM.FILE` 与请求路径一致。
+- 编程成功的硬门是 `DONE_INTERNAL=1`、`DONE_PIN=1`、`ISC_DONE=1` 三项同时成立；脚本还输出 UTC时间、目标、器件、前后配置状态和相关硬件属性，可直接进入正式证据摘要。
+- 当前 bitstream `df16ed6c...8971` 的正式 program 已于 `2026-09-07T10:22:56Z` 完成，脚本和Vivado均返回PASS；三项DONE为 `1/1/1`，CRC、IDCODE、security error均为0。
+- 原始 `program_run.log` SHA-256为 `0152fe3258cefb16f6e7efd3b12058e5da6cd352c8416f3d12a290e21d6ea49e`。当前剩余证据仅是用户观察P20和断电后对同一bitstream复测。
+- 远端刷新后 `origin/main=7857d325...`，当前B0分支相对主线为 `1 ahead / 2 behind`，merge-base仍是批准基线 `e2a1bfa...`。由于正式构建和program证据绑定源码提交 `f3b8174...`，不能用rebase/cherry-pick改写该提交；证据提交后应将 `origin/main` 合入当前分支，保留硬件证据身份。
+- Nexus子任务已按当前实板证据更新七个 `.nexus-map` 文件，并正确保留现场观察/断电复测pending。主代理复核发现 `concept_model.json` 的 `current_main_head` 与 `latest_merge` 仍停在PR #68合并前状态，已校正为 `7857d325...`；其余B0 build/program字段与原始日志一致。
+- PR #69首次GitHub审计快照为 base `main@7857d325...`、HEAD `8db816d...`、`OPEN / CLEAN / MERGEABLE`、空checks。因为Actions已关闭，空checks只能解释为未运行；Nexus已将该HEAD明确限定为固定快照，后续提交不会使历史描述失真。
+
+## 2026-09-07 阶段 2 TODO 详细化复核
+
+- B0 当前脚本使用固定工作文件名，第二次 program 会覆盖第一次的 `program_result.txt` 与 `program_run.log`；因此正式流程必须在断电前先把 run-1 复制到独立证据目录并计算哈希。未固化原始文件就继续 run-2，会破坏“两次独立运行”的可审查性。
+- 板厂资料与当前 XDC 的映射一致：FPGA P20 对应板上 `PL_LED1`。现场任务必须同时写板上丝印和 FPGA引脚，避免观察相邻 `PL_LED2/P21`。
+- B3 原清单把合法 mixed mask 与自动剪枝放在同一层，存在把 Host预制 mask误报为 ENeuron自动决策的风险。现拆成 dense、full-open、Host静态 `2:4`、live-ENeuron四级隔离验证。
+- B4 的性能比较只有在同一 bitstream、ELF、模型、样本顺序、网络和计时定义下才成立；局部 NPU周期下降不自动等于网口端到端吞吐提升，必须同时保存分段计数。
+- 本轮只修改规划与工作记录；没有运行 JTAG、Vivado或实板测试，没有改变 RTL、bitstream、B0机器证据和三个保护文件。
+- 当前 `run_b0_program.ps1` 的固定输出已在任何第二次下载之前固化为 run-1；归档目录保存 result、transcript、build manifest和archive manifest。归档脚本拒绝覆盖已有运行目录，并复核 bitstream哈希与两个 PASS marker。
+- run-1 归档时仓库存在未提交规划与脚本改动，因此 archive manifest如实记录 `archive_git_head=73859b1`、`archive_worktree_clean=false`；build manifest仍绑定实际生成 bitstream的 `f3b8174...`，两种身份不能混为一个干净构建声明。
+- 一次文件搜索在 Windows 上直接向 `rg` 传入 `test_*.py` 路径通配符，返回路径语法错误；未修改仓库，后续改用明确目录和 `-g '*.py'` 过滤，不重复该调用方式。
+- `ffc6f11` 推送后，PR #69 的 GitHub权威状态为 `OPEN / CLEAN / MERGEABLE`，head精确为 `ffc6f1134e5218cce63aa7c988313fbdbc4d352b`，`statusCheckRollup=[]`。Actions仍关闭，因此没有远端测试证据；14项定向检查、归档哈希和脚本语法均为本地证据。
+
+## 2026-09-07 B0 首次现场观察周期口径诊断
+
+- 用户确认 LED稳定闪烁，但定性报告“周期短得多”。该证据证明P20附近存在稳定可见活动，但尚不足以证明完整周期符合设计。
+- 当前 RTL明确为 `counter[25]`，因此50 MHz下每0.67108864秒改变一次亮灭状态，完整同相周期为1.34217728秒。若用户把相邻亮灭变化称作周期，观感约短一半是预期行为。
+- 当前仓库XDC、用户本地引脚速查和两个独立板级示例均使用M19作为50 MHz输入、P20作为LED输出；这降低了映射错误概率，但不能替代对实际板卡丝印和周期的定量观测。
+- 在用户给出10秒完整周期数或亮/灭持续时间前，状态保持 `PERIOD_QUANTIFICATION_PENDING`；不提前执行断电run-2，也不直接把定性描述升级为时钟故障。
+- 用户进一步澄清所指是完整周期目测约1秒，而非0.671秒翻转间隔。若1.000秒准确，等效输入频率约67.109 MHz，与50 MHz资料不符；但当前只是单周期目测，必须用10周期总时长复核后才能采用该推断。
+- 为避免看到测量结果后调整验收线，10周期人工秒表门预先冻结为12.6～14.2秒，理论中心13.4217728秒；窗外先诊断，不直接继续冷启动run-2。
+- 首次尝试把多行 PR正文直接作为 `gh pr edit --body` 参数时，PowerShell将正文拆成选项并返回 `unknown shorthand flag`；远端正文未改变。改用管道传给 `--body-file -` 后成功，后续多行正文统一使用标准输入。
+- 10个完整周期实测13.42秒，理论13.4217728秒，绝对误差-0.0017728秒、相对误差约-0.0132%，通过预先冻结的12.6～14.2秒门。长窗口结果推翻了“完整周期约1秒”的粗略目测疑点，无需为该疑点启动时钟诊断设计。
+- 本轮开始时工作树出现未跟踪的B0时钟诊断RTL/XDC/Tcl/PowerShell文件及相关README修改；它们不是本轮生成，也不再是当前通过门所需。全部保留、不修改、不暂存，避免覆盖未知来源工作。
+- 完整断电检查必须区分“调试线缆还在”与“FPGA仍可访问”。本次精确Digilent target仍能枚举，但`open_hw_target`明确报告 `No devices detected`，accessible device count=0；结合用户确认供电指示熄灭，构成比单纯找不到线缆更强的断电证据。
+- 新增只读 `probe_b0_power_off.tcl` 与 `run_b0_power_off_probe.ps1`，固定target、拒绝覆盖既有证据目录，并要求线缆target恰好1个、可访问器件0个和PASS marker。正式运行时间为 `2026-09-07T15:02:49Z`，transcript SHA-256为 `3a953999...1f634`。
+- 2026-09-07：HelloZynq B0-GATE 已形成完整实板闭环。固定源码 `f3b8174...` 与 bitstream `df16ed6c...8971` 在同一 Digilent target/`xc7z020_1` 上完成 run-1，随后由 JTAG不可访问和 `No devices detected` 证明完整断电；重新上电时器件为未配置状态，再次下载同一文件后 run-2 三项 DONE=`1/1/1`、错误位为0。两次10周期分别为 `13.42 s`、`13.4 s`，均通过预冻结 `12.6～14.2 s` 窗口。该证据只关闭 PL配置、M19时钟和P20路径，不外推到PS/DDR/网口/NPU/ENeuron。

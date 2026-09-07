@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "run_label": "20260907T152656Z_df16ed6c_run2_machine",
+  "archived_at_utc": "2026-09-07T15:28:01.3905776Z",
+  "archive_git_head": "5affe997ad1620343a276505552c72b55b8a8bcb",
+  "archive_worktree_clean": false,
+  "archive_script_sha256": "976a7e477a40fbf08b742ba6d639a37a3a9b89881834c1a1f2517b4e948e600e",
+  "build_git_head": "f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06",
+  "bitstream_sha256": "df16ed6ccd9124f2dc4391d96e868ebd7846aebf3df335099b742cc7cd318971",
+  "program_result_sha256": "293307a86ef7bd2d54ac3cb43d628313b882bb7b40543ef04f9a7bf31d9c6caa",
+  "program_log_sha256": "1d4fada3b793ee125791c22c9886fac7eb0bd96476b60259c200142d4b03613b",
+  "build_manifest_sha256": "21bf9f3aeda6ec58d9bb7258334e25888d8b94aa90ed57128bbab30cb3c78b83",
+  "program_result_canonical_lf_sha256": "1ff9d3f3aabbade78e4f2b683b72368c866e663664d46ea72bab4efdafc550f6",
+  "program_log_canonical_lf_sha256": "d37e08ebdccd5d3e572047d70727de65a0bbe514af429459541fceaab7b152da",
+  "build_manifest_canonical_lf_sha256": "a754bab8a4c1c0cff6e92265dde5cbcf4daf8991960af76f4c7b26f296b5f24f",
+  "field_observation_sha256": "73c81d86c573d7157114eb3ec64a7f9a9e6b415c48ea58d98401ce7f2dda25f8",
+  "field_observation_canonical_lf_sha256": "73c81d86c573d7157114eb3ec64a7f9a9e6b415c48ea58d98401ce7f2dda25f8",
+  "observation_status": "PASS"
+}

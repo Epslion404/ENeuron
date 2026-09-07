@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-09-07T10:03:04.4610315Z",
+  "git_head": "f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06",
+  "git_worktree_clean": false,
+  "vivado": "vivado v2024.1 (64-bit)",
+  "part": "xc7z020clg484-2",
+  "top": "hello_zynq_b0_smoke",
+  "clock_period_ns": 20.0,
+  "bitstream_sha256": "df16ed6ccd9124f2dc4391d96e868ebd7846aebf3df335099b742cc7cd318971",
+  "source_sha256": {
+    "hello_zynq_b0_smoke.sv": "1c450e6dfabafd2a53edf0d8dc7f394f12434c540c68e7e3aa1ff3f451f5fb8c",
+    "hello_zynq_b0_smoke.xdc": "0c6f16357330cf73d8f5d13a9875ca7d1cb1be520f61c71a45d05eae20241e4e",
+    "build_b0.tcl": "2df555177d8bdc83d5de56e6f6b9b759b442f52ac1bc8d54e4e3c075bb65e696",
+    "run_b0_build.ps1": "bb474b184c88ece3ee361a42de2f2b287d457e9c88b7ca860520498d74a1f516",
+    "program_b0.tcl": "16ae8243961c6b8662b2d2b43fed0f7d473ebe487f1267ce472f246264b543e8",
+    "run_b0_program.ps1": "67d053c4a7bbd655df5a69e644196cefb112a7b8182f091bead3e69d5a6daa1c"
+  }
+}

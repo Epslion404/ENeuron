@@ -1,5 +1,11 @@
 # ENeuron 知识库入口
 
+阶段 2 实板校正（2026-09-07）：PR #68 已合并为 `main@7857d32561cbd5f86d02b1a21ee0edfb3ae895f1`。B0 当前源码提交为 `f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06`，目标为 `xc7z020clg484-2`，路径为 M19 50 MHz → 26-bit counter → P20。当前 bitstream `df16ed6c...8971` 在完整断电前后完成两次正式 program；两次三项 DONE均为1且错误位为0。用户两次测得10个完整周期 `13.42 s`、`13.4 s`，均通过预冻结 `12.6–14.2 s` 窗口。中间只读探针于 `2026-09-07T15:02:49Z` 确认 target 无法打开、可访问器件数为0，并由 Vivado报告 `No devices detected`。当前状态为 `B0_COMPLETE`；B1等待PR #69合并到main后启动。详见 `.nexus-map/arch/board_phase2_b0.md` 与 `.nexus-map/concepts/board_phase2_b0.json`。
+
+发布审计快照（2026-09-07）：PR #69 已创建，base 固定为 `main@7857d32561cbd5f86d02b1a21ee0edfb3ae895f1`；观测时为 `OPEN / CLEAN / MERGEABLE`。`8db816d29beabc490851719c34a83a6f603fc321` 仅是本次审计时的 PR HEAD 快照，不表示会自动跟随 PR 更新。Actions 已关闭，`statusCheckRollup` 为空，不构成验证通过证据。run-1 和完整断电已通过，但 run-2 与 B0-GATE 尚未完成，PR #69 暂不合并。
+
+P16 阶段 2 总路线见 `.nexus-map/arch/p16_board_validation.md` 和 `.nexus-map/concepts/p16_board_validation.json`。run-1、完整断电、重新上电恢复、run-2机器下载和第二次周期量化均已闭环，B0-GATE通过。B1–B4继续严格按 `B0→B1→B2→B3→B4` 门串行推进；B1只在PR #69合并到main后启动。Host静态 `2:4` mask仅验证NPU门控执行器，不能作为live-ENeuron自动决策证据；两类结果必须分开验收和统计。
+
 当前校正（2026-09-07）：T3 证据已用提交 `c2bc03f` 重跑并绑定；顶层资源为 `2467 LUT / 2301 FF / 6 RAMB36 / 1 RAMB18 / 4 DSP48E1`。下方旧快照中的 `822cf93` 仅保留历史来源，不覆盖本条。
 
 generated_by: nexus-mapper v2 / manual synthesis from raw probe
@@ -22,6 +28,8 @@ ENeuron 是以 Python 黄金模型、SystemVerilog RTL、Icarus/Yosys/Vivado 验
 - 集成材料包：`docs/planning/NPU_NEURON_INTEGRATION_MATERIALS.md`、`docs/planning/NPU_ORACLE_FREEZE_REVIEW.md`、`docs/planning/NPU_ORACLE_SINGLE_CLOCK_CONTRACT_V3.md`、`docs/planning/NPU_MODEL_COMMIT_CONTRACT_V3.md`、`docs/planning/NPU_SINGLE_CLOCK_RTL_DECISION_SHEET_V2.md`（I1-I6、OF1-OF6 V3 与 V2 RTL 裁定已批准）；TR1-TR6 的实现与功能合同见 `NPU_SINGLE_CLOCK_TIMING_REPAIR_V1.md` 和 `NPU_SINGLE_CLOCK_TIMING_REPAIR_TEST_CONTRACT_V1.md`，下一轮审核稿与实施地图分别为 `NPU_SINGLE_CLOCK_TIMING_REPAIR_V2.md`、`NPU_SINGLE_CLOCK_TIMING_REPAIR_V2_IMPLEMENTATION_MAP.md`。
 - 单时钟 OOC 入口：`run_vivado_npu_single_clock_ooc.ps1`、`vivado_npu_single_clock_ooc.tcl`、`artifacts/results/npu_single_clock_ooc_manifest.json`、`vivado_npu_single_clock_ooc_reports/`
 - CI 编排：`.github/workflows/pr-gate.yml`、`tools/ci/classify_changes.py`、`test_ci_fast_v1.py`（路径分类、条件专项门和唯一 `PR Gate` 汇总）
+- 阶段 2 实板 B0：`boards/hellozynq/b0_smoke/`；两次机器/现场运行与完整断电证据均通过，状态为 `B0_COMPLETE`
+- P16 阶段 2 路线：B0 PL → B1 PS/DDR/UART/UDP → B2 DMA/固定帧 → B3 NPU+ENeuron 固定向量 → B4 网口端到端 A/B
 
 ## 当前状态
 
