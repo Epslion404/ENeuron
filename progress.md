@@ -1401,3 +1401,4 @@
 - 随后提交 `c2523a9ab396013f9df7454314cdba4305f67050` 触发 run `34043377382`；GitHub API 显示 `Classify changes`、`PR Gate` 均 `steps=[]`，其余门跳过，状态继续为 `NOT_RUN_BILLING_BLOCKED`。webhook 收到该 run 的 requested/completed delivery（`2e16b130-aa0a-11f1-86ef-dd7a956d4ed9` / `3201ce10-aa0a-11f1-8238-2c657afd3f1d`）和本次 PR 评论 delivery `4be59cd0-aa0a-11f1-88f2-e2e0e3608dc3`，证明通知链仍然工作。
 - 2026-09-07：完成 `docs/planning/NPU_ZYNQ7020_RESOURCE_CUT_REVIEW_V1.md`。本轮只做基于 RTL/Vivado 证据的方案审查，没有修改计算 RTL；当前工作树用户已有的 `local_prune_rtl_results.json`、`np4b_signoff_summary.json`、`np75_tmp_sparse_protocol.ys` 未纳入任何提交。
 - 2026-09-07：管理员确认资源裁剪暂缓，等第一次完整端到端运行成功后再评估；当前优先完成 T1/T2/T3 功能、双时钟、Vivado OOC 和端到端证据。
+- 2026-09-07：完成 T2 并发 epoch 原子性切片。`tb_npu_zynq7020_t2_variable_clocks.sv` 在三组非整数时钟/相位下验证 pending epoch=2 与当前样本计算重叠时不污染旧结果；下一 fence/样本才激活 epoch=2。`python -X utf8 tools/repro/verify_repository.py --t2` 返回 `REPRO_G0_MANIFEST_PASS` 与 `REPRO_G2_T2_VARIABLE_CLOCKS_PASS`。T2 全矩阵、T3、Vivado 和板级闭环仍未完成。

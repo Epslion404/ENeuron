@@ -1253,6 +1253,15 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 | `rg` 在 Windows 上直接使用 `docs/planning/NPU_*` 路径通配符失败 | 1 | 未修改文件；改用 `rg -g "NPU_*.md" docs/planning` |
 | Yosys 完整 `memory; check` 展开未复位数组产生海量未驱动 mux warning | 1 | 返回码为 0但不作为干净证据；改用提交前端/过程级 `read_verilog; hierarchy; proc; check`，仅保留 active mask 展开提示 |
 
+## 2026-09-07 T2 并发 epoch 切片
+
+- [x] 在现有可变时钟 testbench 中加入 pending mask epoch 与当前样本计算重叠的场景。
+- [x] 核对当前样本结果仍绑定旧 epoch=1；新 fence 响应仍回显 active=1；下一样本结果绑定 epoch=2。
+- [x] 在 `(NPU_HALF,PHASE)=(7,2),(9,1),(4,3)` 三组配置下通过统一复现入口。
+- [ ] 继续完成 T2 随机频率/相位全矩阵、FIFO 满空/回绕 scoreboard、并发命令和多位置 reset 注入。
+
+证据入口：`python -X utf8 tools/repro/verify_repository.py --t2`；本切片不外推为 T2 全量、T3、Vivado 或板级完成。
+
 ## 2026-09-04 单时钟 RTL 时序修复设计审核
 
 - [x] 读取 `timing_impl.rpt` 并完成最差 setup 路径分类。

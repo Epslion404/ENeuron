@@ -156,6 +156,18 @@ module tb_npu_zynq7020_t2_variable_clocks #(
         end
     endtask
 
+    task automatic publish_next_mask_epoch;
+        integer mask_i;
+        begin
+            // Host 正在发送 pending mask 时，NPU 同时计算当前样本。
+            send_cmd(OP_MASK_BEGIN, 4'h0, 32'd2, 56'd0, 32'd0);
+            for (mask_i = 0; mask_i < 19; mask_i = mask_i + 1)
+                send_cmd(OP_MASK_DATA, 4'h0, 32'd0, 56'd0,
+                         (mask_i == 18) ? 32'h0000_ffff : 32'h0000_0000);
+            send_cmd(OP_MASK_COMMIT, 4'h0, 32'd2, 56'd0, 32'd0);
+        end
+    endtask
+
     integer i;
     integer wait_cycles;
     initial begin
@@ -199,6 +211,8 @@ module tb_npu_zynq7020_t2_variable_clocks #(
         // 一个完整样本跨域传输；结果先背压，再按 10 beat 排空。
         for (i = 0; i < 8; i = i + 1)
             send_sample_beat(i, 32'hCAFE_0001);
+        // 样本已进入 FIFO 后，Host 立即发布 pending epoch=2；NPU 同时计算 epoch=1。
+        publish_next_mask_epoch();
         host_result_ready = 1'b0;
         wait_cycles = 0;
         // 核心固定计算最坏约 1900 个 NPU 周期；慢时钟比下不能用 600 个 Host 周期误报超时。
@@ -227,6 +241,25 @@ module tb_npu_zynq7020_t2_variable_clocks #(
             while (!host_result_valid) @(posedge host_clk);
             if (host_result_sample_id !== 32'hCAFE_0001 || host_result_mask_epoch !== 32'd1)
                 $fatal(1, "T2 result sideband mismatch sid=%h epoch=%h",
+                       host_result_sample_id, host_result_mask_epoch);
+            @(posedge host_clk);
+        end
+
+        // fence 只打开下一个样本窗口，响应仍回显尚未激活的 active epoch=1。
+        send_cmd(OP_SAMPLE_FENCE, 4'h0, 32'd0, 56'd0, 32'hF00D_0202);
+        expect_fence_response(32'hF00D_0202, 32'd1);
+        for (i = 0; i < 8; i = i + 1)
+            send_sample_beat(i, 32'hCAFE_0002);
+        wait_cycles = 0;
+        while (!host_result_valid && wait_cycles < 5000) begin
+            @(posedge host_clk);
+            wait_cycles = wait_cycles + 1;
+        end
+        if (!host_result_valid) $fatal(1, "T2 epoch-2 result did not arrive");
+        for (i = 0; i < 10; i = i + 1) begin
+            while (!host_result_valid) @(posedge host_clk);
+            if (host_result_sample_id !== 32'hCAFE_0002 || host_result_mask_epoch !== 32'd2)
+                $fatal(1, "T2 next sample epoch mismatch sid=%h epoch=%h",
                        host_result_sample_id, host_result_mask_epoch);
             @(posedge host_clk);
         end
