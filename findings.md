@@ -1338,3 +1338,4 @@
 - 当前 `run_b0_program.ps1` 的固定输出已在任何第二次下载之前固化为 run-1；归档目录保存 result、transcript、build manifest和archive manifest。归档脚本拒绝覆盖已有运行目录，并复核 bitstream哈希与两个 PASS marker。
 - run-1 归档时仓库存在未提交规划与脚本改动，因此 archive manifest如实记录 `archive_git_head=73859b1`、`archive_worktree_clean=false`；build manifest仍绑定实际生成 bitstream的 `f3b8174...`，两种身份不能混为一个干净构建声明。
 - 一次文件搜索在 Windows 上直接向 `rg` 传入 `test_*.py` 路径通配符，返回路径语法错误；未修改仓库，后续改用明确目录和 `-g '*.py'` 过滤，不重复该调用方式。
+- `ffc6f11` 推送后，PR #69 的 GitHub权威状态为 `OPEN / CLEAN / MERGEABLE`，head精确为 `ffc6f1134e5218cce63aa7c988313fbdbc4d352b`，`statusCheckRollup=[]`。Actions仍关闭，因此没有远端测试证据；14项定向检查、归档哈希和脚本语法均为本地证据。

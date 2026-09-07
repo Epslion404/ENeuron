@@ -43,6 +43,8 @@
     "base_commit": "7857d32561cbd5f86d02b1a21ee0edfb3ae895f1",
     "audit_head_snapshot": "8db816d29beabc490851719c34a83a6f603fc321",
     "audit_state": "OPEN / CLEAN / MERGEABLE",
+    "run_1_evidence_commit": "ffc6f1134e5218cce63aa7c988313fbdbc4d352b",
+    "run_1_evidence_commit_audit_state": "OPEN / CLEAN / MERGEABLE",
     "actions_enabled": false,
     "empty_checks_mean": "NOT_RUN, NOT PASS",
     "merge_policy": "DO_NOT_MERGE_BEFORE_B0 FIELD OBSERVATION AND POWER-CYCLE RETEST"

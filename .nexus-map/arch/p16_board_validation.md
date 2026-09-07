@@ -37,4 +37,4 @@ run-1 机器归档由 `boards/hellozynq/b0_smoke/archive_b0_program_run.ps1` 生
 
 ## 发布状态
 
-PR #69 尚未合并。固定 base 为 `main@7857d32561cbd5f86d02b1a21ee0edfb3ae895f1`；一次审计快照 HEAD 为 `8db816d29beabc490851719c34a83a6f603fc321`，当时状态 `OPEN / CLEAN / MERGEABLE`。Actions 已关闭，空 `statusCheckRollup` 只表示未运行，不是通过证据。B0 现场观察和断电复测完成前保持暂不合并。
+PR #69 尚未合并。固定 base 为 `main@7857d32561cbd5f86d02b1a21ee0edfb3ae895f1`；run-1证据提交为 `ffc6f1134e5218cce63aa7c988313fbdbc4d352b`，推送后观测状态为 `OPEN / CLEAN / MERGEABLE`。较早的 `8db816d...` 继续作为历史审计快照。Actions 已关闭，空 `statusCheckRollup` 只表示未运行，不是通过证据。B0 现场观察和断电复测完成前保持暂不合并。

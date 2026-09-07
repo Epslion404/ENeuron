@@ -4,7 +4,7 @@
 
 最后更新：2026-09-07
 
-状态：`ACTIVE / PHASE2_BOARD_ACTIVE / B0_CURRENT_PROGRAM_PASS / B0_LED_OBSERVATION_PENDING / B0_POWER_CYCLE_PENDING / XC7Z020CLG484_2_CONFIRMED / T3_XPM_XSIM_PASS / T3_XC7Z020_OOC_PASS / RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN / GITHUB_ACTIONS_DISABLED`
+状态：`ACTIVE / PHASE2_BOARD_ACTIVE / B0_CURRENT_PROGRAM_PASS / B0_RUN1_MACHINE_ARCHIVE_PASS / B0_LED_OBSERVATION_PENDING / B0_POWER_CYCLE_PENDING / XC7Z020CLG484_2_CONFIRMED / T3_XPM_XSIM_PASS / T3_XC7Z020_OOC_PASS / RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN / GITHUB_ACTIONS_DISABLED`
 
 ## 当前活动目标
 
@@ -17,6 +17,7 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 - 2026-09-07：B0分支已推送并创建 PR #69；GitHub观测为 `OPEN / CLEAN / MERGEABLE`，base为 `main@7857d325...`。Actions按管理员要求关闭，空checks不作为通过证据；现场LED和断电复测完成前不合并。
 - 2026-09-07：PR #68 在精确 HEAD `e2a1bfa...` 上通过 G0、T1和全部已定义 T2入口后合并，merge commit为 `7857d325...`。
 - 2026-09-07：B0 当前源码 `f3b8174...` 和 bitstream `df16ed6c...8971` 的正式实现与JTAG program均通过；target为 Digilent `210251A08870`、device为 `xc7z020_1`，三项 DONE为1，CRC/IDCODE/security error为0。LED观察和断电复测仍 pending。
+- 2026-09-07：第一次 program机器证据已在第二次下载前固化到 `artifacts/logs/hellozynq_b0/20260907T102256Z_df16ed6c_run1_machine/`，program log SHA-256为 `0152fe32...a49e`，`observation_status=PENDING`。归档、详细 P16 TODO、Nexus和14项定向验证提交为 `ffc6f11` 并推送至 PR #69；远端观测仍为 `OPEN / CLEAN / MERGEABLE`。
 - 2026-09-07：Actions 已按管理员要求暂时关闭（仓库 API `enabled=false`），因此 PR #68 的 checks 为空不解释为通过或失败；本阶段以本机 Vivado 2024.1 证据为准。
 - 2026-09-07：T3 真实 AMD XPM/xsim 协同仿真通过，OOC 通过。摘要绑定本轮提交前的工作树快照，正式提交后必须用新 HEAD 重跑并更新 SHA。
 - 2026-09-07：T3 已在实现提交 `c2bc03f` 上重新运行，xsim/OOC 摘要均绑定该 SHA；随后 Nexus 与 T2 计划以 `439ac6b` 推送。Actions 仍关闭，远端 checks 不作为本轮通过证据。
@@ -57,7 +58,7 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 
 ## 下一动作
 
-等待用户确认当前 `df16ed6c...8971` 驱动的 P20 LED至少10个完整周期；随后断电重启、重新连接并对同一 bitstream复测。两项通过后更新并合并 PR #69、关闭B0，再裁定B1软件栈。
+等待用户确认当前 `df16ed6c...8971` 驱动的板上 `PL_LED1/P20` 至少10个完整周期；确认后把现场记录补入已固化的 run-1，再完整断电、重新连接并对同一 bitstream执行 run-2。两项通过后更新并合并 PR #69、关闭B0，再裁定B1软件栈。
 
 ## 2026-09-05 V2 OOC 签核结果
 
