@@ -1354,3 +1354,4 @@
 - 完整断电检查必须区分“调试线缆还在”与“FPGA仍可访问”。本次精确Digilent target仍能枚举，但`open_hw_target`明确报告 `No devices detected`，accessible device count=0；结合用户确认供电指示熄灭，构成比单纯找不到线缆更强的断电证据。
 - 新增只读 `probe_b0_power_off.tcl` 与 `run_b0_power_off_probe.ps1`，固定target、拒绝覆盖既有证据目录，并要求线缆target恰好1个、可访问器件0个和PASS marker。正式运行时间为 `2026-09-07T15:02:49Z`，transcript SHA-256为 `3a953999...1f634`。
 - 2026-09-07：HelloZynq B0-GATE 已形成完整实板闭环。固定源码 `f3b8174...` 与 bitstream `df16ed6c...8971` 在同一 Digilent target/`xc7z020_1` 上完成 run-1，随后由 JTAG不可访问和 `No devices detected` 证明完整断电；重新上电时器件为未配置状态，再次下载同一文件后 run-2 三项 DONE=`1/1/1`、错误位为0。两次10周期分别为 `13.42 s`、`13.4 s`，均通过预冻结 `12.6～14.2 s` 窗口。该证据只关闭 PL配置、M19时钟和P20路径，不外推到PS/DDR/网口/NPU/ENeuron。
+- 2026-09-08：阶段2的主要延迟来自重复收口而非硬件执行：同一身份反复跑Vivado、每个观察点都更新多份状态文件、等待已关闭Actions的空checks都不增加证据强度。Fastlane V1保留最终硬门，但按输入身份缓存物理证据、按变更运行定向门、把B1拆为A/B/C小PR，并在阶段末统一收口，可显著缩短进入主线的时间。

@@ -1,10 +1,10 @@
 {
   "$schema": "nexus-mapper/evidence/v1",
   "evidence_id": "board-phase2-b0",
-  "verified_at": "2026-09-07",
+  "verified_at": "2026-09-08",
   "status": "B0_COMPLETE",
   "complete": true,
-  "main_merge_commit": "7857d32561cbd5f86d02b1a21ee0edfb3ae895f1",
+  "main_merge_commit": "102dee2a004283ce4144aaf6ee0a2cee3ebd2887",
   "source_commit": "f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06",
   "part": "xc7z020clg484-2",
   "design": {
@@ -130,19 +130,21 @@
     "second_attempt_after": {"done_internal": 1, "done_pin": 1, "isc_done": 1}
   },
   "publication_audit_snapshot": {
-    "observed_on": "2026-09-07",
+    "observed_on": "2026-09-08",
     "pull_request": 69,
     "base_ref": "main",
     "base_commit": "7857d32561cbd5f86d02b1a21ee0edfb3ae895f1",
-    "head_commit_at_observation": "8db816d29beabc490851719c34a83a6f603fc321",
-    "head_semantics": "immutable audit snapshot; not an auto-updating current PR head",
-    "state": "OPEN",
+    "head_commit_at_observation": "02514b5f4ffd3b5c6a033a2f2d9e6f7b6bcaef92",
+    "head_semantics": "final merged PR head",
+    "state": "MERGED",
     "merge_state_status": "CLEAN",
     "mergeable": "MERGEABLE",
     "actions_enabled": false,
     "status_check_rollup": [],
     "status_check_interpretation": "NOT_RUN_ACTIONS_DISABLED; empty checks are not pass evidence",
-    "merge_decision": "B0_GATE_PASS; REFRESH_PR_AFTER_FINAL_EVIDENCE_PUSH"
+    "merge_commit": "102dee2a004283ce4144aaf6ee0a2cee3ebd2887",
+    "merged_at_utc": "2026-09-07T16:17:15Z",
+    "merge_decision": "MERGED_AFTER_B0_GATE_PASS"
   },
   "pending": [],
   "scope_limit": "B0 is complete. This does not cover NPU, ENeuron, PS7, DDR, DMA, Ethernet, throughput, accuracy, or power; those remain B1-B4 work."

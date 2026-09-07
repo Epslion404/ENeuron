@@ -575,6 +575,17 @@ P15 硬门：双时钟逐 beat bit-exact；reset/ready-valid/FIFO 满空无丢�
 - [ ] 禁止跨证据包拼接：不同 commit、源文件哈希或 bitstream SHA-256 的构建、program、现场输出不能合并成同一次 PASS。
 - [ ] 失败时保留首个失败输入、完整输出、错误码、关键状态和复现命令；修复后创建新的证据包，不覆盖原始失败记录。
 
+#### P16-F：Fastlane V1
+
+- [x] 管理员要求缩短验证链并尽早进入主线；采用“小PR、定向验证、身份未变则复用、阶段末集中收口”，不降低B1～B4最终硬门。
+- [x] B1拆为B1A板级事实/可重建硬件定义、B1B PS7/UART/DDR、B1C PHY/UDP；安全增量可提前合并，但必须明确标记 `B1_IN_PROGRESS`，不得宣称B1通过。
+- [x] 文档/JSON变更只运行解析、状态一致性和差异检查；软件变更不重建未变化的PL；只有RTL/XDC/BD/Tcl/IP配置身份变化才重跑Vivado。
+- [x] 实板步骤在一次连接会话内按依赖顺序批量执行；不因中间文档提交重复下载、重启或重复测量。
+- [x] Actions关闭期间不等待空checks；本机定向门、PR CLEAN/MERGEABLE和证据边界是合并依据。
+- [ ] B1A：完成板厂配置/引脚事实提取、可重建BD Tcl和硬件构建入口，经定向检查后立即提交小PR。
+- [ ] B1B：在B1A主线基线上完成PS7、UART和DDR实板门并立即提交小PR。
+- [ ] B1C：在B1B主线基线上完成PHY、MDIO和最小UDP实板门，形成B1-GATE最终摘要。
+
 #### P16-B0：PL 配置、50 MHz 时钟和 LED
 
 - [x] B0-01：冻结最小设计为 M19 50 MHz → 26-bit自由计数器 → P20 LED；不实例化 PS7、DDR、Ethernet、ILA、DMA或 NPU。
@@ -591,12 +602,12 @@ P15 硬门：双时钟逐 beat bit-exact；reset/ready-valid/FIFO 满空无丢�
 - [x] B0-12：完整断电后重新上电，只读探针确认同一 Digilent `210251A08870` 上唯一 `xc7z020_1` 恢复且下载前 `DONE=0`、`PROGRAM.FILE` 为空。本地 bitstream SHA-256 仍为 `df16ed6c...8971`；第二次正式 program 后请求路径一致、三项 DONE=`1/1/1`，CRC/IDCODE/security error均为0。机器输出已固化到 `artifacts/logs/hellozynq_b0/20260907T152656Z_df16ed6c_run2_machine/`，现场观察仍为 `PENDING`。
 - [x] B0-13：第二次观察同一 `PL_LED1/P20` 10个完整周期实测 `13.4 s`，通过相同的 `12.6～14.2 s` 判据；机器输出和现场 JSON 已固化为唯一 run-2，目录为 `artifacts/logs/hellozynq_b0/20260907T152656Z_df16ed6c_run2_machine/`，未覆盖 run-1。
 - [x] B0-14：两次当前产物 program、两次现场观察和完整断电复测已写入 `artifacts/results/hellozynq_b0_smoke_summary.json` 与 B0 报告；run-1/run-2 program log SHA-256分别为 `0152fe32...a49e`、`1d4fada3...3613b`，状态提升为 `B0_COMPLETE`。
-- [x] B0-15：已复核 Nexus、artifact索引、文档状态与摘要 JSON，轻量回归和差异检查通过；提交、推送并创建 PR #69。PR当前为 `OPEN / CLEAN / MERGEABLE`，Actions关闭且checks为空，现场观察和断电复测完成前不合并。
-- [x] B0-GATE：当前 bitstream 的构建、两次 program、三项 DONE、两次现场观察和完整断电重启复测全部绑定一致，B0标记为 `PASS/B0_COMPLETE`。B1仍按 B1-00 等待本分支合并到 `main` 后启动。
+- [x] B0-15：Nexus、artifact索引、摘要JSON和定向回归通过；PR #69 已合并为 `main@102dee2a004283ce4144aaf6ee0a2cee3ebd2887`。Actions关闭期间空checks未作为通过证据。
+- [x] B0-GATE：当前 bitstream 的构建、两次 program、三项 DONE、两次现场观察和完整断电重启复测全部绑定一致，B0已在主线标记为 `PASS/B0_COMPLETE`。
 
 #### P16-B1：PS7、DDR、UART、PHY和最小 UDP
 
-- [ ] B1-00：入口只接受 `B0-GATE=PASS` 的主线提交；创建独立 B1 分支和证据目录，记录板卡启动方式、串口连接、网线连接、Host网卡、固定/动态 IP方案及 Vivado/Vitis版本。
+- [ ] B1-00：入口 `main@102dee2...` 已满足 `B0-GATE=PASS`，并已创建 `codex/zynq7020-b1-fastlane`；继续记录板卡启动方式、串口连接、网线连接、Host网卡、固定/动态 IP方案及 Vivado/Vitis版本。
 - [ ] B1-D1：在 B0 通过后裁定首轮软件栈。推荐 `bare-metal + lwIP`，以减少 Linux启动、驱动和文件系统变量；Linux保留为后续部署候选，不作为首轮 bring-up 前提。
 - [ ] B1-01：从固定板厂提交提取 PS7 配置、16-bit DDR3参数、UART0、GEM0-EMIO、`GMII TO RGMII`、200 MHz `FCLK_CLK0`、复位和约束；列出每个参数的原始文件与行级来源，再重写为仓库内可重建 Tcl，不引用板厂工程的绝对路径和生成目录。
 - [ ] B1-02：核对板级连接：UART0 TX/RX、RGMII、MDIO、PHY reset、参考时钟方向和 I/O standard；最终引脚表逐项记录“网络名、FPGA引脚、Bank、电压、板上器件引脚、资料来源”，任何冲突先停在文档审计。

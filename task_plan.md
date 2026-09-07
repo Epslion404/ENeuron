@@ -1339,7 +1339,7 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 - [x] 提交B0机器证据并合入最新 `origin/main`，保持硬件证据绑定的源码提交号不变。
 - [x] 推送B0分支、创建PR #69并记录 `OPEN / CLEAN / MERGEABLE`；现场观察和断电复测完成前不合并。
 
-当前状态：当前 bitstream 的机器侧构建、第一次 program和 run-1机器归档通过；没有现场观察、完整断电和第二次 program/观察，不得将 B0标为完成。
+当前状态：B0的双运行、现场测量和完整断电证据已完成，并经PR #69合并到 `main@102dee2a004283ce4144aaf6ee0a2cee3ebd2887`。
 
 ### 2026-09-07 阶段 2 TODO 可执行化补充
 
@@ -1349,7 +1349,15 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 - [x] 明确区分 Host静态 `2:4` mask 与 live-ENeuron自动决策；只有后者才能作为“神经元参与局部自动剪枝”的实板证据。
 - [x] 运行任务编号、保护文件、差异和 Markdown 基础检查。
 
-当前执行点：run-1、完整断电、重新上电恢复和 run-2 机器下载均通过；run-2 已绑定同一 `df16ed6c...8971` 并固化到唯一证据目录。下一步是用户按相同判据测量 `PL_LED1/P20` 10个完整周期，随后写入现场 JSON、汇总报告并关闭 B0。B0关闭前不启动B1。
+当前执行点：B0已关闭。按管理员要求启用Fastlane V1，B1拆为B1A板级事实/硬件定义、B1B PS7/UART/DDR、B1C PHY/UDP；每个安全切片定向验证后立即走小PR，不等待整阶段材料齐套。
+
+### 2026-09-08 阶段2 Fastlane V1
+
+- [x] 清理未提交且不再需要的六个B0时钟诊断文件，全部移入系统回收站；撤销其未提交README章节。
+- [x] 将隔离B0工作树切换并快进到 `main@102dee2...`，保留旧T0工作树及其未提交修改。
+- [x] 创建 `codex/zynq7020-b1-fastlane` 作为B1入口。
+- [x] 冻结按身份复用Vivado结果、按改动运行定向门、实板单会话批量验证和阶段末集中收口规则。
+- [ ] 裁定B1-D1软件栈后启动B1A，不在裁定前编写板级软件。
 
 错误记录：首次加入 `artifacts/results/hellozynq_b0_smoke_summary.json` 后，`test_artifact_layout.py` 按设计拒绝未登记的新结果文件。已将该正式摘要加入精确白名单并同步 `artifacts/README.md`，未放宽目录检查规则。
 

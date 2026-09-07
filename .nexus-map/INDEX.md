@@ -1,10 +1,10 @@
 # ENeuron 知识库入口
 
-阶段 2 实板校正（2026-09-07）：PR #68 已合并为 `main@7857d32561cbd5f86d02b1a21ee0edfb3ae895f1`。B0 当前源码提交为 `f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06`，目标为 `xc7z020clg484-2`，路径为 M19 50 MHz → 26-bit counter → P20。当前 bitstream `df16ed6c...8971` 在完整断电前后完成两次正式 program；两次三项 DONE均为1且错误位为0。用户两次测得10个完整周期 `13.42 s`、`13.4 s`，均通过预冻结 `12.6–14.2 s` 窗口。中间只读探针于 `2026-09-07T15:02:49Z` 确认 target 无法打开、可访问器件数为0，并由 Vivado报告 `No devices detected`。当前状态为 `B0_COMPLETE`；B1等待PR #69合并到main后启动。详见 `.nexus-map/arch/board_phase2_b0.md` 与 `.nexus-map/concepts/board_phase2_b0.json`。
+阶段 2 实板校正（2026-09-08）：PR #69 已合并为 `main@102dee2a004283ce4144aaf6ee0a2cee3ebd2887`，B0正式进入主线。B0固定源码 `f3b8174...` 与 bitstream `df16ed6c...8971` 在完整断电前后两次program、三项DONE、错误位和10周期现场测量全部通过。当前执行点为B1-D1软件栈裁定；已启用Fastlane V1，把B1拆为B1A/B1B/B1C小PR，只运行受影响验证，身份未变时复用Vivado物理证据。
 
-发布审计快照（2026-09-07）：PR #69 已创建，base 固定为 `main@7857d32561cbd5f86d02b1a21ee0edfb3ae895f1`；观测时为 `OPEN / CLEAN / MERGEABLE`。`8db816d29beabc490851719c34a83a6f603fc321` 仅是本次审计时的 PR HEAD 快照，不表示会自动跟随 PR 更新。Actions 已关闭，`statusCheckRollup` 为空，不构成验证通过证据。run-1 和完整断电已通过，但 run-2 与 B0-GATE 尚未完成，PR #69 暂不合并。
+发布终态（2026-09-08）：PR #69最终HEAD为 `02514b5f4ffd3b5c6a033a2f2d9e6f7b6bcaef92`，于 `2026-09-07T16:17:15Z` 合并，merge commit为 `102dee2a004283ce4144aaf6ee0a2cee3ebd2887`。Actions关闭且checks为空；合并依据是本机Vivado/JTAG/实板证据、17项定向测试、37份JSON和PR CLEAN/MERGEABLE。
 
-P16 阶段 2 总路线见 `.nexus-map/arch/p16_board_validation.md` 和 `.nexus-map/concepts/p16_board_validation.json`。run-1、完整断电、重新上电恢复、run-2机器下载和第二次周期量化均已闭环，B0-GATE通过。B1–B4继续严格按 `B0→B1→B2→B3→B4` 门串行推进；B1只在PR #69合并到main后启动。Host静态 `2:4` mask仅验证NPU门控执行器，不能作为live-ENeuron自动决策证据；两类结果必须分开验收和统计。
+P16 阶段 2 总路线见 `.nexus-map/arch/p16_board_validation.md` 和 `.nexus-map/concepts/p16_board_validation.json`。B0-GATE已在main关闭。B1–B4最终门仍串行，但安全增量按Fastlane V1通过小PR进入主线；合并中间切片不等于阶段通过。Host静态 `2:4` mask与live-ENeuron结果继续分开验收和统计。
 
 当前校正（2026-09-07）：T3 证据已用提交 `c2bc03f` 重跑并绑定；顶层资源为 `2467 LUT / 2301 FF / 6 RAMB36 / 1 RAMB18 / 4 DSP48E1`。下方旧快照中的 `822cf93` 仅保留历史来源，不覆盖本条。
 
