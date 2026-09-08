@@ -1,0 +1,19 @@
+﻿{
+    "schema_version":  1,
+    "generated_at":  "2026-09-08T20:26:25.5658047Z",
+    "status":  "NO_TERMINAL_MARKER",
+    "git_head":  "df561803fd44f791a38bda3be3422fe1f6411b77",
+    "port":  "COM10",
+    "port_selector":  "explicit",
+    "usb_vid":  "1A86",
+    "usb_pid":  "7523",
+    "baud":  115200,
+    "bitstream_sha256":  "ccbdf1df6fae9a3d0eece48e5fed90422397703662e7e9ebf15d0576972e5b45",
+    "xsa_sha256":  "62ea171a913cb2e66765f4cedb9b0973513cdebcde17982490c1f7f661d59ceb",
+    "elf_sha256":  "dcc0e261b7513cf6d8f9e8c6e3022a65f2f2c6de2d0a3f12900d66b57a66662f",
+    "xsct_exit_code":  null,
+    "xsct_program_pass":  true,
+    "xsct_download_pass":  true,
+    "uart_terminal_marker":  "NO_TERMINAL_MARKER",
+    "uart_log_sha256":  "f01a374e9c81e3db89b3a42940c4d6a5447684986a1296e42bf13f196eed6295"
+}

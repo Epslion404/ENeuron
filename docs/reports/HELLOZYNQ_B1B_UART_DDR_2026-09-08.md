@@ -41,6 +41,12 @@
 
 三次日志都从`ENEURON_B1B_BEGIN`到`ENEURON_B1B_PASS`完整。run-1在起始标记前有4个未解码字节和1个NUL，run-2有1个NUL，run-3在重新配置前收到3行`ENEURON_B1B_ALIVE PASS`并在配置切换处出现1个NUL。它们都位于新协议起始标记之外，因此没有混入身份字段或DDR结果；协议解析以明确的begin/end标记为边界。
 
+## B1-06B6 UART基准复测
+
+2026-09-08 使用干净构建身份 `df561803fd44f791a38bda3be3422fe1f6411b77` 的低地址组合，在外置 CH340 `COM10`（`VID_1A86:PID_7523`）上监听20秒并执行一次JTAG下载。FPGA program、ELF download和CPU run均通过，但没有收到 `ENEURON_B1B_BEGIN`、`ALIVE` 或 `PASS` 终止标记，runner结果为 `NO_TERMINAL_MARKER` 并返回非零。
+
+本次使用 bitstream SHA-256=`ccbdf1df6fae9a3d0eece48e5fed90422397703662e7e9ebf15d0576972e5b45`、XSA SHA-256=`62ea171a913cb2e66765f4cedb9b0973513cdebcde17982490c1f7f661d59ceb`、低地址 ELF SHA-256=`dcc0e261b7513cf6d8f9e8c6e3022a65f2f2c6de2d0a3f12900d66b57a66662f`。证据目录为 `artifacts/logs/hellozynq_b1b/20260908T202605Z_df56180_b1-06b6_uart_no_marker/`；没有发送 GO，也没有任何高地址 DDR 访问，因此该结果仍属于 `B1-06B6_UART_BASELINE_PENDING`，不是 DDR 失败证据。
+
 ## 证据边界与下一步
 
 本报告只证明JTAG下载式裸机启动、正式外置UART路径和低地址1 MiB DDR窗口可在三次完整断电后重复通过。它不证明整片DDR、高地址线、SD/QSPI自启动、PHY、以太网、lwIP、UDP、DMA、NPU或ENeuron。

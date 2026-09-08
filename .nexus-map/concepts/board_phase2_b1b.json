@@ -50,6 +50,22 @@
     "elf_sha256": "4992d26c501106aca63c9fc1e1f4cc2a2baccd1ef8c440e3daa9b7bed2128560"
   },
   "uart": {"rx_pin":"V14", "tx_pin":"V15", "adapter":"external CH340 identified by VID_1A86:PID_7523; observed COM10; 115200 8N1", "adapter_vid_pid":"VID_1A86:PID_7523", "adapter_instance_id":"USB\\VID_1A86&PID_7523\\6&3641E7AA&0&1", "bluetooth_ports_excluded":["COM6","COM7"], "wiring":["V14 from TTL TX", "V15 to TTL RX", "common ground"], "board_ch340_boundary":"Board CH340 remains wired to historical L17/M17 and is not connected to the current V14/V15 UART", "three_cold_runs_pass":true, "passive_listen":{"duration_seconds":10, "baud":115200, "format":"8N1", "bytes_read":0, "markers_seen":[], "bitstream_downloaded":false, "elf_downloaded":false, "go_sent":false, "ddr_accesses":0, "status":"B1-06B6_UART_BASELINE_PENDING"}},
+  "b1_06b6_retest": {
+    "observed_at_utc":"2026-09-08T20:26:25.5658047Z",
+    "run_directory":"artifacts/logs/hellozynq_b1b/20260908T202605Z_df56180_b1-06b6_uart_no_marker",
+    "build_git_head":"df561803fd44f791a38bda3be3422fe1f6411b77",
+    "port":"COM10",
+    "adapter_vid_pid":"VID_1A86:PID_7523",
+    "duration_seconds":20,
+    "fpga_program":"PASS",
+    "elf_download":"PASS",
+    "cpu_run":"PASS",
+    "uart_terminal_marker":"NO_TERMINAL_MARKER",
+    "ddr_accesses":0,
+    "status":"B1-06B6_UART_BASELINE_PENDING",
+    "interpretation":"No UART terminal marker; this is not DDR failure evidence.",
+    "runner_parameter_fix":{"files":["boards/hellozynq/b1b_sw/run_b1b_board.ps1","boards/hellozynq/b1b_sw/run_b1b_high_diag_board.ps1"],"powershell_product_id_parameter":"$ProductId","previous_collision":"$PID"}
+  },
   "ddr": {"base":"0x01000000", "bytes":"0x00100000", "dcache":"DISABLED", "phases_passed":9, "three_cold_runs_pass":true},
   "evidence": {
     "summary":"artifacts/results/hellozynq_b1b_uart_ddr_summary.json",

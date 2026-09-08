@@ -10,12 +10,12 @@ param(
 $ErrorActionPreference = 'Stop'
 
 function Resolve-SerialPortName {
-    param([string]$RequestedPort, [string]$Vid, [string]$Pid)
+    param([string]$RequestedPort, [string]$Vid, [string]$ProductId)
     if ($RequestedPort) {
         return $RequestedPort
     }
     $vidToken = $Vid.ToUpperInvariant()
-    $pidToken = $Pid.ToUpperInvariant()
+    $pidToken = $ProductId.ToUpperInvariant()
     $matches = @(Get-PnpDevice -PresentOnly -Class Ports -ErrorAction SilentlyContinue | Where-Object {
         $_.InstanceId -match "VID_$vidToken&PID_$pidToken" -and $_.FriendlyName -match '\((COM\d+)\)'
     })

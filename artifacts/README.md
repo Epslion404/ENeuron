@@ -21,3 +21,5 @@
 NP7 当前活动门只保留 oracle、逐周期协同仿真、形式/突变和软件账本；旧 Vivado/XSim 物理摘要已归档。重新进行物理签核时，必须由 `verify_np7_physical_cost.py` 或 `vivado_np7_*` 显式触发，并绑定实际器件和报告。
 
 HelloZynq B0 每次正式下载或断电探测的原始机器证据保存在 `logs/hellozynq_b0/<唯一运行标识>/`。program目录包含下载结果、完整transcript、构建manifest和归档manifest；power-off目录包含只读探测结果、完整transcript和哈希manifest。机器记录与现场LED/供电观察必须在摘要中分别绑定。
+
+HelloZynq B1B 的 UART/DDR 原始机器证据保存在 `logs/hellozynq_b1b/<唯一运行标识>/`；本次 B1-06B6 复测目录为 `logs/hellozynq_b1b/20260908T202605Z_df56180_b1-06b6_uart_no_marker/`，其中 program/download/CPU run 通过但 UART 终止标记缺失。
