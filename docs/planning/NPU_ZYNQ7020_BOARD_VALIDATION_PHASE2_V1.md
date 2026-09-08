@@ -12,7 +12,7 @@
 
 板厂参考仓库固定为 `master@73d529d8f159ca372b7d9855eddc80880ecd9d05`，本地克隆已获授权保留。PR #69 已合并为 `main@102dee2a004283ce4144aaf6ee0a2cee3ebd2887`，B0 已关闭。
 
-B1A来源审计及可重建硬件定义均已完成。干净提交 `18fd65c` 在Vivado 2024.1上生成bitstream/XSA，setup/hold/route/DRC硬门和RGMII TX顶层output delay门通过。B1A完成只表示硬件定义进入主线候选；UART、DDR读写、PHY、链路和UDP仍须B1B/B1C实板验证，`B1-GATE`保持未通过。
+B1A来源审计及可重建硬件定义均已完成。原始硬件定义在提交`18fd65c`通过；管理员随后将UART重分配为`V14=TX`、`V15=RX`，当前有效硬件身份绑定提交`f0dbc84`。Vivado 2024.1已重新生成bitstream/XSA，setup/hold/route/DRC硬门和RGMII TX顶层output delay门通过。B1A完成只表示硬件定义进入主线候选；UART、DDR读写、PHY、链路和UDP仍须B1B/B1C实板验证，`B1-GATE`保持未通过。
 
 ## Fastlane V1：更快进入主线
 

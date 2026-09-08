@@ -1,10 +1,17 @@
 # 进度记录
 
-## 2026-09-07 UART重分配 V14/V15
+## 2026-09-08 UART重分配 V14/V15
 
 - 用户明确要求`V14=UART_TX`、`V15=UART_RX`。已创建分支`codex/zynq7020-uart-v14-v15`，修改B1A XDC、README和阶段TODO。
 - 当前B1A设计没有V14/V15占用；板厂HDMI例程将其作为并行RGB低两位，说明可作PL LVCMOS I/O，同时要求B1B测试期间不启用HDMI功能。板载CH340仍接L17/M17，因此新路径使用外置3.3 V USB-TTL。
 - 首次写入`findings.md`时补丁中混入异常文本；尚未暂存或提交，已立即改为准确的交叉接线和硬件身份说明。
+- 旧L17/M17本地build目录约7.87 MB已移入Windows回收站；随后在干净提交`f0dbc84`上完成一次Vivado 2024.1正式重建。
+- 新实现通过：V14/V15均在Bank 33且方向正确，136 LUT/257 FF/0 BRAM/0 DSP，WNS/WHS=`+0.240/+0.126 ns`，setup/hold失败端点、route error、DRC error/critical warning和RGMII TX缺失output delay均为0。新bitstream/XSA哈希为`067289f0...a15cb`、`163c38ef...607f`。
+- 收口复核确认当前`main`、`origin/main`及分支merge-base均为`d5fe4e5e...`；已要求Nexus更新过期的`065a68ce...`当前基线字段。
+- 已复核`f0dbc84`提交差异：功能范围只涉及UART两条PACKAGE_PIN映射及必要文档，没有改动PS7、DDR、GEM、MDIO或RGMII逻辑/约束。
+- 已重新计算本地正式bitstream/XSA哈希并对照build manifest，二者精确一致；无需重复运行Vivado。
+- 已完成收口轻量验证：5个变更JSON解析通过，10/10定向单元测试通过，`git diff --check`通过；未把UART/DDR实板状态提前标记为PASS。
+- `B1A_UART_IDENTITY_PASS`：16个XDC管脚无重复，V14/V15方向正确，bit/XSA四方身份一致，B1 gate边界保持false；准备提交本地证据更新。
 
 ## 2026-09-07 B1B Fastlane V2
 

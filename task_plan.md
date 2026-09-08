@@ -1,10 +1,12 @@
-# 2026-09-07 UART重分配 V14/V15
+# 2026-09-08 UART重分配 V14/V15
 
 - [x] 核对V14/V15未被当前B1A设计占用，并确认板厂例程将其作为LVCMOS并行RGB I/O使用。
 - [x] 冻结管理员裁定：`V14=UART_TX`、`V15=UART_RX`、LVCMOS33，改用外置3.3 V USB-TTL并共地。
 - [x] 修改B1A XDC、硬件README和阶段TODO；不修改历史来源审计事实。
-- [ ] 在新硬件身份上完成一次Vivado 2024.1实现，检查引脚、DRC、setup/hold、route和RGMII既有门。
-- [ ] 更新B1A机器摘要、Nexus、提交PR并在适合时合并；随后以新bitstream/XSA进入B1B。
+- [x] 在提交`f0dbc84`上完成一次Vivado 2024.1实现；V14/V15方向、Bank 33、LVCMOS33、DRC、setup/hold、route和RGMII既有门均通过。
+- [x] 更新B1A机器摘要与Nexus，保持`B1-D1=PENDING`、`B1B=PENDING`、`B1-GATE=false`。
+- [x] 将证据更新整理为本地提交。
+- [ ] 是否推送、创建PR和合并由管理员另行授权；之后以新bitstream/XSA进入B1B。
 
 # 2026-09-07 B1B Fastlane V2
 

@@ -1,8 +1,8 @@
 # ENeuron 知识库入口
 
-B1B入口就绪检查（2026-09-07）：PR #72已合并为 `main@065a68ce1fc87836ad3d0062883a226ba54e61d9`。B1A正式bitstream/XSA SHA-256分别恢复并核对为 `5d0940eb...e6d6`、`053fc032...81df`；XSCT 2024.1可打开XSA，JTAG可见APU、双Cortex-A9和`xc7z020`。Windows当前只枚举蓝牙COM6/COM7，板载CH340 UART未连接，因此 `B1-D1` 与 `B1B` 均保持 `PENDING`，不得声明UART、DDR或B1通过。以后只允许在临时XSA副本上执行 `hsi::open_hw_design`，不得直接操作正式build目录。
+B1B入口就绪检查（2026-09-08）：主线基线为 `main@d5fe4e5e0472a6c8a901053b2829cd1e899c377f`，当前B1A硬件身份更新为源码提交 `f0dbc8435eab1cd480db489016732375ba634e6a`。UART0已按用户裁定重分配为V14 TX、V15 RX、LVCMOS33，Vivado placed IO确认两者均位于Bank 33且分别为固定OUTPUT/INPUT。新bitstream/XSA SHA-256为 `067289f0...a15cb`、`163c38ef...607f`。板载CH340仍物理连接旧L17/M17，当前B1B必须使用外置3.3V USB-TTL并按V14→TTL RX、V15←TTL TX、共地连接；V14/V15与板载HDMI并行RGB低位共网，B1B期间不启用HDMI。`B1-D1`与`B1B`均保持`PENDING`，`B1-GATE=false`。
 
-B1A-HW更新（2026-09-07）：可重建硬件定义已在干净提交 `18fd65c` 上通过Vivado 2024.1实现，机器摘要为 `artifacts/results/hellozynq_b1a_hw_summary.json`，知识条目为 `.nexus-map/concepts/board_phase2_b1a_hw.json`。当前执行点前移到B1B UART/DDR实板验证；`B1-GATE`仍为false。
+B1A-HW更新（2026-09-08）：UART重分配后的可重建硬件定义已在干净提交 `f0dbc843...` 上通过Vivado 2024.1实现；资源为 `136 LUT / 257 FF / 0 BRAM / 0 DSP / 4 BUFG / 1 MMCM`，WNS/WHS为 `+0.240/+0.126 ns`，setup/hold失败端点、route error、DRC error/critical warning及RGMII TX缺失output delay均为0。当前执行点仍为B1B UART/DDR实板验证；`B1-GATE`仍为false。
 
 阶段 2 实板校正（2026-09-07）：PR #69 已合并为 `main@102dee2a004283ce4144aaf6ee0a2cee3ebd2887`，B0正式进入主线；Fastlane V1已进入 `main@308bdecd9573e71340359729fdbb2f3fcb7723c7`。B1A来源审计已完成，当前执行点是解决DDR型号、物理PHY复位、物理PHY地址和RGMII时序后生成可重建硬件定义；B1-D1软件栈裁定并行进行。来源审计完成不等于B1A或B1通过。
 
@@ -13,7 +13,7 @@ P16 阶段 2 总路线见 `.nexus-map/arch/p16_board_validation.md` 和 `.nexus-
 当前校正（2026-09-07）：T3 证据已用提交 `c2bc03f` 重跑并绑定；顶层资源为 `2467 LUT / 2301 FF / 6 RAMB36 / 1 RAMB18 / 4 DSP48E1`。下方旧快照中的 `822cf93` 仅保留历史来源，不覆盖本条。
 
 generated_by: nexus-mapper v2 / manual synthesis from raw probe
-verified_at: 2026-09-07
+verified_at: 2026-09-08
 provenance: `.nexus-map/raw/ast_nodes.json`, `git_stats.json`, `file_tree.txt`（最后提交于 `c46320e`，文件树按版本化基线排除工作区未跟踪文件）；其后的单时钟 RTL、测试与 OOC 证据由版本化文件、manifest 和文档人工核对
 
 T3 最新机器可读签核覆盖见 `.nexus-map/concepts/t3_signoff.json`，人类摘要见 `.nexus-map/arch/t3_signoff.md`；它们优先于早期生成快照中的 `T3_XPM_XSIM_OOC_PENDING` 字样。

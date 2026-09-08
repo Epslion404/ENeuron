@@ -1,8 +1,8 @@
 # 系统边界
 
-B1B入口状态（2026-09-07）：当前主线为 `065a68ce...`。B1A正式bitstream/XSA哈希已与冻结清单一致，XSCT 2024.1可读取XSA，JTAG可见APU、双Cortex-A9和`xc7z020`；但系统只发现蓝牙COM6/COM7，板载CH340 UART未连接。该状态只证明B1B工具链/JTAG入口部分就绪，`B1-D1`、B1B UART/DDR和 `B1-GATE`仍为 `PENDING`。`hsi::open_hw_design`会在XSA所在目录展开同名bitstream，因此后续必须使用临时XSA副本，正式B1A build目录保持只读。
+B1B入口状态（2026-09-08）：主线基线为`d5fe4e5e...`，当前B1A硬件身份为`f0dbc843...`。B1A bitstream/XSA已更新为`067289f0...a15cb`和`163c38ef...607f`；此前的XSCT 2024.1工具链与JTAG APU/双Cortex-A9/`xc7z020`可见性证据保留。UART改走Bank 33的V14/V15后，板载CH340所连L17/M17不再承载UART，B1B必须外接3.3V USB-TTL并共地；B1B不启用与V14/V15共网的HDMI。`B1-D1`、B1B UART/DDR和`B1-GATE`仍为`PENDING`。`hsi::open_hw_design`只能对临时XSA副本运行，正式build目录保持只读。
 
-B1A-HW状态（2026-09-07）：`boards/hellozynq/b1a_hw/` 已在干净提交 `18fd65c` 上通过Vivado 2024.1完整实现，生成可重建PS7/DDR/UART0/GEM0/MDIO/GMII-to-RGMII硬件定义。该切片状态为 `B1A_HW_DEFINITION_COMPLETE / B1_GATE_PASS=false`；下一系统边界是B1B的UART与DDR实板验证。
+B1A-HW状态（2026-09-08）：`boards/hellozynq/b1a_hw/` 已在干净提交`f0dbc843...`上完成UART V14/V15重分配后的Vivado 2024.1实现。placed IO确认V14为Bank 33固定OUTPUT、V15为Bank 33固定INPUT，均为LVCMOS33；资源与旧版本相同，WHS更新为`+0.126 ns`，其余实现硬门通过。状态保持`B1A_HW_DEFINITION_COMPLETE / B1_GATE_PASS=false`。
 
 阶段2实板状态（2026-09-07）：实际板卡目标固定为 `xc7z020clg484-2`。B0双运行与完整断电证据已通过PR #69合并为 `main@102dee2...`。当前状态为 `B0_COMPLETE / FASTLANE_V1 / B1_DECISION_PENDING`。
 
@@ -27,7 +27,7 @@ T2 归档校正：FIFO 矩阵已提交于 `ee3a351`，wrapper 交错/复位切�
 T2 wrapper 固定种子随机矩阵状态为 `T2_RANDOM_CLOCK_MATRIX_GREEN`：`--t2-random-matrix` 使用种子 `20260907` 生成 24 个唯一时钟/相位组合，并以 `2000 + 400 × NPU_HALF` 个 Host 周期作为随慢时钟增长的观察预算，最终输出 `REPRO_G2_T2_RANDOM_MATRIX_PASS`。该证据扩展了有限确定性矩阵，但仍不是数学穷举。
 
 generated_by: nexus-mapper v2 / manual synthesis
-verified_at: 2026-09-07
+verified_at: 2026-09-08
 provenance: Python AST/file-tree probe plus SystemVerilog文件树和项目文档人工核对
 
 仓库分为八个边界：神经元 RTL 与 Python 参考模型、Tile/Host 网络、局部剪枝控制器、NP7 共享 BRAM/lane 执行器、传统 NPU + ENeuron 集成参考模型、XC7Z020 顶层适配、HelloZynq 阶段 2 实板验证、验证与签核工具。CI-Fast V1 是验证编排边界，不改变业务硬件合同。跨边界的主要合同是逐周期/逐位比较、原子提交、INFER 状态冻结和 fail-closed SHA-256 摘要。

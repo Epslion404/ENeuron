@@ -1,8 +1,8 @@
 {
   "$schema": "eneuron/board-hardware-definition/v1",
-  "verified_at": "2026-09-07",
+  "verified_at": "2026-09-08",
   "status": "B1A_HW_DEFINITION_COMPLETE",
-  "source_commit": "18fd65c8465f047fbfb0fe63c81a39412a9ea6e5",
+  "source_commit": "f0dbc8435eab1cd480db489016732375ba634e6a",
   "target": {
     "board": "HelloZynq",
     "part": "xc7z020clg484-2",
@@ -11,14 +11,23 @@
   "implementation": {
     "entrypoint": "boards/hellozynq/b1a_hw/run_b1a_build.ps1",
     "summary": "artifacts/results/hellozynq_b1a_hw_summary.json",
-    "bitstream_sha256": "5d0940ebbff57585ce80d3b1a8c11ad16e499bfff20bf0d202b2c5dfe847e6d6",
-    "xsa_sha256": "053fc032428da48882d62e6f9081d99f864e7bd64dc7b7b52b422c94d4ab81df",
+    "bitstream_sha256": "067289f0d6e6eb05c3477b33bc18591c2c01b6e2a5601505d0342c02f43a15cb",
+    "xsa_sha256": "163c38ef99d8984588b21640d549bb4c49d43581a3a27256a66d87a74ebe607f",
     "resources": {"lut": 136, "flip_flop": 257, "bram_tile": 0, "dsp": 0, "bufgctrl": 4, "mmcm": 1},
-    "timing": {"setup_wns_ns": 0.240, "hold_whs_ns": 0.150, "setup_failures": 0, "hold_failures": 0},
+    "timing": {"setup_wns_ns": 0.240, "hold_whs_ns": 0.126, "setup_failures": 0, "hold_failures": 0},
     "route_errors": 0,
     "drc_errors": 0,
     "drc_critical_warnings": 0,
     "rgmii_tx_missing_output_delays": 0
+  },
+  "uart_assignment": {
+    "decision": "USER_APPROVED",
+    "tx": {"pin":"V14","direction":"OUTPUT","bank":33,"iostandard":"LVCMOS33","placed_io":"FIXED"},
+    "rx": {"pin":"V15","direction":"INPUT","bank":33,"iostandard":"LVCMOS33","placed_io":"FIXED"},
+    "b1b_adapter": "external 3.3V USB-TTL",
+    "wiring": ["V14 to TTL RX", "V15 from TTL TX", "common ground"],
+    "board_ch340_boundary": "Board CH340 remains wired to historical L17/M17 and cannot observe this UART assignment",
+    "shared_net_boundary": "V14/V15 are also wired to low bits of the board HDMI parallel RGB bus; HDMI must remain disabled during B1B"
   },
   "resolved_facts": {
     "ddr": "Physical MT41K256M16TW-107:P uses Vivado MT41K256M16 RE-125 preset at 533.333333 MHz; -107 is compatible with the slower preset timing point",

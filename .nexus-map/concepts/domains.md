@@ -1,11 +1,11 @@
 # 核心领域概念
 
 generated_by: nexus-mapper v2 / manual synthesis
-verified_at: 2026-09-07
+verified_at: 2026-09-08
 provenance: NP4B/NP6/NP7 TODO、工作流状态与 RTL 文件；集成边界来自审核材料包
 
-- `B1A_HW_DEFINITION_COMPLETE`：HelloZynq `xc7z020clg484-2` 的可重建PS7/DDR/UART0/GEM0/MDIO/GMII-to-RGMII硬件定义已通过Vivado 2024.1实现并生成bitstream/XSA；它不表示UART、DDR、PHY、UDP或B1-GATE已在实板通过。
-- `B1B_PREFLIGHT_PARTIAL / B1B_PENDING / B1_DECISION_PENDING`：B1A产物哈希、XSCT 2024.1 XSA读取和JTAG APU/双Cortex-A9/FPGA枚举已通过；板载CH340 UART未连接，Windows只有蓝牙COM6/COM7，软件栈也未获批准。因此不得编写为B1B启动、UART/DDR通过或B1-GATE通过。Hsi检查必须使用临时XSA副本，正式build目录只读。
+- `B1A_HW_DEFINITION_COMPLETE`：当前身份为`f0dbc843...`，UART0使用Bank 33的V14 TX/V15 RX、LVCMOS33并已由placed IO确认FIXED；新bitstream/XSA哈希为`067289f0...a15cb`/`163c38ef...607f`。该状态不表示UART、DDR、PHY、UDP或B1-GATE已在实板通过。
+- `B1B_PREFLIGHT_PARTIAL / B1B_PENDING / B1_DECISION_PENDING`：XSCT 2024.1和JTAG APU/双Cortex-A9/FPGA可见性已确认，但当前UART不再连接板载CH340；必须外接3.3V USB-TTL到V14/V15并共地，同时禁用与这两网共用的HDMI功能。软件栈尚未获批准，不得写成B1B启动、UART/DDR通过或B1-GATE通过。
 
 - `TICK`：推进一个样本或网络时刻。
 - `OBSERVE`/`evidence`：读取已提交学习证据，不读取 live 工作副本。

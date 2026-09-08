@@ -1,7 +1,7 @@
 {
   "$schema": "nexus-mapper/plan/v1",
   "plan_id": "p16-board-validation-phase2",
-  "verified_at": "2026-09-07",
+  "verified_at": "2026-09-08",
   "target": {
     "board": "HelloZynq",
     "part": "xc7z020clg484-2"
@@ -74,19 +74,20 @@
     "hardware_definition_status": "COMPLETE",
     "hardware_definition_manifest": ".nexus-map/concepts/board_phase2_b1a_hw.json",
     "hardware_definition_summary": "artifacts/results/hellozynq_b1a_hw_summary.json",
-    "source_commit": "18fd65c8465f047fbfb0fe63c81a39412a9ea6e5",
+    "source_commit": "f0dbc8435eab1cd480db489016732375ba634e6a",
     "blocking_facts": [],
     "b1a_complete": true,
     "b1_gate_pass": false
   },
   "b1b_preflight": {
     "status": "PARTIAL",
-    "observed_on_main": "065a68ce1fc87836ad3d0062883a226ba54e61d9",
+    "baseline_main": "d5fe4e5e0472a6c8a901053b2829cd1e899c377f",
+    "hardware_source_commit": "f0dbc8435eab1cd480db489016732375ba634e6a",
     "b1_decision_status": "PENDING",
     "b1b_status": "PENDING",
     "artifact_identity": {
-      "bitstream_sha256": "5d0940ebbff57585ce80d3b1a8c11ad16e499bfff20bf0d202b2c5dfe847e6d6",
-      "xsa_sha256": "053fc032428da48882d62e6f9081d99f864e7bd64dc7b7b52b422c94d4ab81df",
+      "bitstream_sha256": "067289f0d6e6eb05c3477b33bc18591c2c01b6e2a5601505d0342c02f43a15cb",
+      "xsa_sha256": "163c38ef99d8984588b21640d549bb4c49d43581a3a27256a66d87a74ebe607f",
       "matches_b1a_manifest": true
     },
     "xsct": {
@@ -99,9 +100,12 @@
       "visible_targets": ["APU", "Cortex-A9 #0", "Cortex-A9 #1", "xc7z020"]
     },
     "uart": {
-      "status": "BLOCKED_ADAPTER_NOT_CONNECTED",
+      "status": "BLOCKED_EXTERNAL_USB_TTL_NOT_CONNECTED",
       "enumerated_ports": ["COM6 Bluetooth", "COM7 Bluetooth"],
-      "required_adapter": "CH340 board UART"
+      "required_adapter": "external 3.3V USB-TTL",
+      "wiring": ["V14 to TTL RX", "V15 from TTL TX", "common ground"],
+      "board_ch340_boundary": "Board CH340 is physically wired to historical L17/M17 and is not connected to the current V14/V15 UART",
+      "hdmi_boundary": "V14/V15 share board nets with low bits of HDMI parallel RGB; HDMI must remain disabled during B1B"
     },
     "b1b_complete": false,
     "b1_gate_pass": false,

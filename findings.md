@@ -1,10 +1,17 @@
 # 调研与实验发现
 
-## 2026-09-07 UART重分配 V14/V15
+## 2026-09-08 UART重分配 V14/V15
 
 - 用户明确裁定`V14→UART_TX`、`V15→UART_RX`。当前B1A工程未占用这两个管脚；板厂HDMI例程将V14/V15作为并行RGB低两位，说明它们属于可用PL I/O，但也表示实板上与HDMI发送器输入共网。
 - 新路径保持LVCMOS33。板载CH340物理连接仍在L17/M17，因此B1B必须使用外置3.3 V USB-TTL交叉连接：V14接适配器RX、V15接适配器TX并共地。
 - 该改动改变XDC和硬件身份，旧bitstream/XSA不再用于后续B1B；必须在新源码提交上重新运行Vivado实现并生成新清单。
+- Vivado 2024.1在干净提交`f0dbc84`上实现通过。placed I/O报告确认V14为Bank 33 LVCMOS33输出、V15为Bank 33 LVCMOS33输入，均为FIXED；资源保持136 LUT/257 FF/0 BRAM/0 DSP，WNS/WHS=`+0.240/+0.126 ns`，route和DRC error为0。
+- 当前有效bitstream/XSA SHA-256为`067289f0...a15cb`、`163c38ef...607f`。旧`5d0940eb.../053fc032...`仅属于L17/M17版本，不得用于B1B。
+- 当前分支的共同基线、`main`和`origin/main`均为`d5fe4e5e...`；知识库中把`065a68ce...`写成当前主线的字段属于过期状态，收口时必须改正，历史PR #72合并记录可保留。
+- 源码提交`f0dbc84`的功能改动保持最小：XDC仅将UART TX/RX从L17/M17替换为V14/V15，原有端口名、LVCMOS33集合及其余MDIO/RGMII约束均未改变。
+- 本地正式产物重新计算SHA-256后与`build_manifest.json`和版本化机器摘要一致：bitstream=`067289f0...a15cb`，XSA=`163c38ef...607f`；manifest同时记录`git_worktree_clean=true`和`git_head=f0dbc843...`。
+- 收口轻量门已通过：5个变更JSON全部可解析，`test_artifact_layout.py`与`test_ci_fast_v1.py`共10项测试全部通过，`git diff --check`无输出。
+- 最终身份检查通过：XDC共有16个不重复PACKAGE_PIN，UART精确为V14 TX/V15 RX；实际bit/XSA、build manifest、版本化summary和两份Nexus manifest四方一致，所有B1 gate字段仍为false。
 
 ## 2026-09-07 B1B Fastlane V2
 

@@ -615,7 +615,7 @@ P15 硬门：双时钟逐 beat bit-exact；reset/ready-valid/FIFO 满空无丢�
 - [ ] B1-02：UART0/RGMII/MDIO引脚和I/O标准已核对；继续确认板修订、H17 PHY reset时序、物理PHY地址、Bank/电压/器件引脚和完整RGMII板级时序。
 - [x] B1-02U：按管理员裁定将UART0重分配为`V14=TX`、`V15=RX`、LVCMOS33；B1B改用外置3.3 V USB-TTL，板载CH340不再作为串口入口，且测试期间不启用与V14/V15共网的HDMI并行RGB功能。
 - [ ] B1-03：冻结启动路径和串口合同：首轮由 JTAG 下载硬件与 ELF，串口参数、banner格式、启动超时和重复上电步骤写入脚本；SD/QSPI自启动作为后续独立验证，不混入首次 PS bring-up。
-- [x] B1-04：已生成PS7+UART0/GEM0/MDIO EMIO+GMII-to-RGMII bitstream与XSA；`136 LUT / 257 FF / 0 BRAM / 0 DSP`，WNS/WHS=`+0.240/+0.150 ns`，route/DRC error为0，bitstream/XSA SHA-256分别为 `5d0940eb...e6d6`、`053fc032...81df`。
+- [x] B1-04：UART改为V14/V15后已在提交`f0dbc84`上重建PS7+UART0/GEM0/MDIO EMIO+GMII-to-RGMII bitstream与XSA；`136 LUT / 257 FF / 0 BRAM / 0 DSP`，WNS/WHS=`+0.240/+0.126 ns`，route/DRC error为0，bitstream/XSA SHA-256分别为`067289f0...a15cb`、`163c38ef...607f`。
 - [ ] B1-05：编写最小启动程序，UART输出固定 banner、软件 Git提交、XSA/bitstream哈希、CPU/FCLK频率、DDR测试范围、PHY状态和复位原因；冷启动3次均需在冻结超时内得到完整且字段一致的日志。
 - [ ] B1-06：DDR先跑不破坏程序区的小范围测试，再跑冻结的大范围；覆盖地址线、walking-1、walking-0、`0x00/0xFF/0xAA/0x55`和固定种子伪随机读写。明确 cache关闭或 flush/invalidate顺序，记录首错地址、期望值、实际值和阶段。
 - [ ] B1-07：通过 MDIO读取并保存 PHY ID、基本状态、协商结果、双工和链路速度；单独执行 PHY reset，验证无需重新配置 PL即可重新发现。目标为1000 Mbps全双工；若外部交换机/网卡只协商到较低速率，先修正测试环境或降低声明范围。
