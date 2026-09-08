@@ -1456,3 +1456,5 @@
 - 同一运行的 OCM 结果为 `magic=0x42314231`、`status=2`、`phase=9`、失败地址/期望/实际全0；run manifest绑定 bitstream=`0b335edc...f99612`、XSA=`e67e9d73...438740`、ELF=`d5edf5e2...eb9b4`。
 - UART日志最前出现单个 `0x00`，随后协议文本完整无乱码。该字节更像配置/复位切换时的线路瞬态，不影响当前包含式marker判定；正式协议若要求首字节即为文本，后续可在监听端丢弃marker前的前导非打印字节。
 - 事实结论：现场保持不动的 CH340 信号线对应 `V14 <- CH340 TXD`、`V15 -> CH340 RXD`，因此 FPGA 正式映射应采用 `V14=RX`、`V15=TX`。
+- 批准后的正式硬件提交为`29edf6adc6613445f0983f2c1b8e4d037164985b`。该提交在工作树干净状态下由Vivado 2024.1重建，manifest记录`git_worktree_clean=true`；bitstream/XSA SHA-256分别为`1f98e949...bc5f6`、`ed4a2ff...d417b`。
+- 正式实现的I/O报告再次确认V14=`UART_0_0_rxd/INPUT/LVCMOS33`、V15=`UART_0_0_txd/OUTPUT/LVCMOS33`；WNS/WHS=`+0.240/+0.138 ns`，setup/hold失败端点、route error、DRC error/critical warning均为0。

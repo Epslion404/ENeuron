@@ -43,6 +43,8 @@ UART 持续重发首轮：构建与 JTAG 两阶段硬门通过，但 COM10 在 2
 
 实验结果：`V14=RX/V15=TX` 单次实板运行 PASS。COM10 收到完整阶段日志与 `ENEURON_B1B_PASS`；run manifest 的 program/download/UART 三门全为 PASS；OCM 为 `status=2 / phase=9 / fail fields=0`。管理员已批准该映射成为正式基线；下一步提交实现并在新HEAD上重建正式证据，B1B最终三次冷启动门仍未完成。
 
+正式身份进度：实现提交`29edf6a`已创建，干净提交上的Vivado重建通过，bitstream/XSA为`1f98e949...bc5f6`/`ed4a2ff...d417b`。下一门为提交物理身份快照后构建正式ELF并执行冷启动run-1。
+
 错误记录：首次使用`app create -hw`时，Vitis后台已生成平台和应用骨架，但在模板生成返回后超过数分钟无进展；日志无编译错误。已停止本轮自行启动的XSCT/Eclipse进程，下一次改用不依赖IDE后台服务的HSI BSP生成与ARM GCC直接构建路径，不重复该调用。
 
 错误记录：HSI直接生成和BSP编译已通过，但首次GCC链接未使用生成的`Xilinx.spec`，误带入工具链默认`crt0.o`，导致`__bss_start__/__bss_end__`未定义。下一次复用已生成BSP，只在链接命令加入官方生成的spec文件。

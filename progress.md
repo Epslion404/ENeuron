@@ -1578,3 +1578,6 @@
 - 随后 OCM 探针再次确认 `status=2 / phase=9 / fail fields=0`；run manifest状态为PASS，bitstream/XSA/ELF哈希分别为 `0b335edc...f99612`、`e67e9d73...438740`、`d5edf5e2...eb9b4`。
 - `git diff --check`通过。本轮仍未提交或推送；等待管理员批准 `V14=RX/V15=TX` 成为正式基线后，再提交源码、按新HEAD重建并执行正式冷启动门。
 - 管理员已批准正式基线。B1B硬件身份由手工常量改为构建时读取B1A manifest并校验bitstream/XSA哈希后注入；PowerShell语法、`git diff --check`和Vitis重建通过，实验ELF哈希更新为`32e05000...f5aab`。下一步提交实现基线。
+- 正式实现提交已创建：`29edf6a feat(board): add B1B UART DDR bring-up`。
+- 在该提交且工作树干净状态下完成Vivado 2024.1重建：bitstream=`1f98e949...bc5f6`、XSA=`ed4a2ff...d417b`；WNS/WHS=`+0.240/+0.138 ns`，route/DRC错误为0，V14/V15最终方向为RX/TX。
+- 下一步提交本次物理身份快照，再在新干净HEAD上构建正式B1B ELF和执行冷启动run-1。
