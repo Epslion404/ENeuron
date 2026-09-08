@@ -6,7 +6,7 @@ verified_at: 2026-09-08
 
 authoritative_sources: `docs/planning/TODO.md`、`task_plan.md`、`findings.md`、`progress.md`
 
-当前工作流上下文（2026-09-08）：活动分支为 `codex/b1b-high-ddr-board-repro`，工作树 HEAD=`cc24a3e`，其父级审计基线为 `d7e1035`。当前执行链固定为 `B1-06B6` UART 基准 → `B1-06B7` OCM 高地址最小复现；此前诊断均停在 READY 等待 GO，`command=0`、`completed_accesses=0`，高地址 DDR 尚未访问。
+当前工作流上下文（2026-09-08）：活动分支为 `codex/b1b-high-ddr-board-repro`，校验基线 HEAD=`969a231`，其父级审计基线为 `d7e1035`。当前执行链固定为 `B1-06B6` UART 基准 → `B1-06B7` OCM 高地址最小复现；此前诊断均停在 READY 等待 GO，`command=0`、`completed_accesses=0`，高地址 DDR 尚未访问。
 
 监听观察：2026-09-08 按 VID/PID 监听 COM10 10 秒（115200 8N1）读取 0 字节，未见 `ENEURON_B1B_BEGIN`/`ALIVE`/`PASS`；未下载 bitstream/ELF、未发送 GO，DDR access=0。该观察不改变 `B1-06B6_UART_BASELINE_PENDING`，也不是 DDR 失败证据。
 
