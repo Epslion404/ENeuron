@@ -127,6 +127,7 @@ if (-not $process.WaitForExit(10000)) {
     $process.Kill()
     throw 'XSCT programming process did not exit'
 }
+$process.Refresh()
 $uartText = $received.ToString()
 $uartText | Set-Content -LiteralPath $serialLog -Encoding utf8
 $xsctText = [string](Get-Content -LiteralPath $xsctStdout -Raw)
