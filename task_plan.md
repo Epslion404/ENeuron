@@ -34,7 +34,7 @@
 - [x] 本机构建并核对ELF身份、section/program header和符号布局；OCM应用区上限为`0x0002F000`，入口`0x00000000`，`_end=0x0000D840`。
 - [x] PR #75已合并为`main@436d1b2`；干净主线正式ELF SHA-256=`619ab70cb5ee457bba0e059977442d89c797793386b855ce21eeec1da2631b82`，manifest记录`git_worktree_clean=true`。板级runner拒绝脏工作树和任一身份哈希不一致。
 - [x] 完成两次前置门尝试：COM32不是CH340；COM13为`VID_1A86:PID_7523`但未收到UART READY。两次OCM均为`status=4 / phase=1 / command=0 / completed_accesses=0`，CPU停在OCM等待循环，DDR未访问。
-- [ ] 用已签核低地址应用和COM13做一次非冷启动UART基准复测；只验证当前外部接收链，不重复低地址三次门。
+- [ ] 用已签核低地址应用和按 VID/PID 定位的 CH340（最近枚举 COM10）做一次非冷启动 UART 基准复测；只验证当前外部接收链，不重复低地址三次门。
 - [ ] UART基准通过后，在独立证据目录运行`0x10000000`稀疏地址与4 KiB最小复现，并据结果进入B1-06C或历史复现审计。
 
 当前停止点：B1-06B实现已合并并在`main@436d1b2`完成干净构建。高地址最小复现尚未真正开始，因为COM13运行没有UART READY，runner按合同未写GO且DDR访问数为0。下一动作是先复测COM13低地址UART基准；通过后再重跑OCM诊断，不能直接进入B1-06C。
@@ -1583,7 +1583,7 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 ## 2026-09-08 TODO 入口校正与下一执行批次
 
 - [x] 将 P16 工作树引用校正为当前活动分支 `codex/b1b-high-ddr-board-repro`，不改变历史完成事实或门限。
-- [x] 将 B1-06B7 明确绑定到已合并诊断提交 `436d1b2b089c5bf64ac306434349465291f31395` 的 OCM ELF；当前 runner 入口更新不等于诊断 ELF 已重建。
+- [x] 将 B1-06B7 更新绑定到当前提交`df561803fd44f791a38bda3be3422fe1f6411b77`重新构建的 OCM ELF（SHA-256=`3e0469265a1482081ce93188d905753b2fa998673a17e575776e115abfb76f01`）；历史`436d1b2` ELF仅保留为审计记录。
 - [x] 重新核对 CH340 `VID_1A86:PID_7523` 当前枚举为 `COM10`，Vivado/Vitis 2024.1 入口存在；COM 号仍不写入稳定合同。
 - [ ] 提交本轮 TODO/状态/Nexus 小批次，排除用户已有 `artifacts/results/rtl_smoke_results.json` 修改。
-- [ ] 在干净提交边界重建 B1A、正式 B1B 和 OCM 高地址诊断产物，随后执行 B1-06B6 非冷启动 UART 基准。
+- [x] 在当前提交的干净构建工作树重建 B1A、正式 B1B 和 OCM 高地址诊断产物；构建通过但尚未上板，B1-06B6 非冷启动 UART 基准仍待执行。

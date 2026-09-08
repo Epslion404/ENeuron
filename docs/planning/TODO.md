@@ -2,7 +2,7 @@
 
 ## 当前主线校正（2026-09-08）
 
-本文件前半部分保留 Pulse-Mini P0-P13 的历史研发合同；当前日常主线是 P16 的 `xc7z020clg484-2` 板级集成、传统 NPU + ENeuron 动态剪枝和 NP7 共享 lane。本轮审计基线为工作树 `codex/b1b-high-ddr-board-repro`、HEAD=`d7e1035`；该基线收口 TODO/Nexus、串口端口选择入口和历史资料，不改变已签核的 B1B 诊断 ELF 或硬件身份。Pulse-Mini-L/L2 不参与当前 NPU 日常门，但其已完成证据仍保留供追溯。
+本文件前半部分保留 Pulse-Mini P0-P13 的历史研发合同；当前日常主线是 P16 的 `xc7z020clg484-2` 板级集成、传统 NPU + ENeuron 动态剪枝和 NP7 共享 lane。本轮审计基线为工作树 `codex/b1b-high-ddr-board-repro`、HEAD=`df561803fd44f791a38bda3be3422fe1f6411b77`；当前工作树仍保留用户已有的 `artifacts/results/rtl_smoke_results.json` 改动，不把它混入本轮文档/知识库提交。该基线收口 TODO/Nexus、串口端口选择入口和历史资料，不改变已签核的 B1B 诊断 ELF 或硬件身份。Pulse-Mini-L/L2 不参与当前 NPU 日常门，但其已完成证据仍保留供追溯。
 
 当前板级状态：低地址 `0x01000000–0x010FFFFF` 的 1 MiB DDR 已完成三次冷启动；高地址诊断尚未真正访问 DDR。CH340 以 `VID_1A86:PID_7523` 识别，COM 号不固定，本次环境探测（2026-09-08）为 COM10。B1C PHY/UDP 继续后置；B2 可先按低地址容量满足模型/DMA 缓冲区的条件启动 MVP，完整 `B1-GATE` 仍是进入网络化 B1C/B4 的门槛。
 
@@ -573,7 +573,7 @@ P15 硬门：双时钟逐 beat bit-exact；reset/ready-valid/FIFO 满空无丢�
 - [x] 使用隔离工作树 `D:\Documents\Code\ENeuron-board-b0`；当前活动分支为 `codex/b1b-high-ddr-board-repro`，不携带主工作树未提交修改。
 - [ ] P16-E01：每个阶段开始前写清入口条件、当前 Git HEAD、未跟踪保护文件和允许修改的目录；入口条件不满足时不得用后续阶段结果反向补齐前序门。
 - [ ] P16-E02：每个正式 bitstream 保存 Git commit、Vivado完整版本、完整 part、顶层、RTL/XDC/Tcl/PowerShell哈希、bitstream SHA-256、资源、时序、route/DRC结果和构建时间。
-- [ ] P16-E03：每次实板运行创建独立运行目录，建议标识为 `<UTC时间>_<阶段>_<Git短SHA>_<bitstream前8位>`；原始日志只追加或另存新文件，第二次运行不得覆盖第一次证据。
+- [ ] P16-E03：每次实板运行创建独立运行目录；原始日志只追加或另存新文件，第二次运行不得覆盖第一次证据。目录命名格式不作为硬门。
 - [ ] P16-E04：每次运行保存 bitstream SHA-256、JTAG target/device、板卡/调试器身份、测试开始与结束时间、输入向量或数据集哈希、软件提交、串口/Host原始日志、机器判定和人工观测。
 - [ ] P16-E05：机器摘要至少包含 `status`、实际执行命令、退出码、通过条件、首个失败项、关键计数器和全部输入/输出文件哈希；摘要不得只保存人工整理后的结论。
 - [ ] P16-E06：人工观测记录观察对象、板上丝印、FPGA引脚、开始/结束时间、持续时长、预期行为、实际行为和观察者确认；照片或视频可作补充，但不代替文字判定。
@@ -631,11 +631,12 @@ P15 硬门：双时钟逐 beat bit-exact；reset/ready-valid/FIFO 满空无丢�
 - [x] B1-06B1：独立链接脚本把应用区固定为`ORIGIN=0x00000000, LENGTH=0x0002F000`，把`0x0002F000–0x0002FFFF`保留为结果区；代码、向量表、页表、只读数据、可写数据、BSS、heap和全部处理器模式stack均不得进入DDR或结果区。构建产物`runtime_end=0x0000D840`，入口为`0x00000000`。
 - [x] B1-06B2：链接后以`arm-none-eabi-readelf -lW`检查所有`PT_LOAD`的物理范围完全落在`[0x00000000,0x0002F000)`，并以`arm-none-eabi-nm -n`检查入口、向量表、页表、heap、各模式stack和`_end`；任一地址越界时构建返回非零，不生成可上板候选。合并主线`436d1b2`的干净构建为`load_segment_count=1`、入口`0x00000000`、`runtime_end=0x0000D840`，ELF SHA-256=`619ab70cb5ee457bba0e059977442d89c797793386b855ce21eeec1da2631b82`。
 - [x] B1-06B2A：诊断源、linker、runner、合同测试和文档经PR #75合并为`main@436d1b2b089c5bf64ac306434349465291f31395`；manifest记录`git_worktree_clean=true`。正式上板入口拒绝未提交工作树，并核对当前HEAD、源码/linker、bitstream/XSA/ELF哈希与构建manifest完全一致。
+- [x] B1-06B2B：在当前提交`df561803fd44f791a38bda3be3422fe1f6411b77`的干净构建工作树中重新完成B1A/B1B/OCM构建；B1A bitstream=`ccbdf1df6fae9a3d0eece48e5fed90422397703662e7e9ebf15d0576972e5b45`、XSA=`62ea171a913cb2e66765f4cedb9b0973513cdebcde17982490c1f7f661d59ceb`，低地址ELF=`dcc0e261b7513cf6d8f9e8c6e3022a65f2f2c6de2d0a3f12900d66b57a66662f`，OCM诊断ELF=`3e0469265a1482081ce93188d905753b2fa998673a17e575776e115abfb76f01`；Vivado 2024.1、`xc7z020clg484-2`、WNS/WHS=`+0.240/+0.138 ns`、route/DRC error为0。构建通过不等于板级签核，以上新身份尚未上板。
 - [x] B1-06B3：DDR危险访问前先在OCM结果记录写入版本、`RUNNING`、阶段、窗口、地址、操作、宽度和期望值并执行内存屏障；读回后再写实际值，失败最后写`FAIL`，全部完成最后写`PASS`，避免CPU异常时只留下空记录。
 - [x] B1-06B4：ELF下载后必须先取得UART READY，再由JTAG核对OCM READY、执行地址和CPU状态后写GO；无论UART、READY/GO、编程或结果超时，runner都会采集OCM、PC、SP和CPSR后统一失败退出。历史 COM32误选和COM13无UART两次尝试均证明该门保持`command=0 / completed_accesses=0`，没有在前置条件不满足时访问DDR。
 - [ ] B1-06B5：正式证据包保存干净Git HEAD、硬件身份、bitstream/XSA/ELF及源码/linker哈希、链接布局检查、完整UART、OCM结果、CPU状态和首错字段；使用新目录，不覆盖三次低地址冷启动证据。
 - [ ] B1-06B6：恢复当前UART接收基准。按 `VID_1A86:PID_7523` 查找 CH340（2026-09-08 当前枚举为 COM10），使用115200 8N1，复用已签核低地址B1B bitstream/ELF做一次非冷启动串口基准复测。只判定能否收到既有banner/alive marker，不重新签署低地址DDR门。若仍无输出，停止并处理V15→CH340 RX、共地、端口占用和接触；不得修改OCM诊断或发送GO。
-- [ ] B1-06B7：B1-06B6通过后，使用已合并诊断提交 `436d1b2b089c5bf64ac306434349465291f31395` 生成且与 manifest 绑定的同一 OCM 诊断构建，通过 VID/PID 定位的 CH340 重新运行。当前 `d7e1035` 更新了 runner 入口但未改变诊断 ELF 或硬件身份；未重建前不得换用未绑定的新 ELF。必须先看到 UART READY，并由 JTAG 确认 `status=READY`、`phase=OCM_READY`、`execution_address<0x0002F000`、PC/SP 位于 OCM，再写 GO；随后以 UART、OCM 和 CPU 三路证据裁定稀疏地址及 4 KiB 固定模式为 PASS、数据失配、地址别名或 CPU 异常。
+- [ ] B1-06B7：B1-06B6通过后，使用当前提交`df561803fd44f791a38bda3be3422fe1f6411b77`构建并与 manifest 绑定的 OCM 诊断ELF（SHA-256=`3e0469265a1482081ce93188d905753b2fa998673a17e575776e115abfb76f01`），通过 VID/PID 定位的 CH340 重新运行。不得把历史`436d1b2` ELF或未绑定的开发产物混入本次证据。必须先看到 UART READY，并由 JTAG 确认 `status=READY`、`phase=OCM_READY`、`execution_address<0x0002F000`、PC/SP 位于 OCM，再写 GO；随后以 UART、OCM 和 CPU 三路证据裁定稀疏地址及 4 KiB 固定模式为 PASS、数据失配、地址别名或 CPU 异常。
 - [ ] B1-06C：执行分段定位。先按`0x02000000`、`0x04000000`、`0x08000000`、`0x10000000`、`0x18000000`五个基址运行相同稀疏探针，再在最后通过点和第一个失败点之间按地址高位二分；确认窗口可访问后才把该点扩大到1 MiB。结果分为“窗口可读写”“地址别名失败”“数据模式失败”“不可访问/CPU异常”，禁止把不同类别合并成一个DDR失败。
 - [ ] B1-06D：区分地址映射与容量边界。对二分得到的最后通过窗口和第一个失败窗口，各重复至少两次冷启动；比较失败地址是否固定、是否只在高位地址变化时出现、是否伴随同一别名偏移。若失败点随窗口变化，优先审计地址映射/PS7配置；若固定在边界，记录为已测容量上界候选，不修改配置掩盖故障。
 - [ ] B1-06E：扩展通过窗口。只有B1-06B～D给出稳定解释后，才在同一冻结身份下扩展为连续窗口测试；每个窗口保留独立manifest、UART原始日志、OCM结果和首错字段。任何新失败都创建新证据目录，不覆盖三次低地址PASS材料。
