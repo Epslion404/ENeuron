@@ -1607,3 +1607,4 @@
 - 2026-09-08：完成B1-06B链接审计。现有正式ELF全部运行于DDR；临时OCM链接验证入口、页表、heap、stack和`_end=0x0000D840`均可落在`0x0002F000`结果区以下。
 - TODO已补齐B1-06B1～B1-06B5：独立诊断源、OCM内存边界、`readelf/nm`机器硬门、危险访问前OCM预写、UART超时后的CPU取证和独立证据包。
 - 当前停止点仍是实施准备完成：未修改已签核`main.c`，未创建诊断代码，未重建ELF，未执行新的DDR实板访问；下一步只按B1-06B建立测试和独立诊断实现。
+- 错误记录：首次组合`git push`与`gh pr create`时误用Bash heredoc，PowerShell在解析阶段拒绝，推送和PR创建均未执行；改用PowerShell here-string经标准输入成功推送并创建PR #74，后续不在PowerShell命令中使用`<<EOF`。
