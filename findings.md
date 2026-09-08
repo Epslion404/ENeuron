@@ -1537,8 +1537,9 @@
 - B1-06B1～B1-06B4 已完成构建布局、身份绑定、危险访问前 OCM 记录和 fail-closed 前置门；B1-06B5 正式证据包、B1-06B6 UART 基准、B1-06B7 实际 DDR 访问仍未完成。
 - B1B 高地址诊断未收到 READY 时不发送 GO，当前 `completed_accesses=0`；这是有意的安全阻断，不是失败证据，也不是通过证据。
 - 2026-09-08 对 CH340 COM10 的非侵入式 UART 监听持续10秒、读取0字节且无 `BEGIN/ALIVE/PASS`；未下载 bitstream/ELF、未发送 GO，故仍停在 B1-06B6，不能把空输出解释为 DDR 失败。
+- 2026-09-08 PnP 只读复核确认唯一 `VID_1A86:PID_7523` 设备为 `USB-SERIAL CH340 (COM10)`，InstanceId=`USB\\VID_1A86&PID_7523\\6&3641E7AA&0&1`；COM6/COM7 为蓝牙串口，排除在 B1B UART 合同之外。
 - 本轮 TODO 校正不改变上述安全边界：B1-06B7 必须复用与 manifest 绑定的诊断 ELF。当前提交`dae5473`已完成新的干净 B1A/B1B/OCM 构建，OCM ELF SHA-256=`3e0469265a1482081ce93188d905753b2fa998673a17e575776e115abfb76f01`；该身份尚未上板，历史`436d1b2` ELF不得混用。
-- `workflow_resume.ps1 -Mode Resume` 旧记录曾返回 HEAD=`436d1b2` 并错误显示“活动 TODO 未完成项：0”；当前脚本已改为统计 P16、剪枝总合同和 NP7 合同，后续恢复判断以 TODO 明细、`WORKFLOW_STATE.md` 和当前 Git HEAD=`cc24a3e` 为准；B1-06B7 仍固定使用构建身份`dae5473`的 manifest 产物。
+- `workflow_resume.ps1 -Mode Resume` 旧记录曾返回 HEAD=`436d1b2` 并错误显示“活动 TODO 未完成项：0”；当前脚本已改为统计 P16、剪枝总合同和 NP7 合同，后续恢复判断以 TODO 明细、`WORKFLOW_STATE.md` 和校验基线 HEAD=`969a231` 为准；B1-06B7 仍固定使用构建身份`dae5473`的 manifest 产物。
 
 ## 2026-09-08 神经元模型线当前任务与门限
 

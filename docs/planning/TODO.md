@@ -2,7 +2,7 @@
 
 ## 当前主线校正（2026-09-08）
 
-本文件前半部分保留 Pulse-Mini P0-P13 的历史研发合同；当前日常主线是 P16 的 `xc7z020clg484-2` 板级集成、传统 NPU + ENeuron 动态剪枝和 NP7 共享 lane。本轮活动工作树为 `codex/b1b-high-ddr-board-repro`、HEAD=`cc24a3e0c1d444a8cd52300df8ed8756e49165ce`；B1-06B7 使用的已生成 OCM 诊断产物仍绑定构建身份 `dae5473ba72d6cfaee12ed8e103c0efad190ed4a`。当前工作树仍保留用户已有的 `artifacts/results/rtl_smoke_results.json` 改动，不把它混入本轮文档/知识库提交。该基线收口 TODO/Nexus、串口端口选择入口和历史资料，不改变已签核的 B1B 诊断 ELF 或硬件身份。Pulse-Mini-L/L2 不参与当前 NPU 日常门，但其已完成证据仍保留供追溯。
+本文件前半部分保留 Pulse-Mini P0-P13 的历史研发合同；当前日常主线是 P16 的 `xc7z020clg484-2` 板级集成、传统 NPU + ENeuron 动态剪枝和 NP7 共享 lane。本轮校验基线为工作树 `codex/b1b-high-ddr-board-repro`、HEAD=`969a231b26731e18a9b033a30f91e98492010d6a`；提交后的精确 HEAD 以 `workflow_resume.ps1 -Mode Check` 和 Git 为准。B1-06B7 使用的已生成 OCM 诊断产物仍绑定构建身份 `dae5473ba72d6cfaee12ed8e103c0efad190ed4a`。当前工作树仍保留用户已有的 `artifacts/results/rtl_smoke_results.json` 改动，不把它混入本轮文档/知识库提交。该基线收口 TODO/Nexus、串口端口选择入口和历史资料，不改变已签核的 B1B 诊断 ELF 或硬件身份。Pulse-Mini-L/L2 不参与当前 NPU 日常门，但其已完成证据仍保留供追溯。
 
 当前板级状态：低地址 `0x01000000–0x010FFFFF` 的 1 MiB DDR 已完成三次冷启动；高地址诊断尚未真正访问 DDR。CH340 以 `VID_1A86:PID_7523` 识别，COM 号不固定，本次环境探测（2026-09-08）为 COM10。B1C PHY/UDP 继续后置；B2 可先按低地址容量满足模型/DMA 缓冲区的条件启动 MVP，完整 `B1-GATE` 仍是进入网络化 B1C/B4 的门槛。
 
@@ -635,7 +635,7 @@ P15 硬门：双时钟逐 beat bit-exact；reset/ready-valid/FIFO 满空无丢�
 - [x] B1-06B3：DDR危险访问前先在OCM结果记录写入版本、`RUNNING`、阶段、窗口、地址、操作、宽度和期望值并执行内存屏障；读回后再写实际值，失败最后写`FAIL`，全部完成最后写`PASS`，避免CPU异常时只留下空记录。
 - [x] B1-06B4：ELF下载后必须先取得UART READY，再由JTAG核对OCM READY、执行地址和CPU状态后写GO；无论UART、READY/GO、编程或结果超时，runner都会采集OCM、PC、SP和CPSR后统一失败退出。历史 COM32误选和COM13无UART两次尝试均证明该门保持`command=0 / completed_accesses=0`，没有在前置条件不满足时访问DDR。
 - [ ] B1-06B5：正式证据包保存干净Git HEAD、硬件身份、bitstream/XSA/ELF及源码/linker哈希、链接布局检查、完整UART、OCM结果、CPU状态和首错字段；使用新目录，不覆盖三次低地址冷启动证据。
-- [ ] B1-06B6：恢复当前UART接收基准。仅使用接在 V14/V15 上的外置 3.3 V USB-TTL 适配器，按 `VID_1A86:PID_7523` 查找其 CH340（2026-09-08 当前枚举为 COM10），使用115200 8N1，复用已签核低地址B1B bitstream/ELF做一次非冷启动串口基准复测。只判定能否收到既有banner/alive marker，不重新签署低地址DDR门。最近一次非侵入式监听持续10秒、读取0字节且未收到`BEGIN/ALIVE/PASS`，不计为通过或DDR失败。若仍无输出，停止并处理 V14←适配器TX、V15→适配器RX、共地、端口占用和接触；板载 CH340 的 L17/M17 不属于当前 UART 路径；不得修改OCM诊断或发送GO。
+- [ ] B1-06B6：恢复当前UART接收基准。仅使用接在 V14/V15 上的外置 3.3 V USB-TTL 适配器，按 `VID_1A86:PID_7523` 查找其 CH340（2026-09-08 当前枚举为 COM10；`COM6/COM7` 为蓝牙串口，禁止替代），使用115200 8N1，复用已签核低地址B1B bitstream/ELF做一次非冷启动串口基准复测。只判定能否收到既有banner/alive marker，不重新签署低地址DDR门。最近一次非侵入式监听持续10秒、读取0字节且未收到`BEGIN/ALIVE/PASS`，不计为通过或DDR失败。若仍无输出，停止并处理 V14←适配器TX、V15→适配器RX、共地、端口占用和接触；板载 CH340 的 L17/M17 不属于当前 UART 路径；不得使用 COM6/COM7 蓝牙串口替代，不得修改OCM诊断或发送GO。
 - [ ] B1-06B7：B1-06B6通过后，继续使用接在 V14/V15 上的外置 3.3 V USB-TTL 适配器，并使用与 manifest 绑定的构建身份`dae5473ba72d6cfaee12ed8e103c0efad190ed4a`及其 OCM 诊断ELF（SHA-256=`3e0469265a1482081ce93188d905753b2fa998673a17e575776e115abfb76f01`）重新运行。不得把板载 L17/M17 CH340、历史`436d1b2` ELF或未绑定的开发产物混入本次证据。必须先看到 UART READY，并由 JTAG 确认 `status=READY`、`phase=OCM_READY`、`execution_address<0x0002F000`、PC/SP 位于 OCM，再写 GO；随后以 UART、OCM 和 CPU 三路证据裁定稀疏地址及 4 KiB 固定模式为 PASS、数据失配、地址别名或 CPU 异常。
 - [ ] B1-06C：执行分段定位。先按`0x02000000`、`0x04000000`、`0x08000000`、`0x10000000`、`0x18000000`五个基址运行相同稀疏探针，再在最后通过点和第一个失败点之间按地址高位二分；确认窗口可访问后才把该点扩大到1 MiB。结果分为“窗口可读写”“地址别名失败”“数据模式失败”“不可访问/CPU异常”，禁止把不同类别合并成一个DDR失败。
 - [ ] B1-06D：区分地址映射与容量边界。对二分得到的最后通过窗口和第一个失败窗口，各重复至少两次冷启动；比较失败地址是否固定、是否只在高位地址变化时出现、是否伴随同一别名偏移。若失败点随窗口变化，优先审计地址映射/PS7配置；若固定在边界，记录为已测容量上界候选，不修改配置掩盖故障。

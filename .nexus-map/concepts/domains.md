@@ -1,6 +1,6 @@
 # 核心领域概念
 
-当前主线（2026-09-08）：部署目标为 `xc7z020clg484-2`，聚焦 NPU + ENeuron 动态剪枝。`archive/legacy/` 不参与日常门；旧 `xc7z020clg400-1` 的 NP7/T3 物理证据仅作历史参考。B1 高地址 DDR、PHY、UDP 属于板卡资格支线，完整 `B1-GATE` 仍未关闭，但不阻塞低地址容量满足条件下的 NPU MVP。CH340 按 `VID_1A86:PID_7523` 识别，COM10 不是固定合同。当前活动分支为 `codex/b1b-high-ddr-board-repro`、工作树 HEAD=`cc24a3e`。
+当前主线（2026-09-08）：部署目标为 `xc7z020clg484-2`，聚焦 NPU + ENeuron 动态剪枝。`archive/legacy/` 不参与日常门；旧 `xc7z020clg400-1` 的 NP7/T3 物理证据仅作历史参考。B1 高地址 DDR、PHY、UDP 属于板卡资格支线，完整 `B1-GATE` 仍未关闭，但不阻塞低地址容量满足条件下的 NPU MVP。CH340 按 `VID_1A86:PID_7523` 识别，COM10 不是固定合同。当前活动分支为 `codex/b1b-high-ddr-board-repro`、校验基线 HEAD=`969a231`；COM6/COM7 蓝牙串口排除。
 
 - `ACTIVE_CONTRACT_HIERARCHY`：当前阶段合同为 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`；`docs/planning/TODO.md` 的 P16 段、`docs/planning/NPU_PRUNING_TODO.md` 和 `docs/planning/NPU_PRUNING_NP7_TODO.md` 为关联合同。`workflow_resume` 统计为 `82/10/0=92`。
 - `B1_06B6_UART_BASELINE_PENDING`：当前先按 VID/PID 恢复 CH340 UART 接收基准；此前诊断停在 READY 等待 GO，`command=0`、`completed_accesses=0`，尚未进行 DDR 访问。执行链固定为 B1-06B6 UART 基准 → B1-06B7 OCM 高地址最小复现；B1-06B7 高地址探针必须以后续 UART 基准通过为前提。
