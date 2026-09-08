@@ -1636,3 +1636,4 @@
 - 2026-09-08：复核 TODO 与持久恢复入口，发现 `workflow_resume.ps1` 只统计已收口的 NP4B TODO，错误显示活动未完成项为 0。已改为统计当前主线的 `TODO.md:P16`、剪枝总合同和 NP7 合同，并补充工作流映射；当前摘要为 82/10/0，共 92 项。PowerShell 解析、定向合同测试 11/11 和 `git diff --check` 通过。
 - 2026-09-08：继续推进 TODO 前校正了 P16 工作树引用和 B1-06B7 诊断构建绑定；当前审计基线为 `d7e1035`，活动分支为 `codex/b1b-high-ddr-board-repro`。CH340 仍按 `VID_1A86:PID_7523` 识别，当前枚举为 COM10；本轮没有发送 GO、访问高地址 DDR 或修改用户已有结果文件。
 - 2026-09-08：复核发现上述活动基线在提交 `dae5473` 后已过期；已将 TODO、任务计划、发现记录和工作流状态统一到当前 HEAD=`dae5473ba72d6cfaee12ed8e103c0efad190ed4a`。当前提交的干净构建已生成 B1A/B1B/OCM 候选，OCM 诊断 ELF SHA-256=`3e0469265a1482081ce93188d905753b2fa998673a17e575776e115abfb76f01`；构建通过但尚未上板。用户已有 `artifacts/results/rtl_smoke_results.json` 改动仍未触碰。
+- 2026-09-08：对 CH340 COM10 做10秒非侵入式 UART 监听，读取0字节且未收到 `ENEURON_B1B_BEGIN/ALIVE/PASS`；未下载 bitstream/ELF、未发送 GO、未访问高地址 DDR。B1-06B6 仍未通过，下一步继续处理外部 UART 接收链，不重复低地址冷启动门。

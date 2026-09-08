@@ -3,7 +3,7 @@
   "verified_at": "2026-09-08",
   "workflow_context": {
     "active_branch": "codex/b1b-high-ddr-board-repro",
-    "current_head": "dae5473ba72d6cfaee12ed8e103c0efad190ed4a",
+    "current_head": "cc24a3e0c1d444a8cd52300df8ed8756e49165ce",
     "parent_audit_baseline": "d7e1035",
     "execution_chain": ["B1-06B6_UART_BASELINE", "B1-06B7_OCM_HIGH_DDR_MINIMAL_REPRODUCTION"],
     "ddr_accesses_so_far": 0
@@ -48,7 +48,7 @@
     "xsa_sha256": "ed4a2ff0149459bbe431c918e9c5c6d69a689a42a6bbe159126bab1c402d417b",
     "elf_sha256": "4992d26c501106aca63c9fc1e1f4cc2a2baccd1ef8c440e3daa9b7bed2128560"
   },
-  "uart": {"rx_pin":"V14", "tx_pin":"V15", "adapter":"external CH340 identified by VID_1A86:PID_7523; observed COM10; 115200 8N1", "adapter_vid_pid":"VID_1A86:PID_7523", "three_cold_runs_pass":true},
+  "uart": {"rx_pin":"V14", "tx_pin":"V15", "adapter":"external CH340 identified by VID_1A86:PID_7523; observed COM10; 115200 8N1", "adapter_vid_pid":"VID_1A86:PID_7523", "three_cold_runs_pass":true, "passive_listen":{"duration_seconds":10, "baud":115200, "format":"8N1", "bytes_read":0, "markers_seen":[], "bitstream_downloaded":false, "elf_downloaded":false, "go_sent":false, "ddr_accesses":0, "status":"B1-06B6_UART_BASELINE_PENDING"}},
   "ddr": {"base":"0x01000000", "bytes":"0x00100000", "dcache":"DISABLED", "phases_passed":9, "three_cold_runs_pass":true},
   "evidence": {
     "summary":"artifacts/results/hellozynq_b1b_uart_ddr_summary.json",
