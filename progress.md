@@ -1608,3 +1608,11 @@
 - TODO已补齐B1-06B1～B1-06B5：独立诊断源、OCM内存边界、`readelf/nm`机器硬门、危险访问前OCM预写、UART超时后的CPU取证和独立证据包。
 - 当前停止点仍是实施准备完成：未修改已签核`main.c`，未创建诊断代码，未重建ELF，未执行新的DDR实板访问；下一步只按B1-06B建立测试和独立诊断实现。
 - 错误记录：首次组合`git push`与`gh pr create`时误用Bash heredoc，PowerShell在解析阶段拒绝，推送和PR创建均未执行；改用PowerShell here-string经标准输入成功推送并创建PR #74，后续不在PowerShell命令中使用`<<EOF`。
+- 2026-09-08：PR #74在本地10项轻量门、Nexus JSON和差异检查通过后以`CLEAN / MERGEABLE`合并为`main@3e7f18a5`；Actions保持关闭，空checks未作为证据。
+- B1-06B首个合同测试已按预期RED：`test_b1b_high_diag_contract`因缺少独立`high_diag.c`失败。该失败证明当前主线尚未实现OCM高地址诊断入口；下一步只补齐OCM构建垂直切片。
+- B1-06B首次Vitis构建在应用编译阶段失败：新PowerShell脚本的宏字符串转义多了一层反斜杠，GCC把Git/SHA文本解析为数值或标识符；BSP已生成，未执行链接或实板访问。修复改为复用正式B1B构建的引号语义后重跑，不改变诊断协议。
+- 第二次直接宏注入仍被Windows native argv重建去除引号；停止继续调整转义，改为生成ASCII `build_identity.h`并通过GCC `-include`注入身份，消除PowerShell/native引号边界。两次失败均未链接ELF、未上板、未访问DDR。
+- 2026-09-08：B1-06B OCM诊断垂直切片完成。`test_b1b_high_diag_contract`通过，两个PowerShell入口解析通过，`git diff --check`通过；Vitis/ARM GCC构建绑定`git_head=3e7f18a5a0d81a06defc1086f071e497e603bcf1`，生成`B1B_HIGH_DIAG_BUILD_PASS`。ELF入口为`0x00000000`，唯一`PT_LOAD`和全部运行时符号位于`0x0002F000`之前，`runtime_end=0x0000D840`，ELF SHA-256=`9dd88c077c12d8756e41f05b5b83a63fd54705f2f8860f168d0d6eb9c08527ee`。
+- 当前状态：B1-06B1/B1-06B2已具备构建证据；B1-06B3～B1-06B5和高地址最小复现仍待实板。下一动作是运行独立高地址诊断入口，先验证OCM READY和CPU状态，再访问`0x10000000`附近稀疏点/4 KiB窗口；在此之前不进入B1-06C或B1C。
+- 实板入口审查发现并修正一个取证缺口：原runner在READY/GO/编程异常时会提前抛出，跳过OCM/CPU probe；现在改为记录`runner_error`、关闭串口后仍执行probe，并在manifest中保存program/arm/probe退出码，最后统一失败退出。该修正尚未上板验证。
+- 身份审查确认当前ELF是在未提交工作树上构建，不能直接作为正式上板候选。构建manifest已增加`git_worktree_clean`，板级runner已增加当前HEAD、工作树洁净度、源码/linker、bitstream/XSA/ELF哈希硬门。下一步先提交并在干净新HEAD重建，不直接运行当前开发ELF。

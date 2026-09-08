@@ -73,10 +73,17 @@
       "precondition": "verify OCM execution and UART before writing DDR"
     },
     "b1_06b": {
-      "status": "NEXT",
+      "status": "BUILD_GATE_PASS_BOARD_REPRODUCTION_PENDING",
       "diagnostic_elf": "independent OCM-resident ELF",
       "link_contract": "ocm_app 0x00000000-0x0002EFFF; result record 0x0002F000-0x0002FFFF",
       "post_link_gate": "readelf -lW and nm -n prove all load ranges and runtime symbols remain below 0x0002F000",
+      "build_evidence": {
+        "git_head": "3e7f18a5a0d81a06defc1086f071e497e603bcf1",
+        "entry_point": "0x00000000",
+        "runtime_end": "0x0000D840",
+        "load_segment_count": 1,
+        "elf_sha256": "9dd88c077c12d8756e41f05b5b83a63fd54705f2f8860f168d0d6eb9c08527ee"
+      },
       "probe": "sparse addresses near 0x10000000, followed by a 4 KiB single-pattern alias/read-write test",
       "stop_on_first_error": true,
       "capture_order": "prewrite OCM attempt record and barrier; after UART pass/fail/timeout stop CPU and capture OCM, PC, SP and CPSR before reset",

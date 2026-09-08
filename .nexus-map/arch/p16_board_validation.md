@@ -18,7 +18,7 @@ B1A来源审计固定在板厂`73d529d8...`，其中L17/M17只描述板厂原始
 
 B1B使用外置3.3V CH340，连接V14←TTL TX、V15→TTL RX并共地；V14/V15同时与板载HDMI并行RGB低位共网，B1B不得启用HDMI。`bare-metal + lwIP`路线已批准，裸机UART与低地址1 MiB DDR三次冷启动通过；`0x10000000`高地址异常尚未关闭，lwIP仍留到B1C。
 
-高地址诊断状态：B1-06A合同已冻结，独立诊断ELF必须从低位OCM运行，代码、页表、堆和栈不得进入DDR，并预留OCM结果区；下一执行点为B1-06B。专用linker把应用限制在`0x00000000–0x0002EFFF`，保留`0x0002F000–0x0002FFFF`，构建后用`readelf -lW`和`nm -n`检查全部加载范围及运行时符号。B1-06B先验证OCM执行和UART，再在`0x10000000`附近执行稀疏地址探针与4 KiB单一固定模式读写；每次危险访问前预写OCM记录，UART成功、失败或超时后都先保存OCM和PC/SP/CPSR。当前仍为`B1B_HIGH_DDR_PENDING`，不得宣称整片DDR、B1B或B1-GATE通过。
+高地址诊断状态：B1-06A合同已冻结，独立诊断ELF必须从低位OCM运行，代码、页表、堆和栈不得进入DDR，并预留OCM结果区。B1-06B专用linker和构建硬门已通过：应用限制在`0x00000000–0x0002EFFF`，入口`0x00000000`、`runtime_end=0x0000D840`，`readelf -lW`和`nm -n`检查通过。下一执行点是实板先验证OCM执行和UART，再在`0x10000000`附近执行稀疏地址探针与4 KiB单一固定模式读写；每次危险访问前预写OCM记录，UART、READY或GO成功、失败或超时后都先保存OCM和PC/SP/CPSR。当前仍为`B1B_HIGH_DDR_PENDING`，不得宣称整片DDR、B1B或B1-GATE通过。
 
 run-1 机器归档由 `boards/hellozynq/b0_smoke/archive_b0_program_run.ps1` 生成。归档 manifest 绑定当前 bitstream `df16ed6c...8971`、program log SHA-256 `0152fe32...a49e`。`field_observation.json` 已更新为稳定闪烁、10周期 `13.42 s` 与 `status=PASS`，当前 SHA-256 为 `d93bcc25...ab083`。run-1已形成机器与现场闭环。
 

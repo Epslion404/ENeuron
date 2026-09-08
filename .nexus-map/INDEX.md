@@ -1,6 +1,6 @@
 # ENeuron 知识库入口
 
-高地址下一步已冻结（2026-09-08）：B1-06A合同要求诊断ELF独立运行于OCM；应用范围限制为`0x00000000–0x0002EFFF`，末尾4 KiB保留为结果区，并由`readelf -lW`/`nm -n`做越界硬门。下一执行点B1-06B，先做`0x10000000`附近稀疏地址探针，再做4 KiB单一固定模式复现；危险访问前预写OCM记录，UART任意终态后先采集OCM和CPU状态。不得把该待办状态写成整片DDR、B1B或B1-GATE通过。
+高地址下一步已冻结（2026-09-08）：B1-06A合同要求诊断ELF独立运行于OCM；B1-06B构建门已证明应用范围为`0x00000000–0x0002EFFF`、入口`0x00000000`、`runtime_end=0x0000D840`，末尾4 KiB保留为结果区。下一执行点是实板运行`0x10000000`附近稀疏地址探针和4 KiB单一固定模式复现；危险访问前预写OCM记录，UART、READY或GO任意失败后仍先采集OCM和CPU状态。不得把构建通过写成整片DDR、B1B或B1-GATE通过。
 
 B1B实板进度（2026-09-08）：主线基线为`main@d5fe4e5e0472a6c8a901053b2829cd1e899c377f`，当前硬件身份为`29edf6adc6613445f0983f2c1b8e4d037164985b`，软件身份为`97ddd1a38f00595e580168ebd59fe0b2d8e1db92`。现场诊断后的正式UART为V14 RX、V15 TX、LVCMOS33，使用外置CH340的COM10、115200 8N1；bitstream/XSA/ELF为`1f98e949...bc5f6`、`ed4a2ff...d417b`、`4992d26c...128560`。同一冻结组合已在三次完整断电重启后通过UART协议和低地址1 MiB DDR九阶段；`0x10000000`高地址异常仍未关闭，因此状态为`B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DDR_PENDING / B1-GATE=false`。
 
