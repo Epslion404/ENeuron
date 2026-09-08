@@ -1637,3 +1637,11 @@
 - 2026-09-08：继续推进 TODO 前校正了 P16 工作树引用和 B1-06B7 诊断构建绑定；当前审计基线为 `d7e1035`，活动分支为 `codex/b1b-high-ddr-board-repro`。CH340 仍按 `VID_1A86:PID_7523` 识别，当前枚举为 COM10；本轮没有发送 GO、访问高地址 DDR 或修改用户已有结果文件。
 - 2026-09-08：复核发现上述活动基线在提交 `dae5473` 后已过期；已将 TODO、任务计划、发现记录和工作流状态统一到当前 HEAD=`dae5473ba72d6cfaee12ed8e103c0efad190ed4a`。当前提交的干净构建已生成 B1A/B1B/OCM 候选，OCM 诊断 ELF SHA-256=`3e0469265a1482081ce93188d905753b2fa998673a17e575776e115abfb76f01`；构建通过但尚未上板。用户已有 `artifacts/results/rtl_smoke_results.json` 改动仍未触碰。
 - 2026-09-08：对 CH340 COM10 做10秒非侵入式 UART 监听，读取0字节且未收到 `ENEURON_B1B_BEGIN/ALIVE/PASS`；未下载 bitstream/ELF、未发送 GO、未访问高地址 DDR。B1-06B6 仍未通过，下一步继续处理外部 UART 接收链，不重复低地址冷启动门。
+# 2026-09-08 TODO 中等精简
+
+- [x] 复核 P16、剪枝总合同和 NP7 合同的实际未完成项与执行依赖。
+- [x] 将 P16 公共证据规则/停止条件改为持续合同，不再计为一次性待办。
+- [x] 将 NP8 标记为延期可选，将 NP9 合并指向 P16-B2/B3/B4；恢复脚本只统计 P16 一次性任务。
+- [x] 将主线下一动作改为 B2-00 低地址容量与 DMA 缓冲区布局证明；B1 高地址 UART/DDR 保留为资格支线。
+- [x] `workflow_resume.ps1 -Mode Check` 通过，活动 P16 TODO 为 67 项；`git diff --check` 通过。
+- [ ] 尚未提交本轮文档调整；用户保护文件 `artifacts/results/rtl_smoke_results.json` 保持未修改。

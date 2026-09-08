@@ -61,9 +61,9 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 ## 允许动作
 
 - 更新当前状态、TODO、任务计划和 Nexus 摘要，保留历史审计记录。
-- 先用已签核低地址B1B应用和按 VID/PID 定位的 CH340 做一次非冷启动UART接收基准复测；保持已签核`main.c`、正式B1A硬件和三次低地址证据不变。
-- UART基准通过后，按B1-06B7重跑已完成构建门的独立OCM驻留高地址诊断。
-- B1-06B给出可复现结果后，依次执行B1-06C～B1-06F；身份未变化时复用现有B1A bitstream/XSA，不重复Vivado实现。
+- 主线先关闭P16-B2-00：证明模型、DMA描述符和收发缓冲区完全落在已验证的低地址DDR窗口，并冻结地址布局。
+- B2-00通过后推进B2-D1和最小AXI DMA simple-mode loopback；B1高地址支线未关闭时在manifest中保留`B1_HIGH_DDR_PENDING`。
+- 板卡资格支线可继续处理B1-06B6；UART基准通过后才运行B1-06B7，并依次执行B1-06C～B1-06F。身份未变化时复用现有B1A bitstream/XSA。
 
 ## 禁止动作
 
@@ -76,7 +76,7 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 
 ## 下一动作
 
-B1-06B的独立诊断源、OCM链接、`readelf/nm`越界硬门和实板入口已合并到`main@436d1b2`；构建身份`dae5473`上已重新生成身份一致的新B1A/B1B/OCM候选，但尚未上板。当前校验基线 HEAD=`ef0495b`，阻塞不是DDR结果，而是此前串口选择/接收链未取得UART READY；OCM和CPU证据证明程序在低位OCM等待GO，DDR访问数为0。下一动作是用已签核低地址应用复测 VID/PID 定位的 CH340 接收链；通过后再运行当前 manifest 绑定的 OCM 诊断并发送GO。复现证据明确后才进入B1-06C，B1-06F前禁止进入B1C。
+主线下一动作是P16-B2-00：以已通过三次冷启动的低地址1 MiB DDR窗口为上界，核算634个模型word、DMA描述符、发送/接收缓冲区和对齐开销，形成单一地址布局合同；通过后冻结B2-D1并实现AXI DMA simple-mode polling loopback。B1-06B6串口接收故障和高地址DDR诊断继续作为板卡资格支线，仍禁止在UART READY前发送GO，也禁止在B1-06F前进入B1C；它们不再阻塞低地址窗口内的NPU MVP。
 
 ## 2026-09-05 V2 OOC 签核结果
 

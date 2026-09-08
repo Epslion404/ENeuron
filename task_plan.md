@@ -1587,3 +1587,9 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 - [x] 重新核对 CH340 `VID_1A86:PID_7523` 当前枚举为 `COM10`，Vivado/Vitis 2024.1 入口存在；COM 号仍不写入稳定合同。
 - [ ] 提交本轮 TODO/状态/Nexus 小批次，排除用户已有 `artifacts/results/rtl_smoke_results.json` 修改。
 - [x] 在当前提交的干净构建工作树重建 B1A、正式 B1B 和 OCM 高地址诊断产物；构建通过但尚未上板，B1-06B6 非冷启动 UART 基准仍待执行。
+## 2026-09-08 TODO 中等精简
+
+- [x] 审计活动 TODO 的 checkbox 口径、重复合同和当前板级状态。
+- [x] 精简权威 TODO 与恢复脚本，保留 NPU/ENeuron 功能和物理硬门。
+- [x] 更新 WORKFLOW_STATE / WORKFLOW / findings / progress，明确 B2-00 为低地址 NPU MVP 下一动作。
+- [ ] 提交并由 Nexus 复核本轮文档变更。

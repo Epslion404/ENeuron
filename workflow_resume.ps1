@@ -25,16 +25,6 @@ $activeTodoSpecs = @(
         Path = "docs/planning/TODO.md"
         StartPattern = "^### P16"
         Label = "TODO.md:P16"
-    },
-    [pscustomobject]@{
-        Path = "docs/planning/NPU_PRUNING_TODO.md"
-        StartPattern = $null
-        Label = "NPU_PRUNING_TODO.md"
-    },
-    [pscustomobject]@{
-        Path = "docs/planning/NPU_PRUNING_NP7_TODO.md"
-        StartPattern = $null
-        Label = "NPU_PRUNING_NP7_TODO.md"
     }
 )
 
