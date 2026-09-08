@@ -1536,6 +1536,7 @@
 - 当前执行链由活动 TODO 明确冻结为：`B1-06B6 COM13低地址UART基准复测 -> B1-06B7 OCM驻留最小复现 -> B1-06C 分段定位 -> B1-06D 边界复测 -> B1-06E 连续窗口扩展 -> B1-06F 关闭B1B -> B1C PHY/UDP`。
 - B1-06B1～B1-06B4 已完成构建布局、身份绑定、危险访问前 OCM 记录和 fail-closed 前置门；B1-06B5 正式证据包、B1-06B6 UART 基准、B1-06B7 实际 DDR 访问仍未完成。
 - B1B 高地址诊断未收到 READY 时不发送 GO，当前 `completed_accesses=0`；这是有意的安全阻断，不是失败证据，也不是通过证据。
+- 本轮 TODO 校正不改变上述安全边界：B1-06B7 必须复用与 manifest 绑定的诊断 ELF；`d7e1035` 的 runner/文档更新不能被误读为新的 ELF 构建证据。
 - `workflow_resume.ps1 -Mode Resume` 本次返回持久文件完整、HEAD=`436d1b2`、工作树条目=6，并显示“活动 TODO 未完成项：0”；但 `docs/planning/TODO.md` 明确仍存在 B1B、B1-06B5、B1-06B6、B1-06B7 等 `[ ]` 项。该摘要计数与明细不一致，后续恢复判断必须以 TODO 明细和 `WORKFLOW_STATE.md` 为准。
 
 ## 2026-09-08 神经元模型线当前任务与门限
