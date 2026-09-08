@@ -1557,3 +1557,9 @@
 - P9 尚缺输入编码、每样本 tick/事件率、数据拆分、随机初态和预注册门槛；需先做 `4->4->3`，再做 `4->8->10`，分开比较 `local_teacher`、`feedback_alignment`、`global_scalar_reward`，并报告 balanced accuracy、macro-F1、coverage、tie/abstain、首脉冲延迟、输出脉冲和权重账本。
 - P10 的硬门是每个扇入/共享 lane 点都与四输入参考模型逐 tick、逐状态 bit-exact，100 MHz routed `WNS>=0/TNS=0`、setup/hold 零失败，并在目标事件率下 FIFO 不溢出。
 - P11 的硬门是保留 L2 的正/负证据计数语义，单核 100 MHz routed `WNS>=0/TNS=0`，且与 L2 Python/RTL 模型逐事务一致；WNS 通过前不得报告 L2 阵列容量。
+## 2026-09-08 TODO 中等精简复核
+
+- `docs/planning/TODO.md` 原先把公共证据规则和停止条件写成未完成 checkbox，导致恢复脚本把持续约束误计为待办；现改为常驻合同，P16 一次性未完成项由 82 降为 67。
+- `NPU_PRUNING_TODO.md` 的 NP8 是 V1 全部门槛后的可选动态恢复，NP9 与 P16-B2/B3/B4 重复；现分别标记 `DEFERRED_OPTIONAL` 和转为 P16 交叉引用。NP7 已全勾选，剪枝算法/共享 lane 不再进入活动计数。
+- 已验证低地址 DDR 三次冷启动通过，P16-B2-00 明确允许在 `B1_HIGH_DDR_PENDING` 下证明模型/DMA缓冲区落入已验证窗口并推进 DMA MVP；因此主线下一动作改为 B2-00，而 B1-06B6～B1-06F 保留为板卡资格支线，不再阻塞低地址 NPU MVP。
+- `workflow_resume.ps1 -Mode Check` 通过并输出 `TODO.md:P16=67`；未运行板级写入、Vivado 或高地址 DDR 访问。

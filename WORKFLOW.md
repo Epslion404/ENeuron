@@ -153,9 +153,9 @@ RESEARCH
 当前活动状态只以 `WORKFLOW_STATE.md` 为准；详细合同按边界分别见：
 
 - `docs/planning/TODO.md`：P16 `xc7z020clg484-2` 板级阶段 2、B1B 高地址 DDR 与 B2/B3/B4 入口。
-- `docs/planning/NPU_PRUNING_TODO.md`：传统 NPU + ENeuron 动态剪枝集成、功能/周期/物理门。
-- `docs/planning/NPU_PRUNING_NP7_TODO.md`：共享 BRAM/lane 的功能合同与旧 `clg400-1` 物理证据边界。
+- `docs/planning/NPU_PRUNING_TODO.md`：传统 NPU + ENeuron 动态剪枝的已签核算法/RTL合同；NP8已延期，NP9板级工作统一转入P16。
+- `docs/planning/NPU_PRUNING_NP7_TODO.md`：已收口的共享 BRAM/lane 功能合同与旧 `clg400-1` 物理证据边界。
 
 `NPU_PRUNING_NP4B_TODO.md` 和 `NPU_PRUNING_NP6_TODO.md` 已收口，保留作历史签核合同，不再作为恢复脚本的活动 TODO 计数来源。旧 `xc7z020clg400-1` OOC/NP7 结果不能替代目标 `xc7z020clg484-2` 的最终 routed 或板级证据。
 
-当前执行顺序由 `WORKFLOW_STATE.md` 的“允许动作/下一动作”和上述活动合同共同决定；恢复脚本只统计当前主线合同（`TODO.md` 的 P16 段、剪枝总合同和 NP7 合同），不把 Pulse-Mini 历史段或已收口 NP4B 的零未完成项代表全项目完成。
+当前执行顺序由 `WORKFLOW_STATE.md` 的“允许动作/下一动作”和上述合同共同决定；恢复脚本只统计 `TODO.md` 的 P16 一次性任务。公共证据规则、停止条件、延期的 NP8 和已并入 P16 的 NP9 不计数；剪枝总合同与 NP7 合同继续作为已签核设计依据读取。

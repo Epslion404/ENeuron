@@ -8,7 +8,7 @@
 
 证据边界：当前部署和最终板级物理签核目标是 `xc7z020clg484-2`。`xc7z020clg400-1` 上的 T3/NP7 OOC、时序和资源报告只作为历史结构参考，不得写成 `clg484-2` 已签核；`archive/legacy/` 中的材料不进入日常 CI/PR 门。B1 高地址 DDR、PHY 和 UDP 属于板卡资格支线，仍阻塞完整 `B1-GATE`，但在已验证低地址窗口足以容纳模型与 DMA 缓冲区时，不阻塞 NPU MVP 的 RTL/软件推进。CH340 运行脚本按 `VID_1A86:PID_7523` 识别设备，`COM10` 只是现场枚举结果，不是固定合同。
 
-合同与恢复口径（2026-09-08）：`WORKFLOW_STATE.md` 指定 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md` 为当前阶段合同；`docs/planning/TODO.md` 的 P16 段、`NPU_PRUNING_TODO.md` 和 `NPU_PRUNING_NP7_TODO.md` 为关联合同。`workflow_resume.ps1` 当前按这三份主线 TODO 统计为 `82/10/0=92`，不再用历史 NP4B 零未完成项代表全项目完成。当前活动分支为 `codex/b1b-high-ddr-board-repro`，校验基线 HEAD 为 `ef0495b0a363195d27ba7efc019127523f9affcf`；其父级审计基线为 `d7e1035`。唯一合同设备为 `VID_1A86:PID_7523` 的外置 CH340，现场枚举为 COM10；COM6/COM7 为蓝牙串口并排除。
+合同与恢复口径（2026-09-09）：`WORKFLOW_STATE.md` 指定 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md` 为当前阶段合同；中等精简后的主线 TODO 仅统计 `docs/planning/TODO.md` 的 P16，当前活动计数为 `67`。`P16-E` 公共证据合同与 `P16-S` 统一停止条件是持续适用的常驻合同，不计入一次性计数；`NP8` 为 `DEFERRED_OPTIONAL`，`NP9` 已并入 P16 的 B2/B3/B4，不再维护第二套板级任务。主线为 `B2-00` 低地址 NPU MVP，B1 高地址 DDR/PHY/UDP 仅为板卡资格支线。当前活动分支为 `codex/b1b-high-ddr-board-repro`，校验基线 HEAD 为 `ef0495b0a363195d27ba7efc019127523f9affcf`；其父级审计基线为 `d7e1035`。唯一合同设备为 `VID_1A86:PID_7523` 的外置 CH340，现场枚举为 COM10；COM6/COM7 为蓝牙串口并排除。
 
 当前执行点（2026-09-08）：活动链为 `B1-06B6` UART 基准复测 → `B1-06B7` OCM 高地址最小复现。先按 VID/PID 找到 CH340 并确认既有低地址应用的 banner/alive marker；通过后才进入 `B1-06B7`。此前两次诊断均停在 READY 等待 GO，`command=0`、`completed_accesses=0`，尚未进行任何 DDR 访问；不得把高地址探针写成已执行或把 UART 阻塞写成 DDR 失败。
 
