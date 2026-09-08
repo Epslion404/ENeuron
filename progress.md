@@ -1,5 +1,33 @@
 # 进度记录
 
+## 2026-09-08 B1-D1批准与B1B启动
+
+- 用户批准`bare-metal + lwIP`。执行范围收敛为先完成JTAG下载、UART banner和DDR小范围测试；lwIP/PHY/UDP留到B1C。
+- 外置CH340已被Windows枚举为COM10并可正常打开，首轮5秒监听无数据；下一步生成并运行最小裸机应用。
+- 已从本机XSCT 2024.1帮助核对可复现路径：用当前XSA直接创建Cortex-A9 standalone应用、导入版本化源码并构建；无需猜测已废弃接口。
+- 已核对官方Memory Tests实现和XSA内容，冻结B1B测试为关闭D-Cache后访问高地址安全窗口，PS初始化直接使用XSA内的`ps7_init.tcl`。
+- 首次Vitis应用构建在模板生成后停滞，未产生ELF；已终止本轮启动的两个构建进程。下一尝试切换为HSI+BSP+ARM GCC直接构建，不重复卡住的IDE后台路径。
+- 已确认卡住前产物足以证明直接构建可行：BSP配置将标准输入输出绑定UART0，默认应用链接到DDR低地址，测试高地址窗口无重叠；下一步替换构建脚本，不依赖Eclipse服务。
+- HSI直接生成与`libxil.a`编译已通过；首次链接因遗漏生成的`Xilinx.spec`而带入默认crt0并失败。已修正为复用BSP且使用Xilinx启动规范，避免重复平台/BSP生成。
+- 应用随后成功链接。第一次上板没有触达硬件：Digilent USB在线但hw_server未运行，XSCT连接失败；脚本现会自动启动本机hw_server并稳健记录空日志。
+- 直接启动unwrapped hw_server只能建立空服务器，未加载到Digilent target；已改用官方bat启动器加载Vivado环境。线缆USB设备状态仍为OK。
+- 官方hw_server现已看到完整Zynq JTAG树；程序在选择A9 #0时因2024.1名称为`ARM Cortex-A9 MPCore #0`而停止。已修正目标过滤器，尚未下载ELF或得到UART结果。
+- 修正后FPGA配置、ELF下载和CPU运行均由XSCT确认通过，但COM10未收到字节；已增加只读CPU/UART寄存器探针，继续定位运行位置和物理输出边界。
+- CPU确认停在DDR失败出口，UART配置正确且TX FIFO为空；`0x10000000`高地址窗口读回异常。已把首通窗口下移到`0x01000000`并增加`0x0002F000` OCM结果记录，准备重编译复测。
+
+## 2026-09-08 UART重分配 V14/V15
+
+- 用户明确要求`V14=UART_TX`、`V15=UART_RX`。已创建分支`codex/zynq7020-uart-v14-v15`，修改B1A XDC、README和阶段TODO。
+- 当前B1A设计没有V14/V15占用；板厂HDMI例程将其作为并行RGB低两位，说明可作PL LVCMOS I/O，同时要求B1B测试期间不启用HDMI功能。板载CH340仍接L17/M17，因此新路径使用外置3.3 V USB-TTL。
+- 首次写入`findings.md`时补丁中混入异常文本；尚未暂存或提交，已立即改为准确的交叉接线和硬件身份说明。
+- 旧L17/M17本地build目录约7.87 MB已移入Windows回收站；随后在干净提交`f0dbc84`上完成一次Vivado 2024.1正式重建。
+- 新实现通过：V14/V15均在Bank 33且方向正确，136 LUT/257 FF/0 BRAM/0 DSP，WNS/WHS=`+0.240/+0.126 ns`，setup/hold失败端点、route error、DRC error/critical warning和RGMII TX缺失output delay均为0。新bitstream/XSA哈希为`067289f0...a15cb`、`163c38ef...607f`。
+- 收口复核确认当前`main`、`origin/main`及分支merge-base均为`d5fe4e5e...`；已要求Nexus更新过期的`065a68ce...`当前基线字段。
+- 已复核`f0dbc84`提交差异：功能范围只涉及UART两条PACKAGE_PIN映射及必要文档，没有改动PS7、DDR、GEM、MDIO或RGMII逻辑/约束。
+- 已重新计算本地正式bitstream/XSA哈希并对照build manifest，二者精确一致；无需重复运行Vivado。
+- 已完成收口轻量验证：5个变更JSON解析通过，10/10定向单元测试通过，`git diff --check`通过；未把UART/DDR实板状态提前标记为PASS。
+- `B1A_UART_IDENTITY_PASS`：16个XDC管脚无重复，V14/V15方向正确，bit/XSA四方身份一致，B1 gate边界保持false；准备提交本地证据更新。
+
 ## 2026-09-07 B1B Fastlane V2
 
 - 用户要求进一步缩短验证、尽快进入主线并清理无用文件。已将B1B前置门收敛为B1A产物哈希、XSA可读、JTAG可见和UART设备定位四项；硬件身份未变时不重跑Vivado或全仓回归。
@@ -1516,3 +1544,67 @@
 - 2026-09-07：B1A定向验证通过：两份JSON解析与状态断言PASS、六个文档关键锚点PASS、`git diff --check` PASS、硬件身份文件零变化。未运行Vivado和全仓回归，符合Fastlane V1的变更分类。
 - 2026-09-07：B1A-HW开始于 `main@342c3d1`。参考BD已由Vivado 2024.1成功导出；首次直接调用用户给出的unwrapped `vivado.exe`返回exit 1且无输出，改用受支持的 `bin/vivado.bat` 后成功，不再重复错误入口。
 - 2026-09-07：首次尝试用预期的Poppler `pdftotext.exe`路径提取Micron手册失败，该二进制不存在；没有修改来源文件。后续先枚举实际可用PDF文本工具或使用Python PDF库，不重复该路径。
+# 2026-09-08 B1B 低地址 DDR 实板裁定继续
+
+- 管理员已批准继续执行 B1B 低地址版本的 CPU/OCM 机器探针。
+- 当前待裁定对象为最新 ELF（SHA-256 `9c39078165f06b67d7a29810c8fd738a9e0fb203fc288b8510f158c18625aa00`），DDR 首通窗口为 `0x01000000–0x010FFFFF`。
+- 下一动作：运行 `probe_b1b_cpu.tcl` 读取 CPU 状态和 OCM 结果块；依据 `status/phase/fail_address/expected/actual` 判定低地址 DDR PASS 或定位失败阶段。
+- UART 的 `COM10` 仍未收到终止标记；在 DDR 机器结果明确前，不把 UART 空输出推断为应用未运行。
+- 已执行 `xsct.bat boards/hellozynq/b1b_sw/probe_b1b_cpu.tcl`，进程返回 0。
+- OCM 机器结果为 `magic=0x42314231`、`status=2`、`phase=9`、首错字段全 0，低地址 1 MiB DDR 实板 PASS。
+- 下一步只处理 UART 物理路径，并补强 `run_b1b_board.ps1` 对 FPGA program 和 ELF download 标记的硬判定。
+- 已复核 runner 和应用：确认 runner 仅记录但未强制两个 XSCT 阶段标记，应用终态为空循环且一次性 UART 输出可能被遗漏；准备做局部补丁并重新构建。
+- 已加入每秒 `ENEURON_B1B_ALIVE PASS/FAIL` 重发，并把 FPGA program / ELF download 标记纳入 runner 硬门。
+- 官方工具链构建通过，新 ELF 哈希为 `9426b085...3a18`。
+- 20 秒实板运行返回：program PASS、download PASS、XSCT exit 0、UART `NO_TERMINAL_MARKER`，runner 按预期返回 1。下一次不重复相同监听，改为先用 OCM 探针确认新应用终态，再核对 PL UART 顶层连接和现场接线。
+- 新应用 OCM 探针再次 PASS；源 BD/XDC 审计确认 UART0 EMIO 导出，顶层约束为 `V14=txd`、`V15=rxd`。下一步核对实现后 IO/netlist 证据和 COM10/接线事实。
+- 已确认 COM10/CH340 在 Windows 中状态 OK，生成 wrapper 的 UART 端口方向与 XDC 一致。下一步通过实现 checkpoint 核对最终 IO 位置与网表连接，再决定是否需要现场换线或独立 TX 电气探针。
+- 最终 routed checkpoint 的 TX/RX 方向、V14/V15、IOB 和 LVCMOS33 均核对通过。下一步从 COM10 主动发送已知字节，再用 JTAG 查看 UART0 RX 状态/FIFO，以独立验证 `CH340 TXD -> V15`。
+- 已定位 UART0 status/FIFO 寄存器和 RXEMPTY/RXOVR 位；历史 SR=`0x0D` 暗示 RX FIFO 非空且接收触发/溢出。下一步先读取现有 FIFO，再发送固定字节进行可区分验证。
+- XSCT 默认阻止读取 read-once UART FIFO，首次探针在取数前失败；CPU 被 stop 后未由脚本恢复。下一步先查询工具选项，并显式恢复 CPU 后再继续。
+- 已确认 XSCT `mrd -force` 是支持的访问保护覆盖选项，CPU 已恢复运行。
+- RX FIFO 清空前为64个 `0x00`；COM10固定序列只产生一个错误字节 `0xFE`，重复32个 `0x55` 则一个也未到达。软件侧和JTAG侧诊断已收敛，下一步需要用户现场修正/确认交叉接线后再复测。
+- 两个临时 UART 探针 Tcl 已移入 Windows 回收站，可恢复；未保留在仓库工作树。
+- 当前定向验证：Vitis 2024.1 构建 PASS，ELF SHA-256=`9426b085...3a18`；实板 manifest 确认 FPGA program/ELF download=true、UART marker缺失；OCM低地址DDR再次PASS；`git diff --check` PASS。
+- 本轮未提交或推送。当前构建仍绑定旧 HEAD `c644ee8...`，功能与物理UART稳定后必须先提交源码，再在新提交HEAD上重建和重跑正式证据。
+- 2026-09-08：管理员批准 FPGA 端交换 UART 方向进行实板实验；目标映射改为 `V14=RX`、`V15=TX`，外部 CH340 接线保持不动。先做未签核构建和实板判别，旧构建产物另行保留。
+- 旧 B1A/B1B 本地产物已整体移动到仓库外 `D:\Documents\Code\ENeuron-local-archives\20260908_uart_v14tx_v15rx`，没有删除旧证据。
+- XDC与两个硬件README已改为实验映射 `V14=RX`、`V15=TX`。
+- Vivado 2024.1 全实现通过：route/DRC无错误，bitstream SHA-256=`0b335edc5a0a145fa26407389e50b17cfa91dc60431a517357a1aabc83f99612`，XSA SHA-256=`e67e9d73b3732fd29a451bc26c372e207c60b2b07c9e23ac12efa53f7f438740`。该构建仍绑定旧提交且工作树非净，只作实验，不作正式签核。
+- 实现 `report_io` 明确显示 V14=`UART_0_0_rxd/INPUT/LVCMOS33`、V15=`UART_0_0_txd/OUTPUT/LVCMOS33`；setup WNS=`+0.240 ns`、hold WHS=`+0.138 ns`、route/DRC错误=0。
+- B1B程序硬件身份已更新为实验bitstream/XSA哈希，来源字段明确标记 `UNCOMMITTED_UART_SWAP_FROM_c644ee842487`，不冒充正式提交。
+- 新 XSA 已重新生成独立 BSP 并完成 Vitis 2024.1 直接构建；B1B ELF SHA-256=`d5edf5e2a0e54cbf2e7126f2e647dbdad822dbbb842c490800cbb3c091ceb9b4`。下一步下载实验 bitstream/ELF 并监听 COM10。
+- 2026-09-08 12:02（Asia/Shanghai）交换方向实验实板 PASS：COM10 收到完整日志和 `ENEURON_B1B_PASS`；FPGA program、ELF download、UART marker三门全通过。
+- 随后 OCM 探针再次确认 `status=2 / phase=9 / fail fields=0`；run manifest状态为PASS，bitstream/XSA/ELF哈希分别为 `0b335edc...f99612`、`e67e9d73...438740`、`d5edf5e2...eb9b4`。
+- `git diff --check`通过。本轮仍未提交或推送；等待管理员批准 `V14=RX/V15=TX` 成为正式基线后，再提交源码、按新HEAD重建并执行正式冷启动门。
+- 管理员已批准正式基线。B1B硬件身份由手工常量改为构建时读取B1A manifest并校验bitstream/XSA哈希后注入；PowerShell语法、`git diff --check`和Vitis重建通过，实验ELF哈希更新为`32e05000...f5aab`。下一步提交实现基线。
+- 正式实现提交已创建：`29edf6a feat(board): add B1B UART DDR bring-up`。
+- 在该提交且工作树干净状态下完成Vivado 2024.1重建：bitstream=`1f98e949...bc5f6`、XSA=`ed4a2ff...d417b`；WNS/WHS=`+0.240/+0.138 ns`，route/DRC错误为0，V14/V15最终方向为RX/TX。
+- 下一步提交本次物理身份快照，再在新干净HEAD上构建正式B1B ELF和执行冷启动run-1。
+- 物理身份快照已提交为`97ddd1a docs(board): bind approved UART hardware identity`；该提交工作树干净。
+- 正式B1B构建通过：软件提交=`97ddd1a38f00595e580168ebd59fe0b2d8e1db92`，硬件提交=`29edf6adc6613445f0983f2c1b8e4d037164985b`，ELF SHA-256=`4992d26c501106aca63c9fc1e1f4cc2a2baccd1ef8c440e3daa9b7bed2128560`。
+- 精确正式组合的未断电预检PASS：COM10收到身份字段、九个DDR阶段和`ENEURON_B1B_PASS`，FPGA program/ELF download/UART三门全通过。由于板卡此前未完整断电，本次明确不计入三次冷启动。
+- 当前阻塞仅为现场动作：等待用户完全切断板卡主电源，随后用JTAG不可访问证明断电，再重新上电执行正式cold-run-1。
+- 管理员决定省略每轮断电时JTAG不可访问检查，并确认已完成一次完整断电重启；该现场确认作为cold-run-1的断电边界。
+- 2026-09-08 12:57（Asia/Shanghai）正式cold-run-1 PASS：SW=`97ddd1a`、HW=`29edf6a`、bitstream=`1f98e949...bc5f6`、XSA=`ed4a2ff...d417b`、ELF=`4992d26c...128560`；FPGA program/ELF download/UART marker全PASS。
+- cold-run-1 UART从`ENEURON_B1B_BEGIN`至终止marker完整，九个DDR阶段全部PASS；前导出现4个不可打印/乱码字符和1个NUL，不影响协议主体和终止判定。
+- OCM独立复核为`magic=0x42314231/status=2/phase=9/fail_address=expected=actual=0`。原始运行目录为本地忽略路径`.../runs/20260908T045749Z`，run manifest SHA-256=`ffa644e4...2f72a`，UART日志SHA-256=`60943feb...df3d`。
+- 下一步等待用户再次完整断电重启，执行同一冻结组合的cold-run-2；当前不提交规划更新，以免改变冻结软件HEAD。
+- 2026-09-08 13:02（Asia/Shanghai）cold-run-2 PASS：同一冻结身份的program/download/UART、九个DDR阶段和OCM均通过；run manifest=`5a6c2721...da59e`，UART日志=`91e610c6...7751`。
+- 2026-09-08 13:06（Asia/Shanghai）cold-run-3 PASS：同一冻结身份再次通过全部门；独立XSCT复核为`magic=0x42314231/status=2/phase=9/fail fields=0`。
+- 三次运行、构建manifest、断电现场确认和OCM结果已归档到`artifacts/logs/hellozynq_b1b/`；新增机器摘要`artifacts/results/hellozynq_b1b_uart_ddr_summary.json`与阶段报告`docs/reports/HELLOZYNQ_B1B_UART_DDR_2026-09-08.md`。
+- 当前状态提升为`B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS`，但B1B仍未完成：`0x10000000`高地址异常未关闭，B1C PHY/UDP也未开始。下一步先做高地址分段定位，不重复低地址三次门。
+- 首次运行`test_artifact_layout + test_ci_fast_v1`时CI-Fast 9/9通过，artifact布局仅因新增B1B摘要未加入固定白名单而失败；已将新文件同步登记到`test_artifact_layout.py`和`artifacts/README.md`，随后复跑验证。
+- 收口复验通过：三份archive manifest逐文件SHA-256一致，三轮run manifest身份与UART九阶段合同一致；相关20份JSON解析通过，artifact layout + CI-Fast为10/10，当前状态陈旧方向扫描和`git diff --check`通过。
+- 首次证据提交时Git提示四份工具生成manifest将从CRLF规范化为LF；已按B0既有做法同时记录runner原始字节SHA-256与仓库canonical-LF SHA-256，避免跨平台克隆后的换行差异被误判为证据损坏。
+- 2026-09-08：管理员要求修正TODO并准备按TODO推进。审计确认PS7配置声明DDR高地址为`0x1FFFFFFF`，生成链接脚本把应用放在`0x00100000`起的DDR，但这些配置事实不能替代高地址实板验证。
+- 高地址TODO已拆为B1-06A～B1-06F：1 MiB安全窗口合同、`0x10000000`最小复现、候选窗口二分、边界重复、通过窗口扩展和最终关闭验收；当前不进入B1C。
+- 错误记录：首次假定仓库源码目录存在`lscript.ld`，读取失败；实际链接脚本由Vitis生成在忽略的build目录。后续已读取生成物确认DDR链接区，不重复错误路径。
+- 错误记录：首次跨TODO/task/workflow补丁因把`progress.md`行作为`task_plan.md`上下文而被原子拒绝；随后一次只读PowerShell命令因双引号内反引号触发字符串解析失败。两次均未修改仓库，已改为逐文件补丁和单引号搜索。
+- 安全复核发现：若高地址故障是地址别名，让诊断程序继续从低地址DDR执行可能覆盖自身。冻结的正式ELF运行时占用约53 KiB，低位OCM在预留`0x0002F000–0x0002FFFF`结果区后仍足够；TODO已修正为诊断ELF完全从OCM运行，并先做稀疏/4 KiB最小复现，再扩大窗口。
+- B1-06A合同冻结完成并已勾选；唯一下一动作更新为B1-06B。顶部旧`V14=TX/V15=RX`记录已明确标为历史失败方向，防止恢复会话误用。
+- 错误记录：勾选B1-06A的首次补丁对`task_plan.md`声明了两个更新操作，被`apply_patch`拒绝且未修改文件；随后按每个文件单次更新完成。
+- 2026-09-08：完成B1-06B链接审计。现有正式ELF全部运行于DDR；临时OCM链接验证入口、页表、heap、stack和`_end=0x0000D840`均可落在`0x0002F000`结果区以下。
+- TODO已补齐B1-06B1～B1-06B5：独立诊断源、OCM内存边界、`readelf/nm`机器硬门、危险访问前OCM预写、UART超时后的CPU取证和独立证据包。
+- 当前停止点仍是实施准备完成：未修改已签核`main.c`，未创建诊断代码，未重建ELF，未执行新的DDR实板访问；下一步只按B1-06B建立测试和独立诊断实现。
+- 错误记录：首次组合`git push`与`gh pr create`时误用Bash heredoc，PowerShell在解析阶段拒绝，推送和PR创建均未执行；改用PowerShell here-string经标准输入成功推送并创建PR #74，后续不在PowerShell命令中使用`<<EOF`。

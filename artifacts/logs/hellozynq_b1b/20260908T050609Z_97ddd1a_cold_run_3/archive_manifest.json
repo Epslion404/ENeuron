@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "run_label": "cold-run-3",
+  "source_git_head": "97ddd1a38f00595e580168ebd59fe0b2d8e1db92",
+  "files_sha256": {
+    "field_confirmation.json": "a453abc25a8ddee4556a5d33f7b9b1eac514b178194b2a24ff6d59ea6fa4f197",
+    "ocm_probe.txt": "ef3dd7ae4cd3375fe2fe2570f8959e208dd51c56f633e6533958f430916dc777",
+    "ocm_result.json": "640dacc5a0208770500c46f41e762f41a8eaa76c203dcd469b4bed64d941c781",
+    "run_manifest.json": "2cddcec0495e1858c1f4e5cbc3f0f7dc3bc28fe6feac31c1931e4a115ebdd132",
+    "uart.log": "9467e96523a47531d80eac7a9bd57a9080b3e950f1883b4cdb32d57ec3fdd91f",
+    "xsct_stdout.log": "cc237ca571c700af61b3af47524ce7f66b7cd6986779fc4fcffe076d3117ac0f",
+    "xsct_stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "source_raw_run_manifest_sha256": "3a1b082daeafc029a8bb67379ab29e7ce71a4d7b7b01f3784f8a8a04a571dc40",
+  "line_ending_contract": "files_sha256 addresses repository canonical LF bytes; source_raw_run_manifest_sha256 preserves the original runner CRLF byte identity",
+  "result": "PASS"
+}

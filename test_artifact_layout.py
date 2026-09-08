@@ -38,6 +38,7 @@ EXPECTED_RESULTS = {
     "npu_single_clock_ooc_manifest.json",
     "hellozynq_b0_smoke_summary.json",
     "hellozynq_b1a_hw_summary.json",
+    "hellozynq_b1b_uart_ddr_summary.json",
 }
 
 

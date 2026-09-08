@@ -1,8 +1,8 @@
 # 测试面与缺口
 
-B1B入口检查（2026-09-07）：在 `main@065a68ce...` 上核对B1A正式bitstream/XSA哈希一致；XSCT 2024.1成功打开XSA，JTAG枚举到APU、两个Cortex-A9和`xc7z020`。UART设备检查仅得到蓝牙COM6/COM7，未发现板载CH340，因此UART banner、DDR读写和B1B实板门均未运行。此次检查不构成B1B或B1-GATE通过。另确认 `hsi::open_hw_design`可把XSA内嵌bitstream展开到同目录并覆盖正式文件；冻结bit已精确恢复，以后该命令只对临时副本运行。
+B1B覆盖（2026-09-08）：硬件`29edf6a...`、软件`97ddd1a...`和固定bitstream/XSA/ELF组合完成三次由管理员确认的完整断电冷启动。每轮FPGA配置、ELF下载、COM10 UART begin/end协议、低地址1 MiB DDR九阶段和OCM`status=2/phase=9/fail fields=0`均PASS。覆盖仍不包含`0x10000000`高地址异常、整片DDR容量、PHY、链路或UDP。Hsi检查继续只对临时XSA副本运行。
 
-B1A-HW覆盖（2026-09-07）：干净提交 `18fd65c` 的Vivado 2024.1完整构建通过，资源 `136 LUT / 257 FF / 0 BRAM / 0 DSP`，WNS/WHS=`+0.240/+0.150 ns`，setup/hold失败端点、route error、DRC error/critical warning和RGMII TX缺失output delay均为0。保留1条MDIO input delay方法学warning和1条GMII-to-RGMII内部 `REQP-1577` warning；UART、DDR读写、PHY地址/链路和UDP仍未实板覆盖。
+B1A-HW覆盖（2026-09-08）：干净提交`29edf6a...`的Vivado 2024.1完整构建通过，UART placed IO为Bank 33的V14 INPUT/V15 OUTPUT且均FIXED；资源`136 LUT / 257 FF / 0 BRAM / 0 DSP / 4 BUFG / 1 MMCM`，WNS/WHS=`+0.240/+0.138 ns`，setup/hold失败端点、route error、DRC error/critical warning和RGMII TX缺失output delay均为0。
 
 阶段2 B0校正（2026-09-07）：`xc7z020clg484-2` 最小候选 `df16ed6c...8971` 的实现、两次正式program、两次现场测量和完整断电复测均通过。run-1/run-2的10周期分别为 `13.42 s`、`13.4 s`，均命中 `12.6–14.2 s` 窗口；观察文件SHA-256分别为 `d93bcc25...ab083`、`73c81d86...a25f8`。完整断电探针取得 `target_opened=0`、`accessible_device_count=0` 和Vivado `No devices detected`；run-2恢复后下载前器件为未配置，下载后三项DONE=`1/1/1`且错误位为0。当前覆盖状态为 `B0_COMPLETE`；B1–B4尚未进入实测。
 
@@ -13,7 +13,7 @@ B1A-HW覆盖（2026-09-07）：干净提交 `18fd65c` 的Vivado 2024.1完整构�
 当前 T2 随机矩阵增量（2026-09-07）：统一复现入口 `--t2-random-matrix` 使用固定种子 `20260907` 生成 24 个唯一半周期/相位组合，按 `2000 + 400 × NPU_HALF` 个 Host 周期设置每组观察预算，完整运行后返回 `REPRO_G2_T2_RANDOM_MATRIX_PASS`。该证据记为 `T2_RANDOM_CLOCK_MATRIX_GREEN`，属于可复现的有限随机压力集，不是频率/相位数学穷举。
 
 generated_by: nexus-mapper v2 / manual synthesis
-verified_at: 2026-09-07
+verified_at: 2026-09-08
 provenance: repository test names, signoff summaries, workflow state, latest GitHub/Webhook evidence
 
 已覆盖：Python/RTL 协同仿真、有限形式安全与可达性、负向 mutation、Tile/System Vivado OOC、XPM 仿真、NP4B 三模型 60000 事务签核；CI-Fast V1 已完成 workflow 全量、文档轻量和 NPU-only 定向路径验证。CI Action 已升级到 `actions/checkout@v7` 与 `actions/setup-python@v7` 的 Node 24 基线，分类合同要求任何 workflow 变更运行全量门。NPU oracle 新增并通过 `test_zero_activity_with_closed_gate_emits_no_reads_or_macs`、`test_frequent_epoch_switches_never_mix_masks`、`test_pending_slot_backpressure_rejects_overwrite` 三项最坏情况测试。

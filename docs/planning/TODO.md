@@ -583,9 +583,11 @@ P15 硬门：双时钟逐 beat bit-exact；reset/ready-valid/FIFO 满空无丢�
 - [x] 实板步骤在一次连接会话内按依赖顺序批量执行；不因中间文档提交重复下载、重启或重复测量。
 - [x] Actions关闭期间不等待空checks；本机定向门、PR CLEAN/MERGEABLE和证据边界是合并依据。
 - [x] B1A-SOURCE：完成固定板厂提交的配置、器件和引脚来源审计，形成带 Git blob/SHA-256 的文档与机器清单；该切片不代表 B1A 完成。
-- [x] B1A-HW：已冻结实际DDR兼容配置、R46 NC导致的PHY复位边界、运行期PHY地址扫描和RGMII约束，形成可重建BD Tcl/XDC与硬件入口；干净提交 `18fd65c` 的Vivado 2024.1实现通过。
-- [ ] B1B：在B1A主线基线上完成PS7、UART和DDR实板门并立即提交小PR。
+- [x] B1A-HW：已冻结实际DDR兼容配置、R46 NC导致的PHY复位边界、运行期PHY地址扫描和RGMII约束，形成可重建BD Tcl/XDC与硬件入口；正式UART方向`V14=RX/V15=TX`的干净提交`29edf6a`已通过Vivado 2024.1实现。
+- [ ] B1B：PS7、正式UART路径和低地址1 MiB DDR已完成三次冷启动；继续关闭`0x10000000`高地址异常后再提交完整B1B小PR。
 - [ ] B1C：在B1B主线基线上完成PHY、MDIO和最小UDP实板门，形成B1-GATE最终摘要。
+
+当前唯一执行链：`B1-06B OCM驻留最小复现 -> B1-06C分段定位 -> B1-06D边界复测 -> B1-06E连续窗口扩展 -> B1-06F关闭B1B -> B1C PHY/UDP`。在B1-06F完成前，不并行进入B1C，也不重复已经通过的三次低地址冷启动。
 
 #### P16-B0：PL 配置、50 MHz 时钟和 LED
 
@@ -609,19 +611,31 @@ P15 硬门：双时钟逐 beat bit-exact；reset/ready-valid/FIFO 满空无丢�
 #### P16-B1：PS7、DDR、UART、PHY和最小 UDP
 
 - [x] B1-00：入口已满足 `B0-GATE=PASS`；Fastlane V1 已进入 `main@308bdecd9573e71340359729fdbb2f3fcb7723c7`，B1A 来源审计从该主线启动。
-- [ ] B1-D1：在 B0 通过后裁定首轮软件栈。推荐 `bare-metal + lwIP`，以减少 Linux启动、驱动和文件系统变量；Linux保留为后续部署候选，不作为首轮 bring-up 前提。
+- [x] B1-D1：管理员已批准首轮使用 `bare-metal + lwIP`；B1B只引入裸机UART/DDR，lwIP在B1C加入。Linux保留为后续部署候选，不作为首轮 bring-up 前提。
 - [x] B1-01A：从固定板厂提交提取 PS7、DDR、UART0、GEM0-EMIO、GMII-to-RGMII、200 MHz FCLK0、复位和XDC来源；机器清单绑定每个关键文件的Git blob与SHA-256。
 - [x] B1-01B：按板载 `MT41K256M16TW-107:P` 冻结为Vivado官方 `MT41K256M16 RE-125` 保守兼容配置，16-bit、533.333333 MHz；仓库内Tcl不依赖板厂绝对路径。
 - [ ] B1-02：UART0/RGMII/MDIO引脚和I/O标准已核对；继续确认板修订、H17 PHY reset时序、物理PHY地址、Bank/电压/器件引脚和完整RGMII板级时序。
-- [ ] B1-03：冻结启动路径和串口合同：首轮由 JTAG 下载硬件与 ELF，串口参数、banner格式、启动超时和重复上电步骤写入脚本；SD/QSPI自启动作为后续独立验证，不混入首次 PS bring-up。
-- [x] B1-04：已生成PS7+UART0/GEM0/MDIO EMIO+GMII-to-RGMII bitstream与XSA；`136 LUT / 257 FF / 0 BRAM / 0 DSP`，WNS/WHS=`+0.240/+0.150 ns`，route/DRC error为0，bitstream/XSA SHA-256分别为 `5d0940eb...e6d6`、`053fc032...81df`。
-- [ ] B1-05：编写最小启动程序，UART输出固定 banner、软件 Git提交、XSA/bitstream哈希、CPU/FCLK频率、DDR测试范围、PHY状态和复位原因；冷启动3次均需在冻结超时内得到完整且字段一致的日志。
-- [ ] B1-06：DDR先跑不破坏程序区的小范围测试，再跑冻结的大范围；覆盖地址线、walking-1、walking-0、`0x00/0xFF/0xAA/0x55`和固定种子伪随机读写。明确 cache关闭或 flush/invalidate顺序，记录首错地址、期望值、实际值和阶段。
+- [x] B1-02U：实板诊断后管理员批准UART0正式映射为`V14=RX`、`V15=TX`、LVCMOS33；外置3.3 V USB-TTL保持`V14←适配器TX`、`V15→适配器RX`并共地，不连接VCC，测试期间不启用与V14/V15共网的HDMI并行RGB功能。
+- [x] B1-03：启动路径和串口合同已冻结：首轮由JTAG下载硬件与ELF，COM10使用115200 8N1，脚本以固定身份字段和begin/end marker判定；SD/QSPI自启动保留为后续独立验证。
+- [x] B1-04：旧提交`f0dbc84`的`V14=TX/V15=RX`实现证据保留为历史且已被实板结果否决；批准的`V14=RX/V15=TX`已在干净提交`29edf6a`上重建。资源保持`136 LUT / 257 FF / 0 BRAM / 0 DSP`，WNS/WHS=`+0.240/+0.138 ns`，route/DRC error为0，bitstream/XSA SHA-256分别为`1f98e949...bc5f6`、`ed4a2ff...d417b`。
+- [x] B1-05：最小启动程序已输出固定banner、软件/硬件提交、XSA/bitstream哈希、CPU/FCLK频率和DDR测试范围；同一冻结组合cold-run-1/2/3均PASS。断电边界由管理员现场确认，不额外要求断电期间JTAG探针；PHY状态与复位原因留到B1C。
+- [ ] B1-06：低地址子门已经完成，高地址子门仍未完成。关闭D-Cache后的`0x01000000–0x010FFFFF`已在三次冷启动中通过九个阶段，首错字段均为0；后续只按B1-06A～B1-06F定位此前`0x10000000`异常，不重跑低地址三次门。
+- [x] B1-06A：高地址探针合同已冻结。高地址诊断ELF必须改为从低位OCM运行，代码、页表、堆和栈不得放在DDR；当前正式ELF运行时占用约53 KiB，低位OCM为`0x00000000–0x0002FFFF`，预留末尾4 KiB的`0x0002F000`结果区后容量足够。构建必须检查所有运行时section均低于`0x0002F000`，且ELF下载后先验证OCM执行和UART，再允许写DDR。PS7配置声明的`0x1FFFFFFF`仅是候选上界，不是实板通过事实。
+- [ ] B1-06B：最小复现旧故障。新增独立高地址诊断源、构建入口和实板入口，不修改已签核的`boards/hellozynq/b1b_sw/src/main.c`及三次低地址证据。诊断程序先在`0x10000000`附近访问稀疏地址点，再执行4 KiB单一固定模式读写，不直接写满1 MiB；首错即停。若最小模式不能复现旧失败，必须回查旧程序、构建身份和测试顺序，不得直接宣称高地址已修复。
+- [ ] B1-06B1：独立链接脚本把应用区固定为`ORIGIN=0x00000000, LENGTH=0x0002F000`，把`0x0002F000–0x0002FFFF`保留为结果区；代码、向量表、页表、只读数据、可写数据、BSS、heap和全部处理器模式stack均不得进入DDR或结果区。
+- [ ] B1-06B2：链接后以`arm-none-eabi-readelf -lW`检查所有`PT_LOAD`的物理范围完全落在`[0x00000000,0x0002F000)`，并以`arm-none-eabi-nm -n`检查入口、向量表、页表、heap、各模式stack和`_end`；任一地址越界时构建返回非零，不生成可上板候选。
+- [ ] B1-06B3：DDR危险访问前先在OCM结果记录写入版本、`RUNNING`、阶段、窗口、地址、操作、宽度和期望值并执行内存屏障；读回后再写实际值，失败最后写`FAIL`，全部完成最后写`PASS`，避免CPU异常时只留下空记录。
+- [ ] B1-06B4：ELF下载后先通过UART和OCM记录证明程序确实从OCM执行，再允许访问DDR。实板入口无论UART PASS、FAIL或超时，都先停止CPU并采集OCM结果、PC、SP和CPSR，然后才允许reset、重新program或开始下一次运行。
+- [ ] B1-06B5：正式证据包保存Git HEAD、硬件身份、bitstream/XSA/ELF哈希、链接布局检查、完整UART、OCM结果、CPU状态和首错字段；使用新目录，不覆盖三次低地址冷启动证据。
+- [ ] B1-06C：执行分段定位。先按`0x02000000`、`0x04000000`、`0x08000000`、`0x10000000`、`0x18000000`五个基址运行相同稀疏探针，再在最后通过点和第一个失败点之间按地址高位二分；确认窗口可访问后才把该点扩大到1 MiB。结果分为“窗口可读写”“地址别名失败”“数据模式失败”“不可访问/CPU异常”，禁止把不同类别合并成一个DDR失败。
+- [ ] B1-06D：区分地址映射与容量边界。对二分得到的最后通过窗口和第一个失败窗口，各重复至少两次冷启动；比较失败地址是否固定、是否只在高位地址变化时出现、是否伴随同一别名偏移。若失败点随窗口变化，优先审计地址映射/PS7配置；若固定在边界，记录为已测容量上界候选，不修改配置掩盖故障。
+- [ ] B1-06E：扩展通过窗口。只有B1-06B～D给出稳定解释后，才在同一冻结身份下扩展为连续窗口测试；每个窗口保留独立manifest、UART原始日志、OCM结果和首错字段。任何新失败都创建新证据目录，不覆盖三次低地址PASS材料。
+- [ ] B1-06F：关闭验收。必须同时满足：旧`0x10000000`结果已解释、最后通过窗口边界可复现、诊断ELF全程从OCM运行、至少一个高地址1 MiB窗口完成全九阶段测试、摘要与Nexus身份一致。满足前仅标记`B1B_HIGH_DDR_PARTIAL`，不得勾选B1B完成或进入B1C。
 - [ ] B1-07：通过 MDIO读取并保存 PHY ID、基本状态、协商结果、双工和链路速度；单独执行 PHY reset，验证无需重新配置 PL即可重新发现。目标为1000 Mbps全双工；若外部交换机/网卡只协商到较低速率，先修正测试环境或降低声明范围。
 - [ ] B1-08：冻结 Host与板端 IP/MAC/UDP端口，保存 Host网卡和链路配置；实现最小 UDP echo或固定响应服务，分别测试64、512、1472-byte payload，每档至少1000包，逐包核对 sequence、长度、payload和端点。
 - [ ] B1-09：在持续发送期间拔插网线，记录链路下降时间、软件状态、重连时间和首个恢复包；要求软件不死锁、无陈旧包冒充新响应，重插后无需重新烧写 bitstream即可恢复收发。
 - [ ] B1-10：对三档 payload 各保存发送数、接收数、错误数、超时数、重复/乱序数和往返时间分布；吞吐只作基础设施基线，不与 NPU性能混写。
-- [ ] B1-11：证据包至少包含构建manifest、XSA/bitstream/ELF哈希、三次冷启动 UART原始日志、DDR逐项摘要、MDIO寄存器快照、Host逐包账本和拔插恢复日志，形成 B1 机器摘要与报告。
+- [ ] B1-11：B1B部分已归档构建manifest、XSA/bitstream/ELF哈希、三次冷启动UART原始日志、DDR逐项摘要、OCM结果、机器摘要和阶段报告；MDIO快照、Host逐包账本与拔插恢复日志待B1C补齐。
 - [ ] B1-RECOVERY：UART失败先停在PS时钟/复位/串口；DDR失败时禁止继续网络；PHY ID错误先停在MDIO/复位/时钟；UDP错误只在前三项通过后定位 lwIP或Host，不同时改多个层级。
 - [ ] B1-GATE：UART稳定、DDR零错误、PHY可识别且千兆链路成立、UDP三档payload零错序/零内容错误、拔插可恢复后，才能进入 DMA；B1 不声明 NPU已经接入。
 

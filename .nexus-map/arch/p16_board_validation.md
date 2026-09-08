@@ -1,6 +1,6 @@
 # P16 项目阶段 2：实板验证路线
 
-verified_at: 2026-09-07
+verified_at: 2026-09-08
 
 authoritative_sources: `docs/planning/TODO.md`、`task_plan.md`、`findings.md`、`progress.md`
 
@@ -12,11 +12,13 @@ P16-B0 已完成。当前源码 `f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06`、bit
 
 用户随后确认板卡完全断电。`2026-09-07T15:02:49Z` 的正式只读探针精确匹配 target `localhost:3121/xilinx_tcf/Digilent/210251A08870` 1 个，但 `target_opened=0`、`accessible_device_count=0`，Vivado transcript 明确报告 `No devices detected`。证据位于 `artifacts/logs/hellozynq_b0/20260907T150221Z_df16ed6c_power_off/`，结果 SHA-256 为 `fe594c87...3776e`，transcript SHA-256 为 `3a953999...1f634`，完整断电确认 PASS。
 
-重新上电后只读探针确认同一Digilent target上的唯一 `xc7z020_1` 恢复且下载前未配置；run-2于 `2026-09-07T15:26:56Z` 下载同一bitstream，三项DONE=`1/1/1`、错误位为0，现场10周期 `13.4 s`。PR #69已合并为 `main@102dee2...`，Fastlane V1已进入 `main@308bdec...`，PR #72已合并为 `main@065a68ce...`。当前状态为 `B0_COMPLETE / B1A_HW_DEFINITION_COMPLETE / B1B_PREFLIGHT_PARTIAL / B1B_PENDING / B1_DECISION_PENDING / FASTLANE_V1`。
+重新上电后只读探针确认同一Digilent target上的唯一`xc7z020_1`恢复且下载前未配置；run-2于`2026-09-07T15:26:56Z`下载同一bitstream，三项DONE=`1/1/1`、错误位为0，现场10周期`13.4 s`。PR #69已合并为`main@102dee2...`，Fastlane V1已进入`main@308bdec...`，PR #72已合并为`main@065a68ce...`；当前正式UART硬件身份为`29edf6a...`，B1B软件身份为`97ddd1a...`。当前状态为`B0_COMPLETE / B1A_HW_DEFINITION_COMPLETE / B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DDR_PENDING / FASTLANE_V1`。
 
-B1A来源审计固定在板厂 `73d529d8...`。后续硬件定义按板载 `MT41K256M16TW-107:P` 采用Vivado官方 `MT41K256M16 RE-125` 保守兼容配置，确认R46 NC导致PHY硬复位不可控、物理PHY地址留给B1C扫描，并以NORMAL RX XDC + LATE TX XDC完成RGMII时序绑定。干净提交 `18fd65c` 的完整实现通过，因此B1A切片完成；B1-GATE仍需B1B/B1C实板证据。
+B1A来源审计固定在板厂`73d529d8...`，其中L17/M17只描述板厂原始CH340布线。当前硬件定义按管理员批准和实板诊断将UART0冻结为V14 RX/V15 TX；干净提交`29edf6a...`的完整实现通过，因此B1A切片仍完成。DDR、PHY和RGMII既有边界不变；B1-GATE仍需B1B高地址边界与B1C实板证据。
 
-B1B低成本入口检查已完成三项：B1A正式bitstream/XSA哈希与清单一致，XSCT 2024.1可打开XSA，JTAG可见APU、双Cortex-A9和`xc7z020`。第四项UART设备定位未通过：Windows仅枚举蓝牙COM6/COM7，板载CH340未连接。软件栈尚未裁定，未创建或运行B1B应用，UART和DDR实板证据均不存在。XSCT/Hsi检查以后必须复制XSA到临时目录后执行，禁止在正式B1A build目录直接运行 `hsi::open_hw_design`。
+B1B使用外置3.3V CH340，连接V14←TTL TX、V15→TTL RX并共地；V14/V15同时与板载HDMI并行RGB低位共网，B1B不得启用HDMI。`bare-metal + lwIP`路线已批准，裸机UART与低地址1 MiB DDR三次冷启动通过；`0x10000000`高地址异常尚未关闭，lwIP仍留到B1C。
+
+高地址诊断状态：B1-06A合同已冻结，独立诊断ELF必须从低位OCM运行，代码、页表、堆和栈不得进入DDR，并预留OCM结果区；下一执行点为B1-06B。专用linker把应用限制在`0x00000000–0x0002EFFF`，保留`0x0002F000–0x0002FFFF`，构建后用`readelf -lW`和`nm -n`检查全部加载范围及运行时符号。B1-06B先验证OCM执行和UART，再在`0x10000000`附近执行稀疏地址探针与4 KiB单一固定模式读写；每次危险访问前预写OCM记录，UART成功、失败或超时后都先保存OCM和PC/SP/CPSR。当前仍为`B1B_HIGH_DDR_PENDING`，不得宣称整片DDR、B1B或B1-GATE通过。
 
 run-1 机器归档由 `boards/hellozynq/b0_smoke/archive_b0_program_run.ps1` 生成。归档 manifest 绑定当前 bitstream `df16ed6c...8971`、program log SHA-256 `0152fe32...a49e`。`field_observation.json` 已更新为稳定闪烁、10周期 `13.42 s` 与 `status=PASS`，当前 SHA-256 为 `d93bcc25...ab083`。run-1已形成机器与现场闭环。
 

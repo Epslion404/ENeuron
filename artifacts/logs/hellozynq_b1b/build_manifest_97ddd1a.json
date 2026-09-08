@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-09-08T04:22:16.6587659Z",
+  "git_head": "97ddd1a38f00595e580168ebd59fe0b2d8e1db92",
+  "tool": "XSCT/Vitis 2024.1",
+  "b1a_git_head": "29edf6adc6613445f0983f2c1b8e4d037164985b",
+  "b1a_worktree_clean": true,
+  "bitstream_sha256": "1f98e949b0d29a7df60c0a57939097460fd98bec7e4d33055fd91af7eefbc5f6",
+  "xsa_sha256": "ed4a2ff0149459bbe431c918e9c5c6d69a689a42a6bbe159126bab1c402d417b",
+  "elf": "D:\\Documents\\Code\\ENeuron-board-b0\\boards\\hellozynq\\b1b_sw\\build\\97ddd1a38f00595e580168ebd59fe0b2d8e1db92\\direct\\out\\b1b_uart_ddr.elf",
+  "elf_sha256": "4992d26c501106aca63c9fc1e1f4cc2a2baccd1ef8c440e3daa9b7bed2128560",
+  "uart": "COM10 115200 8N1",
+  "ddr_test_base": "0x01000000",
+  "ddr_test_bytes": "0x00100000"
+}

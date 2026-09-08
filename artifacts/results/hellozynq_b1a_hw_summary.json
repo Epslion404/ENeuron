@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "status": "B1A_HW_DEFINITION_COMPLETE",
-  "date": "2026-09-07",
-  "source_commit": "18fd65c8465f047fbfb0fe63c81a39412a9ea6e5",
+  "date": "2026-09-08",
+  "source_commit": "29edf6adc6613445f0983f2c1b8e4d037164985b",
   "tool": "Vivado v2024.1 (64-bit)",
   "target": {
     "board": "HelloZynq",
@@ -16,6 +16,13 @@
     "ddr_frequency_mhz": 533.333333,
     "fclk0_mhz": 200,
     "uart0": "EMIO",
+    "uart0_tx_pin": "V15",
+    "uart0_rx_pin": "V14",
+    "uart0_io_bank": 33,
+    "uart0_io_standard": "LVCMOS33",
+    "uart0_adapter": "EXTERNAL_3V3_USB_TTL",
+    "uart0_board_ch340_connected": false,
+    "uart0_shared_board_function": "HDMI parallel RGB low bits; HDMI must remain disabled during B1B UART validation",
     "gem0": "EMIO",
     "mdio": "EMIO",
     "gmii_to_rgmii_ip": "xilinx.com:ip:gmii_to_rgmii:4.1",
@@ -34,7 +41,7 @@
     "setup_wns_ns": 0.240,
     "setup_tns_ns": 0.0,
     "setup_failing_endpoints": 0,
-    "hold_whs_ns": 0.150,
+    "hold_whs_ns": 0.138,
     "hold_ths_ns": 0.0,
     "hold_failing_endpoints": 0,
     "route_errors": 0,
@@ -52,13 +59,13 @@
     "timing_18_remaining": "MDIO input only; B1C runtime MDIO scan/register access is required"
   },
   "artifacts": {
-    "bitstream_sha256": "5d0940ebbff57585ce80d3b1a8c11ad16e499bfff20bf0d202b2c5dfe847e6d6",
-    "xsa_sha256": "053fc032428da48882d62e6f9081d99f864e7bd64dc7b7b52b422c94d4ab81df",
-    "utilization_report_sha256": "c3ce439ef1620e44dd02fc3283e1d38ef3cb2ca8e7ba390296abcf6faece6098",
-    "timing_report_sha256": "5eeceefdc4e8085c0887d20b2f432765b904179aea6a6406d46e8aaab7795776",
-    "methodology_report_sha256": "d45b1d0f307737e55bcf61307c3939ebdcca15f4ae95b65b189354ae845ab894",
-    "route_report_sha256": "cb6cf93c20c17cec109a911fd257093eca47c59d84eb6a803eb19799d7e8c9aa",
-    "drc_report_sha256": "dbeba0ca5bc05f2188884910c9f4e85be670376b22466655bf9a20e38b83a9dc"
+    "bitstream_sha256": "1f98e949b0d29a7df60c0a57939097460fd98bec7e4d33055fd91af7eefbc5f6",
+    "xsa_sha256": "ed4a2ff0149459bbe431c918e9c5c6d69a689a42a6bbe159126bab1c402d417b",
+    "utilization_report_sha256": "47d8e844a45a488b31c69c36ddb9869fa5c7c9b25c844d24d61929d03a80bee0",
+    "timing_report_sha256": "26e6ca47547c58be9d34e5e0858cc1cf4a8ada0bd478564b2e39eee8fe818ce4",
+    "methodology_report_sha256": "1d766809a1291e6b6e6c25152b2f4a453dba2c451111b2445788c2badfe321d7",
+    "route_report_sha256": "87b68e4aef43ace560e549e810f1315e91166ac33563ca21c4b612c6f17761e1",
+    "drc_report_sha256": "d48684dc27a6e1595987a6f2c35e427d6febde51bd560fba90da6a344e50b2b0"
   },
   "scope": {
     "b1a_complete": true,

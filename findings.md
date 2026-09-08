@@ -1,5 +1,33 @@
 # 调研与实验发现
 
+## 2026-09-08 B1-D1批准与CH340接入
+
+- 用户批准B1-D1选择`bare-metal + lwIP`。首个实现切片只做裸机UART/DDR，避免把PHY、UDP和网络栈变量混入基础启动验证；lwIP保留为B1C网络阶段的软件路线。
+- Windows已识别`USB-SERIAL CH340 (COM10)`，设备实例为`USB\\VID_1A86&PID_7523...`且状态OK；COM10按115200 8N1、无流控成功打开，5秒未收到字节。该结果证明主机到适配器入口可访问，不证明V14/V15连线或FPGA UART功能已通过。
+- 本机官方工具入口为`G:\\Xilinx\\Vitis\\2024.1\\bin\\xsct.bat`，并存在ARM裸机GCC。XSA包含`ps7_init.tcl`、HWH和bitstream，可由XSCT 2024.1直接创建`ps7_cortexa9_0` standalone应用。
+- XSCT本机帮助确认支持`app create -hw <xsa> -proc ps7_cortexa9_0 -os standalone`、`importsources`和`app build`；因此首轮不需要手工拼接BSP或引入额外构建系统。
+- 本机AMD 2024.1官方`Memory Tests`模板明确在ARM上关闭D-Cache后执行DDR读写，避免缓存命中掩盖外部内存事务；B1B应用沿用这一原则，但只测试远离默认程序区的冻结窗口并输出首错细节。
+- 当前XSA的`sysdef.xml`确认目标为`xc7z020clg484-2`、包含PS初始化文件和完整bitstream；构建目录已被`.gitignore`排除，后续新增B1B本地workspace忽略规则即可，不改动B1A正式产物。
+- 首次`app create -hw`已成功生成platform、standalone domain、应用骨架和linker script，但IDE后台停在`generate_app_template`返回之后，XSCT与Eclipse CPU不再增长且没有ELF。该路径在本机不满足自动化稳定性要求；保留生成日志作诊断，改用同一官方embeddedsw/工具链的HSI直接BSP生成与GCC构建。
+- 卡住前实际已经生成完整standalone BSP源码、`system.mss`、`lscript.ld`和顶层BSP Makefile；`system.mss`确认stdin/stdout均为`ps7_uart_0`，linker将应用放在`0x00100000`起的DDR区域，因此冻结测试窗口`0x10000000`不会覆盖程序、堆栈或链接区。
+- BSP Makefile明确使用本机`arm-none-eabi-gcc/ar`且可以脱离Eclipse执行。下一构建路径简化为：HSI生成BSP源→官方Makefile生成`libxil.a`→GCC按生成的linker script链接应用。
+- 通过官方`hw_server.bat`启动后JTAG已枚举`APU`、`ARM Cortex-A9 MPCore #0/#1`和`xc7z020`；旧过滤字符串`Cortex-A9 #0`不匹配2024.1实际目标名。该问题发生在FPGA编程之后、ELF下载之前，改为按Cortex-A9与核心编号通配匹配。
+- 修正CPU目标后，XSCT明确返回FPGA program、ELF download和CPU run三项PASS且无stderr，但COM10在20秒内仍为0字节。下一步读取CPU PC/状态和UART控制、波特率、状态寄存器，区分“程序已跑完但物理TX不可见”与“程序停在启动/DDR”。
+- CPU PC=`0x00102A0C`对应应用的失败终止循环；UART0 CR/MR/BAUDGEN/BAUDDIV为`0x114/0x20/124/6`，100 MHz输入下波特率约115200，状态含TXEMPTY，证明日志已经写出UART FIFO。高地址`0x10000000`别名测试数据全部读回异常，因此首通改测`0x01000000`的1 MiB窗口，并新增OCM结果记录以脱离串口诊断DDR。
+
+## 2026-09-08 UART重分配 V14/V15
+
+- 用户明确裁定`V14→UART_TX`、`V15→UART_RX`。当前B1A工程未占用这两个管脚；板厂HDMI例程将V14/V15作为并行RGB低两位，说明它们属于可用PL I/O，但也表示实板上与HDMI发送器输入共网。
+- 新路径保持LVCMOS33。板载CH340物理连接仍在L17/M17，因此B1B必须使用外置3.3 V USB-TTL交叉连接：V14接适配器RX、V15接适配器TX并共地。
+- 该改动改变XDC和硬件身份，旧bitstream/XSA不再用于后续B1B；必须在新源码提交上重新运行Vivado实现并生成新清单。
+- Vivado 2024.1在干净提交`f0dbc84`上实现通过。placed I/O报告确认V14为Bank 33 LVCMOS33输出、V15为Bank 33 LVCMOS33输入，均为FIXED；资源保持136 LUT/257 FF/0 BRAM/0 DSP，WNS/WHS=`+0.240/+0.126 ns`，route和DRC error为0。
+- 当前有效bitstream/XSA SHA-256为`067289f0...a15cb`、`163c38ef...607f`。旧`5d0940eb.../053fc032...`仅属于L17/M17版本，不得用于B1B。
+- 当前分支的共同基线、`main`和`origin/main`均为`d5fe4e5e...`；知识库中把`065a68ce...`写成当前主线的字段属于过期状态，收口时必须改正，历史PR #72合并记录可保留。
+- 源码提交`f0dbc84`的功能改动保持最小：XDC仅将UART TX/RX从L17/M17替换为V14/V15，原有端口名、LVCMOS33集合及其余MDIO/RGMII约束均未改变。
+- 本地正式产物重新计算SHA-256后与`build_manifest.json`和版本化机器摘要一致：bitstream=`067289f0...a15cb`，XSA=`163c38ef...607f`；manifest同时记录`git_worktree_clean=true`和`git_head=f0dbc843...`。
+- 收口轻量门已通过：5个变更JSON全部可解析，`test_artifact_layout.py`与`test_ci_fast_v1.py`共10项测试全部通过，`git diff --check`无输出。
+- 最终身份检查通过：XDC共有16个不重复PACKAGE_PIN，UART精确为V14 TX/V15 RX；实际bit/XSA、build manifest、版本化summary和两份Nexus manifest四方一致，所有B1 gate字段仍为false。
+
 ## 2026-09-07 B1B Fastlane V2
 
 - 当前唯一由`git clean -ndX`列出的忽略目录是`boards/hellozynq/b1a_hw/build/`。该目录不能整体清理，因为B1B仍需复用其中的bitstream、XSA、build manifest和签核摘要。
@@ -1401,3 +1429,48 @@
 - 2026-09-07：固定提交的源 BD 直接确认 `processing_system7:5.5`、`gmii_to_rgmii:4.1` 与 `util_vector_logic:2.0` 三个实例；GEM0 的 GMII/MDIO 接入转换器，FCLK_CLK0 接 `clkin`，FCLK_RESET0_N 经逻辑反相后同时接收发复位。源 wrapper 确认 32-bit DDR 数据总线、UART0、MDIO 与完整 RGMII 顶层端口。
 - 2026-09-07：六个旧 PR5/PR6 detached 审查工作树均为干净状态，合计约 109 MB；重复临时板厂克隆同样干净，约 1.76 GB。它们不再承担权威输入，稳定板厂克隆 `C:\Users\Epsilon\_tmp\LXB-ZYNQ` 保留。
 - 2026-09-07：B1A来源审计发现两个直接阻塞硬件定义的冲突：板卡资料/原理图为 `MT41K256M16`，参考PS7配置为 `MT41J256M16 RE-125`；PS Ethernet参考工程只复位GMII-to-RGMII IP，没有引出H17物理PHY reset。另有物理PHY地址和RGMII板级时序未冻结。当前只能标记 `B1A_SOURCE_AUDIT_COMPLETE`，不得标记B1A或B1通过。
+# 2026-09-08 B1B 低地址 DDR 实板结果
+
+- 最新低地址程序运行后的 XSCT 探针返回：`B1B_RESULT_MAGIC=1110524465`（`0x42314231`）、`STATUS=2`、`PHASE=9`、`FAIL_ADDRESS/EXPECTED/ACTUAL=0/0/0`。
+- 这证明 `0x01000000–0x010FFFFF` 的 1 MiB DDR 测试已完整经过地址别名、固定数据、地址数据、walking bit 和 PRNG 阶段并 PASS。
+- CPU 停在应用通过出口 `PC=0x00102A50`；UART 寄存器仍为 `CR=276 (0x114)`、`MR=32 (0x20)`、`BAUDGEN=124`、`BAUDDIV=6`，状态 `SR=13` 包含发送侧空闲/已排空特征。
+- 因此 `COM10` 无字节不能再归因于程序未运行或 DDR 首通失败；问题已缩小为 V14 到 CH340 RXD 之间的物理接收链，包括交叉接线、共地、3.3 V 电平、HDMI 共网冲突或一次性输出遗漏。
+- 本结果只签下低地址 1 MiB 首通窗口；此前 `0x10000000` 异常仍保留，高地址容量和地址线不得据此宣称通过。
+- `run_b1b_board.ps1` 已把 `B1B_FPGA_PROGRAM_PASS` 和 `B1B_ELF_DOWNLOAD_PASS` 写入 manifest，但最终退出条件只检查 UART marker 和 XSCT exit code；若 Tcl 在未打印关键阶段标记的情况下仍以 0 退出，当前门可能误判，需把两个标记纳入硬失败条件。
+- 当前应用只在启动和测试结束时各发送一次 UART 文本，之后进入空循环；如果串口在下载后稍晚打开、Windows/CH340 丢失初始数据或接收端短暂断开，就会永久看不到 marker。最小物理诊断升级应在终态下低频重复发送明确的 PASS/FAIL alive 行。
+- 当前 BSP 的 standalone v9.1 已提供 Cortex-A9 `usleep_A9()`，实现直接读取 ARM Global Timer，计数频率由 CPU 时钟推导；可用 `sleep(1)` 做低频终态重发，不需要引入中断、额外外设或软件调度器。
+- 加入每秒终态重发并以 Vitis 2024.1 重建后，新 ELF SHA-256 为 `9426b08580078d1a980a05d6e4e23ed787ccd55f0db04a67e1e4d6b5187b3a18`。
+- 2026-09-08 运行 `run_b1b_board.ps1 -PortName COM10 -ListenSeconds 20`：FPGA program PASS、ELF download PASS、XSCT exit 0，但 UART 仍为 `NO_TERMINAL_MARKER`。持续重发已排除“一次性 banner 被监听窗口遗漏”这一解释，物理路径故障概率显著上升。
+- 同轮之后再次读取 OCM：`magic=0x42314231`、`status=2`、`phase=9`、失败字段全 0，证明新持续重发 ELF 正常运行；UART 空输出与应用执行、DDR 结果无关。
+- B1A 源定义明确为 PS7 UART0 EMIO，经 BD UART 接口导出到顶层 `UART_0_0_txd/rxd`；XDC 指定 `txd=V14`、`rxd=V15`、LVCMOS33。静态源代码未发现方向交换，但仍需以实现后网表/IO 属性和现场交叉接线验证。
+- Windows 当前确认 `USB-SERIAL CH340 (COM10)` 设备状态为 OK，VID/PID 为 `1A86:7523`；runner 能成功打开端口，因此不是 COM 号缺失或驱动未枚举。
+- Vivado 生成的 `design_1_wrapper.v` 明确声明 `UART_0_0_rxd` 为 input、`UART_0_0_txd` 为 output；源 XDC 分别绑定 V15/V14，方向与约定一致。B1A 实现摘要 setup/hold、route、DRC 均通过，但这仍不能证明跳线实际接到了 CH340 的 RXD/GND。
+- Vivado 2024.1 打开最终 routed checkpoint 后确认：TX=`OUT / PACKAGE_PIN V14 / LOC IOB_X1Y12 / LVCMOS33 / DRIVE 12 / SLEW SLOW`；RX=`IN / PACKAGE_PIN V15 / LOC IOB_X1Y11 / LVCMOS33`。实现结果与源约束一致，UART 故障已缩小到板外接线、电气冲突或实际引脚接触。
+- BSP 定义 UART0 base=`0xE0000000`、status=`+0x2C`、FIFO=`+0x30`；`RXEMPTY=0x02`、`RXOVR=0x01`、`TXEMPTY=0x08`。此前实测 SR=`0x0D` 中 `RXEMPTY` 未置位且 `RXOVR` 已置位，说明接收侧可能已有数据或噪声/溢出，值得直接读取 FIFO，而不是继续盲目监听 TX。
+- 使用 XSCT `mrd -force` 读取并清空 RX FIFO，得到 64 个连续 `0x00`，清空后 SR=`0x08`。这说明 V15 曾持续产生低电平或错误帧，不是正常 UART 空闲高电平。
+- 从 COM10 发送 `55 A5 3C C3 7E 81 11 EE` 后，板端只收到单个 `FE`；随后连发 32 个 `55`，板端收到 0 字节。CH340 TXD 到 V15 的有效串行路径未建立。
+- 当前现象与 TX/RX 没有交叉连接高度一致：若 V14 接 CH340 TXD、V15 接 CH340 RXD，会形成输出对输出和输入对输入，正好解释 PC 收不到板端文字、板端 RX 浮空并收到零/噪声。
+- 板厂固定 XDC 将 V14/V15 分别用作 `TFT_rgb[0]/TFT_rgb[1]`，确认它们与 HDMI 并行视频低位共网；B1B 测试期间应保持 HDMI 不使用。该事实不改变 UART 方向，仍必须采用 `V14 -> CH340 RXD`、`V15 <- CH340 TXD`。
+- 管理员随后批准在 FPGA 端交换方向，保持现场跳线不动。实验 B1A 采用 `V14=RX`、`V15=TX`，Vivado 2024.1 实现和 bitstream生成均通过；新 bitstream/XSA哈希分别为 `0b335edc...f99612`、`e67e9d73...438740`。
+- 交换方向后的 B1B 实板运行已成功：COM10 收到完整 banner、九个 DDR 阶段、`DDR_RESULT=PASS` 和 `ENEURON_B1B_PASS`；runner 返回0，FPGA program与ELF download标记均通过。
+- 同一运行的 OCM 结果为 `magic=0x42314231`、`status=2`、`phase=9`、失败地址/期望/实际全0；run manifest绑定 bitstream=`0b335edc...f99612`、XSA=`e67e9d73...438740`、ELF=`d5edf5e2...eb9b4`。
+- UART日志最前出现单个 `0x00`，随后协议文本完整无乱码。该字节更像配置/复位切换时的线路瞬态，不影响当前包含式marker判定；正式协议若要求首字节即为文本，后续可在监听端丢弃marker前的前导非打印字节。
+- 事实结论：现场保持不动的 CH340 信号线对应 `V14 <- CH340 TXD`、`V15 -> CH340 RXD`，因此 FPGA 正式映射应采用 `V14=RX`、`V15=TX`。
+- 批准后的正式硬件提交为`29edf6adc6613445f0983f2c1b8e4d037164985b`。该提交在工作树干净状态下由Vivado 2024.1重建，manifest记录`git_worktree_clean=true`；bitstream/XSA SHA-256分别为`1f98e949...bc5f6`、`ed4a2ff...d417b`。
+- 正式实现的I/O报告再次确认V14=`UART_0_0_rxd/INPUT/LVCMOS33`、V15=`UART_0_0_txd/OUTPUT/LVCMOS33`；WNS/WHS=`+0.240/+0.138 ns`，setup/hold失败端点、route error、DRC error/critical warning均为0。
+- 正式B1B ELF绑定SW HEAD=`97ddd1a38f00595e580168ebd59fe0b2d8e1db92`、HW HEAD=`29edf6adc6613445f0983f2c1b8e4d037164985b`，SHA-256=`4992d26c...128560`。未断电预检已收到完整身份、全部DDR阶段和终止PASS，证明提交后重建没有破坏功能。
+- 预检开始时收到三行旧应用的`ENEURON_B1B_ALIVE PASS`，随后才出现重新配置造成的单个NUL和新应用banner。这些旧行来自串口/旧应用在JTAG重配前的持续输出，因此正式冷启动证据必须以断电清空状态开始，不能把本次预检冒充冷启动。
+- 管理员确认完整断电重启后，冻结组合cold-run-1于2026-09-08 12:57（Asia/Shanghai）完成。UART、下载门和OCM三路证据一致为PASS；这证明一次真实冷启动后的JTAG配置、PS初始化、UART0 EMIO和低地址1 MiB DDR测试可复现。
+- 管理员裁定不再为每轮冷启动额外采集断电期间JTAG不可访问证据。证据强度因此依赖现场断电确认，但减少一次断电状态探针；该变化只影响断电边界证明方式，不降低上电后的身份、UART、DDR和机器状态硬门。
+- cold-run-2于2026-09-08 13:02（Asia/Shanghai）PASS：run manifest=`5a6c2721...da59e`，UART=`91e610c6...7751`；协议起始前只有1个NUL，正式协议主体、九个DDR阶段和OCM结果完整通过。
+- cold-run-3于2026-09-08 13:06（Asia/Shanghai）PASS：run manifest=`3a1b082d...dc40`，UART=`9467e965...d91f`，独立OCM transcript=`ef3dd7ae...c777`。配置前收到3行alive且切换处有1个NUL，但`ENEURON_B1B_BEGIN`后的身份和结果属于新下载的冻结组合，边界清晰。
+- 三次冷启动共同证明正式`V14=RX/V15=TX`外置UART路径和低地址`0x01000000–0x010FFFFF`的1 MiB DDR测试可重复；不能外推此前失败的`0x10000000`、整片DDR容量、PHY、UDP、DMA、NPU或ENeuron。
+- 归档时发现B1A摘要与Nexus仍声明已被实板否决的旧`V14=TX/V15=RX`身份；本轮依据干净硬件提交`29edf6a`、最终I/O报告和三次实板结果统一校正，避免仓库同时保留两个相反的“当前”方向。
+
+## 2026-09-08 B1-06B OCM链接审计
+
+- 当前Vitis生成的`lscript.ld`把`.text/.rodata/.data/.mmu_tbl/.bss/.heap/.stack`全部放在`ps7_ddr_0`，DDR起点为`0x00100000`；因此原B1B ELF不能用于诊断可能存在地址别名的高地址DDR。
+- 正式ELF运行时约53,041字节。临时改为低位OCM链接后，入口和向量表从`0x00000000`开始，页表位于`0x00004000–0x00007FFF`，`_end=0x0000D840`，完整运行时低于`0x0002F000`，容量足够。
+- 本阶段采用Vitis链接脚本声明的低位OCM`0x00000000–0x0002FFFF`，不依据`xparameters.h`的更大alias自行扩展；末尾`0x0002F000–0x0002FFFF`继续保留为结果区。
+- 最强链接门应检查每个`PT_LOAD`的物理地址和`MemSiz`均落在`[0,0x2F000)`，再检查入口、向量表、页表、heap、各处理器模式stack和`_end`；只检查section名称不足以证明运行时不依赖DDR。
+- 为保留挂死或异常证据，诊断程序必须在每次危险访问前写入OCM的阶段、地址、操作、宽度和期望值并执行内存屏障；runner无论UART成功、失败或超时，都先停止CPU并保存OCM、PC、SP、CPSR，再进行reset或下一轮运行。

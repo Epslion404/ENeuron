@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "run_label": "cold-run-3",
+  "power_cycle_confirmed_by_user": true,
+  "power_cycle_evidence": "用户在当前板级验证会话中第三次确认已完整断电并重新上电；本轮按管理员裁定不额外采集断电期间JTAG不可访问探针。",
+  "runner_generated_at_utc": "2026-09-08T05:06:21.6858120Z",
+  "runner_generated_at_asia_shanghai": "2026-09-08T13:06:21.6858120+08:00",
+  "result": "PASS",
+  "scope": "UART协议主体与低地址0x01000000-0x010FFFFF的1 MiB DDR测试"
+}

@@ -88,3 +88,6 @@ boards/hellozynq/b0_smoke/build/
 
 # Local HelloZynq B1A project, implementation reports, bitstream and XSA.
 boards/hellozynq/b1a_hw/build/
+
+# Local HelloZynq B1B Vitis workspace, ELF and board-run logs.
+boards/hellozynq/b1b_sw/build/

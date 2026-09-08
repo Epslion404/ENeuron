@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-09-08T05:06:21.6858120Z",
+  "status": "PASS",
+  "git_head": "97ddd1a38f00595e580168ebd59fe0b2d8e1db92",
+  "port": "COM10",
+  "baud": 115200,
+  "bitstream_sha256": "1f98e949b0d29a7df60c0a57939097460fd98bec7e4d33055fd91af7eefbc5f6",
+  "xsa_sha256": "ed4a2ff0149459bbe431c918e9c5c6d69a689a42a6bbe159126bab1c402d417b",
+  "elf_sha256": "4992d26c501106aca63c9fc1e1f4cc2a2baccd1ef8c440e3daa9b7bed2128560",
+  "xsct_exit_code": 0,
+  "xsct_program_pass": true,
+  "xsct_download_pass": true,
+  "uart_terminal_marker": "PASS",
+  "uart_log_sha256": "9467e96523a47531d80eac7a9bd57a9080b3e950f1883b4cdb32d57ec3fdd91f"
+}

@@ -1,8 +1,10 @@
 # ENeuron 知识库入口
 
-B1B入口就绪检查（2026-09-07）：PR #72已合并为 `main@065a68ce1fc87836ad3d0062883a226ba54e61d9`。B1A正式bitstream/XSA SHA-256分别恢复并核对为 `5d0940eb...e6d6`、`053fc032...81df`；XSCT 2024.1可打开XSA，JTAG可见APU、双Cortex-A9和`xc7z020`。Windows当前只枚举蓝牙COM6/COM7，板载CH340 UART未连接，因此 `B1-D1` 与 `B1B` 均保持 `PENDING`，不得声明UART、DDR或B1通过。以后只允许在临时XSA副本上执行 `hsi::open_hw_design`，不得直接操作正式build目录。
+高地址下一步已冻结（2026-09-08）：B1-06A合同要求诊断ELF独立运行于OCM；应用范围限制为`0x00000000–0x0002EFFF`，末尾4 KiB保留为结果区，并由`readelf -lW`/`nm -n`做越界硬门。下一执行点B1-06B，先做`0x10000000`附近稀疏地址探针，再做4 KiB单一固定模式复现；危险访问前预写OCM记录，UART任意终态后先采集OCM和CPU状态。不得把该待办状态写成整片DDR、B1B或B1-GATE通过。
 
-B1A-HW更新（2026-09-07）：可重建硬件定义已在干净提交 `18fd65c` 上通过Vivado 2024.1实现，机器摘要为 `artifacts/results/hellozynq_b1a_hw_summary.json`，知识条目为 `.nexus-map/concepts/board_phase2_b1a_hw.json`。当前执行点前移到B1B UART/DDR实板验证；`B1-GATE`仍为false。
+B1B实板进度（2026-09-08）：主线基线为`main@d5fe4e5e0472a6c8a901053b2829cd1e899c377f`，当前硬件身份为`29edf6adc6613445f0983f2c1b8e4d037164985b`，软件身份为`97ddd1a38f00595e580168ebd59fe0b2d8e1db92`。现场诊断后的正式UART为V14 RX、V15 TX、LVCMOS33，使用外置CH340的COM10、115200 8N1；bitstream/XSA/ELF为`1f98e949...bc5f6`、`ed4a2ff...d417b`、`4992d26c...128560`。同一冻结组合已在三次完整断电重启后通过UART协议和低地址1 MiB DDR九阶段；`0x10000000`高地址异常仍未关闭，因此状态为`B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DDR_PENDING / B1-GATE=false`。
+
+B1A-HW更新（2026-09-08）：正式UART方向的可重建硬件定义已在干净提交`29edf6a...`上通过Vivado 2024.1实现；资源为`136 LUT / 257 FF / 0 BRAM / 0 DSP / 4 BUFG / 1 MMCM`，WNS/WHS为`+0.240/+0.138 ns`，setup/hold失败端点、route error、DRC error/critical warning及RGMII TX缺失output delay均为0。当前执行点为B1B高地址DDR边界；`B1-GATE`仍为false。
 
 阶段 2 实板校正（2026-09-07）：PR #69 已合并为 `main@102dee2a004283ce4144aaf6ee0a2cee3ebd2887`，B0正式进入主线；Fastlane V1已进入 `main@308bdecd9573e71340359729fdbb2f3fcb7723c7`。B1A来源审计已完成，当前执行点是解决DDR型号、物理PHY复位、物理PHY地址和RGMII时序后生成可重建硬件定义；B1-D1软件栈裁定并行进行。来源审计完成不等于B1A或B1通过。
 
@@ -13,7 +15,7 @@ P16 阶段 2 总路线见 `.nexus-map/arch/p16_board_validation.md` 和 `.nexus-
 当前校正（2026-09-07）：T3 证据已用提交 `c2bc03f` 重跑并绑定；顶层资源为 `2467 LUT / 2301 FF / 6 RAMB36 / 1 RAMB18 / 4 DSP48E1`。下方旧快照中的 `822cf93` 仅保留历史来源，不覆盖本条。
 
 generated_by: nexus-mapper v2 / manual synthesis from raw probe
-verified_at: 2026-09-07
+verified_at: 2026-09-08
 provenance: `.nexus-map/raw/ast_nodes.json`, `git_stats.json`, `file_tree.txt`（最后提交于 `c46320e`，文件树按版本化基线排除工作区未跟踪文件）；其后的单时钟 RTL、测试与 OOC 证据由版本化文件、manifest 和文档人工核对
 
 T3 最新机器可读签核覆盖见 `.nexus-map/concepts/t3_signoff.json`，人类摘要见 `.nexus-map/arch/t3_signoff.md`；它们优先于早期生成快照中的 `T3_XPM_XSIM_OOC_PENDING` 字样。

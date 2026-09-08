@@ -2,9 +2,9 @@
 
 模式：`PERSISTENT_WORKFLOW_V1`
 
-最后更新：2026-09-07
+最后更新：2026-09-08
 
-状态：`ACTIVE / PHASE2_FASTLANE_V1 / B0_COMPLETE_MAIN_102DEE2 / B1_DECISION_PENDING / XC7Z020CLG484_2_CONFIRMED / T3_XPM_XSIM_PASS / T3_XC7Z020_OOC_PASS / RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN / GITHUB_ACTIONS_DISABLED`
+状态：`ACTIVE / PHASE2_FASTLANE_V1 / B0_COMPLETE_MAIN_102DEE2 / B1A_HW_DEFINITION_COMPLETE / B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DDR_PENDING / B1_GATE_FALSE / XC7Z020CLG484_2_CONFIRMED / T3_XPM_XSIM_PASS / T3_XC7Z020_OOC_PASS / RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN / GITHUB_ACTIONS_DISABLED`
 
 ## 当前活动目标
 
@@ -14,6 +14,8 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 
 ## 当前事实
 
+- 2026-09-08：B1-D1已批准为`bare-metal + lwIP`，B1B裸机部分绑定SW=`97ddd1a`、HW=`29edf6a`、bitstream=`1f98e949...bc5f6`、XSA=`ed4a2ff...d417b`、ELF=`4992d26c...128560`。正式UART为`V14=RX/V15=TX`，外置CH340使用COM10、115200 8N1。
+- 2026-09-08：管理员现场确认的三次完整断电冷启动均通过FPGA配置、ELF下载、UART协议、九个低地址DDR阶段和OCM机器结果。状态只提升为`B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS`；此前`0x10000000`异常仍未关闭，因此B1B和B1-GATE均未完成。
 - 2026-09-07：PR #69已合并为 `main@102dee2a004283ce4144aaf6ee0a2cee3ebd2887`；B0正式进入主线。按管理员要求启用Fastlane V1：B1拆为B1A/B1B/B1C小PR，只跑受影响门，身份未变则复用Vivado产物，阶段末集中更新报告/Nexus。
 - 2026-09-07：六个未提交且不再需要的B0时钟诊断文件已移入系统回收站，对应README未提交章节已撤销。旧T0工作树及其未提交修改保持不变；新的主线入口工作树已快进并创建 `codex/zynq7020-b1-fastlane`。
 - 2026-09-07：B0分支已推送并创建 PR #69；GitHub观测为 `OPEN / CLEAN / MERGEABLE`，base为 `main@7857d325...`。Actions按管理员要求关闭，空checks不作为通过证据；现场LED和断电复测完成前不合并。
@@ -52,8 +54,8 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 ## 允许动作
 
 - 更新当前状态、TODO、任务计划和 Nexus 摘要，保留历史审计记录。
-- 基于当前 RTL 的关键路径报告提出和审计最小时序修复；只有 TR7-TR12 获批后才实施，并保持软件/RTL 语义不变，再重跑局部回归和 Vivado OOC。
-- 物理门通过后再规划 XC7Z020 顶层；在此之前不把 OOC 结果外推为板级吞吐、功耗或网口性能。
+- 按B1-06B创建独立OCM驻留高地址诊断源、链接脚本、构建检查和实板证据入口；保持已签核`main.c`、正式B1A硬件和三次低地址证据不变。
+- B1-06B给出可复现结果后，依次执行B1-06C～B1-06F；身份未变化时复用现有B1A bitstream/XSA，不重复Vivado实现。
 
 ## 禁止动作
 
@@ -62,10 +64,11 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 - 把 NP6 的逻辑资源和 vector-less 功耗解释成真实加速、BRAM 跳读或功耗收益。
 - 将 cex、tmp 日志或来源不明的历史产物纳入正式证据。
 - 清理、覆盖或混入当前工作树中的已有改动。
+- 在B1-06F关闭前进入B1C PHY/UDP，或把PS7配置的`0x1FFFFFFF`上界写成实板容量证据。
 
 ## 下一动作
 
-裁定B1-D1软件栈。推荐 `bare-metal + lwIP`；批准后立即开始B1A板级事实与可重建硬件定义，并按Fastlane V1尽快提交小PR。
+执行B1-06B：先实现独立OCM链接和`readelf/nm`越界硬门，再实现稀疏地址与4 KiB模式，最后运行`0x10000000`最小复现。无论UART结果如何，实板入口必须先保存OCM记录和CPU状态；复现证据明确后再进入B1-06C。
 
 ## 2026-09-05 V2 OOC 签核结果
 

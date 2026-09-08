@@ -122,5 +122,11 @@
     "reason": "documentation and JSON only; no RTL, XDC, BD, Tcl or IP identity changed",
     "allowed_claim": "source audit complete",
     "forbidden_claims": ["B1A complete", "B1 gate pass", "PS7 board pass", "DDR board pass", "Ethernet board pass"]
+  },
+  "historical_source_boundary": {
+    "status": "VENDOR_REFERENCE_SNAPSHOT",
+    "note": "confirmed.pins.uart0_txd=L17 and uart0_rxd=M17 are unchanged vendor-board/CH340 source facts, not the current ENeuron B1A UART implementation",
+    "current_implementation_manifest": ".nexus-map/concepts/board_phase2_b1a_hw.json",
+    "current_uart_assignment": {"tx":"V15","rx":"V14","iostandard":"LVCMOS33"}
   }
 }

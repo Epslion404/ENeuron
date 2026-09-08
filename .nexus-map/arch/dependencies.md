@@ -1,6 +1,6 @@
 # 依赖关系
 
-B1A-HW依赖（2026-09-07）：B0实板配置链 → B1A来源审计 → `boards/hellozynq/b1a_hw/` 可重建硬件定义 → B1B UART/DDR实板门 → B1C PHY/UDP与最终B1-GATE。B1A只提供bitstream/XSA和时序约束，不能替代后续软件与实板证据。
+B1依赖（2026-09-08）：B0实板配置链 → B1A来源审计与可重建硬件定义 → B1B UART/DDR实板门 → B1C PHY/UDP与最终B1-GATE。B1B的正式UART和低地址1 MiB DDR已三次冷启动通过，下一依赖是关闭`0x10000000`高地址异常；在此之前不能进入B1C最终签核或B2。
 
 当前校正（2026-09-07）：T3 真实 AMD XPM/xsim 与 XC7Z020 OOC 已在 `c2bc03f` 重跑通过；下方旧链路中的 `822cf93` 仅为历史快照。
 
