@@ -1474,3 +1474,80 @@
 - 本阶段采用Vitis链接脚本声明的低位OCM`0x00000000–0x0002FFFF`，不依据`xparameters.h`的更大alias自行扩展；末尾`0x0002F000–0x0002FFFF`继续保留为结果区。
 - 最强链接门应检查每个`PT_LOAD`的物理地址和`MemSiz`均落在`[0,0x2F000)`，再检查入口、向量表、页表、heap、各处理器模式stack和`_end`；只检查section名称不足以证明运行时不依赖DDR。
 - 为保留挂死或异常证据，诊断程序必须在每次危险访问前写入OCM的阶段、地址、操作、宽度和期望值并执行内存屏障；runner无论UART成功、失败或超时，都先停止CPU并保存OCM、PC、SP、CPSR，再进行reset或下一轮运行。
+
+## 2026-09-08 B1-06B 首轮实板前置门
+
+- PR #75已合并为`main@436d1b2b089c5bf64ac306434349465291f31395`；该主线的干净OCM构建入口为`0x00000000`、`runtime_end=0x0000D840`、单一`PT_LOAD`，ELF SHA-256为`619ab70cb5ee457bba0e059977442d89c797793386b855ce21eeec1da2631b82`。
+- 第一次实板尝试误选COM32；该设备不是CH340。第二次使用当前CH340的COM13（`VID_1A86:PID_7523`），但仍未收到UART READY。
+- 两次runner均按合同没有写GO。COM13运行的OCM为`status=4 / phase=1 / command=0 / completed_accesses=0 / execution_address=0x2844`，CPU为stopped、PC=`0x29E0`、SP=`0xC020`，与程序在OCM等待GO循环一致。
+- 因此当前只证明OCM程序已启动且前置门阻止了危险访问；不能把结果写成高地址DDR失败。下一步先用已签核低地址应用复测COM13接收链，再决定是否重跑高地址诊断或调整READY判定合同。
+
+## 2026-09-08 项目深度认知调研（本轮起始事实）
+
+- 仓库根目录同时承载 Python 参考/实验/验证脚本、SystemVerilog RTL 与 testbench、Vivado Tcl/PowerShell 入口、JSON/TXT/Markdown 证据和大量历史报告；不能把“根目录脚本数量多”误判为缺少模块边界。
+- 顶层已存在 `boards/hellozynq/b0_smoke`、`b1a_hw`、`b1b_sw` 三个板级垂直切片；其中 B0 是 PL 时钟/LED 基线，B1A 是 PS7/DDR/UART/GEM/PHY 硬件事实与可重建 BD/XDC，B1B 是 UART/DDR 软件 bring-up 与高地址诊断。
+- 现有历史记录显示主线经历 T0/B0/B1A/B1B 逐步签核，同时保留 NP4B/NP6/NP7 剪枝、Pulse Mini、NPU 单时钟、host bridge 等计算链路；本轮需要区分“已合并的历史证据”“当前工作树修改”“未完成 TODO”，不以任意报告末尾状态代替源码事实。
+- 当前工作区存在用户/历史未提交修改：`WORKFLOW_STATE.md`、`artifacts/results/rtl_smoke_results.json`、`docs/planning/TODO.md`、三个规划文件；本轮不覆盖、不回滚。
+- 当前分支为 `codex/b1b-high-ddr-board-repro`，跟踪 `origin/main`；工作区不是干净状态，任何构建产物身份都必须检查绑定的 Git HEAD 与 `git_worktree_clean`。
+
+### 权威入口与证据分层
+
+- `README.md` 是产品能力摘要：ENeuron 1.0 已支持片外神经元级训练信号、片上局部 eligibility 更新，以及固定 `4 -> 2 -> 2` 双时钟网络的训练/冻结推理；共享 RAM、板级闭环和通用 AI 明确不在 1.0 声明内。
+- `REPRODUCE.md` 是从全新 clone/archive 重建的最小入口，T1/T2 入口使用固定 Windows Icarus 路径；其通过标记只对应指定协议切片，不等价于 T3、Vivado 或板级通过。
+- `WORKFLOW.md` 把 `WORKFLOW_STATE.md` 定义为当前唯一活动指针，把活动 `docs/planning/*_TODO.md` 定义为详细合同；状态机为 `RESEARCH -> PROPOSAL -> REVIEW_REQUIRED -> APPROVED -> IN_PROGRESS -> VERIFIED_LOCAL -> COMMITTED -> SIGNED_OFF -> NEXT_REVIEW_REQUIRED`。
+- 证据强度有明确不可替代关系：Python 模型不能证明 RTL；RTL 协同仿真不能证明无限状态、物理资源或时序；有限形式不能证明无限时域或布局布线；Vivado 不能证明板级 I/O 和真实活动率功耗；板级测量只覆盖实际测试配置。
+- `.github/workflows/pr-gate.yml` 先用 `tools/ci/classify_changes.py` 分类变更，再选择 Fast Python、全仓回归、Windows XPM、NP7 功能/物理等专项门，最后由始终运行的 `PR Gate` 汇总；Vivado 不在 hosted runner 中运行，物理门只审计已提交报告完整性。
+- `WORKFLOW_STATE.md` 当前指向阶段 2 Fastlane：B0、B1A 硬件定义和 B1B 低地址 DDR 三次冷启动已完成；高地址诊断停在 OCM READY 后未收到 UART READY、未发送 GO 的前置阻塞，不能写成 DDR 失败；B1C PHY/UDP 在 B1-06F 前禁止进入。
+
+### 产品/设计边界
+
+- Host 与片上职责是有意拆开的：Host 负责编码、标签/奖励、modulator 生成、权重保存；片上只做事件计算、trace/eligibility、权重提交和 INFER 冻结，不实现损失函数或数据集管理。
+- 训练协议依赖单调且不可重复的 `commit_id`、episode/tick 边界和 pending eligibility 槽；过期、重复、未知提交必须拒绝，推理时所有权重 RAM 写使能关闭。
+- Pulse-Mini 是 ENeuron 1.0 之外的后续候选，目标是低成本四输入有符号积分、同步不应期和训练/推理隔离；其 TODO 明确不追求任意拓扑、乘法器/DSP/BRAM、反向传播或全局 reward 解决深层信用分配。
+
+### 实现主链路（源码已核对）
+
+- `digital_lif_engine.sv` 是参数化多周期三因子 LIF 单核：每次 `tick_valid` 锁存输入，按 `S_TICK_SCAN -> S_TICK_UPDATE -> S_CURRENT_SAT -> S_MEMBRANE_ADD -> S_TICK_RESOLVE -> S_POST_SCAN -> S_TICK_COMMIT` 逐突触处理；snapshot 与 modulator 也各自有扫描/提交状态，`ready` 仅在 `S_IDLE` 有效。
+- `digital_snn_tile_4x2x2.sv` 固定 4 输入、2 隐藏、2 输出，四核并行；统一命令在四核 ready 时形成单拍请求，`route_flush_valid` 只驱动输出层，隐藏 spike 通过一 tick pending 路由到输出；snapshot 只接受严格递增的 `commit_id`，modulator 必须匹配 pending commit，权重读取只在 tile 全部 idle/ready 时对外可见。
+- `digital_snn_host_bridge_controller.sv` 将 128-bit flit 按 `opcode/flags/txn/episode/tick/arg0/arg1` 解码，命令包括 EP_START、TICK_BEGIN、INPUT_EVENT、TICK_COMMIT、EP_END、MOD_COMMIT、WEIGHT_READ/WRITE、ABORT、STATUS_READ；以首错状态码和 fatal phase 保护 episode/tick/event 账本及 tile 等待状态。
+- `host_bridge_oracle.py` 是逐命令架构黄金模型，不模拟 FIFO/CDC/逐周期延迟；`host_bridge_system_cosim.py` 与 `digital_snn_host_bridge_system.sv` 才覆盖双时钟、XPM async FIFO、背压和 hard reset。
+- `npu_eneuron_reference.py` 固定 V1 配置为 `input=64, hidden=32, output=10, group=4`，输入是 uint4，权重/计算为 INT8/INT32，隐藏层饱和到 0..127；局部剪枝通过活动 mask 省略组计算，但不能改数值规则。
+- `npu_eneuron_single_clock_skeleton.sv` 的 V2 时序修复采用四条显式 DSP48E1 乘法 lane、FETCH/EXECUTE/WRITEBACK 分段和激活锁存；测试同时保留 V1 旧周期合同作为预期失败反证，物理门要求 utilization 与网表都恰好 4 个 DSP48E1。
+- NP7 走共享 lane/权重 RAM 研究线：`np7_weight_ram.sv` 仅 CONFIG 写入且同步读，非法 dense 保留位或 sparse 非严格升序索引被丢弃并锁存 `cfg_error`；`np7_shared_synapse_lane.sv` 把部分和流水一拍、在 hold 时冻结，保持数值等价但改变非零事务周期账本。
+- 板级 B1A 的可重建 BD 把 PS7 GEM0 经 `gmii_to_rgmii` 接到 RGMII/MDIO，FCLK0=200 MHz；当前 XDC 正式 UART 为 V14=RX、V15=TX，DDR 配置声明 `0x1FFFFFFF` 仅是 PS7 配置上界，不是实板容量证明。B1B `main.c` 在 `0x01000000` 做 1 MiB DDR 九阶段检测，结果写 OCM `0x0002F000`；高地址诊断改用完全驻留 OCM 的独立 ELF，并在危险访问前记录阶段。
+
+### 验证矩阵的含义
+
+- 单元/网络 Python 测试验证算法和协议状态；Icarus testbench 验证 RTL 握手、逐拍/逐位结果、背压、mask/epoch 和负向控制；Yosys `.ys`/formal harness 验证有限深度安全性和可达 witness；Vivado Tcl/PowerShell 验证指定器件的资源、DSP/BRAM、时序、route/DRC 与报告完整性；板级 runner/XSCT/串口/OCM 只证明实际板卡配置。
+- `test_npu_single_clock_compute.py` 直接检查 V2 计算 tracer、旧合同失败、四个 `use_dsp="yes"` 属性和 Vivado 脚本的双重 DSP 硬门；`test_host_bridge_oracle.py` 既测 128-bit 编解码，也通过 Recording backend 覆盖所有 opcode 成功/错误副作用；`test_np7_shared_lane_oracle.py` 枚举 16 个活动 mask、6 种合法 2:4 结构、1/2/4/8 lane 周期与账本。
+- 测试数量或报告存在本身不是签核：正式摘要必须绑定冻结 HEAD、工具版本、命令、seed/事务数、退出码和所有输入/脚本 SHA-256；Actions 关闭时，空 checks 不得解释为通过。
+
+### 版本与知识库一致性风险
+
+- 当前实际 Git `HEAD` 为 `436d1b2`（`feat(board): add OCM high DDR diagnostic`），分支 `codex/b1b-high-ddr-board-repro` 跟踪 `origin/main`；最近提交链连续包含 B1A/B1B UART/DDR 与 OCM 诊断切片。
+- `.nexus-map/INDEX.md` 顶部同时出现 `main@d5fe4e5`、`main@102dee2` 等较早快照；其自身注明 generated/manual provenance，不能作为当前提交状态的唯一依据。使用 Nexus 时必须与 Git、`WORKFLOW_STATE.md` 和 manifest 交叉核对。
+- `TEST_MATRIX.json` 是历史 local-prune 矩阵（commit `a75740c`、32 tests、source 为另一台机器路径），不应被误读为当前全仓或当前 B1B 状态。
+- 根目录存在大量生成型 `.h/.c/.S/.o/.d/.rpt` 等 Vitis/Vivado 产物，以及 182 个 Python、77 个 SystemVerilog、41 个 Tcl、31 个 PowerShell 和 91 个 Markdown 文件；分析时应优先按 `boards/`、`docs/`、核心 RTL/模型和 `test_*/verify_*/run_*` 入口过滤。
+- 当前 `WORKFLOW_STATE.md` 允许动作明确要求先用已签核低地址 B1B 应用复测 COM13 UART，再发送高地址诊断 GO；这比“直接继续 DDR 访问”更高优先级，也是当前唯一安全执行路径。
+
+### 当前工作树与执行边界
+
+- `git diff --stat` 显示未提交差异只在 `WORKFLOW_STATE.md`、`docs/planning/TODO.md`、`findings.md`、`progress.md`、`task_plan.md` 和 `artifacts/results/rtl_smoke_results.json`；本轮没有触碰 RTL、Python 核心模型、testbench、runner 或 Vivado 源文件。
+- 当前执行链由活动 TODO 明确冻结为：`B1-06B6 COM13低地址UART基准复测 -> B1-06B7 OCM驻留最小复现 -> B1-06C 分段定位 -> B1-06D 边界复测 -> B1-06E 连续窗口扩展 -> B1-06F 关闭B1B -> B1C PHY/UDP`。
+- B1-06B1～B1-06B4 已完成构建布局、身份绑定、危险访问前 OCM 记录和 fail-closed 前置门；B1-06B5 正式证据包、B1-06B6 UART 基准、B1-06B7 实际 DDR 访问仍未完成。
+- B1B 高地址诊断未收到 READY 时不发送 GO，当前 `completed_accesses=0`；这是有意的安全阻断，不是失败证据，也不是通过证据。
+- `workflow_resume.ps1 -Mode Resume` 本次返回持久文件完整、HEAD=`436d1b2`、工作树条目=6，并显示“活动 TODO 未完成项：0”；但 `docs/planning/TODO.md` 明确仍存在 B1B、B1-06B5、B1-06B6、B1-06B7 等 `[ ]` 项。该摘要计数与明细不一致，后续恢复判断必须以 TODO 明细和 `WORKFLOW_STATE.md` 为准。
+
+## 2026-09-08 神经元模型线当前任务与门限
+
+- 模型族应按两条主线理解：`ENeuron 1.0` 是完整三因子学习基线；`Pulse-Mini-L` 是低成本四输入复制主线，`Pulse-Mini-L2` 是保留更强证据幅度的可选算法实验版，不是 L 的默认替代。
+- ENeuron 1.0 的 Goal M1-M4 已签核：单元、固定 `4->2->2` 网络、真实双时钟训练/提交/冻结推理、目标 FPGA OOC/CDC 均已证明。其边界是固定小网络、片外 Host 神经元级训练信号，不包含共享 RAM 大规模扩展、板级产品、真实活动功耗或通用 AI。
+- Pulse-Mini P0-P8 已完成：行为合同、黄金模型、最小 RTL、20×1000 协同仿真、有限 BMC/负向控制、受控任务、XC7Z020 单核物理门、阵列边界和固定 `4->2->2` 网络闭环均已完成。
+- Pulse-Mini-L 单核当前实测 `182 LUT / 76 FF / 0 BRAM / 0 DSP`，100 MHz `WNS=+0.463 ns`；L2 为 `366 LUT / 91 FF`、`WNS=-4.690 ns`，因此 L2 在 100 MHz 物理门上失败，暂停扩阵。
+- Pulse-Mini-L 功能硬门：训练后干净样本全对；20 个未参与训练的冻结扰动样本至少 `19/20`；无反馈与标签打乱不能同时达到主门槛；推理前后连接和学习状态逐字段冻结；训练区间禁止直接权重写入。
+- Pulse-Mini-L 物理硬门：单核 `LUT<=260`、`FF<=140`、`BRAM=0`、`DSP=0`；100 MHz `WNS>=0`、`TNS=0`、setup/hold 失败端点为 0；route error、DRC Error/Critical Warning 为 0。优化目标是 `LUT<=220`、`FF<=120`，但不是签核门。
+- Pulse-Mini 阵列门：32 核已通过（`5867 LUT / 2432 FF / WNS=+0.151 ns`）；64/128 核虽资源可放入但 setup 失败（`-0.131/-0.466 ns`），因此当前只允许称 32 核为 100 MHz 已证明点。共享 lane 周期模型不能替代 routed 证据。
+- 当前后续顺序：P9 数字识别软件能力门 -> P10 扇入/共享存储 -> P11 L2 时序修复（可选） -> P12 阵列/Host 系统化 -> P13 板级与持续学习边界。P9/P10/P12/P13 均未完成，P11 不是进入 L 主线的前置条件。
+- P9 尚缺输入编码、每样本 tick/事件率、数据拆分、随机初态和预注册门槛；需先做 `4->4->3`，再做 `4->8->10`，分开比较 `local_teacher`、`feedback_alignment`、`global_scalar_reward`，并报告 balanced accuracy、macro-F1、coverage、tie/abstain、首脉冲延迟、输出脉冲和权重账本。
+- P10 的硬门是每个扇入/共享 lane 点都与四输入参考模型逐 tick、逐状态 bit-exact，100 MHz routed `WNS>=0/TNS=0`、setup/hold 零失败，并在目标事件率下 FIFO 不溢出。
+- P11 的硬门是保留 L2 的正/负证据计数语义，单核 100 MHz routed `WNS>=0/TNS=0`，且与 L2 Python/RTL 模型逐事务一致；WNS 通过前不得报告 L2 阵列容量。

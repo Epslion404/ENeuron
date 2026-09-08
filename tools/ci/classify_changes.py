@@ -18,6 +18,9 @@ def classify_paths(paths: Iterable[str], *, run_all: bool = False) -> dict[str, 
     for raw_path in paths:
         path = raw_path.replace("\\", "/")
         LOGGER.info("changed=%s", path)
+        if _matches(path, "archive/legacy/*", "archive/legacy/**/*"):
+            # 归档材料只供追溯，不应因移动或修订触发活动回归。
+            continue
         if fnmatch.fnmatch(path, ".github/workflows/*"):
             for scope in SCOPES[1:]:
                 selected[scope] = True
@@ -35,15 +38,12 @@ def classify_paths(paths: Iterable[str], *, run_all: bool = False) -> dict[str, 
             path,
             "vivado_np7_*",
             "vivado_np7_*/*",
-            "artifacts/results/np7*",
-            "artifacts/signoff/np7*",
             "verify_np7_physical_cost.py",
             "test_np7_physical_mutations.py",
         ):
             selected["np7_physical"] = True
         elif _matches(path, "np7_*", "test_np7_*", "verify_np7_software_cost.py"):
             selected["np7_functional"] = True
-            selected["np7_physical"] = True
         elif _matches(path, "*.md", "docs/*", ".nexus-map/*"):
             continue
         else:

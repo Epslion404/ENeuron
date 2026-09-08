@@ -28,10 +28,10 @@ class ClassifyChangesTest(unittest.TestCase):
         selected = classify_paths(["tb_xpm_fifo_async_matrix.sv"])
         self.assertTrue(selected["t1_repro"])
 
-    def test_np7_source_selects_functional_and_physical_gates(self):
+    def test_np7_source_selects_functional_gate_only(self):
         selected = classify_paths(["np7_shared_lane_exec.sv"])
         self.assertTrue(selected["np7_functional"])
-        self.assertTrue(selected["np7_physical"])
+        self.assertFalse(selected["np7_physical"])
 
     def test_unknown_code_uses_full_repository_gate(self):
         selected = classify_paths(["digital_lif_engine.sv"])

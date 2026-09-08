@@ -1,13 +1,12 @@
 # ENeuron 文档索引
 
-项目根目录只保留项目入口、持久工作流和规划记忆文件。设计、专项计划、项目报告与验证结论统一归档在本目录。
+当前主线是 `xc7z020clg484-2` 上的 NPU + ENeuron 动态剪枝：先完成单时钟 NPU/ENeuron、局部剪枝和 NP7 共享 lane 的可复现闭环，再进入 B2/B3/B4 板级集成。高地址 DDR、PHY/UDP 属于 B1 板卡资格支线，不作为 NPU MVP 的日常阻塞。
+
+项目根目录只保留项目入口、持久工作流和规划记忆文件。历史研究线和旧器件物理材料统一放在 [`archive/legacy/`](../archive/legacy/README.md)，不再出现在活动门中。
 
 ## 设计与合同
 
 - [动态恢复型局部剪枝门控提案](design/DESIGN_PROPOSAL_DYNAMIC_PRUNE_RECOVERY.md)
-- [G4 多任务能力验证方案](design/g4_capability_validation_proposal.md)
-- [G4 T3 执行规格](design/g4_t3_execution_spec.md)
-- [Host Bridge V1 设计](design/host_bridge_v1_proposal.md)
 - [片外 Host 训练协议](design/host_protocol.md)
 - [XC7Z020 顶层集成规划 V1](planning/NPU_ZYNQ7020_TOPLEVEL_INTEGRATION_V1.md)
 - [XC7Z020 顶层 T0 端口裁定稿](planning/NPU_ZYNQ7020_TOPLEVEL_DECISION_SHEET_V1.md)
@@ -20,15 +19,13 @@
 
 ## 专项计划
 
-- [Pulse-Mini 开发计划](planning/TODO.md)
 - [NPU 局部剪枝与动态门控计划](planning/NPU_PRUNING_TODO.md)
 - [NP4B 正式集成 TODO](planning/NPU_PRUNING_NP4B_TODO.md)
 - [传统 NPU + ENeuron 集成审核稿](planning/NPU_NEURON_INTEGRATION_REVIEW.md)
 - [NPU + ENeuron Python Oracle 冻结审核](planning/NPU_ORACLE_FREEZE_REVIEW.md)
-- [NP6 物理成本评估 TODO](planning/NPU_PRUNING_NP6_TODO.md)
+- [B1/B1C 实板执行 TODO](planning/TODO.md)
 - [NP7 共享 BRAM 与共享 lane TODO](planning/NPU_PRUNING_NP7_TODO.md)
 - [NP7 B-V1+V2 管理员决策点](planning/NPU_PRUNING_NP7_DECISION_B_V1_V2.md)
-- [NP6 Runner 静态审计](planning/NPU_PRUNING_NP6_RUNNER_AUDIT.md)
 - [NPU 单时钟 DSP V1 时序修复](planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V1.md)
 - [NPU 单时钟 DSP V1 测试合同](planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_TEST_CONTRACT_V1.md)
 - [NPU 单时钟 V2 时序修复审核稿](planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V2.md)
@@ -36,23 +33,10 @@
 
 ## 报告
 
-- [当前项目报告](reports/PROJECT_REPORT.md)
-- [2026-08-31 阶段性项目报告](reports/STAGE_REPORT_2026-08-31.md)
 - [HelloZynq B0 实板 smoke 报告](reports/HELLOZYNQ_B0_SMOKE_2026-09-07.md)
 - [HelloZynq B1B UART与低地址DDR实板报告](reports/HELLOZYNQ_B1B_UART_DDR_2026-09-08.md)
 - [ENeuron 1.0 发布说明](reports/RELEASE_1.0.md)
-- [三版本纯仿真比较](reports/SIMULATION_COMPARISON_REPORT.md)
 - [Vivado/XSim 局部剪枝仿真报告](reports/SIMULATION_REPORT.md)
-- [NP6 物理成本阶段报告](reports/LOCAL_PRUNE_NP6_PHYSICAL_COST_REPORT.md)
-- [Pulse-Mini-L/L2 协议与多任务报告](reports/PULSE_MINI_L2_PROTOCOL_REPORT.md)
-- [数字识别 D0](reports/DIGIT_RECOGNITION_D0.md)
-- [数字识别 D1](reports/DIGIT_RECOGNITION_D1.md)
-- [数字识别 D2](reports/DIGIT_RECOGNITION_D2.md)
-- [局部剪枝 B1](reports/LOCAL_PRUNE_B1_REPORT.md)
-- [局部剪枝 B2](reports/LOCAL_PRUNE_B2_REPORT.md)
-- [局部剪枝 B2.1](reports/LOCAL_PRUNE_B21_REPORT.md)
-- [局部剪枝 NP2](reports/LOCAL_PRUNE_NP2_REPORT.md)
-- [局部剪枝 NP3](reports/LOCAL_PRUNE_NP3_REPORT.md)
 - [局部剪枝 NP4/NP5 RTL](reports/LOCAL_PRUNE_RTL_REPORT.md)
 
 ## 验证与签核
@@ -73,3 +57,12 @@
 - `task_plan.md`、`findings.md`、`progress.md`：长期规划、事实与执行日志。
 
 文档中的 `docs/...` 路径均以仓库根目录为基准。历史验证数字仍受各报告原有证据边界约束；本次归档不代表重新运行算法、RTL、形式验证或 Vivado。
+
+## 历史入口
+
+- [历史归档总览](../archive/legacy/README.md)
+- [旧 ENeuron 1.0 Tile/Host Bridge 材料](../archive/legacy/eneuron_v1_host_bridge/)
+- [G4 多任务材料](../archive/legacy/g4/)
+- [数字识别材料](../archive/legacy/digit8x8/)
+- [NP6 旧物理材料](../archive/legacy/np6_physical/)
+- [NP7 旧物理材料](../archive/legacy/np7_physical/)

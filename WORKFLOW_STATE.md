@@ -4,17 +4,18 @@
 
 最后更新：2026-09-08
 
-状态：`ACTIVE / PHASE2_FASTLANE_V1 / B0_COMPLETE_MAIN_102DEE2 / B1A_HW_DEFINITION_COMPLETE / B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DDR_PENDING / B1_GATE_FALSE / XC7Z020CLG484_2_CONFIRMED / T3_XPM_XSIM_PASS / T3_XC7Z020_OOC_PASS / RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN / GITHUB_ACTIONS_DISABLED`
+状态：`ACTIVE / PHASE2_FASTLANE_V1 / B0_COMPLETE_MAIN_102DEE2 / B1A_HW_DEFINITION_COMPLETE / B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DIAG_READY_NO_GO / B1B_HIGH_DDR_PENDING / B1_GATE_FALSE / XC7Z020CLG484_2_CONFIRMED / T3_XPM_XSIM_PASS / T3_XC7Z020_OOC_PASS / RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN / GITHUB_ACTIONS_DISABLED`
 
 ## 当前活动目标
 
 NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定及 TR1-TR6 已批准。管理员于 2026-09-05 批准 TR7-TR12，V2 已完成测试先行、RTL 实施、功能回归和 Vivado 2024.1 OOC。DSP V1 实现、真实 OOC 失败证据和全部 22 个失败端点审计已经合入；V2 KISS 审核材料经 PR #62 合入 `main@e8dc947`，V2 实现提交为 `f744bff2bdde68e138a7b2b348ce103bec1ab469`。
 
-活动合同：`docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`。阶段 2 只用真实板卡证据关闭任务；仿真与 OOC 继续作为开发辅助和历史基线。
+当前阶段活动合同：`docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`。关联主线合同为 `docs/planning/TODO.md`、`docs/planning/NPU_PRUNING_TODO.md` 和 `docs/planning/NPU_PRUNING_NP7_TODO.md`。阶段 2 只用真实板卡证据关闭任务；仿真与 OOC 继续作为开发辅助和历史基线。
 
 ## 当前事实
 
-- 2026-09-08：B1-D1已批准为`bare-metal + lwIP`，B1B裸机部分绑定SW=`97ddd1a`、HW=`29edf6a`、bitstream=`1f98e949...bc5f6`、XSA=`ed4a2ff...d417b`、ELF=`4992d26c...128560`。正式UART为`V14=RX/V15=TX`，外置CH340使用COM10、115200 8N1。
+- 2026-09-08：B1-D1已批准为`bare-metal + lwIP`，B1B裸机部分绑定SW=`97ddd1a`、HW=`29edf6a`、bitstream=`1f98e949...bc5f6`、XSA=`ed4a2ff...d417b`、ELF=`4992d26c...128560`。正式UART为`V14=RX/V15=TX`、115200 8N1；外置CH340按`VID_1A86:PID_7523`识别，COM号不作为固定合同。
+- 2026-09-08：PR #75已合并为`main@436d1b2`，OCM诊断ELF SHA-256=`619ab70c...1b82`。历史 COM32误选和 COM13 运行均停在`status=READY / phase=OCM_READY / command=0 / completed_accesses=0`；COM13运行时PC=`0x29E0`、SP=`0xC020`，程序在OCM等待GO。由于UART READY缺失，runner没有发送GO，高地址DDR尚未被访问。
 - 2026-09-08：管理员现场确认的三次完整断电冷启动均通过FPGA配置、ELF下载、UART协议、九个低地址DDR阶段和OCM机器结果。状态只提升为`B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS`；此前`0x10000000`异常仍未关闭，因此B1B和B1-GATE均未完成。
 - 2026-09-07：PR #69已合并为 `main@102dee2a004283ce4144aaf6ee0a2cee3ebd2887`；B0正式进入主线。按管理员要求启用Fastlane V1：B1拆为B1A/B1B/B1C小PR，只跑受影响门，身份未变则复用Vivado产物，阶段末集中更新报告/Nexus。
 - 2026-09-07：六个未提交且不再需要的B0时钟诊断文件已移入系统回收站，对应README未提交章节已撤销。旧T0工作树及其未提交修改保持不变；新的主线入口工作树已快进并创建 `codex/zynq7020-b1-fastlane`。
@@ -54,7 +55,8 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 ## 允许动作
 
 - 更新当前状态、TODO、任务计划和 Nexus 摘要，保留历史审计记录。
-- 按B1-06B运行已完成构建门的独立OCM驻留高地址诊断；保持已签核`main.c`、正式B1A硬件和三次低地址证据不变。
+- 先用已签核低地址B1B应用和按 VID/PID 定位的 CH340 做一次非冷启动UART接收基准复测；保持已签核`main.c`、正式B1A硬件和三次低地址证据不变。
+- UART基准通过后，按B1-06B7重跑已完成构建门的独立OCM驻留高地址诊断。
 - B1-06B给出可复现结果后，依次执行B1-06C～B1-06F；身份未变化时复用现有B1A bitstream/XSA，不重复Vivado实现。
 
 ## 禁止动作
@@ -68,7 +70,7 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 
 ## 下一动作
 
-B1-06B的独立诊断源、OCM链接、`readelf/nm`越界硬门和实板入口已完成；开发构建已证明入口`0x00000000`、`runtime_end=0x0000D840`均位于结果区`0x0002F000`之前，但该构建来自未提交工作树。下一动作是提交诊断垂直切片并在干净新HEAD重建；正式runner核对HEAD、工作树和全部输入/产物哈希后，才在独立证据目录运行`0x10000000`最小复现。复现证据明确后再进入B1-06C，B1-06F前禁止进入B1C。
+B1-06B的独立诊断源、OCM链接、`readelf/nm`越界硬门和实板入口已合并到`main@436d1b2`并完成干净构建。当前阻塞不是DDR结果，而是此前串口选择/接收链未取得UART READY；OCM和CPU证据证明程序在低位OCM等待GO，DDR访问数为0。下一动作是用已签核低地址应用复测 VID/PID 定位的 CH340 接收链；通过后再运行同一OCM诊断并发送GO。复现证据明确后才进入B1-06C，B1-06F前禁止进入B1C。
 
 ## 2026-09-05 V2 OOC 签核结果
 

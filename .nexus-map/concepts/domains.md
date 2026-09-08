@@ -1,5 +1,7 @@
 # 核心领域概念
 
+当前主线：部署目标为 `xc7z020clg484-2`，聚焦 NPU + ENeuron 动态剪枝。`archive/legacy/` 不参与日常门；旧 `xc7z020clg400-1` 的 NP7/T3 物理证据仅作历史参考。B1 高地址 DDR、PHY、UDP 属于板卡资格支线，完整 `B1-GATE` 仍未关闭，但不阻塞低地址容量满足条件下的 NPU MVP。CH340 按 `VID_1A86:PID_7523` 识别，COM10 不是固定合同。
+
 generated_by: nexus-mapper v2 / manual synthesis
 verified_at: 2026-09-08
 provenance: NP4B/NP6/NP7 TODO、工作流状态与 RTL 文件；集成边界来自审核材料包

@@ -101,7 +101,7 @@ $manifest = [ordered]@{
     xsa_sha256 = $b1aXsaSha256
     elf = $elf.FullName
     elf_sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $elf.FullName).Hash.ToLower()
-    uart = 'COM10 115200 8N1'
+    uart = 'CH340 VID_1A86:PID_7523 115200 8N1'
     ddr_test_base = '0x01000000'
     ddr_test_bytes = '0x00100000'
 }

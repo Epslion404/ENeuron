@@ -38,6 +38,9 @@ class B1BHighDiagContractTests(unittest.TestCase):
         self.assertIn("source_sha256", runner_text)
         self.assertIn("linker_sha256", runner_text)
         self.assertIn("Current worktree is not clean", runner_text)
+        self.assertIn("Resolve-SerialPortName", runner_text)
+        self.assertIn("VID_$vidToken", runner_text)
+        self.assertIn("port_selector", runner_text)
         self.assertIn("ocm_app", linker_text)
         self.assertIn("0x0002F000", linker_text)
 

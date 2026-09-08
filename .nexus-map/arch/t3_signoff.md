@@ -3,6 +3,8 @@
 verified_at: 2026-09-07
 evidence_head: `c2bc03f`
 
+证据角色：本报告的 `xc7z020clg400-1` OOC 是历史结构/接口参考，不是当前部署目标 `xc7z020clg484-2` 的最终板级 routed 签核。它不能替代目标器件的资源、时序、DRC、功耗或板级证据。
+
 ## 结果
 
 - 真实 AMD XPM/xsim：`RESULT=PASS`。

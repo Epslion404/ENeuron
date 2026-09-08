@@ -1,11 +1,30 @@
 param(
-    [string]$PortName = 'COM10',
+    [string]$PortName = '',
+    [string]$UsbVid = '1A86',
+    [string]$UsbPid = '7523',
     [int]$ListenSeconds = 20,
     [string]$XsctPath = 'G:\Xilinx\Vitis\2024.1\bin\xsct.bat',
     [string]$HwServerPath = 'G:\Xilinx\Vivado\2024.1\bin\hw_server.bat'
 )
 
 $ErrorActionPreference = 'Stop'
+
+function Resolve-SerialPortName {
+    param([string]$RequestedPort, [string]$Vid, [string]$Pid)
+    if ($RequestedPort) {
+        return $RequestedPort
+    }
+    $vidToken = $Vid.ToUpperInvariant()
+    $pidToken = $Pid.ToUpperInvariant()
+    $matches = @(Get-PnpDevice -PresentOnly -Class Ports -ErrorAction SilentlyContinue | Where-Object {
+        $_.InstanceId -match "VID_$vidToken&PID_$pidToken" -and $_.FriendlyName -match '\((COM\d+)\)'
+    })
+    if ($matches.Count -ne 1) {
+        throw "Expected exactly one USB serial device VID_$vidToken`&PID_$pidToken, found $($matches.Count)"
+    }
+    return ([regex]::Match($matches[0].FriendlyName, '\((COM\d+)\)')).Groups[1].Value
+}
+
 $scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $repoRoot = (Resolve-Path (Join-Path $scriptRoot '..\..\..')).Path
 $gitHead = (& git -C $repoRoot rev-parse HEAD).Trim()
@@ -94,6 +113,7 @@ if (-not (Test-Path -LiteralPath $ps7Init)) {
 $runId = [DateTime]::UtcNow.ToString('yyyyMMddTHHmmssZ')
 $runRoot = Join-Path $buildRoot (Join-Path 'runs' $runId)
 New-Item -ItemType Directory -Path $runRoot -Force | Out-Null
+$PortName = Resolve-SerialPortName $PortName $UsbVid $UsbPid
 $programStdout = Join-Path $runRoot 'program_stdout.log'
 $programStderr = Join-Path $runRoot 'program_stderr.log'
 $armStdout = Join-Path $runRoot 'arm_stdout.log'
@@ -202,6 +222,9 @@ $runManifest = [ordered]@{
     git_head = $gitHead
     protocol = 'B1B_HIGH_DIAG_V1'
     port = $PortName
+    port_selector = if ($PSBoundParameters.ContainsKey('PortName') -and $PSBoundParameters['PortName']) { 'explicit' } else { 'vid_pid' }
+    usb_vid = $UsbVid.ToUpperInvariant()
+    usb_pid = $UsbPid.ToUpperInvariant()
     bitstream_sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $bitstream).Hash.ToLower()
     xsa_sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $xsaCopy).Hash.ToLower()
     elf_sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $elf).Hash.ToLower()
