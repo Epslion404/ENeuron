@@ -2,6 +2,26 @@
   "$schema": "eneuron/board-b1b-evidence/v1",
   "verified_at": "2026-09-08",
   "status": "B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DDR_PENDING",
+  "diagnostic_plan": {
+    "b1_06a": {
+      "status": "FROZEN",
+      "contract": "High-address diagnostics must execute independently from low OCM; code, page tables, heap and stack must stay below 0x0002F000, with the final 4 KiB reserved for results. Verify OCM execution and UART before any DDR write.",
+      "ocm_execution_required": true,
+      "forbidden_assumption": "PS7 declared upper address 0x1FFFFFFF is not evidence of tested board capacity"
+    },
+    "next_execution_point": "B1-06B",
+    "b1_06b": {
+      "status": "NEXT",
+      "action": "Build and run an independent OCM-resident diagnostic ELF; probe sparse addresses near 0x10000000, then run a 4 KiB single-pattern alias/read-write reproduction.",
+      "first_target": "0x10000000",
+      "link_contract": "ocm_app ORIGIN=0x00000000 LENGTH=0x0002F000; reserve 0x0002F000-0x0002FFFF for the result record",
+      "post_link_gate": "Every PT_LOAD range, entry point, vector table, MMU table, heap, processor-mode stack and _end must remain below 0x0002F000; verify with readelf -lW and nm -n",
+      "evidence_order": "Write RUNNING and the attempted address/operation/width/expected value to OCM before each risky access; on UART pass, failure or timeout, stop the CPU and capture OCM plus PC/SP/CPSR before reset",
+      "stop_on_first_error": true,
+      "capture": ["window_base", "offset", "access_width", "expected", "actual", "CPU state", "UART log", "OCM result"],
+      "negative_rule": "If the minimal probe does not reproduce the historical failure, audit the old program, build identity and test order before claiming the address is fixed"
+    }
+  },
   "target": {"board":"HelloZynq", "part":"xc7z020clg484-2"},
   "identity": {
     "software_commit": "97ddd1a38f00595e580168ebd59fe0b2d8e1db92",
@@ -20,7 +40,7 @@
   "scope": {
     "b1b_complete":false,
     "b1_gate_pass":false,
-    "pending":["resolve earlier 0x10000000 DDR failure", "B1C PHY, link and UDP"],
+    "pending":["B1-06B OCM-resident sparse/4 KiB reproduction at 0x10000000", "B1C PHY, link and UDP"],
     "forbidden_claims":["whole DDR passed", "B1B complete", "B1 gate pass", "Ethernet passed"]
   }
 }

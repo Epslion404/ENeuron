@@ -6,7 +6,7 @@
 - [x] 在提交`f0dbc84`上完成一次Vivado 2024.1实现；V14/V15方向、Bank 33、LVCMOS33、DRC、setup/hold、route和RGMII既有门均通过。
 - [x] 更新B1A机器摘要与Nexus，保持`B1-D1=PENDING`、`B1B=PENDING`、`B1-GATE=false`。
 - [x] 将证据更新整理为本地提交。
-- [ ] 是否推送、创建PR和合并由管理员另行授权；之后以新bitstream/XSA进入B1B。
+- [x] 历史旧方向未作为正式基线继续推进；后续已通过实板实验改为`V14=RX/V15=TX`，正式身份见下方记录。
 
 # 2026-09-08 B1-D1批准与B1B UART/DDR首通
 
@@ -23,9 +23,22 @@
 
 本轮TODO修订：B1-06已拆为B1-06A～B1-06F。B1-06A合同冻结已完成：高地址诊断ELF必须从OCM运行，避免地址别名反向覆盖DDR中的程序。下一动作是B1-06B，实现稀疏地址和4 KiB模式并最小复现`0x10000000`旧故障；本轮不修改`main.c`、不重建ELF、不上板。
 
-低地址裁定结果：`status=2 / phase=9 / fail fields=0`，`0x01000000–0x010FFFFF` 的 1 MiB DDR 首通已 PASS。当前执行点转为 UART 持续发送物理探针和板级 runner 硬门补强；高地址 `0x10000000` 异常仍未关闭。
+## 2026-09-08 B1-06B 实施准备
 
-UART 持续重发首轮：构建与 JTAG 两阶段硬门通过，但 COM10 在 20 秒内仍无 marker，runner 正确失败。下一步先读取新应用 OCM 状态，再审计 EMIO/PL 顶层和 V14/V15 实际方向；不重复相同的串口监听。
+- [x] 核对当前生成链接脚本：正式B1B应用的全部运行时section位于DDR，不能直接用于高地址诊断。
+- [x] 用临时链接验证低位OCM容量：现有约53 KiB运行时可完整落在`0x00000000–0x0000D83F`，与`0x0002F000`结果区之间保留充足余量。
+- [x] 冻结链接硬门：应用区长度到`0x0002F000`为止；所有`PT_LOAD`、入口、向量表、页表、heap、六类stack和`_end`必须低于该地址。
+- [x] 冻结异常取证顺序：危险访问前预写OCM记录并执行内存屏障；runner在UART失败或超时时同样先读取OCM和PC/SP/CPSR。
+- [ ] 创建独立诊断源、OCM链接脚本和构建入口；不得修改已签核`main.c`。
+- [ ] 建立链接布局和固定探针合同测试，再实现实板runner。
+- [ ] 本机构建并核对ELF身份、section/program header和符号布局；构建门通过后才允许上板。
+- [ ] 在独立证据目录运行`0x10000000`稀疏地址与4 KiB最小复现，并据结果进入B1-06C或历史复现审计。
+
+当前停止点：TODO与实施合同已准备，尚未创建诊断代码、重建ELF或执行新一轮实板访问。
+
+低地址裁定结果：`status=2 / phase=9 / fail fields=0`，`0x01000000–0x010FFFFF` 的 1 MiB DDR 首通已 PASS。其后的UART持续发送、方向诊断和三次冷启动均已完成；本段仅保留为历史过程，当前执行点以B1-06B为准。
+
+UART 持续重发首轮曾返回COM10无marker；该历史失败后来由FPGA端方向改为`V14=RX/V15=TX`解决，不再是当前阻断项。
 
 错误记录：首次用 XSCT `mrd -value 0xE0000030` 读取 UART RX FIFO 时，工具因该寄存器为 read-once 而报 `Blocked address ... Cannot access read-once register`；本次未消费 FIFO。下一次先查询 `mrd` 支持的访问选项，若无安全强制读路径则改由 CPU 小探针读取，避免重复同一命令。
 

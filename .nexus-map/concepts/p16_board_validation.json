@@ -63,9 +63,28 @@
     "gate_pass": true
   },
   "next_action": {
-    "action": "RESOLVE_B1B_HIGH_ADDRESS_DDR_BOUNDARY",
-    "run_2_started": true,
-    "completion_condition": "Explain the earlier 0x10000000 failure and freeze the tested DDR address boundary without invalidating the three cold-run low-address evidence"
+    "action": "B1-06B_OCM_RESIDENT_SPARSE_4K_REPROBE",
+    "status": "B1B_HIGH_DDR_PENDING",
+    "b1_06a_contract": {
+      "status": "FROZEN",
+      "execution_location": "low OCM",
+      "runtime_sections_limit": "below 0x0002F000",
+      "reserved_result_region": "0x0002F000-0x0002FFFF",
+      "precondition": "verify OCM execution and UART before writing DDR"
+    },
+    "b1_06b": {
+      "status": "NEXT",
+      "diagnostic_elf": "independent OCM-resident ELF",
+      "link_contract": "ocm_app 0x00000000-0x0002EFFF; result record 0x0002F000-0x0002FFFF",
+      "post_link_gate": "readelf -lW and nm -n prove all load ranges and runtime symbols remain below 0x0002F000",
+      "probe": "sparse addresses near 0x10000000, followed by a 4 KiB single-pattern alias/read-write test",
+      "stop_on_first_error": true,
+      "capture_order": "prewrite OCM attempt record and barrier; after UART pass/fail/timeout stop CPU and capture OCM, PC, SP and CPSR before reset",
+      "required_evidence": ["window base", "offset", "access width", "expected", "actual", "CPU state", "UART log", "OCM result"],
+      "non_reproduction_rule": "A non-reproducing minimal probe requires audit of the historical program, build identity and test order; it is not evidence that high DDR is fixed"
+    },
+    "completion_condition": "Explain the earlier 0x10000000 failure and freeze the tested DDR address boundary without invalidating the three cold-run low-address evidence",
+    "forbidden_claims": ["whole DDR passed", "B1B complete", "B1-GATE passed"]
   },
   "b1a": {
     "source_audit_status": "COMPLETE",

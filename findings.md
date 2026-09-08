@@ -1466,3 +1466,11 @@
 - cold-run-3于2026-09-08 13:06（Asia/Shanghai）PASS：run manifest=`3a1b082d...dc40`，UART=`9467e965...d91f`，独立OCM transcript=`ef3dd7ae...c777`。配置前收到3行alive且切换处有1个NUL，但`ENEURON_B1B_BEGIN`后的身份和结果属于新下载的冻结组合，边界清晰。
 - 三次冷启动共同证明正式`V14=RX/V15=TX`外置UART路径和低地址`0x01000000–0x010FFFFF`的1 MiB DDR测试可重复；不能外推此前失败的`0x10000000`、整片DDR容量、PHY、UDP、DMA、NPU或ENeuron。
 - 归档时发现B1A摘要与Nexus仍声明已被实板否决的旧`V14=TX/V15=RX`身份；本轮依据干净硬件提交`29edf6a`、最终I/O报告和三次实板结果统一校正，避免仓库同时保留两个相反的“当前”方向。
+
+## 2026-09-08 B1-06B OCM链接审计
+
+- 当前Vitis生成的`lscript.ld`把`.text/.rodata/.data/.mmu_tbl/.bss/.heap/.stack`全部放在`ps7_ddr_0`，DDR起点为`0x00100000`；因此原B1B ELF不能用于诊断可能存在地址别名的高地址DDR。
+- 正式ELF运行时约53,041字节。临时改为低位OCM链接后，入口和向量表从`0x00000000`开始，页表位于`0x00004000–0x00007FFF`，`_end=0x0000D840`，完整运行时低于`0x0002F000`，容量足够。
+- 本阶段采用Vitis链接脚本声明的低位OCM`0x00000000–0x0002FFFF`，不依据`xparameters.h`的更大alias自行扩展；末尾`0x0002F000–0x0002FFFF`继续保留为结果区。
+- 最强链接门应检查每个`PT_LOAD`的物理地址和`MemSiz`均落在`[0,0x2F000)`，再检查入口、向量表、页表、heap、各处理器模式stack和`_end`；只检查section名称不足以证明运行时不依赖DDR。
+- 为保留挂死或异常证据，诊断程序必须在每次危险访问前写入OCM的阶段、地址、操作、宽度和期望值并执行内存屏障；runner无论UART成功、失败或超时，都先停止CPU并保存OCM、PC、SP、CPSR，再进行reset或下一轮运行。
