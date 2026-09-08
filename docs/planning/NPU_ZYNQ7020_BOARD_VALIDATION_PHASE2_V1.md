@@ -1,6 +1,6 @@
 # XC7Z020 实板验证阶段 2 规划 V1
 
-状态：`ACTIVE / FASTLANE_V1 / B0_COMPLETE / B1A_HW_DEFINITION_COMPLETE / B1B_PENDING / B1_DECISION_PENDING`
+状态：`ACTIVE / FASTLANE_V1 / B0_COMPLETE / B1A_HW_DEFINITION_COMPLETE / B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DDR_PENDING / B1_GATE=false`
 
 日期：2026-09-07
 
@@ -12,7 +12,7 @@
 
 板厂参考仓库固定为 `master@73d529d8f159ca372b7d9855eddc80880ecd9d05`，本地克隆已获授权保留。PR #69 已合并为 `main@102dee2a004283ce4144aaf6ee0a2cee3ebd2887`，B0 已关闭。
 
-B1A来源审计及可重建硬件定义均已完成。原始硬件定义在提交`18fd65c`通过；管理员随后将UART重分配为`V14=TX`、`V15=RX`，当前有效硬件身份绑定提交`f0dbc84`。Vivado 2024.1已重新生成bitstream/XSA，setup/hold/route/DRC硬门和RGMII TX顶层output delay门通过。B1A完成只表示硬件定义进入主线候选；UART、DDR读写、PHY、链路和UDP仍须B1B/B1C实板验证，`B1-GATE`保持未通过。
+B1A来源审计及可重建硬件定义均已完成。原始硬件定义在提交`18fd65c`通过；现场诊断否决了中间版本`V14=TX/V15=RX`，管理员批准的正式映射为`V14=RX/V15=TX`，当前有效硬件身份绑定提交`29edf6a`。Vivado 2024.1已重新生成bitstream/XSA，setup/hold/route/DRC硬门和RGMII TX顶层output delay门通过。冻结软件提交`97ddd1a`与该硬件组合已完成三次完整断电冷启动，UART和低地址1 MiB DDR均通过；此前`0x10000000`高地址异常、PHY、链路和UDP仍待验证，`B1-GATE`保持未通过。
 
 ## Fastlane V1：更快进入主线
 
@@ -46,6 +46,7 @@ B1A来源审计及可重建硬件定义均已完成。原始硬件定义在提�
 - 来源审计与软件栈裁定并行。先按实际 `MT41K256M16` 重新冻结 DDR 参数，增加 H17 物理 PHY reset，并解决 PHY地址和RGMII时序，再生成仓库内独立硬件定义。
 - B0 通过后裁定首轮使用 bare-metal + lwIP 或 Linux；推荐先用 bare-metal + lwIP 减少变量。
 - 依次验证 UART启动、DDR读写、PHY reset/MDIO ID、链路协商、网线重插和最小 UDP 收发。
+- 当前进度：正式外置UART路径和`0x01000000–0x010FFFFF`低地址1 MiB DDR已完成三次断电冷启动；下一步定位`0x10000000`异常，关闭B1B高地址边界。
 - B1 只证明板级基础设施，不声明 NPU 已接入。
 
 ## B2：AXI DMA 和流协议

@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "status": "B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS",
+  "verified_at": "2026-09-08",
+  "target": {
+    "board": "HelloZynq",
+    "part": "xc7z020clg484-2",
+    "vivado_vitis": "2024.1"
+  },
+  "identity": {
+    "software_git_head": "97ddd1a38f00595e580168ebd59fe0b2d8e1db92",
+    "hardware_git_head": "29edf6adc6613445f0983f2c1b8e4d037164985b",
+    "bitstream_sha256": "1f98e949b0d29a7df60c0a57939097460fd98bec7e4d33055fd91af7eefbc5f6",
+    "xsa_sha256": "ed4a2ff0149459bbe431c918e9c5c6d69a689a42a6bbe159126bab1c402d417b",
+    "elf_sha256": "4992d26c501106aca63c9fc1e1f4cc2a2baccd1ef8c440e3daa9b7bed2128560",
+    "build_manifest_sha256": "2fbba7279aced15c4af516ae5eef81b198f4ca4495e503bbcfc9d2df4ab8a416",
+    "source_raw_build_manifest_sha256": "8a3472d6115da0a3b426ba48c72eb13f69b6ca82d35f550169461cf7e4ddf240",
+    "manifest_line_ending_contract": "repository hashes use canonical LF; source_raw hashes preserve runner CRLF bytes"
+  },
+  "uart": {
+    "port": "COM10",
+    "format": "115200 8N1",
+    "fpga_rx": "V14 from external CH340 TXD",
+    "fpga_tx": "V15 to external CH340 RXD",
+    "protocol_begin": "ENEURON_B1B_BEGIN",
+    "protocol_end": "ENEURON_B1B_PASS",
+    "three_run_protocol_pass": true,
+    "preamble_is_outside_protocol": true
+  },
+  "ddr": {
+    "dcache": "DISABLED",
+    "test_base": "0x01000000",
+    "test_bytes": "0x00100000",
+    "phases": ["ADDRESS_ALIAS", "CONST_00", "CONST_FF", "CONST_AA", "CONST_55", "ADDRESS_DATA", "WALKING_1", "WALKING_0", "PRNG"],
+    "three_run_phase_pass": true,
+    "ocm_expected": {"magic_hex":"0x42314231", "status":2, "phase":9, "fail_address":0, "expected":0, "actual":0}
+  },
+  "cold_runs": [
+    {
+      "label": "cold-run-1",
+      "generated_at_utc": "2026-09-08T04:58:06.4856296Z",
+      "archive": "artifacts/logs/hellozynq_b1b/20260908T045749Z_97ddd1a_cold_run_1/",
+      "run_manifest_sha256": "1c301c8f67926afe4c1de4813cda88f5ab04356ef2f4ec641113b96f11ca7dee",
+      "source_raw_run_manifest_sha256": "ffa644e4195c2cb3690f8320ba98f727be36fafae2503ed4a72ff92177c2f72a",
+      "uart_log_sha256": "60943feb154898f6f63938e806a9533cb6331b30ae49db9084809ec7e9bddf3d",
+      "preamble": "four undecoded bytes followed by one NUL",
+      "result": "PASS"
+    },
+    {
+      "label": "cold-run-2",
+      "generated_at_utc": "2026-09-08T05:02:52.5482732Z",
+      "archive": "artifacts/logs/hellozynq_b1b/20260908T050240Z_97ddd1a_cold_run_2/",
+      "run_manifest_sha256": "ed863e99a1f65c0866a9befac9a7607ecec840bc4f63ef6ea44e5f8abb6c2104",
+      "source_raw_run_manifest_sha256": "5a6c27219cd7403c624e0e3c5158ca1169e3033b87e2cf27e3b5ac3b730da59e",
+      "uart_log_sha256": "91e610c6ec83c5add7d6a191e4e3b9597dbf20bdc00a7e68294ef2c099017751",
+      "preamble": "one NUL",
+      "result": "PASS"
+    },
+    {
+      "label": "cold-run-3",
+      "generated_at_utc": "2026-09-08T05:06:21.6858120Z",
+      "archive": "artifacts/logs/hellozynq_b1b/20260908T050609Z_97ddd1a_cold_run_3/",
+      "run_manifest_sha256": "2cddcec0495e1858c1f4e5cbc3f0f7dc3bc28fe6feac31c1931e4a115ebdd132",
+      "source_raw_run_manifest_sha256": "3a1b082daeafc029a8bb67379ab29e7ce71a4d7b7b01f3784f8a8a04a571dc40",
+      "uart_log_sha256": "9467e96523a47531d80eac7a9bd57a9080b3e950f1883b4cdb32d57ec3fdd91f",
+      "ocm_probe_sha256": "ef3dd7ae4cd3375fe2fe2570f8959e208dd51c56f633e6533958f430916dc777",
+      "preamble": "three alive lines from pre-program activity followed by one NUL",
+      "result": "PASS"
+    }
+  ],
+  "scope": {
+    "uart_and_low_ddr_three_cold_runs_pass": true,
+    "b1b_slice_complete": false,
+    "b1_gate_pass": false,
+    "does_not_prove": [
+      "DDR above the tested 1 MiB low-address window",
+      "resolution of the earlier 0x10000000 address failure",
+      "PHY identity, Ethernet link, lwIP or UDP",
+      "DMA, NPU or ENeuron board execution"
+    ]
+  }
+}

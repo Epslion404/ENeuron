@@ -1458,3 +1458,11 @@
 - 事实结论：现场保持不动的 CH340 信号线对应 `V14 <- CH340 TXD`、`V15 -> CH340 RXD`，因此 FPGA 正式映射应采用 `V14=RX`、`V15=TX`。
 - 批准后的正式硬件提交为`29edf6adc6613445f0983f2c1b8e4d037164985b`。该提交在工作树干净状态下由Vivado 2024.1重建，manifest记录`git_worktree_clean=true`；bitstream/XSA SHA-256分别为`1f98e949...bc5f6`、`ed4a2ff...d417b`。
 - 正式实现的I/O报告再次确认V14=`UART_0_0_rxd/INPUT/LVCMOS33`、V15=`UART_0_0_txd/OUTPUT/LVCMOS33`；WNS/WHS=`+0.240/+0.138 ns`，setup/hold失败端点、route error、DRC error/critical warning均为0。
+- 正式B1B ELF绑定SW HEAD=`97ddd1a38f00595e580168ebd59fe0b2d8e1db92`、HW HEAD=`29edf6adc6613445f0983f2c1b8e4d037164985b`，SHA-256=`4992d26c...128560`。未断电预检已收到完整身份、全部DDR阶段和终止PASS，证明提交后重建没有破坏功能。
+- 预检开始时收到三行旧应用的`ENEURON_B1B_ALIVE PASS`，随后才出现重新配置造成的单个NUL和新应用banner。这些旧行来自串口/旧应用在JTAG重配前的持续输出，因此正式冷启动证据必须以断电清空状态开始，不能把本次预检冒充冷启动。
+- 管理员确认完整断电重启后，冻结组合cold-run-1于2026-09-08 12:57（Asia/Shanghai）完成。UART、下载门和OCM三路证据一致为PASS；这证明一次真实冷启动后的JTAG配置、PS初始化、UART0 EMIO和低地址1 MiB DDR测试可复现。
+- 管理员裁定不再为每轮冷启动额外采集断电期间JTAG不可访问证据。证据强度因此依赖现场断电确认，但减少一次断电状态探针；该变化只影响断电边界证明方式，不降低上电后的身份、UART、DDR和机器状态硬门。
+- cold-run-2于2026-09-08 13:02（Asia/Shanghai）PASS：run manifest=`5a6c2721...da59e`，UART=`91e610c6...7751`；协议起始前只有1个NUL，正式协议主体、九个DDR阶段和OCM结果完整通过。
+- cold-run-3于2026-09-08 13:06（Asia/Shanghai）PASS：run manifest=`3a1b082d...dc40`，UART=`9467e965...d91f`，独立OCM transcript=`ef3dd7ae...c777`。配置前收到3行alive且切换处有1个NUL，但`ENEURON_B1B_BEGIN`后的身份和结果属于新下载的冻结组合，边界清晰。
+- 三次冷启动共同证明正式`V14=RX/V15=TX`外置UART路径和低地址`0x01000000–0x010FFFFF`的1 MiB DDR测试可重复；不能外推此前失败的`0x10000000`、整片DDR容量、PHY、UDP、DMA、NPU或ENeuron。
+- 归档时发现B1A摘要与Nexus仍声明已被实板否决的旧`V14=TX/V15=RX`身份；本轮依据干净硬件提交`29edf6a`、最终I/O报告和三次实板结果统一校正，避免仓库同时保留两个相反的“当前”方向。

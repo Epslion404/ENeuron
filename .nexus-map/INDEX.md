@@ -1,8 +1,8 @@
 # ENeuron 知识库入口
 
-B1B入口就绪检查（2026-09-08）：主线基线为 `main@d5fe4e5e0472a6c8a901053b2829cd1e899c377f`，当前B1A硬件身份更新为源码提交 `f0dbc8435eab1cd480db489016732375ba634e6a`。UART0已按用户裁定重分配为V14 TX、V15 RX、LVCMOS33，Vivado placed IO确认两者均位于Bank 33且分别为固定OUTPUT/INPUT。新bitstream/XSA SHA-256为 `067289f0...a15cb`、`163c38ef...607f`。板载CH340仍物理连接旧L17/M17，当前B1B必须使用外置3.3V USB-TTL并按V14→TTL RX、V15←TTL TX、共地连接；V14/V15与板载HDMI并行RGB低位共网，B1B期间不启用HDMI。`B1-D1`与`B1B`均保持`PENDING`，`B1-GATE=false`。
+B1B实板进度（2026-09-08）：主线基线为`main@d5fe4e5e0472a6c8a901053b2829cd1e899c377f`，当前硬件身份为`29edf6adc6613445f0983f2c1b8e4d037164985b`，软件身份为`97ddd1a38f00595e580168ebd59fe0b2d8e1db92`。现场诊断后的正式UART为V14 RX、V15 TX、LVCMOS33，使用外置CH340的COM10、115200 8N1；bitstream/XSA/ELF为`1f98e949...bc5f6`、`ed4a2ff...d417b`、`4992d26c...128560`。同一冻结组合已在三次完整断电重启后通过UART协议和低地址1 MiB DDR九阶段；`0x10000000`高地址异常仍未关闭，因此状态为`B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DDR_PENDING / B1-GATE=false`。
 
-B1A-HW更新（2026-09-08）：UART重分配后的可重建硬件定义已在干净提交 `f0dbc843...` 上通过Vivado 2024.1实现；资源为 `136 LUT / 257 FF / 0 BRAM / 0 DSP / 4 BUFG / 1 MMCM`，WNS/WHS为 `+0.240/+0.126 ns`，setup/hold失败端点、route error、DRC error/critical warning及RGMII TX缺失output delay均为0。当前执行点仍为B1B UART/DDR实板验证；`B1-GATE`仍为false。
+B1A-HW更新（2026-09-08）：正式UART方向的可重建硬件定义已在干净提交`29edf6a...`上通过Vivado 2024.1实现；资源为`136 LUT / 257 FF / 0 BRAM / 0 DSP / 4 BUFG / 1 MMCM`，WNS/WHS为`+0.240/+0.138 ns`，setup/hold失败端点、route error、DRC error/critical warning及RGMII TX缺失output delay均为0。当前执行点为B1B高地址DDR边界；`B1-GATE`仍为false。
 
 阶段 2 实板校正（2026-09-07）：PR #69 已合并为 `main@102dee2a004283ce4144aaf6ee0a2cee3ebd2887`，B0正式进入主线；Fastlane V1已进入 `main@308bdecd9573e71340359729fdbb2f3fcb7723c7`。B1A来源审计已完成，当前执行点是解决DDR型号、物理PHY复位、物理PHY地址和RGMII时序后生成可重建硬件定义；B1-D1软件栈裁定并行进行。来源审计完成不等于B1A或B1通过。
 

@@ -30,6 +30,7 @@
 | `results/np7_vivado_ooc_summary.json` | `python -X utf8 run_np7_vivado_ooc.py`（需 Vivado 2024.2 受控机） |
 | `results/npu_single_clock_ooc_manifest.json` | Vivado 2024.1 单时钟 NPU + ENeuron OOC 资源/时序/route/DRC 与报告 SHA-256 清单（`VIVADO_OOC_PASS`） |
 | `results/hellozynq_b0_smoke_summary.json` | HelloZynq B0 当前构建身份、run-1下载/LED周期、完整断电和剩余run-2硬门摘要；当前状态为run-1与断电通过、重新上电后的第二次下载/观察 pending |
+| `results/hellozynq_b1b_uart_ddr_summary.json` | HelloZynq B1B正式UART与低地址1 MiB DDR三次冷启动机器摘要；高地址DDR、PHY和UDP仍未关闭 |
 | `results/hellozynq_b1a_hw_summary.json` | HelloZynq B1A 可重建PS7/DDR/UART/GEM/GMII-to-RGMII硬件定义、Vivado 2024.1实现指标和bitstream/XSA哈希；不代表B1实板门通过 |
 
 所有路径均以仓库根目录为基准。除明确标注为标准输出的 B0 摘要外，生成器应直接写入 `artifacts/results/`；调用方保存 B0 摘要时也应使用表中路径。不得在根目录创建兼容副本。

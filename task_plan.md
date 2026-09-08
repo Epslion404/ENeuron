@@ -14,12 +14,12 @@
 
 - [x] B1-D1裁定：首轮软件栈为bare-metal，后续网络使用lwIP；不引入Linux启动链。
 - [x] 外置CH340已枚举为COM10，可按115200 8N1打开；此前5秒监听为空，符合尚无应用运行的状态。
-- [ ] 核对Vitis/XSCT 2024.1本机接口与XSA处理方式，冻结可复现构建/下载入口。
-- [ ] 实现固定UART banner和安全DDR测试，输出首错地址、期望值、实际值与最终PASS/FAIL。
-- [ ] 构建ELF，通过JTAG下载当前bitstream和应用，并从COM10采集一次实板运行。
-- [ ] 归档机器证据并更新B1B状态；单次运行通过只满足Fastlane实现门，三次冷启动前不得关闭B1B。
+- [x] 核对Vitis/XSCT 2024.1本机接口与XSA处理方式，冻结可复现构建/下载入口。
+- [x] 实现固定UART banner和安全DDR测试，输出首错地址、期望值、实际值与最终PASS/FAIL。
+- [x] 构建ELF，通过JTAG下载当前bitstream和应用，并从COM10采集实板运行。
+- [x] 归档三次冷启动机器证据并更新B1B状态；只关闭UART与低地址1 MiB窗口，高地址DDR仍待验证。
 
-当前执行点：管理员已批准读取最新低地址版本的 CPU/OCM 机器结果。先以 OCM 结果裁定 `0x01000000–0x010FFFFF`，再单独处理 V14 到 CH340 RXD 的 UART 物理链路；两类问题不混合裁定。
+当前执行点：正式映射已冻结为`V14=RX/V15=TX`。同一SW/HW/bitstream/XSA/ELF组合完成三次由管理员确认的完整断电冷启动，UART协议、九个DDR阶段和OCM结果均PASS。下一项转为定位此前`0x10000000`高地址异常；B1B与B1-GATE仍未关闭。
 
 低地址裁定结果：`status=2 / phase=9 / fail fields=0`，`0x01000000–0x010FFFFF` 的 1 MiB DDR 首通已 PASS。当前执行点转为 UART 持续发送物理探针和板级 runner 硬门补强；高地址 `0x10000000` 异常仍未关闭。
 
@@ -44,6 +44,12 @@ UART 持续重发首轮：构建与 JTAG 两阶段硬门通过，但 COM10 在 2
 实验结果：`V14=RX/V15=TX` 单次实板运行 PASS。COM10 收到完整阶段日志与 `ENEURON_B1B_PASS`；run manifest 的 program/download/UART 三门全为 PASS；OCM 为 `status=2 / phase=9 / fail fields=0`。管理员已批准该映射成为正式基线；下一步提交实现并在新HEAD上重建正式证据，B1B最终三次冷启动门仍未完成。
 
 正式身份进度：实现提交`29edf6a`已创建，干净提交上的Vivado重建通过，bitstream/XSA为`1f98e949...bc5f6`/`ed4a2ff...d417b`。下一门为提交物理身份快照后构建正式ELF并执行冷启动run-1。
+
+正式预检结果：软件提交`97ddd1a`、硬件提交`29edf6a`、ELF=`4992d26c...128560`的组合已在实板PASS，但本次没有完整断电，不计入cold-run-1。下一动作要求用户完全断电；确认JTAG器件不可访问后，再重新上电运行同一冻结组合。
+
+管理员修订冷启动证据口径：每轮由用户确认已完整断电重启，不再额外要求断电期间JTAG不可访问探针。cold-run-1/2/3分别于2026-09-08 12:58、13:02、13:06（Asia/Shanghai）完成；三轮身份字段一致，FPGA program/ELF download/UART三门、九个DDR阶段和OCM=`status=2/phase=9/fail fields=0`均PASS。证据已归档到`artifacts/logs/hellozynq_b1b/`。
+
+错误记录：B1B收口整包补丁因`docs/README.md`精确上下文未匹配被原子拒绝，没有产生部分修改；随后改为逐文件小补丁，不重复整包写法。
 
 错误记录：首次使用`app create -hw`时，Vitis后台已生成平台和应用骨架，但在模板生成返回后超过数分钟无进展；日志无编译错误。已停止本轮自行启动的XSCT/Eclipse进程，下一次改用不依赖IDE后台服务的HSI BSP生成与ARM GCC直接构建路径，不重复该调用。
 

@@ -4,8 +4,8 @@ generated_by: nexus-mapper v2 / manual synthesis
 verified_at: 2026-09-08
 provenance: NP4B/NP6/NP7 TODO、工作流状态与 RTL 文件；集成边界来自审核材料包
 
-- `B1A_HW_DEFINITION_COMPLETE`：当前身份为`f0dbc843...`，UART0使用Bank 33的V14 TX/V15 RX、LVCMOS33并已由placed IO确认FIXED；新bitstream/XSA哈希为`067289f0...a15cb`/`163c38ef...607f`。该状态不表示UART、DDR、PHY、UDP或B1-GATE已在实板通过。
-- `B1B_PREFLIGHT_PARTIAL / B1B_PENDING / B1_DECISION_PENDING`：XSCT 2024.1和JTAG APU/双Cortex-A9/FPGA可见性已确认，但当前UART不再连接板载CH340；必须外接3.3V USB-TTL到V14/V15并共地，同时禁用与这两网共用的HDMI功能。软件栈尚未获批准，不得写成B1B启动、UART/DDR通过或B1-GATE通过。
+- `B1A_HW_DEFINITION_COMPLETE`：当前身份为`29edf6a...`，UART0使用Bank 33的V14 RX/V15 TX、LVCMOS33并已由最终I/O确认FIXED；bitstream/XSA为`1f98e949...bc5f6`/`ed4a2ff...d417b`。该状态本身不表示整个B1-GATE通过。
+- `B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DDR_PENDING`：`bare-metal + lwIP`路线已批准；固定SW/HW/bitstream/XSA/ELF在三次完整断电后通过外置CH340 UART协议和低地址1 MiB DDR九阶段。此前`0x10000000`异常未关闭，不得写成整片DDR、B1B或B1-GATE通过。
 
 - `TICK`：推进一个样本或网络时刻。
 - `OBSERVE`/`evidence`：读取已提交学习证据，不读取 live 工作副本。
@@ -28,7 +28,7 @@ provenance: NP4B/NP6/NP7 TODO、工作流状态与 RTL 文件；集成边界来�
 - `T2_RANDOM_CLOCK_MATRIX_GREEN`：`verify_repository.py --t2-random-matrix` 以固定种子 `20260907` 生成 24 个唯一半周期/相位组合并返回 `REPRO_G2_T2_RANDOM_MATRIX_PASS`。结果观察预算按 `2000 + 400 × NPU_HALF` 个 Host 周期缩放，避免慢时钟组合因固定预算过早超时；该状态只证明可复现的有限随机压力集，不代表频率/相位数学穷举。
 - `T3_XPM_XSIM_PASS / T3_XC7Z020_OOC_PASS / T3_SIGNOFF_PASS`：真实 AMD XPM/xsim 协同仿真与 `xc7z020clg400-1` OOC 已完成，绑定 Vivado 2024.1、Git HEAD=`c2bc03f`。xsim `RESULT=PASS`，OOC `PHYSICAL_GATE=PASS`；顶层资源为 `2467 LUT / 2301 FF / 6 RAMB36 / 1 RAMB18 / 4 DSP48E1`，100 MHz host/npu 双时钟 setup/hold、route、DRC error 均为 0，wrapper 外部 CDC critical/warning 均为 0。XPM 内部 CDC 有 8 个工具 warning，DRC 仅有建议性 warning（DSP 未启用内部流水、无负载提示和 OOC 中未实例化 PS7），不改变 error gate。该签核不覆盖 AXI/DMA/PS7/Ethernet、bitstream、板级 I/O/吞吐、功耗或首次端到端运行。
 - `B0_COMPLETE`：当前 bitstream 在同一 target/device 上完成两次program和两次 `PL_LED1/P20` 长窗口测量，中间由JTAG不可访问、可访问器件数0和Vivado `No devices detected`证明完整断电。两次10周期为 `13.42 s`、`13.4 s`，均通过冻结窗口；两次三项DONE均为1且错误位为0，因此B0-GATE通过。
-- `P16_B0_COMPLETE / FASTLANE_V1 / B1_DECISION_PENDING`：B0已由PR #69进入main。B1拆为B1A/B1B/B1C小PR，按改动运行定向门并复用身份未变的Vivado证据；中间合并不等于B1-GATE通过。当前先裁定bare-metal + lwIP或Linux。
+- `P16_B0_COMPLETE / FASTLANE_V1 / B1B_HIGH_DDR_PENDING`：B0已由PR #69进入main。B1拆为B1A/B1B/B1C小PR，按改动运行定向门并复用身份未变的Vivado证据；中间合并不等于B1-GATE通过。当前先关闭B1B高地址DDR边界，再进入B1C。
 - `HOST_STATIC_2OF4`：Host 重放冻结的合法 `2:4` mask，用于验证 NPU 门控执行器、mask 位序、epoch 和执行/跳过组计数；不是 ENeuron 自动决策。
 - `LIVE_ENEURON`：由实板 ENeuron 证据形成组内候选和严格 `2:4` mask，经 pending bank 与 fence 原子提交，并记录证据、gain、epoch 和生效样本。只有该路径通过才可声称神经元参与局部自动剪枝。
 - `T1_NEXT_MINIMAL_SET`：T1-02、T1-06 与 T1-12 已从执行集移出；剩余为 T1-09 的 TLAST 外层 shim/N-A 裁定。若增加外层 shim，需独立验证改变、提前或缺失 TLAST 不改变完整核心结果；若当前 DUT 明确不暴露 TLAST，则记录 N/A 裁定，不得伪造 T1 核心通过。

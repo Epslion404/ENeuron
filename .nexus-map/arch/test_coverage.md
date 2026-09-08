@@ -1,8 +1,8 @@
 # 测试面与缺口
 
-B1B入口检查（2026-09-08）：B1A UART重分配后的bitstream/XSA已绑定`f0dbc843...`和新哈希`067289f0...a15cb`/`163c38ef...607f`。此前的XSCT 2024.1和JTAG设备可见性检查不等于UART功能通过；板载CH340仍连接旧L17/M17，当前V14/V15 UART需要外置3.3V USB-TTL并共地，且不得同时启用HDMI。UART banner、DDR读写和B1B实板门均未运行，B1-D1与B1B保持PENDING。Hsi检查继续只对临时XSA副本运行。
+B1B覆盖（2026-09-08）：硬件`29edf6a...`、软件`97ddd1a...`和固定bitstream/XSA/ELF组合完成三次由管理员确认的完整断电冷启动。每轮FPGA配置、ELF下载、COM10 UART begin/end协议、低地址1 MiB DDR九阶段和OCM`status=2/phase=9/fail fields=0`均PASS。覆盖仍不包含`0x10000000`高地址异常、整片DDR容量、PHY、链路或UDP。Hsi检查继续只对临时XSA副本运行。
 
-B1A-HW覆盖（2026-09-08）：干净提交`f0dbc843...`的Vivado 2024.1完整构建通过，UART placed IO为Bank 33的V14 OUTPUT/V15 INPUT且均FIXED；资源`136 LUT / 257 FF / 0 BRAM / 0 DSP / 4 BUFG / 1 MMCM`，WNS/WHS=`+0.240/+0.126 ns`，setup/hold失败端点、route error、DRC error/critical warning和RGMII TX缺失output delay均为0。UART、DDR读写、PHY地址/链路和UDP仍未实板覆盖。
+B1A-HW覆盖（2026-09-08）：干净提交`29edf6a...`的Vivado 2024.1完整构建通过，UART placed IO为Bank 33的V14 INPUT/V15 OUTPUT且均FIXED；资源`136 LUT / 257 FF / 0 BRAM / 0 DSP / 4 BUFG / 1 MMCM`，WNS/WHS=`+0.240/+0.138 ns`，setup/hold失败端点、route error、DRC error/critical warning和RGMII TX缺失output delay均为0。
 
 阶段2 B0校正（2026-09-07）：`xc7z020clg484-2` 最小候选 `df16ed6c...8971` 的实现、两次正式program、两次现场测量和完整断电复测均通过。run-1/run-2的10周期分别为 `13.42 s`、`13.4 s`，均命中 `12.6–14.2 s` 窗口；观察文件SHA-256分别为 `d93bcc25...ab083`、`73c81d86...a25f8`。完整断电探针取得 `target_opened=0`、`accessible_device_count=0` 和Vivado `No devices detected`；run-2恢复后下载前器件为未配置，下载后三项DONE=`1/1/1`且错误位为0。当前覆盖状态为 `B0_COMPLETE`；B1–B4尚未进入实测。
 

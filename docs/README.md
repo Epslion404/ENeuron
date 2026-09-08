@@ -39,6 +39,7 @@
 - [当前项目报告](reports/PROJECT_REPORT.md)
 - [2026-08-31 阶段性项目报告](reports/STAGE_REPORT_2026-08-31.md)
 - [HelloZynq B0 实板 smoke 报告](reports/HELLOZYNQ_B0_SMOKE_2026-09-07.md)
+- [HelloZynq B1B UART与低地址DDR实板报告](reports/HELLOZYNQ_B1B_UART_DDR_2026-09-08.md)
 - [ENeuron 1.0 发布说明](reports/RELEASE_1.0.md)
 - [三版本纯仿真比较](reports/SIMULATION_COMPARISON_REPORT.md)
 - [Vivado/XSim 局部剪枝仿真报告](reports/SIMULATION_REPORT.md)

@@ -127,6 +127,6 @@
     "status": "VENDOR_REFERENCE_SNAPSHOT",
     "note": "confirmed.pins.uart0_txd=L17 and uart0_rxd=M17 are unchanged vendor-board/CH340 source facts, not the current ENeuron B1A UART implementation",
     "current_implementation_manifest": ".nexus-map/concepts/board_phase2_b1a_hw.json",
-    "current_uart_assignment": {"tx":"V14","rx":"V15","iostandard":"LVCMOS33"}
+    "current_uart_assignment": {"tx":"V15","rx":"V14","iostandard":"LVCMOS33"}
   }
 }

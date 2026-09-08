@@ -6,10 +6,10 @@
     "board": "HelloZynq",
     "part": "xc7z020clg484-2"
   },
-  "status": "P16_B0_COMPLETE / FASTLANE_V1 / B1A_HW_DEFINITION_COMPLETE / B1B_PREFLIGHT_PARTIAL / B1B_PENDING / B1_DECISION_PENDING",
+  "status": "P16_B0_COMPLETE / FASTLANE_V1 / B1A_HW_DEFINITION_COMPLETE / B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DDR_PENDING",
   "stage2_complete": false,
   "current_gate": "B1B-PS7-UART-DDR",
-  "current_execution_point": "DECIDE_SOFTWARE_STACK_AND_RUN_PS7_UART_DDR",
+  "current_execution_point": "RESOLVE_B1B_HIGH_ADDRESS_DDR_BOUNDARY",
   "b0": {
     "source_commit": "f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06",
     "bitstream_sha256": "df16ed6ccd9124f2dc4391d96e868ebd7846aebf3df335099b742cc7cd318971",
@@ -63,9 +63,9 @@
     "gate_pass": true
   },
   "next_action": {
-    "action": "DECIDE_SOFTWARE_STACK_AND_RUN_PS7_UART_DDR",
+    "action": "RESOLVE_B1B_HIGH_ADDRESS_DDR_BOUNDARY",
     "run_2_started": true,
-    "completion_condition": "Select the first bring-up software stack, then prove UART boot and DDR read/write on the B1A hardware definition"
+    "completion_condition": "Explain the earlier 0x10000000 failure and freeze the tested DDR address boundary without invalidating the three cold-run low-address evidence"
   },
   "b1a": {
     "source_audit_status": "COMPLETE",
@@ -74,20 +74,22 @@
     "hardware_definition_status": "COMPLETE",
     "hardware_definition_manifest": ".nexus-map/concepts/board_phase2_b1a_hw.json",
     "hardware_definition_summary": "artifacts/results/hellozynq_b1a_hw_summary.json",
-    "source_commit": "f0dbc8435eab1cd480db489016732375ba634e6a",
+    "source_commit": "29edf6adc6613445f0983f2c1b8e4d037164985b",
     "blocking_facts": [],
     "b1a_complete": true,
     "b1_gate_pass": false
   },
   "b1b_preflight": {
-    "status": "PARTIAL",
+    "status": "UART_LOW_DDR_THREE_COLD_RUNS_PASS_HIGH_DDR_PENDING",
     "baseline_main": "d5fe4e5e0472a6c8a901053b2829cd1e899c377f",
-    "hardware_source_commit": "f0dbc8435eab1cd480db489016732375ba634e6a",
-    "b1_decision_status": "PENDING",
-    "b1b_status": "PENDING",
+    "hardware_source_commit": "29edf6adc6613445f0983f2c1b8e4d037164985b",
+    "software_source_commit": "97ddd1a38f00595e580168ebd59fe0b2d8e1db92",
+    "b1_decision_status": "APPROVED_BARE_METAL_PLUS_LWIP",
+    "b1b_status": "UART_LOW_DDR_PASS_HIGH_DDR_PENDING",
     "artifact_identity": {
-      "bitstream_sha256": "067289f0d6e6eb05c3477b33bc18591c2c01b6e2a5601505d0342c02f43a15cb",
-      "xsa_sha256": "163c38ef99d8984588b21640d549bb4c49d43581a3a27256a66d87a74ebe607f",
+      "bitstream_sha256": "1f98e949b0d29a7df60c0a57939097460fd98bec7e4d33055fd91af7eefbc5f6",
+      "xsa_sha256": "ed4a2ff0149459bbe431c918e9c5c6d69a689a42a6bbe159126bab1c402d417b",
+      "elf_sha256": "4992d26c501106aca63c9fc1e1f4cc2a2baccd1ef8c440e3daa9b7bed2128560",
       "matches_b1a_manifest": true
     },
     "xsct": {
@@ -100,16 +102,18 @@
       "visible_targets": ["APU", "Cortex-A9 #0", "Cortex-A9 #1", "xc7z020"]
     },
     "uart": {
-      "status": "BLOCKED_EXTERNAL_USB_TTL_NOT_CONNECTED",
-      "enumerated_ports": ["COM6 Bluetooth", "COM7 Bluetooth"],
+      "status": "PASS_THREE_COLD_RUNS",
+      "enumerated_ports": ["COM10 external CH340"],
       "required_adapter": "external 3.3V USB-TTL",
-      "wiring": ["V14 to TTL RX", "V15 from TTL TX", "common ground"],
+      "wiring": ["V14 from TTL TX", "V15 to TTL RX", "common ground"],
       "board_ch340_boundary": "Board CH340 is physically wired to historical L17/M17 and is not connected to the current V14/V15 UART",
       "hdmi_boundary": "V14/V15 share board nets with low bits of HDMI parallel RGB; HDMI must remain disabled during B1B"
     },
+    "low_address_ddr": {"base":"0x01000000", "bytes":"0x00100000", "three_cold_runs_pass":true, "phases_passed":9},
+    "evidence": {"summary":"artifacts/results/hellozynq_b1b_uart_ddr_summary.json", "report":"docs/reports/HELLOZYNQ_B1B_UART_DDR_2026-09-08.md", "logs":"artifacts/logs/hellozynq_b1b/"},
     "b1b_complete": false,
     "b1_gate_pass": false,
-    "forbidden_claims": ["B1-D1 approved", "B1B started", "UART board pass", "DDR board pass", "B1 gate pass"]
+    "forbidden_claims": ["whole DDR passed", "B1B complete", "B1 gate pass", "Ethernet passed"]
   },
   "fastlane_v1": {
     "approved": true,
@@ -120,7 +124,7 @@
     "actions_disabled_rule": "do not wait for empty checks; use local targeted evidence and PR mergeability"
   },
   "stages": [
-    {"id":"B1","requires":"B0-GATE=PASS on main","scope":"PS7, DDR, UART, PHY, minimal UDP","status":"IN_PROGRESS_B1A_COMPLETE_B1B_PENDING"},
+    {"id":"B1","requires":"B0-GATE=PASS on main","scope":"PS7, DDR, UART, PHY, minimal UDP","status":"IN_PROGRESS_B1A_COMPLETE_B1B_UART_LOW_DDR_PASS_HIGH_DDR_PENDING"},
     {"id":"B2","requires":"B1-GATE=PASS","scope":"AXI DMA, DDR ownership/cache contract, PL loopback, fixed frame adapter","status":"BLOCKED_BY_PREDECESSOR_GATE"},
     {"id":"B3","requires":"B2-GATE=PASS","scope":"64x32x10 traditional NPU plus ENeuron fixed-vector board validation","status":"BLOCKED_BY_PREDECESSOR_GATE"},
     {"id":"B4","requires":"B3-GATE=PASS","scope":"Ethernet end-to-end dense/gated reproducible A/B","status":"BLOCKED_BY_PREDECESSOR_GATE"}

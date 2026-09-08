@@ -2,7 +2,7 @@
   "schema_version": 1,
   "status": "B1A_HW_DEFINITION_COMPLETE",
   "date": "2026-09-08",
-  "source_commit": "f0dbc8435eab1cd480db489016732375ba634e6a",
+  "source_commit": "29edf6adc6613445f0983f2c1b8e4d037164985b",
   "tool": "Vivado v2024.1 (64-bit)",
   "target": {
     "board": "HelloZynq",
@@ -16,8 +16,8 @@
     "ddr_frequency_mhz": 533.333333,
     "fclk0_mhz": 200,
     "uart0": "EMIO",
-    "uart0_tx_pin": "V14",
-    "uart0_rx_pin": "V15",
+    "uart0_tx_pin": "V15",
+    "uart0_rx_pin": "V14",
     "uart0_io_bank": 33,
     "uart0_io_standard": "LVCMOS33",
     "uart0_adapter": "EXTERNAL_3V3_USB_TTL",
@@ -41,7 +41,7 @@
     "setup_wns_ns": 0.240,
     "setup_tns_ns": 0.0,
     "setup_failing_endpoints": 0,
-    "hold_whs_ns": 0.126,
+    "hold_whs_ns": 0.138,
     "hold_ths_ns": 0.0,
     "hold_failing_endpoints": 0,
     "route_errors": 0,
@@ -59,13 +59,13 @@
     "timing_18_remaining": "MDIO input only; B1C runtime MDIO scan/register access is required"
   },
   "artifacts": {
-    "bitstream_sha256": "067289f0d6e6eb05c3477b33bc18591c2c01b6e2a5601505d0342c02f43a15cb",
-    "xsa_sha256": "163c38ef99d8984588b21640d549bb4c49d43581a3a27256a66d87a74ebe607f",
-    "utilization_report_sha256": "13284bb9b80279d1913b6e26db8b7e4317e64ab1f77c6b2a743268f919164dc1",
-    "timing_report_sha256": "eee5df293476d9aa78ae8078a4c64ca0e435835d0f1da0e0508a2ea7f5f820b5",
-    "methodology_report_sha256": "f58aa4a52482461ace8385e2ef6d9fb9e1b3e1c584685800903db37b42f7c460",
-    "route_report_sha256": "20e11bb9305351678f46232fbaa8b83f3b8be6fb5b0bae75d3abdfab2ddc7b26",
-    "drc_report_sha256": "30ba110ab91e45dec84cfc33a312a99bb960acd2aaf8344019513c057a599f72"
+    "bitstream_sha256": "1f98e949b0d29a7df60c0a57939097460fd98bec7e4d33055fd91af7eefbc5f6",
+    "xsa_sha256": "ed4a2ff0149459bbe431c918e9c5c6d69a689a42a6bbe159126bab1c402d417b",
+    "utilization_report_sha256": "47d8e844a45a488b31c69c36ddb9869fa5c7c9b25c844d24d61929d03a80bee0",
+    "timing_report_sha256": "26e6ca47547c58be9d34e5e0858cc1cf4a8ada0bd478564b2e39eee8fe818ce4",
+    "methodology_report_sha256": "1d766809a1291e6b6e6c25152b2f4a453dba2c451111b2445788c2badfe321d7",
+    "route_report_sha256": "87b68e4aef43ace560e549e810f1315e91166ac33563ca21c4b612c6f17761e1",
+    "drc_report_sha256": "d48684dc27a6e1595987a6f2c35e427d6febde51bd560fba90da6a344e50b2b0"
   },
   "scope": {
     "b1a_complete": true,

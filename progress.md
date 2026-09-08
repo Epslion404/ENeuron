@@ -1581,3 +1581,19 @@
 - 正式实现提交已创建：`29edf6a feat(board): add B1B UART DDR bring-up`。
 - 在该提交且工作树干净状态下完成Vivado 2024.1重建：bitstream=`1f98e949...bc5f6`、XSA=`ed4a2ff...d417b`；WNS/WHS=`+0.240/+0.138 ns`，route/DRC错误为0，V14/V15最终方向为RX/TX。
 - 下一步提交本次物理身份快照，再在新干净HEAD上构建正式B1B ELF和执行冷启动run-1。
+- 物理身份快照已提交为`97ddd1a docs(board): bind approved UART hardware identity`；该提交工作树干净。
+- 正式B1B构建通过：软件提交=`97ddd1a38f00595e580168ebd59fe0b2d8e1db92`，硬件提交=`29edf6adc6613445f0983f2c1b8e4d037164985b`，ELF SHA-256=`4992d26c501106aca63c9fc1e1f4cc2a2baccd1ef8c440e3daa9b7bed2128560`。
+- 精确正式组合的未断电预检PASS：COM10收到身份字段、九个DDR阶段和`ENEURON_B1B_PASS`，FPGA program/ELF download/UART三门全通过。由于板卡此前未完整断电，本次明确不计入三次冷启动。
+- 当前阻塞仅为现场动作：等待用户完全切断板卡主电源，随后用JTAG不可访问证明断电，再重新上电执行正式cold-run-1。
+- 管理员决定省略每轮断电时JTAG不可访问检查，并确认已完成一次完整断电重启；该现场确认作为cold-run-1的断电边界。
+- 2026-09-08 12:57（Asia/Shanghai）正式cold-run-1 PASS：SW=`97ddd1a`、HW=`29edf6a`、bitstream=`1f98e949...bc5f6`、XSA=`ed4a2ff...d417b`、ELF=`4992d26c...128560`；FPGA program/ELF download/UART marker全PASS。
+- cold-run-1 UART从`ENEURON_B1B_BEGIN`至终止marker完整，九个DDR阶段全部PASS；前导出现4个不可打印/乱码字符和1个NUL，不影响协议主体和终止判定。
+- OCM独立复核为`magic=0x42314231/status=2/phase=9/fail_address=expected=actual=0`。原始运行目录为本地忽略路径`.../runs/20260908T045749Z`，run manifest SHA-256=`ffa644e4...2f72a`，UART日志SHA-256=`60943feb...df3d`。
+- 下一步等待用户再次完整断电重启，执行同一冻结组合的cold-run-2；当前不提交规划更新，以免改变冻结软件HEAD。
+- 2026-09-08 13:02（Asia/Shanghai）cold-run-2 PASS：同一冻结身份的program/download/UART、九个DDR阶段和OCM均通过；run manifest=`5a6c2721...da59e`，UART日志=`91e610c6...7751`。
+- 2026-09-08 13:06（Asia/Shanghai）cold-run-3 PASS：同一冻结身份再次通过全部门；独立XSCT复核为`magic=0x42314231/status=2/phase=9/fail fields=0`。
+- 三次运行、构建manifest、断电现场确认和OCM结果已归档到`artifacts/logs/hellozynq_b1b/`；新增机器摘要`artifacts/results/hellozynq_b1b_uart_ddr_summary.json`与阶段报告`docs/reports/HELLOZYNQ_B1B_UART_DDR_2026-09-08.md`。
+- 当前状态提升为`B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS`，但B1B仍未完成：`0x10000000`高地址异常未关闭，B1C PHY/UDP也未开始。下一步先做高地址分段定位，不重复低地址三次门。
+- 首次运行`test_artifact_layout + test_ci_fast_v1`时CI-Fast 9/9通过，artifact布局仅因新增B1B摘要未加入固定白名单而失败；已将新文件同步登记到`test_artifact_layout.py`和`artifacts/README.md`，随后复跑验证。
+- 收口复验通过：三份archive manifest逐文件SHA-256一致，三轮run manifest身份与UART九阶段合同一致；相关20份JSON解析通过，artifact layout + CI-Fast为10/10，当前状态陈旧方向扫描和`git diff --check`通过。
+- 首次证据提交时Git提示四份工具生成manifest将从CRLF规范化为LF；已按B0既有做法同时记录runner原始字节SHA-256与仓库canonical-LF SHA-256，避免跨平台克隆后的换行差异被误判为证据损坏。

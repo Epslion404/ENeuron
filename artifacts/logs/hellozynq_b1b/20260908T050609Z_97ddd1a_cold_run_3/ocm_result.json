@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "run_label": "cold-run-3",
+  "probe": "boards/hellozynq/b1b_sw/probe_b1b_cpu.tcl",
+  "raw_transcript_archived": true,
+  "raw_transcript": "ocm_probe.txt",
+  "cpu_pc_hex": "0x00101F7C",
+  "magic_hex": "0x42314231",
+  "status": 2,
+  "phase": 9,
+  "fail_address": 0,
+  "expected": 0,
+  "actual": 0,
+  "result": "PASS"
+}

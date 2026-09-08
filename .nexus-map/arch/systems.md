@@ -1,10 +1,10 @@
 # 系统边界
 
-B1B入口状态（2026-09-08）：主线基线为`d5fe4e5e...`，当前B1A硬件身份为`f0dbc843...`。B1A bitstream/XSA已更新为`067289f0...a15cb`和`163c38ef...607f`；此前的XSCT 2024.1工具链与JTAG APU/双Cortex-A9/`xc7z020`可见性证据保留。UART改走Bank 33的V14/V15后，板载CH340所连L17/M17不再承载UART，B1B必须外接3.3V USB-TTL并共地；B1B不启用与V14/V15共网的HDMI。`B1-D1`、B1B UART/DDR和`B1-GATE`仍为`PENDING`。`hsi::open_hw_design`只能对临时XSA副本运行，正式build目录保持只读。
+B1B状态（2026-09-08）：当前B1A硬件身份为`29edf6a...`，B1B软件身份为`97ddd1a...`，bitstream/XSA/ELF为`1f98e949...bc5f6`、`ed4a2ff...d417b`、`4992d26c...128560`。正式UART为Bank 33的V14 RX/V15 TX，外置CH340 COM10已在三次完整断电冷启动后收到完整协议；低地址1 MiB DDR九阶段与OCM记录也三次通过。`0x10000000`异常未关闭，B1B与`B1-GATE`仍未完成。`hsi::open_hw_design`只能对临时XSA副本运行，正式build目录保持只读。
 
-B1A-HW状态（2026-09-08）：`boards/hellozynq/b1a_hw/` 已在干净提交`f0dbc843...`上完成UART V14/V15重分配后的Vivado 2024.1实现。placed IO确认V14为Bank 33固定OUTPUT、V15为Bank 33固定INPUT，均为LVCMOS33；资源与旧版本相同，WHS更新为`+0.126 ns`，其余实现硬门通过。状态保持`B1A_HW_DEFINITION_COMPLETE / B1_GATE_PASS=false`。
+B1A-HW状态（2026-09-08）：`boards/hellozynq/b1a_hw/`已在干净提交`29edf6a...`完成正式UART方向的Vivado 2024.1实现。最终I/O确认V14为Bank 33固定INPUT、V15为固定OUTPUT，均为LVCMOS33；资源与旧版本相同，WHS=`+0.138 ns`，其余实现硬门通过。状态保持`B1A_HW_DEFINITION_COMPLETE / B1_GATE_PASS=false`。
 
-阶段2实板状态（2026-09-07）：实际板卡目标固定为 `xc7z020clg484-2`。B0双运行与完整断电证据已通过PR #69合并为 `main@102dee2...`。当前状态为 `B0_COMPLETE / FASTLANE_V1 / B1_DECISION_PENDING`。
+阶段2实板状态（2026-09-08）：实际板卡目标固定为`xc7z020clg484-2`。B0双运行与完整断电证据已通过PR #69合并为`main@102dee2...`；B1-D1已批准，B1A完成，B1B的UART与低地址1 MiB DDR三次冷启动通过，当前阻塞为高地址DDR边界。
 
 P16最终硬门仍按B0→B1→B2→B3→B4串行，但代码按Fastlane V1小步合并。B1A/B1B/B1C中间切片可进入main但不改变阶段通过状态；B2–B4仍不得提前声明实现或签核。
 

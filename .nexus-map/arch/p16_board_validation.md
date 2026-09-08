@@ -12,11 +12,11 @@ P16-B0 已完成。当前源码 `f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06`、bit
 
 用户随后确认板卡完全断电。`2026-09-07T15:02:49Z` 的正式只读探针精确匹配 target `localhost:3121/xilinx_tcf/Digilent/210251A08870` 1 个，但 `target_opened=0`、`accessible_device_count=0`，Vivado transcript 明确报告 `No devices detected`。证据位于 `artifacts/logs/hellozynq_b0/20260907T150221Z_df16ed6c_power_off/`，结果 SHA-256 为 `fe594c87...3776e`，transcript SHA-256 为 `3a953999...1f634`，完整断电确认 PASS。
 
-重新上电后只读探针确认同一Digilent target上的唯一 `xc7z020_1` 恢复且下载前未配置；run-2于 `2026-09-07T15:26:56Z` 下载同一bitstream，三项DONE=`1/1/1`、错误位为0，现场10周期 `13.4 s`。PR #69已合并为 `main@102dee2...`，Fastlane V1已进入 `main@308bdec...`，PR #72已合并为 `main@065a68ce...`；当前UART重分配硬件身份绑定源码`f0dbc843...`。当前状态仍为 `B0_COMPLETE / B1A_HW_DEFINITION_COMPLETE / B1B_PREFLIGHT_PARTIAL / B1B_PENDING / B1_DECISION_PENDING / FASTLANE_V1`。
+重新上电后只读探针确认同一Digilent target上的唯一`xc7z020_1`恢复且下载前未配置；run-2于`2026-09-07T15:26:56Z`下载同一bitstream，三项DONE=`1/1/1`、错误位为0，现场10周期`13.4 s`。PR #69已合并为`main@102dee2...`，Fastlane V1已进入`main@308bdec...`，PR #72已合并为`main@065a68ce...`；当前正式UART硬件身份为`29edf6a...`，B1B软件身份为`97ddd1a...`。当前状态为`B0_COMPLETE / B1A_HW_DEFINITION_COMPLETE / B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DDR_PENDING / FASTLANE_V1`。
 
-B1A来源审计固定在板厂`73d529d8...`，其中L17/M17只描述板厂原始CH340布线。当前硬件定义按用户裁定将UART0改到V14/V15；干净提交`f0dbc843...`的完整实现通过，因此B1A切片仍完成。DDR、PHY和RGMII既有边界不变；B1-GATE仍需B1B/B1C实板证据。
+B1A来源审计固定在板厂`73d529d8...`，其中L17/M17只描述板厂原始CH340布线。当前硬件定义按管理员批准和实板诊断将UART0冻结为V14 RX/V15 TX；干净提交`29edf6a...`的完整实现通过，因此B1A切片仍完成。DDR、PHY和RGMII既有边界不变；B1-GATE仍需B1B高地址边界与B1C实板证据。
 
-B1B低成本入口检查保留XSCT 2024.1与JTAG可见性证据，但UART物理入口已改变：板载CH340固定连接旧L17/M17，不能接收当前V14/V15 UART。B1B必须使用外置3.3V USB-TTL，连接V14→TTL RX、V15←TTL TX并共地；V14/V15同时与板载HDMI并行RGB低位共网，B1B不得启用HDMI。软件栈尚未裁定，UART和DDR实板证据均不存在。
+B1B使用外置3.3V CH340，连接V14←TTL TX、V15→TTL RX并共地；V14/V15同时与板载HDMI并行RGB低位共网，B1B不得启用HDMI。`bare-metal + lwIP`路线已批准，裸机UART与低地址1 MiB DDR三次冷启动通过；`0x10000000`高地址异常尚未关闭，lwIP仍留到B1C。
 
 run-1 机器归档由 `boards/hellozynq/b0_smoke/archive_b0_program_run.ps1` 生成。归档 manifest 绑定当前 bitstream `df16ed6c...8971`、program log SHA-256 `0152fe32...a49e`。`field_observation.json` 已更新为稳定闪烁、10周期 `13.42 s` 与 `status=PASS`，当前 SHA-256 为 `d93bcc25...ab083`。run-1已形成机器与现场闭环。
 
