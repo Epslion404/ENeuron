@@ -1,6 +1,13 @@
 {
   "$schema": "eneuron/board-b1b-evidence/v1",
   "verified_at": "2026-09-08",
+  "workflow_context": {
+    "active_branch": "codex/b1b-high-ddr-board-repro",
+    "current_head": "dae5473ba72d6cfaee12ed8e103c0efad190ed4a",
+    "parent_audit_baseline": "d7e1035",
+    "execution_chain": ["B1-06B6_UART_BASELINE", "B1-06B7_OCM_HIGH_DDR_MINIMAL_REPRODUCTION"],
+    "ddr_accesses_so_far": 0
+  },
   "status": "B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DDR_PENDING",
   "diagnostic_plan": {
     "b1_06a": {
@@ -9,21 +16,23 @@
       "ocm_execution_required": true,
       "forbidden_assumption": "PS7 declared upper address 0x1FFFFFFF is not evidence of tested board capacity"
     },
-    "next_execution_point": "B1-06B_BOARD_REPRODUCTION",
+    "next_execution_point": "B1-06B6_UART_BASELINE",
     "b1_06b": {
-      "status": "BUILD_GATE_PASS_BOARD_REPRODUCTION_PENDING",
+      "status": "BUILD_GATE_PASS_UART_BASELINE_REQUIRED_BEFORE_BOARD_REPRODUCTION",
+      "precondition": "B1-06B6 UART banner/alive marker must pass before B1-06B7 sends GO",
       "action": "Run the built OCM-resident diagnostic ELF; probe sparse addresses near 0x10000000, then run a 4 KiB single-pattern alias/read-write reproduction.",
       "first_target": "0x10000000",
       "link_contract": "ocm_app ORIGIN=0x00000000 LENGTH=0x0002F000; reserve 0x0002F000-0x0002FFFF for the result record",
       "post_link_gate": "Every PT_LOAD range, entry point, vector table, MMU table, heap, processor-mode stack and _end must remain below 0x0002F000; verify with readelf -lW and nm -n",
       "build_evidence": {
-        "git_head": "43ff54d7b284b66a516f858f493707ff2c17c570",
+        "git_head": "dae5473ba72d6cfaee12ed8e103c0efad190ed4a",
         "git_worktree_clean": true,
         "status": "BUILD_PASS",
         "entry_point": "0x00000000",
         "runtime_end": "0x0000D840",
         "load_segment_count": 1,
-        "elf_sha256": "706ceb092ff1ae819fdf459d1d9200d0254779cf56fed609bee34e329a5a5698"
+        "elf_sha256": "3e0469265a1482081ce93188d905753b2fa998673a17e575776e115abfb76f01",
+        "on_board": false
       },
       "evidence_order": "Write RUNNING and the attempted address/operation/width/expected value to OCM before each risky access; on UART pass, failure or timeout, stop the CPU and capture OCM plus PC/SP/CPSR before reset",
       "stop_on_first_error": true,
@@ -49,7 +58,7 @@
   "scope": {
     "b1b_complete":false,
     "b1_gate_pass":false,
-    "pending":["B1-06B board sparse/4 KiB reproduction at 0x10000000", "B1C PHY, link and UDP"],
+    "pending":["B1-06B6 UART baseline, then B1-06B7 sparse/4 KiB reproduction at 0x10000000", "B1C PHY, link and UDP"],
     "forbidden_claims":["whole DDR passed", "B1B complete", "B1 gate pass", "Ethernet passed"]
   }
 }

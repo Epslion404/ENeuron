@@ -1634,3 +1634,5 @@
 - 2026-09-08：持续推进 TODO 前先复核当前环境与板级入口。发现 B1B 两个 runner 虽在文档中要求按 CH340 VID/PID 识别，实际仍把 `COM10` 作为默认参数；已改为默认按 `VID_1A86:PID_7523` 自动解析唯一 COM 口，保留 `-PortName` 临时覆盖，并在 run manifest 记录 `port_selector`/VID/PID。构建 manifest 的 UART 字段同步改为 VID/PID 合同。
 - 2026-09-08：PowerShell 入口静态检查、B1B 高地址合同、artifact layout 和 CI 分类定向测试通过；未启动 XSCT、未下载 bitstream、未发送 GO、未访问 DDR。当前仍等待实际板卡 UART 基准复测。
 - 2026-09-08：复核 TODO 与持久恢复入口，发现 `workflow_resume.ps1` 只统计已收口的 NP4B TODO，错误显示活动未完成项为 0。已改为统计当前主线的 `TODO.md:P16`、剪枝总合同和 NP7 合同，并补充工作流映射；当前摘要为 82/10/0，共 92 项。PowerShell 解析、定向合同测试 11/11 和 `git diff --check` 通过。
+- 2026-09-08：继续推进 TODO 前校正了 P16 工作树引用和 B1-06B7 诊断构建绑定；当前审计基线为 `d7e1035`，活动分支为 `codex/b1b-high-ddr-board-repro`。CH340 仍按 `VID_1A86:PID_7523` 识别，当前枚举为 COM10；本轮没有发送 GO、访问高地址 DDR 或修改用户已有结果文件。
+- 2026-09-08：复核发现上述活动基线在提交 `dae5473` 后已过期；已将 TODO、任务计划、发现记录和工作流状态统一到当前 HEAD=`dae5473ba72d6cfaee12ed8e103c0efad190ed4a`。当前提交的干净构建已生成 B1A/B1B/OCM 候选，OCM 诊断 ELF SHA-256=`3e0469265a1482081ce93188d905753b2fa998673a17e575776e115abfb76f01`；构建通过但尚未上板。用户已有 `artifacts/results/rtl_smoke_results.json` 改动仍未触碰。
