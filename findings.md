@@ -1542,7 +1542,7 @@
 - 同次复测暴露的PowerShell runner缺陷已修复：`Resolve-SerialPortName`的`$Pid`参数与内置只读`$PID`冲突，普通/高地址runner均改为`$ProductId`，合同测试已覆盖。
 - 复核 B1-06B6 运行 manifest 时发现普通 runner 的 XSCT `.bat` 进程在 `WaitForExit` 后未刷新对象，历史记录因此出现 `xsct_exit_code=null`；已加入 `Process.Refresh()`，后续新运行应以实际退出码为准，旧 manifest 不修改。
 - 本轮 TODO 校正不改变上述安全边界：B1-06B7 必须复用与 manifest 绑定的诊断 ELF。当前提交`dae5473`已完成新的干净 B1A/B1B/OCM 构建，OCM ELF SHA-256=`3e0469265a1482081ce93188d905753b2fa998673a17e575776e115abfb76f01`；该身份尚未上板，历史`436d1b2` ELF不得混用。
-- `workflow_resume.ps1 -Mode Resume` 旧记录曾返回 HEAD=`436d1b2` 并错误显示“活动 TODO 未完成项：0”；当前脚本已改为统计 P16、剪枝总合同和 NP7 合同，后续恢复判断以 TODO 明细、`WORKFLOW_STATE.md` 和校验基线 HEAD=`969a231` 为准；B1-06B7 仍固定使用构建身份`dae5473`的 manifest 产物。
+- `workflow_resume.ps1 -Mode Resume` 旧记录曾返回 HEAD=`436d1b2` 并错误显示“活动 TODO 未完成项：0”；当前脚本已改为统计 P16、剪枝总合同和 NP7 合同，后续恢复判断以 TODO 明细、`WORKFLOW_STATE.md` 和校验基线 HEAD=`ef0495b` 为准；B1-06B7 仍固定使用构建身份`dae5473`的 manifest 产物。
 
 ## 2026-09-08 神经元模型线当前任务与门限
 
