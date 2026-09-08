@@ -8,7 +8,7 @@
 
 证据边界：当前部署和最终板级物理签核目标是 `xc7z020clg484-2`。`xc7z020clg400-1` 上的 T3/NP7 OOC、时序和资源报告只作为历史结构参考，不得写成 `clg484-2` 已签核；`archive/legacy/` 中的材料不进入日常 CI/PR 门。B1 高地址 DDR、PHY 和 UDP 属于板卡资格支线，仍阻塞完整 `B1-GATE`，但在已验证低地址窗口足以容纳模型与 DMA 缓冲区时，不阻塞 NPU MVP 的 RTL/软件推进。CH340 运行脚本按 `VID_1A86:PID_7523` 识别设备，`COM10` 只是现场枚举结果，不是固定合同。
 
-合同与恢复口径（2026-09-08）：`WORKFLOW_STATE.md` 指定 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md` 为当前阶段合同；`docs/planning/TODO.md` 的 P16 段、`NPU_PRUNING_TODO.md` 和 `NPU_PRUNING_NP7_TODO.md` 为关联合同。`workflow_resume.ps1` 当前按这三份主线 TODO 统计为 `82/10/0=92`，不再用历史 NP4B 零未完成项代表全项目完成。当前活动分支为 `codex/b1b-high-ddr-board-repro`，校验基线 HEAD 为 `969a231b26731e18a9b033a30f91e98492010d6a`；其父级审计基线为 `d7e1035`。唯一合同设备为 `VID_1A86:PID_7523` 的外置 CH340，现场枚举为 COM10；COM6/COM7 为蓝牙串口并排除。
+合同与恢复口径（2026-09-08）：`WORKFLOW_STATE.md` 指定 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md` 为当前阶段合同；`docs/planning/TODO.md` 的 P16 段、`NPU_PRUNING_TODO.md` 和 `NPU_PRUNING_NP7_TODO.md` 为关联合同。`workflow_resume.ps1` 当前按这三份主线 TODO 统计为 `82/10/0=92`，不再用历史 NP4B 零未完成项代表全项目完成。当前活动分支为 `codex/b1b-high-ddr-board-repro`，校验基线 HEAD 为 `ef0495b0a363195d27ba7efc019127523f9affcf`；其父级审计基线为 `d7e1035`。唯一合同设备为 `VID_1A86:PID_7523` 的外置 CH340，现场枚举为 COM10；COM6/COM7 为蓝牙串口并排除。
 
 当前执行点（2026-09-08）：活动链为 `B1-06B6` UART 基准复测 → `B1-06B7` OCM 高地址最小复现。先按 VID/PID 找到 CH340 并确认既有低地址应用的 banner/alive marker；通过后才进入 `B1-06B7`。此前两次诊断均停在 READY 等待 GO，`command=0`、`completed_accesses=0`，尚未进行任何 DDR 访问；不得把高地址探针写成已执行或把 UART 阻塞写成 DDR 失败。
 
@@ -18,7 +18,7 @@ B1-06B6 实板复测（2026-09-08）：运行目录为 `artifacts/logs/hellozynq
 
 高地址合同已冻结（2026-09-08，当前执行上下文于 2026-09-08 校正）：B1-06A要求诊断ELF独立运行于OCM；`dae5473` 干净构建已重新生成与 manifest 绑定的 OCM 诊断 ELF，SHA-256 为 `3e0469265a1482081ce93188d905753b2fa998673a17e575776e115abfb76f01`，应用范围为 `0x00000000–0x0002EFFF`、入口 `0x00000000`、`runtime_end=0x0000D840`，末尾 4 KiB 保留为结果区。旧 `main@436d1b2`/ELF `619ab70c...1b82` 仅作历史构建参考；新 ELF 尚未上板。B1-06B7 的高地址稀疏探针和 4 KiB 固定模式复现必须以后续 B1-06B6 UART 基准通过为前提。危险访问前预写 OCM 记录，UART、READY 或 GO 任意失败后仍先采集 OCM 和 CPU 状态。不得把构建通过写成整片 DDR、B1B 或 B1-GATE 通过。
 
-B1B实板进度（2026-09-08）：当前活动分支为`codex/b1b-high-ddr-board-repro`，校验基线 HEAD=`969a231`（父级审计基线 `d7e1035`）；已签核硬件身份为`29edf6adc6613445f0983f2c1b8e4d037164985b`，软件身份为`97ddd1a38f00595e580168ebd59fe0b2d8e1db92`。现场诊断后的正式UART为V14 RX、V15 TX、LVCMOS33，外置CH340按`VID_1A86:PID_7523`识别，COM号仅为现场枚举，115200 8N1；bitstream/XSA/ELF为`1f98e949...bc5f6`、`ed4a2ff...d417b`、`4992d26c...128560`。同一冻结组合已在三次完整断电重启后通过UART协议和低地址1 MiB DDR九阶段；`0x10000000`高地址异常仍未关闭，且尚未执行高地址 DDR 访问，因此状态为`B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DDR_PENDING / B1-GATE=false`。
+B1B实板进度（2026-09-08）：当前活动分支为`codex/b1b-high-ddr-board-repro`，校验基线 HEAD=`ef0495b`（父级审计基线 `d7e1035`）；已签核硬件身份为`29edf6adc6613445f0983f2c1b8e4d037164985b`，软件身份为`97ddd1a38f00595e580168ebd59fe0b2d8e1db92`。现场诊断后的正式UART为V14 RX、V15 TX、LVCMOS33，外置CH340按`VID_1A86:PID_7523`识别，COM号仅为现场枚举，115200 8N1；bitstream/XSA/ELF为`1f98e949...bc5f6`、`ed4a2ff...d417b`、`4992d26c...128560`。同一冻结组合已在三次完整断电重启后通过UART协议和低地址1 MiB DDR九阶段；`0x10000000`高地址异常仍未关闭，且尚未执行高地址 DDR 访问，因此状态为`B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DDR_PENDING / B1-GATE=false`。
 
 B1A-HW更新（2026-09-08）：正式UART方向的可重建硬件定义已在干净提交`29edf6a...`上通过Vivado 2024.1实现；资源为`136 LUT / 257 FF / 0 BRAM / 0 DSP / 4 BUFG / 1 MMCM`，WNS/WHS为`+0.240/+0.138 ns`，setup/hold失败端点、route error、DRC error/critical warning及RGMII TX缺失output delay均为0。当前执行点为B1B高地址DDR边界；`B1-GATE`仍为false。
 

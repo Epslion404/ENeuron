@@ -2,7 +2,7 @@
 
 当前覆盖边界：活动部署目标为 `xc7z020clg484-2`，NPU + ENeuron 动态剪枝证据优先。`archive/legacy/` 材料不参与日常门；旧 `xc7z020clg400-1` NP7/T3 物理结果只作历史参考。B1 高地址 DDR/PHY/UDP 属于板卡资格支线，完整 `B1-GATE` 仍待关闭；低地址窗口满足模型/DMA 容量后可继续 NPU MVP。CH340 以 `VID_1A86:PID_7523` 识别，COM10 仅为现场枚举记录。
 
-合同/统计边界（2026-09-08）：当前阶段合同为 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`；P16 TODO、`NPU_PRUNING_TODO.md` 和 `NPU_PRUNING_NP7_TODO.md` 为关联合同。`workflow_resume` 显示 `82/10/0=92`。当前活动分支为 `codex/b1b-high-ddr-board-repro`、校验基线 HEAD=`969a231`；执行链为 B1-06B6 UART 基准 → B1-06B7 OCM 高地址最小复现。当前只覆盖 UART/OCM 前置证据，B1-06B6 尚未完成，DDR 访问仍为 0；不得把后续高地址探针或 DDR 结果计入已完成覆盖。
+合同/统计边界（2026-09-08）：当前阶段合同为 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`；P16 TODO、`NPU_PRUNING_TODO.md` 和 `NPU_PRUNING_NP7_TODO.md` 为关联合同。`workflow_resume` 显示 `82/10/0=92`。当前活动分支为 `codex/b1b-high-ddr-board-repro`、校验基线 HEAD=`ef0495b`；执行链为 B1-06B6 UART 基准 → B1-06B7 OCM 高地址最小复现。当前只覆盖 UART/OCM 前置证据，B1-06B6 尚未完成，DDR 访问仍为 0；不得把后续高地址探针或 DDR 结果计入已完成覆盖。
 
 新增监听观察（2026-09-08）：COM10（VID/PID=`VID_1A86:PID_7523`）以 115200 8N1 非侵入式监听 10 秒，读取 0 字节，未收到 `ENEURON_B1B_BEGIN`、`ALIVE` 或 `PASS`；未下载 bitstream/ELF、未发送 GO。该结果维持 `B1-06B6_UART_BASELINE_PENDING`，不构成 DDR 失败或高地址访问证据。
 

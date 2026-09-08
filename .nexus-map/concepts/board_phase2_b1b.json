@@ -3,7 +3,7 @@
   "verified_at": "2026-09-08",
   "workflow_context": {
     "active_branch": "codex/b1b-high-ddr-board-repro",
-    "current_head": "969a231b26731e18a9b033a30f91e98492010d6a",
+    "current_head": "ef0495b0a363195d27ba7efc019127523f9affcf",
     "parent_audit_baseline": "d7e1035",
     "execution_chain": ["B1-06B6_UART_BASELINE", "B1-06B7_OCM_HIGH_DDR_MINIMAL_REPRODUCTION"],
     "workflow_resume_counts": "82/10/0=92",
