@@ -11,34 +11,15 @@ LOGGER = logging.getLogger("test_artifact_layout")
 ROOT = Path(__file__).resolve().parent
 RESULTS_DIR = ROOT / "artifacts" / "results"
 EXPECTED_RESULTS = {
-    "comparison_simulation_results.json",
-    "digit8x8_d1_results.json",
-    "digit8x8_d2_results.json",
-    "local_prune_b0_results.json",
-    "local_prune_b1_results.json",
-    "local_prune_b2_results.json",
-    "local_prune_b21_results.json",
-    "local_prune_np2_results.json",
-    "local_prune_np3_results.json",
-    "network_results.json",
-    "network_sweep_results.json",
-    "pulse_mini_protocol_experiments.json",
-    "rtl_smoke_results.json",
-    "simulation_results.json",
-    "sweep_results.json",
-    # PR #5（NP6）与 PR #6（NP7）新增的清单/证据；归档布局测试要求逐名登记，
-    # 且 artifacts/README.md 的索引里必须能检索到同一批文件名。
-    "np6_physical_cost_manifest.json",
-    "np7_cosim_ledgers.json",
-    "np7_formal_and_mutations.json",
-    "np7_software_cost_manifest.json",
-    "np7_three_model_integration.json",
-    "np7_vivado_ooc_summary.json",
-    "np7_vivado_xsim_summary.json",
-    "npu_single_clock_ooc_manifest.json",
     "hellozynq_b0_smoke_summary.json",
     "hellozynq_b1a_hw_summary.json",
     "hellozynq_b1b_uart_ddr_summary.json",
+    "local_prune_b0_results.json",
+    "np7_cosim_ledgers.json",
+    "np7_formal_and_mutations.json",
+    "np7_software_cost_manifest.json",
+    "npu_single_clock_ooc_manifest.json",
+    "rtl_smoke_results.json",
 }
 
 

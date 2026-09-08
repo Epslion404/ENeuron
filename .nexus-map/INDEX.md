@@ -1,8 +1,20 @@
 # ENeuron 知识库入口
 
-高地址下一步已冻结（2026-09-08）：B1-06A合同要求诊断ELF独立运行于OCM；PR #75提交`43ff54d...`的B1-06B干净构建门已通过，正式ELF SHA-256为`706ceb09...a5698`，应用范围为`0x00000000–0x0002EFFF`、入口`0x00000000`、`runtime_end=0x0000D840`，末尾4 KiB保留为结果区。下一执行点是实板运行`0x10000000`附近稀疏地址探针和4 KiB单一固定模式复现；危险访问前预写OCM记录，UART、READY或GO任意失败后仍先采集OCM和CPU状态。不得把构建通过写成整片DDR、B1B或B1-GATE通过。
+## 当前活动范围（中等精简）
 
-B1B实板进度（2026-09-08）：主线基线为`main@d5fe4e5e0472a6c8a901053b2829cd1e899c377f`，当前硬件身份为`29edf6adc6613445f0983f2c1b8e4d037164985b`，软件身份为`97ddd1a38f00595e580168ebd59fe0b2d8e1db92`。现场诊断后的正式UART为V14 RX、V15 TX、LVCMOS33，使用外置CH340的COM10、115200 8N1；bitstream/XSA/ELF为`1f98e949...bc5f6`、`ed4a2ff...d417b`、`4992d26c...128560`。同一冻结组合已在三次完整断电重启后通过UART协议和低地址1 MiB DDR九阶段；`0x10000000`高地址异常仍未关闭，因此状态为`B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DDR_PENDING / B1-GATE=false`。
+主线固定为 `xc7z020clg484-2`：NPU 单时钟计算、ENeuron 动态剪枝、NP7 共享 lane，以及 B1/B2/B3/B4 集成。活动入口见 `npu_eneuron_*`、`npu_zynq7020_t1_wrapper.sv`、`local_prune_*`、`eneuron_local_prune_wrapper.sv`、`digital_lif_engine.sv` 和 `np7_*`。绑定旧 `xc7z020clg400-1` 的 OOC 只能作结构参考，不能替代目标器件最终 routed 证据。
+
+`archive/legacy/` 下的 Pulse-Mini、digit8x8、G4、旧 Tile/Host Bridge、NP6/NP7 旧物理报告和普通历史结果不参与当前日常门。高地址 DDR 与 B1C UDP 保留为板卡资格支线；低地址窗口满足模型/DMA 容量后即可推进 NPU MVP。当前硬门仍是 bit-exact、dense/full-open 等价、mask/epoch 原子切换、reset/backpressure/CDC、目标器件 routed timing/DRC，以及同条件周期/吞吐/功耗测量。
+
+证据边界：当前部署和最终板级物理签核目标是 `xc7z020clg484-2`。`xc7z020clg400-1` 上的 T3/NP7 OOC、时序和资源报告只作为历史结构参考，不得写成 `clg484-2` 已签核；`archive/legacy/` 中的材料不进入日常 CI/PR 门。B1 高地址 DDR、PHY 和 UDP 属于板卡资格支线，仍阻塞完整 `B1-GATE`，但在已验证低地址窗口足以容纳模型与 DMA 缓冲区时，不阻塞 NPU MVP 的 RTL/软件推进。CH340 运行脚本按 `VID_1A86:PID_7523` 识别设备，`COM10` 只是现场枚举结果，不是固定合同。
+
+合同与恢复口径（2026-09-08）：`WORKFLOW_STATE.md` 指定 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md` 为当前阶段合同；`docs/planning/TODO.md` 的 P16 段、`docs/planning/NPU_PRUNING_TODO.md` 和 `docs/planning/NPU_PRUNING_NP7_TODO.md` 为关联合同。`workflow_resume.ps1` 当前按这三份主线 TODO 统计为 `82/10/0=92`，不再用历史 NP4B 零未完成项代表全项目完成。
+
+当前执行点（2026-09-08）：`B1-06B6` UART 基准复测。先按 VID/PID 找到 CH340 并确认既有低地址应用的 banner/alive marker；通过后才进入 `B1-06B7`。此前两次诊断均停在 READY 等待 GO，`command=0`、`completed_accesses=0`，尚未进行任何 DDR 访问；不得把高地址探针写成已执行或把 UART 阻塞写成 DDR 失败。
+
+高地址合同已冻结（2026-09-08）：B1-06A要求诊断ELF独立运行于OCM；PR #75已合并为`main@436d1b2`，干净主线正式ELF SHA-256为`619ab70c...1b82`，应用范围为`0x00000000–0x0002EFFF`、入口`0x00000000`、`runtime_end=0x0000D840`，末尾4 KiB保留为结果区。B1-06B7的高地址稀疏探针和4 KiB固定模式复现必须以后续B1-06B6 UART基准通过为前提；危险访问前预写OCM记录，UART、READY或GO任意失败后仍先采集OCM和CPU状态。不得把构建通过写成整片DDR、B1B或B1-GATE通过。
+
+B1B实板进度（2026-09-08）：主线基线为`main@436d1b2`，当前硬件身份为`29edf6adc6613445f0983f2c1b8e4d037164985b`，软件身份为`97ddd1a38f00595e580168ebd59fe0b2d8e1db92`。现场诊断后的正式UART为V14 RX、V15 TX、LVCMOS33，外置CH340按`VID_1A86:PID_7523`识别，COM号仅为现场枚举，115200 8N1；bitstream/XSA/ELF为`1f98e949...bc5f6`、`ed4a2ff...d417b`、`4992d26c...128560`。同一冻结组合已在三次完整断电重启后通过UART协议和低地址1 MiB DDR九阶段；`0x10000000`高地址异常仍未关闭，因此状态为`B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DDR_PENDING / B1-GATE=false`。
 
 B1A-HW更新（2026-09-08）：正式UART方向的可重建硬件定义已在干净提交`29edf6a...`上通过Vivado 2024.1实现；资源为`136 LUT / 257 FF / 0 BRAM / 0 DSP / 4 BUFG / 1 MMCM`，WNS/WHS为`+0.240/+0.138 ns`，setup/hold失败端点、route error、DRC error/critical warning及RGMII TX缺失output delay均为0。当前执行点为B1B高地址DDR边界；`B1-GATE`仍为false。
 
@@ -118,6 +130,8 @@ T2 双时钟协同切片已扩展通过：`tb_npu_zynq7020_t2_variable_clocks.sv
 - 首次端到端跑通后，才按 telemetry、模型存储 BRAM 化、独立 `INFER_ONLY` 构建、固定拓扑特化的顺序重新评审。
 
 ## 状态校正与下一门
+
+器件口径校正：状态串中的 `T3_XC7Z020_OOC_PASS` 仅表示旧 `xc7z020clg400-1` 核心/适配器 OOC 参考已通过；当前部署目标仍是 `xc7z020clg484-2`，其最终 routed/DRC/板级证据尚待建立。NP7 的 `clg400-1` 物理结果同样只作历史材料。
 
 - **当前权威基线**：V2 OOC report head 与 RTL 均绑定 `f744bff2bdde68e138a7b2b348ce103bec1ab469`；其变更已随 PR #64 合并为 `main@a53a040`。P15-T0 规划随 PR #65 合并为 `main@618c1e4`，端口裁定稿随 PR #66 合并为 `main@a1457bb`。不要把旧 report head=`39e41d4` 的 0 DSP 结果或 V1 `5055073` 失败结果当作当前物理状态。
 - **已完成证据**：单时钟专项 8/8、固定 `20 seeds × 100 samples = 2000` 个样本逐 beat 随机门、完整回归 `473/473（1 skipped）`，以及 4 DSP 网表证据。

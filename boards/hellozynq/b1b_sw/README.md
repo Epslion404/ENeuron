@@ -16,10 +16,10 @@
 .\boards\hellozynq\b1b_sw\run_b1b_build.ps1
 ```
 
-然后保持JTAG和外置CH340连接，运行：
+然后保持JTAG和外置CH340连接，运行（默认按 VID/PID 自动寻找 CH340）：
 
 ```powershell
-.\boards\hellozynq\b1b_sw\run_b1b_board.ps1 -PortName COM10
+.\boards\hellozynq\b1b_sw\run_b1b_board.ps1
 ```
 
 构建脚本会读取B1A的`build_manifest.json`，校验当前bitstream和XSA哈希后把硬件提交与哈希注入ELF；不在C源码中手工维护派生身份。
@@ -32,7 +32,9 @@
 
 ```powershell
 .\boards\hellozynq\b1b_sw\run_b1b_high_diag_build.ps1
-.\boards\hellozynq\b1b_sw\run_b1b_high_diag_board.ps1 -PortName COM10
+.\boards\hellozynq\b1b_sw\run_b1b_high_diag_board.ps1
 ```
+
+如需临时覆盖自动发现，可显式传入 `-PortName COM10`；正式证据优先使用默认 VID/PID 选择，并在 manifest 中记录实际 COM 号和选择方式。
 
 构建门会检查`PT_LOAD`、入口、向量表、页表、heap、各模式stack和`_end`均低于`0x0002F000`；程序先输出`ENEURON_B1B_HIGH_DIAG_READY`并等待JTAG发出GO，之后才访问`0x10000000`附近稀疏点和4 KiB窗口。板级入口无论UART通过、失败或超时，都会先采集OCM结果及PC/SP/CPSR，再生成独立run manifest。该诊断尚未形成高地址实板PASS，不能替代B1B低地址三次冷启动结论。

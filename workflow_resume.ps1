@@ -15,7 +15,27 @@ $requiredFiles = @(
     "task_plan.md",
     "progress.md",
     "findings.md",
-    "docs/planning/NPU_PRUNING_NP4B_TODO.md"
+    "docs/planning/TODO.md",
+    "docs/planning/NPU_PRUNING_TODO.md",
+    "docs/planning/NPU_PRUNING_NP7_TODO.md"
+)
+
+$activeTodoSpecs = @(
+    [pscustomobject]@{
+        Path = "docs/planning/TODO.md"
+        StartPattern = "^### P16"
+        Label = "TODO.md:P16"
+    },
+    [pscustomobject]@{
+        Path = "docs/planning/NPU_PRUNING_TODO.md"
+        StartPattern = $null
+        Label = "NPU_PRUNING_TODO.md"
+    },
+    [pscustomobject]@{
+        Path = "docs/planning/NPU_PRUNING_NP7_TODO.md"
+        StartPattern = $null
+        Label = "NPU_PRUNING_NP7_TODO.md"
+    }
 )
 
 function Write-WorkflowLog {
@@ -76,16 +96,43 @@ function Test-WorkflowFiles {
     Write-WorkflowLog -Level "PASS" -Message "持久文件和状态字段完整。"
 }
 
+function Get-OpenTodoCount {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$RelativePath,
+        [string]$StartPattern
+    )
+
+    $lines = @(Get-Content -Encoding UTF8 -LiteralPath (Join-Path $repoRoot $RelativePath))
+    if (-not [string]::IsNullOrWhiteSpace($StartPattern)) {
+        $startMatch = $lines | Select-String -Pattern $StartPattern | Select-Object -First 1
+        if ($null -eq $startMatch) {
+            throw "活动 TODO 起始标题不存在：$RelativePath / $StartPattern"
+        }
+        $lines = @($lines[($startMatch.LineNumber - 1)..($lines.Count - 1)])
+    }
+
+    return @($lines | Select-String -Pattern "^- \[ \]").Count
+}
+
 function Show-WorkflowSummary {
     $head = (Invoke-WorkflowGit -Arguments @("rev-parse", "--short", "HEAD")) -join ""
     $statusLines = @(Invoke-WorkflowGit -Arguments @("status", "--short"))
-    $todoPath = Join-Path $repoRoot "docs/planning/NPU_PRUNING_NP4B_TODO.md"
-    $openItems = @(Select-String -Encoding UTF8 -LiteralPath $todoPath -Pattern "^- \[ \]").Count
+    $openItemsByFile = foreach ($spec in $activeTodoSpecs) {
+        [pscustomobject]@{
+            Path = $spec.Label
+            Count = Get-OpenTodoCount -RelativePath $spec.Path -StartPattern $spec.StartPattern
+        }
+    }
+    $openItems = ($openItemsByFile | Measure-Object -Property Count -Sum).Sum
 
     Write-WorkflowLog -Level "INFO" -Message "仓库：$repoRoot"
     Write-WorkflowLog -Level "INFO" -Message "HEAD：$head"
     Write-WorkflowLog -Level "INFO" -Message "工作树条目：$($statusLines.Count)"
-    Write-WorkflowLog -Level "INFO" -Message "活动 TODO 未完成项：$openItems"
+    Write-WorkflowLog -Level "INFO" -Message "当前主线 TODO 未完成项（$($activeTodoSpecs.Count) 份合同）：$openItems"
+    foreach ($item in $openItemsByFile) {
+        Write-WorkflowLog -Level "INFO" -Message "  $($item.Path)：$($item.Count)"
+    }
 
     Write-Host "`n=== WORKFLOW_STATE.md ==="
     Get-Content -Encoding UTF8 -LiteralPath (Join-Path $repoRoot "WORKFLOW_STATE.md")

@@ -1,10 +1,12 @@
 # ENeuron NPU 局部自动剪枝与动态门控计划
 
-状态：`NP4B_COMPLETED / NP6_PARTIAL / NP7_SIGNED_OFF / NPU_INTEGRATION_TIMING_REPAIR_V2_REVIEW`
+状态：`NP4B_COMPLETED / NP6_PARTIAL / NP7_SIGNED_OFF / NPU_V2_FUNCTIONAL_GREEN / T3_CLG400_EVIDENCE_RECORDED / CLG484_2_FINAL_PHYSICAL_PENDING`
 
 日期：2026-08-28
 
-范围：规划与验收合同；NP0-NP7 已执行，当前转入传统 NPU + ENeuron 集成时序修复；不直接改写已签核神经元 RTL
+范围：规划与验收合同；NP0-NP7 已执行，当前转入传统 NPU + ENeuron 集成和 `xc7z020clg484-2` 板级路线；不直接改写已签核神经元 RTL。Pulse-Mini-L/L2 的 NP1-NP7 材料保留为历史对照，不作为当前日常门。
+
+当前物理边界：现有单时钟和 T3 OOC 证据绑定 `xc7z020clg400-1`，只能作为结构/协议参考；目标 `xc7z020clg484-2` 的最终 routed 证据仍待单独重建。
 
 ## 1. 目标
 
@@ -263,7 +265,7 @@ B2.1 已完成（2026-08-28）：三模型的 output-2:4、detector-3:4、detect
 - 结构权重密度固定为 50%。
 - 稠密激活条件下，发出的权重读取和突触/MAC 操作至少减少 45%。
 - 稀疏激活条件下单独报告 `issue_mask` 的实际减少量，不把输入本来为零造成的跳过归功于结构剪枝。
-- 共享 lane 版本的每组处理周期至少减少 35%；若周期不降，只能报告存储或活动收益。
+- 通用候选目标是共享 lane 版本每组处理周期减少 35%；正式 NP7 专用验收门槛以 NP7 合同为准，即同 lane 数 dense 基线至少减少 25%。若周期不降，只能报告存储或活动收益。
 - 导出格式至少比较：32 bit 稠密四权重，与 16 bit 两权重 + 4 bit 掩码。后者原始权重存储减少 37.5%，不是 50%。
 
 ### 7.4 RTL 与物理实现

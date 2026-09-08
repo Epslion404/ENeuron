@@ -21,7 +21,7 @@
 
 当前执行点：正式映射已冻结为`V14=RX/V15=TX`。同一SW/HW/bitstream/XSA/ELF组合完成三次由管理员确认的完整断电冷启动，UART协议、九个DDR阶段和OCM结果均PASS。下一项转为定位此前`0x10000000`高地址异常；B1B与B1-GATE仍未关闭。
 
-本轮TODO修订：B1-06已拆为B1-06A～B1-06F。B1-06A合同冻结已完成；B1-06B诊断源、OCM链接、稀疏地址/4 KiB模式、布局硬门和失败取证入口已经实现并通过本机构建。下一动作是实板最小复现`0x10000000`旧故障；继续保持`main.c`和三次低地址证据不变。
+本轮TODO修订：B1-06已拆为B1-06A～B1-06F。B1-06A合同冻结已完成；B1-06B诊断源、OCM链接、稀疏地址/4 KiB模式、布局硬门和失败取证入口已经实现并合入主线。两次实板尝试均停在OCM READY等待GO，尚未访问DDR；下一动作先用已签核低地址应用在COM13做一次UART接收基准复测，通过后才运行`0x10000000`最小复现。继续保持`main.c`和三次低地址证据不变。
 
 ## 2026-09-08 B1-06B 实施准备
 
@@ -32,10 +32,12 @@
 - [x] 创建独立诊断源、OCM链接脚本和构建入口；不得修改已签核`main.c`。
 - [x] 建立链接布局和固定探针合同测试，再实现实板runner；`test_b1b_high_diag_contract`通过，两个PowerShell入口解析通过。
 - [x] 本机构建并核对ELF身份、section/program header和符号布局；OCM应用区上限为`0x0002F000`，入口`0x00000000`，`_end=0x0000D840`。
-- [x] 提交诊断垂直切片为`43ff54d`并创建PR #75；干净HEAD正式ELF SHA-256=`706ceb092ff1ae819fdf459d1d9200d0254779cf56fed609bee34e329a5a5698`，manifest记录`git_worktree_clean=true`。板级runner拒绝脏工作树和任一身份哈希不一致。
-- [ ] 在独立证据目录运行`0x10000000`稀疏地址与4 KiB最小复现，并据结果进入B1-06C或历史复现审计。
+- [x] PR #75已合并为`main@436d1b2`；干净主线正式ELF SHA-256=`619ab70cb5ee457bba0e059977442d89c797793386b855ce21eeec1da2631b82`，manifest记录`git_worktree_clean=true`。板级runner拒绝脏工作树和任一身份哈希不一致。
+- [x] 完成两次前置门尝试：COM32不是CH340；COM13为`VID_1A86:PID_7523`但未收到UART READY。两次OCM均为`status=4 / phase=1 / command=0 / completed_accesses=0`，CPU停在OCM等待循环，DDR未访问。
+- [ ] 用已签核低地址应用和COM13做一次非冷启动UART基准复测；只验证当前外部接收链，不重复低地址三次门。
+- [ ] UART基准通过后，在独立证据目录运行`0x10000000`稀疏地址与4 KiB最小复现，并据结果进入B1-06C或历史复现审计。
 
-当前停止点：B1-06B的诊断代码、OCM链接、布局硬门和实板入口已在`43ff54d`完成干净构建并进入PR #75；尚未执行新一轮实板访问。下一动作是在合并后的干净主线身份上重建并运行高地址最小复现；不能直接进入B1-06C。
+当前停止点：B1-06B实现已合并并在`main@436d1b2`完成干净构建。高地址最小复现尚未真正开始，因为COM13运行没有UART READY，runner按合同未写GO且DDR访问数为0。下一动作是先复测COM13低地址UART基准；通过后再重跑OCM诊断，不能直接进入B1-06C。
 
 低地址裁定结果：`status=2 / phase=9 / fail fields=0`，`0x01000000–0x010FFFFF` 的 1 MiB DDR 首通已 PASS。其后的UART持续发送、方向诊断和三次冷启动均已完成；本段仅保留为历史过程，当前执行点以B1-06B为准。
 
@@ -1535,3 +1537,45 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 - [ ] 等待管理员批准 TR7-TR12；批准前禁止继续修改计算 RTL。
 
 - 2026-09-07：两次无筛选 python -X utf8 -m unittest -q 在 30 秒窗口内未返回，并留下本轮启动的 Python/vvp 进程；已按命令行核对后终止对应进程。该全量回归不记为通过，改用明确受影响测试集合和专项复现入口。
+
+## 2026-09-08 项目深度认知调研（本轮）
+
+目标：在不修改业务代码、不覆盖用户现有未提交改动的前提下，建立仓库的可审查全景：项目目标、模块边界、主数据流、验证分层、构建/运行入口、证据状态和当前阻塞。
+
+阶段：
+
+- [x] 1. 规则、仓库结构、工作区和文档入口盘点
+- [x] 2. 设计契约、版本线和顶层架构梳理
+- [x] 3. RTL、Python参考模型、协同仿真与形式验证链路追踪
+- [x] 4. Vivado/板级 HelloZynq/B0-B1 工作流与证据边界梳理
+- [x] 5. 测试矩阵、风险、当前执行点和建议阅读路径汇总
+
+已知约束：本轮只读分析为主；规划文件已有用户/历史修改，只能追加本轮段落；报告目录和生成物不视为源码事实，必须追溯到脚本、RTL、契约或固定提交。
+
+错误记录：首次尝试用并行工具包装器传入无效 `functions.wait` 任务标识，调用立即失败且未触碰仓库；后续改为单次结构化 PowerShell 盘点，不重复该调用方式。
+
+收口结论：项目不是单一应用，而是四条有明确证据边界的研究/实现线（ENeuron 1.0、Pulse-Mini、NPU-ENeuron/NP6-NP7、Zynq7020 阶段 2 板级）；当前唯一活动执行链是 B1B 高地址 DDR 的 UART 前置恢复，B1C 被严格后置。低成本验证 `test_ci_fast_v1 + test_b1b_high_diag_contract` 共 10/10 通过，`git diff --check` 通过；未运行长回归、Vivado 或板级动作。
+## 2026-09-08 中等精简执行
+
+- [x] 盘点待归档路径与活动入口引用，避免破坏当前 NPU/ENeuron/板级证据链；已恢复用户未提交的 `docs/planning/TODO.md`。
+- [x] 将 Pulse-Mini、digit8x8、G4、旧 Tile/Host Bridge 及旧 clg400 物理报告迁入 `archive/legacy/`。
+- [x] 保留 NPU、ENeuron 动态剪枝、NP7 共享 lane 源码与定向验证；已更新活动索引和结果布局测试。
+- [x] 将 B1 高地址 DDR 与 B1C UDP 从 NPU MVP 日常阻塞链降为板卡资格支线，保留最终板级门限。
+- [x] 将 ignored 构建缓存移动到 Windows 回收站；定向测试 114 项通过，`git diff --check` 通过。
+
+结果：归档路径不触发活动 CI；NP7 源码变更只触发功能门，NP7 物理门仅由显式物理脚本触发。未修改 RTL、核心 Python 模型、testbench 或板级 runner。
+
+## 2026-09-08 TODO 持续推进
+
+- [x] 复核 B1-06B6 实际执行入口与当前环境，确认 CH340 为 `VID_1A86:PID_7523`，当前枚举 `COM10`。
+- [x] 修正 B1B 普通/高地址 runner：默认按 VID/PID 自动发现串口，显式 `-PortName` 仅作临时覆盖，manifest 保存选择方式。
+- [x] 同步 TODO、WORKFLOW_STATE、B1B README 和构建 manifest 的串口合同；保留 COM13 作为历史失败记录。
+- [x] 完成 PowerShell 静态解析和定向合同测试；未执行任何板级写入或高地址 DDR 访问。
+- [ ] 下一步：在板卡连接可用时运行 B1-06B6 非冷启动 UART 基准；通过后运行 B1-06B7 OCM 高地址最小复现。
+
+## 2026-09-08 TODO 统计口径修正
+
+- [x] 修正 `workflow_resume.ps1`：不再把已收口 NP4B 作为唯一活动 TODO，改为统计 `TODO.md:P16`、`NPU_PRUNING_TODO.md` 和 `NPU_PRUNING_NP7_TODO.md`。
+- [x] 更新 `WORKFLOW.md` 的活动合同映射，明确旧 `clg400-1` OOC/NP7 证据仅作历史参考。
+- [x] 修正 `docs/planning/TODO.md` 的工作树和历史资源证据表述，避免与当前未提交状态及 `clg484-2` 主线混淆。
+- [x] 验证恢复脚本显示当前主线未完成项 `82/10/0=92`；PowerShell 解析、11 项定向测试和差异检查通过。

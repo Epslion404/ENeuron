@@ -39,7 +39,7 @@
     "xsa_sha256": "ed4a2ff0149459bbe431c918e9c5c6d69a689a42a6bbe159126bab1c402d417b",
     "elf_sha256": "4992d26c501106aca63c9fc1e1f4cc2a2baccd1ef8c440e3daa9b7bed2128560"
   },
-  "uart": {"rx_pin":"V14", "tx_pin":"V15", "adapter":"external CH340 COM10 115200 8N1", "three_cold_runs_pass":true},
+  "uart": {"rx_pin":"V14", "tx_pin":"V15", "adapter":"external CH340 identified by VID_1A86:PID_7523; observed COM10; 115200 8N1", "adapter_vid_pid":"VID_1A86:PID_7523", "three_cold_runs_pass":true},
   "ddr": {"base":"0x01000000", "bytes":"0x00100000", "dcache":"DISABLED", "phases_passed":9, "three_cold_runs_pass":true},
   "evidence": {
     "summary":"artifacts/results/hellozynq_b1b_uart_ddr_summary.json",

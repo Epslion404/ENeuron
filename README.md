@@ -1,5 +1,20 @@
 # 可塑单神经元硬件基石模拟
 
+## 当前主线
+
+当前工作集中在器件 `xc7z020clg484-2` 上部署 NPU，并用 ENeuron 动态剪枝减少无效权重读取和计算发射。活动代码与证据入口为：
+
+- 单时钟 NPU + ENeuron：`npu_eneuron_reference.py`、`npu_eneuron_protocol.py`、`npu_eneuron_single_clock_skeleton.sv`、`npu_zynq7020_t1_wrapper.sv`。
+- 局部剪枝：`local_prune_*`、`eneuron_local_prune_wrapper.sv`、`digital_lif_engine.sv`。
+- NP7 共享 lane：`np7_shared_synapse_lane.sv`、`np7_weight_ram.sv`、`np7_exec_unit_*.sv` 及对应 oracle/协同仿真。
+- 阶段路线：B1 板级资格 → B2 DMA/固定帧 → B3 NPU+ENeuron 固定向量 → B4 网口端到端 A/B。
+
+当前不可弱化的门限是 bit-exact、dense/full-open 等价、mask/epoch 原子性、reset/backpressure/CDC，以及目标器件 `xc7z020clg484-2` 上的最终 routed timing/DRC。绑定旧 `xc7z020clg400-1` 的 OOC 结果只能作结构参考，不能替代 `clg484-2` 最终证据。高地址 DDR 和 UDP 仍保留，但属于板卡资格支线；在低地址窗口满足模型和 DMA 容量前，不阻塞 NPU MVP。
+
+Pulse-Mini、digit8x8、G4、旧 Tile/Host Bridge 和旧 `clg400` 物理材料已移入 [`archive/legacy/`](archive/legacy/README.md)，只用于追溯。
+
+## 历史基线
+
 当前稳定版本为 **ENeuron 1.0**，版本号见 `VERSION`，冻结范围和证据见 [ENeuron 1.0 发布说明](docs/reports/RELEASE_1.0.md)，其余设计、计划、报告与签核见 [文档索引](docs/README.md)。该版本已完成原始 Goal M1-M4：片外提供神经元级训练信号，片上执行局部权重更新，并在固定 `4 -> 2 -> 2` 双时钟 RTL 网络中完成训练和冻结推理；共享 RAM 扩展、板级闭环和通用 AI 不属于 1.0 声明。
 
 本目录用本机 Python 比较三种适合数字硬件的单神经元候选：

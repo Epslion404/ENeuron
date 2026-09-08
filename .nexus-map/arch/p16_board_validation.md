@@ -2,6 +2,8 @@
 
 verified_at: 2026-09-08
 
+当前边界（中等精简）：实板部署目标为 `xc7z020clg484-2`，NPU + ENeuron 动态剪枝是活动主线。高地址 DDR、PHY、UDP 只属于板卡资格支线，仍用于关闭完整 `B1-GATE`，不阻塞低地址容量满足条件下的 NPU MVP。外置 CH340 由 `VID_1A86:PID_7523` 识别，COM 编号不是稳定契约；旧 `clg400-1` NP7/T3 物理结果和 `archive/legacy/` 材料均不参与日常门。
+
 authoritative_sources: `docs/planning/TODO.md`、`task_plan.md`、`findings.md`、`progress.md`
 
 ## 目标与当前入口

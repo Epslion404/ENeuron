@@ -9,7 +9,11 @@
   "status": "P16_B0_COMPLETE / FASTLANE_V1 / B1A_HW_DEFINITION_COMPLETE / B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DDR_PENDING",
   "stage2_complete": false,
   "current_gate": "B1B-PS7-UART-DDR",
-  "current_execution_point": "RESOLVE_B1B_HIGH_ADDRESS_DDR_BOUNDARY",
+  "active_stage_contract": "docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md",
+  "related_contracts": ["docs/planning/TODO.md#P16", "docs/planning/NPU_PRUNING_TODO.md", "docs/planning/NPU_PRUNING_NP7_TODO.md"],
+  "workflow_resume_counts": "82/10/0=92",
+  "current_execution_point": "B1-06B6_UART_BASELINE",
+  "ddr_accesses_so_far": 0,
   "b0": {
     "source_commit": "f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06",
     "bitstream_sha256": "df16ed6ccd9124f2dc4391d96e868ebd7846aebf3df335099b742cc7cd318971",
@@ -63,8 +67,11 @@
     "gate_pass": true
   },
   "next_action": {
-    "action": "B1-06B_OCM_RESIDENT_SPARSE_4K_REPROBE",
+    "action": "B1-06B6_UART_BASELINE",
     "status": "B1B_HIGH_DDR_PENDING",
+    "uart_baseline_status": "PENDING_DDR_NOT_ACCESSED",
+    "precondition_for_ddr": "UART READY/alive marker must be received before B1-06B7 sends GO",
+    "ddr_accesses_so_far": 0,
     "b1_06a_contract": {
       "status": "FROZEN",
       "execution_location": "low OCM",

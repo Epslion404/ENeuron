@@ -1618,3 +1618,19 @@
 - 身份审查确认当前ELF是在未提交工作树上构建，不能直接作为正式上板候选。构建manifest已增加`git_worktree_clean`，板级runner已增加当前HEAD、工作树洁净度、源码/linker、bitstream/XSA/ELF哈希硬门。下一步先提交并在干净新HEAD重建，不直接运行当前开发ELF。
 - 2026-09-08：B1-06B诊断垂直切片提交为`43ff54d7b284b66a516f858f493707ff2c17c570`，随后在干净工作树重新生成BSP和ELF。manifest记录`git_worktree_clean=true`、入口`0x00000000`、`runtime_end=0x0000D840`、唯一PT_LOAD，正式候选ELF SHA-256=`706ceb092ff1ae819fdf459d1d9200d0254779cf56fed609bee34e329a5a5698`。
 - 分支已推送并创建PR #75；GitHub API显示`OPEN / CLEAN / MERGEABLE`、head=`43ff54d`、checks为空。Actions已关闭，因此空checks只表示未运行；合并依据仍是本机定向门、身份构建和PR边界审查。
+- 2026-09-08：PR #75已合并为`main@436d1b2`，在干净主线上重建OCM诊断ELF，SHA-256=`619ab70c...1b82`。两次上板尝试均未发送GO、未访问DDR；COM32为误选设备，正确CH340为COM13但没有收到UART READY。
+- COM13运行的独立探针确认程序在OCM等待循环：`status=4 / phase=1 / command=0 / completed_accesses=0 / execution_address=0x2844`，PC=`0x29E0`、SP=`0xC020`。TODO已修正为先用已签核低地址应用做一次非冷启动UART基准复测，通过后才重跑高地址最小复现。
+
+## 2026-09-08 项目深度认知调研（本轮）
+
+- 已完成：读取规划技能与编码行为约束；确认仓库无额外 `AGENTS.md`/`CLAUDE.md`，根目录已有规划文件且存在未提交改动。
+- 已完成：根目录和 `docs/boards/.github` 文件清单盘点；确认项目是硬件 RTL、软件参考模型、形式验证、Vivado 和板级证据的混合仓库。
+- 进行中：阅读 README/WORKFLOW/CI、设计契约与测试矩阵，建立权威入口索引。
+- 待完成：按主链路追踪模块依赖，核对测试命令与可复现边界，汇总当前阻塞和建议阅读顺序。
+- 2026-09-08：第一阶段完成。确认 README/REPRODUCE/WORKFLOW/WORKFLOW_STATE/CI 的职责、ENeuron 1.0 声明边界、T1/T2 复现入口和当前 B1B 高地址前置阻塞；未运行构建、仿真、Vivado 或板级动作。
+- 2026-09-08：深度认知调研收口。已核对设计契约、Nexus 索引、核心 RTL/模型/Oracle、NP7 lane、B1A BD/XDC、B1B DDR/OCM 诊断和活动 TODO；低成本门 `python -X utf8 -m unittest -v test_ci_fast_v1 test_b1b_high_diag_contract` 为 10/10，`git diff --check` 通过。未运行长回归、Vivado 或板级动作。
+- 2026-09-08：运行 `workflow_resume.ps1 -Mode Resume` 成功且未修改仓库；发现其“活动 TODO 未完成项：0”与 TODO 明细不一致，已记录为工具摘要风险，不据此改变当前 B1B 阻塞判断。
+- 2026-09-08：按用户澄清重新整理神经元模型线：ENeuron 1.0 为已签核完整学习基线；Pulse-Mini-L 为低成本复制主线；L2 为可选时序未通过的算法实验版。确认 P0-P8 已完成，当前模型研发待办为 P9、P10、可选 P11、P12、P13；功能/物理/阵列门限已写入 findings.md。
+- 2026-09-08：持续推进 TODO 前先复核当前环境与板级入口。发现 B1B 两个 runner 虽在文档中要求按 CH340 VID/PID 识别，实际仍把 `COM10` 作为默认参数；已改为默认按 `VID_1A86:PID_7523` 自动解析唯一 COM 口，保留 `-PortName` 临时覆盖，并在 run manifest 记录 `port_selector`/VID/PID。构建 manifest 的 UART 字段同步改为 VID/PID 合同。
+- 2026-09-08：PowerShell 入口静态检查、B1B 高地址合同、artifact layout 和 CI 分类定向测试通过；未启动 XSCT、未下载 bitstream、未发送 GO、未访问 DDR。当前仍等待实际板卡 UART 基准复测。
+- 2026-09-08：复核 TODO 与持久恢复入口，发现 `workflow_resume.ps1` 只统计已收口的 NP4B TODO，错误显示活动未完成项为 0。已改为统计当前主线的 `TODO.md:P16`、剪枝总合同和 NP7 合同，并补充工作流映射；当前摘要为 82/10/0，共 92 项。PowerShell 解析、定向合同测试 11/11 和 `git diff --check` 通过。
