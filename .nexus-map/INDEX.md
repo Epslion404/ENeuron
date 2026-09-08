@@ -14,6 +14,8 @@
 
 非侵入式监听记录（2026-09-08）：按 `VID_1A86:PID_7523` 监听 COM10，115200 8N1，持续 10 秒，读取 0 字节，未收到 `ENEURON_B1B_BEGIN`、`ALIVE` 或 `PASS`。本次未下载 bitstream/ELF、未发送 GO，DDR access 仍为 0；`B1-06B6_UART_BASELINE_PENDING` 保持不变，不能解释为 DDR 失败。
 
+B1-06B6 实板复测（2026-09-08）：运行目录为 `artifacts/logs/hellozynq_b1b/20260908T202605Z_df56180_b1-06b6_uart_no_marker`，构建 HEAD=`df561803fd44f791a38bda3be3422fe1f6411b77`；按 `VID_1A86:PID_7523` 使用 COM10 监听 20 秒。FPGA program、ELF download、CPU run 均 PASS，但 UART terminal marker=`NO_TERMINAL_MARKER`，DDR accesses=0，因此仍为 `B1-06B6_UART_BASELINE_PENDING`，不能解释为 DDR 失败。两个 runner `boards/hellozynq/b1b_sw/run_b1b_board.ps1` 与 `run_b1b_high_diag_board.ps1` 的 PowerShell `$PID` 参数冲突已修复为 `$ProductId`。
+
 高地址合同已冻结（2026-09-08，当前执行上下文于 2026-09-08 校正）：B1-06A要求诊断ELF独立运行于OCM；`dae5473` 干净构建已重新生成与 manifest 绑定的 OCM 诊断 ELF，SHA-256 为 `3e0469265a1482081ce93188d905753b2fa998673a17e575776e115abfb76f01`，应用范围为 `0x00000000–0x0002EFFF`、入口 `0x00000000`、`runtime_end=0x0000D840`，末尾 4 KiB 保留为结果区。旧 `main@436d1b2`/ELF `619ab70c...1b82` 仅作历史构建参考；新 ELF 尚未上板。B1-06B7 的高地址稀疏探针和 4 KiB 固定模式复现必须以后续 B1-06B6 UART 基准通过为前提。危险访问前预写 OCM 记录，UART、READY 或 GO 任意失败后仍先采集 OCM 和 CPU 状态。不得把构建通过写成整片 DDR、B1B 或 B1-GATE 通过。
 
 B1B实板进度（2026-09-08）：当前活动分支为`codex/b1b-high-ddr-board-repro`，校验基线 HEAD=`969a231`（父级审计基线 `d7e1035`）；已签核硬件身份为`29edf6adc6613445f0983f2c1b8e4d037164985b`，软件身份为`97ddd1a38f00595e580168ebd59fe0b2d8e1db92`。现场诊断后的正式UART为V14 RX、V15 TX、LVCMOS33，外置CH340按`VID_1A86:PID_7523`识别，COM号仅为现场枚举，115200 8N1；bitstream/XSA/ELF为`1f98e949...bc5f6`、`ed4a2ff...d417b`、`4992d26c...128560`。同一冻结组合已在三次完整断电重启后通过UART协议和低地址1 MiB DDR九阶段；`0x10000000`高地址异常仍未关闭，且尚未执行高地址 DDR 访问，因此状态为`B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DDR_PENDING / B1-GATE=false`。

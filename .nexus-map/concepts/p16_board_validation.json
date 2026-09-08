@@ -111,6 +111,22 @@
     "completion_condition": "Explain the earlier 0x10000000 failure and freeze the tested DDR address boundary without invalidating the three cold-run low-address evidence",
     "forbidden_claims": ["whole DDR passed", "B1B complete", "B1-GATE passed"]
   },
+  "b1_06b6_retest": {
+    "observed_at_utc": "2026-09-08T20:26:25.5658047Z",
+    "run_directory": "artifacts/logs/hellozynq_b1b/20260908T202605Z_df56180_b1-06b6_uart_no_marker",
+    "build_git_head": "df561803fd44f791a38bda3be3422fe1f6411b77",
+    "port": "COM10",
+    "adapter_vid_pid": "VID_1A86:PID_7523",
+    "duration_seconds": 20,
+    "fpga_program": "PASS",
+    "elf_download": "PASS",
+    "cpu_run": "PASS",
+    "uart_terminal_marker": "NO_TERMINAL_MARKER",
+    "ddr_accesses": 0,
+    "status": "B1-06B6_UART_BASELINE_PENDING",
+    "interpretation": "No UART terminal marker; this is not DDR failure evidence.",
+    "runner_parameter_fix": {"files": ["boards/hellozynq/b1b_sw/run_b1b_board.ps1", "boards/hellozynq/b1b_sw/run_b1b_high_diag_board.ps1"], "powershell_product_id_parameter": "$ProductId", "previous_collision": "$PID"}
+  },
   "b1a": {
     "source_audit_status": "COMPLETE",
     "source_audit_manifest": ".nexus-map/concepts/board_phase2_b1a.json",

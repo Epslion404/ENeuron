@@ -11,6 +11,20 @@ DIAG_DIR = ROOT / "boards" / "hellozynq" / "b1b_sw"
 
 
 class B1BHighDiagContractTests(unittest.TestCase):
+    def test_serial_resolver_does_not_shadow_powershell_pid(self) -> None:
+        """串口解析参数不能占用 PowerShell 的只读 $PID 变量。"""
+        runners = (
+            DIAG_DIR / "run_b1b_board.ps1",
+            DIAG_DIR / "run_b1b_high_diag_board.ps1",
+        )
+        for runner in runners:
+            text = runner.read_text(encoding="utf-8")
+            self.assertNotIn(
+                "param([string]$RequestedPort, [string]$Vid, [string]$Pid)",
+                text,
+                f"串口解析器仍会与 PowerShell $PID 冲突: {runner}",
+            )
+
     def test_independent_ocm_diagnostic_sources_exist(self) -> None:
         source = DIAG_DIR / "src" / "high_diag.c"
         build_script = DIAG_DIR / "run_b1b_high_diag_build.ps1"

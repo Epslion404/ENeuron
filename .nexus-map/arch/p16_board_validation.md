@@ -10,6 +10,8 @@ authoritative_sources: `docs/planning/TODO.md`、`task_plan.md`、`findings.md`�
 
 监听观察：2026-09-08 按 VID/PID 监听 COM10 10 秒（115200 8N1）读取 0 字节，未见 `ENEURON_B1B_BEGIN`/`ALIVE`/`PASS`；未下载 bitstream/ELF、未发送 GO，DDR access=0。该观察不改变 `B1-06B6_UART_BASELINE_PENDING`，也不是 DDR 失败证据。
 
+B1-06B6 实板复测（2026-09-08）：运行目录为 `artifacts/logs/hellozynq_b1b/20260908T202605Z_df56180_b1-06b6_uart_no_marker`，构建 HEAD=`df561803fd44f791a38bda3be3422fe1f6411b77`。COM10（`VID_1A86:PID_7523`）监听 20 秒期间 FPGA program、ELF download、CPU run 均 PASS，但 UART terminal marker=`NO_TERMINAL_MARKER`，DDR accesses=0；状态仍为 `B1-06B6_UART_BASELINE_PENDING`，不构成 DDR 失败证据。两个 runner 的 PowerShell `$PID` 参数冲突已修复为 `$ProductId`：`boards/hellozynq/b1b_sw/run_b1b_board.ps1`、`boards/hellozynq/b1b_sw/run_b1b_high_diag_board.ps1`。
+
 ## 目标与当前入口
 
 P16 的目标是在 HelloZynq `xc7z020clg484-2` 上依次打通 PL、PS/DDR/网口、DMA、`64→32→10` 传统 NPU、ENeuron 局部门控和网口端到端 A/B。阶段门只由同一身份链上的实板证据关闭；仿真和 OOC 可用于定位，但不能代替 bitstream、JTAG、UART、Host/网口日志与现场观察。

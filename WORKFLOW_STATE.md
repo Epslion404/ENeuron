@@ -19,6 +19,8 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 - 2026-09-08：构建身份`dae5473ba72d6cfaee12ed8e103c0efad190ed4a`的干净工作树已重新完成B1A/B1B/OCM构建；OCM诊断ELF SHA-256=`3e0469265a1482081ce93188d905753b2fa998673a17e575776e115abfb76f01`。该新身份尚未上板，不能与历史`436d1b2` ELF混用。
 - 2026-09-08：对当前枚举的 CH340 COM10 做非侵入式 UART 监听10秒（115200 8N1），读取0字节，未收到`ENEURON_B1B_BEGIN/ALIVE/PASS`；本次未下载 bitstream/ELF、未发送 GO、DDR 访问仍为0，不计为 B1-06B6 通过或 DDR 失败。
 - 2026-09-08：只读 PnP 复核确认符合 `VID_1A86:PID_7523` 的设备只有 `USB-SERIAL CH340 (COM10)`，InstanceId 为 `USB\\VID_1A86&PID_7523\\6&3641E7AA&0&1`；COM6/COM7 为蓝牙串口，不能作为 B1B UART。
+- 2026-09-08：使用干净构建身份`df561803fd44f791a38bda3be3422fe1f6411b77`的低地址B1B组合，在COM10执行B1-06B6复测；FPGA program、ELF download和CPU run均PASS，但20秒内无UART终止标记，结果为`NO_TERMINAL_MARKER`，证据目录为`artifacts/logs/hellozynq_b1b/20260908T202605Z_df56180_b1-06b6_uart_no_marker/`。本次未发送GO、未访问高地址DDR，仍保持`B1-06B6_UART_BASELINE_PENDING`，不计为DDR失败。
+- 2026-09-08：修复普通与高地址B1B runner中与PowerShell只读变量`$PID`冲突的串口解析参数`$Pid`，改为`$ProductId`；新增合同测试覆盖该回归。
 - 2026-09-08：管理员现场确认的三次完整断电冷启动均通过FPGA配置、ELF下载、UART协议、九个低地址DDR阶段和OCM机器结果。状态只提升为`B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS`；此前`0x10000000`异常仍未关闭，因此B1B和B1-GATE均未完成。
 - 2026-09-07：PR #69已合并为 `main@102dee2a004283ce4144aaf6ee0a2cee3ebd2887`；B0正式进入主线。按管理员要求启用Fastlane V1：B1拆为B1A/B1B/B1C小PR，只跑受影响门，身份未变则复用Vivado产物，阶段末集中更新报告/Nexus。
 - 2026-09-07：六个未提交且不再需要的B0时钟诊断文件已移入系统回收站，对应README未提交章节已撤销。旧T0工作树及其未提交修改保持不变；新的主线入口工作树已快进并创建 `codex/zynq7020-b1-fastlane`。
