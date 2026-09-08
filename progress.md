@@ -1,5 +1,20 @@
 # 进度记录
 
+## 2026-09-08 B1-D1批准与B1B启动
+
+- 用户批准`bare-metal + lwIP`。执行范围收敛为先完成JTAG下载、UART banner和DDR小范围测试；lwIP/PHY/UDP留到B1C。
+- 外置CH340已被Windows枚举为COM10并可正常打开，首轮5秒监听无数据；下一步生成并运行最小裸机应用。
+- 已从本机XSCT 2024.1帮助核对可复现路径：用当前XSA直接创建Cortex-A9 standalone应用、导入版本化源码并构建；无需猜测已废弃接口。
+- 已核对官方Memory Tests实现和XSA内容，冻结B1B测试为关闭D-Cache后访问高地址安全窗口，PS初始化直接使用XSA内的`ps7_init.tcl`。
+- 首次Vitis应用构建在模板生成后停滞，未产生ELF；已终止本轮启动的两个构建进程。下一尝试切换为HSI+BSP+ARM GCC直接构建，不重复卡住的IDE后台路径。
+- 已确认卡住前产物足以证明直接构建可行：BSP配置将标准输入输出绑定UART0，默认应用链接到DDR低地址，测试高地址窗口无重叠；下一步替换构建脚本，不依赖Eclipse服务。
+- HSI直接生成与`libxil.a`编译已通过；首次链接因遗漏生成的`Xilinx.spec`而带入默认crt0并失败。已修正为复用BSP且使用Xilinx启动规范，避免重复平台/BSP生成。
+- 应用随后成功链接。第一次上板没有触达硬件：Digilent USB在线但hw_server未运行，XSCT连接失败；脚本现会自动启动本机hw_server并稳健记录空日志。
+- 直接启动unwrapped hw_server只能建立空服务器，未加载到Digilent target；已改用官方bat启动器加载Vivado环境。线缆USB设备状态仍为OK。
+- 官方hw_server现已看到完整Zynq JTAG树；程序在选择A9 #0时因2024.1名称为`ARM Cortex-A9 MPCore #0`而停止。已修正目标过滤器，尚未下载ELF或得到UART结果。
+- 修正后FPGA配置、ELF下载和CPU运行均由XSCT确认通过，但COM10未收到字节；已增加只读CPU/UART寄存器探针，继续定位运行位置和物理输出边界。
+- CPU确认停在DDR失败出口，UART配置正确且TX FIFO为空；`0x10000000`高地址窗口读回异常。已把首通窗口下移到`0x01000000`并增加`0x0002F000` OCM结果记录，准备重编译复测。
+
 ## 2026-09-08 UART重分配 V14/V15
 
 - 用户明确要求`V14=UART_TX`、`V15=UART_RX`。已创建分支`codex/zynq7020-uart-v14-v15`，修改B1A XDC、README和阶段TODO。
@@ -1529,3 +1544,37 @@
 - 2026-09-07：B1A定向验证通过：两份JSON解析与状态断言PASS、六个文档关键锚点PASS、`git diff --check` PASS、硬件身份文件零变化。未运行Vivado和全仓回归，符合Fastlane V1的变更分类。
 - 2026-09-07：B1A-HW开始于 `main@342c3d1`。参考BD已由Vivado 2024.1成功导出；首次直接调用用户给出的unwrapped `vivado.exe`返回exit 1且无输出，改用受支持的 `bin/vivado.bat` 后成功，不再重复错误入口。
 - 2026-09-07：首次尝试用预期的Poppler `pdftotext.exe`路径提取Micron手册失败，该二进制不存在；没有修改来源文件。后续先枚举实际可用PDF文本工具或使用Python PDF库，不重复该路径。
+# 2026-09-08 B1B 低地址 DDR 实板裁定继续
+
+- 管理员已批准继续执行 B1B 低地址版本的 CPU/OCM 机器探针。
+- 当前待裁定对象为最新 ELF（SHA-256 `9c39078165f06b67d7a29810c8fd738a9e0fb203fc288b8510f158c18625aa00`），DDR 首通窗口为 `0x01000000–0x010FFFFF`。
+- 下一动作：运行 `probe_b1b_cpu.tcl` 读取 CPU 状态和 OCM 结果块；依据 `status/phase/fail_address/expected/actual` 判定低地址 DDR PASS 或定位失败阶段。
+- UART 的 `COM10` 仍未收到终止标记；在 DDR 机器结果明确前，不把 UART 空输出推断为应用未运行。
+- 已执行 `xsct.bat boards/hellozynq/b1b_sw/probe_b1b_cpu.tcl`，进程返回 0。
+- OCM 机器结果为 `magic=0x42314231`、`status=2`、`phase=9`、首错字段全 0，低地址 1 MiB DDR 实板 PASS。
+- 下一步只处理 UART 物理路径，并补强 `run_b1b_board.ps1` 对 FPGA program 和 ELF download 标记的硬判定。
+- 已复核 runner 和应用：确认 runner 仅记录但未强制两个 XSCT 阶段标记，应用终态为空循环且一次性 UART 输出可能被遗漏；准备做局部补丁并重新构建。
+- 已加入每秒 `ENEURON_B1B_ALIVE PASS/FAIL` 重发，并把 FPGA program / ELF download 标记纳入 runner 硬门。
+- 官方工具链构建通过，新 ELF 哈希为 `9426b085...3a18`。
+- 20 秒实板运行返回：program PASS、download PASS、XSCT exit 0、UART `NO_TERMINAL_MARKER`，runner 按预期返回 1。下一次不重复相同监听，改为先用 OCM 探针确认新应用终态，再核对 PL UART 顶层连接和现场接线。
+- 新应用 OCM 探针再次 PASS；源 BD/XDC 审计确认 UART0 EMIO 导出，顶层约束为 `V14=txd`、`V15=rxd`。下一步核对实现后 IO/netlist 证据和 COM10/接线事实。
+- 已确认 COM10/CH340 在 Windows 中状态 OK，生成 wrapper 的 UART 端口方向与 XDC 一致。下一步通过实现 checkpoint 核对最终 IO 位置与网表连接，再决定是否需要现场换线或独立 TX 电气探针。
+- 最终 routed checkpoint 的 TX/RX 方向、V14/V15、IOB 和 LVCMOS33 均核对通过。下一步从 COM10 主动发送已知字节，再用 JTAG 查看 UART0 RX 状态/FIFO，以独立验证 `CH340 TXD -> V15`。
+- 已定位 UART0 status/FIFO 寄存器和 RXEMPTY/RXOVR 位；历史 SR=`0x0D` 暗示 RX FIFO 非空且接收触发/溢出。下一步先读取现有 FIFO，再发送固定字节进行可区分验证。
+- XSCT 默认阻止读取 read-once UART FIFO，首次探针在取数前失败；CPU 被 stop 后未由脚本恢复。下一步先查询工具选项，并显式恢复 CPU 后再继续。
+- 已确认 XSCT `mrd -force` 是支持的访问保护覆盖选项，CPU 已恢复运行。
+- RX FIFO 清空前为64个 `0x00`；COM10固定序列只产生一个错误字节 `0xFE`，重复32个 `0x55` 则一个也未到达。软件侧和JTAG侧诊断已收敛，下一步需要用户现场修正/确认交叉接线后再复测。
+- 两个临时 UART 探针 Tcl 已移入 Windows 回收站，可恢复；未保留在仓库工作树。
+- 当前定向验证：Vitis 2024.1 构建 PASS，ELF SHA-256=`9426b085...3a18`；实板 manifest 确认 FPGA program/ELF download=true、UART marker缺失；OCM低地址DDR再次PASS；`git diff --check` PASS。
+- 本轮未提交或推送。当前构建仍绑定旧 HEAD `c644ee8...`，功能与物理UART稳定后必须先提交源码，再在新提交HEAD上重建和重跑正式证据。
+- 2026-09-08：管理员批准 FPGA 端交换 UART 方向进行实板实验；目标映射改为 `V14=RX`、`V15=TX`，外部 CH340 接线保持不动。先做未签核构建和实板判别，旧构建产物另行保留。
+- 旧 B1A/B1B 本地产物已整体移动到仓库外 `D:\Documents\Code\ENeuron-local-archives\20260908_uart_v14tx_v15rx`，没有删除旧证据。
+- XDC与两个硬件README已改为实验映射 `V14=RX`、`V15=TX`。
+- Vivado 2024.1 全实现通过：route/DRC无错误，bitstream SHA-256=`0b335edc5a0a145fa26407389e50b17cfa91dc60431a517357a1aabc83f99612`，XSA SHA-256=`e67e9d73b3732fd29a451bc26c372e207c60b2b07c9e23ac12efa53f7f438740`。该构建仍绑定旧提交且工作树非净，只作实验，不作正式签核。
+- 实现 `report_io` 明确显示 V14=`UART_0_0_rxd/INPUT/LVCMOS33`、V15=`UART_0_0_txd/OUTPUT/LVCMOS33`；setup WNS=`+0.240 ns`、hold WHS=`+0.138 ns`、route/DRC错误=0。
+- B1B程序硬件身份已更新为实验bitstream/XSA哈希，来源字段明确标记 `UNCOMMITTED_UART_SWAP_FROM_c644ee842487`，不冒充正式提交。
+- 新 XSA 已重新生成独立 BSP 并完成 Vitis 2024.1 直接构建；B1B ELF SHA-256=`d5edf5e2a0e54cbf2e7126f2e647dbdad822dbbb842c490800cbb3c091ceb9b4`。下一步下载实验 bitstream/ELF 并监听 COM10。
+- 2026-09-08 12:02（Asia/Shanghai）交换方向实验实板 PASS：COM10 收到完整日志和 `ENEURON_B1B_PASS`；FPGA program、ELF download、UART marker三门全通过。
+- 随后 OCM 探针再次确认 `status=2 / phase=9 / fail fields=0`；run manifest状态为PASS，bitstream/XSA/ELF哈希分别为 `0b335edc...f99612`、`e67e9d73...438740`、`d5edf5e2...eb9b4`。
+- `git diff --check`通过。本轮仍未提交或推送；等待管理员批准 `V14=RX/V15=TX` 成为正式基线后，再提交源码、按新HEAD重建并执行正式冷启动门。
+- 管理员已批准正式基线。B1B硬件身份由手工常量改为构建时读取B1A manifest并校验bitstream/XSA哈希后注入；PowerShell语法、`git diff --check`和Vitis重建通过，实验ELF哈希更新为`32e05000...f5aab`。下一步提交实现基线。

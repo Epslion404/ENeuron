@@ -8,6 +8,51 @@
 - [x] 将证据更新整理为本地提交。
 - [ ] 是否推送、创建PR和合并由管理员另行授权；之后以新bitstream/XSA进入B1B。
 
+# 2026-09-08 B1-D1批准与B1B UART/DDR首通
+
+目标：按已批准的`bare-metal + lwIP`路线，先用最小裸机程序完成JTAG下载、COM10 UART banner和不覆盖程序区的DDR小范围读写；lwIP网络功能留到B1C。
+
+- [x] B1-D1裁定：首轮软件栈为bare-metal，后续网络使用lwIP；不引入Linux启动链。
+- [x] 外置CH340已枚举为COM10，可按115200 8N1打开；此前5秒监听为空，符合尚无应用运行的状态。
+- [ ] 核对Vitis/XSCT 2024.1本机接口与XSA处理方式，冻结可复现构建/下载入口。
+- [ ] 实现固定UART banner和安全DDR测试，输出首错地址、期望值、实际值与最终PASS/FAIL。
+- [ ] 构建ELF，通过JTAG下载当前bitstream和应用，并从COM10采集一次实板运行。
+- [ ] 归档机器证据并更新B1B状态；单次运行通过只满足Fastlane实现门，三次冷启动前不得关闭B1B。
+
+当前执行点：管理员已批准读取最新低地址版本的 CPU/OCM 机器结果。先以 OCM 结果裁定 `0x01000000–0x010FFFFF`，再单独处理 V14 到 CH340 RXD 的 UART 物理链路；两类问题不混合裁定。
+
+低地址裁定结果：`status=2 / phase=9 / fail fields=0`，`0x01000000–0x010FFFFF` 的 1 MiB DDR 首通已 PASS。当前执行点转为 UART 持续发送物理探针和板级 runner 硬门补强；高地址 `0x10000000` 异常仍未关闭。
+
+UART 持续重发首轮：构建与 JTAG 两阶段硬门通过，但 COM10 在 20 秒内仍无 marker，runner 正确失败。下一步先读取新应用 OCM 状态，再审计 EMIO/PL 顶层和 V14/V15 实际方向；不重复相同的串口监听。
+
+错误记录：首次用 XSCT `mrd -value 0xE0000030` 读取 UART RX FIFO 时，工具因该寄存器为 read-once 而报 `Blocked address ... Cannot access read-once register`；本次未消费 FIFO。下一次先查询 `mrd` 支持的访问选项，若无安全强制读路径则改由 CPU 小探针读取，避免重复同一命令。
+
+错误记录：恢复脚本第一次已成功 `con`，修改后第二次执行又调用 `con`，XSCT 返回 `Already running` 并在输出帮助前退出；未改变应用状态。后续将恢复命令放入 `catch`，只查询帮助，不重复依赖 CPU 为停止态的假设。
+
+此前阻塞：旧映射的实现后网表为 `V14=OUT/TX`、`V15=IN/RX`，但CH340双向探针均失败；该阻塞随后通过 FPGA 端换向实验定位并解除。
+
+## 2026-09-08 UART FPGA端换向实验
+
+管理员批准在不改变外部接线的情况下交换 FPGA 端方向，实验映射为 `V14=RX`、`V15=TX`。
+
+- [x] 保留旧 `V14=TX/V15=RX` 构建产物，不把实验覆盖解释为旧证据失效。
+- [x] 修改 XDC 和接线文档，重新实现 B1A，检查最终 routed checkpoint 的方向、管脚和 LVCMOS33。
+- [x] 用新 bitstream/XSA 重建 B1B ELF，更新程序中打印的硬件身份。
+- [x] JTAG program/download，监听 COM10；以 UART marker 和 OCM DDR 状态共同裁定。
+- [x] 实验成功后由管理员批准新映射成为正式基线；旧方向仅保留为历史失败证据。
+
+实验结果：`V14=RX/V15=TX` 单次实板运行 PASS。COM10 收到完整阶段日志与 `ENEURON_B1B_PASS`；run manifest 的 program/download/UART 三门全为 PASS；OCM 为 `status=2 / phase=9 / fail fields=0`。管理员已批准该映射成为正式基线；下一步提交实现并在新HEAD上重建正式证据，B1B最终三次冷启动门仍未完成。
+
+错误记录：首次使用`app create -hw`时，Vitis后台已生成平台和应用骨架，但在模板生成返回后超过数分钟无进展；日志无编译错误。已停止本轮自行启动的XSCT/Eclipse进程，下一次改用不依赖IDE后台服务的HSI BSP生成与ARM GCC直接构建路径，不重复该调用。
+
+错误记录：HSI直接生成和BSP编译已通过，但首次GCC链接未使用生成的`Xilinx.spec`，误带入工具链默认`crt0.o`，导致`__bss_start__/__bss_end__`未定义。下一次复用已生成BSP，只在链接命令加入官方生成的spec文件。
+
+错误记录：第一次上板探针发现JTAG USB仍在线，但`hw_server`未运行且TCP 3121未监听，XSCT在`connect`处退出；运行清单又对空stdout调用方法导致二次异常。已改为必要时启动Vivado 2024.1 hw_server并等待端口，同时把空日志正规化为空字符串。
+
+错误记录：直接启动unwrapped `hw_server.exe`虽监听3121，但没有加载Vivado环境，XSCT连接后target列表为空。已确认Digilent `VID_0403:PID_6014`仍在线；改为通过官方`hw_server.bat`启动以加载线缆插件，不重复裸exe路径。
+
+发现记录：首次高地址测试在`0x10000000`地址别名阶段失败，而应用在DDR低地址可完整执行。首通窗口下移至不与程序重叠的`0x01000000–0x010FFFFF`；高地址容量/地址线验证保留为B1B最终门，不能以小窗口PASS替代。
+
 # 2026-09-07 B1B Fastlane V2
 
 - [x] 将进入B1B前的验证收敛为四项：B1A产物哈希、XSA可读、JTAG可见、UART设备定位。

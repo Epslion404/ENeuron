@@ -609,13 +609,13 @@ P15 硬门：双时钟逐 beat bit-exact；reset/ready-valid/FIFO 满空无丢�
 #### P16-B1：PS7、DDR、UART、PHY和最小 UDP
 
 - [x] B1-00：入口已满足 `B0-GATE=PASS`；Fastlane V1 已进入 `main@308bdecd9573e71340359729fdbb2f3fcb7723c7`，B1A 来源审计从该主线启动。
-- [ ] B1-D1：在 B0 通过后裁定首轮软件栈。推荐 `bare-metal + lwIP`，以减少 Linux启动、驱动和文件系统变量；Linux保留为后续部署候选，不作为首轮 bring-up 前提。
+- [x] B1-D1：管理员已批准首轮使用 `bare-metal + lwIP`；B1B只引入裸机UART/DDR，lwIP在B1C加入。Linux保留为后续部署候选，不作为首轮 bring-up 前提。
 - [x] B1-01A：从固定板厂提交提取 PS7、DDR、UART0、GEM0-EMIO、GMII-to-RGMII、200 MHz FCLK0、复位和XDC来源；机器清单绑定每个关键文件的Git blob与SHA-256。
 - [x] B1-01B：按板载 `MT41K256M16TW-107:P` 冻结为Vivado官方 `MT41K256M16 RE-125` 保守兼容配置，16-bit、533.333333 MHz；仓库内Tcl不依赖板厂绝对路径。
 - [ ] B1-02：UART0/RGMII/MDIO引脚和I/O标准已核对；继续确认板修订、H17 PHY reset时序、物理PHY地址、Bank/电压/器件引脚和完整RGMII板级时序。
-- [x] B1-02U：按管理员裁定将UART0重分配为`V14=TX`、`V15=RX`、LVCMOS33；B1B改用外置3.3 V USB-TTL，板载CH340不再作为串口入口，且测试期间不启用与V14/V15共网的HDMI并行RGB功能。
+- [x] B1-02U：实板诊断后管理员批准UART0正式映射为`V14=RX`、`V15=TX`、LVCMOS33；外置3.3 V USB-TTL保持`V14←适配器TX`、`V15→适配器RX`并共地，不连接VCC，测试期间不启用与V14/V15共网的HDMI并行RGB功能。
 - [ ] B1-03：冻结启动路径和串口合同：首轮由 JTAG 下载硬件与 ELF，串口参数、banner格式、启动超时和重复上电步骤写入脚本；SD/QSPI自启动作为后续独立验证，不混入首次 PS bring-up。
-- [x] B1-04：UART改为V14/V15后已在提交`f0dbc84`上重建PS7+UART0/GEM0/MDIO EMIO+GMII-to-RGMII bitstream与XSA；`136 LUT / 257 FF / 0 BRAM / 0 DSP`，WNS/WHS=`+0.240/+0.126 ns`，route/DRC error为0，bitstream/XSA SHA-256分别为`067289f0...a15cb`、`163c38ef...607f`。
+- [ ] B1-04：旧提交`f0dbc84`的`V14=TX/V15=RX`实现证据保留为历史且已被实板结果否决；批准的`V14=RX/V15=TX`需在本次实现提交上重新生成并绑定bitstream/XSA、资源、时序和route/DRC证据。
 - [ ] B1-05：编写最小启动程序，UART输出固定 banner、软件 Git提交、XSA/bitstream哈希、CPU/FCLK频率、DDR测试范围、PHY状态和复位原因；冷启动3次均需在冻结超时内得到完整且字段一致的日志。
 - [ ] B1-06：DDR先跑不破坏程序区的小范围测试，再跑冻结的大范围；覆盖地址线、walking-1、walking-0、`0x00/0xFF/0xAA/0x55`和固定种子伪随机读写。明确 cache关闭或 flush/invalidate顺序，记录首错地址、期望值、实际值和阶段。
 - [ ] B1-07：通过 MDIO读取并保存 PHY ID、基本状态、协商结果、双工和链路速度；单独执行 PHY reset，验证无需重新配置 PL即可重新发现。目标为1000 Mbps全双工；若外部交换机/网卡只协商到较低速率，先修正测试环境或降低声明范围。

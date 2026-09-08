@@ -4,7 +4,7 @@
 
 关键边界：
 
-- UART0已按管理员裁定改为PL管脚`V14=TX`、`V15=RX`，电平为LVCMOS33。该路径不连接板载CH340，实板测试必须使用外置3.3 V USB-TTL：`V14→适配器RX`、`V15←适配器TX`并共地。V14/V15同时连接板载HDMI发送器的低位并行RGB输入，B1B期间不得同时启用HDMI功能。
+- UART0正式映射为PL管脚`V14=RX`、`V15=TX`，电平为LVCMOS33。该路径不连接板载CH340，实板测试使用外置3.3 V USB-TTL：`V14←适配器TX`、`V15→适配器RX`并共地。V14/V15同时连接板载HDMI发送器的低位并行RGB输入，B1B期间不得同时启用HDMI功能。
 - DDR按板上`MT41K256M16`选择Vivado的`MT41K256M16 RE-125`配置，工作频率533.333 MHz。
 - GMII-to-RGMII转换器的MDIO地址是8；物理RTL8211E地址必须在B1C扫描0–31并读取PHY ID确认。
 - RGMII RX延迟由GMII-to-RGMII IP生成约束；TX数值沿用IP约束，并在板级XDC显式绑定BD顶层端口。构建硬门要求5个TX端口均不得缺少output delay。

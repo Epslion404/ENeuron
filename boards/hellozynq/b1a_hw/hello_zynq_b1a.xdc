@@ -1,5 +1,5 @@
-set_property PACKAGE_PIN V14 [get_ports UART_0_0_txd]
-set_property PACKAGE_PIN V15 [get_ports UART_0_0_rxd]
+set_property PACKAGE_PIN V15 [get_ports UART_0_0_txd]
+set_property PACKAGE_PIN V14 [get_ports UART_0_0_rxd]
 
 set_property PACKAGE_PIN G21 [get_ports MDIO_PHY_0_mdc]
 set_property PACKAGE_PIN H22 [get_ports MDIO_PHY_0_mdio_io]
