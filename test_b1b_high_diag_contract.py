@@ -25,6 +25,18 @@ class B1BHighDiagContractTests(unittest.TestCase):
                 f"串口解析器仍会与 PowerShell $PID 冲突: {runner}",
             )
 
+    def test_low_address_runner_refreshes_xsct_exit_code(self) -> None:
+        runner = (DIAG_DIR / "run_b1b_board.ps1").read_text(encoding="utf-8")
+        self.assertIn(
+            "if (-not $process.WaitForExit(10000))",
+            runner,
+        )
+        self.assertIn(
+            "$process.Refresh()",
+            runner,
+            "读取 .bat 子进程 ExitCode 前必须刷新 Process 对象",
+        )
+
     def test_independent_ocm_diagnostic_sources_exist(self) -> None:
         source = DIAG_DIR / "src" / "high_diag.c"
         build_script = DIAG_DIR / "run_b1b_high_diag_build.ps1"
