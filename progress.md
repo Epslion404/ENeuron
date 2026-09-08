@@ -1616,3 +1616,5 @@
 - 当前状态：B1-06B1/B1-06B2已具备构建证据；B1-06B3～B1-06B5和高地址最小复现仍待实板。下一动作是运行独立高地址诊断入口，先验证OCM READY和CPU状态，再访问`0x10000000`附近稀疏点/4 KiB窗口；在此之前不进入B1-06C或B1C。
 - 实板入口审查发现并修正一个取证缺口：原runner在READY/GO/编程异常时会提前抛出，跳过OCM/CPU probe；现在改为记录`runner_error`、关闭串口后仍执行probe，并在manifest中保存program/arm/probe退出码，最后统一失败退出。该修正尚未上板验证。
 - 身份审查确认当前ELF是在未提交工作树上构建，不能直接作为正式上板候选。构建manifest已增加`git_worktree_clean`，板级runner已增加当前HEAD、工作树洁净度、源码/linker、bitstream/XSA/ELF哈希硬门。下一步先提交并在干净新HEAD重建，不直接运行当前开发ELF。
+- 2026-09-08：B1-06B诊断垂直切片提交为`43ff54d7b284b66a516f858f493707ff2c17c570`，随后在干净工作树重新生成BSP和ELF。manifest记录`git_worktree_clean=true`、入口`0x00000000`、`runtime_end=0x0000D840`、唯一PT_LOAD，正式候选ELF SHA-256=`706ceb092ff1ae819fdf459d1d9200d0254779cf56fed609bee34e329a5a5698`。
+- 分支已推送并创建PR #75；GitHub API显示`OPEN / CLEAN / MERGEABLE`、head=`43ff54d`、checks为空。Actions已关闭，因此空checks只表示未运行；合并依据仍是本机定向门、身份构建和PR边界审查。

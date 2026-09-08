@@ -623,8 +623,8 @@ P15 硬门：双时钟逐 beat bit-exact；reset/ready-valid/FIFO 满空无丢�
 - [x] B1-06A：高地址探针合同已冻结。高地址诊断ELF必须改为从低位OCM运行，代码、页表、堆和栈不得放在DDR；当前正式ELF运行时占用约53 KiB，低位OCM为`0x00000000–0x0002FFFF`，预留末尾4 KiB的`0x0002F000`结果区后容量足够。构建必须检查所有运行时section均低于`0x0002F000`，且ELF下载后先验证OCM执行和UART，再允许写DDR。PS7配置声明的`0x1FFFFFFF`仅是候选上界，不是实板通过事实。
 - [ ] B1-06B：最小复现旧故障。独立高地址诊断源、构建入口和实板入口已创建，未修改已签核的`boards/hellozynq/b1b_sw/src/main.c`及三次低地址证据；OCM ELF构建门已通过，尚待实板先执行`0x10000000`附近稀疏地址点和4 KiB单一固定模式读写。若最小模式不能复现旧失败，必须回查旧程序、构建身份和测试顺序，不得直接宣称高地址已修复。
 - [x] B1-06B1：独立链接脚本把应用区固定为`ORIGIN=0x00000000, LENGTH=0x0002F000`，把`0x0002F000–0x0002FFFF`保留为结果区；代码、向量表、页表、只读数据、可写数据、BSS、heap和全部处理器模式stack均不得进入DDR或结果区。构建产物`runtime_end=0x0000D840`，入口为`0x00000000`。
-- [x] B1-06B2：链接后以`arm-none-eabi-readelf -lW`检查所有`PT_LOAD`的物理范围完全落在`[0x00000000,0x0002F000)`，并以`arm-none-eabi-nm -n`检查入口、向量表、页表、heap、各模式stack和`_end`；任一地址越界时构建返回非零，不生成可上板候选。当前构建`load_segment_count=1`、ELF SHA-256=`9dd88c077c12d8756e41f05b5b83a63fd54705f2f8860f168d0d6eb9c08527ee`。
-- [ ] B1-06B2A：把诊断源、linker、runner、合同测试和本轮文档提交到独立小PR；在干净的新HEAD上重新构建。正式上板入口必须拒绝未提交工作树，并核对当前HEAD、源码/linker、bitstream/XSA/ELF哈希与构建manifest完全一致。当前`9dd88c07...c08527ee`仅为未提交工作树的开发构建，不是正式上板身份。
+- [x] B1-06B2：链接后以`arm-none-eabi-readelf -lW`检查所有`PT_LOAD`的物理范围完全落在`[0x00000000,0x0002F000)`，并以`arm-none-eabi-nm -n`检查入口、向量表、页表、heap、各模式stack和`_end`；任一地址越界时构建返回非零，不生成可上板候选。干净提交`43ff54d`的构建`load_segment_count=1`、ELF SHA-256=`706ceb092ff1ae819fdf459d1d9200d0254779cf56fed609bee34e329a5a5698`。
+- [x] B1-06B2A：诊断源、linker、runner、合同测试和本轮文档已提交为`43ff54d`并创建PR #75；在干净HEAD上重新构建，manifest记录`git_worktree_clean=true`。正式上板入口拒绝未提交工作树，并核对当前HEAD、源码/linker、bitstream/XSA/ELF哈希与构建manifest完全一致。
 - [ ] B1-06B3：DDR危险访问前先在OCM结果记录写入版本、`RUNNING`、阶段、窗口、地址、操作、宽度和期望值并执行内存屏障；读回后再写实际值，失败最后写`FAIL`，全部完成最后写`PASS`，避免CPU异常时只留下空记录。
 - [ ] B1-06B4：ELF下载后先通过UART和OCM记录证明程序确实从OCM执行，再允许访问DDR。实板入口无论UART PASS、FAIL、READY/GO失败或超时，都先停止CPU并采集OCM结果、PC、SP和CPSR，然后才允许reset、重新program或开始下一次运行；runner已改为记录异常后继续执行probe，最后统一返回失败。
 - [ ] B1-06B5：正式证据包保存干净Git HEAD、硬件身份、bitstream/XSA/ELF及源码/linker哈希、链接布局检查、完整UART、OCM结果、CPU状态和首错字段；使用新目录，不覆盖三次低地址冷启动证据。

@@ -78,11 +78,12 @@
       "link_contract": "ocm_app 0x00000000-0x0002EFFF; result record 0x0002F000-0x0002FFFF",
       "post_link_gate": "readelf -lW and nm -n prove all load ranges and runtime symbols remain below 0x0002F000",
       "build_evidence": {
-        "git_head": "3e7f18a5a0d81a06defc1086f071e497e603bcf1",
+        "git_head": "43ff54d7b284b66a516f858f493707ff2c17c570",
+        "git_worktree_clean": true,
         "entry_point": "0x00000000",
         "runtime_end": "0x0000D840",
         "load_segment_count": 1,
-        "elf_sha256": "9dd88c077c12d8756e41f05b5b83a63fd54705f2f8860f168d0d6eb9c08527ee"
+        "elf_sha256": "706ceb092ff1ae819fdf459d1d9200d0254779cf56fed609bee34e329a5a5698"
       },
       "probe": "sparse addresses near 0x10000000, followed by a 4 KiB single-pattern alias/read-write test",
       "stop_on_first_error": true,
