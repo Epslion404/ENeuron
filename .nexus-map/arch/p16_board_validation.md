@@ -6,7 +6,7 @@ verified_at: 2026-09-08
 
 authoritative_sources: `docs/planning/TODO.md`、`task_plan.md`、`findings.md`、`progress.md`
 
-当前工作流上下文（2026-09-08）：活动分支为 `codex/b1b-high-ddr-board-repro`，工作流状态 HEAD=`df56180`，其父级审计基线为 `d7e1035`。当前执行链固定为 `B1-06B6` UART 基准 → `B1-06B7` OCM 高地址最小复现；此前诊断均停在 READY 等待 GO，`command=0`、`completed_accesses=0`，高地址 DDR 尚未访问。
+当前工作流上下文（2026-09-08）：活动分支为 `codex/b1b-high-ddr-board-repro`，工作流状态 HEAD=`dae5473`，其父级审计基线为 `d7e1035`。当前执行链固定为 `B1-06B6` UART 基准 → `B1-06B7` OCM 高地址最小复现；此前诊断均停在 READY 等待 GO，`command=0`、`completed_accesses=0`，高地址 DDR 尚未访问。
 
 ## 目标与当前入口
 
@@ -22,7 +22,7 @@ B1A来源审计固定在板厂`73d529d8...`，其中L17/M17只描述板厂原始
 
 B1B使用外置3.3V CH340，连接V14←TTL TX、V15→TTL RX并共地；V14/V15同时与板载HDMI并行RGB低位共网，B1B不得启用HDMI。`bare-metal + lwIP`路线已批准，裸机UART与低地址1 MiB DDR三次冷启动通过；`0x10000000`高地址异常尚未关闭，lwIP仍留到B1C。
 
-高地址诊断状态：B1-06A合同已冻结，独立诊断ELF必须从低位OCM运行，代码、页表、堆和栈不得进入DDR，并预留OCM结果区。`df56180` 干净构建已通过 `readelf -lW`/`nm -n` 门，生成与 manifest 绑定的 OCM 诊断 ELF，SHA-256=`3e0469265a1482081ce93188d905753b2fa998673a17e575776e115abfb76f01`，应用限制在`0x00000000–0x0002EFFF`，入口`0x00000000`、`runtime_end=0x0000D840`；该新 ELF 尚未上板。旧 `43ff54d`/ELF `706ceb09...a5698` 和 `main@436d1b2`/ELF `619ab70c...1b82` 仅作历史构建参考。先完成 B1-06B6 UART 基准，再在 B1-06B7 运行 `0x10000000` 附近稀疏地址探针与 4 KiB 单一固定模式读写；每次危险访问前预写 OCM 记录，UART、READY 或 GO 成功、失败或超时后都先保存 OCM 和 PC/SP/CPSR。当前仍为`B1B_HIGH_DDR_PENDING`，不得宣称整片DDR、B1B或B1-GATE通过。
+高地址诊断状态：B1-06A合同已冻结，独立诊断ELF必须从低位OCM运行，代码、页表、堆和栈不得进入DDR，并预留OCM结果区。`dae5473` 干净构建已通过 `readelf -lW`/`nm -n` 门，生成与 manifest 绑定的 OCM 诊断 ELF，SHA-256=`3e0469265a1482081ce93188d905753b2fa998673a17e575776e115abfb76f01`，应用限制在`0x00000000–0x0002EFFF`，入口`0x00000000`、`runtime_end=0x0000D840`；该新 ELF 尚未上板。旧 `43ff54d`/ELF `706ceb09...a5698` 和 `main@436d1b2`/ELF `619ab70c...1b82` 仅作历史构建参考。先完成 B1-06B6 UART 基准，再在 B1-06B7 运行 `0x10000000` 附近稀疏地址探针与 4 KiB 单一固定模式读写；每次危险访问前预写 OCM 记录，UART、READY 或 GO 成功、失败或超时后都先保存 OCM 和 PC/SP/CPSR。当前仍为`B1B_HIGH_DDR_PENDING`，不得宣称整片DDR、B1B或B1-GATE通过。
 
 run-1 机器归档由 `boards/hellozynq/b0_smoke/archive_b0_program_run.ps1` 生成。归档 manifest 绑定当前 bitstream `df16ed6c...8971`、program log SHA-256 `0152fe32...a49e`。`field_observation.json` 已更新为稳定闪烁、10周期 `13.42 s` 与 `status=PASS`，当前 SHA-256 为 `d93bcc25...ab083`。run-1已形成机器与现场闭环。
 

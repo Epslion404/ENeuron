@@ -2,7 +2,7 @@
 
 当前门禁边界（中等精简）：`xc7z020clg484-2` NPU + ENeuron 动态剪枝为活动主线；`archive/legacy/` 不触发日常 CI/PR 门。旧 `xc7z020clg400-1` 的 NP7/T3 物理材料仅作历史参考。B1 高地址 DDR、PHY、UDP 是板卡资格支线，仍阻塞板级 `B1-GATE`，但不阻塞低地址容量满足条件下的 NPU MVP；CH340 按 `VID_1A86:PID_7523` 查找而非固定 COM 号。
 
-当前合同层级为阶段合同 `NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`，关联合同为 P16 TODO 段、`NPU_PRUNING_TODO.md` 和 `NPU_PRUNING_NP7_TODO.md`；`workflow_resume` 的权威摘要为 `82/10/0=92`。当前活动分支为 `codex/b1b-high-ddr-board-repro`、工作流状态 HEAD=`df56180`；执行链为 B1-06B6 UART 基准 → B1-06B7 OCM 高地址最小复现。既有诊断未发送 GO，DDR 访问数为 0。
+当前合同层级为阶段合同 `NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`，关联合同为 P16 TODO 段、`NPU_PRUNING_TODO.md` 和 `NPU_PRUNING_NP7_TODO.md`；`workflow_resume` 的权威摘要为 `82/10/0=92`。当前活动分支为 `codex/b1b-high-ddr-board-repro`、工作流状态 HEAD=`dae5473`；执行链为 B1-06B6 UART 基准 → B1-06B7 OCM 高地址最小复现。既有诊断未发送 GO，DDR 访问数为 0。
 
 功能证据校正（2026-09-07，T3=`c2bc03f`，T2 随机矩阵=`ee6c25a`）：PR #64 已合并为 `main@a53a040`；V2 OOC 报告绑定 `f744bff`，GitHub Actions 已关闭。PR #68 的 `55ec08e`/run `33976357259` 是历史可追溯审计快照，不是当前值。P15-T0 的 A1-A7 已获管理员批准，当前为 `P15_T0_APPROVED / T1_RTL_AUTHORIZED / T1_PROTOCOL_SLICE_PROVEN / T1_FULL_PENDING / T2_VARIABLE_CLOCK_SLICE_GREEN / T2_CONCURRENT_EPOCH_SLICE_GREEN / T2_EXTENDED_CLOCK_SLICE_GREEN / T2_FINITE_CLOCK_MATRIX_GREEN / T2_RANDOM_CLOCK_MATRIX_GREEN / T2_FULL_MATRIX_PENDING / T3_XPM_XSIM_PASS / T3_XC7Z020_OOC_PASS / T3_SIGNOFF_PASS`；T3 报告绑定 Vivado 2024.1、`xc7z020clg400-1`、真实 AMD XPM/xsim、顶层 `2467 LUT / 2301 FF / 6 RAMB36 / 1 RAMB18 / 4 DSP48E1`、外部 CDC=0、100 MHz setup/hold/route/DRC error=0。T2 功能证据分层绑定为基础切片 `a616d60`、六组扩展 `f54e762` 和并发 epoch 场景 `872fa90`，文档状态同步为 `af520b2`/`1a3c371`/`8eab78e`；统一入口的 T1/T2 通过标记仍仅是本机复现证据，不能写成 CI 通过。T1-09 已记录为 `NA_FOR_T1_WRAPPER / OUTER_SHIM_PENDING`；资源裁剪已记录但推迟至首次完整端到端运行成功后。
 

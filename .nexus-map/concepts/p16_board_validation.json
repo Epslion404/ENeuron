@@ -8,7 +8,7 @@
   },
   "workflow_context": {
     "active_branch": "codex/b1b-high-ddr-board-repro",
-    "current_head": "df561803fd44f791a38bda3be3422fe1f6411b77",
+    "current_head": "dae5473ba72d6cfaee12ed8e103c0efad190ed4a",
     "parent_audit_baseline": "d7e1035",
     "execution_chain": ["B1-06B6_UART_BASELINE", "B1-06B7_OCM_HIGH_DDR_MINIMAL_REPRODUCTION"],
     "ddr_accesses_so_far": 0
@@ -94,12 +94,13 @@
       "link_contract": "ocm_app 0x00000000-0x0002EFFF; result record 0x0002F000-0x0002FFFF",
       "post_link_gate": "readelf -lW and nm -n prove all load ranges and runtime symbols remain below 0x0002F000",
       "build_evidence": {
-        "git_head": "43ff54d7b284b66a516f858f493707ff2c17c570",
+        "git_head": "dae5473ba72d6cfaee12ed8e103c0efad190ed4a",
         "git_worktree_clean": true,
         "entry_point": "0x00000000",
         "runtime_end": "0x0000D840",
         "load_segment_count": 1,
-        "elf_sha256": "706ceb092ff1ae819fdf459d1d9200d0254779cf56fed609bee34e329a5a5698"
+        "elf_sha256": "3e0469265a1482081ce93188d905753b2fa998673a17e575776e115abfb76f01",
+        "on_board": false
       },
       "probe": "sparse addresses near 0x10000000, followed by a 4 KiB single-pattern alias/read-write test",
       "stop_on_first_error": true,

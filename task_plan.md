@@ -1583,7 +1583,7 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 ## 2026-09-08 TODO 入口校正与下一执行批次
 
 - [x] 将 P16 工作树引用校正为当前活动分支 `codex/b1b-high-ddr-board-repro`，不改变历史完成事实或门限。
-- [x] 将 B1-06B7 更新绑定到当前提交`df561803fd44f791a38bda3be3422fe1f6411b77`重新构建的 OCM ELF（SHA-256=`3e0469265a1482081ce93188d905753b2fa998673a17e575776e115abfb76f01`）；历史`436d1b2` ELF仅保留为审计记录。
+- [x] 将 B1-06B7 更新绑定到当前提交`dae5473ba72d6cfaee12ed8e103c0efad190ed4a`重新构建的 OCM ELF（SHA-256=`3e0469265a1482081ce93188d905753b2fa998673a17e575776e115abfb76f01`）；历史`436d1b2` ELF仅保留为审计记录。
 - [x] 重新核对 CH340 `VID_1A86:PID_7523` 当前枚举为 `COM10`，Vivado/Vitis 2024.1 入口存在；COM 号仍不写入稳定合同。
 - [ ] 提交本轮 TODO/状态/Nexus 小批次，排除用户已有 `artifacts/results/rtl_smoke_results.json` 修改。
 - [x] 在当前提交的干净构建工作树重建 B1A、正式 B1B 和 OCM 高地址诊断产物；构建通过但尚未上板，B1-06B6 非冷启动 UART 基准仍待执行。
