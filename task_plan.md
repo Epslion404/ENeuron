@@ -1,7 +1,7 @@
 # 2026-09-08 UART重分配 V14/V15
 
 - [x] 核对V14/V15未被当前B1A设计占用，并确认板厂例程将其作为LVCMOS并行RGB I/O使用。
-- [x] 冻结管理员裁定：`V14=UART_TX`、`V15=UART_RX`、LVCMOS33，改用外置3.3 V USB-TTL并共地。
+- [x] 历史初始裁定：`V14=UART_TX`、`V15=UART_RX`、LVCMOS33；该方向后续已被实板结果否决，正式基线见下方`V14=RX/V15=TX`记录。
 - [x] 修改B1A XDC、硬件README和阶段TODO；不修改历史来源审计事实。
 - [x] 在提交`f0dbc84`上完成一次Vivado 2024.1实现；V14/V15方向、Bank 33、LVCMOS33、DRC、setup/hold、route和RGMII既有门均通过。
 - [x] 更新B1A机器摘要与Nexus，保持`B1-D1=PENDING`、`B1B=PENDING`、`B1-GATE=false`。
@@ -20,6 +20,8 @@
 - [x] 归档三次冷启动机器证据并更新B1B状态；只关闭UART与低地址1 MiB窗口，高地址DDR仍待验证。
 
 当前执行点：正式映射已冻结为`V14=RX/V15=TX`。同一SW/HW/bitstream/XSA/ELF组合完成三次由管理员确认的完整断电冷启动，UART协议、九个DDR阶段和OCM结果均PASS。下一项转为定位此前`0x10000000`高地址异常；B1B与B1-GATE仍未关闭。
+
+本轮TODO修订：B1-06已拆为B1-06A～B1-06F。B1-06A合同冻结已完成：高地址诊断ELF必须从OCM运行，避免地址别名反向覆盖DDR中的程序。下一动作是B1-06B，实现稀疏地址和4 KiB模式并最小复现`0x10000000`旧故障；本轮不修改`main.c`、不重建ELF、不上板。
 
 低地址裁定结果：`status=2 / phase=9 / fail fields=0`，`0x01000000–0x010FFFFF` 的 1 MiB DDR 首通已 PASS。当前执行点转为 UART 持续发送物理探针和板级 runner 硬门补强；高地址 `0x10000000` 异常仍未关闭。
 

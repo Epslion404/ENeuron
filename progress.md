@@ -1597,3 +1597,10 @@
 - 首次运行`test_artifact_layout + test_ci_fast_v1`时CI-Fast 9/9通过，artifact布局仅因新增B1B摘要未加入固定白名单而失败；已将新文件同步登记到`test_artifact_layout.py`和`artifacts/README.md`，随后复跑验证。
 - 收口复验通过：三份archive manifest逐文件SHA-256一致，三轮run manifest身份与UART九阶段合同一致；相关20份JSON解析通过，artifact layout + CI-Fast为10/10，当前状态陈旧方向扫描和`git diff --check`通过。
 - 首次证据提交时Git提示四份工具生成manifest将从CRLF规范化为LF；已按B0既有做法同时记录runner原始字节SHA-256与仓库canonical-LF SHA-256，避免跨平台克隆后的换行差异被误判为证据损坏。
+- 2026-09-08：管理员要求修正TODO并准备按TODO推进。审计确认PS7配置声明DDR高地址为`0x1FFFFFFF`，生成链接脚本把应用放在`0x00100000`起的DDR，但这些配置事实不能替代高地址实板验证。
+- 高地址TODO已拆为B1-06A～B1-06F：1 MiB安全窗口合同、`0x10000000`最小复现、候选窗口二分、边界重复、通过窗口扩展和最终关闭验收；当前不进入B1C。
+- 错误记录：首次假定仓库源码目录存在`lscript.ld`，读取失败；实际链接脚本由Vitis生成在忽略的build目录。后续已读取生成物确认DDR链接区，不重复错误路径。
+- 错误记录：首次跨TODO/task/workflow补丁因把`progress.md`行作为`task_plan.md`上下文而被原子拒绝；随后一次只读PowerShell命令因双引号内反引号触发字符串解析失败。两次均未修改仓库，已改为逐文件补丁和单引号搜索。
+- 安全复核发现：若高地址故障是地址别名，让诊断程序继续从低地址DDR执行可能覆盖自身。冻结的正式ELF运行时占用约53 KiB，低位OCM在预留`0x0002F000–0x0002FFFF`结果区后仍足够；TODO已修正为诊断ELF完全从OCM运行，并先做稀疏/4 KiB最小复现，再扩大窗口。
+- B1-06A合同冻结完成并已勾选；唯一下一动作更新为B1-06B。顶部旧`V14=TX/V15=RX`记录已明确标为历史失败方向，防止恢复会话误用。
+- 错误记录：勾选B1-06A的首次补丁对`task_plan.md`声明了两个更新操作，被`apply_patch`拒绝且未修改文件；随后按每个文件单次更新完成。
