@@ -59,3 +59,5 @@ B2 missing-TLAST 覆盖（2026-09-09）：正式 run `20260909T133721Z`（HEAD `
 B2 packet-NPU 适配器切片（2026-09-09）：提交 `cb9eb66` 的 `b2_npu_packet_adapter.sv` 完成 ingress→T1 wrapper→egress 的 response 基础路径，提交 `62f2d8b` 新增合法 `mask/fence/sample/result` 端到端切片；本机合同测试分别为 4/4、3/3，状态为 `B2_NPU_PACKET_ADAPTER_PASS` 与 `B2_NPU_PACKET_ADAPTER_E2E_PASS`。覆盖仍限于 RTL/Icarus 合同，不是板级证据；B2-07 完整错误矩阵、B2-08 计数账本和 packet path 实板验证仍待完成。
 
 B2 packet 顶层与物理构建边界（2026-09-09）：提交 `ea35d74` 将 `b2_npu_axis_top` 接入 B2 BD，提交 `1d0e3ba` 将源文件固定为 `boards/hellozynq/b2_hw/b2_npu_axis_top.v` 并采用 Verilog BD reference；`test_b2_npu_axis_top_contract.py` 为 3/3。本地 `boards/hellozynq/b2_hw/build/` 现有 bit/XSA/报告仍绑定旧 HEAD `b2332a0`，不是 `1d0e3ba` 后的重建结果；因此只能记录为 `STALE_PRE_PACKET_TOP_BUILD`，不能宣称新 packet-NPU 顶层已通过 `xc7z020clg484-2` 物理门。
+
+B2-07 ingress fail-closed 子门（2026-09-10）：`tb_b2_packet_ingress.sv` 已覆盖坏 magic（错误码 `0x1`）、错误 version（`0x2`）、未知 type（`0x3`）和保留 flags 非零（`0x4`）；四个场景均在帧拒绝后确认无 command/sample/busy 状态泄漏。`test_b2_packet_ingress_contract.py` 为 `4/4 PASS`，T1 复现入口输出 `REPRO_G0_MANIFEST_PASS`、`REPRO_G1_T1_PROTOCOL_SLICE_PASS`。该增量不改变物理边界：新 packet-NPU 顶层仍未完成目标器件 routed timing/DRC、bitstream/XSA 重建或实板验证。

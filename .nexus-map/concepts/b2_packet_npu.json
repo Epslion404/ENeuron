@@ -34,6 +34,20 @@
       "test": "test_b2_npu_axis_top_contract.py",
       "result": "3/3 PASS",
       "scope": "B2 BD top-level Verilog reference and packet-NPU wiring"
+    },
+    "B2_07_INGRESS_FAIL_CLOSED_PASS": {
+      "commits": ["c1f3c8c", "1b35180", "2e6734c", "0598d53"],
+      "testbench": "tb_b2_packet_ingress.sv",
+      "test": "test_b2_packet_ingress_contract.py",
+      "result": "4/4 PASS",
+      "repro": ["REPRO_G0_MANIFEST_PASS", "REPRO_G1_T1_PROTOCOL_SLICE_PASS"],
+      "cases": [
+        "bad magic -> error 0x1",
+        "unsupported version -> error 0x2",
+        "unknown type -> error 0x3",
+        "reserved flags -> error 0x4"
+      ],
+      "invariant": "rejected frames do not leak cmd_valid, sample_valid, or busy"
     }
   },
   "physical_build": {

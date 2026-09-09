@@ -1841,3 +1841,9 @@
 - 输出 header、payload 和 CRC32 与 `b2_packet_protocol.py` 字节级参考一致；result 的 sample/model/epoch/sequence sideband 中途变化会整帧拒绝。
 - `tb_b2_packet_egress.sv` 实跑输出 `B2_PACKET_EGRESS_PASS`；ingress/egress 已分别进入 T1 复现入口。
 - 当前仍未把 packetizer 接入 `npu_zynq7020_t1_wrapper` 或 XC7Z020 B2 BD；实板错误帧丢弃和 B2-08 fence 仍待完成。
+
+## 2026-09-10 用户证据归档
+
+- `artifacts/results/rtl_smoke_results.json` 已确认在仓库中。
+- 按用户授权，将两组 B2 timing-fail 原始日志目录 `b2_backpressure_timing_fail_20260909_a404a8e/`、`b2_backpressure_timing_fail_20260909_a404a8e_fifo_default/` 与交换 TX/RX 后的 UART 通过目录 `b2_backpressure_uart_pass_20260909_55822ae/` 中的 `*.log` 纳入 Git；manifest、报告和 README 原已跟踪。
+- 当前 packet-NPU Vivado 实现未完成：进程结束时没有 `.route_design.end.rst`、最终 timing signoff、bitstream/XSA 或 `B2_BUILD_PASS`，因此只保留为未完成/拥塞证据。

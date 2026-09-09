@@ -1,0 +1,18 @@
+B2_DMA_BEGIN
+PROTOCOL=B2_DMA_LOOPBACK_V1
+TARGET=xc7z020clg484-2
+TX_BUFFER=0x01006000 RX_BUFFER=0x01007000
+FRAME_LIMIT=4096 ALIGNMENT=64
+FRAME_LENGTHS=0,1,4,16,64,512,1472,4096
+B2_DMA_REJECT sequence=1 length=0 reason=zero_length
+B2_DMA_PASS sequence=2 length=1 crc32=0x56BCAE53 elapsed_us=0
+B2_DMA_PASS sequence=3 length=4 crc32=0x347D3C23 elapsed_us=0
+B2_DMA_PASS sequence=4 length=16 crc32=0x950B6607 elapsed_us=0
+B2_DMA_PASS sequence=5 length=64 crc32=0x771D11B2 elapsed_us=1
+B2_DMA_PASS sequence=6 length=512 crc32=0x093E2A36 elapsed_us=1
+B2_DMA_PASS sequence=7 length=1472 crc32=0xBC8BF490 elapsed_us=2
+B2_DMA_PASS sequence=8 length=4096 crc32=0xC0032E56 elapsed_us=5
+B2_PRESSURE_PASS frames=10000 crc32=0x7D51FB01 last_sequence=10008
+B2_BACKPRESSURE_PASS frames=64 crc32=0xCF19AE63 last_sequence=10072 stall_cycles=83082
+B2_DMA_PASS frames=7 rejected_zero=1
+

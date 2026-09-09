@@ -7,6 +7,8 @@
 - [ ] 路由拥塞从初始 `147240` 个 overlap 降到 `113569`；完整设计 placement 已使用 `48671/53200` LUT、`13300/13300` slice，DSP48E1 保持恰好 4 个。
 - [ ] 第 5.2 轮已完成并进入第 5.3 轮；中间 timing 为 `WNS=-7.854 ns`、`TNS=-396387.086 ns`、`WHS/THS=N/A`，仍只能作为风险证据。
 - [ ] 第 5.3 轮最新 overlap=`135963`，较上一轮回升；route 尚未终态，继续保留当前构建。
+
+补充记录（2026-09-10）：Vivado 进程已结束，但 `impl_1/.route_design.end.rst` 不存在，`runme.log` 最后停在 `Phase 5.3 Global Iteration 2`，没有 `route_design completed`、最终 timing signoff、bitstream/XSA 或 `B2_BUILD_PASS`。该构建按未完成/拥塞证据保留，不作为物理通过。
 - [x] B2-07 增量：补充坏 magic 单拍帧合同，确认错误码和 fail-closed 状态；完整错误矩阵仍未关闭。
 - [x] B2-07 增量：补充错误版本完整帧合同，确认边界拒绝和 fail-closed 状态；完整错误矩阵仍未关闭。
 - [x] B2-07 增量：补充未知消息类型完整帧合同，确认边界拒绝和 fail-closed 状态；完整错误矩阵仍未关闭。
