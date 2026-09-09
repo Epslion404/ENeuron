@@ -10,6 +10,7 @@
 - 错误版本切片同样通过：完整帧返回 `ERR_BAD_VERSION`，且在帧边界前不泄露 payload；该结果只增加 B2-07 子覆盖，不改变整体门状态。
 - 未知类型切片通过：完整帧返回 `ERR_BAD_TYPE`，且不进入 command/sample 输出状态；flags/keep/TLAST/CRC/超时/复位矩阵仍待补齐。
 - 保留 flags 切片通过：完整帧返回 `ERR_BAD_FLAGS`，且不进入 command/sample 输出状态；该子门不改变 B2-07 整体未完成状态。
+- 首拍非法 `TKEEP` 切片通过：返回 `ERR_BAD_KEEP`，且不进入任何下游输出状态；错误长度、TLAST、CRC、超时/复位场景仍待补齐。
 
 ## 2026-09-09 物理构建核验
 

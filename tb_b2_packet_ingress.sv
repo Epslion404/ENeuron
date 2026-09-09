@@ -46,6 +46,24 @@ module tb_b2_packet_ingress;
         end
     endtask
 
+    task automatic send_word_keep(input logic [31:0] data, input logic [3:0] keep, input logic last);
+        begin
+            @(negedge clk);
+            while (!s_ready) @(negedge clk);
+            s_data = data;
+            s_keep = keep;
+            s_last = last;
+            s_valid = 1'b1;
+            @(posedge clk);
+            while (!s_ready) @(posedge clk);
+            @(negedge clk);
+            s_valid = 1'b0;
+            s_last = 1'b0;
+            s_keep = 4'hF;
+            s_data = '0;
+        end
+    endtask
+
     task automatic expect_error(input logic [3:0] expected);
         begin
             while (!error_valid) @(posedge clk);
@@ -65,6 +83,11 @@ module tb_b2_packet_ingress;
         send_word(32'h0000_0000, 1'b1);
         expect_error(4'h1);
         if (cmd_valid || sample_valid || busy) $fatal(1, "bad magic frame leaked state");
+
+        // 首拍 TKEEP 非法必须拒绝，不能把部分字节当作 magic/header。
+        send_word_keep(32'h3242_4e45, 4'h7, 1'b1);
+        expect_error(4'h7);
+        if (cmd_valid || sample_valid || busy) $fatal(1, "bad keep frame leaked state");
 
         // 错误版本必须等到帧边界后整体拒绝，不得提前释放 payload。
         send_word(32'h3242_4e45, 1'b0);
