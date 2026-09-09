@@ -2,9 +2,9 @@
 
 当前覆盖边界：活动部署目标为 `xc7z020clg484-2`，NPU + ENeuron 动态剪枝证据优先。`archive/legacy/` 材料不参与日常门；旧 `xc7z020clg400-1` NP7/T3 物理结果只作历史参考。B1 高地址 DDR/PHY/UDP 属于板卡资格支线，完整 `B1-GATE` 仍待关闭；低地址窗口满足模型/DMA 容量后可继续 NPU MVP。CH340 以 `VID_1A86:PID_7523` 识别，COM10 仅为现场枚举记录。
 
-合同/统计边界（2026-09-09）：当前阶段合同为 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`；P16 TODO、`NPU_PRUNING_TODO.md` 和 `NPU_PRUNING_NP7_TODO.md` 为关联合同，P16 当前活动未完成项为 `63`。当前活动分支为 `codex/b1b-high-ddr-board-repro`、仓库 HEAD=`6f3d40e6f0470bbb57a9a10fb107ffc892add25c`；主线覆盖入口为 B2-03 低地址实板 DMA 回环。旧 `20260909T022102Z` JTAG 账本记录边界矩阵（7 PASS + 1 拒绝 + 0 失败）及 10000 帧确定性压力（10000 PASS + 0 失败）；当前同源 `20260909T045710Z` 追加双向 probe 的 64-byte 端点证据，但 UART、受控背压、连续回绕和错误恢复仍缺，B2-03/B2-GATE 未关闭。B1-06B6 UART 基准 → B1-06B7 OCM 高地址最小复现仍是资格支线，高地址 DDR 访问仍为 0。
+合同/统计边界（2026-09-09）：当前阶段合同为 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`；P16 TODO、`NPU_PRUNING_TODO.md` 和 `NPU_PRUNING_NP7_TODO.md` 为关联合同，P16 当前活动未完成项为 `63`。当前活动分支为 `codex/b1b-high-ddr-board-repro`、仓库 HEAD=`a404a8efe72babce623651dc7c6a04501e2713e6`；旧 `20260909T045710Z` 仅证明旧身份链的单端点 probe，不能覆盖当前新增背压。2026-09-09 物理构建门禁 PASS（WNS=+0.123 ns/WHS=+0.023 ns/TNS/THS=0，route errors=0，DRC hard errors=0），但 manifest 标记工作树非 clean，软件 manifest/ELF 尚未重建；B2-03/B2-05/B2-GATE 未关闭，B1 高地址 DDR 访问仍为 0。
 
-B2 观测器覆盖（2026-09-09）：双 `axi_stream_monitor:1.1` 与单 monitor 的 Vivado 2024.1 routed setup 实验均失败，分别为 `WNS/TNS=-0.325/-11.113 ns`（127 个 setup 失败端点）和 `-0.284/-22.272 ns`（256 个端点），均不计入正式物理通过。自有轻量 `axis_stream_probe` 已随同源 bit/XSA/ELF 在 `20260909T045710Z` 上板；自动归档证明 `probe_exit_code=0`，MM2S/S2MM 各 `16 beats/64 bytes/TLAST=1/TKEEP=0xF/stall=0`。定向合同测试当前实际收集并通过 `21/21`（12+5+4）。覆盖仍不包括受控背压、连续回绕、错误恢复和 UART terminal marker，B2-03/B2-GATE 保持未完成。
+B2 观测器覆盖（2026-09-09）：官方双/单 monitor 的 routed setup 失败分别为 `WNS/TNS=-0.325/-11.113 ns`（127 个端点）和 `-0.284/-22.272 ns`（256 个端点），均不计入正式物理通过。旧同源 probe 运行已归档 `probe_exit_code=0`、MM2S/S2MM 各 `16 beats/64 bytes/TLAST=1/TKEEP=0xF/stall=0`；当前 `axis_stream_probe.v` 新增寄存器化受控背压，物理构建门禁 PASS（WNS=+0.123 ns、WHS=+0.023 ns、TNS/THS=0、route errors=0、DRC hard errors=0），但尚无新背压软件/实板证据。定向合同测试为 `25/25` 通过。
 
 新增监听观察（2026-09-08）：COM10（VID/PID=`VID_1A86:PID_7523`）以 115200 8N1 非侵入式监听 10 秒，读取 0 字节，未收到 `ENEURON_B1B_BEGIN`、`ALIVE` 或 `PASS`；未下载 bitstream/ELF、未发送 GO。该结果维持 `B1-06B6_UART_BASELINE_PENDING`，不构成 DDR 失败或高地址访问证据。
 

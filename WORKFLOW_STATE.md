@@ -14,6 +14,8 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 
 2026-09-09：B2-D1 首轮 AXI DMA 控制合同已冻结为 simple mode、单次 buffer、polling、S2MM 先行、1 us polling、1 s 传输超时、500 次 reset poll、错误/超时寄存器快照和一次短帧恢复；DMA 已进入 B2 loopback 拓扑，随后已完成低地址实板传输。
 
+2026-09-09：B2 轻量双向 `axis_stream_probe` 已完成 `Performance_Explore` 物理重建；`run_b2_build.ps1` 新增时序、布线和 DRC 硬错误 fail-closed 门禁，并将 probe RTL 纳入 source hash。当前 runner 实际输出 `B2_TIMING_PASS`，WNS/WHS=`+0.123/+0.023 ns`、TNS/THS=`0/0`、route errors=`0`、DRC hard errors=`0`；bit=`cfec6a40...e743d`、XSA=`6ee9d6f3...40cb`。该门禁只证明构建身份和物理报告可信，不关闭 B2-03/B2-05/B2-GATE。
+
 2026-09-09：B2 loopback 拓扑在修正 AXI 协议转换和 `proc_sys_reset` 同步复位后，已于 HEAD `bba0936` 使用 Vivado 2024.1、`xc7z020clg484-2` 重建 `.bit/.xsa`；post-route WNS/WHS=`+0.240/+0.036 ns`、TNS/THS=`0/0`、route error=`0`、DRC error=`0`。bitstream/XSA SHA-256 分别为 `d694fa02...d918`、`68dc2b8e...897a`；当前 DRC 仅有 1 个继承的 GMII/RGMII 时钟缓冲 warning 和 4 个 DMA BRAM advisory，不能代替实板证据。
 
 2026-09-09：新增 `boards/hellozynq/b2_sw` standalone DMA polling 应用和构建/上板入口；Vitis 2024.1 BSP 实际包含 `axidma_v9_18`，应用绑定低地址 `loopback_tx=0x01006000`、`loopback_rx=0x01007000`，执行 RX(S2MM)先行、TX flush、RX invalidate、1 us polling 和 1 s 超时。构建 manifest 绑定 ELF SHA-256=`48d29f596428c827f6407d951d2106ebe570c270551e83e4b517757acda88800`；该 ELF 已下载并执行，后续实板证据以独立 run manifest 为准。

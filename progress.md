@@ -1706,6 +1706,14 @@
 - 产物 SHA-256：bit=`994c512c9631ef21d59743d583a4563264a4f0e897e9fe6e71145b1bc7373f38`、XSA=`d43830c84cedb8d8d0e0d249bff24770ea0802648a8a6a10cd0f68fce78ef303`；定向契约测试 `16/16` 通过，`git diff --check` 通过。
 - 该结果只说明 probe 拓扑已经可实现，不关闭 B2-03/B2-05/B2-GATE；下一步是用该同源 bit/XSA 重建软件并上板读取 byte/beat/TKEEP/TLAST/周期计数，再实现可控背压切片。
 
+## 2026-09-09 B2 物理构建门禁实现
+
+- `run_b2_build.ps1` 新增 `Assert-B2TimingGreen`：解析 `timing_impl.rpt` 的 Design Timing Summary，要求 `WNS>=0`、`TNS=0`、`WHS>=0`、`THS=0`；同时要求 route errors=`0`，并拒绝 DRC `Error/Critical Warning`。
+- `axis_stream_probe.v` 已纳入 `source_sha256`，manifest 的 signoff 新增 `B2_TIMING_PASS`、WNS/WHS/TNS/THS、route 和 DRC hard-error 字段。
+- 完整 Vivado 2024.1 runner 实际通过：器件 `xc7z020clg484-2`，`WNS=+0.123 ns`、`WHS=+0.023 ns`、`TNS/THS=0`、route errors=`0`、DRC hard errors=`0`；bit=`cfec6a40d94b159e...e743d`，XSA=`6ee9d6f359e2ad3c...40cb`。
+- 定向 B2 合同测试 `45/45` 通过，PowerShell AST 解析通过；首次通配符 pytest 和纯 UTF-8 JSON 校验失败均为 Windows/PowerShell 命令边界问题，已改用显式文件枚举和 `ConvertFrom-Json`，未计入代码失败。
+- 当前物理门禁已闭合，但 B2-03/B2-05/B2-GATE 仍受实板背压、错误恢复、连续回绕和 UART 终止证据约束；NPU/ENeuron 尚未接入。
+
 ## 2026-09-09 B2 软件身份校验补强
 
 - 在 `run_b2_board.ps1` 中新增烧写前 bitstream/XSA/ELF SHA-256 与 `build_manifest.json` 的 fail-closed 一致性检查；不一致时在启动 `hw_server`、打开串口和 FPGA program 前直接报 `B2 artifact hash mismatch`。

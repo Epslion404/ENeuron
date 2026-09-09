@@ -1,6 +1,6 @@
 # 核心领域概念
 
-当前主线（2026-09-09）：部署目标为 `xc7z020clg484-2`，聚焦 NPU + ENeuron 动态剪枝。`archive/legacy/` 不参与日常门；旧 `xc7z020clg400-1` 的 NP7/T3 物理证据仅作历史参考。B1 高地址 DDR、PHY、UDP 属于板卡资格支线，完整 `B1-GATE` 仍未关闭，但不阻塞已冻结低地址窗口内的 B2-MVP 构建与实板回环，也不阻塞后续 NPU MVP。CH340 按 `VID_1A86:PID_7523` 识别，COM10 不是固定合同。当前活动分支为 `codex/b1b-high-ddr-board-repro`、仓库 HEAD=`6f3d40e6f0470bbb57a9a10fb107ffc892add25c`；COM6/COM7 蓝牙串口排除。
+当前主线（2026-09-09）：部署目标为 `xc7z020clg484-2`，聚焦 NPU + ENeuron 动态剪枝。`archive/legacy/` 不参与日常门；旧 `xc7z020clg400-1` 的 NP7/T3 物理证据仅作历史参考。B1 高地址 DDR、PHY、UDP 属于板卡资格支线，完整 `B1-GATE` 仍未关闭，但不阻塞低地址 B2-MVP。当前 HEAD 为 `a404a8efe72babce623651dc7c6a04501e2713e6`；`axis_stream_probe.v` 的受控背压物理构建门禁已于 2026-09-09 PASS，但 manifest 为 dirty，仍需重建软件/硬件同源身份链。
 
 - `ACTIVE_CONTRACT_HIERARCHY`：当前阶段合同为 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`；`docs/planning/TODO.md` 的 P16 段、`docs/planning/NPU_PRUNING_TODO.md` 和 `docs/planning/NPU_PRUNING_NP7_TODO.md` 为关联合同。P16 当前活动未完成项为 `63`。
 - `B1_06B6_UART_BASELINE_PENDING`：当前先按 VID/PID 恢复 CH340 UART 接收基准；此前诊断停在 READY 等待 GO，`command=0`、`completed_accesses=0`，尚未进行 DDR 访问。执行链固定为 B1-06B6 UART 基准 → B1-06B7 OCM 高地址最小复现；B1-06B7 高地址探针必须以后续 UART 基准通过为前提。
@@ -12,8 +12,8 @@ provenance: NP4B/NP6/NP7 TODO、工作流状态与 RTL 文件；集成边界来�
 
 - `B1A_HW_DEFINITION_COMPLETE`：当前身份为`29edf6a...`，UART0使用Bank 33的V14 RX/V15 TX、LVCMOS33并已由最终I/O确认FIXED；bitstream/XSA为`1f98e949...bc5f6`/`ed4a2ff...d417b`。该状态本身不表示整个B1-GATE通过。
 - `B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DDR_PENDING`：`bare-metal + lwIP`路线已批准；固定SW/HW/bitstream/XSA/ELF在三次完整断电后通过外置CH340 UART协议和低地址1 MiB DDR九阶段。此前`0x10000000`异常未关闭，不得写成整片DDR、B1B或B1-GATE通过。
-- `B2_BOUNDARY_AND_PRESSURE_JTAG_PASS_UART_PENDING / B2_03_BOARD_PENDING`：低地址窗口 `[0x01000000,0x01100000)`、B2-D1 DMA 控制合同和 `0x01006000/0x01007000` 收发缓冲区已冻结；HEAD `6f3d40e` 的同源 bitstream/XSA/ELF 已完成真实 program/download/run。最新证据目录为 `boards/hellozynq/b2_sw/build/6f3d40e6f0470bbb57a9a10fb107ffc892add25c/direct/runs/20260909T022102Z/`，JTAG ledger 证明边界矩阵共 8 帧（7 PASS、1 拒绝、0 失败），并完成 10000 帧确定性压力（10000 PASS、0 失败、CRC32 XOR=`0x7D51FB01`、最后 sequence=`10008`）；UART 为 `COM10:NO_TERMINAL_MARKER`。PL 流计数、TKEEP/TLAST、连续回绕、受控背压和错误恢复仍待完成；B2-GATE 通过前不得接入 NPU 或报告剪枝加速、功耗收益。
-- `B2_MONITOR_TIMING_EXPERIMENT_ONLY / B2_STREAM_PROBE_BOARD_PASS`：官方双/单 `axi_stream_monitor:1.1` routed setup 实验均失败，不是正式物理基线；自有双向 `axis_stream_probe` 已以同源 bit/XSA/ELF 在 `20260909T045710Z` 上板，MM2S/S2MM 各 `16 beats/64 bytes/TLAST=1/TKEEP=0xF/stall=0`、`probe_exit_code=0`。合同测试当前 `21/21` 通过，但受控背压、连续回绕和错误恢复仍未覆盖，B2-03/B2-GATE 不变。
+- `B2_BOUNDARY_AND_PRESSURE_JTAG_PASS_UART_PENDING / B2_03_BOARD_PENDING`：旧 HEAD `6f3d40e` 同源三件套已完成 `20260909T045710Z` 单端点 probe（16 beats/64 bytes/TLAST=1/TKEEP=0xF/stall=0）；当前 `axis_stream_probe.v` 背压源代码与 64 帧软件合同已加入，2026-09-09 物理构建门禁 PASS（WNS=+0.123 ns/WHS=+0.023 ns/TNS/THS=0，route errors=0，DRC hard errors=0），但 manifest 仍为 dirty且无新背压实板证据。B2-03/B2-05/B2-GATE 通过前不得接入 NPU 或报告剪枝加速、功耗收益。
+- `B2_MONITOR_TIMING_EXPERIMENT_ONLY / B2_STREAM_PROBE_BOARD_PASS / B2_BACKPRESSURE_BUILD_GATE_PASS_BOARD_PENDING`：官方双/单 `axi_stream_monitor:1.1` routed setup 实验均失败；旧双向 probe 运行已读到 MM2S/S2MM 各 16 beats/64 bytes/TLAST=1/TKEEP=0xF/stall=0。`axis_stream_probe.v` 已使用寄存器化背压缓冲，`run_b2_build.ps1` 已加入严格物理门禁和 `axis_stream_probe.v` source hash；当前定向合同测试为 25/25 通过，但软件/实板证据仍待完成。
 
 - `TICK`：推进一个样本或网络时刻。
 - `OBSERVE`/`evidence`：读取已提交学习证据，不读取 live 工作副本。

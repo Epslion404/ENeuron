@@ -8,13 +8,13 @@
   },
   "workflow_context": {
     "active_branch": "codex/b1b-high-ddr-board-repro",
-    "current_head": "6f3d40e6f0470bbb57a9a10fb107ffc892add25c",
+    "current_head": "a404a8efe72babce623651dc7c6a04501e2713e6",
     "parent_audit_baseline": "d7e1035",
     "execution_chain": ["B2-03_BOARD_MINIMAL_LOOPBACK", "B2-04_BOUNDARY_FRAMES", "B2-05_BACKPRESSURE_AND_PRESSURE"],
     "qualification_execution_chain": ["B1-06B6_UART_BASELINE", "B1-06B7_OCM_HIGH_DDR_MINIMAL_REPRODUCTION"],
     "ddr_accesses_so_far": 0
   },
-  "status": "P16_B0_COMPLETE / FASTLANE_V1 / B1A_HW_DEFINITION_COMPLETE / B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DDR_PENDING / B2_00_LOW_ADDRESS_LAYOUT_FROZEN / B2_D1_DMA_CONTRACT_FROZEN / B2_01_BUFFER_OWNERSHIP_FROZEN / B2_MATCHED_ARTIFACTS_AND_STREAM_PROBE_BOARD_PASS / B2_03_PENDING",
+  "status": "P16_B0_COMPLETE / FASTLANE_V1 / B1A_HW_DEFINITION_COMPLETE / B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DDR_PENDING / B2_00_LOW_ADDRESS_LAYOUT_FROZEN / B2_D1_DMA_CONTRACT_FROZEN / B2_01_BUFFER_OWNERSHIP_FROZEN / B2_STREAM_PROBE_BOARD_PASS / B2_BACKPRESSURE_BUILD_GATE_PASS_DIRTY_WORKTREE / B2_03_B2_05_PENDING",
   "stage2_complete": false,
   "current_gate": "B2-03-BOARD-LOOPBACK",
   "active_stage_contract": "docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md",
@@ -75,7 +75,7 @@
     "gate_pass": true
   },
   "b2": {
-    "status": "IN_PROGRESS_LOW_ADDRESS_MVP_B2_01_COMPLETE_B2_03_BOUNDARY_AND_PRESSURE_JTAG_PASS_UART_PENDING_B1_GATE_PENDING",
+    "status": "IN_PROGRESS_LOW_ADDRESS_MVP_B2_01_COMPLETE_STREAM_PROBE_BOARD_PASS_BACKPRESSURE_BUILD_GATE_PASS_DIRTY_WORKTREE_B2_03_B2_05_PENDING_B1_GATE_PENDING",
     "low_address_window": "[0x01000000,0x01100000)",
     "dma_mode": "AXI_DMA_SIMPLE_POLLING",
     "control_contract": "S2MM_FIRST_1US_POLL_1S_TIMEOUT_500_RESET_POLL",
@@ -118,10 +118,40 @@
       "previous_board_run_elf_sha256": "b1b8cbc6c8ff262b8764403453c1269b1a5be3b1b39aacdb244c35616de0e79b",
       "identity_policy": "FAIL_CLOSED_BEFORE_PROGRAM_BITSTREAM_XSA_ELF_SHA256"
     },
+    "candidate_rebuild": {
+      "source_head": "a404a8efe72babce623651dc7c6a04501e2713e6",
+      "hardware_manifest": "boards/hellozynq/b2_hw/build/build_manifest.json",
+      "bitstream_sha256": "cfec6a40d94b159e078202e47742868c5748019dc15976c6ee494dfe031e743d",
+      "xsa_sha256": "6ee9d6f359e2ad3cb69b9be31a8af684fd1b256defb6df56821ad5686daa40cb",
+      "git_worktree_clean": false,
+      "source_sha256": {
+        "axis_stream_probe.v": "93fcc830e201761b62f4a802d820b4640ece3a914a5b8141e6e587efbd497d3e",
+        "run_b2_build.ps1": "0b058b9bcecd30b14c05df1f54286f4ddede6d4f545836c27aa440e51046b204"
+      },
+      "build_gate": {
+        "runner": "boards/hellozynq/b2_hw/run_b2_build.ps1",
+        "assertion": "Assert-B2TimingGreen",
+        "timing_report": "boards/hellozynq/b2_hw/build/timing_impl.rpt",
+        "checks": ["WNS>=0", "TNS==0", "WHS>=0", "THS==0", "route_errors==0", "DRC Error/Critical Warning==0"],
+        "marker": "B2_TIMING_PASS"
+      },
+      "timing": {
+        "wns_ns": 0.123,
+        "tns_ns": 0.0,
+        "setup_failing_endpoints": 0,
+        "whs_ns": 0.023,
+        "ths_ns": 0.0,
+        "route_errors": 0,
+        "drc_hard_errors": 0
+      },
+      "status": "BUILD_GATE_PASS_DIRTY_WORKTREE_SOFTWARE_REBUILD_AND_BOARD_RUN_PENDING",
+      "software_manifest_status": "NOT_REBUILT_FOR_LATEST_HARDWARE",
+      "board_evidence": "NONE"
+    },
     "evidence": {
-      "targeted_contract_tests": "21/21_PASS_12_PLUS_5_PLUS_4",
-      "board_dma_transfer": "BOUNDARY_PRESSURE_AND_64_BYTE_STREAM_PROBE_JTAG_PASS_UART_PENDING",
-      "pl_counters": "MM2S_AND_S2MM_64_BYTE_ENDPOINT_PASS",
+      "targeted_contract_tests": "25/25_PASS",
+      "board_dma_transfer": "BOUNDARY_PRESSURE_AND_64_BYTE_STREAM_PROBE_JTAG_PASS_UART_PENDING_BACKPRESSURE_NOT_RUN",
+      "pl_counters": "MM2S_AND_S2MM_64_BYTE_ENDPOINT_PASS_BACKPRESSURE_PENDING",
       "b2_gate": "PENDING",
       "board_evidence_manifest": "boards/hellozynq/b2_sw/build/6f3d40e6f0470bbb57a9a10fb107ffc892add25c/direct/runs/20260909T045710Z/b2_board_evidence.json",
       "board_evidence_sha256": "4f23c060527d9d5a212d86da4c36352b9c9b0a5ed4fa7834e3b4741b21a27423",
@@ -184,13 +214,13 @@
         "hold_route_drc_errors": "0"
       },
       "probe_contract_tests": "4/4_PASS",
-      "formal_use": "HISTORICAL_MONITOR_EXPERIMENT_ONLY; CUSTOM_PROBE_BOARD_READ_PASS",
+      "formal_use": "HISTORICAL_MONITOR_EXPERIMENT_ONLY; CUSTOM_PROBE_BOARD_READ_PASS_OLD_IDENTITY_ONLY",
       "limitations": [
         "官方计数只在 TVALID&&TREADY 握手时更新",
         "busy/stall 在背压或 TLAST 场景不能单独作为严格证据",
         "真实 TKEEP 与 TLAST beat 位置仍需独立采样或明确推导"
       ],
-      "next_action": "补齐受控背压、连续回绕、错误恢复和 UART 终止标记；B2-03/B2-GATE 保持未完成"
+      "next_action": "在干净提交上重建 bit/XSA/ELF，运行受控背压、连续回绕和错误恢复实板验证；B2-03/B2-05/B2-GATE 保持未完成"
     },
     "forbidden_claims": ["DMA loopback passed", "B2-GATE passed", "NPU integrated", "pruning speedup or power gain measured"]
   },

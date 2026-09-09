@@ -1,5 +1,13 @@
 # 调研与实验发现
 
+## 2026-09-09 B2 物理构建门禁收口
+
+- `run_b2_build.ps1` 新增 `Assert-B2TimingGreen`，从 `timing_impl.rpt` 的 Design Timing Summary 解析 WNS/TNS/WHS/THS，并对 route errors 与 DRC Error/Critical Warning 做 fail-closed 检查；已知 warning/advisory 不被误判为硬错误。
+- `axis_stream_probe.v` 已纳入构建 manifest 的 `source_sha256`。完整 Vivado 2024.1 runner 在 `xc7z020clg484-2` 上通过，输出 `WNS=+0.123 ns`、`WHS=+0.023 ns`、`TNS/THS=0`、route errors=`0`、DRC hard errors=`0`，并生成 `B2_TIMING_PASS`。
+- 构建身份：HEAD=`a404a8efe72babce623651dc7c6a04501e2713e6`；bit SHA-256=`cfec6a40d94b159e078202e47742868c5748019dc15976c6ee494dfe031e743d`；XSA SHA-256=`6ee9d6f359e2ad3cb69b9be31a8af684fd1b256defb6df56821ad5686daa40cb`。
+- 验证：B2 测试显式枚举后 `45 passed`；runner PowerShell AST 解析通过；manifest 由 PowerShell `ConvertFrom-Json` 读取通过。首次使用 `pytest test_b2_*.py` 和 Python `json.tool` 的失败分别是 PowerShell 通配符不展开、manifest UTF-8 BOM，未计为代码缺陷。
+- 当前证据只关闭物理构建门禁，不关闭 B2-03/B2-05/B2-GATE；实板可控背压、错误/复位恢复、连续回绕和 UART 终止标记仍缺失，NPU/ENeuron 仍不得接入正式链路。
+
 ## 2026-09-08 B1-D1批准与CH340接入
 
 - 用户批准B1-D1选择`bare-metal + lwIP`。首个实现切片只做裸机UART/DDR，避免把PHY、UDP和网络栈变量混入基础启动验证；lwIP保留为B1C网络阶段的软件路线。

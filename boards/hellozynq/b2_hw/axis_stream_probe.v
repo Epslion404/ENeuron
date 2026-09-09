@@ -82,6 +82,11 @@ module axis_stream_probe #(
     reg [31:0] starve_count;
     reg [31:0] backpressure_config;
     reg [7:0] backpressure_phase;
+    reg backpressure_stall;
+    reg fifo_valid;
+    reg [DATA_WIDTH-1:0] fifo_tdata;
+    reg [KEEP_WIDTH-1:0] fifo_tkeep;
+    reg fifo_tlast;
     reg [KEEP_WIDTH-1:0] last_tkeep;
     reg active;
     reg aw_pending;
@@ -93,8 +98,7 @@ module axis_stream_probe #(
     wire clear_now;
     wire stop_now;
     wire stream_fire;
-    wire forced_stall;
-    wire apply_stall;
+    wire input_fire;
 
     function [31:0] keep_bytes;
         input [KEEP_WIDTH-1:0] keep;
@@ -107,18 +111,14 @@ module axis_stream_probe #(
         end
     endfunction
 
-    assign forced_stall = backpressure_config[0] &&
-                          (backpressure_config[15:8] != 8'd0) &&
-                          (backpressure_config[23:16] != 8'd0) &&
-                          (backpressure_phase < backpressure_config[15:8]);
-    /* 仅在下游 ready 时插入气泡；下游不 ready 时保持 valid，满足 AXI 保持规则。 */
-    assign apply_stall = forced_stall && m_axis_tready;
-    assign m_axis_tdata = s_axis_tdata;
-    assign m_axis_tkeep = s_axis_tkeep;
-    assign m_axis_tlast = s_axis_tlast;
-    assign m_axis_tvalid = s_axi_aresetn && s_axis_tvalid && !apply_stall;
-    assign s_axis_tready = s_axi_aresetn && m_axis_tready && !apply_stall;
+    /* 输出拍先锁存，再由寄存器化暂停状态插入气泡；暂停期间 payload 保持不变。 */
+    assign m_axis_tdata = fifo_tdata;
+    assign m_axis_tkeep = fifo_tkeep;
+    assign m_axis_tlast = fifo_tlast;
+    assign m_axis_tvalid = s_axi_aresetn && fifo_valid && !backpressure_stall;
+    assign s_axis_tready = s_axi_aresetn && active && !fifo_valid;
     assign stream_fire = m_axis_tvalid && m_axis_tready;
+    assign input_fire = s_axis_tvalid && s_axis_tready;
 
     assign s_axi_awready = s_axi_aresetn && !aw_pending && !s_axi_bvalid;
     assign s_axi_wready = s_axi_aresetn && !w_pending && !s_axi_bvalid;
@@ -147,6 +147,11 @@ module axis_stream_probe #(
             starve_count <= 32'd0;
             backpressure_config <= 32'd0;
             backpressure_phase <= 8'd0;
+            backpressure_stall <= 1'b0;
+            fifo_valid <= 1'b0;
+            fifo_tdata <= {DATA_WIDTH{1'b0}};
+            fifo_tkeep <= {KEEP_WIDTH{1'b0}};
+            fifo_tlast <= 1'b0;
             last_tkeep <= {KEEP_WIDTH{1'b0}};
             active <= 1'b0;
         end else begin
@@ -203,6 +208,8 @@ module axis_stream_probe #(
                 starve_count <= 32'd0;
                 last_tkeep <= {KEEP_WIDTH{1'b0}};
                 backpressure_phase <= 8'd0;
+                backpressure_stall <= 1'b0;
+                fifo_valid <= 1'b0;
                 active <= 1'b1;
             end else begin
                 if (stop_now) begin
@@ -210,32 +217,48 @@ module axis_stream_probe #(
                 end
                 if (active) begin
                     cycle_count <= cycle_count + 32'd1;
-                    if (s_axis_tvalid && (apply_stall || !m_axis_tready)) begin
+                    if (fifo_valid && (backpressure_stall || !m_axis_tready)) begin
                         stall_count <= stall_count + 32'd1;
                     end else if (!s_axis_tvalid) begin
                         starve_count <= starve_count + 32'd1;
                     end
+                    if (input_fire) begin
+                        fifo_valid <= 1'b1;
+                        fifo_tdata <= s_axis_tdata;
+                        fifo_tkeep <= s_axis_tkeep;
+                        fifo_tlast <= s_axis_tlast;
+                    end
                     if (stream_fire) begin
+                        fifo_valid <= 1'b0;
                         accepted_beats <= accepted_beats + 32'd1;
-                        total_bytes <= total_bytes + keep_bytes(s_axis_tkeep);
-                        last_tkeep <= s_axis_tkeep;
-                        if (s_axis_tlast) begin
+                        total_bytes <= total_bytes + keep_bytes(fifo_tkeep);
+                        last_tkeep <= fifo_tkeep;
+                        if (fifo_tlast) begin
                             tlast_count <= tlast_count + 32'd1;
                             active <= 1'b0;
                         end
                     end
-                    if (backpressure_config[23:16] == 8'd0) begin
+                    if (!backpressure_config[0] ||
+                        (backpressure_config[15:8] == 8'd0) ||
+                        (backpressure_config[23:16] == 8'd0)) begin
                         backpressure_phase <= 8'd0;
+                        backpressure_stall <= 1'b0;
+                    end else if (backpressure_phase < backpressure_config[15:8]) begin
+                        backpressure_stall <= 1'b1;
+                        backpressure_phase <= backpressure_phase + 8'd1;
                     end else if (backpressure_phase + 8'd1 >= backpressure_config[23:16]) begin
                         backpressure_phase <= 8'd0;
+                        backpressure_stall <= 1'b0;
                     end else begin
                         backpressure_phase <= backpressure_phase + 8'd1;
+                        backpressure_stall <= 1'b0;
                     end
                 end
             end
             if (write_fire && (write_addr == BACKPRESSURE_ADDR)) begin
                 backpressure_config <= write_data;
                 backpressure_phase <= 8'd0;
+                backpressure_stall <= 1'b0;
             end
         end
     end

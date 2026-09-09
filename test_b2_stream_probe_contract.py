@@ -10,6 +10,7 @@ class B2StreamProbeContractTests(unittest.TestCase):
     def setUp(self):
         self.bd = (HW / "create_b2_bd.tcl").read_text(encoding="utf-8")
         self.build = (HW / "build_b2.tcl").read_text(encoding="utf-8")
+        self.runner = (HW / "run_b2_build.ps1").read_text(encoding="utf-8")
         self.probe = (HW / "axis_stream_probe.v").read_text(encoding="utf-8") if (HW / "axis_stream_probe.v").exists() else ""
         self.state_probe = (ROOT / "boards" / "hellozynq" / "b2_sw" / "probe_b2_state.tcl").read_text(encoding="utf-8")
 
@@ -40,8 +41,7 @@ class B2StreamProbeContractTests(unittest.TestCase):
             "last_tkeep",
             "BACKPRESSURE_ADDR",
             "backpressure_config",
-            "forced_stall",
-            "apply_stall",
+            "backpressure_stall",
             "cycle_count",
             "stall_count",
             "starve_count",
@@ -50,6 +50,34 @@ class B2StreamProbeContractTests(unittest.TestCase):
             "M_AXIS",
         ):
             self.assertIn(token, self.probe)
+
+    def test_probe_backpressure_is_registered_and_buffered(self):
+        """背压不能把下游 TREADY 组合反馈到上游握手。"""
+        for token in (
+            "fifo_valid",
+            "fifo_tdata",
+            "fifo_tkeep",
+            "fifo_tlast",
+            "backpressure_stall",
+            "input_fire",
+        ):
+            self.assertIn(token, self.probe)
+        self.assertNotIn(
+            "assign apply_stall = forced_stall && m_axis_tready;",
+            self.probe,
+        )
+
+    def test_physical_build_uses_explore_and_rejects_bad_timing(self):
+        self.assertIn("Performance_Explore", self.build)
+        self.assertIn("'axis_stream_probe.v'", self.runner)
+        for token in (
+            "Assert-B2TimingGreen",
+            "timing_impl.rpt",
+            "B2_TIMING_PASS",
+            "B2_ROUTE_ERRORS",
+            "B2_DRC_HARD_ERRORS",
+        ):
+            self.assertIn(token, self.runner)
 
     def test_jtag_probe_reads_both_stream_observation_banks(self):
         for token in (

@@ -1616,3 +1616,12 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 - [x] 复核 B2-01：地址、大小、对齐、最大帧长和 CPU/DMA 所有权均已由合同与软件冻结，改为完成；B2-03 仍等待实板与 PL 侧证据。
 - [x] 定向 B2 合同回归 `24/24` 通过，恢复检查显示活动 P16 TODO 降为 63。
 - [ ] 执行单条 64-byte 实板 loopback；通过后再扩展边界、背压、错误/复位和压力门。
+
+## 2026-09-09 B2 物理门禁收口
+
+- [x] 在 `run_b2_build.ps1` 增加 `Assert-B2TimingGreen`，按 `timing_impl.rpt` 的 Design Timing Summary 检查 `WNS>=0`、`TNS=0`、`WHS>=0`、`THS=0`。
+- [x] 增加 route error 与 DRC `Error/Critical Warning` fail-closed 检查，允许已知 warning/advisory 保留但不放行硬错误。
+- [x] 将 `axis_stream_probe.v` 加入 B2 构建 manifest 的 `source_sha256`，并写入 `B2_TIMING_PASS` 及物理摘要字段。
+- [x] 用 Vivado 2024.1 完整重建并实际执行门禁：`WNS=+0.123 ns`、`WHS=+0.023 ns`、`TNS/THS=0`、route errors=`0`、DRC hard errors=`0`。
+- [x] B2 合同测试 `45/45` 通过，runner PowerShell AST 解析通过，manifest 可由 PowerShell `ConvertFrom-Json` 读取。
+- [ ] 在干净提交身份上重建并重绑 Vitis ELF；随后完成可控背压、错误/复位恢复、连续回绕和 UART 终止证据，关闭 B2-03/B2-05/B2-GATE。
