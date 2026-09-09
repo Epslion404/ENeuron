@@ -34,8 +34,16 @@ if ($b2BitstreamSha256 -ne $b2Manifest.bitstream_sha256 -or
 }
 
 New-Item -ItemType Directory -Path $buildRoot, $outRoot -Force | Out-Null
-if (-not (Test-Path -LiteralPath $bspRoot)) {
-    Copy-Item -LiteralPath $xsaSource -Destination $xsaCopy
+$existingXsaSha = if (Test-Path -LiteralPath $xsaCopy) {
+    (Get-FileHash -Algorithm SHA256 -LiteralPath $xsaCopy).Hash.ToLowerInvariant()
+} else {
+    ''
+}
+$needsHsi = -not (Test-Path -LiteralPath $bspRoot) -or
+    -not (Test-Path -LiteralPath $appRoot) -or
+    ($existingXsaSha -ne $b2XsaSha256)
+Copy-Item -LiteralPath $xsaSource -Destination $xsaCopy -Force
+if ($needsHsi) {
     & $XsctPath (Join-Path $scriptRoot 'build_b2_sw.tcl') $xsaCopy $bspRoot $appRoot
     if ($LASTEXITCODE -ne 0) { throw "HSI generation failed with exit code $LASTEXITCODE" }
 }

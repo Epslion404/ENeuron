@@ -74,6 +74,11 @@ set_property -dict [list \
     CONFIG.c_addr_width {32} \
 ] $dma
 
+set control_sc [create_bd_cell -type ip -vlnv xilinx.com:ip:smartconnect:1.0 dma_control_smartconnect]
+set_property -dict [list CONFIG.NUM_SI {1} CONFIG.NUM_MI {3}] $control_sc
+set probe_mm2s [create_bd_cell -type module -reference axis_stream_probe axis_stream_probe_mm2s]
+set probe_s2mm [create_bd_cell -type module -reference axis_stream_probe axis_stream_probe_s2mm]
+
 set mem_sc [create_bd_cell -type ip -vlnv xilinx.com:ip:smartconnect:1.0 dma_mem_smartconnect]
 set_property -dict [list CONFIG.NUM_SI {2} CONFIG.NUM_MI {1}] $mem_sc
 
@@ -87,13 +92,21 @@ connect_bd_intf_net [get_bd_intf_pins processing_system7_0/MDIO_ETHERNET_0] [get
 
 # DMA 控制面由 PS GP0 经 AXI3→AXI4-Lite 协议转换器访问，两个内存面通过 SmartConnect 汇聚到 HP0。
 connect_bd_intf_net [get_bd_intf_pins processing_system7_0/M_AXI_GP0] [get_bd_intf_pins axi_protocol_converter_0/S_AXI]
-connect_bd_intf_net [get_bd_intf_pins axi_protocol_converter_0/M_AXI] [get_bd_intf_pins axi_dma_0/S_AXI_LITE]
+connect_bd_intf_net [get_bd_intf_pins axi_protocol_converter_0/M_AXI] [get_bd_intf_pins dma_control_smartconnect/S00_AXI]
+connect_bd_intf_net [get_bd_intf_pins dma_control_smartconnect/M00_AXI] [get_bd_intf_pins axi_dma_0/S_AXI_LITE]
+connect_bd_intf_net [get_bd_intf_pins dma_control_smartconnect/M01_AXI] [get_bd_intf_pins axis_stream_probe_mm2s/S_AXI]
+connect_bd_intf_net [get_bd_intf_pins dma_control_smartconnect/M02_AXI] [get_bd_intf_pins axis_stream_probe_s2mm/S_AXI]
 connect_bd_intf_net [get_bd_intf_pins axi_dma_0/M_AXI_MM2S] [get_bd_intf_pins dma_mem_smartconnect/S00_AXI]
 connect_bd_intf_net [get_bd_intf_pins axi_dma_0/M_AXI_S2MM] [get_bd_intf_pins dma_mem_smartconnect/S01_AXI]
 connect_bd_intf_net [get_bd_intf_pins dma_mem_smartconnect/M00_AXI] [get_bd_intf_pins processing_system7_0/S_AXI_HP0]
 
 # 首轮 loopback 保持最短路径；背压/错误注入在后续 B2-03～B2-05 通过独立 wrapper 验证。
-connect_bd_intf_net [get_bd_intf_pins axi_dma_0/M_AXIS_MM2S] [get_bd_intf_pins axi_dma_0/S_AXIS_S2MM]
+connect_bd_intf_net [get_bd_intf_pins axi_dma_0/M_AXIS_MM2S] \
+    [get_bd_intf_pins axis_stream_probe_mm2s/S_AXIS]
+connect_bd_intf_net [get_bd_intf_pins axis_stream_probe_mm2s/M_AXIS] \
+    [get_bd_intf_pins axis_stream_probe_s2mm/S_AXIS]
+connect_bd_intf_net [get_bd_intf_pins axis_stream_probe_s2mm/M_AXIS] \
+    [get_bd_intf_pins axi_dma_0/S_AXIS_S2MM]
 
 connect_bd_net [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins gmii_to_rgmii_0/clkin]
 connect_bd_net [get_bd_pins processing_system7_0/FCLK_RESET0_N] [get_bd_pins util_vector_logic_0/Op1]
@@ -103,6 +116,7 @@ foreach pin {s_axi_lite_aclk m_axi_mm2s_aclk m_axi_s2mm_aclk} {
     connect_bd_net [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins axi_dma_0/$pin]
 }
 connect_bd_net [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins axi_protocol_converter_0/aclk]
+connect_bd_net [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins dma_control_smartconnect/aclk]
 connect_bd_net [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins dma_mem_smartconnect/aclk]
 connect_bd_net [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK]
 connect_bd_net [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins processing_system7_0/S_AXI_HP0_ACLK]
@@ -110,9 +124,19 @@ connect_bd_net [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins proc_sy
 connect_bd_net [get_bd_pins util_vector_logic_0/Res] [get_bd_pins proc_sys_reset_0/ext_reset_in]
 connect_bd_net [get_bd_pins proc_sys_reset_0/peripheral_aresetn] \
     [get_bd_pins axi_protocol_converter_0/aresetn] \
+    [get_bd_pins dma_control_smartconnect/aresetn] \
     [get_bd_pins axi_dma_0/axi_resetn] \
-    [get_bd_pins dma_mem_smartconnect/aresetn]
+    [get_bd_pins dma_mem_smartconnect/aresetn] \
+    [get_bd_pins axis_stream_probe_mm2s/s_axi_aresetn] \
+    [get_bd_pins axis_stream_probe_s2mm/s_axi_aresetn]
+connect_bd_net [get_bd_pins processing_system7_0/FCLK_CLK0] \
+    [get_bd_pins axis_stream_probe_mm2s/s_axi_aclk] \
+    [get_bd_pins axis_stream_probe_s2mm/s_axi_aclk]
 
 assign_bd_address
+set ps_data [get_bd_addr_spaces processing_system7_0/Data]
+assign_bd_address -target_address_space $ps_data -offset 0x40400000 -range 0x00010000 [get_bd_addr_segs axi_dma_0/S_AXI_LITE/Reg]
+assign_bd_address -target_address_space $ps_data -offset 0x40410000 -range 0x00001000 [get_bd_addr_segs axis_stream_probe_mm2s/S_AXI/reg0]
+assign_bd_address -target_address_space $ps_data -offset 0x40420000 -range 0x00001000 [get_bd_addr_segs axis_stream_probe_s2mm/S_AXI/reg0]
 validate_bd_design
 save_bd_design

@@ -1,12 +1,13 @@
 # P16 项目阶段 2：实板验证路线
 
-verified_at: 2026-09-08
+
+verified_at: 2026-09-09
 
 当前边界（中等精简）：实板部署目标为 `xc7z020clg484-2`，NPU + ENeuron 动态剪枝是活动主线。高地址 DDR、PHY、UDP 只属于板卡资格支线，仍用于关闭完整 `B1-GATE`，不阻塞低地址容量满足条件下的 NPU MVP。外置 CH340 由 `VID_1A86:PID_7523` 识别，COM 编号不是稳定契约；旧 `clg400-1` NP7/T3 物理结果和 `archive/legacy/` 材料均不参与日常门。
 
 authoritative_sources: `docs/planning/TODO.md`、`task_plan.md`、`findings.md`、`progress.md`
 
-当前工作流上下文（2026-09-08）：活动分支为 `codex/b1b-high-ddr-board-repro`，校验基线 HEAD=`ef0495b`，其父级审计基线为 `d7e1035`。当前执行链固定为 `B1-06B6` UART 基准 → `B1-06B7` OCM 高地址最小复现；此前诊断均停在 READY 等待 GO，`command=0`、`completed_accesses=0`，高地址 DDR 尚未访问。
+当前工作流上下文（2026-09-09）：活动分支为 `codex/b1b-high-ddr-board-repro`，当前仓库 HEAD=`6f3d40e6f0470bbb57a9a10fb107ffc892add25c`，父级审计基线为 `d7e1035`。主线执行点已转为 `B2-03` 低地址实板 DMA 回环；B1-06B6 UART 基准 → B1-06B7 OCM 高地址最小复现仍保留为板卡资格支线。此前 B1 诊断均停在 READY 等待 GO，`command=0`、`completed_accesses=0`，高地址 DDR 尚未访问。
 
 监听观察：2026-09-08 按 VID/PID 监听 COM10 10 秒（115200 8N1）读取 0 字节，未见 `ENEURON_B1B_BEGIN`/`ALIVE`/`PASS`；未下载 bitstream/ELF、未发送 GO，DDR access=0。该观察不改变 `B1-06B6_UART_BASELINE_PENDING`，也不是 DDR 失败证据。
 
@@ -37,7 +38,8 @@ run-2归档位于 `artifacts/logs/hellozynq_b0/20260907T152656Z_df16ed6c_run2_ma
 最终阶段门仍按B1→B2→B3→B4串行；实现进入主线采用Fastlane V1。B1拆为B1A板级事实/可重建硬件定义、B1B PS7/UART/DDR、B1C PHY/UDP，每段定向验证后即可合并，但只有B1C最终摘要满足全部条件才标记B1-GATE通过。相同RTL/XDC/BD/Tcl/IP身份不重复跑Vivado，软件和文档修改只跑受影响门。
 
 - **B1：PS7、DDR、UART、PHY、最小 UDP。** 入口只接受主线上的 `B0-GATE=PASS`。先冻结 PS7/DDR/引脚和启动合同，再以 UART 冷启动、DDR 零错误、PHY/千兆链路、三档 UDP 和拔插恢复关闭本门；B1 不表示 NPU 已接入。
-- **B2：AXI DMA 与固定帧协议。** 低地址 B2-MVP 可在 `B1A=PASS + B1B低地址1 MiB三次冷启动=PASS` 且布局合同冻结后先行；完整网络化 B2 仍受 `B1-GATE=PASS` 约束。先以 AXI DMA simple mode + polling、PL loopback 和明确的 DDR/cache 所有权打通真实双向搬运，再实现 packetizer/depacketizer、TLAST/错误/复位和四流 fence 计数；通过前不报告剪枝加速。当前 loopback 已完成 Vivado implementation 和 Vitis standalone 构建，但尚未实板传输。
+- **B2：AXI DMA 与固定帧协议。** 低地址 B2-MVP 可在 `B1A=PASS + B1B低地址1 MiB三次冷启动=PASS` 且布局合同冻结后先行；完整网络化 B2 仍受 `B1-GATE=PASS` 约束。首轮固定 AXI DMA simple mode + polling、S2MM 先行、1 us polling、1 s 超时和 500 次 reset poll；TX/RX 缓冲区为 `0x01006000/0x01007000`，各 4 KiB、64-byte 对齐。HEAD `6f3d40e6f0470bbb57a9a10fb107ffc892add25c` 已在 `xc7z020clg484-2` 完成 Vivado 2024.1 implementation，`WNS/WHS=+0.154/+0.036 ns`、`TNS/THS=0/0`、route/DRC error=0；正式 bitstream/XSA/ELF SHA-256 分别为 `44163a348447263e18df663439ab0e48c1f12b732ffaa70355e316e5dc7e3ff7`、`b80e3fea1d41fe78322d75a1f461d910ec771802de839d79a9fc5aae17db9ea8`、`6bf1e956cbac086ba38b634d7af928624c22f91073079cb230ba86ed6e51956c`，硬件/软件 manifest 已一致。`run_b2_board.ps1` 在 FPGA program 前执行三件套 SHA-256 fail-closed 检查；同源实板运行 `20260909T045710Z` 已完成 program/download/run，probe 读取成功：MM2S/S2MM 各 `16 beats/64 bytes/TLAST=1/TKEEP=0xF/stall=0`，但 UART 仍 `NO_TERMINAL_MARKER`；JTAG 边界/压力账本仍保持历史切片，不将该单端点 probe 读数写成 B2-GATE。当前合同测试实际为 `21/21`（12+5+4）通过；PL 侧完整流计数、受控背压、连续回绕、错误恢复仍未完成，B2-03～B2-GATE 仍未关闭，通过前不报告剪枝加速。
+- **B2 观测器实验与收敛（2026-09-09）。** 双 `axi_stream_monitor:1.1` 拓扑的 routed setup 失败（`WNS=-0.325 ns`、`TNS=-11.113 ns`、127 个 setup 失败端点）；缩为单 monitor 后仍失败（`WNS=-0.284 ns`、`TNS=-22.272 ns`、256 个 setup 失败端点），均为历史成本评估实验。自有轻量 `axis_stream_probe` 双向 sampler 已以同源 bit/XSA/ELF 在 `20260909T045710Z` 上板，MM2S/S2MM 均读到 `16 beats/64 bytes/TLAST=1/TKEEP=0xF/stall=0`，`probe_exit_code=0`；`starve=1316/1252` 为空闲周期计数，不能替代受控背压证据。当前合同测试为 `test_b2_stream_monitor_contract.py` `5/5`、`test_b2_stream_probe_contract.py` `4/4`，但 B2-03/B2-GATE 仍未关闭。
 - **B3：传统 NPU + ENeuron 固定向量。** 入口只接受 `B2-GATE=PASS`。保持 `64→32→10`、634 model words、8-beat sample、10-beat result 和四 DSP 合同，依次验证 dense、full-open、Host 静态 `2:4`、live-ENeuron，并覆盖 epoch 原子性、背压与复位恢复。
 - **B4：网口端到端 A/B。** 入口只接受 `B3-GATE=PASS`。固定同一 bitstream、ELF、模型、样本、时钟和网络条件，对四种模式执行可重复 A/B；正确性先于性能，端到端结果必须拆分网口、软件、DMA、排队和 NPU 计算开销。没有合格外部测量链时写 `POWER_NOT_MEASURED`。
 

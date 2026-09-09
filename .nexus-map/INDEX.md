@@ -12,9 +12,11 @@
 
 B2-00 已完成（2026-09-08）：低地址 DDR 窗口 `[0x01000000,0x01100000)` 内冻结 9 个 4 KiB 区域，总保留 `36 KiB`，最大 DMA frame 为 `4096` bytes；机器 manifest `tools/repro/b2_dma_address_layout.json` 与 `verify_b2_dma_address_layout.py` 验证通过，状态为 `B2_00_LOW_ADDRESS_LAYOUT_FROZEN`。B2-D1 已完成并单独记录；所有 manifest 继续保留 `B1_HIGH_DDR_PENDING`，不把 B2-00 误写成完整 B1-GATE 或高地址 DDR 通过。
 
-B2-D1 已完成（2026-09-09）：首轮 DMA 控制合同冻结为 AXI DMA simple mode、单次 buffer、polling、S2MM 先行、1 us polling、1 s 传输超时、500 次 reset poll、错误/超时寄存器快照和一次短帧恢复；`verify_b2_dma_contract.py` 与 B2-00 布局验证合计 `12/12` 定向测试通过。状态为 `B2_D1_DMA_CONTRACT_FROZEN`；其后的 loopback 拓扑和 standalone polling 软件已完成本机构建，下一步是低地址实板 DMA 回环，`B1_HIGH_DDR_PENDING` 保持不变。
+B2-D1 已完成（2026-09-09）：首轮 DMA 控制合同冻结为 AXI DMA simple mode、单次 buffer、polling、S2MM 先行、1 us polling、1 s 传输超时、500 次 reset poll、错误/超时寄存器快照和一次短帧恢复；`verify_b2_dma_contract.py` 与 B2-00 布局验证合计 `12/12` 定向测试通过。状态为 `B2_D1_DMA_CONTRACT_FROZEN`；loopback 拓扑和 standalone polling 软件已完成本机构建并取得低地址实板边界/压力切片，当前下一步是以轻量 `axis_stream_probe` 拓扑重建 bit/XSA/ELF 后补齐 PL 观测，`B1_HIGH_DDR_PENDING` 保持不变。
 
-B2 loopback 构建（2026-09-09）：修正 AXI3→AXI4-Lite 协议转换和 `proc_sys_reset` 同步复位后，HEAD `bba0936` 在 `xc7z020clg484-2` 上完成 Vivado 2024.1 implementation，并生成 bitstream/XSA；post-route `WNS/WHS=+0.240/+0.036 ns`、`TNS/THS=0/0`、route/DRC error 均为 0，bitstream/XSA SHA-256 为 `d694fa02...d918`/`68dc2b8e...897a`。Vitis 2024.1 `axidma_v9_18` standalone 软件已用同一 XSA 重建，ELF SHA-256=`e37d7cb6...11a9`。B2-01 的低地址 buffer 与所有权合同已关闭；当前仍未 program 实板、下载 ELF 或执行 DMA 传输，`B1_HIGH_DDR_PENDING` 保持不变。
+B2 loopback 构建与身份收口（2026-09-09）：HEAD `6f3d40e6f0470bbb57a9a10fb107ffc892add25c` 在 `xc7z020clg484-2` 上完成 Vivado 2024.1 implementation，post-route `WNS/WHS=+0.154/+0.036 ns`、`TNS/THS=0/0`、route/DRC error 均为 0；正式 bitstream/XSA SHA-256 为 `44163a348447263e18df663439ab0e48c1f12b732ffaa70355e316e5dc7e3ff7`/`b80e3fea1d41fe78322d75a1f461d910ec771802de839d79a9fc5aae17db9ea8`，Vitis 2024.1 standalone ELF SHA-256=`6bf1e956cbac086ba38b634d7af928624c22f91073079cb230ba86ed6e51956c`；硬件/软件 manifest 已一致。`run_b2_board.ps1` 现在在 FPGA program 前比较 bitstream/XSA/ELF SHA-256，不一致即 fail-closed；此前使用旧 XSA 的 JTAG 账本不计入新三件套证据，最新失败尝试 `20260909T044936Z` 在 program 前被拒绝。当前合同测试实际为 `21/21`（12+5+4）通过；B2-03/B2-GATE 仍未关闭，PL 流计数、TKEEP/TLAST、受控背压、连续回绕和错误恢复仍待实板收口，`B1_HIGH_DDR_PENDING` 保持不变。
+
+B2 观测器时序实验与收敛（2026-09-09）：官方 `xilinx.com:ip:axi_stream_monitor:1.1` 的双 monitor 拓扑（MM2S+S2MM）真实 Vivado 2024.1 routed setup 失败，`WNS=-0.325 ns`、`TNS=-11.113 ns`、127 个 setup 失败端点；随后缩为单 monitor 仍失败，`WNS=-0.284 ns`、`TNS=-22.272 ns`、256 个 setup 失败端点。两次均仅作历史实验，不是正式 B2 物理基线。当前源码已切换为自有轻量 `axis_stream_probe` 双向 sampler（`NUM_MI=3`、AXI-Lite 基址 `0x40410000/0x40420000`），`test_b2_stream_monitor_contract.py` 为 `5/5`、`test_b2_stream_probe_contract.py` 为 `3/3`；probe 直接统计握手 beat/byte/TLAST/TKEEP 和周期、stall/starve，下一步需用新拓扑重建 bit/XSA 后再上板。
 
 当前执行点（2026-09-08）：活动链为 `B1-06B6` UART 基准复测 → `B1-06B7` OCM 高地址最小复现。先按 VID/PID 找到 CH340 并确认既有低地址应用的 banner/alive marker；通过后才进入 `B1-06B7`。此前两次诊断均停在 READY 等待 GO，`command=0`、`completed_accesses=0`，尚未进行任何 DDR 访问；不得把高地址探针写成已执行或把 UART 阻塞写成 DDR 失败。
 
@@ -37,7 +39,7 @@ P16 阶段 2 总路线见 `.nexus-map/arch/p16_board_validation.md` 和 `.nexus-
 当前校正（2026-09-07）：T3 证据已用提交 `c2bc03f` 重跑并绑定；顶层资源为 `2467 LUT / 2301 FF / 6 RAMB36 / 1 RAMB18 / 4 DSP48E1`。下方旧快照中的 `822cf93` 仅保留历史来源，不覆盖本条。
 
 generated_by: nexus-mapper v2 / manual synthesis from raw probe
-verified_at: 2026-09-08
+verified_at: 2026-09-09
 provenance: `.nexus-map/raw/ast_nodes.json`, `git_stats.json`, `file_tree.txt`（最后提交于 `c46320e`，文件树按版本化基线排除工作区未跟踪文件）；其后的单时钟 RTL、测试与 OOC 证据由版本化文件、manifest 和文档人工核对
 
 T3 最新机器可读签核覆盖见 `.nexus-map/concepts/t3_signoff.json`，人类摘要见 `.nexus-map/arch/t3_signoff.md`；它们优先于早期生成快照中的 `T3_XPM_XSIM_OOC_PENDING` 字样。

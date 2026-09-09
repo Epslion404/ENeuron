@@ -1,6 +1,6 @@
 # Pulse-Mini 开发计划
 
-## 当前主线校正（2026-09-08）
+## 当前主线校正（2026-09-09）
 
 本文件前半部分保留 Pulse-Mini P0-P13 的历史研发合同；当前日常主线是 P16 的 `xc7z020clg484-2` 板级集成、传统 NPU + ENeuron 动态剪枝和 NP7 共享 lane。当前精确 HEAD、工作树状态和活动 TODO 计数以 `workflow_resume.ps1 -Mode Check` 与 Git 为准；历史审计基线为 `d7e1035`。B1-06B7 使用的已生成 OCM 诊断产物仍绑定构建身份 `dae5473ba72d6cfaee12ed8e103c0efad190ed4a`。当前工作树仍保留用户已有的 `artifacts/results/rtl_smoke_results.json` 改动，不把它混入本轮文档/知识库提交。该基线收口 TODO/Nexus、串口端口选择入口和历史资料，不改变已签核的 B1B 诊断 ELF 或硬件身份。Pulse-Mini-L/L2 不参与当前 NPU 日常门，但其已完成证据仍保留供追溯。
 
@@ -657,9 +657,9 @@ P15 硬门：双时钟逐 beat bit-exact；reset/ready-valid/FIFO 满空无丢�
 - [x] B2-D1：已冻结首轮 DMA 控制合同：AXI DMA simple mode、单次 buffer、polling、S2MM 先行、TX flush/RX invalidate、1 us polling、1 s 传输超时、500 次 reset poll、错误/超时寄存器快照和单次短帧恢复；scatter-gather、micro-DMA、interrupt 均不进入首轮。合同与验证器见 `docs/planning/NPU_ZYNQ7020_B2_DMA_CONTRACT_V1.md`、`tools/repro/b2_dma_contract.json`、`verify_b2_dma_contract.py`。
 - [x] B2-01：已冻结 PS DDR发送/接收缓冲区为 `0x01006000/0x01007000`、各 4 KiB、64-byte 对齐、最大帧长 4096 bytes；布局合同、DMA 合同和 standalone 软件共同落实 `CPU填充→flush→DMA拥有→完成→invalidate→CPU读取`，DMA拥有期间 CPU 不修改对应 buffer。
 - [x] B2-02：已由 B2-D1 合同冻结 DMA 控制：simple mode、polling、超时、状态寄存器采样、错误清除和复位顺序；每次超时保存 DMA 寄存器、缓冲区头尾、PL 计数器和当前 sequence。该项不再与 B2-D1 重复计数。
-- [ ] B2-03：先实现 PL AXI-Stream loopback，不接 NPU；发送端和接收端都记录 byte数、beat数、`TKEEP`、`TLAST`位置、sequence、CRC和硬件周期，且 loopback顶层有独立资源/时序报告。
-- [ ] B2-04：覆盖0长度拒绝、1/4/16/64/512/1472-byte、跨cache-line、最大冻结帧长、连续帧和缓冲区回绕；合法帧逐字节一致，非法帧返回明确错误且下一帧可恢复。
-- [ ] B2-05：用可控接收背压和发送间歇覆盖 valid保持、ready恢复和 TLAST稳定；运行至少10000帧固定种子压力，禁止丢失、重复、乱序、CRC错和静默截断。
+- [ ] B2-03：PL AXI-Stream direct loopback 已完成构建，并已在实板以 JTAG 状态区证明边界矩阵中的合法帧搬运；轻量双向 `axis_stream_probe` 已在 `xc7z020clg484-2` 完成 routed/DRC/bitgen（`WNS=+0.154 ns`、`WHS=+0.036 ns`、route/DRC error=`0`），且同源正式 run 已完成一次 64-byte probe 观测：MM2S/S2MM 各 `16 beats / 64 bytes / TLAST=1 / TKEEP=0xF / stall=0`，周期与 starve 计数已归档。仍需补齐多长度 probe 证据、sequence/CRC 对齐、跨 cache-line/连续回绕、UART 终止标记、错误/复位恢复和可控背压，故本项保持未完成。官方 `axi_stream_monitor` 单 monitor 实验在当前顶层 setup 失败，不作为正式物理基线。
+- [ ] B2-04：已在实板执行 `0/1/4/16/64/512/1472/4096` bytes 边界矩阵：8 帧总计、7 帧 PASS、0 长度明确拒绝、失败数为 0，最后 4096-byte TX/RX 逐字一致；跨cache-line、连续帧回绕和独立下一帧恢复证据仍需补齐。
+- [ ] B2-05：已完成同一低地址合同上的 10000 帧固定长度序列压力切片：JTAG 账本 `pressure_status=2`、`pressure_total=10000`、`pressure_passed=10000`、`pressure_failed=0`；64-byte 无背压切片已读到 `TKEEP/TLAST`，仍需可控接收背压、发送间歇、valid 保持、ready 恢复、跨长度 TLAST 稳定和错误恢复证据，故本项保持未完成。
 - [ ] B2-06：实现外层 packetizer/depacketizer，把 DMA帧映射为现有128-bit命令/响应、8-beat样本和10-beat结果；明确每类消息的最短/精确长度、字段偏移和字节序。TLAST只在外层检查，不能改变已冻结核心 framing合同。
 - [ ] B2-07：覆盖早到/晚到/缺失 TLAST、错误长度、未知消息类型、错误保留位、超时和中途复位；错误帧必须被完整丢弃或明确拒绝，不得留下半条命令、半个样本、半个模型或旧结果。
 - [ ] B2-08：为命令、样本、响应、结果四条逻辑流分别记录接受数和完成数；跨流 fence 前后保存计数器，证明模型/mask提交、样本和结果没有越过已冻结顺序边界。

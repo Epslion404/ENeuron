@@ -4,7 +4,7 @@
 
 最后更新：2026-09-09
 
-状态：`ACTIVE / PHASE2_FASTLANE_V1 / B0_COMPLETE_MAIN_102DEE2 / B1A_HW_DEFINITION_COMPLETE / B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DIAG_READY_NO_GO / B1B_HIGH_DDR_PENDING / B2_00_LOW_ADDRESS_LAYOUT_FROZEN / B2_D1_DMA_CONTRACT_FROZEN / B2_01_BUFFER_OWNERSHIP_FROZEN / B2_DMA_SW_BUILD_READY / B2_HW_BITSTREAM_XSA_BUILT_NOT_PROGRAMMED / B1_GATE_FALSE / XC7Z020CLG484_2_CONFIRMED / T3_XPM_XSIM_PASS / T3_XC7Z020_OOC_PASS / RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN / GITHUB_ACTIONS_DISABLED`
+状态：`ACTIVE / PHASE2_FASTLANE_V1 / B0_COMPLETE_MAIN_102DEE2 / B1A_HW_DEFINITION_COMPLETE / B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DIAG_READY_NO_GO / B1B_HIGH_DDR_PENDING / B2_00_LOW_ADDRESS_LAYOUT_FROZEN / B2_D1_DMA_CONTRACT_FROZEN / B2_01_BUFFER_OWNERSHIP_FROZEN / B2_DMA_SW_BUILD_READY / B2_BOUNDARY_AND_PRESSURE_JTAG_PASS_UART_PENDING / B1_GATE_FALSE / XC7Z020CLG484_2_CONFIRMED / T3_XPM_XSIM_PASS / T3_XC7Z020_OOC_PASS / RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN / GITHUB_ACTIONS_DISABLED`
 
 ## 当前活动目标
 
@@ -12,11 +12,20 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 
 当前阶段活动合同：`docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`。关联主线合同为 `docs/planning/TODO.md`、`docs/planning/NPU_PRUNING_TODO.md` 和 `docs/planning/NPU_PRUNING_NP7_TODO.md`。阶段 2 只用真实板卡证据关闭任务；仿真与 OOC 继续作为开发辅助和历史基线。
 
-2026-09-09：B2-D1 首轮 AXI DMA 控制合同已冻结为 simple mode、单次 buffer、polling、S2MM 先行、1 us polling、1 s 传输超时、500 次 reset poll、错误/超时寄存器快照和一次短帧恢复；DMA 已进入 B2 loopback 拓扑，但尚未进行实板传输。
+2026-09-09：B2-D1 首轮 AXI DMA 控制合同已冻结为 simple mode、单次 buffer、polling、S2MM 先行、1 us polling、1 s 传输超时、500 次 reset poll、错误/超时寄存器快照和一次短帧恢复；DMA 已进入 B2 loopback 拓扑，随后已完成低地址实板传输。
 
 2026-09-09：B2 loopback 拓扑在修正 AXI 协议转换和 `proc_sys_reset` 同步复位后，已于 HEAD `bba0936` 使用 Vivado 2024.1、`xc7z020clg484-2` 重建 `.bit/.xsa`；post-route WNS/WHS=`+0.240/+0.036 ns`、TNS/THS=`0/0`、route error=`0`、DRC error=`0`。bitstream/XSA SHA-256 分别为 `d694fa02...d918`、`68dc2b8e...897a`；当前 DRC 仅有 1 个继承的 GMII/RGMII 时钟缓冲 warning 和 4 个 DMA BRAM advisory，不能代替实板证据。
 
-2026-09-09：新增 `boards/hellozynq/b2_sw` standalone DMA polling 应用和构建/上板入口；Vitis 2024.1 BSP 实际包含 `axidma_v9_18`，应用绑定低地址 `loopback_tx=0x01006000`、`loopback_rx=0x01007000`，执行 RX(S2MM)先行、TX flush、RX invalidate、1 us polling 和 1 s 超时。软件已使用 HEAD `bba0936` 的新 XSA 重建，ELF SHA-256=`e37d7cb6...11a9`；尚未下载或执行实板 DMA 搬运。
+2026-09-09：新增 `boards/hellozynq/b2_sw` standalone DMA polling 应用和构建/上板入口；Vitis 2024.1 BSP 实际包含 `axidma_v9_18`，应用绑定低地址 `loopback_tx=0x01006000`、`loopback_rx=0x01007000`，执行 RX(S2MM)先行、TX flush、RX invalidate、1 us polling 和 1 s 超时。构建 manifest 绑定 ELF SHA-256=`48d29f596428c827f6407d951d2106ebe570c270551e83e4b517757acda88800`；该 ELF 已下载并执行，后续实板证据以独立 run manifest 为准。
+
+2026-09-09：使用同源 bitstream/XSA/ELF 完成第二次实板 program、ELF download 和 CPU run；UART `COM10` 仍为 `NO_TERMINAL_MARKER`。JTAG 状态账本确认边界矩阵 `0/1/4/16/64/512/1472/4096` bytes 共 8 帧，其中 7 帧 PASS、0 长度 1 帧拒绝、失败数 0；最后 4096-byte 帧 TX/RX payload word 一致，TX/RX SR=`0x1002`、BTT=`4096/4096`、CRC=`0xC0032E56`。证据目录为 `boards/hellozynq/b2_sw/build/6f3d40e6f0470bbb57a9a10fb107ffc892add25c/direct/runs/20260909T020159Z/`，摘要为 `b2_board_evidence.json`；这补强 B2-04 边界切片，但不关闭 B2-03/B2-GATE。
+2026-09-09：在同一 bitstream/XSA 上使用重新构建的压力 ELF 完成 10000 帧实板压力切片；JTAG 状态账本读取 `pressure_status=2`、`pressure_total=10000`、`pressure_passed=10000`、`pressure_failed=0`、`pressure_crc32_xor=0x7D51FB01`、`pressure_last_sequence=10008`。UART 仍为 `NO_TERMINAL_MARKER`，PL stream counter/TKEEP/TLAST 和可控背压仍不可观测。证据目录为 `boards/hellozynq/b2_sw/build/6f3d40e6f0470bbb57a9a10fb107ffc892add25c/direct/runs/20260909T022102Z/`，摘要为 `b2_board_evidence.json`；该结果补齐 B2-05 的压力切片，但不关闭 B2-03/B2-GATE。
+2026-09-09：为评估 PL 观测成本，临时构建了单 `axi_stream_monitor` 拓扑；bit/XSA 生成成功，但 routed setup 失败（`WNS=-0.284 ns`、`TNS=-22.272 ns`、256 个失败端点）。该产物不作为正式物理基线；当前源码已切换为轻量双向 `axis_stream_probe`，后续以 sampler 的 routed 结果为准。当前 probe/loopback 合同测试为 `16/16` 通过。
+2026-09-09：修复 `axis_stream_probe.v` 中 Vivado Verilog parser 不接受的 SystemVerilog 函数形参声明，使用 Vivado 2024.1 在 `xc7z020clg484-2` 完成独立 probe 拓扑的综合、实现、布线、DRC、bitgen 和 XSA 导出。正式构建摘要为 `WNS=+0.154 ns`、`WHS=+0.036 ns`、`TNS/THS=0`、route/DRC error=`0`、setup/hold 失败端点均为 `0`；资源约 `4931 LUT / 7011 FF / 2 RAMB36 / 2 RAMB18 / 0 DSP`。产物 SHA-256：bit=`994c512c9631ef21d59743d583a4563264a4f0e897e9fe6e71145b1bc7373f38`、XSA=`d43830c84cedb8d8d0e0d249bff24770ea0802648a8a6a10cd0f68fce78ef303`。该结果仅关闭“物理构建阻断”，尚未形成实板 probe 观测证据，B2-03/B2-GATE 保持未完成。
+
+2026-09-09：`run_b2_board.ps1` 新增烧写前 bitstream/XSA/ELF SHA-256 与 `build_manifest.json` 的 fail-closed 身份检查；不一致时在启动硬件服务器、打开串口和 FPGA program 前直接失败。PowerShell 解析通过，B2 DMA/stream monitor/stream probe 定向合同测试为 `23/23`，全部 B2 合同测试为 `42/42`；该修复不改变 B2-03～B2-GATE 未完成状态。
+2026-09-09：`probe_b2_state.tcl` 已扩展为读取 `0x40410000/0x40420000` 两个 probe 的 sample、beats、TLAST、bytes、cycles、stall、starve 和 last TKEEP，并由 runner 自动归档 stdout/stderr 与哈希。
+2026-09-09：新同源正式 run `20260909T045710Z` 完成 FPGA program、ELF download、CPU run；UART 为 `NO_TERMINAL_MARKER`，但自动归档的强制 JTAG probe 读取成功（`probe_exit_code=0`）。MM2S=`16 beats / 64 bytes / TLAST=1 / TKEEP=0xF / stall=0`，S2MM 同值；硬件周期=`1332/1268`、starve=`1316/1252`。证据为该 run 目录的 `b2_board_evidence.json`；B2-03/B2-GATE 仍未完成。
 
 ## 当前事实
 
@@ -83,7 +92,7 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 
 ## 下一动作
 
-主线下一动作是 P16-B2-03 的实板最小回环：使用 HEAD `bba0936` 同源的 bitstream/XSA/ELF，先验证单条 64-byte 低地址 DDR↔DMA↔PL loopback，再扩展边界帧、背压、错误/复位恢复和 10000 帧压力。B1-06B6 串口接收故障和高地址 DDR 诊断继续作为板卡资格支线；B2-GATE 通过前不得接入 NPU 或报告剪枝加速、功耗收益。
+主线下一动作是 P16-B2-03 的实板完整性收口：保留当前 JTAG 状态采集合同，同时补齐 UART/PL 侧 byte、beat、TKEEP、TLAST、硬件周期与流计数，再实现可控背压、错误/复位恢复和跨 cache-line/连续回绕证据。10000 帧无背压压力切片已通过，但 B2-GATE 通过前不得接入 NPU 或报告剪枝加速、功耗收益。B1-06B6 串口接收故障和高地址 DDR 诊断继续作为板卡资格支线。
 
 ## 2026-09-05 V2 OOC 签核结果
 

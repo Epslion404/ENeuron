@@ -2,7 +2,9 @@
 
 当前覆盖边界：活动部署目标为 `xc7z020clg484-2`，NPU + ENeuron 动态剪枝证据优先。`archive/legacy/` 材料不参与日常门；旧 `xc7z020clg400-1` NP7/T3 物理结果只作历史参考。B1 高地址 DDR/PHY/UDP 属于板卡资格支线，完整 `B1-GATE` 仍待关闭；低地址窗口满足模型/DMA 容量后可继续 NPU MVP。CH340 以 `VID_1A86:PID_7523` 识别，COM10 仅为现场枚举记录。
 
-合同/统计边界（2026-09-08）：当前阶段合同为 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`；P16 TODO、`NPU_PRUNING_TODO.md` 和 `NPU_PRUNING_NP7_TODO.md` 为关联合同。`workflow_resume` 显示 `82/10/0=92`。当前活动分支为 `codex/b1b-high-ddr-board-repro`、校验基线 HEAD=`ef0495b`；执行链为 B1-06B6 UART 基准 → B1-06B7 OCM 高地址最小复现。当前只覆盖 UART/OCM 前置证据，B1-06B6 尚未完成，DDR 访问仍为 0；不得把后续高地址探针或 DDR 结果计入已完成覆盖。
+合同/统计边界（2026-09-09）：当前阶段合同为 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`；P16 TODO、`NPU_PRUNING_TODO.md` 和 `NPU_PRUNING_NP7_TODO.md` 为关联合同，P16 当前活动未完成项为 `63`。当前活动分支为 `codex/b1b-high-ddr-board-repro`、仓库 HEAD=`6f3d40e6f0470bbb57a9a10fb107ffc892add25c`；主线覆盖入口为 B2-03 低地址实板 DMA 回环。旧 `20260909T022102Z` JTAG 账本记录边界矩阵（7 PASS + 1 拒绝 + 0 失败）及 10000 帧确定性压力（10000 PASS + 0 失败）；当前同源 `20260909T045710Z` 追加双向 probe 的 64-byte 端点证据，但 UART、受控背压、连续回绕和错误恢复仍缺，B2-03/B2-GATE 未关闭。B1-06B6 UART 基准 → B1-06B7 OCM 高地址最小复现仍是资格支线，高地址 DDR 访问仍为 0。
+
+B2 观测器覆盖（2026-09-09）：双 `axi_stream_monitor:1.1` 与单 monitor 的 Vivado 2024.1 routed setup 实验均失败，分别为 `WNS/TNS=-0.325/-11.113 ns`（127 个 setup 失败端点）和 `-0.284/-22.272 ns`（256 个端点），均不计入正式物理通过。自有轻量 `axis_stream_probe` 已随同源 bit/XSA/ELF 在 `20260909T045710Z` 上板；自动归档证明 `probe_exit_code=0`，MM2S/S2MM 各 `16 beats/64 bytes/TLAST=1/TKEEP=0xF/stall=0`。定向合同测试当前实际收集并通过 `21/21`（12+5+4）。覆盖仍不包括受控背压、连续回绕、错误恢复和 UART terminal marker，B2-03/B2-GATE 保持未完成。
 
 新增监听观察（2026-09-08）：COM10（VID/PID=`VID_1A86:PID_7523`）以 115200 8N1 非侵入式监听 10 秒，读取 0 字节，未收到 `ENEURON_B1B_BEGIN`、`ALIVE` 或 `PASS`；未下载 bitstream/ELF、未发送 GO。该结果维持 `B1-06B6_UART_BASELINE_PENDING`，不构成 DDR 失败或高地址访问证据。
 
@@ -19,7 +21,7 @@ B1A-HW覆盖（2026-09-08）：干净提交`29edf6a...`的Vivado 2024.1完整构
 当前 T2 随机矩阵增量（2026-09-07）：统一复现入口 `--t2-random-matrix` 使用固定种子 `20260907` 生成 24 个唯一半周期/相位组合，按 `2000 + 400 × NPU_HALF` 个 Host 周期设置每组观察预算，完整运行后返回 `REPRO_G2_T2_RANDOM_MATRIX_PASS`。该证据记为 `T2_RANDOM_CLOCK_MATRIX_GREEN`，属于可复现的有限随机压力集，不是频率/相位数学穷举。
 
 generated_by: nexus-mapper v2 / manual synthesis
-verified_at: 2026-09-08
+verified_at: 2026-09-09
 provenance: repository test names, signoff summaries, workflow state, latest GitHub/Webhook evidence
 
 已覆盖：Python/RTL 协同仿真、有限形式安全与可达性、负向 mutation、Tile/System Vivado OOC、XPM 仿真、NP4B 三模型 60000 事务签核；CI-Fast V1 已完成 workflow 全量、文档轻量和 NPU-only 定向路径验证。CI Action 已升级到 `actions/checkout@v7` 与 `actions/setup-python@v7` 的 Node 24 基线，分类合同要求任何 workflow 变更运行全量门。NPU oracle 新增并通过 `test_zero_activity_with_closed_gate_emits_no_reads_or_macs`、`test_frequent_epoch_switches_never_mix_masks`、`test_pending_slot_backpressure_rejects_overwrite` 三项最坏情况测试。

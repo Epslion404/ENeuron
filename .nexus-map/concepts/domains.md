@@ -1,17 +1,19 @@
 # 核心领域概念
 
-当前主线（2026-09-08）：部署目标为 `xc7z020clg484-2`，聚焦 NPU + ENeuron 动态剪枝。`archive/legacy/` 不参与日常门；旧 `xc7z020clg400-1` 的 NP7/T3 物理证据仅作历史参考。B1 高地址 DDR、PHY、UDP 属于板卡资格支线，完整 `B1-GATE` 仍未关闭，但不阻塞低地址容量满足条件下的 NPU MVP。CH340 按 `VID_1A86:PID_7523` 识别，COM10 不是固定合同。当前活动分支为 `codex/b1b-high-ddr-board-repro`、校验基线 HEAD=`ef0495b`；COM6/COM7 蓝牙串口排除。
+当前主线（2026-09-09）：部署目标为 `xc7z020clg484-2`，聚焦 NPU + ENeuron 动态剪枝。`archive/legacy/` 不参与日常门；旧 `xc7z020clg400-1` 的 NP7/T3 物理证据仅作历史参考。B1 高地址 DDR、PHY、UDP 属于板卡资格支线，完整 `B1-GATE` 仍未关闭，但不阻塞已冻结低地址窗口内的 B2-MVP 构建与实板回环，也不阻塞后续 NPU MVP。CH340 按 `VID_1A86:PID_7523` 识别，COM10 不是固定合同。当前活动分支为 `codex/b1b-high-ddr-board-repro`、仓库 HEAD=`6f3d40e6f0470bbb57a9a10fb107ffc892add25c`；COM6/COM7 蓝牙串口排除。
 
-- `ACTIVE_CONTRACT_HIERARCHY`：当前阶段合同为 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`；`docs/planning/TODO.md` 的 P16 段、`docs/planning/NPU_PRUNING_TODO.md` 和 `docs/planning/NPU_PRUNING_NP7_TODO.md` 为关联合同。`workflow_resume` 统计为 `82/10/0=92`。
+- `ACTIVE_CONTRACT_HIERARCHY`：当前阶段合同为 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`；`docs/planning/TODO.md` 的 P16 段、`docs/planning/NPU_PRUNING_TODO.md` 和 `docs/planning/NPU_PRUNING_NP7_TODO.md` 为关联合同。P16 当前活动未完成项为 `63`。
 - `B1_06B6_UART_BASELINE_PENDING`：当前先按 VID/PID 恢复 CH340 UART 接收基准；此前诊断停在 READY 等待 GO，`command=0`、`completed_accesses=0`，尚未进行 DDR 访问。执行链固定为 B1-06B6 UART 基准 → B1-06B7 OCM 高地址最小复现；B1-06B7 高地址探针必须以后续 UART 基准通过为前提。
 - `B1_06B6_COM10_PASSIVE_LISTEN_NO_BYTES`：2026-09-08 按 `VID_1A86:PID_7523` 对 COM10 以 115200 8N1 监听 10 秒，读取 0 字节，未见 `ENEURON_B1B_BEGIN`、`ALIVE` 或 `PASS`；未下载 bitstream/ELF、未发送 GO，DDR access=0。该观察保持 `B1-06B6_UART_BASELINE_PENDING`，不是 DDR 失败证据。
 
 generated_by: nexus-mapper v2 / manual synthesis
-verified_at: 2026-09-08
+verified_at: 2026-09-09
 provenance: NP4B/NP6/NP7 TODO、工作流状态与 RTL 文件；集成边界来自审核材料包
 
 - `B1A_HW_DEFINITION_COMPLETE`：当前身份为`29edf6a...`，UART0使用Bank 33的V14 RX/V15 TX、LVCMOS33并已由最终I/O确认FIXED；bitstream/XSA为`1f98e949...bc5f6`/`ed4a2ff...d417b`。该状态本身不表示整个B1-GATE通过。
 - `B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DDR_PENDING`：`bare-metal + lwIP`路线已批准；固定SW/HW/bitstream/XSA/ELF在三次完整断电后通过外置CH340 UART协议和低地址1 MiB DDR九阶段。此前`0x10000000`异常未关闭，不得写成整片DDR、B1B或B1-GATE通过。
+- `B2_BOUNDARY_AND_PRESSURE_JTAG_PASS_UART_PENDING / B2_03_BOARD_PENDING`：低地址窗口 `[0x01000000,0x01100000)`、B2-D1 DMA 控制合同和 `0x01006000/0x01007000` 收发缓冲区已冻结；HEAD `6f3d40e` 的同源 bitstream/XSA/ELF 已完成真实 program/download/run。最新证据目录为 `boards/hellozynq/b2_sw/build/6f3d40e6f0470bbb57a9a10fb107ffc892add25c/direct/runs/20260909T022102Z/`，JTAG ledger 证明边界矩阵共 8 帧（7 PASS、1 拒绝、0 失败），并完成 10000 帧确定性压力（10000 PASS、0 失败、CRC32 XOR=`0x7D51FB01`、最后 sequence=`10008`）；UART 为 `COM10:NO_TERMINAL_MARKER`。PL 流计数、TKEEP/TLAST、连续回绕、受控背压和错误恢复仍待完成；B2-GATE 通过前不得接入 NPU 或报告剪枝加速、功耗收益。
+- `B2_MONITOR_TIMING_EXPERIMENT_ONLY`：官方 `axi_stream_monitor:1.1` 双 monitor routed setup 为 `WNS=-0.325 ns/TNS=-11.113 ns`、127 个失败端点，单 monitor 为 `WNS=-0.284 ns/TNS=-22.272 ns`、256 个失败端点；两者均不是正式物理基线。源码现切换为自有轻量 `axis_stream_probe` 双向 sampler（`NUM_MI=3`、`0x40410000/0x40420000`），相关合同测试 `5/5 + 3/3`；新 bit/XSA 尚未重建，需先完成重建再形成实板观测证据。
 
 - `TICK`：推进一个样本或网络时刻。
 - `OBSERVE`/`evidence`：读取已提交学习证据，不读取 live 工作副本。

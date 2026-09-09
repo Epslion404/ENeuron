@@ -1591,3 +1591,29 @@
 - 新 bitstream/XSA SHA-256 分别为 `d694fa02e0e6b5d25dfc72becc302104632268b4dc930b8709780dbebb08d918`、`68dc2b8e0c4e324bc1bacccdecfa384100042f10a94fae9f43d3a1b2b021897a`。
 - Vitis 2024.1 已用上述 XSA 重建 standalone ELF，SHA-256=`e37d7cb6869644ddc0c8a7db06698764561064ae96c8231a4e643cab095911a9`；BSP 继续使用 `axidma_v9_18`。
 - B2-01 的地址、容量、对齐、最大帧长和所有权顺序已有三层一致证据：布局合同、DMA 合同、`main.c` 实现，因此应关闭，避免与 B2-00/B2-D1 重复计门。B2-03 仍缺真实搬运和 PL 侧计数/协议证据，不能关闭。
+
+## 2026-09-09 B2 首次实板最小回环
+
+- `run_b2_board.ps1 -ListenSeconds 30` 已完成真实 JTAG program、ELF download 和 CPU run；同一运行的 UART 结果为 `NO_TERMINAL_MARKER`，不是 `B2_DMA_FAIL`。
+- 随后的 XSCT 只读探针读取 `STATUS_BASE=0x01008000`：magic=`0x42324431`、status=`2 (PASS)`、sequence=`1`、length=`64`、TX/RX=`0x01006000/0x01007000`、cache flush/invalidate=`1/2`、TX/RX SR=`0x1002/0x1002`、BTT=`64/64`、CRC=`0x8A37CBDB`。
+- 原始探针日志和结构化摘要已保存到 `boards/hellozynq/b2_sw/build/6f3d40e6f0470bbb57a9a10fb107ffc892add25c/direct/runs/20260909T011828Z/`；重复探针读取的 TX/RX 十六个 32-bit word 全部一致，摘要 `payload_equal_64_bytes=true`，状态为 `MINIMAL_64B_DMA_PASS_UART_PENDING`。该证据证明一次真实低地址 DMA 回环，但尚未证明 PL 侧计数、UART 终止标记、边界/背压/错误恢复或压力门。
+
+## 2026-09-09 B2 边界矩阵实板复核
+
+- 新运行目录为 `boards/hellozynq/b2_sw/build/6f3d40e6f0470bbb57a9a10fb107ffc892add25c/direct/runs/20260909T020159Z/`；XSCT 日志确认 `B2_FPGA_PROGRAM_PASS`、`B2_ELF_DOWNLOAD_PASS`、`B2_CPU_RUN_PASS`，UART 日志只有换行字节，故机器状态仍为 `NO_TERMINAL_MARKER`。
+- JTAG ledger 给出 `8` 个槽位：`seq=1,len=0,status=0x4`；`seq=2..8` 对应 `1/4/16/64/512/1472/4096` bytes，全部 `status=0x2`；总计数 `8/7/1/0`（总数/通过/拒绝/失败）。这证明了零长度拒绝与七个合法长度在低地址 DDR 上的实际执行和顺序账本。
+- 4096-byte 末帧状态为 `TX/RX SR=0x1002`、`BTT=4096/4096`、CRC=`0xC0032E56`，TX/RX 可见 payload word 一致。探针标准输出 SHA-256 为 `e73fef7df766df80ec2bb0e4f399e35ce313134beb12e3a3e2486cb26c5011886`；结构化摘要同步固化在同一运行目录。
+- 证据边界：仍没有 PL 侧 stream counter、TKEEP/TLAST 逐 beat 观测，`probe_b2_state.tcl` 对 DMA PL 寄存器读回明确报告 `B2_DMA_PL_READ=UNAVAILABLE`；也没有连续回绕、背压、错误注入/复位恢复或 10000 帧压力。因此 B2-04 只能记为“边界矩阵切片已证实”，B2-03 和 B2-GATE 保持未完成。
+
+## 2026-09-09 B2 10000 帧实板压力切片
+
+- `main.c` 在保留边界矩阵的基础上增加固定长度序列 `{1,4,16,64,512,1472,4096}` 的 `10000` 次 DMA 回环；压力期间不写 8 槽边界 ledger，只在状态区保存总数、通过/失败数、最后 sequence 和 CRC XOR，避免覆盖边界证据。
+- 真实运行 `20260909T022102Z` 的 XSCT 日志确认 program/download/run 均 PASS；JTAG 读取 `pressure_status=2`、`pressure_total=10000`、`pressure_passed=10000`、`pressure_failed=0`、`pressure_crc32_xor=0x7D51FB01`、`pressure_last_sequence=10008`。该结果证明低地址 DDR↔DMA↔PL 在无注入背压条件下连续 10000 帧无软件报告失败。
+- 运行 manifest 的 ELF SHA-256 为 `b1b8cbc6c8ff262b8764403453c1269b1a5be3b1b39aacdb244c35616de0e79b`；probe stdout SHA-256 为 `790d7d3b17c84e89dac26d5e558eac617650dfee667004a15b82cfc488f35de1`。结构化证据已保存为同目录 `b2_board_evidence.json`。
+- 证据边界没有变化：UART `NO_TERMINAL_MARKER`；`B2_DMA_PL_READ=UNAVAILABLE`；未覆盖可控接收背压、发送间歇、TKEEP/TLAST、PL 周期计数、错误/复位恢复和连续 buffer 回绕。因此只推进 B2-05 的压力子项，不能关闭 B2-03、B2-05 或 B2-GATE。
+
+## 2026-09-09 B2 观测器时序实验
+
+- 单 `axi_stream_monitor` 实验拓扑可完成 Vivado 2024.1 bit/XSA 生成，但 post-route setup 未通过：`WNS=-0.284 ns`、`TNS=-22.272 ns`、`256` 个失败端点；hold、route error 和 DRC error 未失败。
+- 该结果说明官方 monitor 不能直接作为当前 100 MHz 顶层正式证据。源码已切换为轻量双向 `axis_stream_probe`，保留相同的 AXI-Lite 地址和软件快照字段；本次单 monitor build 目录只作为历史实验记录，不能与当前源码合同配套使用。
+- 下一步是验证轻量 probe 的 Vivado module reference、地址映射和 routed 时序；在获得新的 routed 通过证据前，不关闭 B2-03/B2-05/B2-GATE，也不进入 B3。

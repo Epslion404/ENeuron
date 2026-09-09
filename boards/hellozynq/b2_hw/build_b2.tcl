@@ -10,6 +10,7 @@ set project_dir [file join $out_dir project]
 set project_name hello_zynq_b2
 
 create_project -force $project_name $project_dir -part $part
+add_files -norecurse [file join $script_dir axis_stream_probe.v]
 source [file join $script_dir create_b2_bd.tcl]
 make_wrapper -files [get_files */design_1.bd] -top
 add_files -norecurse [file join $project_dir ${project_name}.gen sources_1 bd design_1 hdl design_1_wrapper.v]

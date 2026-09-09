@@ -1672,3 +1672,44 @@
 - Vitis 2024.1 使用新 XSA 重建 standalone ELF；bitstream/XSA/ELF SHA-256 分别为 `d694fa02...d918`、`68dc2b8e...897a`、`e37d7cb6...11a9`。
 - B2 定向合同回归 `24/24` 通过，PowerShell 入口解析和 `git diff --check` 通过。
 - TODO 复核关闭 B2-01，活动 P16 未完成项从 64 降为 63；B2-03～B2-GATE 保持未完成，下一步为实板 64-byte loopback。
+
+## 2026-09-09 B2 首次实板最小回环
+
+- 同源 bitstream/XSA/ELF 已完成一次真实 program、ELF download 和 CPU run；UART `COM10` 无终止标记，但 JTAG 状态区读取 `status=2 (PASS)`，并逐字读取 TX/RX 16 个 32-bit word 全部一致，证明一条 64-byte 低地址 DMA loopback 成功。
+- 证据摘要 `b2_board_evidence.json` 与原始 `b2_state_probe.log` 已固化到 `boards/hellozynq/b2_sw/build/6f3d40e6f0470bbb57a9a10fb107ffc892add25c/direct/runs/20260909T011828Z/`。
+- 本次仅形成 `B2_MINIMAL_64B_JTAG_PASS_UART_PENDING`，B2-03 仍需 UART/PL 计数、边界帧、背压、错误/复位和压力验证；禁止进入 NPU/ENeuron 接入。
+
+## 2026-09-09 B2 边界矩阵实板证据
+
+- 使用同源 HEAD `6f3d40e6f0470bbb57a9a10fb107ffc892add25c` 的 bitstream/XSA/ELF 完成第二次真实 program、ELF download 和 CPU run；XSCT program/download/CPU run 均 PASS，UART `COM10` 仍为 `NO_TERMINAL_MARKER`。
+- JTAG 只读探针读取状态账本：`frames_total=8`、`frames_passed=7`、`frames_rejected=1`、`frames_failed=0`；长度序列为 `0/1/4/16/64/512/1472/4096` bytes，零长度返回拒绝状态 `0x4`，其余帧返回 PASS 状态 `0x2`。
+- 最后一帧 `4096` bytes 的 TX/RX 地址为 `0x01006000/0x01007000`，BTT 均为 `4096`，DMA SR 均为 `0x1002`，cache flush/invalidate 为 `1/2`，CRC 为 `0xC0032E56`；探针输出中 TX/RX 16 个可见 32-bit word 一致。结构化证据为 `boards/hellozynq/b2_sw/build/6f3d40e6f0470bbb57a9a10fb107ffc892add25c/direct/runs/20260909T020159Z/b2_board_evidence.json`。
+- 该结果只补强 B2-04 的边界矩阵切片，不关闭 B2-03/B2-GATE：UART 终止标记、PL 侧 byte/beat/TKEEP/TLAST/周期计数、跨 cache-line、连续回绕、可控背压、错误/复位恢复和 10000 帧压力仍未完成；B1 高地址资格支线仍为 `B1_HIGH_DDR_PENDING`。
+
+## 2026-09-09 B2 10000 帧实板压力切片
+
+- 在同一 `xc7z020clg484-2` bitstream/XSA 上重新构建压力 ELF，完成真实 program、ELF download 和 CPU run；运行目录为 `boards/hellozynq/b2_sw/build/6f3d40e6f0470bbb57a9a10fb107ffc892add25c/direct/runs/20260909T022102Z/`。
+- JTAG 读取 `pressure_status=2`、`pressure_total=10000`、`pressure_passed=10000`、`pressure_failed=0`，最后 sequence=`10008`，聚合 CRC XOR=`0x7D51FB01`；边界矩阵仍为 8 总帧、7 PASS、1 拒绝、0 失败。
+- 新增压力状态字段、固定长度序列和 runner 终止标记 `B2_PRESSURE_PASS`；合同测试为 `8/8`，Vitis 2024.1 standalone 软件构建通过。证据摘要为同一目录下的 `b2_board_evidence.json`。
+- 该运行没有可控 AXI-Stream 背压，且 UART 仍为 `NO_TERMINAL_MARKER`、PL 侧 TKEEP/TLAST/周期计数仍不可读，因此只关闭压力切片，不关闭 B2-03/B2-05/B2-GATE，也不进入 NPU/ENeuron。
+
+## 2026-09-09 B2 monitor 时序实验
+
+- 临时单 monitor 拓扑完成 Vivado 2024.1 bit/XSA 构建，但 post-route setup 失败：`WNS=-0.284 ns`、`TNS=-22.272 ns`、`256` 个失败端点。
+- 该实验不提升 B2 门状态；源码已切换为轻量双向 `axis_stream_probe`，定向 probe/loopback 合同测试 `16/16` 通过。当前 build 产物与新源码拓扑不同源，不得用于正式上板证据。
+- 下一动作是验证轻量 probe 的 module reference、AXI-Lite 地址映射和 routed 时序，避免把官方 monitor 的复杂逻辑继续叠加到 B2 正式顶层。
+
+## 2026-09-09 B2 probe 物理构建通过
+
+- 修复 `axis_stream_probe.v` 中 Vivado Verilog parser 不接受的函数形参声明，独立构建目录 `boards/hellozynq/b2_hw/build_probe/` 完成 module reference、BD validation、综合、实现、布线、DRC、bitgen 和 XSA 导出。
+- 物理摘要：器件 `xc7z020clg484-2`，`WNS=+0.154 ns`、`WHS=+0.036 ns`、`TNS/THS=0`、route/DRC error=`0`、setup/hold 失败端点均为 `0`；资源约 `4931 LUT / 7011 FF / 2 RAMB36 / 2 RAMB18 / 0 DSP`。
+- 产物 SHA-256：bit=`994c512c9631ef21d59743d583a4563264a4f0e897e9fe6e71145b1bc7373f38`、XSA=`d43830c84cedb8d8d0e0d249bff24770ea0802648a8a6a10cd0f68fce78ef303`；定向契约测试 `16/16` 通过，`git diff --check` 通过。
+- 该结果只说明 probe 拓扑已经可实现，不关闭 B2-03/B2-05/B2-GATE；下一步是用该同源 bit/XSA 重建软件并上板读取 byte/beat/TKEEP/TLAST/周期计数，再实现可控背压切片。
+
+## 2026-09-09 B2 软件身份校验补强
+
+- 在 `run_b2_board.ps1` 中新增烧写前 bitstream/XSA/ELF SHA-256 与 `build_manifest.json` 的 fail-closed 一致性检查；不一致时在启动 `hw_server`、打开串口和 FPGA program 前直接报 `B2 artifact hash mismatch`。
+- PowerShell 语法解析通过；B2 DMA、stream monitor、stream probe 定向合同测试为 `23/23`，全部 B2 合同测试为 `42/42`。该修复只阻止错配证据进入实板运行，不改变 B2-03～B2-GATE 的完成状态。
+- `probe_b2_state.tcl` 已扩展为读取 `0x40410000/0x40420000` 两个 probe 的 sample、beats、TLAST、bytes、cycles、stall、starve 和 last TKEEP，并由 runner 自动归档 stdout/stderr 与哈希。
+- 新同源正式 run `20260909T045710Z` 已完成 FPGA program、ELF download、CPU run；UART 为 `NO_TERMINAL_MARKER`，但自动归档的强制 JTAG probe 读取成功（`probe_exit_code=0`）。MM2S=`16 beats / 64 bytes / TLAST=1 / TKEEP=0xF / stall=0`，S2MM 同值；硬件周期为 `1332/1268`，starve 为 `1316/1252`。证据已写入该 run 目录的 `b2_board_evidence.json`，B2-03/B2-GATE 仍未关闭。
+- 错误记录：PowerShell 不展开 `pytest test_b2_*.py` 通配符，第一次命令实际未运行测试；改用显式六个 B2 测试文件后得到 `42/42`，未把前一次空运行计为通过。

@@ -1,12 +1,13 @@
 {
   "$schema": "eneuron/board-b1b-evidence/v1",
-  "verified_at": "2026-09-08",
+  "verified_at": "2026-09-09",
   "workflow_context": {
     "active_branch": "codex/b1b-high-ddr-board-repro",
-    "current_head": "ef0495b0a363195d27ba7efc019127523f9affcf",
+    "current_head": "6f3d40e6f0470bbb57a9a10fb107ffc892add25c",
+    "snapshot_scope": "B1 qualification evidence record; the fixed identity object below is authoritative for B1 artifacts",
     "parent_audit_baseline": "d7e1035",
     "execution_chain": ["B1-06B6_UART_BASELINE", "B1-06B7_OCM_HIGH_DDR_MINIMAL_REPRODUCTION"],
-    "workflow_resume_counts": "82/10/0=92",
+    "workflow_resume_counts": "P16=63",
     "ddr_accesses_so_far": 0
   },
   "status": "B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DDR_PENDING",

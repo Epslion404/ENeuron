@@ -1,25 +1,26 @@
 {
   "$schema": "nexus-mapper/plan/v1",
   "plan_id": "p16-board-validation-phase2",
-  "verified_at": "2026-09-08",
+  "verified_at": "2026-09-09",
   "target": {
     "board": "HelloZynq",
     "part": "xc7z020clg484-2"
   },
   "workflow_context": {
     "active_branch": "codex/b1b-high-ddr-board-repro",
-    "current_head": "ef0495b0a363195d27ba7efc019127523f9affcf",
+    "current_head": "6f3d40e6f0470bbb57a9a10fb107ffc892add25c",
     "parent_audit_baseline": "d7e1035",
-    "execution_chain": ["B1-06B6_UART_BASELINE", "B1-06B7_OCM_HIGH_DDR_MINIMAL_REPRODUCTION"],
+    "execution_chain": ["B2-03_BOARD_MINIMAL_LOOPBACK", "B2-04_BOUNDARY_FRAMES", "B2-05_BACKPRESSURE_AND_PRESSURE"],
+    "qualification_execution_chain": ["B1-06B6_UART_BASELINE", "B1-06B7_OCM_HIGH_DDR_MINIMAL_REPRODUCTION"],
     "ddr_accesses_so_far": 0
   },
-  "status": "P16_B0_COMPLETE / FASTLANE_V1 / B1A_HW_DEFINITION_COMPLETE / B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DDR_PENDING",
+  "status": "P16_B0_COMPLETE / FASTLANE_V1 / B1A_HW_DEFINITION_COMPLETE / B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DDR_PENDING / B2_00_LOW_ADDRESS_LAYOUT_FROZEN / B2_D1_DMA_CONTRACT_FROZEN / B2_01_BUFFER_OWNERSHIP_FROZEN / B2_DMA_SW_BUILD_READY / B2_BOUNDARY_AND_PRESSURE_JTAG_PASS_UART_PENDING",
   "stage2_complete": false,
-  "current_gate": "B1B-PS7-UART-DDR",
+  "current_gate": "B2-03-BOARD-LOOPBACK",
   "active_stage_contract": "docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md",
   "related_contracts": ["docs/planning/TODO.md#P16", "docs/planning/NPU_PRUNING_TODO.md", "docs/planning/NPU_PRUNING_NP7_TODO.md"],
-  "workflow_resume_counts": "82/10/0=92",
-  "current_execution_point": "B1-06B6_UART_BASELINE",
+  "workflow_resume_counts": "P16=63",
+  "current_execution_point": "B2-03_BOARD_MINIMAL_LOOPBACK_INTEGRITY",
   "ddr_accesses_so_far": 0,
   "b0": {
     "source_commit": "f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06",
@@ -73,7 +74,124 @@
     "run_2_observation_status": "PASS",
     "gate_pass": true
   },
-  "next_action": {
+  "b2": {
+    "status": "IN_PROGRESS_LOW_ADDRESS_MVP_B2_01_COMPLETE_B2_03_BOUNDARY_AND_PRESSURE_JTAG_PASS_UART_PENDING_B1_GATE_PENDING",
+    "low_address_window": "[0x01000000,0x01100000)",
+    "dma_mode": "AXI_DMA_SIMPLE_POLLING",
+    "control_contract": "S2MM_FIRST_1US_POLL_1S_TIMEOUT_500_RESET_POLL",
+    "buffer_contract": {
+      "tx_base": "0x01006000",
+      "rx_base": "0x01007000",
+      "buffer_bytes": 4096,
+      "alignment_bytes": 64,
+      "ownership": "CPU_FILL_FLUSH_DMA_OWNS_COMPLETE_INVALIDATE_CPU_READ"
+    },
+    "hardware_build": {
+      "git_head": "bba093603d501f157169f3c321fb77a62fcf4406",
+      "tool": "Vivado 2024.1",
+      "part": "xc7z020clg484-2",
+      "top": "design_1_wrapper",
+      "bitstream_sha256": "d694fa02e0e6b5d25dfc72becc302104632268b4dc930b8709780dbebb08d918",
+      "xsa_sha256": "68dc2b8e0c4e324bc1bacccdecfa384100042f10a94fae9f43d3a1b2b021897a",
+      "wns_ns": 0.240,
+      "whs_ns": 0.036,
+      "tns_ns": 0.0,
+      "ths_ns": 0.0,
+      "route_errors": 0,
+      "drc_errors": 0,
+      "drc_warnings": 1,
+      "drc_advisories": 4,
+      "programmed": true,
+      "manifest": "boards/hellozynq/b2_hw/build/build_manifest.json"
+    },
+    "software_build": {
+      "git_head": "bba093603d501f157169f3c321fb77a62fcf4406",
+      "tool": "XSCT/Vitis 2024.1",
+      "driver": "axidma_v9_18",
+      "bitstream_sha256": "d694fa02e0e6b5d25dfc72becc302104632268b4dc930b8709780dbebb08d918",
+      "xsa_sha256": "68dc2b8e0c4e324bc1bacccdecfa384100042f10a94fae9f43d3a1b2b021897a",
+      "elf_sha256": "e37d7cb6869644ddc0c8a7db06698764561064ae96c8231a4e643cab095911a9",
+      "manifest": "boards/hellozynq/b2_sw/build/bba093603d501f157169f3c321fb77a62fcf4406/direct/build_manifest.json",
+      "downloaded": true,
+      "board_run_git_head": "6f3d40e6f0470bbb57a9a10fb107ffc892add25c",
+      "board_run_elf_sha256": "b1b8cbc6c8ff262b8764403453c1269b1a5be3b1b39aacdb244c35616de0e79b",
+      "previous_board_run_elf_sha256": "48d29f596428c827f6407d951d2106ebe570c270551e83e4b517757acda88800"
+    },
+    "evidence": {
+      "targeted_contract_tests": "24/24_PASS",
+      "board_dma_transfer": "BOUNDARY_AND_PRESSURE_JTAG_PASS_UART_PENDING",
+      "pl_counters": "PENDING",
+      "b2_gate": "PENDING",
+      "board_evidence_manifest": "boards/hellozynq/b2_sw/build/6f3d40e6f0470bbb57a9a10fb107ffc892add25c/direct/runs/20260909T022102Z/b2_board_evidence.json",
+      "board_evidence_sha256": "4e05f96e1eb06aaef22fb7ed3ff051b5eefdda23aa4a91fcedcfcfea70a031e0",
+      "probe_log": "boards/hellozynq/b2_sw/build/6f3d40e6f0470bbb57a9a10fb107ffc892add25c/direct/runs/20260909T022102Z/probe_stdout.log",
+      "probe_log_sha256": "790d7d3b17c84e89dac26d5e558eac617650dfee667004a15b82cfc488f35de1",
+      "board_target": "xc7z020_1",
+      "jtag": "210251A08870",
+      "uart": "COM10:NO_TERMINAL_MARKER",
+      "frame_lengths_bytes": [0, 1, 4, 16, 64, 512, 1472, 4096],
+      "frames_total": 8,
+      "frames_passed": 7,
+      "frames_rejected": 1,
+      "frames_failed": 0,
+      "pressure_status": 2,
+      "pressure_total": 10000,
+      "pressure_passed": 10000,
+      "pressure_failed": 0,
+      "pressure_crc32_xor": "0x7D51FB01",
+      "pressure_last_sequence": 10008,
+      "last_dma_status": 2,
+      "last_sequence": 10008,
+      "last_length_bytes": 64,
+      "tx_address": "0x01006000",
+      "rx_address": "0x01007000",
+      "payload_equal": true,
+      "last_payload_equal": true,
+      "last_crc32": "0xDB435267",
+      "cache_flush_tx": 1,
+      "cache_invalidate_rx": 2,
+      "last_tx_sr": "0x00001002",
+      "last_rx_sr": "0x00001002",
+      "last_tx_btt": 64,
+      "last_rx_btt": 64,
+      "evidence_boundary": "JTAG status ledger proves the eight-frame boundary matrix (7 PASS, 1 rejected, 0 failed) and a 10000-frame deterministic pressure run (10000 PASS, 0 failed); UART terminal marker, PL stream counters, TKEEP/TLAST observation, controlled backpressure, continuous wraparound and error recovery remain pending"
+    },
+    "monitor_experiment": {
+      "observed_at": "2026-09-09",
+      "ip": "xilinx.com:ip:axi_stream_monitor:1.1",
+      "historical_contract_tests": "5/5_PASS",
+      "source_contract": "REPLACED_BY_CUSTOM_LIGHTWEIGHT_PROBE",
+      "current_topology": {
+        "probes": ["axis_stream_probe_mm2s", "axis_stream_probe_s2mm"],
+        "control_smartconnect_num_mi": 3,
+        "axi_lite_bases": ["0x40410000", "0x40420000"]
+      },
+      "dual_monitor_experiment": {
+        "status": "ROUTED_SETUP_FAIL",
+        "wns_ns": -0.325,
+        "tns_ns": -11.113,
+        "setup_failing_endpoints": 127,
+        "hold_route_drc_errors": "0"
+      },
+      "single_monitor_experiment": {
+        "status": "ROUTED_SETUP_FAIL",
+        "wns_ns": -0.284,
+        "tns_ns": -22.272,
+        "setup_failing_endpoints": 256,
+        "hold_route_drc_errors": "0"
+      },
+      "probe_contract_tests": "3/3_PASS",
+      "formal_use": "HISTORICAL_MONITOR_EXPERIMENT_ONLY; NEW_PROBE_REQUIRES_REBUILD",
+      "limitations": [
+        "官方计数只在 TVALID&&TREADY 握手时更新",
+        "busy/stall 在背压或 TLAST 场景不能单独作为严格证据",
+        "真实 TKEEP 与 TLAST beat 位置仍需独立采样或明确推导"
+      ],
+      "next_action": "用 axis_stream_probe 新拓扑重建 bit/XSA/ELF，再进行实板观测"
+    },
+    "forbidden_claims": ["DMA loopback passed", "B2-GATE passed", "NPU integrated", "pruning speedup or power gain measured"]
+  },
+  "qualification_next_action": {
     "action": "B1-06B6_UART_BASELINE",
     "execution_chain": ["B1-06B6_UART_BASELINE", "B1-06B7_OCM_HIGH_DDR_MINIMAL_REPRODUCTION"],
     "status": "B1B_HIGH_DDR_PENDING",
@@ -188,7 +306,7 @@
   },
   "stages": [
     {"id":"B1","requires":"B0-GATE=PASS on main","scope":"PS7, DDR, UART, PHY, minimal UDP","status":"IN_PROGRESS_B1A_COMPLETE_B1B_UART_LOW_DDR_PASS_HIGH_DDR_PENDING"},
-    {"id":"B2","requires":"B2-00/B2-D1 for low-address MVP; B1-GATE=PASS for full networked B2","scope":"AXI DMA, DDR ownership/cache contract, PL loopback, fixed frame adapter","status":"IN_PROGRESS_LOW_ADDRESS_MVP_B2_01_COMPLETE_B2_03_BOARD_PENDING_B1_GATE_PENDING"},
+    {"id":"B2","requires":"B2-00/B2-D1 for low-address MVP; B1-GATE=PASS for full networked B2","scope":"AXI DMA, DDR ownership/cache contract, PL loopback, fixed frame adapter","status":"IN_PROGRESS_LOW_ADDRESS_MVP_B2_01_COMPLETE_B2_03_BOUNDARY_AND_PRESSURE_JTAG_PASS_UART_PENDING_B1_GATE_PENDING"},
     {"id":"B3","requires":"B2-GATE=PASS","scope":"64x32x10 traditional NPU plus ENeuron fixed-vector board validation","status":"BLOCKED_BY_PREDECESSOR_GATE"},
     {"id":"B4","requires":"B3-GATE=PASS","scope":"Ethernet end-to-end dense/gated reproducible A/B","status":"BLOCKED_BY_PREDECESSOR_GATE"}
   ],
