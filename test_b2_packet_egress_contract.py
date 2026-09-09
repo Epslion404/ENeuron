@@ -20,6 +20,9 @@ class B2PacketEgressContractTests(unittest.TestCase):
             "rsp_last",
             "ERR_RESULT_METADATA",
             "crc32_word",
+            "crc32_byte",
+            "crc_byte_index",
+            "crc_busy",
             "output_frame_words",
         ):
             self.assertIn(token, source)

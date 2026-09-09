@@ -54,7 +54,7 @@ module b2_packet_egress #(
     assign response_mem_wr_addr = (state == ST_IDLE) ? '0 : response_word_count[$clog2(RESPONSE_WORD_CAPACITY)-1:0];
     assign response_mem_rd_en =
         ((state == ST_OUTPUT) && (output_index >= HEADER_WORDS) &&
-         (output_index < output_frame_words) && !output_data_valid) ||
+         (output_index < output_frame_words) && !output_data_valid && !crc_busy) ||
         (m_fire && (output_index == HEADER_WORDS - 1)) ||
         (m_fire && (output_index >= HEADER_WORDS) &&
          (output_index < output_frame_words - 1) &&
@@ -69,13 +69,15 @@ module b2_packet_egress #(
     assign result_mem_wr_addr = (state == ST_IDLE) ? '0 : result_word_count[3:0];
     assign result_mem_rd_en =
         ((state == ST_OUTPUT) && (output_index >= HEADER_WORDS) &&
-         (output_index < output_frame_words) && !output_data_valid) ||
+         (output_index < output_frame_words) && !output_data_valid && !crc_busy) ||
         (m_fire && (output_index == HEADER_WORDS - 1)) ||
         (m_fire && (output_index >= HEADER_WORDS) &&
          (output_index < output_frame_words - 1));
     assign result_mem_rd_addr =
         (m_fire && (output_index == HEADER_WORDS - 1)) ? '0 :
-        (output_index - HEADER_WORDS + 1'b1);
+        (m_fire && (output_index >= HEADER_WORDS)) ?
+            (output_index - HEADER_WORDS + 1'b1) :
+        (output_index - HEADER_WORDS);
 
     b2_packet_bram #(.DATA_WIDTH(128), .DEPTH(RESPONSE_WORD_CAPACITY)) response_mem (
         .clk(clk), .rst(rst), .wr_en(response_mem_wr_en), .wr_addr(response_mem_wr_addr),
@@ -95,27 +97,36 @@ module b2_packet_egress #(
     logic [31:0] sequence_reg, sample_id_reg, model_id_reg, mask_epoch_reg, status_reg;
     logic [7:0] message_type_reg;
     logic [31:0] crc_state;
+    logic [31:0] crc_word_data;
+    logic [1:0]  crc_byte_index;
+    logic        crc_busy;
     logic        output_data_valid;
 
     wire rsp_fire = rsp_valid && rsp_ready;
     wire result_fire = result_valid && result_ready;
     wire m_fire = m_valid && m_ready;
 
-    function automatic [31:0] crc32_word(input [31:0] crc, input [31:0] data);
-        integer byte_index;
+    function automatic [31:0] crc32_byte(input [31:0] crc, input [7:0] data);
         integer bit_index;
         reg [31:0] value;
-        reg [7:0] byte_value;
+        begin
+            value = crc ^ data;
+            for (bit_index = 0; bit_index < 8; bit_index = bit_index + 1) begin
+                if (value[0]) value = (value >> 1) ^ 32'hEDB8_8320;
+                else value = value >> 1;
+            end
+            crc32_byte = value;
+        end
+    endfunction
+
+    // 保留字级参考函数，供静态合同和离线交叉核对使用；硬件路径按字节分拍执行。
+    function automatic [31:0] crc32_word(input [31:0] crc, input [31:0] data);
+        integer byte_index;
+        reg [31:0] value;
         begin
             value = crc;
-            for (byte_index = 0; byte_index < 4; byte_index = byte_index + 1) begin
-                byte_value = data[byte_index * 8 +: 8];
-                value = value ^ byte_value;
-                for (bit_index = 0; bit_index < 8; bit_index = bit_index + 1) begin
-                    if (value[0]) value = (value >> 1) ^ 32'hEDB8_8320;
-                    else value = value >> 1;
-                end
-            end
+            for (byte_index = 0; byte_index < 4; byte_index = byte_index + 1)
+                value = crc32_byte(value, data[byte_index * 8 +: 8]);
             crc32_word = value;
         end
     endfunction
@@ -124,6 +135,7 @@ module b2_packet_egress #(
     assign result_ready = (state == ST_RESULT_COLLECT) || ((state == ST_IDLE) && !rsp_valid);
     assign busy = (state != ST_IDLE);
     assign m_valid = (state == ST_OUTPUT) &&
+        !crc_busy &&
         ((output_index < HEADER_WORDS) || (output_index == output_frame_words) || output_data_valid);
     assign m_keep = 4'hF;
     assign m_last = (output_index == output_frame_words);
@@ -161,13 +173,27 @@ module b2_packet_egress #(
             status_reg <= '0;
             message_type_reg <= '0;
             crc_state <= 32'hFFFF_FFFF;
+            crc_word_data <= '0;
+            crc_byte_index <= '0;
+            crc_busy <= 1'b0;
             output_data_valid <= 1'b0;
             error_valid <= 1'b0;
             error_code <= '0;
         end else begin
             error_valid <= 1'b0;
 
-            if ((state == ST_OUTPUT) && (output_index >= HEADER_WORDS) &&
+            if (crc_busy) begin
+                // 每拍只展开一个字节，切断 BRAM 输出到 CRC 状态寄存器的长组合路径。
+                crc_state <= crc32_byte(crc_state,
+                    crc_word_data[crc_byte_index * 8 +: 8]);
+                if (crc_byte_index == 2'd3) begin
+                    crc_byte_index <= '0;
+                    crc_busy <= 1'b0;
+                    output_index <= output_index + 1'b1;
+                end else begin
+                    crc_byte_index <= crc_byte_index + 1'b1;
+                end
+            end else if ((state == ST_OUTPUT) && (output_index >= HEADER_WORDS) &&
                 (output_index < output_frame_words) && !output_data_valid) begin
                 output_data_valid <= 1'b1;
             end else if (m_fire) begin
@@ -176,15 +202,10 @@ module b2_packet_egress #(
                     output_index <= '0;
                     output_data_valid <= 1'b0;
                 end else begin
-                    if (output_index < output_frame_words)
-                        crc_state <= crc32_word(crc_state, m_data);
-                    if (output_index == HEADER_WORDS - 1) begin
-                        output_data_valid <= 1'b1;
-                    end else if ((output_index >= HEADER_WORDS) &&
-                                 (output_index < output_frame_words - 1)) begin
-                        output_data_valid <= 1'b1;
-                    end
-                    output_index <= output_index + 1'b1;
+                    crc_word_data <= m_data;
+                    crc_byte_index <= '0;
+                    crc_busy <= 1'b1;
+                    output_data_valid <= 1'b0;
                 end
             end else if (rsp_fire) begin
                 if ((state == ST_IDLE) || (response_word_count + 1'b1 > RESPONSE_WORD_CAPACITY)) begin

@@ -27,7 +27,6 @@ module tb_b2_packet_egress;
     wire busy;
 
     always #5 clk = ~clk;
-
     b2_packet_egress dut (
         .clk(clk), .rst(rst),
         .rsp_valid(rsp_valid), .rsp_ready(rsp_ready), .rsp_data(rsp_data), .rsp_last(rsp_last),
@@ -68,11 +67,14 @@ module tb_b2_packet_egress;
 
     task automatic expect_word(input logic [31:0] expected, input logic last);
         begin
-            while (!m_valid) @(posedge clk);
+            // egress 的 CRC 状态机允许内部气泡；在负边沿等待，避免跨 NBA 竞态。
+            #1;
+            while (!m_valid) @(negedge clk);
             #1;
             if (m_data !== expected || m_keep !== 4'hF || m_last !== last)
                 $fatal(1, "egress word=%h keep=%h last=%b expected=%h/%b", m_data, m_keep, m_last, expected, last);
             @(posedge clk);
+            #1;
         end
     endtask
 
