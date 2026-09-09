@@ -4,15 +4,15 @@
 
 部署主线固定为 `xc7z020clg484-2` 的 NPU + ENeuron 动态剪枝。`xc7z020clg400-1` 上的 T3/NP7 OOC 与资源/时序报告仅作历史结构参考，不能替代 `clg484-2` 最终 routed 证据；`archive/legacy/` 内容不进入日常 CI/PR 门。B1 高地址 DDR、PHY 和 UDP 是板卡资格支线，仍决定完整 `B1-GATE`，但不阻塞低地址容量满足条件下的 NPU MVP。CH340 设备按 `VID_1A86:PID_7523` 识别，COM 编号仅作现场观测。
 
-合同层级（2026-09-09）：当前阶段合同为 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`；P16 TODO 段、`NPU_PRUNING_TODO.md` 和 `NPU_PRUNING_NP7_TODO.md` 是关联合同。P16 当前活动未完成项为 `63`。当前活动分支为 `codex/b1b-high-ddr-board-repro`，仓库 HEAD=`55822aebb34eef9f49995fc203214b3aa1c2581f`；主线已完成 B2-03/B2-04/B2-05 的 UART/JTAG 证据收口，但 B2 完整门仍因连续回绕、错误/复位恢复和更完整逐帧 PL 观测保持未完成。
+合同层级（2026-09-09）：当前阶段合同为 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`；P16 TODO 段、`NPU_PRUNING_TODO.md` 和 `NPU_PRUNING_NP7_TODO.md` 是关联合同。P16 当前活动未完成项为 `63`。当前活动分支为 `codex/b1b-high-ddr-board-repro`，仓库 HEAD=`f7f01b04e2e54bd3fc3a227830dc07e144ad4c82`；主线已完成 B2-03/B2-04/B2-05 的 UART/JTAG 与连续回绕证据收口，但 B2 完整门仍因错误/复位恢复和更完整逐帧 PL 观测保持未完成。
 
 B1B状态（2026-09-08）：当前B1A硬件身份为`29edf6a...`，B1B软件身份为`97ddd1a...`，bitstream/XSA/ELF为`1f98e949...bc5f6`、`ed4a2ff...d417b`、`4992d26c...128560`。正式UART为Bank 33的V14 RX/V15 TX，外置CH340按 VID/PID 自动发现（现场枚举 COM10）并在三次完整断电冷启动后收到完整协议；低地址1 MiB DDR九阶段与OCM记录也三次通过。`0x10000000`异常未关闭且高地址尚未访问，B1B与`B1-GATE`仍未完成。`hsi::open_hw_design`只能对临时XSA副本运行，正式build目录保持只读。
 
 B1A-HW状态（2026-09-08）：`boards/hellozynq/b1a_hw/`已在干净提交`29edf6a...`完成正式UART方向的Vivado 2024.1实现。最终I/O确认V14为Bank 33固定INPUT、V15为固定OUTPUT，均为LVCMOS33；资源与旧版本相同，WHS=`+0.138 ns`，其余实现硬门通过。状态保持`B1A_HW_DEFINITION_COMPLETE / B1_GATE_PASS=false`。
 
-阶段2实板状态（2026-09-09）：实际板卡目标固定为`xc7z020clg484-2`。B0双运行与完整断电证据已通过PR #69合并；B1-D1已批准，B1A完成，B1B的UART与低地址1 MiB DDR三次冷启动通过，高地址DDR边界仍阻塞完整 B1-GATE。正式 run `20260909T094406Z`（HEAD `55822ae`）在交换 USB-TTL TX/RX 后取得 UART/JTAG PASS，边界 `7 PASS + 1 zero-length reject + 0 fail`，pressure `10000/10000`，backpressure `64/64`，stall_cycles=`83082`，S2MM `STALL=3`。B2-03/B2-05/B2-GATE 仍因连续回绕、错误/复位恢复和更完整逐帧 PL 观测未关闭。
+阶段2实板状态（2026-09-09）：实际板卡目标固定为`xc7z020clg484-2`。B0双运行与完整断电证据已通过PR #69合并；B1-D1已批准，B1A完成，B1B的UART与低地址1 MiB DDR三次冷启动通过，高地址DDR边界仍阻塞完整 B1-GATE。正式 run `20260909T105109Z`（HEAD `f7f01b0`）在交换 USB-TTL TX/RX 后取得 UART/JTAG PASS，边界 `7 PASS + 1 zero-length reject + 0 fail`，pressure `10000/10000`，backpressure `64/64`，连续回绕 `256/256`、rollovers=`3`，首末地址 `TX 0x01006000→0x01006FC0`、`RX 0x01007000→0x01007FC0`。recovery run `20260909T110436Z` 进一步取得 UART/JTAG/XSCT PASS，timeout/reset/passed/failed=`1/1/1/0`、sequence=`10329`、CRC32=`0xD3E3C978`，recovery ELF=`f2706099…e0363`。B2-03/B2-04/B2-05/B2-GATE 仍因更完整逐帧 PL 观测、间歇/ready 恢复和错误注入未关闭。
 
-B2 观测器边界（2026-09-09）：双/单 `axi_stream_monitor:1.1` routed setup 均为历史失败（`WNS=-0.325/-0.284 ns`），不计入物理通过。当前轻量 probe 修复将软件配置设为 `0x04030201`、零 stall 直接失败，RTL 从首个输入启动 phase，并在已公开 VALID 等待 READY 时冻结 phase；六个 B2 合同文件 `51/51` 通过。正式 run `20260909T094406Z` 已证明 UART/JTAG PASS、受控背压 `64/64`、stall_cycles=`83082`、S2MM STALL=3；多长度逐帧 PL、连续回绕和错误恢复仍未证明。B2-03/B2-05/B2-GATE 仍未完成。
+B2 观测器边界（2026-09-09）：双/单 `axi_stream_monitor:1.1` routed setup 均为历史失败（`WNS=-0.325/-0.284 ns`），不计入物理通过。当前轻量 probe 修复将软件配置设为 `0x04030201`、零 stall 直接失败，RTL 从首个输入启动 phase，并在已公开 VALID 等待 READY 时冻结 phase；六个 B2 合同文件 `51/51` 通过。正式 run `20260909T105109Z`（HEAD `f7f01b0`）已证明 UART/JTAG PASS、受控背压 `64/64`、连续回绕 `256/256` 帧、`rollovers=3`；首末地址为 TX `0x01006000→0x01006FC0`、RX `0x01007000→0x01007FC0`。连续回绕切片为 BOARD_PASS，但多长度逐帧 PL、错误/复位恢复及 B2-03/B2-04/B2-05/B2-GATE 整体关闭仍未完成。
 
 P16最终硬门仍按B0→B1→B2→B3→B4串行，但代码按Fastlane V1小步合并。B1A/B1B/B1C中间切片可进入main但不改变阶段通过状态；B2–B4仍不得提前声明实现或签核。
 
