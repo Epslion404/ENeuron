@@ -5,6 +5,7 @@
 - `vivado.exe` 仍存活且 `impl_1/runme.log` 持续增长，当前位于 `place_design` 后的 `phys_opt_design`，不是观察超时或已失败。
 - BD、综合、`link_design`、`opt_design` 已完成，前置 DRC=`0 errors`。布局后估计时序为 WNS=`-8.182 ns`、TNS=`-181312.760 ns`；该值不是最终 signoff，但说明 200 MHz 目标存在高风险。
 - 下一判据是 route 后 timing summary、DRC/route errors、DSP48E1 数量和最终 bitstream/XSA；在这些证据齐全前不得把中间 DCP 当作可下载版本。
+- 后续 route 阶段已报告 `Congestion is preventing the router from routing all nets`，第 5.2 轮显示 `Number of Nodes with overlaps = 147240`；因此当前风险已从单纯负时序扩大为布线拥塞，必须等待终态后再决定是否拆分 packetizer 组合路径或调整时钟目标。
 
 ## 2026-09-09 B2 packet adapter 首条集成证据
 

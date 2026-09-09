@@ -5,6 +5,7 @@
 - `b2_npu_packet_adapter` 已接入 `boards/hellozynq/b2_hw/b2_npu_axis_top.v`，BD 数据链为 `AXI DMA MM2S → axis_stream_probe_mm2s → b2_npu_axis_top → axis_stream_probe_s2mm → AXI DMA S2MM`。`B2_PACKET_INGRESS_PASS`、`B2_PACKET_EGRESS_PASS`、`B2_NPU_PACKET_ADAPTER_PASS`、`B2_NPU_PACKET_ADAPTER_E2E_PASS` 和 10/10 定向合同测试已通过。
 - Vivado 2024.1 当前仍在物理实现，已完成 BD、综合、link、opt，前置 DRC 为 0 errors；日志中间估计 `WNS=-8.182 ns`、`TNS=-181312.760 ns`，尚未取得最终 route/timing/bitstream，因此不能宣称 `B2_BUILD_PASS` 或实板可用。
 - 当前只保留单 outstanding packet 元数据假设，完整多 packet 关联、B2-07/B2-08 和实板 packet path 仍未完成。
+- 当前物理实现仍在 `route_design` 第 5.2 轮；日志报告布线拥塞及 `147240` 个 overlap 节点，尚无 `route_design completed`、最终 timing signoff、bitstream/XSA 或 `B2_BUILD_PASS`。
 
 ## 2026-09-09 B2 packet→wrapper 集成切片
 
