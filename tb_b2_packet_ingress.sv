@@ -66,6 +66,15 @@ module tb_b2_packet_ingress;
         expect_error(4'h1);
         if (cmd_valid || sample_valid || busy) $fatal(1, "bad magic frame leaked state");
 
+        // 错误版本必须等到帧边界后整体拒绝，不得提前释放 payload。
+        send_word(32'h3242_4e45, 1'b0);
+        send_word(32'h0800_0202, 1'b0);
+        send_word(32'h0000_0020, 1'b0);
+        for (i = 0; i < 13; i = i + 1) send_word(32'h0000_0000, 1'b0);
+        send_word(32'h0000_0000, 1'b1);
+        expect_error(4'h2);
+        if (cmd_valid || sample_valid || busy) $fatal(1, "bad version frame leaked state");
+
         // SAMPLE: sequence=7, sample_id=42, model_id=3, epoch=11.
         send_word(32'h3242_4e45, 1'b0);
         send_word(32'h0800_0201, 1'b0);
