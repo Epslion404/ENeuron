@@ -1854,3 +1854,10 @@
 - egress OOC 综合（Vivado 2024.1、`xc7z020clg484-2`）由旧参考约 `35944 LUT / 0 BRAM` 降至 `532 LUT / 251 FF / 2 RAMB36 / 1 RAMB18`；ingress 当前为 `2085 LUT / 1408 LUTRAM / 488 FF`，尚未实现 BRAM 推断。
 - 定向协议/适配器/T1 合同回归通过；`REPRO_G0_MANIFEST_PASS`、`REPRO_G1_T1_PROTOCOL_SLICE_PASS` 通过。该切片仍未证明完整 BD routed timing、bit/XSA 或实板行为。
 - 定向回归首轮发现 `test_b2_stream_probe_contract.py` 仅因 runner 将源文件写成带目录的完整路径而找不到精确 token `'axis_stream_probe.v'`；已改为显式变量保留该合同标识，不改变构建路径或哈希内容。
+
+## 2026-09-10 B2 egress CRC 分拍后物理重建
+
+- 提交 `8d57e7e` 将 egress CRC 从每拍 4 字节改为每拍 1 字节，并保持 `91/91` B2 回归与 T1 复现通过。
+- 同源 Vivado 2024.1 构建已完成 route、bitstream/XSA 和 DRC；`route errors=0`、`DRC hard errors=0`，但 `clk_fpga_0` 200 MHz setup 失败：`WNS=-1.958 ns`、`TNS=-3308.760 ns`、`5902` 个失败端点，`WHS=+0.055 ns`、`THS=0`。
+- 最差路径已从 egress BRAM/CRC 移到 NPU 核心控制网络：`compute_unit_index_reg[0]` → `compute_group_index_reg[2]`，数据延迟 `6.574 ns`，布线延迟 `5.077 ns`。
+- 失败证据归档于 `artifacts/logs/b2_packet_npu_route_timing_fail_20260910_8d57e7e/`；bit/XSA 仅作分析，禁止上板。下一步改做核心控制路径切片。
