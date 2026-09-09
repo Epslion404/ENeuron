@@ -11,6 +11,7 @@
 - Vivado 2024.1 当前仍在物理实现，已完成 BD、综合、link、opt，前置 DRC 为 0 errors；日志中间估计 `WNS=-8.182 ns`、`TNS=-181312.760 ns`，尚未取得最终 route/timing/bitstream，因此不能宣称 `B2_BUILD_PASS` 或实板可用。
 - 当前只保留单 outstanding packet 元数据假设，完整多 packet 关联、B2-07/B2-08 和实板 packet path 仍未完成。
 - 当前物理实现仍在 `route_design` 第 5.2 轮；日志报告布线拥塞及 `147240` 个 overlap 节点，尚无 `route_design completed`、最终 timing signoff、bitstream/XSA 或 `B2_BUILD_PASS`。
+- B2-07 增量：`tb_b2_packet_ingress.sv` 新增单拍坏 magic 帧场景，验证 `ERR_BAD_MAGIC` 且 `cmd_valid/sample_valid/busy` 均不泄露；ingress 合同测试 4/4、T1 复现门通过。该切片不关闭 B2-07 完整错误矩阵。
 - 最新进展：第 5.2 轮已结束并进入 `Phase 5.3 Global Iteration 2`；中间 timing summary 为 `WNS=-7.854 ns`、`TNS=-396387.086 ns`，`WHS/THS=N/A`。这不是最终 signoff，route 仍未完成。
 - 第 5.3 轮当前报告 overlap=`135963`，较前一轮 `113569` 回升，表明 rip-up/reroute 尚未收敛；进程仍活跃，不能据此宣称 route 失败。
 

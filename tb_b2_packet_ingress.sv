@@ -61,6 +61,11 @@ module tb_b2_packet_ingress;
         rst = 1'b0;
         repeat (3) @(posedge clk);
 
+        // 单拍坏 magic 帧必须立即拒绝，且不能进入任何下游输出状态。
+        send_word(32'h0000_0000, 1'b1);
+        expect_error(4'h1);
+        if (cmd_valid || sample_valid || busy) $fatal(1, "bad magic frame leaked state");
+
         // SAMPLE: sequence=7, sample_id=42, model_id=3, epoch=11.
         send_word(32'h3242_4e45, 1'b0);
         send_word(32'h0800_0201, 1'b0);

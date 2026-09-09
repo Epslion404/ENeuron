@@ -6,6 +6,7 @@
 - placement 报告显示完整设计 LUT=`48671/53200`、slice=`13300/13300`，NPU/packet 顶层综合 LUT=`43612`，DSP48E1=`4`，BRAM 余量充足。若 route 最终失败，优先评估 packet ingress/egress 分布式 payload memory 的 BRAM 化或流水化，保持协议与四 DSP 合同不变。
 - 第 5.2 轮结束后进入第 5.3 轮，Vivado 给出中间 timing `WNS=-7.854 ns`、`TNS=-396387.086 ns`、`WHS/THS=N/A`；这表明当前路由状态仍严重拥塞，不能以中间 timing 关闭物理门。
 - 第 5.3 轮 overlap 最新为 `135963`，较前一轮 `113569` 回升，说明拥塞优化在反复 rip-up/reroute，需等待最终 route status 才能决定是否进入局部资源修复。
+- B2-07 已补一条垂直错误切片：单拍坏 magic 帧返回 `ERR_BAD_MAGIC`，且不进入命令/样本输出状态；定向测试与 T1 复现通过。其余 version/type/flags/keep/TLAST/CRC/超时/复位矩阵仍待补齐。
 
 ## 2026-09-09 物理构建核验
 
