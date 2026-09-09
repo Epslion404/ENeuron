@@ -1756,8 +1756,8 @@
 # 2026-09-09 B2 reset-recovery slice
 
 - 已确认 TX/RX 交换后的 COM10 实板运行通过：UART/JTAG 双 PASS，pressure 10000/10000，backpressure 64/64，wrap 256/256、rollovers=3。
-- 当前最新运行 manifest：`boards/hellozynq/b2_sw/build/f7f01b04e2e54bd3fc3a227830dc07e144ad4c82/direct/runs/20260909T105109Z/run_manifest.json`。
+- 当前最新运行 manifest：`boards/hellozynq/b2_sw/build/875dd1eaf3cea28b75d7bd10762758fe9bf73d55/direct/runs/20260909T111310Z/run_manifest.json`。
 - 下一实现切片选定为受控 S2MM stop → DMA timeout → software reset → probe clear → 合法短帧恢复；不使用未对齐地址伪造 DMA error。
-- 恢复切片已实现并实板通过：run `20260909T110436Z`，UART/JTAG/XSCT 全 PASS；timeout=1、reset=1、恢复帧=1、failed=0，sequence=10329、CRC32=`0xD3E3C978`。
+- 恢复切片已实现并在提交 `875dd1e` 上实板通过：run `20260909T111310Z`，UART/JTAG/XSCT 全 PASS；timeout=1、reset=1、恢复帧=1、failed=0，sequence=10329、CRC32=`0xD3E3C978`。
 - 新增 `RECOVERY_STATUS_BASE=0x01008300` 状态区、JTAG probe 字段和 runner fail-closed 判定；普通边界帧统计保持 `7 PASS + 1 reject`。
 - B2-04 已可关闭；B2-03/B2-05/B2-GATE 继续保持未完成，剩余发送间歇/ready 恢复、持久逐帧 ledger、错误注入和 packetizer。

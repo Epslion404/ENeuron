@@ -1660,7 +1660,7 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 - [x] 更新 probe、runner、JTAG manifest 和实板证据；保持现有正常/压力/背压/wrap 语义不变。
 - [x] 运行定向回归，重建同源 ELF，实板验证并更新 B2 TODO/Nexus；Nexus 已先同步 wrap，恢复证据待最新 manifest 再同步。
 
-结果：定向回归 `58/58`、Vitis/XSCT 构建通过；实板 run `20260909T110436Z` UART/JTAG/XSCT PASS，recovery `timeout=1/reset=1/passed=1/failed=0`。
+结果：定向回归 `58/58`、Vitis/XSCT 构建通过；提交 `875dd1e` 的实板 run `20260909T111310Z` UART/JTAG/XSCT PASS，recovery `timeout=1/reset=1/passed=1/failed=0`。
 
 下一阶段：补齐发送间歇/ready 恢复、持久逐帧 PL ledger、可控错误注入，再进入 packetizer/depacketizer。
 

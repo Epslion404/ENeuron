@@ -2,17 +2,17 @@
 
 ## 结论
 
-在 `xc7z020clg484-2`、同一 bitstream/XSA 和 `f7f01b04e2e54bd3fc3a227830dc07e144ad4c82` 软件构建上，UART、JTAG 和 XSCT 下载均通过。TX/RX 交换后的 COM10 链路稳定，B2 当前已覆盖正常边界、压力、受控背压、连续回绕和 DMA reset 恢复短帧。
+在 `xc7z020clg484-2`、同一 bitstream/XSA 和 `875dd1eaf3cea28b75d7bd10762758fe9bf73d55` 软件构建上，UART、JTAG 和 XSCT 下载均通过。TX/RX 交换后的 COM10 链路稳定，B2 当前已覆盖正常边界、压力、受控背压、连续回绕和 DMA reset 恢复短帧。
 
 本证据仍不关闭 B2-GATE：packetizer/depacketizer、四条逻辑流 fence、发送间歇/ready 恢复、更完整逐帧持久 ledger 和可控错误注入尚未完成。
 
 ## 运行身份
 
-- Manifest：`boards/hellozynq/b2_sw/build/f7f01b04e2e54bd3fc3a227830dc07e144ad4c82/direct/runs/20260909T110436Z/run_manifest.json`
+- Manifest：`boards/hellozynq/b2_sw/build/875dd1eaf3cea28b75d7bd10762758fe9bf73d55/direct/runs/20260909T111310Z/run_manifest.json`
 - UART：`COM10`，115200 8N1，`uart_pass=true`，`uart_reconnects=0`
 - Bitstream SHA-256：`ef9740002e9b5e54ef0479e647b07bf3fc3577d8b552fdb6ed35d3f14fc5175a`
 - XSA SHA-256：`8419e00eff65f4a3cd70ee397cab3bdb0e3351496dfe9b8cdcbe337ae8ab4185`
-- ELF SHA-256：`f2706099655723ce2877411088ceb57edc66d79933acafa4bfb14a417eee0363`
+- ELF SHA-256：`37722f3ccf2f1388e0b4fd4105f4b48a47a4b70b75243ffc05c66023b5139056`
 
 ## 结果摘要
 
@@ -34,7 +34,7 @@
 - Vitis/XSCT 2024.1 软件构建（通过）
 - PowerShell AST 检查（通过）
 - `git diff --check`（通过；仅换行提示）
-- 实板 `run_b2_board.ps1 -PortName COM10 -ListenSeconds 60`（PASS）
+- 实板 `run_b2_board.ps1 -PortName COM10 -ListenSeconds 60`（PASS，HEAD=`875dd1e`）
 
 ## 剩余门
 
