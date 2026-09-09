@@ -1,0 +1,94 @@
+{
+  "schema": "b2_dma_contract_v1",
+  "target_part": "xc7z020clg484-2",
+  "board_gate_state": "B1_HIGH_DDR_PENDING",
+  "dma_mode": {
+    "simple": true,
+    "scatter_gather": false,
+    "micro_dma": false,
+    "polling": true,
+    "interrupts_enabled": false,
+    "dre_required": false
+  },
+  "register_map": {
+    "tx_channel_offset": 0,
+    "rx_channel_offset": 48,
+    "control_offset": 0,
+    "status_offset": 4,
+    "address_offset": 24,
+    "buffer_length_offset": 40,
+    "runstop_mask": 1,
+    "reset_mask": 4,
+    "halted_mask": 1,
+    "idle_mask": 2,
+    "error_mask": 1904,
+    "irq_all_mask": 28672
+  },
+  "transfer_limits": {
+    "min_frame_bytes": 1,
+    "max_frame_bytes": 4096,
+    "buffer_alignment_bytes": 64,
+    "length_alignment_bytes": 1
+  },
+  "transfer_sequence": [
+    "reset_and_wait_done",
+    "disable_tx_rx_interrupts",
+    "prepare_rx_buffer",
+    "flush_tx_buffer",
+    "invalidate_rx_buffer",
+    "submit_s2mm",
+    "submit_mm2s",
+    "poll_s2mm_and_mm2s",
+    "invalidate_rx_buffer_after_completion",
+    "verify_payload"
+  ],
+  "timeout": {
+    "poll_interval_us": 1,
+    "transfer_timeout_us": 1000000,
+    "reset_poll_budget": 500
+  },
+  "recovery": {
+    "on_error_or_timeout": [
+      "stop_new_submissions",
+      "snapshot_registers_and_context",
+      "reset_dma_engine",
+      "wait_reset_done",
+      "require_halted_channels",
+      "clear_software_ownership",
+      "retry_known_short_frame_once"
+    ],
+    "max_recovery_retries": 1
+  },
+  "evidence": {
+    "register_snapshot": [
+      "tx_cr",
+      "tx_sr",
+      "tx_srcaddr",
+      "tx_btt",
+      "rx_cr",
+      "rx_sr",
+      "rx_destaddr",
+      "rx_btt"
+    ],
+    "run_fields": [
+      "sequence",
+      "length_bytes",
+      "tx_address",
+      "rx_address",
+      "cache_flush_tx",
+      "cache_invalidate_rx",
+      "tx_status_before",
+      "rx_status_before",
+      "tx_status_after",
+      "rx_status_after",
+      "pl_bytes_in",
+      "pl_bytes_out",
+      "pl_beats_in",
+      "pl_beats_out",
+      "tkeep_last",
+      "tlast_index",
+      "crc32"
+    ],
+    "source_basis": "G:/Xilinx/Vitis/2024.1/data/embeddedsw/XilinxProcessorIPLib/drivers/axidma_v9_18"
+  }
+}

@@ -1585,7 +1585,7 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 - [x] 将 P16 工作树引用校正为当前活动分支 `codex/b1b-high-ddr-board-repro`，不改变历史完成事实或门限。
 - [x] 将 B1-06B7 更新绑定到当前提交`dae5473ba72d6cfaee12ed8e103c0efad190ed4a`重新构建的 OCM ELF（SHA-256=`3e0469265a1482081ce93188d905753b2fa998673a17e575776e115abfb76f01`）；历史`436d1b2` ELF仅保留为审计记录。
 - [x] 重新核对 CH340 `VID_1A86:PID_7523` 当前枚举为 `COM10`，Vivado/Vitis 2024.1 入口存在；COM 号仍不写入稳定合同。
-- [ ] 提交本轮 TODO/状态/Nexus 小批次，排除用户已有 `artifacts/results/rtl_smoke_results.json` 修改。
+- [x] 提交本轮 TODO/状态/Nexus 小批次，排除用户已有 `artifacts/results/rtl_smoke_results.json` 修改。
 - [x] 在当前提交的干净构建工作树重建 B1A、正式 B1B 和 OCM 高地址诊断产物；构建通过但尚未上板，B1-06B6 非冷启动 UART 基准仍待执行。
 ## 2026-09-08 TODO 中等精简
 
@@ -1599,3 +1599,10 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
   - [x] 形成地址布局合同、更新 P16 状态并修正 B1-GATE/B2-MVP 边界。
   - [x] 提交本切片并由 Nexus 同步摘要；下一阶段为 B2-D1。
 - [x] 按更新后的“实板优先”目标完成只读环境探针，记录 COM10、JTAG 和工具链状态；未执行下载或 DDR 写入。
+
+## 2026-09-09 B2-D1 DMA 控制合同
+
+- [x] 读取本机 Vitis 2024.1 `axidma_v9_18` 驱动、硬件头文件和 simple polling 示例，确认寄存器偏移、simple/SG 边界、BTT 启动、reset 和 cache 维护语义。
+- [x] 先写负向测试，再新增 `b2_dma_contract.json` 与 fail-closed `verify_b2_dma_contract.py`；并将验证器归入 `t1_repro` 定向门。
+- [x] 形成 `docs/planning/NPU_ZYNQ7020_B2_DMA_CONTRACT_V1.md`，冻结 S2MM→MM2S、polling、超时、快照和恢复顺序。
+- [ ] 下一步：实现不接 NPU 的 PL AXI-Stream loopback，并在真实板卡上验证低地址 DDR↔DMA↔PL 双向传输。

@@ -1567,3 +1567,12 @@
 - `verify_b2_dma_address_layout.py` 对 schema、器件、`B1_HIGH_DDR_PENDING`、窗口边界、区域重叠、对齐、payload 容量和协议尺寸执行 fail-closed 校验；6 个正/负向测试通过。B2-00 现已关闭，B2-D1 为下一门。
 - 2026-09-08：只读板卡环境探针确认 `USB-SERIAL CH340 (COM10)` 与 Digilent `USB Serial Converter`（InstanceId含 `210251A08870`）均为 PnP `OK`；Vivado/Vitis 2024.1 实际入口为 `G:\Xilinx\Vivado\2024.1` 与 `G:\Xilinx\Vitis\2024.1`。Vivado Hardware Manager 枚举到唯一目标 `localhost:3121/xilinx_tcf/Digilent/210251A08870`，设备为 `arm_dap_0`、`xc7z020_1`；这只证明 JTAG 当前可访问，不是新的 program/下载证据。
 - 2026-09-08：COM10 115200 8N1 只读 open/close 通过；探针结束后已清理 `hw_server` 子进程，TCP 3121 无残留监听。首次误用 XSCT 执行 Vivado Hardware Manager Tcl，返回 `invalid command name "open_hw_manager"`；改用 `vivado.bat -mode batch` 后成功枚举，未重复错误入口。
+
+## 2026-09-09 B2-D1 DMA 控制合同
+
+- 本机 Vitis 2024.1 的 `axidma_v9_18` 驱动和 `xaxidma_example_simple_poll.c` 可作为当前安装版本的一手源码依据；未凭记忆推断寄存器语义。
+- `xaxidma_hw.h` 冻结了 TX/RX 通道偏移 `0x00/0x30`、CR/SR `0x00/0x04`、simple 地址 `0x18`、BTT `0x28`，以及 `RUNSTOP=0x01`、`RESET=0x04`、`HALTED=0x01`、`IDLE=0x02`、`ERR_ALL=0x770`、`IRQ_ALL=0x7000`。
+- 驱动的 simple transfer 会拒绝 SG 配置、检查长度和地址对齐，并在写 BTT 后启动；官方示例先提交 S2MM，再提交 MM2S，轮询两通道 idle，完成后 invalidate RX。
+- 首轮合同固定 `1..4096` bytes、64-byte buffer 对齐、1 us polling、1 s 传输超时、500 次 reset poll；错误/超时必须先保存寄存器和上下文，再 reset，最多用已知短帧恢复一次。
+- 合同验证器初版未被 CI 分类器识别，定向测试先复现该问题，再将 `verify_b2_dma_contract.py` 加入 `t1_repro`；当前 B2 合同与既有布局合计 `12/12` 测试通过。
+- 该合同只关闭 B2-D1；尚未实例化 DMA、生成含 DMA 的 bitstream、执行实板搬运，也未关闭 B2-01～B2-GATE。
