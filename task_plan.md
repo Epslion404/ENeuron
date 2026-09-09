@@ -1,6 +1,6 @@
 # 2026-09-08 UART重分配 V14/V15
 
-## 2026-09-10 B2 物理 BD 接入状态
+## 2026-09-09 B2 物理 BD 接入状态
 
 - [x] 将 `b2_npu_packet_adapter` 接入 `b2_npu_axis_top.v`，并挂入 `AXI DMA MM2S → NPU → AXI DMA S2MM` 的 BD 数据通路。
 - [x] Vivado 已完成 BD 生成、综合、`link_design`、`opt_design`，前置 DRC 为 `0 Errors`；相关综合 DCP 已生成。

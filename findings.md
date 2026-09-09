@@ -1,6 +1,6 @@
 # 调研与实验发现
 
-## 2026-09-10 物理构建核验
+## 2026-09-09 物理构建核验
 
 - `vivado.exe` 仍存活且 `impl_1/runme.log` 持续增长，当前位于 `place_design` 后的 `phys_opt_design`，不是观察超时或已失败。
 - BD、综合、`link_design`、`opt_design` 已完成，前置 DRC=`0 errors`。布局后估计时序为 WNS=`-8.182 ns`、TNS=`-181312.760 ns`；该值不是最终 signoff，但说明 200 MHz 目标存在高风险。
