@@ -1736,4 +1736,16 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 
 边界：该切片只关闭 ingress 仿真子门，不关闭 B2-06、B2-07、B2-08 或 B2-GATE。
 
+## 2026-09-09 B2 RTL egress packetizer slice
+
+状态：`COMPLETE_EGRESS_SIM / INTEGRATION_PENDING`
+
+- [x] 实现 `b2_packet_egress.sv`：缓存 response/result 后输出统一 32-bit AXI 帧。
+- [x] response 使用 `rsp_last` 标界，result 固定接收 10 beat；header、payload、CRC32 与 Python 参考一致。
+- [x] result 的 sample/model/epoch/sequence sideband 中途变化会拒绝整帧，不发送半条结果。
+- [x] 新增 `tb_b2_packet_egress.sv`，Icarus 输出 `B2_PACKET_EGRESS_PASS`。
+- [ ] 与 ingress、T1 wrapper 和 DMA 实际连接，并在 XC7Z020 实板验证。
+
+边界：本切片只关闭 response/result egress 仿真子门，不关闭 B2-06、B2-07、B2-08 或 B2-GATE。
+
 停止条件：若 missing-TLAST 未形成可重复 timeout/error，保留证据并不把 B2-07 写成完成；不得接入 NPU/ENeuron。

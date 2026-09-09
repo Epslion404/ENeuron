@@ -1806,3 +1806,10 @@
 - `COMMAND` payload 按四个 32-bit word 组合为一个 128-bit command；`SAMPLE` payload 按 8 个 32-bit beat 输出，并保持 sequence、model ID、mask epoch、sample ID。
 - `tb_b2_packet_ingress.sv` 覆盖合法 SAMPLE/COMMAND、坏 CRC、CRC 缺失 TLAST；实跑输出 `B2_PACKET_INGRESS_PASS`。
 - 该切片完成 B2-06 ingress 仿真子门；RESPONSE/RESULT egress、T1 wrapper 对接、完整错误矩阵和 XC7Z020 实板验证仍未完成。
+
+## 2026-09-09 B2 RTL egress packetizer slice
+
+- 新增 `b2_packet_egress.sv`，response 由 `rsp_last` 标界，result 固定收满 10 个 32-bit beat，随后输出统一 32-bit AXI 帧。
+- 输出 header、payload 和 CRC32 与 `b2_packet_protocol.py` 字节级参考一致；result 的 sample/model/epoch/sequence sideband 中途变化会整帧拒绝。
+- `tb_b2_packet_egress.sv` 实跑输出 `B2_PACKET_EGRESS_PASS`；ingress/egress 已分别进入 T1 复现入口。
+- 当前仍未把 packetizer 接入 `npu_zynq7020_t1_wrapper` 或 XC7Z020 B2 BD；实板错误帧丢弃和 B2-08 fence 仍待完成。

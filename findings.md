@@ -1718,3 +1718,9 @@
 - `b2_packet_ingress.sv` 在发布前缓存最多 4060-byte payload（1015 个 32-bit word），避免坏帧的半条命令或半个样本进入核心。
 - CRC 状态按标准 reflected Ethernet CRC32（多项式 `0xEDB88320`）逐个 little-endian byte 更新，CRC word 不参与自身计算；与 Python `zlib.crc32` 参考向量一致。
 - 独立仿真已证明合法 SAMPLE/COMMAND 映射、坏 CRC 拒绝和 CRC word 缺失 TLAST 拒绝；RTL ingress 不是完整 packetizer，反向 egress 和实板集成仍待完成。
+
+## 2026-09-09 B2 RTL egress packetizer
+
+- `b2_packet_egress.sv` 采用 response 优先仲裁；response 通过 `rsp_last` 结束，result 固定 10 beat。输出顺序为 8-word header、payload words、1-word CRC。
+- response/result 都先缓存再发送，避免下游背压期间修改 header 或 payload；result 的 sideband 改变会产生错误脉冲且不生成 packet。
+- 独立 Icarus 测试 `B2_PACKET_EGRESS_PASS` 通过，并与 Python 参考向量逐 word 对比；当前尚未完成 wrapper/DMA 连接和实板验证。
