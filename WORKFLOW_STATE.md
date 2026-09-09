@@ -4,7 +4,7 @@
 
 最后更新：2026-09-08
 
-状态：`ACTIVE / PHASE2_FASTLANE_V1 / B0_COMPLETE_MAIN_102DEE2 / B1A_HW_DEFINITION_COMPLETE / B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DIAG_READY_NO_GO / B1B_HIGH_DDR_PENDING / B1_GATE_FALSE / XC7Z020CLG484_2_CONFIRMED / T3_XPM_XSIM_PASS / T3_XC7Z020_OOC_PASS / RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN / GITHUB_ACTIONS_DISABLED`
+状态：`ACTIVE / PHASE2_FASTLANE_V1 / B0_COMPLETE_MAIN_102DEE2 / B1A_HW_DEFINITION_COMPLETE / B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DIAG_READY_NO_GO / B1B_HIGH_DDR_PENDING / B2_00_LOW_ADDRESS_LAYOUT_FROZEN / B1_GATE_FALSE / XC7Z020CLG484_2_CONFIRMED / T3_XPM_XSIM_PASS / T3_XC7Z020_OOC_PASS / RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN / GITHUB_ACTIONS_DISABLED`
 
 ## 当前活动目标
 
@@ -22,6 +22,7 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 - 2026-09-08：使用干净构建身份`df561803fd44f791a38bda3be3422fe1f6411b77`的低地址B1B组合，在COM10执行B1-06B6复测；FPGA program、ELF download和CPU run均PASS，但20秒内无UART终止标记，结果为`NO_TERMINAL_MARKER`，证据目录为`artifacts/logs/hellozynq_b1b/20260908T202605Z_df56180_b1-06b6_uart_no_marker/`。本次未发送GO、未访问高地址DDR，仍保持`B1-06B6_UART_BASELINE_PENDING`，不计为DDR失败。
 - 2026-09-08：修复普通与高地址B1B runner中与PowerShell只读变量`$PID`冲突的串口解析参数`$Pid`，改为`$ProductId`；新增合同测试覆盖该回归。
 - 2026-09-08：普通B1B runner在等待XSCT `.bat` 子进程后增加`Process.Refresh()`，确保后续运行的`xsct_exit_code`不再因缓存状态记录为`null`；历史 B1-06B6 manifest 的`null`字段保持原样，不回写旧证据。
+- 2026-09-08：只读环境复核确认 CH340 `COM10`、Digilent `210251A08870` 和 `xc7z020_1` 均可枚举；Vivado/Vitis 2024.1 位于 `G:\Xilinx`。Vivado Hardware Manager 目标枚举到 `arm_dap_0`、`xc7z020_1`，COM10 可按115200 8N1打开关闭；本次未下载、未发送GO、未访问DDR。
 - 2026-09-08：管理员现场确认的三次完整断电冷启动均通过FPGA配置、ELF下载、UART协议、九个低地址DDR阶段和OCM机器结果。状态只提升为`B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS`；此前`0x10000000`异常仍未关闭，因此B1B和B1-GATE均未完成。
 - 2026-09-07：PR #69已合并为 `main@102dee2a004283ce4144aaf6ee0a2cee3ebd2887`；B0正式进入主线。按管理员要求启用Fastlane V1：B1拆为B1A/B1B/B1C小PR，只跑受影响门，身份未变则复用Vivado产物，阶段末集中更新报告/Nexus。
 - 2026-09-07：六个未提交且不再需要的B0时钟诊断文件已移入系统回收站，对应README未提交章节已撤销。旧T0工作树及其未提交修改保持不变；新的主线入口工作树已快进并创建 `codex/zynq7020-b1-fastlane`。
@@ -76,7 +77,7 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 
 ## 下一动作
 
-主线下一动作是P16-B2-00：以已通过三次冷启动的低地址1 MiB DDR窗口为上界，核算634个模型word、DMA描述符、发送/接收缓冲区和对齐开销，形成单一地址布局合同；通过后冻结B2-D1并实现AXI DMA simple-mode polling loopback。B1-06B6串口接收故障和高地址DDR诊断继续作为板卡资格支线，仍禁止在UART READY前发送GO，也禁止在B1-06F前进入B1C；它们不再阻塞低地址窗口内的NPU MVP。
+主线下一动作是P16-B2-D1：在已冻结的低地址布局合同上冻结 AXI DMA simple-mode、polling、超时、错误清除和复位顺序，随后实现 loopback。B1-06B6串口接收故障和高地址DDR诊断继续作为板卡资格支线，仍禁止在UART READY前发送GO，也禁止在B1-06F前进入B1C；它们不再阻塞低地址窗口内的NPU MVP。
 
 ## 2026-09-05 V2 OOC 签核结果
 

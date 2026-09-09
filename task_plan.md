@@ -1593,3 +1593,9 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 - [x] 精简权威 TODO 与恢复脚本，保留 NPU/ENeuron 功能和物理硬门。
 - [x] 更新 WORKFLOW_STATE / WORKFLOW / findings / progress，明确 B2-00 为低地址 NPU MVP 下一动作。
 - [ ] 提交并由 Nexus 复核本轮文档变更。
+- 2026-09-08 B2-00：
+  - [x] 从已验证低地址窗口和冻结 NPU framing 提取容量事实。
+  - [x] 先写负向测试，再实现 fail-closed 地址布局 verifier。
+  - [x] 形成地址布局合同、更新 P16 状态并修正 B1-GATE/B2-MVP 边界。
+  - [x] 提交本切片并由 Nexus 同步摘要；下一阶段为 B2-D1。
+- [x] 按更新后的“实板优先”目标完成只读环境探针，记录 COM10、JTAG 和工具链状态；未执行下载或 DDR 写入。

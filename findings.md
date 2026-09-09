@@ -1542,7 +1542,7 @@
 - 同次复测暴露的PowerShell runner缺陷已修复：`Resolve-SerialPortName`的`$Pid`参数与内置只读`$PID`冲突，普通/高地址runner均改为`$ProductId`，合同测试已覆盖。
 - 复核 B1-06B6 运行 manifest 时发现普通 runner 的 XSCT `.bat` 进程在 `WaitForExit` 后未刷新对象，历史记录因此出现 `xsct_exit_code=null`；已加入 `Process.Refresh()`，后续新运行应以实际退出码为准，旧 manifest 不修改。
 - 本轮 TODO 校正不改变上述安全边界：B1-06B7 必须复用与 manifest 绑定的诊断 ELF。当前提交`dae5473`已完成新的干净 B1A/B1B/OCM 构建，OCM ELF SHA-256=`3e0469265a1482081ce93188d905753b2fa998673a17e575776e115abfb76f01`；该身份尚未上板，历史`436d1b2` ELF不得混用。
-- `workflow_resume.ps1 -Mode Resume` 旧记录曾返回 HEAD=`436d1b2` 并错误显示“活动 TODO 未完成项：0”；当前脚本已改为统计 P16、剪枝总合同和 NP7 合同，后续恢复判断以 TODO 明细、`WORKFLOW_STATE.md` 和校验基线 HEAD=`ef0495b` 为准；B1-06B7 仍固定使用构建身份`dae5473`的 manifest 产物。
+- `workflow_resume.ps1 -Mode Resume` 旧记录曾返回 HEAD=`436d1b2` 并错误显示“活动 TODO 未完成项：0”；当前脚本已改为按活动合同统计，后续恢复判断以 TODO 明细、`WORKFLOW_STATE.md` 和当前 Git HEAD 为准；B1-06B7 仍固定使用构建身份`dae5473`的 manifest 产物。
 
 ## 2026-09-08 神经元模型线当前任务与门限
 
@@ -1563,3 +1563,7 @@
 - `NPU_PRUNING_TODO.md` 的 NP8 是 V1 全部门槛后的可选动态恢复，NP9 与 P16-B2/B3/B4 重复；现分别标记 `DEFERRED_OPTIONAL` 和转为 P16 交叉引用。NP7 已全勾选，剪枝算法/共享 lane 不再进入活动计数。
 - 已验证低地址 DDR 三次冷启动通过，P16-B2-00 明确允许在 `B1_HIGH_DDR_PENDING` 下证明模型/DMA缓冲区落入已验证窗口并推进 DMA MVP；因此主线下一动作改为 B2-00，而 B1-06B6～B1-06F 保留为板卡资格支线，不再阻塞低地址 NPU MVP。
 - `workflow_resume.ps1 -Mode Check` 通过并输出 `TODO.md:P16=67`；未运行板级写入、Vivado 或高地址 DDR 访问。
+- 2026-09-08：完成 P16-B2-00 地址布局合同。以三次冷启动通过的 `[0x01000000,0x01100000)` 低地址 1 MiB 为唯一窗口，按 4 KiB 槽位、64-byte cache-line 对齐分配 9 个区域，总保留 36 KiB、剩余 1011712 bytes；模型 2536 B、mask 76 B、sample 32 B、result 40 B 均与冻结协议一致，最大 DMA frame 为 4096 B。
+- `verify_b2_dma_address_layout.py` 对 schema、器件、`B1_HIGH_DDR_PENDING`、窗口边界、区域重叠、对齐、payload 容量和协议尺寸执行 fail-closed 校验；6 个正/负向测试通过。B2-00 现已关闭，B2-D1 为下一门。
+- 2026-09-08：只读板卡环境探针确认 `USB-SERIAL CH340 (COM10)` 与 Digilent `USB Serial Converter`（InstanceId含 `210251A08870`）均为 PnP `OK`；Vivado/Vitis 2024.1 实际入口为 `G:\Xilinx\Vivado\2024.1` 与 `G:\Xilinx\Vitis\2024.1`。Vivado Hardware Manager 枚举到唯一目标 `localhost:3121/xilinx_tcf/Digilent/210251A08870`，设备为 `arm_dap_0`、`xc7z020_1`；这只证明 JTAG 当前可访问，不是新的 program/下载证据。
+- 2026-09-08：COM10 115200 8N1 只读 open/close 通过；探针结束后已清理 `hw_server` 子进程，TCP 3121 无残留监听。首次误用 XSCT 执行 Vivado Hardware Manager Tcl，返回 `invalid command name "open_hw_manager"`；改用 `vivado.bat -mode batch` 后成功枚举，未重复错误入口。

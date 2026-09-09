@@ -1645,3 +1645,7 @@
 - [x] 将主线下一动作改为 B2-00 低地址容量与 DMA 缓冲区布局证明；B1 高地址 UART/DDR 保留为资格支线。
 - [x] `workflow_resume.ps1 -Mode Check` 通过，活动 P16 TODO 为 67 项；`git diff --check` 通过。
 - [ ] 尚未提交本轮文档调整；用户保护文件 `artifacts/results/rtl_smoke_results.json` 保持未修改。
+- 2026-09-08：完成 B2-00 低地址容量证明，新增 `docs/planning/NPU_ZYNQ7020_B2_ADDRESS_LAYOUT_V1.md`、`tools/repro/b2_dma_address_layout.json`、`verify_b2_dma_address_layout.py` 和 `test_b2_dma_address_layout.py`；固定 9 个 4 KiB 区域，总占用 36 KiB，验证器与 5 项测试通过。
+- 2026-09-08：修正 B1-GATE 与 B2-MVP 的文字边界，明确低地址 DMA MVP 不等同于完整 B1-GATE；状态推进至 `B2_00_LOW_ADDRESS_LAYOUT_FROZEN`，下一步 B2-D1。
+- 2026-09-08：按“实板优先”要求完成只读环境复核：CH340 COM10、Digilent 210251A08870、Vivado/Vitis 2024.1 均可用；JTAG 看到 `arm_dap_0`/`xc7z020_1`，COM10 可打开关闭。未下载、未发送 UART/GO、未写 DDR。
+- 2026-09-08：环境探针的 XSCT/Vivado 命令边界错误已记录并改用 Vivado Hardware Manager；`hw_server` 子进程已清理，3121 端口无残留。
