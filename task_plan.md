@@ -6,6 +6,7 @@
 - [ ] route 尚未终态；当前日志仍无 `route_design completed`、最终 timing signoff、bitstream/XSA 或 `B2_BUILD_PASS`。
 - [ ] 路由拥塞从初始 `147240` 个 overlap 降到 `113569`；完整设计 placement 已使用 `48671/53200` LUT、`13300/13300` slice，DSP48E1 保持恰好 4 个。
 - [ ] 第 5.2 轮已完成并进入第 5.3 轮；中间 timing 为 `WNS=-7.854 ns`、`TNS=-396387.086 ns`、`WHS/THS=N/A`，仍只能作为风险证据。
+- [ ] 第 5.3 轮最新 overlap=`135963`，较上一轮回升；route 尚未终态，继续保留当前构建。
 
 ## 2026-09-09 B2 物理 BD 接入状态
 
