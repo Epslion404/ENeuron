@@ -38,3 +38,12 @@ HelloZynq B1B 的 UART/DDR 原始机器证据保存在 `logs/hellozynq_b1b/<唯�
 | `logs/b2_backpressure_uart_pass_20260909_55822ae/` | 交换 TX/RX 后 UART/JTAG/XSCT 正式通过，manifest 状态为 `PASS` |
 
 三组目录中的 `*.log` 为审计所需原始输出，使用 Git 强制跟踪；其他历史运行日志仍遵循 `.gitignore`，不自动进入提交。
+
+## B2 packet-NPU 物理构建证据
+
+| 证据目录 | 结论 |
+|---|---|
+| `logs/b2_packet_npu_route_timing_fail_20260909_1bfeb12/` | 保持槽切片后的 route/bit/XSA 结果；200 MHz setup 失败，`WNS=-2.750 ns` |
+| `logs/b2_packet_npu_route_timing_fail_20260910_8d57e7e/` | egress CRC 分拍后的 route/bit/XSA 结果；route/DRC 通过但 setup 失败，`WNS=-1.958 ns`，最差路径已迁移到 NPU 核心控制网络 |
+
+这些 bit/XSA 仅用于失败分析，不得作为时序签核或实板下载输入。

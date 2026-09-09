@@ -3,7 +3,7 @@
   "verified_at": "2026-09-10",
   "label": "B2 packet-NPU integration",
   "deployment_target_part": "xc7z020clg484-2",
-  "source_head": "1bfeb1289bf251f2f4c7c20e4b6e0b225fcdc846",
+  "source_head": "8d57e7e232f543c76704f09c9640bb5aa8832834",
   "commits": {
     "adapter": "cb9eb66",
     "adapter_e2e": "62f2d8b",
@@ -11,7 +11,8 @@
     "verilog_bd_reference": "1d0e3ba",
     "packet_memory_probe": "f4827e2",
     "command_fifo_timing_slice": "195e6e7",
-    "current_build_alignment": "1bfeb12"
+    "current_build_alignment": "1bfeb12",
+    "egress_crc_pipeline": "8d57e7e"
   },
   "rtl": {
     "adapter": "b2_npu_packet_adapter.sv",
@@ -86,17 +87,17 @@
   "physical_build": {
     "status": "ROUTED_BIT_XSA_PASS_TIMING_FAIL",
     "artifact_dir": "boards/hellozynq/b2_hw/build/",
-    "artifact_git_head": "1bfeb1289bf251f2f4c7c20e4b6e0b225fcdc846",
+    "artifact_git_head": "8d57e7e232f543c76704f09c9640bb5aa8832834",
     "artifact_part": "xc7z020clg484-2",
-    "bitstream_sha256": "c9ac49bc82a0e11400d21553ed6940552906ca434c5e8f090561c37b0a0356e3",
-    "xsa_sha256": "629793d1284ff2e970ab456dde020b9fb7439b7ed1f7d7680bf4397d9520184f",
-    "timing_gate": "FAIL_WNS_-2.750_TNS_-8221.926_WHS_+0.053_THS_0_SETUP_FAILING_ENDPOINTS_8788",
+    "bitstream_sha256": "9f0e41f5f95fb8a3267aae451c4a0845512fef189daa5d386e8ef99038891ab2",
+    "xsa_sha256": "aaa3df83db12058447e3d26a09b6d71672265904fb13d252a90a23ea58cd129c",
+    "timing_gate": "FAIL_WNS_-1.958_TNS_-3308.760_WHS_+0.055_THS_0_SETUP_FAILING_ENDPOINTS_5902",
     "route_errors": 0,
     "drc_hard_errors": 0,
-    "worst_path": "egress/response_mem BRAM CLKARDCLK -> egress/crc_state_reg[*]/D",
-    "boundary": "Route and bit/XSA generation succeeded, but 200 MHz setup timing is not met. The current hold-slot slice is committed; no timing signoff or board evidence exists yet."
+    "worst_path": "core/compute_unit_index_reg[0]_replica_1/C -> core/compute_group_index_reg[2]__0/CE",
+    "boundary": "Route and bit/XSA generation succeeded, but 200 MHz setup timing is not met. Egress CRC is now byte-pipelined; the current worst path is in the NPU core control network. No timing signoff or board evidence exists yet."
   },
-  "next_gate": "Repair the egress response_mem-to-crc_state setup path, rerun 200 MHz timing until WNS/TNS/THS and route/DRC gates are green, then program and validate packet path on the target board.",
+  "next_gate": "Repair the NPU core compute_unit_index-to-compute_group_index setup path, rerun 200 MHz timing until WNS/TNS/THS and route/DRC gates are green, then program and validate packet path on the target board.",
   "forbidden_claims": [
     "packet-NPU top physically signed off",
     "packet path validated on board",
