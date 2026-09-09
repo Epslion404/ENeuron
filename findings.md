@@ -7,6 +7,12 @@
 - wrapper 当前没有外层 packet boundary、response sequence/model sideband；因此 adapter 暂用“每个 response word 一帧 + 最近命令元数据”。这只证明最小错误响应路径，不能证明多 packet 并发、完整 result 关联或跨流顺序。
 - 下一条最小证据应是合法 model/fence/sample/result 路径；若继续支持并发 packet，需要在 wrapper 或 adapter 增加明确的元数据/完成边界合同，而不是依赖时序猜测。
 
+## 2026-09-09 B2 packet adapter 合法样本闭环
+
+- 在 testbench 中预装 634-word 全零模型后，真实 packet 流程 `mask begin/data/commit → SAMPLE_FENCE → 8-beat SAMPLE → 10-beat RESULT` 通过，标记为 `B2_NPU_PACKET_ADAPTER_E2E_PASS`。
+- 该切片证明外层固定 32-byte/40-byte payload、fence 响应、sample/result sideband 和 TLAST 可以穿过 ingress、T1 wrapper、egress；不等于模型装载、并发 packet、完整错误矩阵或实板 packet path 已完成。
+- 为控制仿真粒度，模型装载不在该切片重复；既有 `tb_npu_zynq7020_t1_wrapper.sv` 已覆盖 634 个模型命令，适配器 E2E 只聚焦 packet 化的 mask/fence/sample/result。
+
 ## 2026-09-09 B2 物理构建门禁收口
 
 - `run_b2_build.ps1` 新增 `Assert-B2TimingGreen`，从 `timing_impl.rpt` 的 Design Timing Summary 解析 WNS/TNS/WHS/THS，并对 route errors 与 DRC Error/Critical Warning 做 fail-closed 检查；已知 warning/advisory 不被误判为硬错误。

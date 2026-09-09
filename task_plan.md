@@ -5,6 +5,7 @@
 - [x] 先写 `b2_npu_packet_adapter` 公开接口合同并取得 RED。
 - [x] 接入 `ingress → T1 wrapper → egress` 最小路径；response word 独立成帧并回显最近命令元数据。
 - [x] 将适配器加入 T1 复现入口、变更分类和 manifest；Icarus 仿真输出 `B2_NPU_PACKET_ADAPTER_PASS`。
+- [x] 增加合法 mask/fence/sample/result 端到端切片；输出 `B2_NPU_PACKET_ADAPTER_E2E_PASS`。
 - [ ] 增加多响应/多 packet 元数据关联，不能长期依赖“单个 outstanding packet”。
 - [ ] 接入 SAMPLE/FENCE/RESULT 端到端向量，再进入 B2-07/B2-08 完整错误和跨流账本。
 
