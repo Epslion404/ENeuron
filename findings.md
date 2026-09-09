@@ -1646,3 +1646,9 @@
 - `MR=0x20` 对应 8 data bits、无 parity、1 stop bit；以 100 MHz UART clock 和 `124/6` 分频得到约 115200 baud。该解释来自当前 Vitis 2024.1 BSP 的 `xuartps_hw.h`，不是手工猜测。
 - 被动监听在程序已运行后仍读取0字节，因此“只错过一次性启动 marker”不能解释现象；当前最小可信边界是 V14/V15 外部 USB-TTL 接线、共地、端口占用或电气连接仍需现场复核。
 - 证据目录：`artifacts/logs/b2_uart_config_jtag_pass_20260909_e26c7c1/`。该证据只增强诊断，不改变 UART、B2-03、B2-05、B2-GATE 的门状态。
+
+## 2026-09-09 B2 PS UART 内部自环
+
+- 使用可逆 XSCT 脚本临时设置 UART0 `MR` 的 local-loopback 位，读取 RX FIFO 后恢复原值；`ORIGINAL_MR=0x20`、`FINAL_MR=0x20`，收到 `64` 个应用字节，样本包含 `\nB2_P...`。
+- 该实验把故障边界从“软件或 UART 外设未发送”进一步收窄为 V14/V15 外部引脚、USB-TTL TX/RX 交叉、共地、电平或端口链路；外部 COM10 仍无字节，UART 门禁保持 fail-closed。
+- 脚本：`boards/hellozynq/b2_sw/probe_b2_uart_loopback.tcl`；原始日志：`artifacts/logs/b2_uart_config_jtag_pass_20260909_e26c7c1/uart_loopback.log`。

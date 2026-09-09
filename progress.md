@@ -1739,3 +1739,4 @@
 - 新增 JTAG PS UART0 寄存器采样：`CR=0x114`（TX/RX enabled）、`MR=0x20`（8N1，无校验）、`BAUDGEN=124`、`BAUDDIV=6`，runner manifest 判定 `jtag_uart_configured=true`。
 - COM10 监听15秒仍无业务字节，`uart.log` 只有 runner 写入的 CRLF；原始证据归档于 `artifacts/logs/b2_uart_config_jtag_pass_20260909_e26c7c1/`。
 - 结论：UART 软件配置和 PS 外设初始化已有 JTAG 证据，剩余问题收窄到 V14/V15 外部 USB-TTL 链路、接线或电气条件；不放宽 UART 门禁，B2-03/B2-05/B2-GATE 仍未关闭。
+- 内部 UART local-loopback 诊断收到 64 个应用字节（样本以 `\nB2_P...` 开头），并在脚本结束时恢复 `MR=0x20`；这排除了 ELF/PS UART TX 路径故障。日志追加归档于同一证据目录的 `uart_loopback.log`。
