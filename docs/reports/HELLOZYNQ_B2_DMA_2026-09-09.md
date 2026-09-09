@@ -2,27 +2,28 @@
 
 ## 结论
 
-在 `xc7z020clg484-2`、同一 bitstream/XSA 和 `875dd1eaf3cea28b75d7bd10762758fe9bf73d55` 软件构建上，UART、JTAG 和 XSCT 下载均通过。TX/RX 交换后的 COM10 链路稳定，B2 当前已覆盖正常边界、压力、受控背压、连续回绕和 DMA reset 恢复短帧。
+在 `xc7z020clg484-2`、bitstream/XSA 与 `da9147ab9dc5a445d29c2f61e08e39dab87b5552` 软件构建绑定下，UART、JTAG 和 XSCT 下载均通过。TX/RX 交换后的 COM10 链路稳定，B2 当前已覆盖正常边界、压力、受控背压、连续回绕、DMA reset 恢复短帧和独立软件发送间歇。
 
-本证据仍不关闭 B2-GATE：packetizer/depacketizer、四条逻辑流 fence、发送间歇/ready 恢复、更完整逐帧持久 ledger 和可控错误注入尚未完成。
+本证据仍不关闭 B2-GATE：packetizer/depacketizer、四条逻辑流 fence、ready 低电平恢复、更完整逐帧持久 ledger 和可控错误注入尚未完成。
 
 ## 运行身份
 
-- Manifest：`boards/hellozynq/b2_sw/build/875dd1eaf3cea28b75d7bd10762758fe9bf73d55/direct/runs/20260909T111310Z/run_manifest.json`
+- Manifest：`boards/hellozynq/b2_sw/build/da9147ab9dc5a445d29c2f61e08e39dab87b5552/direct/runs/20260909T115218Z/run_manifest.json`
 - UART：`COM10`，115200 8N1，`uart_pass=true`，`uart_reconnects=0`
 - Bitstream SHA-256：`ef9740002e9b5e54ef0479e647b07bf3fc3577d8b552fdb6ed35d3f14fc5175a`
 - XSA SHA-256：`8419e00eff65f4a3cd70ee397cab3bdb0e3351496dfe9b8cdcbe337ae8ab4185`
-- ELF SHA-256：`37722f3ccf2f1388e0b4fd4105f4b48a47a4b70b75243ffc05c66023b5139056`
+- ELF SHA-256：`41c6ab2d8ffe4ca4a579db199ed04adc292acf13ad6d54d2e7918d757bb63ca7`
 
 ## 结果摘要
 
 | 场景 | 结果 |
 |---|---|
-| 边界 | `8` 帧，`7` PASS，`0` 长度拒绝，`0` 失败 |
+| 边界 | `8` 帧，`7` PASS，`1` 零长度拒绝，`0` 失败 |
 | 压力 | `10000/10000`，失败 `0` |
 | 受控背压 | `64/64`，失败 `0`，`stall_cycles=83082` |
 | 连续回绕 | `256/256`，64 slots，slot mask 全覆盖，`rollovers=3` |
 | DMA 恢复 | timeout=`1`，reset=`1`，恢复帧=`1`，failed=`0` |
+| 软件发送间歇 | `2/2`，`4→64` bytes，`gap_us=1000`，failed=`0` |
 
 恢复场景不是未对齐地址拒绝：软件先停止 S2MM probe 使接收端不再 ready，等待 1 秒合同超时；随后执行 DMA reset，清除并重新激活两个 probe，再发送 4-byte 合法帧并逐字节校验。恢复帧 sequence=`10329`，CRC32=`0xD3E3C978`。
 
@@ -30,12 +31,12 @@
 
 已执行：
 
-- `python -X utf8 -m unittest -v test_b2_dma_app_contract test_b2_dma_contract test_b2_dma_address_layout test_b2_loopback_contract test_b2_stream_monitor_contract test_b2_stream_probe_contract`（58/58）
+- `python -X utf8 -m unittest -v test_b2_dma_app_contract test_b2_dma_contract test_b2_dma_address_layout test_b2_loopback_contract test_b2_stream_monitor_contract test_b2_stream_probe_contract`（59/59）
 - Vitis/XSCT 2024.1 软件构建（通过）
 - PowerShell AST 检查（通过）
 - `git diff --check`（通过；仅换行提示）
-- 实板 `run_b2_board.ps1 -PortName COM10 -ListenSeconds 60`（PASS，HEAD=`875dd1e`）
+- 实板 `run_b2_board.ps1 -PortName COM10 -ListenSeconds 60`（PASS，HEAD=`da9147a`，run=`20260909T115218Z`）
 
 ## 剩余门
 
-B2-GATE 仍保持关闭。下一优先级是把恢复证据扩展到发送间歇、ready 恢复和可控错误注入，并建立四条逻辑流的 packetizer/depacketizer、接受/完成计数和 fence 顺序证据；在此之前不接入 NPU，也不报告动态剪枝加速或功耗收益。
+B2-GATE 仍保持关闭。下一优先级是把恢复证据扩展到 ready 低电平恢复和可控错误注入，并建立四条逻辑流的 packetizer/depacketizer、接受/完成计数和 fence 顺序证据；在此之前不接入 NPU，也不报告动态剪枝加速或功耗收益。

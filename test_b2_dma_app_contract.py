@@ -239,6 +239,26 @@ class B2DmaAppContractTests(unittest.TestCase):
         for address in ("0x01008300", "0x01008304", "0x01008308", "0x0100830C", "0x01008310"):
             self.assertIn(address, probe)
 
+    def test_inter_frame_gap_contract_is_present_and_distinct_from_backpressure(self):
+        for token in (
+            "GAP_STATUS_BASE 0x01008340U",
+            "GAP_DELAY_US 1000U",
+            "gap_status",
+            "gap_requested_us",
+            "gap_first_sequence",
+            "gap_second_sequence",
+            "B2_GAP_PASS",
+            "gap_mode",
+        ):
+            self.assertIn(token, self.source)
+        self.assertIn("usleep(GAP_DELAY_US)", self.source)
+        self.assertIn("monitor_configure_backpressure(MONITOR_S2MM_BASE, 0U)", self.source)
+        self.assertIn("B2_GAP_PASS", self.board)
+        self.assertIn("B2_STATUS_GAP_STATUS", self.board)
+        probe = (B2_SW / "probe_b2_state.tcl").read_text(encoding="utf-8")
+        for address in ("0x01008340", "0x01008344", "0x01008348", "0x0100834C"):
+            self.assertIn(address, probe)
+
 
 if __name__ == "__main__":
     unittest.main()

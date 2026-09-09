@@ -13,6 +13,7 @@
 #define STATUS_BASE 0x01008000U
 #define WRAP_STATUS_BASE 0x01008280U
 #define RECOVERY_STATUS_BASE 0x01008300U
+#define GAP_STATUS_BASE 0x01008340U
 #define MAX_FRAME_BYTES 4096U
 #define BUFFER_ALIGNMENT 64U
 #define POLL_INTERVAL_US 1U
@@ -31,6 +32,10 @@
 #define WRAP_SLOT_BYTES 64U
 #define WRAP_SLOT_COUNT 64U
 #define WRAP_LENGTHS {1U, 4U, 16U, 64U}
+#define GAP_DELAY_US 1000U
+#define GAP_FRAME_COUNT 2U
+#define GAP_FIRST_LENGTH 4U
+#define GAP_SECOND_LENGTH 64U
 
 #if defined(XPAR_AXIS_STREAM_PROBE_MM2S_BASEADDR)
 #define MONITOR_MM2S_BASE XPAR_AXIS_STREAM_PROBE_MM2S_BASEADDR
@@ -136,6 +141,21 @@ struct recovery_snapshot {
     u32 recovery_crc32;
 };
 
+struct gap_snapshot {
+    u32 gap_status;
+    u32 gap_total;
+    u32 gap_passed;
+    u32 gap_failed;
+    u32 gap_requested_us;
+    u32 gap_first_sequence;
+    u32 gap_second_sequence;
+    u32 gap_first_length;
+    u32 gap_second_length;
+    u32 gap_first_crc32;
+    u32 gap_second_crc32;
+    u32 gap_crc32_xor;
+};
+
 struct frame_ledger {
     u32 sequence;
     u32 length_bytes;
@@ -181,6 +201,8 @@ static volatile struct wrap_snapshot *const wrap_snapshot_state =
     (volatile struct wrap_snapshot *)WRAP_STATUS_BASE;
 static volatile struct recovery_snapshot *const recovery_snapshot_state =
     (volatile struct recovery_snapshot *)RECOVERY_STATUS_BASE;
+static volatile struct gap_snapshot *const gap_snapshot_state =
+    (volatile struct gap_snapshot *)GAP_STATUS_BASE;
 static volatile struct frame_ledger *const ledger =
     (volatile struct frame_ledger *)STATUS_LEDGER_BASE;
 static volatile struct monitor_status *const monitor_status =
@@ -191,6 +213,7 @@ static UINTPTR dma_base;
 static int pressure_mode;
 static int backpressure_mode;
 static int wrap_mode;
+static int gap_mode;
 
 enum {
     SNAPSHOT_RUNNING = 1U,
@@ -405,7 +428,7 @@ static int run_one_frame_at(u32 sequence, u32 length, u32 slot,
     monitor_capture(MONITOR_MM2S_BASE, mm2s);
     monitor_capture(MONITOR_S2MM_BASE, s2mm);
 
-    if (backpressure_mode || wrap_mode) {
+    if (backpressure_mode || wrap_mode || gap_mode) {
         u32 expected_beats = (length + 3U) / 4U;
         u32 tail_bytes = length & 3U;
         u32 expected_tkeep = tail_bytes == 0U ? 0xFU : ((1U << tail_bytes) - 1U);
@@ -468,13 +491,15 @@ static int run_one_frame_at(u32 sequence, u32 length, u32 slot,
             wrap_snapshot_state->wrap_slot_mask_hi |=
                 1U << (wrap_slot - 32U);
         }
+    } else if (gap_mode) {
+        /* gap 场景只验证单帧搬运，不混入边界帧总账。 */
     } else {
         ++snapshot->frames_passed;
     }
     capture_registers();
     snapshot->status = SNAPSHOT_PASS;
     memory_barrier();
-    if (!pressure_mode && !backpressure_mode && !wrap_mode) {
+    if (!pressure_mode && !backpressure_mode && !wrap_mode && !gap_mode) {
         xil_printf("B2_DMA_PASS sequence=%u length=%u crc32=0x%08x elapsed_us=%u\r\n",
                    sequence, length, expected_crc, elapsed);
     }
@@ -796,6 +821,82 @@ static int run_recovery(void)
     return XST_SUCCESS;
 }
 
+static int run_gap(void)
+{
+    const u32 first_sequence = recovery_snapshot_state->recovery_sequence + 1U;
+    const u32 second_sequence = first_sequence + 1U;
+
+    gap_snapshot_state->gap_status = SNAPSHOT_RUNNING;
+    gap_snapshot_state->gap_total = GAP_FRAME_COUNT;
+    gap_snapshot_state->gap_passed = 0U;
+    gap_snapshot_state->gap_failed = 0U;
+    gap_snapshot_state->gap_requested_us = GAP_DELAY_US;
+    gap_snapshot_state->gap_first_sequence = first_sequence;
+    gap_snapshot_state->gap_second_sequence = second_sequence;
+    gap_snapshot_state->gap_first_length = GAP_FIRST_LENGTH;
+    gap_snapshot_state->gap_second_length = GAP_SECOND_LENGTH;
+    gap_snapshot_state->gap_first_crc32 = 0U;
+    gap_snapshot_state->gap_second_crc32 = 0U;
+    gap_snapshot_state->gap_crc32_xor = 0U;
+    memory_barrier();
+
+    pressure_mode = 0;
+    backpressure_mode = 0;
+    wrap_mode = 0;
+    gap_mode = 1;
+    /* 软件间歇场景关闭 probe 背压，避免把 sleep 误报为 TREADY 低电平。 */
+    monitor_configure_backpressure(MONITOR_S2MM_BASE, 0U);
+
+    if (run_one_frame(first_sequence, GAP_FIRST_LENGTH, FRAME_COUNT) !=
+        XST_SUCCESS) {
+        ++gap_snapshot_state->gap_failed;
+        gap_mode = 0;
+        gap_snapshot_state->gap_status = SNAPSHOT_FAIL;
+        memory_barrier();
+        return XST_FAILURE;
+    }
+    gap_snapshot_state->gap_first_crc32 = snapshot->crc32;
+    ++gap_snapshot_state->gap_passed;
+
+    /* 这是 CPU 侧两个合法提交之间的固定间歇，不是 PL ready 控制。 */
+    usleep(GAP_DELAY_US);
+
+    if (run_one_frame(second_sequence, GAP_SECOND_LENGTH, FRAME_COUNT) !=
+        XST_SUCCESS) {
+        ++gap_snapshot_state->gap_failed;
+        gap_mode = 0;
+        gap_snapshot_state->gap_status = SNAPSHOT_FAIL;
+        memory_barrier();
+        return XST_FAILURE;
+    }
+    gap_snapshot_state->gap_second_crc32 = snapshot->crc32;
+    ++gap_snapshot_state->gap_passed;
+    gap_snapshot_state->gap_crc32_xor =
+        gap_snapshot_state->gap_first_crc32 ^
+        gap_snapshot_state->gap_second_crc32;
+    gap_mode = 0;
+
+    if (gap_snapshot_state->gap_passed != GAP_FRAME_COUNT ||
+        gap_snapshot_state->gap_failed != 0U) {
+        gap_snapshot_state->gap_status = SNAPSHOT_FAIL;
+        memory_barrier();
+        return fail("gap_count_mismatch");
+    }
+    gap_snapshot_state->gap_status = SNAPSHOT_PASS;
+    memory_barrier();
+    xil_printf("B2_GAP_PASS frames=%u first_sequence=%u second_sequence=%u "
+               "first_length=%u second_length=%u gap_us=%u "
+               "crc32_xor=0x%08x\r\n",
+               gap_snapshot_state->gap_passed,
+               gap_snapshot_state->gap_first_sequence,
+               gap_snapshot_state->gap_second_sequence,
+               gap_snapshot_state->gap_first_length,
+               gap_snapshot_state->gap_second_length,
+               gap_snapshot_state->gap_requested_us,
+               gap_snapshot_state->gap_crc32_xor);
+    return XST_SUCCESS;
+}
+
 int main(void)
 {
     XAxiDma_Config *config;
@@ -846,6 +947,18 @@ int main(void)
     recovery_snapshot_state->recovery_failed = 0U;
     recovery_snapshot_state->recovery_sequence = 0U;
     recovery_snapshot_state->recovery_crc32 = 0U;
+    gap_snapshot_state->gap_status = 0U;
+    gap_snapshot_state->gap_total = 0U;
+    gap_snapshot_state->gap_passed = 0U;
+    gap_snapshot_state->gap_failed = 0U;
+    gap_snapshot_state->gap_requested_us = 0U;
+    gap_snapshot_state->gap_first_sequence = 0U;
+    gap_snapshot_state->gap_second_sequence = 0U;
+    gap_snapshot_state->gap_first_length = 0U;
+    gap_snapshot_state->gap_second_length = 0U;
+    gap_snapshot_state->gap_first_crc32 = 0U;
+    gap_snapshot_state->gap_second_crc32 = 0U;
+    gap_snapshot_state->gap_crc32_xor = 0U;
     for (index = 0U; index < FRAME_COUNT; ++index) {
         record_ledger(index, index + 1U, 0U, SNAPSHOT_RUNNING, 0U, 0U, 0U,
                       &empty_monitor, &empty_monitor);
@@ -902,6 +1015,10 @@ int main(void)
         return XST_FAILURE;
     }
 
+    if (run_gap() != XST_SUCCESS) {
+        return XST_FAILURE;
+    }
+
     snapshot->status = SNAPSHOT_PASS;
     memory_barrier();
     xil_printf("B2_DMA_PASS frames=%u rejected_zero=%u\r\n",
@@ -936,6 +1053,16 @@ int main(void)
                    recovery_snapshot_state->recovery_passed,
                    recovery_snapshot_state->recovery_sequence,
                    recovery_snapshot_state->recovery_crc32);
+        xil_printf("B2_GAP_PASS frames=%u first_sequence=%u second_sequence=%u "
+                   "first_length=%u second_length=%u gap_us=%u "
+                   "crc32_xor=0x%08x\r\n",
+                   gap_snapshot_state->gap_passed,
+                   gap_snapshot_state->gap_first_sequence,
+                   gap_snapshot_state->gap_second_sequence,
+                   gap_snapshot_state->gap_first_length,
+                   gap_snapshot_state->gap_second_length,
+                   gap_snapshot_state->gap_requested_us,
+                   gap_snapshot_state->gap_crc32_xor);
         xil_printf("B2_DMA_ALIVE PASS\r\n");
     }
 }

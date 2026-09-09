@@ -1761,3 +1761,9 @@
 - 恢复切片已实现并在提交 `875dd1e` 上实板通过：run `20260909T111310Z`，UART/JTAG/XSCT 全 PASS；timeout=1、reset=1、恢复帧=1、failed=0，sequence=10329、CRC32=`0xD3E3C978`。
 - 新增 `RECOVERY_STATUS_BASE=0x01008300` 状态区、JTAG probe 字段和 runner fail-closed 判定；普通边界帧统计保持 `7 PASS + 1 reject`。
 - B2-04 已可关闭；B2-03/B2-05/B2-GATE 继续保持未完成，剩余发送间歇/ready 恢复、持久逐帧 ledger、错误注入和 packetizer。
+
+## 2026-09-09 B2 inter-frame gap 实板通过
+
+- 新增独立 gap ledger `0x01008340..0x0100836C`、`B2_GAP_PASS` UART marker 和 runner/JTAG fail-closed 字段；gap 模式关闭 probe 背压，明确 `usleep(1000)` 只表示 CPU 提交间歇，不等同于 `TREADY=0`。
+- 当前 HEAD `da9147ab9dc5a445d29c2f61e08e39dab87b5552` 同源 Vitis 构建和实板运行 `20260909T115218Z` 通过：COM10 UART/JTAG/XSCT PASS，gap `2/2`，4-byte→64-byte，sequence `10330/10331`，CRC XOR=`0x8B08CC4D`；recovery sequence `10329` 保持不变。
+- B2 合同回归已扩展为 `59/59`，PowerShell AST 和 `git diff --check` 通过。B2-03/B2-05/B2-GATE 仍未关闭，下一片为 ready 低电平恢复与可控错误注入。

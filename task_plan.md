@@ -1652,7 +1652,7 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 错误记录：两次同时追加 `findings.md`/`progress.md` 的补丁使用了错误尾部上下文，校验失败且未修改文件；第三次先用 `rg` 确认真实行文本后再应用。
 # 2026-09-09 B2 DMA reset-recovery slice
 
-状态：`IN_PROGRESS`
+状态：`COMPLETE`
 
 - [x] 读取当前 B2 合同、DMA 软件和 AXI-Stream probe，确认可用的受控故障入口是 probe 的 `stop` 控制位。
 - [x] 先添加恢复合同测试（超时/复位/恢复帧的可见字段和终端 marker），取得 RED。
@@ -1663,5 +1663,15 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 结果：定向回归 `58/58`、Vitis/XSCT 构建通过；提交 `875dd1e` 的实板 run `20260909T111310Z` UART/JTAG/XSCT PASS，recovery `timeout=1/reset=1/passed=1/failed=0`。
 
 下一阶段：补齐发送间歇/ready 恢复、持久逐帧 PL ledger、可控错误注入，再进入 packetizer/depacketizer。
+
+## 2026-09-09 B2 inter-frame gap slice
+
+状态：`IN_PROGRESS`
+
+- [x] 先添加两个合法帧之间 1 ms 间歇的合同测试，明确它不等同于 ready 低电平恢复。
+- [x] 在不改变已有 recovery sequence 的前提下，增加独立 gap ledger、UART/JTAG marker 和 fail-closed 判定。
+- [x] 提交绑定重建并实板验证；通过后更新 TODO、报告和 Nexus。
+
+结果：当前工作树同源构建并实板运行 `20260909T115218Z` 通过；gap `2/2`，序列 `10330/10331`，长度 `4/64`，请求间歇 `1000 us`，CRC XOR=`0x8B08CC4D`。原 recovery sequence 保持 `10329`。
 
 关键假设：`axis_stream_probe` 的 control bit1 会让 `s_axis_tready=0`，足以使 S2MM simple transfer 超时；恢复路径必须在 reset 后显式重新激活两个 probe。

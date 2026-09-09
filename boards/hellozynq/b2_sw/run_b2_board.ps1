@@ -166,6 +166,7 @@ try {
                      $received.ToString().Contains('B2_BACKPRESSURE_PASS') -and
                      $received.ToString().Contains('B2_WRAP_PASS') -and
                      $received.ToString().Contains('B2_RECOVERY_PASS') -and
+                     $received.ToString().Contains('B2_GAP_PASS') -and
                      $received.ToString().Contains('B2_DMA_PASS frames=')) -or
                     $received.ToString().Contains('B2_DMA_FAIL')) { break }
             }
@@ -221,6 +222,16 @@ $jtagRecoveryTimeout = Get-ProbeValue $probeText 'B2_STATUS_RECOVERY_TIMEOUT'
 $jtagRecoveryReset = Get-ProbeValue $probeText 'B2_STATUS_RECOVERY_RESET'
 $jtagRecoveryPassed = Get-ProbeValue $probeText 'B2_STATUS_RECOVERY_PASSED'
 $jtagRecoveryFailed = Get-ProbeValue $probeText 'B2_STATUS_RECOVERY_FAILED'
+$jtagGapStatus = Get-ProbeValue $probeText 'B2_STATUS_GAP_STATUS'
+$jtagGapTotal = Get-ProbeValue $probeText 'B2_STATUS_GAP_TOTAL'
+$jtagGapPassed = Get-ProbeValue $probeText 'B2_STATUS_GAP_PASSED'
+$jtagGapFailed = Get-ProbeValue $probeText 'B2_STATUS_GAP_FAILED'
+$jtagGapRequestedUs = Get-ProbeValue $probeText 'B2_STATUS_GAP_REQUESTED_US'
+$jtagGapFirstSequence = Get-ProbeValue $probeText 'B2_STATUS_GAP_FIRST_SEQUENCE'
+$jtagGapSecondSequence = Get-ProbeValue $probeText 'B2_STATUS_GAP_SECOND_SEQUENCE'
+$jtagGapFirstLength = Get-ProbeValue $probeText 'B2_STATUS_GAP_FIRST_LENGTH'
+$jtagGapSecondLength = Get-ProbeValue $probeText 'B2_STATUS_GAP_SECOND_LENGTH'
+$jtagGapCrcXor = Get-ProbeValue $probeText 'B2_STATUS_GAP_CRC_XOR'
 $jtagMm2sStall = Get-ProbeValue $probeText 'B2_PROBE_MM2S_STALL'
 $jtagS2mmStall = Get-ProbeValue $probeText 'B2_PROBE_S2MM_STALL'
 $jtagUartCr = Get-ProbeValue $probeText 'B2_UART_CR'
@@ -249,12 +260,22 @@ $jtagPass = $probeExitCode -eq 0 -and $probeReadAvailable -and
     $jtagRecoveryTimeout -eq 1 -and
     $jtagRecoveryReset -eq 1 -and
     $jtagRecoveryPassed -eq 1 -and
-    $jtagRecoveryFailed -eq 0
+    $jtagRecoveryFailed -eq 0 -and
+    $jtagGapStatus -eq 2 -and
+    $jtagGapTotal -eq 2 -and
+    $jtagGapPassed -eq 2 -and
+    $jtagGapFailed -eq 0 -and
+    $jtagGapRequestedUs -eq 1000 -and
+    $jtagGapFirstSequence -eq 10330 -and
+    $jtagGapSecondSequence -eq 10331 -and
+    $jtagGapFirstLength -eq 4 -and
+    $jtagGapSecondLength -eq 64
 $jtagStatus = if ($jtagPass) { 'PASS' } elseif ($probeReadAvailable) { 'FAIL' } else { 'UNAVAILABLE' }
 $uartPass = $uartText.Contains('B2_PRESSURE_PASS') -and
     $uartText.Contains('B2_BACKPRESSURE_PASS') -and
     $uartText.Contains('B2_WRAP_PASS') -and
     $uartText.Contains('B2_RECOVERY_PASS') -and
+    $uartText.Contains('B2_GAP_PASS') -and
     $uartText.Contains('B2_DMA_PASS frames=')
 $xsctExitCode = if ($process.HasExited) { [int]$process.ExitCode } else { $null }
 $status = if ($uartPass -and $jtagPass -and $xsctExitCode -eq 0 -and
@@ -304,6 +325,16 @@ $runManifest = [ordered]@{
     jtag_recovery_reset = $jtagRecoveryReset
     jtag_recovery_passed = $jtagRecoveryPassed
     jtag_recovery_failed = $jtagRecoveryFailed
+    jtag_gap_status = $jtagGapStatus
+    jtag_gap_total = $jtagGapTotal
+    jtag_gap_passed = $jtagGapPassed
+    jtag_gap_failed = $jtagGapFailed
+    jtag_gap_requested_us = $jtagGapRequestedUs
+    jtag_gap_first_sequence = $jtagGapFirstSequence
+    jtag_gap_second_sequence = $jtagGapSecondSequence
+    jtag_gap_first_length = $jtagGapFirstLength
+    jtag_gap_second_length = $jtagGapSecondLength
+    jtag_gap_crc_xor = $jtagGapCrcXor
     jtag_mm2s_stall = $jtagMm2sStall
     jtag_s2mm_stall = $jtagS2mmStall
     jtag_uart_cr = $jtagUartCr

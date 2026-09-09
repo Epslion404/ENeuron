@@ -1672,4 +1672,12 @@
 - 实板确认上述假设成立：提交 `875dd1e` 的 run `20260909T111310Z` 中，停止 S2MM 后确实观测到 1 秒 timeout，DMA reset 返回成功，两个 probe clear 后合法 4-byte 帧完成；最终 JTAG recovery status=2、timeout=1、reset=1、passed=1、failed=0。
 - 该切片的恢复状态区位于 `0x01008300..0x01008318`，与边界 ledger (`0x01008080..0x0100813F`)、wrap 状态 (`0x01008280..0x010082B0`) 和 monitor 状态 (`0x01008400`) 不重叠。
 - 当前恢复实现仍是独立软件路径，未提供 packetizer 状态/四逻辑流 fence 证据；因此不能据此关闭 B2-GATE 或接入 NPU。
+- 下一切片采用独立 inter-frame gap 场景：在 recovery 完成后发送 4-byte 与 64-byte 合法帧，中间插入 1000 us 软件间歇；不改变已有 recovery sequence=10329，也不把软件间歇误报为 S2MM ready 低电平恢复。
 - 现有 `run_one_frame_at()` 遇到 timeout 会直接 `fail()` 并终止整轮，因此恢复场景需要独立函数，不能复用失败即退出的普通帧路径。
+
+## 2026-09-09 B2 inter-frame gap 实板验证
+
+- 在恢复成功后新增独立 gap 场景：sequence=`10330` 的 4-byte 合法帧完成后调用 `usleep(1000)`，再发送 sequence=`10331` 的 64-byte 合法帧；两帧均逐字节校验并记录 CRC。
+- gap 状态区固定为 `0x01008340..0x0100836C`，与 recovery 状态区和 monitor 状态区不重叠；JTAG ledger 为 `status=2`、`total=2`、`passed=2`、`failed=0`、`requested_us=1000`、CRC XOR=`0x8B08CC4D`。
+- 运行 `boards/hellozynq/b2_sw/build/da9147ab9dc5a445d29c2f61e08e39dab87b5552/direct/runs/20260909T115218Z/` 在 `COM10` 上 UART/JTAG/XSCT 全部 PASS，UART 无重连；runner 已把 gap 字段纳入 fail-closed 总体判定和 manifest。
+- 该证据只证明 CPU 两次合法提交之间的发送间歇，不证明 `TREADY=0` 的 ready 恢复，也不关闭 B2-03/B2-05/B2-GATE；下一片优先做 ready 低电平停止→恢复的独立 ledger，再补可控错误注入和 packetizer。
