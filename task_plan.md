@@ -1,5 +1,13 @@
 # 2026-09-08 UART重分配 V14/V15
 
+## 2026-09-10 B2 物理 BD 接入状态
+
+- [x] 将 `b2_npu_packet_adapter` 接入 `b2_npu_axis_top.v`，并挂入 `AXI DMA MM2S → NPU → AXI DMA S2MM` 的 BD 数据通路。
+- [x] Vivado 已完成 BD 生成、综合、`link_design`、`opt_design`，前置 DRC 为 `0 Errors`；相关综合 DCP 已生成。
+- [ ] 当前实现仍在 `place_design/phys_opt_design`，尚未取得最终 route、timing signoff、bitstream/XSA 或 `B2_BUILD_PASS`。
+- [ ] 中间估计时序出现 `WNS=-8.182 ns`、`TNS=-181312.760 ns`；仅作为风险信号，必须以 route 后 `report_timing_summary` 为准，未达标时不得下载实板。
+- [ ] 物理门通过后，重建干净身份 bitstream/XSA，再扩展软件 packet 发送和 XC7Z020 实板验证。
+
 ## 2026-09-09 B2 packet→wrapper 集成切片
 
 - [x] 先写 `b2_npu_packet_adapter` 公开接口合同并取得 RED。
@@ -9,7 +17,7 @@
 - [ ] 增加多响应/多 packet 元数据关联，不能长期依赖“单个 outstanding packet”。
 - [ ] 接入 SAMPLE/FENCE/RESULT 端到端向量，再进入 B2-07/B2-08 完整错误和跨流账本。
 
-当前停止点：最小 response 错误帧路径已连通，但尚未形成可下载的 B2 packetizer bitstream；`B2-06` 仍为 `INTEGRATION_PENDING`。
+当前停止点：RTL packet adapter 与 AXIS 顶层已接入 BD，仿真和综合阶段通过；物理实现仍在进行，`B2-06` 继续保持 `INTEGRATION_PENDING`，不得把中间 DCP 当作可下载 bitstream。
 
 ## 2026-09-09 B2 连续回绕切片
 
