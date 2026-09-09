@@ -232,8 +232,8 @@ $jtagPass = $probeExitCode -eq 0 -and $probeReadAvailable -and
     $jtagBackpressureStallCycles -gt 0 -and
     $jtagWrapStatus -eq 2 -and $jtagWrapTotal -eq 256 -and
     $jtagWrapPassed -eq 256 -and $jtagWrapFailed -eq 0 -and
-    $jtagWrapSlotMaskLo -eq 0xFFFFFFFF -and
-    $jtagWrapSlotMaskHi -eq 0xFFFFFFFF -and
+    $jtagWrapSlotMaskLo -eq 4294967295 -and
+    $jtagWrapSlotMaskHi -eq 4294967295 -and
     $jtagWrapRollovers -eq 3 -and
     $jtagWrapFirstTxAddress -eq 0x01006000 -and
     $jtagWrapFirstRxAddress -eq 0x01007000 -and

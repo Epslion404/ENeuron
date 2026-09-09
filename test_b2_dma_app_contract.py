@@ -168,6 +168,7 @@ class B2DmaAppContractTests(unittest.TestCase):
         self.assertIn("$uartPass", self.board)
         self.assertIn("$uartPass -and $jtagPass", self.board)
         self.assertIn("$xsctExitCode -eq 0", self.board)
+        self.assertIn("-eq 4294967295", self.board)
         self.assertIn("exit 0", (B2_SW / "program_b2.tcl").read_text(encoding="utf-8"))
 
     def test_board_runner_records_ps_uart_configuration(self):
