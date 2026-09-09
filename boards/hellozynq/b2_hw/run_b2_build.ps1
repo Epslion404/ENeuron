@@ -83,7 +83,7 @@ Write-Host ("B2_TIMING_PASS WNS={0} TNS={1} WHS={2} THS={3} ROUTE_ERRORS={4} DRC
 
 $sourceFiles = @(
     'boards/hellozynq/b2_hw/axis_stream_probe.v',
-    'boards/hellozynq/b2_hw/b2_npu_axis_top.sv',
+    'boards/hellozynq/b2_hw/b2_npu_axis_top.v',
     'boards/hellozynq/b2_hw/create_b2_bd.tcl',
     'boards/hellozynq/b2_hw/build_b2.tcl',
     'boards/hellozynq/b2_hw/run_b2_build.ps1',

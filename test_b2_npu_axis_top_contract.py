@@ -8,7 +8,7 @@ HW = ROOT / "boards" / "hellozynq" / "b2_hw"
 
 class B2NpuAxisTopContractTests(unittest.TestCase):
     def test_axis_top_declares_standard_stream_interfaces(self):
-        source = (HW / "b2_npu_axis_top.sv").read_text(encoding="utf-8")
+        source = (HW / "b2_npu_axis_top.v").read_text(encoding="utf-8")
         for token in (
             "xilinx.com:interface:axis:1.0 S_AXIS TDATA",
             "xilinx.com:interface:axis:1.0 M_AXIS TDATA",
@@ -35,7 +35,7 @@ class B2NpuAxisTopContractTests(unittest.TestCase):
         tcl = (HW / "build_b2.tcl").read_text(encoding="utf-8")
         runner = (HW / "run_b2_build.ps1").read_text(encoding="utf-8")
         for name in (
-            "b2_npu_axis_top.sv",
+            "b2_npu_axis_top.v",
             "b2_npu_packet_adapter.sv",
             "b2_packet_ingress.sv",
             "b2_packet_egress.sv",

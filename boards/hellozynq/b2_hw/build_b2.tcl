@@ -13,7 +13,7 @@ set repo_root [file normalize [file join $script_dir .. .. ..]]
 create_project -force $project_name $project_dir -part $part
 add_files -norecurse [list \
     [file join $script_dir axis_stream_probe.v] \
-    [file join $script_dir b2_npu_axis_top.sv] \
+    [file join $script_dir b2_npu_axis_top.v] \
     [file join $repo_root b2_npu_packet_adapter.sv] \
     [file join $repo_root b2_packet_ingress.sv] \
     [file join $repo_root b2_packet_egress.sv] \
