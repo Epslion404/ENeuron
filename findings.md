@@ -1652,3 +1652,15 @@
 - 使用可逆 XSCT 脚本临时设置 UART0 `MR` 的 local-loopback 位，读取 RX FIFO 后恢复原值；`ORIGINAL_MR=0x20`、`FINAL_MR=0x20`，收到 `64` 个应用字节，样本包含 `\nB2_P...`。
 - 该实验把故障边界从“软件或 UART 外设未发送”进一步收窄为 V14/V15 外部引脚、USB-TTL TX/RX 交叉、共地、电平或端口链路；外部 COM10 仍无字节，UART 门禁保持 fail-closed。
 - 脚本：`boards/hellozynq/b2_sw/probe_b2_uart_loopback.tcl`；原始日志：`artifacts/logs/b2_uart_config_jtag_pass_20260909_e26c7c1/uart_loopback.log`。
+
+## 2026-09-09 B2 外部 UART 交换线序后通过
+
+- 交换 TX/RX 后，COM10 收到当前运行的完整 UART 输出；正式 run `20260909T094406Z` 的 `run_manifest.json` 状态为 `PASS`，`uart_terminal_marker=PASS`，`xsct_exit_code=0`，`probe_exit_code=0`。
+- 首次尝试出现 XSCT 收尾超时，根因是旧程序循环发送的 marker 被新 runner 提前采信；runner 已改为等待当前 `B2_CPU_RUN_PASS`、清空旧串口输入缓存后再开始本次监听窗口。
+- 本次正式证据同时覆盖边界矩阵（7 PASS/1 拒绝/0 失败）、10000 帧压力、64 帧受控背压和 PS UART 配置；仍不等价于 B2-GATE，因为连续回绕、错误注入/复位恢复和完整逐帧 PL 观测缺失。
+## 2026-09-09 B2 连续回绕实现审计
+
+- 新增软件 ring-buffer 切片：`256` 帧、`64` 个 `64-byte` 对齐 slot，长度循环为 `1/4/16/64` bytes；TX/RX 地址分别在 `0x01006000..0x01006FC0` 和 `0x01007000..0x01007FC0` 内轮换，最后重新回到 slot 0。
+- 回绕状态区固定为 `0x01008280`。原候选 `0x01008200` 会覆盖边界账本第 6 槽，已通过合同测试拒绝该布局。
+- wrap 模式逐帧检查 PL beats/bytes/TLAST/TKEEP，并通过 64-bit slot mask、sequence、CRC XOR、最后 TX/RX 地址形成 JTAG/UART 摘要；该切片不改变 Vivado bitstream 或 NPU 接口。
+- 当前仅完成源代码合同与语法层验证，尚未形成新的 ELF 或实板回绕证据，B2-03/B2-04/B2-05/B2-GATE 继续保持未完成。

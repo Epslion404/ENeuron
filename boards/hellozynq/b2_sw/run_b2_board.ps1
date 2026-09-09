@@ -117,10 +117,27 @@ $serialReconnects = [uint32]0
 $process = Start-Process -FilePath $XsctPath -ArgumentList @(
     (Join-Path $scriptRoot 'program_b2.tcl'), $bitstream, $ps7Init, $elf
 ) -RedirectStandardOutput $xsctStdout -RedirectStandardError $xsctStderr -WindowStyle Hidden -PassThru
-$deadline = [DateTime]::UtcNow.AddSeconds($ListenSeconds)
+$programDeadline = [DateTime]::UtcNow.AddSeconds(60)
+$listenDeadline = $null
+$currentRunStarted = $false
 $received = [Text.StringBuilder]::new()
 try {
-    while ([DateTime]::UtcNow -lt $deadline) {
+    while ($true) {
+        $xsctProgress = if (Test-Path -LiteralPath $xsctStdout) {
+            [string](Get-Content -LiteralPath $xsctStdout -Raw)
+        } else {
+            ''
+        }
+        if ($null -eq $xsctProgress) { $xsctProgress = '' }
+        if (-not $currentRunStarted -and $xsctProgress.Contains('B2_CPU_RUN_PASS')) {
+            $currentRunStarted = $true
+            $listenDeadline = [DateTime]::UtcNow.AddSeconds($ListenSeconds)
+            [void]$received.Clear()
+            if ($serial -and $serial.IsOpen) { $serial.DiscardInBuffer() }
+        }
+        if (-not $currentRunStarted -and $process.HasExited) { break }
+        if (-not $currentRunStarted -and [DateTime]::UtcNow -ge $programDeadline) { break }
+        if ($currentRunStarted -and [DateTime]::UtcNow -ge $listenDeadline) { break }
         try {
             if ($null -eq $serial -or -not $serial.IsOpen) {
                 if ($serial) { $serial.Dispose() }
@@ -142,11 +159,15 @@ try {
             continue
         }
         if ($chunk.Length -gt 0) {
-            [void]$received.Append($chunk)
-            Write-Host -NoNewline $chunk
-            if (($received.ToString().Contains('B2_PRESSURE_PASS') -and
-                 $received.ToString().Contains('B2_BACKPRESSURE_PASS')) -or
-                $received.ToString().Contains('B2_DMA_FAIL')) { break }
+            if ($currentRunStarted) {
+                [void]$received.Append($chunk)
+                Write-Host -NoNewline $chunk
+                if (($received.ToString().Contains('B2_PRESSURE_PASS') -and
+                     $received.ToString().Contains('B2_BACKPRESSURE_PASS') -and
+                     $received.ToString().Contains('B2_WRAP_PASS') -and
+                     $received.ToString().Contains('B2_DMA_PASS')) -or
+                    $received.ToString().Contains('B2_DMA_FAIL')) { break }
+            }
         }
         Start-Sleep -Milliseconds 50
     }
@@ -157,7 +178,7 @@ try {
     }
 }
 
-if (-not $process.WaitForExit(10000)) { $process.Kill(); throw 'XSCT programming process did not exit' }
+if (-not $process.WaitForExit(30000)) { $process.Kill(); throw 'XSCT programming process did not exit' }
 $process.Refresh()
 $uartText = $received.ToString()
 $uartText | Set-Content -LiteralPath $serialLog -Encoding utf8
@@ -183,6 +204,17 @@ $jtagBackpressureTotal = Get-ProbeValue $probeText 'B2_STATUS_BACKPRESSURE_TOTAL
 $jtagBackpressurePassed = Get-ProbeValue $probeText 'B2_STATUS_BACKPRESSURE_PASSED'
 $jtagBackpressureFailed = Get-ProbeValue $probeText 'B2_STATUS_BACKPRESSURE_FAILED'
 $jtagBackpressureStallCycles = Get-ProbeValue $probeText 'B2_STATUS_BACKPRESSURE_STALL_CYCLES'
+$jtagWrapStatus = Get-ProbeValue $probeText 'B2_STATUS_WRAP_STATUS'
+$jtagWrapTotal = Get-ProbeValue $probeText 'B2_STATUS_WRAP_TOTAL'
+$jtagWrapPassed = Get-ProbeValue $probeText 'B2_STATUS_WRAP_PASSED'
+$jtagWrapFailed = Get-ProbeValue $probeText 'B2_STATUS_WRAP_FAILED'
+$jtagWrapSlotMaskLo = Get-ProbeValue $probeText 'B2_STATUS_WRAP_SLOT_MASK_LO'
+$jtagWrapSlotMaskHi = Get-ProbeValue $probeText 'B2_STATUS_WRAP_SLOT_MASK_HI'
+$jtagWrapRollovers = Get-ProbeValue $probeText 'B2_STATUS_WRAP_ROLLOVERS'
+$jtagWrapFirstTxAddress = Get-ProbeValue $probeText 'B2_STATUS_WRAP_FIRST_TX_ADDR'
+$jtagWrapFirstRxAddress = Get-ProbeValue $probeText 'B2_STATUS_WRAP_FIRST_RX_ADDR'
+$jtagWrapLastTxAddress = Get-ProbeValue $probeText 'B2_STATUS_WRAP_LAST_TX_ADDR'
+$jtagWrapLastRxAddress = Get-ProbeValue $probeText 'B2_STATUS_WRAP_LAST_RX_ADDR'
 $jtagMm2sStall = Get-ProbeValue $probeText 'B2_PROBE_MM2S_STALL'
 $jtagS2mmStall = Get-ProbeValue $probeText 'B2_PROBE_S2MM_STALL'
 $jtagUartCr = Get-ProbeValue $probeText 'B2_UART_CR'
@@ -197,9 +229,21 @@ $jtagUartConfigured = $null -ne $jtagUartCr -and $null -ne $jtagUartMr -and
 $jtagPass = $probeExitCode -eq 0 -and $probeReadAvailable -and
     $jtagPressureStatus -eq 2 -and $jtagPressureFailed -eq 0 -and
     $jtagBackpressureStatus -eq 2 -and $jtagBackpressureFailed -eq 0 -and
-    $jtagBackpressureStallCycles -gt 0
+    $jtagBackpressureStallCycles -gt 0 -and
+    $jtagWrapStatus -eq 2 -and $jtagWrapTotal -eq 256 -and
+    $jtagWrapPassed -eq 256 -and $jtagWrapFailed -eq 0 -and
+    $jtagWrapSlotMaskLo -eq 0xFFFFFFFF -and
+    $jtagWrapSlotMaskHi -eq 0xFFFFFFFF -and
+    $jtagWrapRollovers -eq 3 -and
+    $jtagWrapFirstTxAddress -eq 0x01006000 -and
+    $jtagWrapFirstRxAddress -eq 0x01007000 -and
+    $jtagWrapLastTxAddress -eq 0x01006FC0 -and
+    $jtagWrapLastRxAddress -eq 0x01007FC0
 $jtagStatus = if ($jtagPass) { 'PASS' } elseif ($probeReadAvailable) { 'FAIL' } else { 'UNAVAILABLE' }
-$status = if ($uartText.Contains('B2_DMA_PASS')) { 'PASS' } elseif ($uartText.Contains('B2_DMA_FAIL')) { 'FAIL' } else { 'NO_TERMINAL_MARKER' }
+$status = if ($uartText.Contains('B2_PRESSURE_PASS') -and
+    $uartText.Contains('B2_BACKPRESSURE_PASS') -and
+    $uartText.Contains('B2_WRAP_PASS') -and
+    $uartText.Contains('B2_DMA_PASS')) { 'PASS' } elseif ($uartText.Contains('B2_DMA_FAIL')) { 'FAIL' } else { 'NO_TERMINAL_MARKER' }
 $runManifest = [ordered]@{
     schema_version = 1
     generated_at = [DateTime]::UtcNow.ToString('o')
@@ -228,6 +272,17 @@ $runManifest = [ordered]@{
     jtag_backpressure_passed = $jtagBackpressurePassed
     jtag_backpressure_failed = $jtagBackpressureFailed
     jtag_backpressure_stall_cycles = $jtagBackpressureStallCycles
+    jtag_wrap_status = $jtagWrapStatus
+    jtag_wrap_total = $jtagWrapTotal
+    jtag_wrap_passed = $jtagWrapPassed
+    jtag_wrap_failed = $jtagWrapFailed
+    jtag_wrap_slot_mask_lo = $jtagWrapSlotMaskLo
+    jtag_wrap_slot_mask_hi = $jtagWrapSlotMaskHi
+    jtag_wrap_rollovers = $jtagWrapRollovers
+    jtag_wrap_first_tx_address = $jtagWrapFirstTxAddress
+    jtag_wrap_first_rx_address = $jtagWrapFirstRxAddress
+    jtag_wrap_last_tx_address = $jtagWrapLastTxAddress
+    jtag_wrap_last_rx_address = $jtagWrapLastRxAddress
     jtag_mm2s_stall = $jtagMm2sStall
     jtag_s2mm_stall = $jtagS2mmStall
     jtag_uart_cr = $jtagUartCr

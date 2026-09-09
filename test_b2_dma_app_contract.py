@@ -75,6 +75,33 @@ class B2DmaAppContractTests(unittest.TestCase):
         ):
             self.assertIn(token, self.source)
 
+    def test_continuous_buffer_wrap_contract_is_present(self):
+        for token in (
+            "WRAP_FRAME_COUNT 256U",
+            "WRAP_SLOT_BYTES 64U",
+            "WRAP_SLOT_COUNT 64U",
+            "WRAP_LENGTHS",
+            "wrap_status",
+            "wrap_slot_mask",
+            "B2_WRAP_PASS",
+        ):
+            self.assertIn(token, self.source)
+        for token in (
+            "B2_STATUS_WRAP_STATUS",
+            "B2_STATUS_WRAP_SLOT_MASK",
+            "jtag_wrap_status",
+            "jtag_wrap_slot_mask",
+            "jtag_wrap_rollovers",
+            "jtag_wrap_first_tx_address",
+            "B2_WRAP_PASS",
+        ):
+            self.assertIn(token, self.board)
+
+    def test_wrap_status_does_not_overlap_boundary_ledger(self):
+        self.assertIn("WRAP_STATUS_BASE 0x01008280U", self.source)
+        probe = (B2_SW / "probe_b2_state.tcl").read_text(encoding="utf-8")
+        self.assertIn("0x01008280", probe)
+
     def test_build_is_bound_to_b2_xsa(self):
         self.assertIn("hello_zynq_b2.xsa", self.build)
         self.assertIn("hello_zynq_b2.bit", self.board)
@@ -134,6 +161,17 @@ class B2DmaAppContractTests(unittest.TestCase):
             "jtag_uart_configured",
         ):
             self.assertIn(token, self.board)
+
+    def test_board_runner_rejects_stale_uart_markers_before_current_cpu_run(self):
+        for token in (
+            "$currentRunStarted",
+            "B2_CPU_RUN_PASS",
+            "$received.Clear()",
+            "DiscardInBuffer",
+            "$null -eq $xsctProgress",
+        ):
+            self.assertIn(token, self.board)
+        self.assertIn("WaitForExit(30000)", self.board)
 
     def test_controlled_backpressure_contract_is_present(self):
         for token in (

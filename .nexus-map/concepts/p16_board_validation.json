@@ -8,13 +8,13 @@
   },
   "workflow_context": {
     "active_branch": "codex/b1b-high-ddr-board-repro",
-    "current_head": "e26c7c1427af79caa53ed7796f92424338c92ab5",
+    "current_head": "55822aebb34eef9f49995fc203214b3aa1c2581f",
     "parent_audit_baseline": "d7e1035",
     "execution_chain": ["B2-03_BOARD_MINIMAL_LOOPBACK", "B2-04_BOUNDARY_FRAMES", "B2-05_BACKPRESSURE_AND_PRESSURE"],
     "qualification_execution_chain": ["B1-06B6_UART_BASELINE", "B1-06B7_OCM_HIGH_DDR_MINIMAL_REPRODUCTION"],
     "ddr_accesses_so_far": 0
   },
-  "status": "P16_B0_COMPLETE / FASTLANE_V1 / B1A_HW_DEFINITION_COMPLETE / B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DDR_PENDING / B2_00_LOW_ADDRESS_LAYOUT_FROZEN / B2_D1_DMA_CONTRACT_FROZEN / B2_01_BUFFER_OWNERSHIP_FROZEN / B2_STREAM_PROBE_BOARD_PASS / B2_BACKPRESSURE_JTAG_PASS_UART_PENDING / B2_AXI_VALID_HOLD_FIX_BUILD_PASS / B2_03_B2_05_PENDING",
+  "status": "P16_B0_COMPLETE / FASTLANE_V1 / B1A_HW_DEFINITION_COMPLETE / B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DDR_PENDING / B2_00_LOW_ADDRESS_LAYOUT_FROZEN / B2_D1_DMA_CONTRACT_FROZEN / B2_01_BUFFER_OWNERSHIP_FROZEN / B2_STREAM_PROBE_BOARD_PASS / B2_BACKPRESSURE_UART_JTAG_PASS / B2_AXI_VALID_HOLD_FIX_BUILD_PASS / B2_03_B2_05_PENDING",
   "stage2_complete": false,
   "current_gate": "B2-03-BOARD-LOOPBACK",
   "active_stage_contract": "docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md",
@@ -75,7 +75,7 @@
     "gate_pass": true
   },
   "b2": {
-    "status": "IN_PROGRESS_LOW_ADDRESS_MVP_B2_01_COMPLETE_STREAM_PROBE_BOARD_PASS_BACKPRESSURE_JTAG_PASS_UART_PENDING_VALID_HOLD_FIX_BUILD_PASS_B2_03_B2_05_PENDING_B1_GATE_PENDING",
+    "status": "IN_PROGRESS_LOW_ADDRESS_MVP_B2_01_COMPLETE_STREAM_PROBE_BOARD_PASS_BACKPRESSURE_UART_JTAG_PASS_VALID_HOLD_FIX_BUILD_PASS_B2_03_B2_05_PENDING_B1_GATE_PENDING",
     "low_address_window": "[0x01000000,0x01100000)",
     "dma_mode": "AXI_DMA_SIMPLE_POLLING",
     "control_contract": "S2MM_FIRST_1US_POLL_1S_TIMEOUT_500_RESET_POLL",
@@ -151,6 +151,7 @@
     },
     "current_worktree_rebuild": {
       "source_head": "e26c7c1427af79caa53ed7796f92424338c92ab5",
+      "software_source_head": "55822aebb34eef9f49995fc203214b3aa1c2581f",
       "git_worktree_clean": false,
       "changes": [
         "BACKPRESSURE_CONFIG=0x04030201",
@@ -161,21 +162,24 @@
       "vivado_status": "PASS",
       "started_at_local": "2026-09-09T15:18:59+08:00",
       "completed_at_local": "2026-09-09T15:26:55+08:00",
-      "software_manifest_status": "REBUILT_FOR_FINAL_VALID_HOLD_FIX",
-      "board_evidence": "artifacts/logs/b2_backpressure_pass_20260909_e26c7c1/"
+      "software_manifest_status": "REBUILT_FOR_FINAL_VALID_HOLD_FIX_UART_WIRING_CORRECTED",
+      "board_evidence": "artifacts/logs/b2_backpressure_uart_pass_20260909_55822ae/"
     },
     "evidence": {
       "targeted_contract_tests": "51/51_PASS",
-      "board_dma_transfer": "BOUNDARY_PRESSURE_AND_CONTROLLED_BACKPRESSURE_JTAG_PASS_UART_PENDING; 20260909T073606Z",
+      "board_dma_transfer": "BOUNDARY_PRESSURE_AND_CONTROLLED_BACKPRESSURE_UART_JTAG_PASS; 20260909T094406Z",
       "pl_counters": "MM2S_AND_S2MM_PROBE_READ; S2MM_STALL=3; BACKPRESSURE_STALL_CYCLES=83082",
-      "b2_gate": "PENDING",
-      "board_evidence_manifest": "artifacts/logs/b2_backpressure_pass_20260909_e26c7c1/run_manifest.json",
-      "board_evidence_sha256": "42a94d2f695502bd60065573c2e12bda18fb78c4ddc34e5253bba77d91130e51",
-      "probe_log": "artifacts/logs/b2_backpressure_pass_20260909_e26c7c1/probe_stdout.log",
-      "probe_log_sha256": "a44b884f723d22f514590fa320c916bf03a9c052710b87b1f20b18edd832683c",
+      "b2_gate": "PENDING_B2_03_B2_05_EVIDENCE_GAPS",
+      "board_evidence_manifest": "artifacts/logs/b2_backpressure_uart_pass_20260909_55822ae/run_manifest.json",
+      "board_evidence_sha256": "50ee8d61714704a8e228b20eb8dd4ea7da655ec56063b2f6ee9b2aaa5ee48007",
+      "probe_log": "artifacts/logs/b2_backpressure_uart_pass_20260909_55822ae/probe_stdout.log",
+      "probe_log_sha256": "69c208f97225e984cf82ab58f84314b0ca605b2b9f450f335cc9a4744d72d8bb",
       "board_target": "xc7z020_1",
       "jtag": "210251A08870",
-      "uart": "COM10:NO_TERMINAL_MARKER",
+      "uart": "COM10:PASS_AFTER_EXTERNAL_TX_RX_SWAP",
+      "uart_terminal_marker": "PASS",
+      "run_git_head": "55822aebb34eef9f49995fc203214b3aa1c2581f",
+      "run_generated_at_utc": "2026-09-09T09:44:23.3573759Z",
       "frame_lengths_bytes": [0, 1, 4, 16, 64, 512, 1472, 4096],
       "frames_total": 8,
       "frames_passed": 7,
@@ -204,7 +208,7 @@
       "stream_probe_endpoint": "HISTORICAL_64_BYTE_ENDPOINT_MM2S_AND_S2MM_16_BEATS_TLAST_1_TKEEP_F_STALL_0",
       "stream_probe_endpoint_current": "CURRENT_JTAG_PROBE_READ_MM2S_AND_S2MM; S2MM_STALL=3; BACKPRESSURE_STALL_CYCLES=83082",
       "probe_exit_code": 0,
-      "evidence_boundary": "同源 e26c7c1 run 证明 10000/10000 压力帧和 64/64 受控背压帧均通过，BACKPRESSURE_STALL_CYCLES=83082，S2MM probe STALL=3，JTAG status=PASS；UART terminal marker 仍缺失，连续回绕、错误注入/复位恢复和更完整的多长度逐帧 PL 观测仍待完成；B2-03/B2-05/B2-GATE 未关闭"
+      "evidence_boundary": "同源 HEAD 55822ae run 20260909T094406Z 证明 UART/JTAG/XSCT/probe 均 PASS，边界矩阵 7 个合法长度通过、零长度拒绝且 0 失败，10000/10000 压力帧和 64/64 受控背压帧通过，BACKPRESSURE_STALL_CYCLES=83082，S2MM probe STALL=3；连续回绕、错误注入/复位恢复和更完整的多长度逐帧 PL 观测仍待完成；B2-03/B2-05/B2-GATE 未关闭"
     },
     "monitor_experiment": {
       "observed_at": "2026-09-09",
@@ -238,9 +242,9 @@
         "busy/stall 在背压或 TLAST 场景不能单独作为严格证据",
         "真实 TKEEP 与 TLAST beat 位置仍需独立采样或明确推导"
       ],
-      "next_action": "收口 UART terminal marker；随后补齐多长度逐帧 PL 观测、连续 buffer 回绕、错误注入与复位恢复，并复核 TVALID 保持证据；B2-03/B2-05/B2-GATE 保持未完成"
+      "next_action": "补齐多长度逐帧 PL 观测、连续 buffer 回绕、错误注入与复位恢复，并复核 TVALID 保持证据；UART/JTAG 收口已完成，B2-03/B2-05/B2-GATE 保持未完成"
     },
-    "forbidden_claims": ["DMA loopback passed", "B2-GATE passed", "NPU integrated", "pruning speedup or power gain measured"]
+    "forbidden_claims": ["B2-03 fully closed", "B2-05 fully closed", "B2-GATE passed", "NPU integrated", "pruning speedup or power gain measured"]
   },
   "qualification_next_action": {
     "action": "B1-06B6_UART_BASELINE",
@@ -357,7 +361,7 @@
   },
   "stages": [
     {"id":"B1","requires":"B0-GATE=PASS on main","scope":"PS7, DDR, UART, PHY, minimal UDP","status":"IN_PROGRESS_B1A_COMPLETE_B1B_UART_LOW_DDR_PASS_HIGH_DDR_PENDING"},
-    {"id":"B2","requires":"B2-00/B2-D1 for low-address MVP; B1-GATE=PASS for full networked B2","scope":"AXI DMA, DDR ownership/cache contract, PL loopback, fixed frame adapter","status":"IN_PROGRESS_LOW_ADDRESS_MVP_B2_01_COMPLETE_B2_03_BOUNDARY_AND_PRESSURE_JTAG_PASS_UART_PENDING_B1_GATE_PENDING"},
+    {"id":"B2","requires":"B2-00/B2-D1 for low-address MVP; B1-GATE=PASS for full networked B2","scope":"AXI DMA, DDR ownership/cache contract, PL loopback, fixed frame adapter","status":"IN_PROGRESS_LOW_ADDRESS_MVP_B2_01_COMPLETE_B2_03_BOUNDARY_AND_PRESSURE_UART_JTAG_PASS_B1_GATE_PENDING"},
     {"id":"B3","requires":"B2-GATE=PASS","scope":"64x32x10 traditional NPU plus ENeuron fixed-vector board validation","status":"BLOCKED_BY_PREDECESSOR_GATE"},
     {"id":"B4","requires":"B3-GATE=PASS","scope":"Ethernet end-to-end dense/gated reproducible A/B","status":"BLOCKED_BY_PREDECESSOR_GATE"}
   ],

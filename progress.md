@@ -1740,3 +1740,16 @@
 - COM10 监听15秒仍无业务字节，`uart.log` 只有 runner 写入的 CRLF；原始证据归档于 `artifacts/logs/b2_uart_config_jtag_pass_20260909_e26c7c1/`。
 - 结论：UART 软件配置和 PS 外设初始化已有 JTAG 证据，剩余问题收窄到 V14/V15 外部 USB-TTL 链路、接线或电气条件；不放宽 UART 门禁，B2-03/B2-05/B2-GATE 仍未关闭。
 - 内部 UART local-loopback 诊断收到 64 个应用字节（样本以 `\nB2_P...` 开头），并在脚本结束时恢复 `MR=0x20`；这排除了 ELF/PS UART TX 路径故障。日志追加归档于同一证据目录的 `uart_loopback.log`。
+
+## 2026-09-09 B2 交换 TX/RX 后正式通过
+
+- 现场交换 TX/RX 后，首次 runner 尝试因旧串口 marker 触发提前退出；已修复 runner 为等待当前 `B2_CPU_RUN_PASS` 后清空串口缓存，再判定本次 marker。
+- 同源软件 manifest 按 HEAD `55822ae` 重建后，正式运行 `20260909T094406Z` 返回 exit code `0`，UART/JTAG 均 PASS。
+- UART 完整收到边界矩阵、pressure、backpressure 和终态 marker；JTAG pressure `10000/10000`、backpressure `64/64`、`stall_cycles=83082`、S2MM `STALL=3`，边界账本 `7 PASS + 1 zero-length reject + 0 fail`。
+- 新证据归档于 `artifacts/logs/b2_backpressure_uart_pass_20260909_55822ae/`；B2-03/B2-05/B2-GATE 仍因连续回绕、错误/复位恢复和更完整 PL 逐帧观测未关闭。
+## 2026-09-09 B2 连续回绕切片启动
+
+- 按测试先行新增回绕合同与状态区不重叠检查；首轮合同正确取得 RED，修复后 app contract 为 `23 passed`，随后完整 B2 定向回归为 `55 passed`。
+- `main.c` 新增 `run_wrap()`：256 帧、64 个 64-byte slot、1/4/16/64-byte 混合长度；参数化 DMA/cache 路径并在 wrap 模式逐帧校验 AXI-Stream beats/bytes/TLAST/TKEEP。
+- 回绕状态区由候选 `0x01008200` 修正为 `0x01008280`，避免覆盖边界账本；`probe_b2_state.tcl` 与 `run_b2_board.ps1` 已纳入 wrap 状态、slot mask 和 UART marker 的 fail-closed 条件。
+- 当前仍待以新提交 HEAD 重建 ELF，并在 `xc7z020clg484-2` 实板验证 256 帧回绕；未提前改变 B2-03/B2-04/B2-05/B2-GATE 状态。

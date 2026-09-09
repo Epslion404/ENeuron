@@ -11,6 +11,7 @@
 #define TX_BUFFER_BASE 0x01006000U
 #define RX_BUFFER_BASE 0x01007000U
 #define STATUS_BASE 0x01008000U
+#define WRAP_STATUS_BASE 0x01008280U
 #define MAX_FRAME_BYTES 4096U
 #define BUFFER_ALIGNMENT 64U
 #define POLL_INTERVAL_US 1U
@@ -25,6 +26,10 @@
 #define BACKPRESSURE_FRAME_COUNT 64U
 #define BACKPRESSURE_LENGTHS {1U, 4U, 16U, 64U, 512U, 1472U, 4096U}
 #define BACKPRESSURE_CONFIG 0x04030201U
+#define WRAP_FRAME_COUNT 256U
+#define WRAP_SLOT_BYTES 64U
+#define WRAP_SLOT_COUNT 64U
+#define WRAP_LENGTHS {1U, 4U, 16U, 64U}
 
 #if defined(XPAR_AXIS_STREAM_PROBE_MM2S_BASEADDR)
 #define MONITOR_MM2S_BASE XPAR_AXIS_STREAM_PROBE_MM2S_BASEADDR
@@ -104,6 +109,22 @@ struct dma_snapshot {
     u32 backpressure_stall_cycles;
 };
 
+struct wrap_snapshot {
+    u32 wrap_status;
+    u32 wrap_total;
+    u32 wrap_passed;
+    u32 wrap_failed;
+    u32 wrap_crc32;
+    u32 wrap_last_sequence;
+    u32 wrap_slot_mask_lo;
+    u32 wrap_slot_mask_hi;
+    u32 wrap_rollovers;
+    u32 wrap_first_tx_address;
+    u32 wrap_first_rx_address;
+    u32 wrap_last_tx_address;
+    u32 wrap_last_rx_address;
+};
+
 struct frame_ledger {
     u32 sequence;
     u32 length_bytes;
@@ -145,6 +166,8 @@ struct monitor_status {
 
 static volatile struct dma_snapshot *const snapshot =
     (volatile struct dma_snapshot *)STATUS_BASE;
+static volatile struct wrap_snapshot *const wrap_snapshot_state =
+    (volatile struct wrap_snapshot *)WRAP_STATUS_BASE;
 static volatile struct frame_ledger *const ledger =
     (volatile struct frame_ledger *)STATUS_LEDGER_BASE;
 static volatile struct monitor_status *const monitor_status =
@@ -154,6 +177,7 @@ static XAxiDma dma;
 static UINTPTR dma_base;
 static int pressure_mode;
 static int backpressure_mode;
+static int wrap_mode;
 
 enum {
     SNAPSHOT_RUNNING = 1U,
@@ -284,10 +308,11 @@ static void record_ledger(u32 slot, u32 sequence, u32 length, u32 status,
     memory_barrier();
 }
 
-static int run_one_frame(u32 sequence, u32 length, u32 slot)
+static int run_one_frame_at(u32 sequence, u32 length, u32 slot,
+                            UINTPTR tx_address, UINTPTR rx_address)
 {
-    volatile u8 *const tx = (volatile u8 *)TX_BUFFER_BASE;
-    volatile u8 *const rx = (volatile u8 *)RX_BUFFER_BASE;
+    volatile u8 *const tx = (volatile u8 *)tx_address;
+    volatile u8 *const rx = (volatile u8 *)rx_address;
     u32 index;
     u32 elapsed = 0U;
     u32 status;
@@ -297,8 +322,8 @@ static int run_one_frame(u32 sequence, u32 length, u32 slot)
 
     snapshot->sequence = sequence;
     snapshot->length_bytes = length;
-    snapshot->tx_address = TX_BUFFER_BASE;
-    snapshot->rx_address = RX_BUFFER_BASE;
+    snapshot->tx_address = (u32)tx_address;
+    snapshot->rx_address = (u32)rx_address;
     snapshot->cache_flush_tx = 0U;
     snapshot->cache_invalidate_rx = 0U;
     monitor_reset(MONITOR_MM2S_BASE);
@@ -324,18 +349,18 @@ static int run_one_frame(u32 sequence, u32 length, u32 slot)
         tx[index] = (u8)(sequence + index * 3U + 0x11U);
         rx[index] = 0U;
     }
-    Xil_DCacheFlushRange(TX_BUFFER_BASE, length);
+    Xil_DCacheFlushRange(tx_address, length);
     snapshot->cache_flush_tx = 1U;
-    Xil_DCacheInvalidateRange(RX_BUFFER_BASE, length);
+    Xil_DCacheInvalidateRange(rx_address, length);
     snapshot->cache_invalidate_rx = 1U;
 
     /* 合同要求先让 S2MM 接收端拥有 RX，再提交 MM2S 发送端。 */
-    status = XAxiDma_SimpleTransfer(&dma, RX_BUFFER_BASE, length,
+    status = XAxiDma_SimpleTransfer(&dma, rx_address, length,
                                     XAXIDMA_DEVICE_TO_DMA);
     if (status != XST_SUCCESS) {
         return fail("submit_s2mm");
     }
-    status = XAxiDma_SimpleTransfer(&dma, TX_BUFFER_BASE, length,
+    status = XAxiDma_SimpleTransfer(&dma, tx_address, length,
                                     XAXIDMA_DMA_TO_DEVICE);
     if (status != XST_SUCCESS) {
         return fail("submit_mm2s");
@@ -361,7 +386,7 @@ static int run_one_frame(u32 sequence, u32 length, u32 slot)
     monitor_capture(MONITOR_MM2S_BASE, mm2s);
     monitor_capture(MONITOR_S2MM_BASE, s2mm);
 
-    if (backpressure_mode) {
+    if (backpressure_mode || wrap_mode) {
         u32 expected_beats = (length + 3U) / 4U;
         u32 tail_bytes = length & 3U;
         u32 expected_tkeep = tail_bytes == 0U ? 0xFU : ((1U << tail_bytes) - 1U);
@@ -375,11 +400,13 @@ static int run_one_frame(u32 sequence, u32 length, u32 slot)
             s2mm->last_tkeep != expected_tkeep) {
             return fail("stream_observation_mismatch");
         }
-        snapshot->backpressure_stall_cycles +=
-            mm2s->total_stall_cycles_lo + s2mm->total_stall_cycles_lo;
+        if (backpressure_mode) {
+            snapshot->backpressure_stall_cycles +=
+                mm2s->total_stall_cycles_lo + s2mm->total_stall_cycles_lo;
+        }
     }
 
-    Xil_DCacheInvalidateRange(RX_BUFFER_BASE, length);
+    Xil_DCacheInvalidateRange(rx_address, length);
     snapshot->cache_invalidate_rx = 2U;
     for (index = 0U; index < length; ++index) {
         u8 expected = (u8)(sequence + index * 3U + 0x11U);
@@ -400,17 +427,45 @@ static int run_one_frame(u32 sequence, u32 length, u32 slot)
         ++snapshot->backpressure_passed;
         snapshot->backpressure_crc32 ^= expected_crc;
         snapshot->backpressure_last_sequence = sequence;
+    } else if (wrap_mode) {
+        u32 wrap_slot = ((u32)tx_address - TX_BUFFER_BASE) /
+                        WRAP_SLOT_BYTES;
+        ++wrap_snapshot_state->wrap_passed;
+        wrap_snapshot_state->wrap_crc32 ^= expected_crc;
+        wrap_snapshot_state->wrap_last_sequence = sequence;
+        if (wrap_snapshot_state->wrap_passed == 1U) {
+            wrap_snapshot_state->wrap_first_tx_address = (u32)tx_address;
+            wrap_snapshot_state->wrap_first_rx_address = (u32)rx_address;
+        }
+        if (wrap_snapshot_state->wrap_passed > 1U &&
+            wrap_slot == 0U) {
+            ++wrap_snapshot_state->wrap_rollovers;
+        }
+        wrap_snapshot_state->wrap_last_tx_address = (u32)tx_address;
+        wrap_snapshot_state->wrap_last_rx_address = (u32)rx_address;
+        if (wrap_slot < 32U) {
+            wrap_snapshot_state->wrap_slot_mask_lo |= 1U << wrap_slot;
+        } else if (wrap_slot < WRAP_SLOT_COUNT) {
+            wrap_snapshot_state->wrap_slot_mask_hi |=
+                1U << (wrap_slot - 32U);
+        }
     } else {
         ++snapshot->frames_passed;
     }
     capture_registers();
     snapshot->status = SNAPSHOT_PASS;
     memory_barrier();
-    if (!pressure_mode && !backpressure_mode) {
+    if (!pressure_mode && !backpressure_mode && !wrap_mode) {
         xil_printf("B2_DMA_PASS sequence=%u length=%u crc32=0x%08x elapsed_us=%u\r\n",
                    sequence, length, expected_crc, elapsed);
     }
     return XST_SUCCESS;
+}
+
+static int run_one_frame(u32 sequence, u32 length, u32 slot)
+{
+    return run_one_frame_at(sequence, length, slot, TX_BUFFER_BASE,
+                             RX_BUFFER_BASE);
 }
 
 static int run_pressure(void)
@@ -492,6 +547,83 @@ static int run_backpressure(void)
     return XST_SUCCESS;
 }
 
+static int run_wrap(void)
+{
+    static const u32 wrap_lengths[4] = WRAP_LENGTHS;
+    u32 index;
+
+    wrap_snapshot_state->wrap_status = SNAPSHOT_RUNNING;
+    wrap_snapshot_state->wrap_total = WRAP_FRAME_COUNT;
+    wrap_snapshot_state->wrap_passed = 0U;
+    wrap_snapshot_state->wrap_failed = 0U;
+    wrap_snapshot_state->wrap_crc32 = 0U;
+    wrap_snapshot_state->wrap_last_sequence = 0U;
+    wrap_snapshot_state->wrap_slot_mask_lo = 0U;
+    wrap_snapshot_state->wrap_slot_mask_hi = 0U;
+    wrap_snapshot_state->wrap_rollovers = 0U;
+    wrap_snapshot_state->wrap_first_tx_address = 0U;
+    wrap_snapshot_state->wrap_first_rx_address = 0U;
+    wrap_snapshot_state->wrap_last_tx_address = 0U;
+    wrap_snapshot_state->wrap_last_rx_address = 0U;
+    memory_barrier();
+
+    pressure_mode = 0;
+    backpressure_mode = 0;
+    wrap_mode = 1;
+    /* 回绕切片独立于背压切片，避免沿用上一阶段的 stall 配置。 */
+    monitor_configure_backpressure(MONITOR_S2MM_BASE, 0U);
+    for (index = 0U; index < WRAP_FRAME_COUNT; ++index) {
+        u32 slot = index % WRAP_SLOT_COUNT;
+        u32 length = wrap_lengths[index % 4U];
+        UINTPTR tx_address = TX_BUFFER_BASE + slot * WRAP_SLOT_BYTES;
+        UINTPTR rx_address = RX_BUFFER_BASE + slot * WRAP_SLOT_BYTES;
+        u32 sequence = FRAME_COUNT + PRESSURE_FRAME_COUNT +
+                       BACKPRESSURE_FRAME_COUNT + 1U + index;
+
+        if (length > WRAP_SLOT_BYTES ||
+            tx_address + length > TX_BUFFER_BASE + MAX_FRAME_BYTES ||
+            rx_address + length > RX_BUFFER_BASE + MAX_FRAME_BYTES ||
+            run_one_frame_at(sequence, length, FRAME_COUNT, tx_address,
+                             rx_address) != XST_SUCCESS) {
+            ++wrap_snapshot_state->wrap_failed;
+            wrap_mode = 0;
+            wrap_snapshot_state->wrap_status = SNAPSHOT_FAIL;
+            memory_barrier();
+            return XST_FAILURE;
+        }
+    }
+    wrap_mode = 0;
+    if (wrap_snapshot_state->wrap_passed != WRAP_FRAME_COUNT ||
+        wrap_snapshot_state->wrap_slot_mask_lo != 0xFFFFFFFFU ||
+        wrap_snapshot_state->wrap_slot_mask_hi != 0xFFFFFFFFU ||
+        wrap_snapshot_state->wrap_rollovers != 3U ||
+        wrap_snapshot_state->wrap_first_tx_address != TX_BUFFER_BASE ||
+        wrap_snapshot_state->wrap_first_rx_address != RX_BUFFER_BASE ||
+        wrap_snapshot_state->wrap_last_tx_address !=
+            TX_BUFFER_BASE + (WRAP_SLOT_COUNT - 1U) * WRAP_SLOT_BYTES ||
+        wrap_snapshot_state->wrap_last_rx_address !=
+            RX_BUFFER_BASE + (WRAP_SLOT_COUNT - 1U) * WRAP_SLOT_BYTES) {
+        ++wrap_snapshot_state->wrap_failed;
+        wrap_snapshot_state->wrap_status = SNAPSHOT_FAIL;
+        memory_barrier();
+        return fail("wrap_observation_mismatch");
+    }
+    wrap_snapshot_state->wrap_status = SNAPSHOT_PASS;
+    memory_barrier();
+    xil_printf("B2_WRAP_PASS frames=%u crc32=0x%08x last_sequence=%u "
+               "slot_mask_lo=0x%08x slot_mask_hi=0x%08x rollovers=%u "
+               "first_tx=0x%08x last_tx=0x%08x\r\n",
+               wrap_snapshot_state->wrap_passed,
+               wrap_snapshot_state->wrap_crc32,
+               wrap_snapshot_state->wrap_last_sequence,
+               wrap_snapshot_state->wrap_slot_mask_lo,
+               wrap_snapshot_state->wrap_slot_mask_hi,
+               wrap_snapshot_state->wrap_rollovers,
+               wrap_snapshot_state->wrap_first_tx_address,
+               wrap_snapshot_state->wrap_last_tx_address);
+    return XST_SUCCESS;
+}
+
 int main(void)
 {
     XAxiDma_Config *config;
@@ -522,6 +654,19 @@ int main(void)
     snapshot->backpressure_crc32 = 0U;
     snapshot->backpressure_last_sequence = 0U;
     snapshot->backpressure_stall_cycles = 0U;
+    wrap_snapshot_state->wrap_status = 0U;
+    wrap_snapshot_state->wrap_total = 0U;
+    wrap_snapshot_state->wrap_passed = 0U;
+    wrap_snapshot_state->wrap_failed = 0U;
+    wrap_snapshot_state->wrap_crc32 = 0U;
+    wrap_snapshot_state->wrap_last_sequence = 0U;
+    wrap_snapshot_state->wrap_slot_mask_lo = 0U;
+    wrap_snapshot_state->wrap_slot_mask_hi = 0U;
+    wrap_snapshot_state->wrap_rollovers = 0U;
+    wrap_snapshot_state->wrap_first_tx_address = 0U;
+    wrap_snapshot_state->wrap_first_rx_address = 0U;
+    wrap_snapshot_state->wrap_last_tx_address = 0U;
+    wrap_snapshot_state->wrap_last_rx_address = 0U;
     for (index = 0U; index < FRAME_COUNT; ++index) {
         record_ledger(index, index + 1U, 0U, SNAPSHOT_RUNNING, 0U, 0U, 0U,
                       &empty_monitor, &empty_monitor);
@@ -570,6 +715,10 @@ int main(void)
         return XST_FAILURE;
     }
 
+    if (run_wrap() != XST_SUCCESS) {
+        return XST_FAILURE;
+    }
+
     snapshot->status = SNAPSHOT_PASS;
     memory_barrier();
     xil_printf("B2_DMA_PASS frames=%u rejected_zero=%u\r\n",
@@ -585,6 +734,17 @@ int main(void)
                    snapshot->backpressure_passed, snapshot->backpressure_crc32,
                    snapshot->backpressure_last_sequence,
                    snapshot->backpressure_stall_cycles);
+        xil_printf("B2_WRAP_PASS frames=%u crc32=0x%08x last_sequence=%u "
+                   "slot_mask_lo=0x%08x slot_mask_hi=0x%08x rollovers=%u "
+                   "first_tx=0x%08x last_tx=0x%08x\r\n",
+                   wrap_snapshot_state->wrap_passed,
+                   wrap_snapshot_state->wrap_crc32,
+                   wrap_snapshot_state->wrap_last_sequence,
+                   wrap_snapshot_state->wrap_slot_mask_lo,
+                   wrap_snapshot_state->wrap_slot_mask_hi,
+                   wrap_snapshot_state->wrap_rollovers,
+                   wrap_snapshot_state->wrap_first_tx_address,
+                   wrap_snapshot_state->wrap_last_tx_address);
         xil_printf("B2_DMA_PASS frames=%u rejected_zero=%u\r\n",
                    FRAME_COUNT - rejected_zero, rejected_zero);
         xil_printf("B2_DMA_ALIVE PASS\r\n");

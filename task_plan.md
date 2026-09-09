@@ -1,5 +1,14 @@
 # 2026-09-08 UART重分配 V14/V15
 
+## 2026-09-09 B2 连续回绕切片
+
+- [x] 先写回绕合同测试并取得 RED，再实现最小软件 ring-buffer 轮换路径。
+- [x] 固定 64 个、每槽 64-byte 对齐的 loopback slot，连续执行 256 帧，覆盖 4 KiB TX/RX 区并回到 slot 0。
+- [x] 新增独立 wrap 状态区 `0x01008280`；确认不覆盖 `0x01008080` 起始的 8 槽边界账本。
+- [x] runner/probe 纳入 wrap marker、总数、失败数和 64-slot mask 的 fail-closed 判定。
+- [ ] 用当前同源 bit/XSA 重建 ELF，并在 `xc7z020clg484-2` 实板验证 256 帧回绕。
+- [ ] 归档实板证据、更新 B2-03/B2-04/B2-05 边界说明并提交 PR。
+
 - [x] 核对V14/V15未被当前B1A设计占用，并确认板厂例程将其作为LVCMOS并行RGB I/O使用。
 - [x] 历史初始裁定：`V14=UART_TX`、`V15=UART_RX`、LVCMOS33；该方向后续已被实板结果否决，正式基线见下方`V14=RX/V15=TX`记录。
 - [x] 修改B1A XDC、硬件README和阶段TODO；不修改历史来源审计事实。
