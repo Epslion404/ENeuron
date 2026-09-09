@@ -1,5 +1,12 @@
 # 调研与实验发现
 
+## 2026-09-09 B2 packet adapter 首条集成证据
+
+- `b2_packet_ingress` 的整帧缓存/CRC 校验、`npu_zynq7020_t1_wrapper` 的 Host↔NPU FIFO 和 `b2_packet_egress` 的 RESPONSE 封装可以在同一 Host/NPU 双时钟 testbench 中连通。
+- 公开测试使用 sequence=`0x11223344`、model=`0x55667788`、mask epoch=`0x99aabbcc` 的未知 opcode COMMAND；响应帧保留这些 header 元数据，错误 payload 的 `RSP_ERROR` 高位也保持不变。
+- wrapper 当前没有外层 packet boundary、response sequence/model sideband；因此 adapter 暂用“每个 response word 一帧 + 最近命令元数据”。这只证明最小错误响应路径，不能证明多 packet 并发、完整 result 关联或跨流顺序。
+- 下一条最小证据应是合法 model/fence/sample/result 路径；若继续支持并发 packet，需要在 wrapper 或 adapter 增加明确的元数据/完成边界合同，而不是依赖时序猜测。
+
 ## 2026-09-09 B2 物理构建门禁收口
 
 - `run_b2_build.ps1` 新增 `Assert-B2TimingGreen`，从 `timing_impl.rpt` 的 Design Timing Summary 解析 WNS/TNS/WHS/THS，并对 route errors 与 DRC Error/Critical Warning 做 fail-closed 检查；已知 warning/advisory 不被误判为硬错误。

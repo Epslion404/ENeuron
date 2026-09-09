@@ -1,5 +1,15 @@
 # 2026-09-08 UART重分配 V14/V15
 
+## 2026-09-09 B2 packet→wrapper 集成切片
+
+- [x] 先写 `b2_npu_packet_adapter` 公开接口合同并取得 RED。
+- [x] 接入 `ingress → T1 wrapper → egress` 最小路径；response word 独立成帧并回显最近命令元数据。
+- [x] 将适配器加入 T1 复现入口、变更分类和 manifest；Icarus 仿真输出 `B2_NPU_PACKET_ADAPTER_PASS`。
+- [ ] 增加多响应/多 packet 元数据关联，不能长期依赖“单个 outstanding packet”。
+- [ ] 接入 SAMPLE/FENCE/RESULT 端到端向量，再进入 B2-07/B2-08 完整错误和跨流账本。
+
+当前停止点：最小 response 错误帧路径已连通，但尚未形成可下载的 B2 packetizer bitstream；`B2-06` 仍为 `INTEGRATION_PENDING`。
+
 ## 2026-09-09 B2 连续回绕切片
 
 - [x] 先写回绕合同测试并取得 RED，再实现最小软件 ring-buffer 轮换路径。

@@ -1,5 +1,13 @@
 # 进度记录
 
+## 2026-09-09 B2 packet→wrapper 集成切片
+
+- 新增 `b2_npu_packet_adapter.sv`，在 Host 域组合 packet ingress/egress 与双时钟 T1 wrapper；wrapper 内部四条异步 FIFO和 `SAMPLE_FENCE` 语义保持不变。
+- 适配器测试先红后绿：一个带 sequence/model/mask 元数据的未知 opcode COMMAND，经真实 ingress、wrapper 和 egress 后，返回完整 RESPONSE 帧，CRC/TLAST/header 均通过；仿真标记为 `B2_NPU_PACKET_ADAPTER_PASS`。
+- 当前 adapter 为保守的单 outstanding packet 切片：wrapper 没有 response packet boundary 或 command metadata sideband，因此每个 response word 独立封帧，元数据暂取最近一次命令/样本；这不是 B2-GATE 的最终并发合同。
+- `tools/repro/verify_repository.py --t1` 已纳入该 testbench，结果为 `REPRO_G0_MANIFEST_PASS`、`REPRO_G1_T1_PROTOCOL_SLICE_PASS`。
+- 变更分类和 repro manifest 已同步；未修改用户已有的 `artifacts/results/rtl_smoke_results.json` 及日志。
+
 ## 2026-09-08 B1-D1批准与B1B启动
 
 - 用户批准`bare-metal + lwIP`。执行范围收敛为先完成JTAG下载、UART banner和DDR小范围测试；lwIP/PHY/UDP留到B1C。

@@ -57,6 +57,11 @@ def _run_t1() -> list[str]:
             ("tb_npu_zynq7020_t1_fence_accept", "tb_npu_zynq7020_t1_fence_accept.sv", "T1_FENCE_ACCEPT_PASS", common_sources),
             ("tb_b2_packet_ingress", "tb_b2_packet_ingress.sv", "B2_PACKET_INGRESS_PASS", ["b2_packet_ingress.sv"]),
             ("tb_b2_packet_egress", "tb_b2_packet_egress.sv", "B2_PACKET_EGRESS_PASS", ["b2_packet_egress.sv"]),
+            ("tb_b2_npu_packet_adapter", "tb_b2_npu_packet_adapter.sv", "B2_NPU_PACKET_ADAPTER_PASS", [
+                "xpm_fifo_async_sim.sv", "npu_eneuron_single_clock_skeleton.sv",
+                "npu_zynq7020_t1_wrapper.sv", "b2_packet_ingress.sv",
+                "b2_packet_egress.sv", "b2_npu_packet_adapter.sv",
+            ]),
         ]
         for top, testbench, marker, sources in cases:
             output = Path(temp) / f"{top}.vvp"
