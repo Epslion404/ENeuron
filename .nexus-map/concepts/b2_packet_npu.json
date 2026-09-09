@@ -1,0 +1,53 @@
+{
+  "$schema": "nexus-mapper/concept-model/v1",
+  "verified_at": "2026-09-10",
+  "label": "B2 packet-NPU integration",
+  "deployment_target_part": "xc7z020clg484-2",
+  "source_head": "1d0e3ba",
+  "commits": {
+    "adapter": "cb9eb66",
+    "adapter_e2e": "62f2d8b",
+    "bd_integration": "ea35d74",
+    "verilog_bd_reference": "1d0e3ba"
+  },
+  "rtl": {
+    "adapter": "b2_npu_packet_adapter.sv",
+    "axis_top": "boards/hellozynq/b2_hw/b2_npu_axis_top.v",
+    "bd_scripts": [
+      "boards/hellozynq/b2_hw/create_b2_bd.tcl",
+      "boards/hellozynq/b2_hw/build_b2.tcl",
+      "boards/hellozynq/b2_hw/run_b2_build.ps1"
+    ]
+  },
+  "contract_evidence": {
+    "B2_NPU_PACKET_ADAPTER_PASS": {
+      "test": "test_b2_npu_packet_adapter_contract.py",
+      "result": "4/4 PASS",
+      "scope": "ingress -> T1 wrapper -> egress response path"
+    },
+    "B2_NPU_PACKET_ADAPTER_E2E_PASS": {
+      "test": "test_b2_npu_packet_adapter_e2e_contract.py",
+      "result": "3/3 PASS",
+      "scope": "mask/fence/sample/result packetized path"
+    },
+    "B2_NPU_AXIS_TOP_CONTRACT_PASS": {
+      "test": "test_b2_npu_axis_top_contract.py",
+      "result": "3/3 PASS",
+      "scope": "B2 BD top-level Verilog reference and packet-NPU wiring"
+    }
+  },
+  "physical_build": {
+    "status": "STALE_PRE_PACKET_TOP_BUILD",
+    "artifact_dir": "boards/hellozynq/b2_hw/build/",
+    "artifact_git_head": "b2332a0",
+    "artifact_part": "xc7z020clg484-2",
+    "timing_gate": "PASS_WNS_0.179_WHS_0.006_TNS_0_THS_0_ROUTE_ERRORS_0_DRC_HARD_ERRORS_0",
+    "boundary": "Artifacts predate ea35d74/1d0e3ba; no routed, bitstream, XSA, or board evidence exists yet for the packet-NPU top."
+  },
+  "next_gate": "Rebuild Vivado B2 from source_head 1d0e3ba, inspect routed timing/DRC, then program and validate packet path on the target board.",
+  "forbidden_claims": [
+    "packet-NPU top physically signed off",
+    "packet path validated on board",
+    "ENeuron pruning speedup or power gain measured"
+  ]
+}

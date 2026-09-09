@@ -1,0 +1,34 @@
+﻿{
+    "schema_version":  1,
+    "generated_at":  "2026-09-09T05:24:25.9150364Z",
+    "git_head":  "a404a8efe72babce623651dc7c6a04501e2713e6",
+    "git_worktree_clean":  false,
+    "vivado":  "vivado v2024.1 (64-bit)",
+    "part":  "xc7z020clg484-2",
+    "top":  "design_1_wrapper",
+    "source_sha256":  {
+                          "create_b2_bd.tcl":  "c60e8ec198bf11a91f2a4a3d9e8e32b86cb8c6d6ae274166b5a125375fad009d",
+                          "build_b2.tcl":  "49a1ea9e84a49ea666d1654a1c76af35be508f4182e56f7934cf0f6c18924a8c",
+                          "run_b2_build.ps1":  "ef4c566b65e905ea667693d28bb505cb68643a4c6780ba07e47fd5ea5cc5d20b"
+                      },
+    "bitstream_sha256":  "b76541819ce5b92eb551ec4f5633a830b0491a4cb3613e79403d037e9471bfa8",
+    "xsa_sha256":  "3fdce6aaf369eb58637dccbd5e6c639fab30fd8ed8eea9a7141b740fe472a774",
+    "reports_sha256":  {
+                           "utilization_impl":  "935996bdf78070843f0a5946fc4785e80d0ff3cb28d7db1eb3ea13d95541ecea",
+                           "timing_impl":  "153a974d28045f0b9ebc0944572be74e69657b87b3d78b005265f82d05df6038",
+                           "route_status_impl":  "d60f0f6cfd3fb2da8cbdbe110c312cb56cf0cf56c04b8ac4512ff8142523c549",
+                           "drc_impl":  "14e648784003a9f5f3d9ac7bc1a210470f88d9fcf6c43a47ef78da181c0d991d"
+                       },
+    "signoff":  {
+                    "B2_BUILD_HEAD":  "a404a8efe72babce623651dc7c6a04501e2713e6",
+                    "B2_PART":  "xc7z020clg484-2",
+                    "B2_TOP":  "design_1_wrapper",
+                    "B2_DMA_MODE":  "SIMPLE_POLLING",
+                    "B2_DMA_SG":  "0",
+                    "B2_DMA_STREAM_WIDTH":  "32",
+                    "B2_DMA_MEMORY_WIDTH":  "64",
+                    "B2_DMA_LOOPBACK":  "MM2S_TO_S2MM_DIRECT",
+                    "B2_BITSTREAM":  "D:/Documents/Code/ENeuron-board-b0/boards/hellozynq/b2_hw/build/hello_zynq_b2.bit",
+                    "B2_XSA":  "D:/Documents/Code/ENeuron-board-b0/boards/hellozynq/b2_hw/build/hello_zynq_b2.xsa"
+                }
+}

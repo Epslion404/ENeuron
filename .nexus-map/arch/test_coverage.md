@@ -55,3 +55,7 @@ T3 已完成并通过。真实 AMD XPM/xsim 报告 `vivado_npu_zynq7020_t3_xsim/
 
 OF4g 修正 `committed` 模型冻结边界，OF5 验证模型/mask/runtime hard reset 丢弃 staging、结果和冻结状态并恢复 `epoch=0`、全开 mask、`model_valid=0`；OF6 对 OF1-OF5 做最终汇总，`test_npu_eneuron_reference.py` 为 48/48、CI-Fast 为 8/8，曾合并至 `main@0982ac5`。该段保留作为协议签核历史；当前权威状态以上方“当前签核门”和 DSP V1 manifest 为准。
 B2 missing-TLAST 覆盖（2026-09-09）：正式 run `20260909T133721Z`（HEAD `b2332a0`）在 COM10 实板通过 UART/JTAG/XSCT；missing_tlast observed=1，DMA error/reset/recovered/failed=1/1/1/0，注入/恢复 sequence=10332/10333，MM2S/S2MM TLAST=0/0、beats=16/16，recovery sequence=10329 保持不变。该切片为 `B2_MISSING_TLAST_PASS`，但 B2-06/B2-08/B2-GATE 仍未完成。
+
+B2 packet-NPU 适配器切片（2026-09-10）：提交 `cb9eb66` 的 `b2_npu_packet_adapter.sv` 完成 ingress→T1 wrapper→egress 的 response 基础路径，提交 `62f2d8b` 新增合法 `mask/fence/sample/result` 端到端切片；本机合同测试分别为 4/4、3/3，状态为 `B2_NPU_PACKET_ADAPTER_PASS` 与 `B2_NPU_PACKET_ADAPTER_E2E_PASS`。覆盖仍限于 RTL/Icarus 合同，不是板级证据；B2-07 完整错误矩阵、B2-08 计数账本和 packet path 实板验证仍待完成。
+
+B2 packet 顶层与物理构建边界（2026-09-10）：提交 `ea35d74` 将 `b2_npu_axis_top` 接入 B2 BD，提交 `1d0e3ba` 将源文件固定为 `boards/hellozynq/b2_hw/b2_npu_axis_top.v` 并采用 Verilog BD reference；`test_b2_npu_axis_top_contract.py` 为 3/3。本地 `boards/hellozynq/b2_hw/build/` 现有 bit/XSA/报告仍绑定旧 HEAD `b2332a0`，不是 `1d0e3ba` 后的重建结果；因此只能记录为 `STALE_PRE_PACKET_TOP_BUILD`，不能宣称新 packet-NPU 顶层已通过 `xc7z020clg484-2` 物理门。
