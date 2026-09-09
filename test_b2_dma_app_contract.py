@@ -117,6 +117,18 @@ class B2DmaAppContractTests(unittest.TestCase):
         ):
             self.assertIn(token, self.board)
 
+    def test_controlled_backpressure_contract_is_present(self):
+        for token in (
+            "BACKPRESSURE_FRAME_COUNT",
+            "BACKPRESSURE_LENGTHS",
+            "backpressure_status",
+            "backpressure_stall_cycles",
+            "B2_BACKPRESSURE_PASS",
+            "B2_BACKPRESSURE_PASS",
+        ):
+            self.assertIn(token, self.source)
+        self.assertIn("B2_BACKPRESSURE_PASS", self.board)
+
 
 if __name__ == "__main__":
     unittest.main()

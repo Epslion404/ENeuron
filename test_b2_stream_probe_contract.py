@@ -38,6 +38,10 @@ class B2StreamProbeContractTests(unittest.TestCase):
             "total_bytes",
             "tlast_count",
             "last_tkeep",
+            "BACKPRESSURE_ADDR",
+            "backpressure_config",
+            "forced_stall",
+            "apply_stall",
             "cycle_count",
             "stall_count",
             "starve_count",
@@ -61,6 +65,7 @@ class B2StreamProbeContractTests(unittest.TestCase):
             "_LAST_TKEEP=",
             "B2_PROBE_READ=UNAVAILABLE",
             "mrd -force -value",
+            "_CONFIG=",
         ):
             self.assertIn(token, self.state_probe)
 

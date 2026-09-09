@@ -137,7 +137,8 @@ try {
         if ($chunk.Length -gt 0) {
             [void]$received.Append($chunk)
             Write-Host -NoNewline $chunk
-            if ($received.ToString().Contains('B2_PRESSURE_PASS') -or
+            if (($received.ToString().Contains('B2_PRESSURE_PASS') -and
+                 $received.ToString().Contains('B2_BACKPRESSURE_PASS')) -or
                 $received.ToString().Contains('B2_DMA_FAIL')) { break }
         }
         Start-Sleep -Milliseconds 50

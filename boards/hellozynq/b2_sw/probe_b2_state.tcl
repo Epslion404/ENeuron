@@ -30,6 +30,13 @@ puts "B2_STATUS_PRESSURE_PASSED=[mrd -value 0x01008054]"
 puts "B2_STATUS_PRESSURE_FAILED=[mrd -value 0x01008058]"
 puts "B2_STATUS_PRESSURE_CRC=[mrd -value 0x0100805C]"
 puts "B2_STATUS_PRESSURE_LAST_SEQUENCE=[mrd -value 0x01008060]"
+puts "B2_STATUS_BACKPRESSURE_STATUS=[mrd -value 0x01008064]"
+puts "B2_STATUS_BACKPRESSURE_TOTAL=[mrd -value 0x01008068]"
+puts "B2_STATUS_BACKPRESSURE_PASSED=[mrd -value 0x0100806C]"
+puts "B2_STATUS_BACKPRESSURE_FAILED=[mrd -value 0x01008070]"
+puts "B2_STATUS_BACKPRESSURE_CRC=[mrd -value 0x01008074]"
+puts "B2_STATUS_BACKPRESSURE_LAST_SEQUENCE=[mrd -value 0x01008078]"
+puts "B2_STATUS_BACKPRESSURE_STALL_CYCLES=[mrd -value 0x0100807C]"
 puts "B2_TX_WORDS_BEGIN"
 for {set index 0} {$index < 16} {incr index} {
     set address [expr {0x01006000 + ($index * 4)}]
@@ -68,6 +75,7 @@ if {[catch {
 
 proc emit_probe_state {label base} {
     puts "${label}_BASE=[format 0x%08X $base]"
+    puts "${label}_CONFIG=[mrd -force -value [expr {$base + 0x04}]]"
     puts "${label}_SAMPLE=[mrd -force -value [expr {$base + 0x20}]]"
     puts "${label}_BEATS=[mrd -force -value [expr {$base + 0x50}]]"
     puts "${label}_TLAST=[mrd -force -value [expr {$base + 0x80}]]"

@@ -22,6 +22,9 @@
 #define FRAME_LENGTHS {0U, 1U, 4U, 16U, 64U, 512U, 1472U, 4096U}
 #define PRESSURE_FRAME_COUNT 10000U
 #define PRESSURE_LENGTHS {1U, 4U, 16U, 64U, 512U, 1472U, 4096U}
+#define BACKPRESSURE_FRAME_COUNT 64U
+#define BACKPRESSURE_LENGTHS {1U, 4U, 16U, 64U, 512U, 1472U, 4096U}
+#define BACKPRESSURE_CONFIG 0x04000201U
 
 #if defined(XPAR_AXIS_STREAM_PROBE_MM2S_BASEADDR)
 #define MONITOR_MM2S_BASE XPAR_AXIS_STREAM_PROBE_MM2S_BASEADDR
@@ -49,6 +52,7 @@
 #endif
 
 #define MONITOR_CONTROL_OFFSET 0x00U
+#define MONITOR_BACKPRESSURE_OFFSET 0x04U
 #define MONITOR_SAMPLE_OFFSET 0x20U
 #define MONITOR_TOTAL_DATA_BEATS_OFFSET 0x50U
 #define MONITOR_TOTAL_TLASTS_OFFSET 0x80U
@@ -91,6 +95,13 @@ struct dma_snapshot {
     u32 pressure_failed;
     u32 pressure_crc32;
     u32 pressure_last_sequence;
+    u32 backpressure_status;
+    u32 backpressure_total;
+    u32 backpressure_passed;
+    u32 backpressure_failed;
+    u32 backpressure_crc32;
+    u32 backpressure_last_sequence;
+    u32 backpressure_stall_cycles;
 };
 
 struct frame_ledger {
@@ -124,6 +135,7 @@ typedef struct monitor_snapshot {
     u32 total_stall_cycles_hi;
     u32 total_starve_cycles_lo;
     u32 total_starve_cycles_hi;
+    u32 last_tkeep;
 } monitor_snapshot;
 
 struct monitor_status {
@@ -141,6 +153,7 @@ static volatile struct monitor_status *const monitor_status =
 static XAxiDma dma;
 static UINTPTR dma_base;
 static int pressure_mode;
+static int backpressure_mode;
 
 enum {
     SNAPSHOT_RUNNING = 1U,
@@ -191,6 +204,12 @@ static void monitor_reset(UINTPTR base)
     memory_barrier();
 }
 
+static void monitor_configure_backpressure(UINTPTR base, u32 config)
+{
+    Xil_Out32(base + MONITOR_BACKPRESSURE_OFFSET, config);
+    memory_barrier();
+}
+
 static void monitor_capture(UINTPTR base, volatile monitor_snapshot *result)
 {
     (void)Xil_In32(base + MONITOR_SAMPLE_OFFSET);
@@ -205,6 +224,7 @@ static void monitor_capture(UINTPTR base, volatile monitor_snapshot *result)
     result->total_stall_cycles_hi = Xil_In32(base + MONITOR_TOTAL_STALL_CYCLES_OFFSET + 4U);
     result->total_starve_cycles_lo = Xil_In32(base + MONITOR_TOTAL_STARVE_CYCLES_OFFSET);
     result->total_starve_cycles_hi = Xil_In32(base + MONITOR_TOTAL_STARVE_CYCLES_OFFSET + 4U);
+    result->last_tkeep = Xil_In32(base + 0xA8U);
     memory_barrier();
 }
 
@@ -341,6 +361,24 @@ static int run_one_frame(u32 sequence, u32 length, u32 slot)
     monitor_capture(MONITOR_MM2S_BASE, mm2s);
     monitor_capture(MONITOR_S2MM_BASE, s2mm);
 
+    if (backpressure_mode) {
+        u32 expected_beats = (length + 3U) / 4U;
+        u32 tail_bytes = length & 3U;
+        u32 expected_tkeep = tail_bytes == 0U ? 0xFU : ((1U << tail_bytes) - 1U);
+        if (mm2s->total_beats != expected_beats ||
+            s2mm->total_beats != expected_beats ||
+            mm2s->total_data_bytes_lo != length ||
+            s2mm->total_data_bytes_lo != length ||
+            mm2s->total_tlasts_lo != 1U ||
+            s2mm->total_tlasts_lo != 1U ||
+            mm2s->last_tkeep != expected_tkeep ||
+            s2mm->last_tkeep != expected_tkeep) {
+            return fail("stream_observation_mismatch");
+        }
+        snapshot->backpressure_stall_cycles +=
+            mm2s->total_stall_cycles_lo + s2mm->total_stall_cycles_lo;
+    }
+
     Xil_DCacheInvalidateRange(RX_BUFFER_BASE, length);
     snapshot->cache_invalidate_rx = 2U;
     for (index = 0U; index < length; ++index) {
@@ -358,13 +396,17 @@ static int run_one_frame(u32 sequence, u32 length, u32 slot)
         ++snapshot->pressure_passed;
         snapshot->pressure_crc32 ^= expected_crc;
         snapshot->pressure_last_sequence = sequence;
+    } else if (backpressure_mode) {
+        ++snapshot->backpressure_passed;
+        snapshot->backpressure_crc32 ^= expected_crc;
+        snapshot->backpressure_last_sequence = sequence;
     } else {
         ++snapshot->frames_passed;
     }
     capture_registers();
     snapshot->status = SNAPSHOT_PASS;
     memory_barrier();
-    if (!pressure_mode) {
+    if (!pressure_mode && !backpressure_mode) {
         xil_printf("B2_DMA_PASS sequence=%u length=%u crc32=0x%08x elapsed_us=%u\r\n",
                    sequence, length, expected_crc, elapsed);
     }
@@ -405,6 +447,46 @@ static int run_pressure(void)
     return XST_SUCCESS;
 }
 
+static int run_backpressure(void)
+{
+    static const u32 backpressure_lengths[7] = BACKPRESSURE_LENGTHS;
+    u32 index;
+
+    snapshot->backpressure_status = SNAPSHOT_RUNNING;
+    snapshot->backpressure_total = BACKPRESSURE_FRAME_COUNT;
+    snapshot->backpressure_passed = 0U;
+    snapshot->backpressure_failed = 0U;
+    snapshot->backpressure_crc32 = 0U;
+    snapshot->backpressure_last_sequence = 0U;
+    snapshot->backpressure_stall_cycles = 0U;
+    memory_barrier();
+
+    pressure_mode = 0;
+    backpressure_mode = 1;
+    monitor_configure_backpressure(MONITOR_S2MM_BASE, BACKPRESSURE_CONFIG);
+    for (index = 0U; index < BACKPRESSURE_FRAME_COUNT; ++index) {
+        u32 sequence = FRAME_COUNT + PRESSURE_FRAME_COUNT + 1U + index;
+        u32 length = backpressure_lengths[index % 7U];
+        if (run_one_frame(sequence, length, FRAME_COUNT) != XST_SUCCESS) {
+            ++snapshot->backpressure_failed;
+            backpressure_mode = 0;
+            monitor_configure_backpressure(MONITOR_S2MM_BASE, 0U);
+            snapshot->backpressure_status = SNAPSHOT_FAIL;
+            memory_barrier();
+            return XST_FAILURE;
+        }
+    }
+    backpressure_mode = 0;
+    monitor_configure_backpressure(MONITOR_S2MM_BASE, 0U);
+    snapshot->backpressure_status = SNAPSHOT_PASS;
+    memory_barrier();
+    xil_printf("B2_BACKPRESSURE_PASS frames=%u crc32=0x%08x last_sequence=%u stall_cycles=%u\r\n",
+               snapshot->backpressure_passed, snapshot->backpressure_crc32,
+               snapshot->backpressure_last_sequence,
+               snapshot->backpressure_stall_cycles);
+    return XST_SUCCESS;
+}
+
 int main(void)
 {
     XAxiDma_Config *config;
@@ -428,6 +510,13 @@ int main(void)
     snapshot->pressure_failed = 0U;
     snapshot->pressure_crc32 = 0U;
     snapshot->pressure_last_sequence = 0U;
+    snapshot->backpressure_status = 0U;
+    snapshot->backpressure_total = 0U;
+    snapshot->backpressure_passed = 0U;
+    snapshot->backpressure_failed = 0U;
+    snapshot->backpressure_crc32 = 0U;
+    snapshot->backpressure_last_sequence = 0U;
+    snapshot->backpressure_stall_cycles = 0U;
     for (index = 0U; index < FRAME_COUNT; ++index) {
         record_ledger(index, index + 1U, 0U, SNAPSHOT_RUNNING, 0U, 0U, 0U,
                       &empty_monitor, &empty_monitor);
@@ -469,6 +558,10 @@ int main(void)
     }
 
     if (run_pressure() != XST_SUCCESS) {
+        return XST_FAILURE;
+    }
+
+    if (run_backpressure() != XST_SUCCESS) {
         return XST_FAILURE;
     }
 
