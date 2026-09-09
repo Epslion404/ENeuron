@@ -3,13 +3,14 @@
   "verified_at": "2026-09-10",
   "label": "B2 packet-NPU integration",
   "deployment_target_part": "xc7z020clg484-2",
-  "source_head": "f4827e20b1d7ecf59c14238738b2d71c5a07f662",
+  "source_head": "195e6e7fceaba054d9cc90d19411bd7a4a9108d2",
   "commits": {
     "adapter": "cb9eb66",
     "adapter_e2e": "62f2d8b",
     "bd_integration": "ea35d74",
     "verilog_bd_reference": "1d0e3ba",
-    "packet_memory_probe": "f4827e2"
+    "packet_memory_probe": "f4827e2",
+    "command_fifo_timing_slice": "195e6e7"
   },
   "rtl": {
     "adapter": "b2_npu_packet_adapter.sv",
@@ -89,7 +90,7 @@
     "timing_gate": "PASS_WNS_0.179_WHS_0.006_TNS_0_THS_0_ROUTE_ERRORS_0_DRC_HARD_ERRORS_0",
     "boundary": "Artifacts predate ea35d74/1d0e3ba; no routed, bitstream, XSA, or board evidence exists yet for the packet-NPU top."
   },
-  "next_gate": "Rebuild Vivado B2 from current source_head f4827e2, inspect routed timing/DRC, then program and validate packet path on the target board.",
+  "next_gate": "Rebuild Vivado B2 from current source_head 195e6e7, inspect routed timing/DRC, then program and validate packet path on the target board.",
   "forbidden_claims": [
     "packet-NPU top physically signed off",
     "packet path validated on board",
