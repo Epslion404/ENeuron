@@ -37,7 +37,7 @@ run-2归档位于 `artifacts/logs/hellozynq_b0/20260907T152656Z_df16ed6c_run2_ma
 最终阶段门仍按B1→B2→B3→B4串行；实现进入主线采用Fastlane V1。B1拆为B1A板级事实/可重建硬件定义、B1B PS7/UART/DDR、B1C PHY/UDP，每段定向验证后即可合并，但只有B1C最终摘要满足全部条件才标记B1-GATE通过。相同RTL/XDC/BD/Tcl/IP身份不重复跑Vivado，软件和文档修改只跑受影响门。
 
 - **B1：PS7、DDR、UART、PHY、最小 UDP。** 入口只接受主线上的 `B0-GATE=PASS`。先冻结 PS7/DDR/引脚和启动合同，再以 UART 冷启动、DDR 零错误、PHY/千兆链路、三档 UDP 和拔插恢复关闭本门；B1 不表示 NPU 已接入。
-- **B2：AXI DMA 与固定帧协议。** 入口只接受 `B1-GATE=PASS`。先以 AXI DMA simple mode + polling、PL loopback 和明确的 DDR/cache 所有权打通真实双向搬运，再实现 packetizer/depacketizer、TLAST/错误/复位和四流 fence 计数；通过前不报告剪枝加速。
+- **B2：AXI DMA 与固定帧协议。** 低地址 B2-MVP 可在 `B1A=PASS + B1B低地址1 MiB三次冷启动=PASS` 且布局合同冻结后先行；完整网络化 B2 仍受 `B1-GATE=PASS` 约束。先以 AXI DMA simple mode + polling、PL loopback 和明确的 DDR/cache 所有权打通真实双向搬运，再实现 packetizer/depacketizer、TLAST/错误/复位和四流 fence 计数；通过前不报告剪枝加速。当前 loopback 已完成 Vivado implementation 和 Vitis standalone 构建，但尚未实板传输。
 - **B3：传统 NPU + ENeuron 固定向量。** 入口只接受 `B2-GATE=PASS`。保持 `64→32→10`、634 model words、8-beat sample、10-beat result 和四 DSP 合同，依次验证 dense、full-open、Host 静态 `2:4`、live-ENeuron，并覆盖 epoch 原子性、背压与复位恢复。
 - **B4：网口端到端 A/B。** 入口只接受 `B3-GATE=PASS`。固定同一 bitstream、ELF、模型、样本、时钟和网络条件，对四种模式执行可重复 A/B；正确性先于性能，端到端结果必须拆分网口、软件、DMA、排队和 NPU 计算开销。没有合格外部测量链时写 `POWER_NOT_MEASURED`。
 
