@@ -14,7 +14,7 @@
     "qualification_execution_chain": ["B1-06B6_UART_BASELINE", "B1-06B7_OCM_HIGH_DDR_MINIMAL_REPRODUCTION"],
     "ddr_accesses_so_far": 0
   },
-  "status": "P16_B0_COMPLETE / FASTLANE_V1 / B1A_HW_DEFINITION_COMPLETE / B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DDR_PENDING / B2_00_LOW_ADDRESS_LAYOUT_FROZEN / B2_D1_DMA_CONTRACT_FROZEN / B2_01_BUFFER_OWNERSHIP_FROZEN / B2_DMA_SW_BUILD_READY / B2_BOUNDARY_AND_PRESSURE_JTAG_PASS_UART_PENDING",
+  "status": "P16_B0_COMPLETE / FASTLANE_V1 / B1A_HW_DEFINITION_COMPLETE / B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DDR_PENDING / B2_00_LOW_ADDRESS_LAYOUT_FROZEN / B2_D1_DMA_CONTRACT_FROZEN / B2_01_BUFFER_OWNERSHIP_FROZEN / B2_MATCHED_ARTIFACTS_AND_STREAM_PROBE_BOARD_PASS / B2_03_PENDING",
   "stage2_complete": false,
   "current_gate": "B2-03-BOARD-LOOPBACK",
   "active_stage_contract": "docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md",
@@ -87,13 +87,13 @@
       "ownership": "CPU_FILL_FLUSH_DMA_OWNS_COMPLETE_INVALIDATE_CPU_READ"
     },
     "hardware_build": {
-      "git_head": "bba093603d501f157169f3c321fb77a62fcf4406",
+      "git_head": "6f3d40e6f0470bbb57a9a10fb107ffc892add25c",
       "tool": "Vivado 2024.1",
       "part": "xc7z020clg484-2",
       "top": "design_1_wrapper",
-      "bitstream_sha256": "d694fa02e0e6b5d25dfc72becc302104632268b4dc930b8709780dbebb08d918",
-      "xsa_sha256": "68dc2b8e0c4e324bc1bacccdecfa384100042f10a94fae9f43d3a1b2b021897a",
-      "wns_ns": 0.240,
+      "bitstream_sha256": "44163a348447263e18df663439ab0e48c1f12b732ffaa70355e316e5dc7e3ff7",
+      "xsa_sha256": "b80e3fea1d41fe78322d75a1f461d910ec771802de839d79a9fc5aae17db9ea8",
+      "wns_ns": 0.154,
       "whs_ns": 0.036,
       "tns_ns": 0.0,
       "ths_ns": 0.0,
@@ -105,27 +105,28 @@
       "manifest": "boards/hellozynq/b2_hw/build/build_manifest.json"
     },
     "software_build": {
-      "git_head": "bba093603d501f157169f3c321fb77a62fcf4406",
+      "git_head": "6f3d40e6f0470bbb57a9a10fb107ffc892add25c",
       "tool": "XSCT/Vitis 2024.1",
       "driver": "axidma_v9_18",
-      "bitstream_sha256": "d694fa02e0e6b5d25dfc72becc302104632268b4dc930b8709780dbebb08d918",
-      "xsa_sha256": "68dc2b8e0c4e324bc1bacccdecfa384100042f10a94fae9f43d3a1b2b021897a",
-      "elf_sha256": "e37d7cb6869644ddc0c8a7db06698764561064ae96c8231a4e643cab095911a9",
-      "manifest": "boards/hellozynq/b2_sw/build/bba093603d501f157169f3c321fb77a62fcf4406/direct/build_manifest.json",
+      "bitstream_sha256": "44163a348447263e18df663439ab0e48c1f12b732ffaa70355e316e5dc7e3ff7",
+      "xsa_sha256": "b80e3fea1d41fe78322d75a1f461d910ec771802de839d79a9fc5aae17db9ea8",
+      "elf_sha256": "6bf1e956cbac086ba38b634d7af928624c22f91073079cb230ba86ed6e51956c",
+      "manifest": "boards/hellozynq/b2_sw/build/6f3d40e6f0470bbb57a9a10fb107ffc892add25c/direct/build_manifest.json",
       "downloaded": true,
       "board_run_git_head": "6f3d40e6f0470bbb57a9a10fb107ffc892add25c",
-      "board_run_elf_sha256": "b1b8cbc6c8ff262b8764403453c1269b1a5be3b1b39aacdb244c35616de0e79b",
-      "previous_board_run_elf_sha256": "48d29f596428c827f6407d951d2106ebe570c270551e83e4b517757acda88800"
+      "board_run_elf_sha256": "6bf1e956cbac086ba38b634d7af928624c22f91073079cb230ba86ed6e51956c",
+      "previous_board_run_elf_sha256": "b1b8cbc6c8ff262b8764403453c1269b1a5be3b1b39aacdb244c35616de0e79b",
+      "identity_policy": "FAIL_CLOSED_BEFORE_PROGRAM_BITSTREAM_XSA_ELF_SHA256"
     },
     "evidence": {
-      "targeted_contract_tests": "24/24_PASS",
-      "board_dma_transfer": "BOUNDARY_AND_PRESSURE_JTAG_PASS_UART_PENDING",
-      "pl_counters": "PENDING",
+      "targeted_contract_tests": "21/21_PASS_12_PLUS_5_PLUS_4",
+      "board_dma_transfer": "BOUNDARY_PRESSURE_AND_64_BYTE_STREAM_PROBE_JTAG_PASS_UART_PENDING",
+      "pl_counters": "MM2S_AND_S2MM_64_BYTE_ENDPOINT_PASS",
       "b2_gate": "PENDING",
-      "board_evidence_manifest": "boards/hellozynq/b2_sw/build/6f3d40e6f0470bbb57a9a10fb107ffc892add25c/direct/runs/20260909T022102Z/b2_board_evidence.json",
-      "board_evidence_sha256": "4e05f96e1eb06aaef22fb7ed3ff051b5eefdda23aa4a91fcedcfcfea70a031e0",
-      "probe_log": "boards/hellozynq/b2_sw/build/6f3d40e6f0470bbb57a9a10fb107ffc892add25c/direct/runs/20260909T022102Z/probe_stdout.log",
-      "probe_log_sha256": "790d7d3b17c84e89dac26d5e558eac617650dfee667004a15b82cfc488f35de1",
+      "board_evidence_manifest": "boards/hellozynq/b2_sw/build/6f3d40e6f0470bbb57a9a10fb107ffc892add25c/direct/runs/20260909T045710Z/b2_board_evidence.json",
+      "board_evidence_sha256": "4f23c060527d9d5a212d86da4c36352b9c9b0a5ed4fa7834e3b4741b21a27423",
+      "probe_log": "boards/hellozynq/b2_sw/build/6f3d40e6f0470bbb57a9a10fb107ffc892add25c/direct/runs/20260909T045710Z/probe_stdout.log",
+      "probe_log_sha256": "26fbe384323b621ec037fe8ddc8da45136e192fc2a1dbcd5f1ea41d9b41105e2",
       "board_target": "xc7z020_1",
       "jtag": "210251A08870",
       "uart": "COM10:NO_TERMINAL_MARKER",
@@ -154,7 +155,9 @@
       "last_rx_sr": "0x00001002",
       "last_tx_btt": 64,
       "last_rx_btt": 64,
-      "evidence_boundary": "JTAG status ledger proves the eight-frame boundary matrix (7 PASS, 1 rejected, 0 failed) and a 10000-frame deterministic pressure run (10000 PASS, 0 failed); UART terminal marker, PL stream counters, TKEEP/TLAST observation, controlled backpressure, continuous wraparound and error recovery remain pending"
+      "stream_probe_endpoint": "MM2S_AND_S2MM_16_BEATS_64_BYTES_TLAST_1_TKEEP_F_STALL_0",
+      "probe_exit_code": 0,
+      "evidence_boundary": "The matched bitstream/XSA/ELF run proves one 64-byte MM2S/S2MM endpoint with 16 beats, one TLAST, TKEEP 0xF and zero stall; prior JTAG ledger records the boundary matrix and 10000-frame pressure slice. UART terminal marker, controlled backpressure, continuous wraparound and error recovery remain pending; B2-03 and B2-GATE are not closed"
     },
     "monitor_experiment": {
       "observed_at": "2026-09-09",
@@ -180,14 +183,14 @@
         "setup_failing_endpoints": 256,
         "hold_route_drc_errors": "0"
       },
-      "probe_contract_tests": "3/3_PASS",
-      "formal_use": "HISTORICAL_MONITOR_EXPERIMENT_ONLY; NEW_PROBE_REQUIRES_REBUILD",
+      "probe_contract_tests": "4/4_PASS",
+      "formal_use": "HISTORICAL_MONITOR_EXPERIMENT_ONLY; CUSTOM_PROBE_BOARD_READ_PASS",
       "limitations": [
         "官方计数只在 TVALID&&TREADY 握手时更新",
         "busy/stall 在背压或 TLAST 场景不能单独作为严格证据",
         "真实 TKEEP 与 TLAST beat 位置仍需独立采样或明确推导"
       ],
-      "next_action": "用 axis_stream_probe 新拓扑重建 bit/XSA/ELF，再进行实板观测"
+      "next_action": "补齐受控背压、连续回绕、错误恢复和 UART 终止标记；B2-03/B2-GATE 保持未完成"
     },
     "forbidden_claims": ["DMA loopback passed", "B2-GATE passed", "NPU integrated", "pruning speedup or power gain measured"]
   },
