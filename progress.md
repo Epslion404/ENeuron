@@ -1,5 +1,10 @@
 # 进度记录
 
+## 2026-09-09 B2 route 当前观察
+
+- Vivado 进程仍在 `route_design` 第 5.2 轮，CPU 时间持续增加；overlap 已由 `147240` 降至 `113569`，说明路由器仍在迭代而非退出。
+- 当前尚无最终 route/timing/bitstream/XSA 证据；物理门继续保持未完成。
+
 ## 2026-09-09 B2 物理 BD 接入
 
 - `b2_npu_packet_adapter` 已接入 `boards/hellozynq/b2_hw/b2_npu_axis_top.v`，BD 数据链为 `AXI DMA MM2S → axis_stream_probe_mm2s → b2_npu_axis_top → axis_stream_probe_s2mm → AXI DMA S2MM`。`B2_PACKET_INGRESS_PASS`、`B2_PACKET_EGRESS_PASS`、`B2_NPU_PACKET_ADAPTER_PASS`、`B2_NPU_PACKET_ADAPTER_E2E_PASS` 和 10/10 定向合同测试已通过。

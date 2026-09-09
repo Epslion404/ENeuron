@@ -1,10 +1,16 @@
 # 2026-09-08 UART重分配 V14/V15
 
+## 2026-09-09 B2 route 当前观察
+
+- [x] 已确认 Vivado 物理实现从 `place_design/phys_opt_design` 进入 `route_design`；进程仍活跃，route 日志持续有 CPU 进展。
+- [ ] route 尚未终态；当前日志仍无 `route_design completed`、最终 timing signoff、bitstream/XSA 或 `B2_BUILD_PASS`。
+- [ ] 路由拥塞从初始 `147240` 个 overlap 降到 `113569`；完整设计 placement 已使用 `48671/53200` LUT、`13300/13300` slice，DSP48E1 保持恰好 4 个。
+
 ## 2026-09-09 B2 物理 BD 接入状态
 
 - [x] 将 `b2_npu_packet_adapter` 接入 `b2_npu_axis_top.v`，并挂入 `AXI DMA MM2S → NPU → AXI DMA S2MM` 的 BD 数据通路。
 - [x] Vivado 已完成 BD 生成、综合、`link_design`、`opt_design`，前置 DRC 为 `0 Errors`；相关综合 DCP 已生成。
-- [ ] 当前实现仍在 `place_design/phys_opt_design`，尚未取得最终 route、timing signoff、bitstream/XSA 或 `B2_BUILD_PASS`。
+- [ ] 当前实现已进入 `route_design`，尚未取得最终 route、timing signoff、bitstream/XSA 或 `B2_BUILD_PASS`。
 - [ ] 中间估计时序出现 `WNS=-8.182 ns`、`TNS=-181312.760 ns`；仅作为风险信号，必须以 route 后 `report_timing_summary` 为准，未达标时不得下载实板。
 - [ ] 物理门通过后，重建干净身份 bitstream/XSA，再扩展软件 packet 发送和 XC7Z020 实板验证。
 
