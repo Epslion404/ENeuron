@@ -42,6 +42,13 @@ class B2LoopbackContractTests(unittest.TestCase):
         self.assertIn("axi_protocol_converter_0/S_AXI", self.bd)
         self.assertIn("axi_protocol_converter_0/M_AXI", self.bd)
 
+    def test_dma_and_converter_use_synchronous_processor_reset(self):
+        self.assertIn("xilinx.com:ip:proc_sys_reset", self.bd)
+        self.assertIn("proc_sys_reset_0/peripheral_aresetn", self.bd)
+        self.assertIn("axi_protocol_converter_0/aresetn", self.bd)
+        self.assertIn("axi_dma_0/axi_resetn", self.bd)
+        self.assertIn("dma_mem_smartconnect/aresetn", self.bd)
+
     def test_build_targets_board_part_and_existing_constraints(self):
         self.assertIn("set part xc7z020clg484-2", self.build)
         self.assertIn("create_b2_bd.tcl", self.build)

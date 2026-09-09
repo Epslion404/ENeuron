@@ -49,6 +49,8 @@ set_property -dict [list \
 set reset_inverter [create_bd_cell -type ip -vlnv xilinx.com:ip:util_vector_logic:2.0 util_vector_logic_0]
 set_property -dict [list CONFIG.C_OPERATION {not} CONFIG.C_SIZE {1}] $reset_inverter
 
+set dma_reset [create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 proc_sys_reset_0]
+
 set axi_control_converter [create_bd_cell -type ip -vlnv xilinx.com:ip:axi_protocol_converter:2.1 axi_protocol_converter_0]
 set_property -dict [list \
     CONFIG.SI_PROTOCOL {AXI3} \
@@ -101,12 +103,15 @@ foreach pin {s_axi_lite_aclk m_axi_mm2s_aclk m_axi_s2mm_aclk} {
     connect_bd_net [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins axi_dma_0/$pin]
 }
 connect_bd_net [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins axi_protocol_converter_0/aclk]
-connect_bd_net [get_bd_pins processing_system7_0/FCLK_RESET0_N] [get_bd_pins axi_protocol_converter_0/aresetn]
-connect_bd_net [get_bd_pins processing_system7_0/FCLK_RESET0_N] [get_bd_pins axi_dma_0/axi_resetn]
 connect_bd_net [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins dma_mem_smartconnect/aclk]
-connect_bd_net [get_bd_pins processing_system7_0/FCLK_RESET0_N] [get_bd_pins dma_mem_smartconnect/aresetn]
 connect_bd_net [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK]
 connect_bd_net [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins processing_system7_0/S_AXI_HP0_ACLK]
+connect_bd_net [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins proc_sys_reset_0/slowest_sync_clk]
+connect_bd_net [get_bd_pins util_vector_logic_0/Res] [get_bd_pins proc_sys_reset_0/ext_reset_in]
+connect_bd_net [get_bd_pins proc_sys_reset_0/peripheral_aresetn] \
+    [get_bd_pins axi_protocol_converter_0/aresetn] \
+    [get_bd_pins axi_dma_0/axi_resetn] \
+    [get_bd_pins dma_mem_smartconnect/aresetn]
 
 assign_bd_address
 validate_bd_design
