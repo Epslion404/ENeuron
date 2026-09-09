@@ -222,6 +222,9 @@ $jtagRecoveryTimeout = Get-ProbeValue $probeText 'B2_STATUS_RECOVERY_TIMEOUT'
 $jtagRecoveryReset = Get-ProbeValue $probeText 'B2_STATUS_RECOVERY_RESET'
 $jtagRecoveryPassed = Get-ProbeValue $probeText 'B2_STATUS_RECOVERY_PASSED'
 $jtagRecoveryFailed = Get-ProbeValue $probeText 'B2_STATUS_RECOVERY_FAILED'
+$jtagRecoveryReadyBefore = Get-ProbeValue $probeText 'B2_STATUS_RECOVERY_READY_BEFORE'
+$jtagRecoveryReadyStopped = Get-ProbeValue $probeText 'B2_STATUS_RECOVERY_READY_STOPPED'
+$jtagRecoveryReadyAfterReset = Get-ProbeValue $probeText 'B2_STATUS_RECOVERY_READY_AFTER_RESET'
 $jtagGapStatus = Get-ProbeValue $probeText 'B2_STATUS_GAP_STATUS'
 $jtagGapTotal = Get-ProbeValue $probeText 'B2_STATUS_GAP_TOTAL'
 $jtagGapPassed = Get-ProbeValue $probeText 'B2_STATUS_GAP_PASSED'
@@ -261,6 +264,9 @@ $jtagPass = $probeExitCode -eq 0 -and $probeReadAvailable -and
     $jtagRecoveryReset -eq 1 -and
     $jtagRecoveryPassed -eq 1 -and
     $jtagRecoveryFailed -eq 0 -and
+    $jtagRecoveryReadyBefore -eq 1 -and
+    $jtagRecoveryReadyStopped -eq 0 -and
+    $jtagRecoveryReadyAfterReset -eq 1 -and
     $jtagGapStatus -eq 2 -and
     $jtagGapTotal -eq 2 -and
     $jtagGapPassed -eq 2 -and
@@ -325,6 +331,9 @@ $runManifest = [ordered]@{
     jtag_recovery_reset = $jtagRecoveryReset
     jtag_recovery_passed = $jtagRecoveryPassed
     jtag_recovery_failed = $jtagRecoveryFailed
+    jtag_recovery_ready_before = $jtagRecoveryReadyBefore
+    jtag_recovery_ready_stopped = $jtagRecoveryReadyStopped
+    jtag_recovery_ready_after_reset = $jtagRecoveryReadyAfterReset
     jtag_gap_status = $jtagGapStatus
     jtag_gap_total = $jtagGapTotal
     jtag_gap_passed = $jtagGapPassed

@@ -259,6 +259,27 @@ class B2DmaAppContractTests(unittest.TestCase):
         for address in ("0x01008340", "0x01008344", "0x01008348", "0x0100834C"):
             self.assertIn(address, probe)
 
+    def test_recovery_records_ready_stop_and_ready_restore(self):
+        for token in (
+            "recovery_s2mm_active_before_stop",
+            "recovery_s2mm_active_after_stop",
+            "recovery_s2mm_active_after_reset",
+            "B2_RECOVERY_PASS timeout=",
+            "ready_before=",
+            "ready_stopped=",
+            "ready_after_reset=",
+        ):
+            self.assertIn(token, self.source)
+        for token in (
+            "B2_STATUS_RECOVERY_READY_BEFORE",
+            "B2_STATUS_RECOVERY_READY_STOPPED",
+            "B2_STATUS_RECOVERY_READY_AFTER_RESET",
+        ):
+            self.assertIn(token, self.board)
+        probe = (B2_SW / "probe_b2_state.tcl").read_text(encoding="utf-8")
+        for address in ("0x0100831C", "0x01008320", "0x01008324"):
+            self.assertIn(address, probe)
+
 
 if __name__ == "__main__":
     unittest.main()

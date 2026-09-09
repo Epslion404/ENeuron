@@ -139,6 +139,9 @@ struct recovery_snapshot {
     u32 recovery_failed;
     u32 recovery_sequence;
     u32 recovery_crc32;
+    u32 recovery_s2mm_active_before_stop;
+    u32 recovery_s2mm_active_after_stop;
+    u32 recovery_s2mm_active_after_reset;
 };
 
 struct gap_snapshot {
@@ -268,6 +271,11 @@ static void monitor_stop(UINTPTR base)
 {
     Xil_Out32(base + MONITOR_CONTROL_OFFSET, 2U);
     memory_barrier();
+}
+
+static u32 monitor_active(UINTPTR base)
+{
+    return Xil_In32(base + MONITOR_SAMPLE_OFFSET) & 1U;
 }
 
 static void monitor_configure_backpressure(UINTPTR base, u32 config)
@@ -693,7 +701,11 @@ static int run_recovery(void)
     /* 停止 S2MM 接收端，构造受控 timeout；不使用未对齐地址伪造错误。 */
     monitor_reset(MONITOR_MM2S_BASE);
     monitor_reset(MONITOR_S2MM_BASE);
+    recovery_snapshot_state->recovery_s2mm_active_before_stop =
+        monitor_active(MONITOR_S2MM_BASE);
     monitor_stop(MONITOR_S2MM_BASE);
+    recovery_snapshot_state->recovery_s2mm_active_after_stop =
+        monitor_active(MONITOR_S2MM_BASE);
     for (index = 0U; index < length; ++index) {
         tx[index] = (u8)(sequence + index * 3U + 0x11U);
         rx[index] = 0U;
@@ -753,6 +765,8 @@ static int run_recovery(void)
     monitor_reset(MONITOR_MM2S_BASE);
     monitor_reset(MONITOR_S2MM_BASE);
     monitor_configure_backpressure(MONITOR_S2MM_BASE, 0U);
+    recovery_snapshot_state->recovery_s2mm_active_after_reset =
+        monitor_active(MONITOR_S2MM_BASE);
     for (index = 0U; index < length; ++index) {
         tx[index] = (u8)(sequence + index * 3U + 0x11U);
         rx[index] = 0U;
@@ -812,12 +826,16 @@ static int run_recovery(void)
     recovery_snapshot_state->recovery_passed = 1U;
     recovery_snapshot_state->recovery_status = SNAPSHOT_PASS;
     memory_barrier();
-    xil_printf("B2_RECOVERY_PASS timeout=%u reset=%u frames=%u sequence=%u crc32=0x%08x\r\n",
+    xil_printf("B2_RECOVERY_PASS timeout=%u reset=%u frames=%u sequence=%u crc32=0x%08x "
+               "ready_before=%u ready_stopped=%u ready_after_reset=%u\r\n",
                recovery_snapshot_state->recovery_timeout_observed,
                recovery_snapshot_state->recovery_reset_passed,
                recovery_snapshot_state->recovery_passed,
                recovery_snapshot_state->recovery_sequence,
-               recovery_snapshot_state->recovery_crc32);
+               recovery_snapshot_state->recovery_crc32,
+               recovery_snapshot_state->recovery_s2mm_active_before_stop,
+               recovery_snapshot_state->recovery_s2mm_active_after_stop,
+               recovery_snapshot_state->recovery_s2mm_active_after_reset);
     return XST_SUCCESS;
 }
 
@@ -947,6 +965,9 @@ int main(void)
     recovery_snapshot_state->recovery_failed = 0U;
     recovery_snapshot_state->recovery_sequence = 0U;
     recovery_snapshot_state->recovery_crc32 = 0U;
+    recovery_snapshot_state->recovery_s2mm_active_before_stop = 0U;
+    recovery_snapshot_state->recovery_s2mm_active_after_stop = 0U;
+    recovery_snapshot_state->recovery_s2mm_active_after_reset = 0U;
     gap_snapshot_state->gap_status = 0U;
     gap_snapshot_state->gap_total = 0U;
     gap_snapshot_state->gap_passed = 0U;
@@ -1047,12 +1068,16 @@ int main(void)
                    wrap_snapshot_state->wrap_last_tx_address);
         xil_printf("B2_DMA_PASS frames=%u rejected_zero=%u\r\n",
                    FRAME_COUNT - rejected_zero, rejected_zero);
-        xil_printf("B2_RECOVERY_PASS timeout=%u reset=%u frames=%u sequence=%u crc32=0x%08x\r\n",
+        xil_printf("B2_RECOVERY_PASS timeout=%u reset=%u frames=%u sequence=%u crc32=0x%08x "
+                   "ready_before=%u ready_stopped=%u ready_after_reset=%u\r\n",
                    recovery_snapshot_state->recovery_timeout_observed,
                    recovery_snapshot_state->recovery_reset_passed,
                    recovery_snapshot_state->recovery_passed,
                    recovery_snapshot_state->recovery_sequence,
-                   recovery_snapshot_state->recovery_crc32);
+                   recovery_snapshot_state->recovery_crc32,
+                   recovery_snapshot_state->recovery_s2mm_active_before_stop,
+                   recovery_snapshot_state->recovery_s2mm_active_after_stop,
+                   recovery_snapshot_state->recovery_s2mm_active_after_reset);
         xil_printf("B2_GAP_PASS frames=%u first_sequence=%u second_sequence=%u "
                    "first_length=%u second_length=%u gap_us=%u "
                    "crc32_xor=0x%08x\r\n",
