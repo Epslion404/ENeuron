@@ -81,10 +81,21 @@ $drcPath = Join-Path $outDir 'drc_impl.rpt'
 $signoffChecks = Assert-B2TimingGreen -TimingReportPath $timingPath -RouteReportPath $routePath -DrcReportPath $drcPath
 Write-Host ("B2_TIMING_PASS WNS={0} TNS={1} WHS={2} THS={3} ROUTE_ERRORS={4} DRC_HARD_ERRORS={5}" -f $signoffChecks.WNS, $signoffChecks.TNS, $signoffChecks.WHS, $signoffChecks.THS, $signoffChecks.route_errors, $signoffChecks.drc_hard_errors)
 
-$sourceFiles = @('axis_stream_probe.v', 'create_b2_bd.tcl', 'build_b2.tcl', 'run_b2_build.ps1')
+$sourceFiles = @(
+    'boards/hellozynq/b2_hw/axis_stream_probe.v',
+    'boards/hellozynq/b2_hw/b2_npu_axis_top.sv',
+    'boards/hellozynq/b2_hw/create_b2_bd.tcl',
+    'boards/hellozynq/b2_hw/build_b2.tcl',
+    'boards/hellozynq/b2_hw/run_b2_build.ps1',
+    'b2_npu_packet_adapter.sv',
+    'b2_packet_ingress.sv',
+    'b2_packet_egress.sv',
+    'npu_zynq7020_t1_wrapper.sv',
+    'npu_eneuron_single_clock_skeleton.sv'
+)
 $sourceHashes = [ordered]@{}
-foreach ($name in $sourceFiles) {
-    $sourceHashes[$name] = (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $scriptDir $name)).Hash.ToLowerInvariant()
+foreach ($relativePath in $sourceFiles) {
+    $sourceHashes[$relativePath] = (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $repoRoot $relativePath)).Hash.ToLowerInvariant()
 }
 $summary = [ordered]@{}
 foreach ($line in Get-Content -LiteralPath $summaryPath) {

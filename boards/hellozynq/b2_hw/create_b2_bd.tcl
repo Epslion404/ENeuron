@@ -78,6 +78,7 @@ set control_sc [create_bd_cell -type ip -vlnv xilinx.com:ip:smartconnect:1.0 dma
 set_property -dict [list CONFIG.NUM_SI {1} CONFIG.NUM_MI {3}] $control_sc
 set probe_mm2s [create_bd_cell -type module -reference axis_stream_probe axis_stream_probe_mm2s]
 set probe_s2mm [create_bd_cell -type module -reference axis_stream_probe axis_stream_probe_s2mm]
+set packet_npu [create_bd_cell -type module -reference b2_npu_axis_top b2_npu_axis_top_0]
 
 set mem_sc [create_bd_cell -type ip -vlnv xilinx.com:ip:smartconnect:1.0 dma_mem_smartconnect]
 set_property -dict [list CONFIG.NUM_SI {2} CONFIG.NUM_MI {1}] $mem_sc
@@ -100,10 +101,12 @@ connect_bd_intf_net [get_bd_intf_pins axi_dma_0/M_AXI_MM2S] [get_bd_intf_pins dm
 connect_bd_intf_net [get_bd_intf_pins axi_dma_0/M_AXI_S2MM] [get_bd_intf_pins dma_mem_smartconnect/S01_AXI]
 connect_bd_intf_net [get_bd_intf_pins dma_mem_smartconnect/M00_AXI] [get_bd_intf_pins processing_system7_0/S_AXI_HP0]
 
-# 首轮 loopback 保持最短路径；背压/错误注入在后续 B2-03～B2-05 通过独立 wrapper 验证。
+# 保留两侧 probe，将已验证的 packet/T1 wrapper 插入 DMA 双向流。
 connect_bd_intf_net [get_bd_intf_pins axi_dma_0/M_AXIS_MM2S] \
     [get_bd_intf_pins axis_stream_probe_mm2s/S_AXIS]
 connect_bd_intf_net [get_bd_intf_pins axis_stream_probe_mm2s/M_AXIS] \
+    [get_bd_intf_pins b2_npu_axis_top_0/S_AXIS]
+connect_bd_intf_net [get_bd_intf_pins b2_npu_axis_top_0/M_AXIS] \
     [get_bd_intf_pins axis_stream_probe_s2mm/S_AXIS]
 connect_bd_intf_net [get_bd_intf_pins axis_stream_probe_s2mm/M_AXIS] \
     [get_bd_intf_pins axi_dma_0/S_AXIS_S2MM]
@@ -128,10 +131,12 @@ connect_bd_net [get_bd_pins proc_sys_reset_0/peripheral_aresetn] \
     [get_bd_pins axi_dma_0/axi_resetn] \
     [get_bd_pins dma_mem_smartconnect/aresetn] \
     [get_bd_pins axis_stream_probe_mm2s/s_axi_aresetn] \
-    [get_bd_pins axis_stream_probe_s2mm/s_axi_aresetn]
+    [get_bd_pins axis_stream_probe_s2mm/s_axi_aresetn] \
+    [get_bd_pins b2_npu_axis_top_0/axis_aresetn]
 connect_bd_net [get_bd_pins processing_system7_0/FCLK_CLK0] \
     [get_bd_pins axis_stream_probe_mm2s/s_axi_aclk] \
-    [get_bd_pins axis_stream_probe_s2mm/s_axi_aclk]
+    [get_bd_pins axis_stream_probe_s2mm/s_axi_aclk] \
+    [get_bd_pins b2_npu_axis_top_0/axis_aclk]
 
 assign_bd_address
 set ps_data [get_bd_addr_spaces processing_system7_0/Data]
