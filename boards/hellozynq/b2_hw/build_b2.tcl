@@ -16,6 +16,7 @@ add_files -norecurse [list \
     [file join $script_dir b2_npu_axis_top.v] \
     [file join $repo_root b2_npu_packet_adapter.sv] \
     [file join $repo_root b2_packet_ingress.sv] \
+    [file join $repo_root b2_packet_bram.sv] \
     [file join $repo_root b2_packet_egress.sv] \
     [file join $repo_root npu_zynq7020_t1_wrapper.sv] \
     [file join $repo_root npu_eneuron_single_clock_skeleton.sv] \

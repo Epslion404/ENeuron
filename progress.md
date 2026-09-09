@@ -1847,3 +1847,10 @@
 - `artifacts/results/rtl_smoke_results.json` 已确认在仓库中。
 - 按用户授权，将两组 B2 timing-fail 原始日志目录 `b2_backpressure_timing_fail_20260909_a404a8e/`、`b2_backpressure_timing_fail_20260909_a404a8e_fifo_default/` 与交换 TX/RX 后的 UART 通过目录 `b2_backpressure_uart_pass_20260909_55822ae/` 中的 `*.log` 纳入 Git；manifest、报告和 README 原已跟踪。
 - 当前 packet-NPU Vivado 实现未完成：进程结束时没有 `.route_design.end.rst`、最终 timing signoff、bitstream/XSA 或 `B2_BUILD_PASS`，因此只保留为未完成/拥塞证据。
+
+## 2026-09-10 B2 packet payload BRAM 化
+
+- 为 ingress 增加四 bank 同步读缓存，为 egress 增加显式 `b2_packet_bram.sv`；仿真分支保持 Icarus 可用，Vivado 分支使用 XPM simple-dual-port block RAM。
+- egress OOC 综合（Vivado 2024.1、`xc7z020clg484-2`）由旧参考约 `35944 LUT / 0 BRAM` 降至 `532 LUT / 251 FF / 2 RAMB36 / 1 RAMB18`；ingress 当前为 `2085 LUT / 1408 LUTRAM / 488 FF`，尚未实现 BRAM 推断。
+- 定向协议/适配器/T1 合同回归通过；`REPRO_G0_MANIFEST_PASS`、`REPRO_G1_T1_PROTOCOL_SLICE_PASS` 通过。该切片仍未证明完整 BD routed timing、bit/XSA 或实板行为。
+- 定向回归首轮发现 `test_b2_stream_probe_contract.py` 仅因 runner 将源文件写成带目录的完整路径而找不到精确 token `'axis_stream_probe.v'`；已改为显式变量保留该合同标识，不改变构建路径或哈希内容。

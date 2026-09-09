@@ -15,6 +15,9 @@
 | `results/hellozynq_b0_smoke_summary.json` | HelloZynq B0 当前构建身份、run-1下载/LED周期、完整断电和剩余run-2硬门摘要；当前状态为run-1与断电通过、重新上电后的第二次下载/观察 pending |
 | `results/hellozynq_b1b_uart_ddr_summary.json` | HelloZynq B1B正式UART与低地址1 MiB DDR三次冷启动机器摘要；高地址DDR、PHY和UDP仍未关闭 |
 | `results/hellozynq_b1a_hw_summary.json` | HelloZynq B1A 可重建PS7/DDR/UART/GEM/GMII-to-RGMII硬件定义、Vivado 2024.1实现指标和bitstream/XSA哈希；不代表B1实板门通过 |
+| `results/b2_packet_memory_ooc_manifest.json` | B2 packet ingress/egress 在 `xc7z020clg484-2` 的 OOC BRAM 映射与资源报告；仅为综合证据 |
+
+OOC 原始报告和 checkpoint 保存在 `logs/b2_packet_memory_ooc_20260910_bram/`；报告只证明综合资源映射，不证明完整 BD 的 routed timing 或实板运行。
 
 所有路径均以仓库根目录为基准。除明确标注为标准输出的 B0 摘要外，生成器应直接写入 `artifacts/results/`；调用方保存 B0 摘要时也应使用表中路径。不得在根目录创建兼容副本。
 

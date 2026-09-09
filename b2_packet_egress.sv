@@ -41,7 +41,52 @@ module b2_packet_egress #(
 
     typedef enum logic [2:0] {ST_IDLE, ST_RSP_COLLECT, ST_RESULT_COLLECT, ST_OUTPUT} state_t;
     state_t state;
-    logic [31:0] payload_mem [0:PAYLOAD_WORD_CAPACITY-1];
+    // response 以 128-bit word 写入、按 32-bit lane 读出；同步读端口避免大范围 LUT mux。
+    localparam integer RESPONSE_WORD_CAPACITY = (PAYLOAD_WORD_CAPACITY + 3) / 4;
+    logic [127:0] response_mem_rd_data;
+    logic [31:0] result_mem_rd_data;
+    logic response_mem_wr_en, response_mem_rd_en;
+    logic result_mem_wr_en, result_mem_rd_en;
+    logic [$clog2(RESPONSE_WORD_CAPACITY)-1:0] response_mem_wr_addr, response_mem_rd_addr;
+    logic [3:0] result_mem_wr_addr, result_mem_rd_addr;
+    assign response_mem_wr_en = rsp_fire && ((state == ST_IDLE) ||
+        (response_word_count + 1'b1 <= RESPONSE_WORD_CAPACITY));
+    assign response_mem_wr_addr = (state == ST_IDLE) ? '0 : response_word_count[$clog2(RESPONSE_WORD_CAPACITY)-1:0];
+    assign response_mem_rd_en =
+        ((state == ST_OUTPUT) && (output_index >= HEADER_WORDS) &&
+         (output_index < output_frame_words) && !output_data_valid) ||
+        (m_fire && (output_index == HEADER_WORDS - 1)) ||
+        (m_fire && (output_index >= HEADER_WORDS) &&
+         (output_index < output_frame_words - 1) &&
+         (((output_index - HEADER_WORDS) & 3) == 3));
+    assign response_mem_rd_addr =
+        (m_fire && (output_index == HEADER_WORDS - 1)) ? '0 :
+        (m_fire && (output_index >= HEADER_WORDS) &&
+         (((output_index - HEADER_WORDS) & 3) == 3)) ?
+            (((output_index - HEADER_WORDS) >> 2) + 1'b1) :
+        ((output_index - HEADER_WORDS) >> 2);
+    assign result_mem_wr_en = result_fire && ((state == ST_IDLE) || (result_word_count < 10));
+    assign result_mem_wr_addr = (state == ST_IDLE) ? '0 : result_word_count[3:0];
+    assign result_mem_rd_en =
+        ((state == ST_OUTPUT) && (output_index >= HEADER_WORDS) &&
+         (output_index < output_frame_words) && !output_data_valid) ||
+        (m_fire && (output_index == HEADER_WORDS - 1)) ||
+        (m_fire && (output_index >= HEADER_WORDS) &&
+         (output_index < output_frame_words - 1));
+    assign result_mem_rd_addr =
+        (m_fire && (output_index == HEADER_WORDS - 1)) ? '0 :
+        (output_index - HEADER_WORDS + 1'b1);
+
+    b2_packet_bram #(.DATA_WIDTH(128), .DEPTH(RESPONSE_WORD_CAPACITY)) response_mem (
+        .clk(clk), .rst(rst), .wr_en(response_mem_wr_en), .wr_addr(response_mem_wr_addr),
+        .wr_data(rsp_data), .rd_en(response_mem_rd_en), .rd_addr(response_mem_rd_addr),
+        .rd_data(response_mem_rd_data)
+    );
+    b2_packet_bram #(.DATA_WIDTH(32), .DEPTH(10), .ADDR_WIDTH(4)) result_mem (
+        .clk(clk), .rst(rst), .wr_en(result_mem_wr_en), .wr_addr(result_mem_wr_addr),
+        .wr_data(result_data), .rd_en(result_mem_rd_en), .rd_addr(result_mem_rd_addr),
+        .rd_data(result_mem_rd_data)
+    );
     logic [10:0] payload_word_count;
     logic [10:0] response_word_count;
     logic [10:0] result_word_count;
@@ -50,6 +95,7 @@ module b2_packet_egress #(
     logic [31:0] sequence_reg, sample_id_reg, model_id_reg, mask_epoch_reg, status_reg;
     logic [7:0] message_type_reg;
     logic [31:0] crc_state;
+    logic        output_data_valid;
 
     wire rsp_fire = rsp_valid && rsp_ready;
     wire result_fire = result_valid && result_ready;
@@ -77,7 +123,8 @@ module b2_packet_egress #(
     assign rsp_ready = (state == ST_RSP_COLLECT) || ((state == ST_IDLE) && !result_valid);
     assign result_ready = (state == ST_RESULT_COLLECT) || ((state == ST_IDLE) && !rsp_valid);
     assign busy = (state != ST_IDLE);
-    assign m_valid = (state == ST_OUTPUT);
+    assign m_valid = (state == ST_OUTPUT) &&
+        ((output_index < HEADER_WORDS) || (output_index == output_frame_words) || output_data_valid);
     assign m_keep = 4'hF;
     assign m_last = (output_index == output_frame_words);
 
@@ -91,9 +138,12 @@ module b2_packet_egress #(
         else if (output_index == 5) m_data = model_id_reg;
         else if (output_index == 6) m_data = mask_epoch_reg;
         else if (output_index == 7) m_data = status_reg;
-        else if (output_index < output_frame_words)
-            m_data = payload_mem[output_index - HEADER_WORDS];
-        else m_data = ~crc_state;
+        else if (output_index < output_frame_words) begin
+            if (message_type_reg == TYPE_RESPONSE)
+                m_data = response_mem_rd_data[(output_index[1:0]) * 32 +: 32];
+            else
+                m_data = result_mem_rd_data;
+        end else m_data = ~crc_state;
     end
 
     always_ff @(posedge clk) begin
@@ -111,31 +161,38 @@ module b2_packet_egress #(
             status_reg <= '0;
             message_type_reg <= '0;
             crc_state <= 32'hFFFF_FFFF;
+            output_data_valid <= 1'b0;
             error_valid <= 1'b0;
             error_code <= '0;
         end else begin
             error_valid <= 1'b0;
 
-            if (m_fire) begin
+            if ((state == ST_OUTPUT) && (output_index >= HEADER_WORDS) &&
+                (output_index < output_frame_words) && !output_data_valid) begin
+                output_data_valid <= 1'b1;
+            end else if (m_fire) begin
                 if (output_index == output_frame_words) begin
                     state <= ST_IDLE;
                     output_index <= '0;
+                    output_data_valid <= 1'b0;
                 end else begin
                     if (output_index < output_frame_words)
                         crc_state <= crc32_word(crc_state, m_data);
+                    if (output_index == HEADER_WORDS - 1) begin
+                        output_data_valid <= 1'b1;
+                    end else if ((output_index >= HEADER_WORDS) &&
+                                 (output_index < output_frame_words - 1)) begin
+                        output_data_valid <= 1'b1;
+                    end
                     output_index <= output_index + 1'b1;
                 end
             end else if (rsp_fire) begin
-                if ((state == ST_IDLE) || (response_word_count * 4 + 4 > PAYLOAD_WORD_CAPACITY)) begin
-                    if (response_word_count * 4 + 4 > PAYLOAD_WORD_CAPACITY) begin
+                if ((state == ST_IDLE) || (response_word_count + 1'b1 > RESPONSE_WORD_CAPACITY)) begin
+                    if (response_word_count + 1'b1 > RESPONSE_WORD_CAPACITY) begin
                         error_valid <= 1'b1;
                         error_code <= ERR_OVERFLOW;
                         state <= ST_IDLE;
                     end else begin
-                        payload_mem[0] <= rsp_data[31:0];
-                        payload_mem[1] <= rsp_data[63:32];
-                        payload_mem[2] <= rsp_data[95:64];
-                        payload_mem[3] <= rsp_data[127:96];
                         response_word_count <= 1;
                         sequence_reg <= rsp_sequence;
                         model_id_reg <= rsp_model_id;
@@ -147,26 +204,23 @@ module b2_packet_egress #(
                             output_frame_words <= HEADER_WORDS + 4;
                             output_index <= '0;
                             crc_state <= 32'hFFFF_FFFF;
+                            output_data_valid <= 1'b0;
                             state <= ST_OUTPUT;
                         end else state <= ST_RSP_COLLECT;
                     end
                 end else begin
-                    payload_mem[response_word_count * 4] <= rsp_data[31:0];
-                    payload_mem[response_word_count * 4 + 1] <= rsp_data[63:32];
-                    payload_mem[response_word_count * 4 + 2] <= rsp_data[95:64];
-                    payload_mem[response_word_count * 4 + 3] <= rsp_data[127:96];
                     response_word_count <= response_word_count + 1'b1;
                     if (rsp_last) begin
                         payload_word_count <= (response_word_count + 1'b1) * 4;
                         output_frame_words <= HEADER_WORDS + (response_word_count + 1'b1) * 4;
                         output_index <= '0;
                         crc_state <= 32'hFFFF_FFFF;
+                        output_data_valid <= 1'b0;
                         state <= ST_OUTPUT;
                     end
                 end
             end else if (result_fire) begin
                 if (state == ST_IDLE) begin
-                    payload_mem[0] <= result_data;
                     result_word_count <= 1;
                     sequence_reg <= result_sequence;
                     sample_id_reg <= result_sample_id;
@@ -183,12 +237,12 @@ module b2_packet_egress #(
                     error_code <= ERR_RESULT_METADATA;
                     state <= ST_IDLE;
                 end else begin
-                    payload_mem[result_word_count] <= result_data;
                     if (result_word_count == 9) begin
                         payload_word_count <= 10;
                         output_frame_words <= HEADER_WORDS + 10;
                         output_index <= '0;
                         crc_state <= 32'hFFFF_FFFF;
+                        output_data_valid <= 1'b0;
                         state <= ST_OUTPUT;
                     end else result_word_count <= result_word_count + 1'b1;
                 end

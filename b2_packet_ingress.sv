@@ -62,7 +62,12 @@ module b2_packet_ingress #(
     } state_t;
 
     state_t state;
-    logic [31:0] payload_mem [0:PAYLOAD_WORD_CAPACITY-1];
+    // 四个 bank 让 command 四字并行读；同步读端口可稳定推断为 BRAM。
+    localparam integer PAYLOAD_BANK_CAPACITY = (PAYLOAD_WORD_CAPACITY + 3) / 4;
+    (* ram_style = "block" *) logic [31:0] payload_mem_bank0 [0:PAYLOAD_BANK_CAPACITY-1];
+    (* ram_style = "block" *) logic [31:0] payload_mem_bank1 [0:PAYLOAD_BANK_CAPACITY-1];
+    (* ram_style = "block" *) logic [31:0] payload_mem_bank2 [0:PAYLOAD_BANK_CAPACITY-1];
+    (* ram_style = "block" *) logic [31:0] payload_mem_bank3 [0:PAYLOAD_BANK_CAPACITY-1];
     logic [31:0] crc_state;
     logic [3:0]  header_index;
     logic [7:0]  message_type;
@@ -76,6 +81,9 @@ module b2_packet_ingress #(
     logic [10:0] payload_word_expected;
     logic [9:0]  output_index;
     logic [9:0]  output_count;
+    logic [31:0] sample_data_reg;
+    logic [127:0] cmd_data_reg;
+    logic        output_data_valid;
     logic        frame_error;
     logic [3:0]  frame_error_code;
 
@@ -106,19 +114,14 @@ module b2_packet_ingress #(
     assign busy = (state != ST_IDLE);
 
     always_comb begin
-        cmd_valid = (state == ST_CMD_OUT);
-        cmd_data = {
-            payload_mem[output_index * 4 + 3],
-            payload_mem[output_index * 4 + 2],
-            payload_mem[output_index * 4 + 1],
-            payload_mem[output_index * 4]
-        };
+        cmd_valid = (state == ST_CMD_OUT) && output_data_valid;
+        cmd_data = cmd_data_reg;
         cmd_sequence = sequence_reg;
         cmd_model_id = model_id_reg;
         cmd_mask_epoch = mask_epoch_reg;
 
-        sample_valid = (state == ST_SAMPLE_OUT);
-        sample_data = payload_mem[output_index];
+        sample_valid = (state == ST_SAMPLE_OUT) && output_data_valid;
+        sample_data = sample_data_reg;
         sample_id = sample_id_reg;
         sample_sequence = sequence_reg;
         sample_model_id = model_id_reg;
@@ -141,6 +144,9 @@ module b2_packet_ingress #(
             payload_word_expected <= '0;
             output_index <= '0;
             output_count <= '0;
+            sample_data_reg <= '0;
+            cmd_data_reg <= '0;
+            output_data_valid <= 1'b0;
             frame_error <= 1'b0;
             frame_error_code <= '0;
             error_valid <= 1'b0;
@@ -148,7 +154,25 @@ module b2_packet_ingress #(
         end else begin
             error_valid <= 1'b0;
 
-            if (cmd_fire) begin
+            if ((state == ST_CMD_OUT || state == ST_SAMPLE_OUT) && !output_data_valid) begin
+                if (state == ST_CMD_OUT) begin
+                    cmd_data_reg <= {
+                        payload_mem_bank3[output_index],
+                        payload_mem_bank2[output_index],
+                        payload_mem_bank1[output_index],
+                        payload_mem_bank0[output_index]
+                    };
+                end else begin
+                    case (output_index[1:0])
+                        2'd0: sample_data_reg <= payload_mem_bank0[output_index >> 2];
+                        2'd1: sample_data_reg <= payload_mem_bank1[output_index >> 2];
+                        2'd2: sample_data_reg <= payload_mem_bank2[output_index >> 2];
+                        default: sample_data_reg <= payload_mem_bank3[output_index >> 2];
+                    endcase
+                end
+                output_data_valid <= 1'b1;
+            end else if (cmd_fire) begin
+                output_data_valid <= 1'b0;
                 if (output_index + 1'b1 >= output_count) begin
                     state <= ST_IDLE;
                     output_index <= '0;
@@ -156,6 +180,7 @@ module b2_packet_ingress #(
                     output_index <= output_index + 1'b1;
                 end
             end else if (sample_fire) begin
+                output_data_valid <= 1'b0;
                 if (output_index + 1'b1 >= output_count) begin
                     state <= ST_IDLE;
                     output_index <= '0;
@@ -289,7 +314,12 @@ module b2_packet_ingress #(
                             frame_error_code <= ERR_BAD_LENGTH;
                             state <= ST_DROP;
                         end else begin
-                            payload_mem[payload_word_index] <= s_data;
+                            case (payload_word_index[1:0])
+                                2'd0: payload_mem_bank0[payload_word_index >> 2] <= s_data;
+                                2'd1: payload_mem_bank1[payload_word_index >> 2] <= s_data;
+                                2'd2: payload_mem_bank2[payload_word_index >> 2] <= s_data;
+                                default: payload_mem_bank3[payload_word_index >> 2] <= s_data;
+                            endcase
                             crc_state <= crc32_word(crc_state, s_data);
                             if (payload_word_index + 1'b1 >= payload_word_expected) begin
                                 state <= ST_CRC;
@@ -325,10 +355,12 @@ module b2_packet_ingress #(
                         end else if (message_type == TYPE_COMMAND) begin
                             output_index <= '0;
                             output_count <= payload_length >> 4;
+                            output_data_valid <= 1'b0;
                             state <= ST_CMD_OUT;
                         end else begin
                             output_index <= '0;
                             output_count <= 10'd8;
+                            output_data_valid <= 1'b0;
                             state <= ST_SAMPLE_OUT;
                         end
                     end

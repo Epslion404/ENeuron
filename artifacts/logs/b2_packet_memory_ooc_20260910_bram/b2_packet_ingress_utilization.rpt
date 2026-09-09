@@ -1,0 +1,28 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2024.1 (win64) Build 5076996 Wed May 22 18:37:14 MDT 2024
+| Date         : Thu Sep 10 05:58:02 2026
+| Host         : LAPTOP-AJQHFMKI running 64-bit major release  (build 9200)
+| Command      : report_utilization -hierarchical -file D:/Documents/Code/ENeuron-board-b0/artifacts/tmp_b2_packet_memory_probe_v3/b2_packet_ingress_utilization.rpt
+| Design       : b2_packet_ingress
+| Device       : xc7z020clg484-2
+| Speed File   : -2
+| Design State : Synthesized
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Utilization Design Information
+
+Table of Contents
+-----------------
+1. Utilization by Hierarchy
+
+1. Utilization by Hierarchy
+---------------------------
+
++-------------------+--------+------------+------------+---------+------+-----+--------+--------+------------+
+|      Instance     | Module | Total LUTs | Logic LUTs | LUTRAMs | SRLs | FFs | RAMB36 | RAMB18 | DSP Blocks |
++-------------------+--------+------------+------------+---------+------+-----+--------+--------+------------+
+| b2_packet_ingress |  (top) |       2085 |        677 |    1408 |    0 | 488 |      0 |      0 |          0 |
++-------------------+--------+------------+------------+---------+------+-----+--------+--------+------------+
+
+

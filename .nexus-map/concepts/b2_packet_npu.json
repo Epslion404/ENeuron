@@ -1,6 +1,6 @@
 {
   "$schema": "nexus-mapper/concept-model/v1",
-  "verified_at": "2026-09-09",
+  "verified_at": "2026-09-10",
   "label": "B2 packet-NPU integration",
   "deployment_target_part": "xc7z020clg484-2",
   "source_head": "1d0e3ba",
@@ -49,6 +49,30 @@
       ],
       "invariant": "rejected frames do not leak cmd_valid, sample_valid, or busy"
     }
+  },
+  "memory_probe": {
+    "status": "EGRESS_BRAM_INFERRED_INGRESS_BANK_NOT_INFERRED",
+    "source_state": "uncommitted_worktree",
+    "rtl": [
+      "b2_packet_bram.sv",
+      "b2_packet_egress.sv",
+      "b2_packet_ingress.sv"
+    ],
+    "probe_reports": [
+      "artifacts/logs/b2_packet_memory_ooc_20260910_bram/b2_packet_egress_utilization.rpt",
+      "artifacts/logs/b2_packet_memory_ooc_20260910_bram/b2_packet_ingress_utilization.rpt"
+    ],
+    "device": "xc7z020clg484-2",
+    "tool": "Vivado 2024.1 synthesis OOC",
+    "resource_comparison": {
+      "egress_old_reference": "approximately 35944 LUT / 0 BRAM",
+      "egress_new": "532 LUT / 251 FF / 2 RAMB36 / 1 RAMB18",
+      "egress_hierarchy": "response_mem=2 RAMB36; result_mem=1 RAMB18",
+      "egress_lut_delta_reference": "approximately -35412 LUT",
+      "ingress_bank_probe": "2085 LUT / 677 logic LUT / 1408 LUTRAM / 488 FF / 0 BRAM"
+    },
+    "interpretation": "Egress payload storage now infers block RAM in the OOC probe. Ingress four-bank storage remains LUTRAM in the same probe; the ram_style declaration alone is not physical proof.",
+    "verification_boundary": "Static memory-inference contract and OOC synthesis only; no packet-top routed timing/DRC, board run, or semantic equivalence signoff yet."
   },
   "physical_build": {
     "status": "STALE_PRE_PACKET_TOP_BUILD",

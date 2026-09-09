@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-09-10T05:58:53+08:00",
+  "vivado": "Vivado v2024.1",
+  "part": "xc7z020clg484-2",
+  "script": "tools/repro/synth_b2_packet_memory_probe.tcl",
+  "artifact_dir": "artifacts/logs/b2_packet_memory_ooc_20260910_bram/",
+  "source_sha256": {
+    "b2_packet_ingress.sv": "7a6e081f0ae3b1cc82827977d44750de9bab191e902c87eb8558f946755d8d92",
+    "b2_packet_bram.sv": "021edcd2fa51b8219dda3e72ae57c217c46a7be47e9dd3191808d3f356f8ec06",
+    "b2_packet_egress.sv": "7c5f5ee69a18d903a5f2e51f677472ce5c9d80d7fe7c80ea8901f948b4d82ea5"
+  },
+  "reports": {
+    "ingress": {
+      "total_luts": 2085,
+      "logic_luts": 677,
+      "lutram": 1408,
+      "ff": 488,
+      "ramb36": 0,
+      "ramb18": 0,
+      "report_sha256": "02b8c0868d66a885b72750c7f4876d553b689f838bb67f16916a36292ba6a998"
+    },
+    "egress": {
+      "total_luts": 532,
+      "logic_luts": 532,
+      "lutram": 0,
+      "ff": 251,
+      "ramb36": 2,
+      "ramb18": 1,
+      "report_sha256": "ab02c32964b8f41cacae889adae6763ba5c102455b3d78295efaeb14c3ebdf19"
+    }
+  },
+  "evidence_scope": "OOC synthesis only; does not prove full BD route/timing, bitstream/XSA, or board execution.",
+  "dcp_sha256": {
+    "b2_packet_ingress.dcp": "84709a02459dbf7f300c6ed1e8c762be2a8d0444b2a8a9a529a2d252afd667c1",
+    "b2_packet_egress.dcp": "6d8dc727d79a9f8b814f38908ff8d5dc05831d4ba83113f8cf81b48933558363"
+  }
+}
