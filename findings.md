@@ -1625,3 +1625,24 @@
 - 单 `axi_stream_monitor` 实验拓扑可完成 Vivado 2024.1 bit/XSA 生成，但 post-route setup 未通过：`WNS=-0.284 ns`、`TNS=-22.272 ns`、`256` 个失败端点；hold、route error 和 DRC error 未失败。
 - 该结果说明官方 monitor 不能直接作为当前 100 MHz 顶层正式证据。源码已切换为轻量双向 `axis_stream_probe`，保留相同的 AXI-Lite 地址和软件快照字段；本次单 monitor build 目录只作为历史实验记录，不能与当前源码合同配套使用。
 - 下一步是验证轻量 probe 的 Vivado module reference、地址映射和 routed 时序；在获得新的 routed 通过证据前，不关闭 B2-03/B2-05/B2-GATE，也不进入 B3。
+
+## 2026-09-09 B2 背压配置与 AXI VALID 保持
+
+- 旧软件配置 `0x04000201` 的 period 字段为 `0`，按 RTL 合同等价于关闭背压；新配置 `0x04030201` 冻结为 enable=`1`、stall length=`2`、period=`3`，且软件在 `stall_cycles==0` 时 fail-closed。
+- 修复前实板运行 `20260909T065258Z` 在压力切片通过后停在 `backpressure_not_observed`，证明 fail-closed 生效，也证明旧链路没有产生受控 stall。
+- `m_axis_tvalid=fifo_valid&&!backpressure_stall` 原先可能在已公开 `TVALID=1,TREADY=0` 后因 phase 更新撤回 VALID。现于自然下游阻塞期间冻结 phase 并保持 `backpressure_stall=0`；合同测试先失败、修复后 stream probe `8/8` 通过。
+- 2026-09-09 15:07 的候选物理构建已通过：`WNS=+0.010 ns`、`WHS=+0.036 ns`、route/DRC hard error=`0`，bit SHA-256=`7bad70a6...d4717`、XSA SHA-256=`f31dcc6e...3553`。该构建发生在最后一次 VALID 保持修复之前，必须重建后才能上板作为正式候选。
+
+## 2026-09-09 B2 受控背压实板证据
+
+- 使用修复后同源身份 `bit=ef9740002e9b5e54ef0479e647b07bf3fc3577d8b552fdb6ed35d3f14fc5175a`、`xsa=8419e00eff65f4a3cd70ee397cab3bdb0e3351496dfe9b8cdcbe337ae8ab4185`、`elf=1f615e85c64f058219e10e09266109941bb90f2ba9b443cb7ce7b6d6fe214487` 完成实板 program/download/run，XSCT exit=`0`，probe exit=`0`。
+- JTAG 状态区读取：pressure `status=2,total=10000,passed=10000,failed=0`；backpressure `status=2,total=64,passed=64,failed=0,stall_cycles=83082`；MM2S probe `beats=1,bytes=1,TLAST=1,TKEEP=1,STALL=0`，S2MM probe 同样通过且 `STALL=3`。这证明受控背压确实发生并未破坏末帧数据。
+- UART `COM10` 仍为 `NO_TERMINAL_MARKER`，所以 runner 退出码仍为 `1`；该退出码表示 UART 证据缺失，不应覆盖 JTAG 已通过的事实。运行目录：`boards/hellozynq/b2_sw/build/e26c7c1427af79caa53ed7796f92424338c92ab5/direct/runs/20260909T072850Z/`。
+- 为避免 ignored build 目录中的正向证据丢失，已将 `20260909T073606Z` 的 6 个原始小日志/manifest 归档到 `artifacts/logs/b2_backpressure_pass_20260909_e26c7c1/`；不复制 bit/XSA/BSP 等大产物。
+
+## 2026-09-09 B2 UART 配置与物理链路边界
+
+- 同源复测 `20260909T083129Z` 的 UART 监听仍为 `NO_TERMINAL_MARKER`，但 JTAG 读取 PS UART0 `CR=0x114`、`MR=0x20`、`BAUDGEN=124`、`BAUDDIV=6`，软件 runner 判定 `jtag_uart_configured=true`。
+- `MR=0x20` 对应 8 data bits、无 parity、1 stop bit；以 100 MHz UART clock 和 `124/6` 分频得到约 115200 baud。该解释来自当前 Vitis 2024.1 BSP 的 `xuartps_hw.h`，不是手工猜测。
+- 被动监听在程序已运行后仍读取0字节，因此“只错过一次性启动 marker”不能解释现象；当前最小可信边界是 V14/V15 外部 USB-TTL 接线、共地、端口占用或电气连接仍需现场复核。
+- 证据目录：`artifacts/logs/b2_uart_config_jtag_pass_20260909_e26c7c1/`。该证据只增强诊断，不改变 UART、B2-03、B2-05、B2-GATE 的门状态。

@@ -2,9 +2,9 @@
 
 当前依赖边界：`xc7z020clg484-2` NPU + ENeuron 动态剪枝是活动主线；`archive/legacy/` 不参与日常门。B1 高地址 DDR、PHY、UDP 继续阻塞完整网络化 `B1-GATE`、B1C 和依赖网络的 B4，但在低地址窗口足以容纳模型/DMA 缓冲区时，不阻塞当前低地址 B2-MVP 的构建与实板回环，也不阻塞后续 NPU MVP 的 RTL/软件推进。旧 `clg400-1` NP7/T3 物理结果仅作历史参考。
 
-当前阶段合同由 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md` 主导，P16 TODO 段、`NPU_PRUNING_TODO.md` 和 `NPU_PRUNING_NP7_TODO.md` 提供关联合同；当前 P16 活动未完成项为 `63`。当前活动分支为 `codex/b1b-high-ddr-board-repro`、仓库 HEAD=`a404a8efe72babce623651dc7c6a04501e2713e6`；主线执行点为 B2-03 低地址实板 DMA 回环。2026-09-09 新构建物理门禁已通过，但工作树非 clean，仍需干净身份链上的软件重建和实板验证；旧 B1-06B6 → B1-06B7 资格支线不变。
+当前阶段合同由 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md` 主导，P16 TODO 段、`NPU_PRUNING_TODO.md` 和 `NPU_PRUNING_NP7_TODO.md` 提供关联合同；当前 P16 活动未完成项为 `63`。当前活动分支为 `codex/b1b-high-ddr-board-repro`、仓库 HEAD=`e26c7c1427af79caa53ed7796f92424338c92ab5`；主线执行点为 B2-03/B2-05 低地址实板背压收口。工作树含未提交的配置、零 stall fail-closed、首拍相位和 AXI VALID 保持修复；Vivado、同源 ELF 和实板 JTAG 背压验证均已完成，但 UART 终止标记仍缺失。旧 B1-06B6 → B1-06B7 资格支线不变。
 
-B2 观测依赖（2026-09-09）：官方双/单 `axi_stream_monitor:1.1` 顶层实验分别以 `WNS=-0.325 ns`、`WNS=-0.284 ns` 失败；旧同源轻量 `axis_stream_probe` 的 `20260909T045710Z` 读取证明 16 beats/64 bytes/TLAST=1/TKEEP=0xF/stall=0。`run_b2_build.ps1` 已加入 `Assert-B2TimingGreen`，解析 `timing_impl.rpt` 的 WNS/TNS/WHS/THS、route errors 与 DRC Error/Critical Warning，并输出 `B2_TIMING_PASS`；新构建门禁结果为 `WNS=+0.123 ns`、`WHS=+0.023 ns`、`TNS/THS=0`、route errors=0、DRC hard errors=0，且 `axis_stream_probe.v` 已纳入 `source_sha256`。软件 manifest/ELF 和受控背压实板证据仍待完成，B2-03/B2-05/B2-GATE 保持未完成。
+B2 观测依赖（2026-09-09）：官方双/单 `axi_stream_monitor:1.1` 顶层实验分别以 `WNS=-0.325 ns`、`WNS=-0.284 ns` 失败。提交 `e26c7c1` 的物理门禁已通过，但 `20260909T063702Z` 暴露旧配置 period=0、stall=0 的假阳性；`20260909T065258Z` 已由零 stall fail-closed 正确拒绝。当前配置为 `0x04030201`，首个输入后启动 phase，并在 `fifo_valid && !backpressure_stall && !m_axis_tready` 时冻结 phase 以保持 AXI VALID/payload；51/51 定向合同通过。修复后的 Vivado 构建、同源 ELF 和实板 JTAG 背压验证均已完成，run `20260909T073606Z` 的累计 stall=`83082`；B2-03/B2-05/B2-GATE 保持未完成。
 
 B1依赖（2026-09-09）：B0实板配置链 → B1A来源审计与可重建硬件定义 → B1B UART/DDR实板门 → B1C PHY/UDP与最终B1-GATE。B1B的正式UART和低地址1 MiB DDR已三次冷启动通过，下一板卡资格依赖是关闭`0x10000000`高地址异常；在此之前不能完成B1C最终签核或网络化B2/B4，但不阻塞已获授权的低地址 B2-MVP 回环。
 

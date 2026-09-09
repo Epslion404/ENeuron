@@ -67,6 +67,15 @@ class B2StreamProbeContractTests(unittest.TestCase):
             self.probe,
         )
 
+    def test_backpressure_phase_starts_on_first_captured_beat(self):
+        self.assertIn("else if (input_fire)", self.probe)
+        self.assertIn("避免等待 DMA 首拍时相位漂移", self.probe)
+        self.assertIn("else if (!fifo_valid)", self.probe)
+
+    def test_backpressure_freezes_phase_while_valid_waits_for_ready(self):
+        """已公开的 AXI VALID 在下游阻塞时必须保持，不能被强制背压撤回。"""
+        self.assertIn("fifo_valid && !backpressure_stall && !m_axis_tready", self.probe)
+
     def test_physical_build_uses_explore_and_rejects_bad_timing(self):
         self.assertIn("Performance_Explore", self.build)
         self.assertIn("'axis_stream_probe.v'", self.runner)

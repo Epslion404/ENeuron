@@ -117,6 +117,24 @@ class B2DmaAppContractTests(unittest.TestCase):
         ):
             self.assertIn(token, self.board)
 
+    def test_board_runner_records_jtag_backpressure_summary(self):
+        for token in (
+            "B2_STATUS_BACKPRESSURE_STATUS",
+            "jtag_backpressure_status",
+            "jtag_backpressure_stall_cycles",
+            "B2_JTAG_STATUS",
+        ):
+            self.assertIn(token, self.board)
+
+    def test_board_runner_records_ps_uart_configuration(self):
+        for token in (
+            "B2_UART_CR",
+            "B2_UART_MR",
+            "B2_UART_BAUDGEN",
+            "jtag_uart_configured",
+        ):
+            self.assertIn(token, self.board)
+
     def test_controlled_backpressure_contract_is_present(self):
         for token in (
             "BACKPRESSURE_FRAME_COUNT",
@@ -128,6 +146,17 @@ class B2DmaAppContractTests(unittest.TestCase):
         ):
             self.assertIn(token, self.source)
         self.assertIn("B2_BACKPRESSURE_PASS", self.board)
+
+    def test_backpressure_pass_is_fail_closed_on_zero_observed_stall(self):
+        self.assertIn("backpressure_stall_cycles == 0U", self.source)
+        self.assertIn("backpressure_not_observed", self.source)
+
+    def test_backpressure_config_has_nonzero_period(self):
+        self.assertIn("BACKPRESSURE_CONFIG 0x04030201U", self.source)
+
+    def test_terminal_pass_marker_is_repeated_after_completion(self):
+        alive_loop = self.source[self.source.index("while (1)") :]
+        self.assertIn("B2_DMA_PASS", alive_loop)
 
 
 if __name__ == "__main__":

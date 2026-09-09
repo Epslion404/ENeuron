@@ -243,6 +243,17 @@ module axis_stream_probe #(
                         (backpressure_config[23:16] == 8'd0)) begin
                         backpressure_phase <= 8'd0;
                         backpressure_stall <= 1'b0;
+                    end else if (input_fire) begin
+                        /* 每帧首个 beat 到达后才启动 phase，避免等待 DMA 首拍时相位漂移。 */
+                        backpressure_phase <= 8'd0;
+                        backpressure_stall <= 1'b1;
+                    end else if (fifo_valid && !backpressure_stall && !m_axis_tready) begin
+                        /* 已公开 VALID 的 beat 等待 READY 时冻结 phase，保持 VALID/payload。 */
+                        backpressure_phase <= backpressure_phase;
+                        backpressure_stall <= 1'b0;
+                    end else if (!fifo_valid) begin
+                        backpressure_phase <= 8'd0;
+                        backpressure_stall <= 1'b0;
                     end else if (backpressure_phase < backpressure_config[15:8]) begin
                         backpressure_stall <= 1'b1;
                         backpressure_phase <= backpressure_phase + 8'd1;

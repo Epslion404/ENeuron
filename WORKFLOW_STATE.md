@@ -4,7 +4,7 @@
 
 最后更新：2026-09-09
 
-状态：`ACTIVE / PHASE2_FASTLANE_V1 / B0_COMPLETE_MAIN_102DEE2 / B1A_HW_DEFINITION_COMPLETE / B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DIAG_READY_NO_GO / B1B_HIGH_DDR_PENDING / B2_00_LOW_ADDRESS_LAYOUT_FROZEN / B2_D1_DMA_CONTRACT_FROZEN / B2_01_BUFFER_OWNERSHIP_FROZEN / B2_DMA_SW_BUILD_READY / B2_BOUNDARY_AND_PRESSURE_JTAG_PASS_UART_PENDING / B1_GATE_FALSE / XC7Z020CLG484_2_CONFIRMED / T3_XPM_XSIM_PASS / T3_XC7Z020_OOC_PASS / RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN / GITHUB_ACTIONS_DISABLED`
+状态：`ACTIVE / PHASE2_FASTLANE_V1 / B0_COMPLETE_MAIN_102DEE2 / B1A_HW_DEFINITION_COMPLETE / B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DIAG_READY_NO_GO / B1B_HIGH_DDR_PENDING / B2_00_LOW_ADDRESS_LAYOUT_FROZEN / B2_D1_DMA_CONTRACT_FROZEN / B2_01_BUFFER_OWNERSHIP_FROZEN / B2_DMA_SW_BUILD_READY / B2_BOUNDARY_PRESSURE_BACKPRESSURE_JTAG_PASS_UART_PENDING / B1_GATE_FALSE / XC7Z020CLG484_2_CONFIRMED / T3_XPM_XSIM_PASS / T3_XC7Z020_OOC_PASS / RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN / GITHUB_ACTIONS_DISABLED`
 
 ## 当前活动目标
 
@@ -28,6 +28,7 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 2026-09-09：`run_b2_board.ps1` 新增烧写前 bitstream/XSA/ELF SHA-256 与 `build_manifest.json` 的 fail-closed 身份检查；不一致时在启动硬件服务器、打开串口和 FPGA program 前直接失败。PowerShell 解析通过，B2 DMA/stream monitor/stream probe 定向合同测试为 `23/23`，全部 B2 合同测试为 `42/42`；该修复不改变 B2-03～B2-GATE 未完成状态。
 2026-09-09：`probe_b2_state.tcl` 已扩展为读取 `0x40410000/0x40420000` 两个 probe 的 sample、beats、TLAST、bytes、cycles、stall、starve 和 last TKEEP，并由 runner 自动归档 stdout/stderr 与哈希。
 2026-09-09：新同源正式 run `20260909T045710Z` 完成 FPGA program、ELF download、CPU run；UART 为 `NO_TERMINAL_MARKER`，但自动归档的强制 JTAG probe 读取成功（`probe_exit_code=0`）。MM2S=`16 beats / 64 bytes / TLAST=1 / TKEEP=0xF / stall=0`，S2MM 同值；硬件周期=`1332/1268`、starve=`1316/1252`。证据为该 run 目录的 `b2_board_evidence.json`；B2-03/B2-GATE 仍未完成。
+2026-09-09：采用 AXI VALID 保持修复后的同源 bit/XSA/ELF 完成实板 run `20260909T073606Z`；JTAG `pressure=10000/10000`，`backpressure=64/64`、`failed=0`、`stall_cycles=83082`，MM2S/S2MM probe 最终帧均 `1 beat / 1 byte / TLAST=1 / TKEEP=1`，S2MM `STALL=3`。runner manifest 现保存 JTAG 摘要并输出 `B2_JTAG_STATUS=PASS`；UART `COM10` 仍为 `NO_TERMINAL_MARKER`，所以不关闭 UART 证据门。
 
 ## 当前事实
 
@@ -94,7 +95,7 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 
 ## 下一动作
 
-主线下一动作是 P16-B2-03 的实板完整性收口：保留当前 JTAG 状态采集合同，同时补齐 UART/PL 侧 byte、beat、TKEEP、TLAST、硬件周期与流计数，再实现可控背压、错误/复位恢复和跨 cache-line/连续回绕证据。10000 帧无背压压力切片已通过，但 B2-GATE 通过前不得接入 NPU 或报告剪枝加速、功耗收益。B1-06B6 串口接收故障和高地址 DDR 诊断继续作为板卡资格支线。
+主线下一动作是 P16-B2-03 的实板完整性收口：保留当前 JTAG 状态采集合同，补齐 UART/PL 多长度观测、错误/复位恢复和跨 cache-line/连续回绕证据。无背压 10000 帧与受控背压 64 帧已通过，但 B2-GATE 通过前不得接入 NPU 或报告剪枝加速、功耗收益。B1-06B6 串口接收故障和高地址 DDR 诊断继续作为板卡资格支线。
 
 ## 2026-09-05 V2 OOC 签核结果
 

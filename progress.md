@@ -1721,3 +1721,21 @@
 - `probe_b2_state.tcl` 已扩展为读取 `0x40410000/0x40420000` 两个 probe 的 sample、beats、TLAST、bytes、cycles、stall、starve 和 last TKEEP，并由 runner 自动归档 stdout/stderr 与哈希。
 - 新同源正式 run `20260909T045710Z` 已完成 FPGA program、ELF download、CPU run；UART 为 `NO_TERMINAL_MARKER`，但自动归档的强制 JTAG probe 读取成功（`probe_exit_code=0`）。MM2S=`16 beats / 64 bytes / TLAST=1 / TKEEP=0xF / stall=0`，S2MM 同值；硬件周期为 `1332/1268`，starve 为 `1316/1252`。证据已写入该 run 目录的 `b2_board_evidence.json`，B2-03/B2-GATE 仍未关闭。
 - 错误记录：PowerShell 不展开 `pytest test_b2_*.py` 通配符，第一次命令实际未运行测试；改用显式六个 B2 测试文件后得到 `42/42`，未把前一次空运行计为通过。
+
+## 2026-09-09 B2 背压 fail-closed 与 VALID 保持
+
+- 轮询 Vivado 会话 `27399` 得到终态 exit `0`：bit/XSA 生成成功，`B2_TIMING_PASS WNS=0.01 WHS=0.036 ROUTE_ERRORS=0 DRC_HARD_ERRORS=0`。
+- 为 AXI `TVALID` 保持先新增负向合同测试，确认修复前失败；随后在 `axis_stream_probe.v` 中冻结 `fifo_valid && !backpressure_stall && !m_axis_tready` 期间的 phase，定向测试 `8/8` 通过。
+- 当前修改尚未提交；下一步是完整 B2 回归、重新物理构建、同源软件构建和短实板背压运行。
+- 完整 B2 合同回归已重新执行：六个测试文件共 `50 passed`（2026-09-09）。
+
+- 实板短运行 `20260909T072850Z` 已完成同源 program/download/run；JTAG 读取 pressure `10000/10000`，backpressure `64/64`、`failed=0`、`stall_cycles=83082`，S2MM probe `STALL=3`。UART 仍 `NO_TERMINAL_MARKER`，runner exit=`1`，当前按 UART 缺证据处理。
+- `run_b2_board.ps1` 已加入 JTAG 状态区解析，manifest 将记录 pressure/backpressure 状态、失败数、stall 周期和两侧 probe stall；UART 缺失仍维持退出码 `1`。
+- 已把 `20260909T073606Z` 的 6 个小型原始日志和 manifest 归档到 `artifacts/logs/b2_backpressure_pass_20260909_e26c7c1/`，并保留 UART 缺失说明。
+
+## 2026-09-09 B2 UART 配置复测
+
+- 在同源 `e26c7c1` 身份上再次运行 `20260909T083129Z`；XSCT program/download/CPU run、JTAG pressure `10000/10000`、受控背压 `64/64`、`stall_cycles=83082` 和 S2MM `STALL=3` 均保持通过。
+- 新增 JTAG PS UART0 寄存器采样：`CR=0x114`（TX/RX enabled）、`MR=0x20`（8N1，无校验）、`BAUDGEN=124`、`BAUDDIV=6`，runner manifest 判定 `jtag_uart_configured=true`。
+- COM10 监听15秒仍无业务字节，`uart.log` 只有 runner 写入的 CRLF；原始证据归档于 `artifacts/logs/b2_uart_config_jtag_pass_20260909_e26c7c1/`。
+- 结论：UART 软件配置和 PS 外设初始化已有 JTAG 证据，剩余问题收窄到 V14/V15 外部 USB-TTL 链路、接线或电气条件；不放宽 UART 门禁，B2-03/B2-05/B2-GATE 仍未关闭。

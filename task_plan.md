@@ -1625,3 +1625,19 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 - [x] 用 Vivado 2024.1 完整重建并实际执行门禁：`WNS=+0.123 ns`、`WHS=+0.023 ns`、`TNS/THS=0`、route errors=`0`、DRC hard errors=`0`。
 - [x] B2 合同测试 `45/45` 通过，runner PowerShell AST 解析通过，manifest 可由 PowerShell `ConvertFrom-Json` 读取。
 - [ ] 在干净提交身份上重建并重绑 Vitis ELF；随后完成可控背压、错误/复位恢复、连续回绕和 UART 终止证据，关闭 B2-03/B2-05/B2-GATE。
+
+## 2026-09-09 AXI VALID 保持修复
+
+- [x] 先写合同测试复现 `TVALID=1,TREADY=0` 后 phase 可能撤回 `TVALID` 的风险；测试先失败。
+- [x] 在 `axis_stream_probe.v` 中冻结自然下游阻塞期间的 backpressure phase，保持 `TVALID/payload`；定向 stream probe 合同 `8/8` 通过。
+- [ ] 以该 RTL 重建 bitstream/XSA，重绑 Vitis ELF，并在实板确认 `STALL>0` 与零错误。
+
+- [x] 完整 B2 合同回归重新执行，六个测试文件 `50/50` 通过。
+- [x] 修复后 bit/XSA/ELF 完成一次实板运行；JTAG 受控背压 `64/64`、`failed=0`、`stall_cycles=83082`，S2MM probe `STALL=3`。
+- [ ] 将 JTAG probe 摘要写入 runner manifest，并补齐 UART marker、跨长度回绕和错误/复位恢复证据。
+- [x] runner 已解析并保存 JTAG pressure/backpressure/probe stall 字段，同时保留 UART 缺失的 fail-closed 退出；定向测试与 PowerShell AST 解析通过。
+- [x] 将正向实板 run 的小型原始证据归档到 `artifacts/logs/b2_backpressure_pass_20260909_e26c7c1/`，不纳入大体积构建产物。
+- [x] 增加 PS UART0 JTAG 寄存器采样并完成同源复测；归档 `20260909T083129Z`，确认 UART 配置成立但 COM10 仍无业务字节。
+- [ ] 现场复核 V14/V15 外部 USB-TTL 的 TX/RX 交叉、共地、3.3 V 电平和端口占用；复核前不放宽 UART 门禁。
+
+错误记录：两次同时追加 `findings.md`/`progress.md` 的补丁使用了错误尾部上下文，校验失败且未修改文件；第三次先用 `rg` 确认真实行文本后再应用。

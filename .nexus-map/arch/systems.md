@@ -4,15 +4,15 @@
 
 部署主线固定为 `xc7z020clg484-2` 的 NPU + ENeuron 动态剪枝。`xc7z020clg400-1` 上的 T3/NP7 OOC 与资源/时序报告仅作历史结构参考，不能替代 `clg484-2` 最终 routed 证据；`archive/legacy/` 内容不进入日常 CI/PR 门。B1 高地址 DDR、PHY 和 UDP 是板卡资格支线，仍决定完整 `B1-GATE`，但不阻塞低地址容量满足条件下的 NPU MVP。CH340 设备按 `VID_1A86:PID_7523` 识别，COM 编号仅作现场观测。
 
-合同层级（2026-09-09）：当前阶段合同为 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`；P16 TODO 段、`NPU_PRUNING_TODO.md` 和 `NPU_PRUNING_NP7_TODO.md` 是关联合同。P16 当前活动未完成项为 `63`。当前活动分支为 `codex/b1b-high-ddr-board-repro`，仓库 HEAD=`a404a8efe72babce623651dc7c6a04501e2713e6`；主线执行链仍为 B2-03 低地址实板回环 → B2-04 边界帧 → B2-05 背压/压力。2026-09-09 物理构建门禁已 PASS，但工作树非 clean，仍需重建同源软件/硬件身份链。
+合同层级（2026-09-09）：当前阶段合同为 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`；P16 TODO 段、`NPU_PRUNING_TODO.md` 和 `NPU_PRUNING_NP7_TODO.md` 是关联合同。P16 当前活动未完成项为 `63`。当前活动分支为 `codex/b1b-high-ddr-board-repro`，仓库 HEAD=`e26c7c1427af79caa53ed7796f92424338c92ab5`；主线执行链仍为 B2-03 低地址实板回环 → B2-04 边界帧 → B2-05 背压/压力。工作树的最新背压/VALID 修复尚未提交，但 Vivado、同源软件和 JTAG 背压实板证据均已完成；UART 和 B2 完整门仍待收口。
 
 B1B状态（2026-09-08）：当前B1A硬件身份为`29edf6a...`，B1B软件身份为`97ddd1a...`，bitstream/XSA/ELF为`1f98e949...bc5f6`、`ed4a2ff...d417b`、`4992d26c...128560`。正式UART为Bank 33的V14 RX/V15 TX，外置CH340按 VID/PID 自动发现（现场枚举 COM10）并在三次完整断电冷启动后收到完整协议；低地址1 MiB DDR九阶段与OCM记录也三次通过。`0x10000000`异常未关闭且高地址尚未访问，B1B与`B1-GATE`仍未完成。`hsi::open_hw_design`只能对临时XSA副本运行，正式build目录保持只读。
 
 B1A-HW状态（2026-09-08）：`boards/hellozynq/b1a_hw/`已在干净提交`29edf6a...`完成正式UART方向的Vivado 2024.1实现。最终I/O确认V14为Bank 33固定INPUT、V15为固定OUTPUT，均为LVCMOS33；资源与旧版本相同，WHS=`+0.138 ns`，其余实现硬门通过。状态保持`B1A_HW_DEFINITION_COMPLETE / B1_GATE_PASS=false`。
 
-阶段2实板状态（2026-09-09）：实际板卡目标固定为`xc7z020clg484-2`。B0双运行与完整断电证据已通过PR #69合并；B1-D1已批准，B1A完成，B1B的UART与低地址1 MiB DDR三次冷启动通过，高地址DDR边界仍阻塞完整 B1-GATE。最后可用 B2 实板组合是 HEAD `6f3d40e…` 的旧三件套，`20260909T045710Z` probe 读到 64-byte endpoint；当前工作树构建物理门禁通过，`WNS=+0.123 ns/WHS=+0.023 ns/TNS=0/THS=0`、route errors=0、DRC hard errors=0，但 manifest 为 dirty，尚未形成同源软件/实板证据。B2-03/B2-05/B2-GATE 仍未关闭。
+阶段2实板状态（2026-09-09）：实际板卡目标固定为`xc7z020clg484-2`。B0双运行与完整断电证据已通过PR #69合并；B1-D1已批准，B1A完成，B1B的UART与低地址1 MiB DDR三次冷启动通过，高地址DDR边界仍阻塞完整 B1-GATE。提交 `e26c7c1` 的最终物理门禁和同源实板运行已完成；旧背压配置使 64 帧数据通过但 stall=0，随后 fail-closed 运行 `20260909T065258Z` 正确返回 FAIL；修复后 run `20260909T073606Z` JTAG 背压 `64/64`、`failed=0`、`stall_cycles=83082`、S2MM `STALL=3`。UART 仍缺终止 marker，B2-03/B2-05/B2-GATE 仍未关闭。
 
-B2 观测器边界（2026-09-09）：双/单 `axi_stream_monitor:1.1` routed setup 均为历史失败（`WNS=-0.325/-0.284 ns`），不计入物理通过。旧同源 `axis_stream_probe` 运行证明 MM2S/S2MM 各 `16 beats/64 bytes/TLAST=1/TKEEP=0xF/stall=0`、`probe_exit_code=0`；当前 `axis_stream_probe.v` 使用寄存器化受控背压，物理构建门禁已 PASS，定向合同测试为 `25/25` 通过，但新实现尚无软件/实板证据。B2-03/B2-05/B2-GATE 仍未完成。
+B2 观测器边界（2026-09-09）：双/单 `axi_stream_monitor:1.1` routed setup 均为历史失败（`WNS=-0.325/-0.284 ns`），不计入物理通过。当前轻量 probe 修复将软件配置设为 `0x04030201`、零 stall 直接失败，RTL 从首个输入启动 phase，并在已公开 VALID 等待 READY 时冻结 phase；六个 B2 合同文件 `51/51` 通过。最终构建 `WNS/WHS=+0.017/+0.014 ns`，受控背压实板 run `20260909T073606Z` 已证明 `STALL>0`；多长度逐帧、连续回绕、错误恢复和 UART 终止仍未证明。B2-03/B2-05/B2-GATE 仍未完成。
 
 P16最终硬门仍按B0→B1→B2→B3→B4串行，但代码按Fastlane V1小步合并。B1A/B1B/B1C中间切片可进入main但不改变阶段通过状态；B2–B4仍不得提前声明实现或签核。
 

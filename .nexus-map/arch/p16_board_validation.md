@@ -7,7 +7,7 @@ verified_at: 2026-09-09
 
 authoritative_sources: `docs/planning/TODO.md`、`task_plan.md`、`findings.md`、`progress.md`
 
-当前工作流上下文（2026-09-09）：活动分支为 `codex/b1b-high-ddr-board-repro`，当前仓库 HEAD=`a404a8efe72babce623651dc7c6a04501e2713e6`，父级审计基线为 `d7e1035`。主线执行点仍为 `B2-03` 低地址实板 DMA 回环；2026-09-09 `run_b2_build.ps1` 物理构建门禁 PASS，但 manifest 标记工作树非 clean，尚未形成新软件/实板身份链证据。B1-06B6 UART 基准 → B1-06B7 OCM 高地址最小复现仍保留为板卡资格支线。
+当前工作流上下文（2026-09-09）：活动分支为 `codex/b1b-high-ddr-board-repro`，当前仓库 HEAD=`e26c7c1427af79caa53ed7796f92424338c92ab5`，父级审计基线为 `d7e1035`。主线执行点为 `B2-03/B2-05` 低地址实板背压收口；工作树包含配置、zero-stall fail-closed、首拍相位和 AXI VALID 保持修复。对应 Vivado 2024.1 物理门禁已通过（`WNS/WHS=+0.017/+0.014 ns`、route/DRC hard errors=0），同源 Vitis ELF 已重绑（SHA-256=`1f615e85…4487`）。实板 `20260909T073606Z` JTAG_STATUS=PASS，pressure=10000/10000，backpressure=64/64 failed=0，stall_cycles=83082，S2MM probe STALL=3；UART 仍为 `NO_TERMINAL_MARKER`。B1-06B6 UART 基准 → B1-06B7 OCM 高地址最小复现仍保留为板卡资格支线。
 
 监听观察：2026-09-08 按 VID/PID 监听 COM10 10 秒（115200 8N1）读取 0 字节，未见 `ENEURON_B1B_BEGIN`/`ALIVE`/`PASS`；未下载 bitstream/ELF、未发送 GO，DDR access=0。该观察不改变 `B1-06B6_UART_BASELINE_PENDING`，也不是 DDR 失败证据。
 
@@ -38,8 +38,8 @@ run-2归档位于 `artifacts/logs/hellozynq_b0/20260907T152656Z_df16ed6c_run2_ma
 最终阶段门仍按B1→B2→B3→B4串行；实现进入主线采用Fastlane V1。B1拆为B1A板级事实/可重建硬件定义、B1B PS7/UART/DDR、B1C PHY/UDP，每段定向验证后即可合并，但只有B1C最终摘要满足全部条件才标记B1-GATE通过。相同RTL/XDC/BD/Tcl/IP身份不重复跑Vivado，软件和文档修改只跑受影响门。
 
 - **B1：PS7、DDR、UART、PHY、最小 UDP。** 入口只接受主线上的 `B0-GATE=PASS`。先冻结 PS7/DDR/引脚和启动合同，再以 UART 冷启动、DDR 零错误、PHY/千兆链路、三档 UDP 和拔插恢复关闭本门；B1 不表示 NPU 已接入。
-  - **B2：AXI DMA 与固定帧协议。** 低地址 B2-MVP 可在 `B1A=PASS + B1B低地址1 MiB三次冷启动=PASS` 且布局合同冻结后先行；完整网络化 B2 仍受 `B1-GATE=PASS` 约束。最后可用同源实板证据为 HEAD `6f3d40e…` 的 bit/XSA/ELF（`44163a…`/`b80e3f…`/`6bf1e9…`），对应 `20260909T045710Z` 的单端点 probe。2026-09-09 新物理构建门禁已 PASS，目标 `xc7z020clg484-2`，`WNS=+0.123 ns`、`WHS=+0.023 ns`、`TNS/THS=0`、route errors=0、DRC hard errors=0；`axis_stream_probe.v` 已纳入 source hash。manifest 标记工作树非 clean，软件 manifest/ELF 尚未针对该构建重建，B2-03/B2-05/B2-GATE 仍未关闭，通过前不报告剪枝加速。
-  - **B2 观测器与背压收敛（2026-09-09）。** 官方双/单 `axi_stream_monitor:1.1` routed setup 实验均为历史失败（`WNS=-0.325 ns`、`WNS=-0.284 ns`），不进入正式物理基线。旧同源 `20260909T045710Z` probe 读到 MM2S/S2MM 各 `16 beats/64 bytes/TLAST=1/TKEEP=0xF/stall=0`；当前 `axis_stream_probe.v` 使用寄存器化单拍缓冲，定向合同测试为 `25/25` 通过。受控背压尚无新软件/实板证据；B2-03/B2-05/B2-GATE 仍未关闭。
+  - **B2：AXI DMA 与固定帧协议。** 低地址 B2-MVP 可在 `B1A=PASS + B1B低地址1 MiB三次冷启动=PASS` 且布局合同冻结后先行；完整网络化 B2 仍受 `B1-GATE=PASS` 约束。提交 `e26c7c1` 的最终 VALID 保持修复已完成物理门禁并绑定同源 ELF；实板 `20260909T073606Z` pressure=10000/10000、backpressure=64/64 failed=0、stall_cycles=83082，S2MM probe STALL=3。UART terminal marker 仍缺失；B2-03/B2-05/B2-GATE 仍未关闭，通过前不接入 B3 或报告剪枝加速。
+  - **B2 观测器与背压收敛（2026-09-09）。** 官方双/单 `axi_stream_monitor:1.1` routed setup 实验均为历史失败（`WNS=-0.325 ns`、`WNS=-0.284 ns`），不进入正式物理基线。当前轻量 probe 配置为 `0x04030201`，首个输入后启动 phase，且在 `TVALID=1/TREADY=0` 时冻结 phase 以保持 VALID/payload；六个 B2 合同测试文件已扩展为 `51/51` 通过。最终 VALID 修复构建为 `WNS/WHS=+0.017/+0.014 ns`，bit/XSA=`ef974000…5175a`/`8419e00e…4185`，同源 ELF=`1f615e85…4487`；实板 `20260909T073606Z` 已观测受控背压 `stall_cycles=83082`、S2MM STALL=3，backpressure 64/64 通过。
 - **B3：传统 NPU + ENeuron 固定向量。** 入口只接受 `B2-GATE=PASS`。保持 `64→32→10`、634 model words、8-beat sample、10-beat result 和四 DSP 合同，依次验证 dense、full-open、Host 静态 `2:4`、live-ENeuron，并覆盖 epoch 原子性、背压与复位恢复。
 - **B4：网口端到端 A/B。** 入口只接受 `B3-GATE=PASS`。固定同一 bitstream、ELF、模型、样本、时钟和网络条件，对四种模式执行可重复 A/B；正确性先于性能，端到端结果必须拆分网口、软件、DMA、排队和 NPU 计算开销。没有合格外部测量链时写 `POWER_NOT_MEASURED`。
 

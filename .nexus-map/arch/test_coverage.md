@@ -2,9 +2,9 @@
 
 当前覆盖边界：活动部署目标为 `xc7z020clg484-2`，NPU + ENeuron 动态剪枝证据优先。`archive/legacy/` 材料不参与日常门；旧 `xc7z020clg400-1` NP7/T3 物理结果只作历史参考。B1 高地址 DDR/PHY/UDP 属于板卡资格支线，完整 `B1-GATE` 仍待关闭；低地址窗口满足模型/DMA 容量后可继续 NPU MVP。CH340 以 `VID_1A86:PID_7523` 识别，COM10 仅为现场枚举记录。
 
-合同/统计边界（2026-09-09）：当前阶段合同为 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`；P16 TODO、`NPU_PRUNING_TODO.md` 和 `NPU_PRUNING_NP7_TODO.md` 为关联合同，P16 当前活动未完成项为 `63`。当前活动分支为 `codex/b1b-high-ddr-board-repro`、仓库 HEAD=`a404a8efe72babce623651dc7c6a04501e2713e6`；旧 `20260909T045710Z` 仅证明旧身份链的单端点 probe，不能覆盖当前新增背压。2026-09-09 物理构建门禁 PASS（WNS=+0.123 ns/WHS=+0.023 ns/TNS/THS=0，route errors=0，DRC hard errors=0），但 manifest 标记工作树非 clean，软件 manifest/ELF 尚未重建；B2-03/B2-05/B2-GATE 未关闭，B1 高地址 DDR 访问仍为 0。
+合同/统计边界（2026-09-09）：当前阶段合同为 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`；P16 TODO、`NPU_PRUNING_TODO.md` 和 `NPU_PRUNING_NP7_TODO.md` 为关联合同，P16 当前活动未完成项为 `63`。当前活动分支为 `codex/b1b-high-ddr-board-repro`、仓库 HEAD=`e26c7c1427af79caa53ed7796f92424338c92ab5`。最终 VALID 保持修复的物理门禁已通过（`WNS/WHS=+0.017/+0.014 ns`）；实板 `20260909T063702Z` 的 stall=0 不能证明背压，`20260909T065258Z` 已由 fail-closed 正确拒绝；`20260909T073606Z` JTAG 背压 `64/64`、`failed=0`、`stall_cycles=83082`，S2MM `STALL=3`。B2-03/B2-05/B2-GATE 未关闭，B1 高地址 DDR 访问仍为 0。
 
-B2 观测器覆盖（2026-09-09）：官方双/单 monitor 的 routed setup 失败分别为 `WNS/TNS=-0.325/-11.113 ns`（127 个端点）和 `-0.284/-22.272 ns`（256 个端点），均不计入正式物理通过。旧同源 probe 运行已归档 `probe_exit_code=0`、MM2S/S2MM 各 `16 beats/64 bytes/TLAST=1/TKEEP=0xF/stall=0`；当前 `axis_stream_probe.v` 新增寄存器化受控背压，物理构建门禁 PASS（WNS=+0.123 ns、WHS=+0.023 ns、TNS/THS=0、route errors=0、DRC hard errors=0），但尚无新背压软件/实板证据。定向合同测试为 `25/25` 通过。
+B2 观测器覆盖（2026-09-09）：官方双/单 monitor 的 routed setup 失败分别为 `WNS/TNS=-0.325/-11.113 ns`（127 个端点）和 `-0.284/-22.272 ns`（256 个端点），均不计入正式物理通过。当前工作树覆盖配置 period 非零、zero-stall fail-closed、首个 `input_fire` 启动 phase，以及 `TVALID=1/TREADY=0` 时冻结 phase 保持 VALID/payload；六个 B2 合同测试文件 `51/51` 通过。最终 VALID 修复的物理门禁已通过，实板 JTAG 受控 S2MM `STALL>0` 已在 run `20260909T073606Z` 验证；现有合同测试仍不替代逐拍仿真，UART/错误恢复/连续回绕仍待验证。
 
 新增监听观察（2026-09-08）：COM10（VID/PID=`VID_1A86:PID_7523`）以 115200 8N1 非侵入式监听 10 秒，读取 0 字节，未收到 `ENEURON_B1B_BEGIN`、`ALIVE` 或 `PASS`；未下载 bitstream/ELF、未发送 GO。该结果维持 `B1-06B6_UART_BASELINE_PENDING`，不构成 DDR 失败或高地址访问证据。
 

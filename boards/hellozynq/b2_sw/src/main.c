@@ -24,7 +24,7 @@
 #define PRESSURE_LENGTHS {1U, 4U, 16U, 64U, 512U, 1472U, 4096U}
 #define BACKPRESSURE_FRAME_COUNT 64U
 #define BACKPRESSURE_LENGTHS {1U, 4U, 16U, 64U, 512U, 1472U, 4096U}
-#define BACKPRESSURE_CONFIG 0x04000201U
+#define BACKPRESSURE_CONFIG 0x04030201U
 
 #if defined(XPAR_AXIS_STREAM_PROBE_MM2S_BASEADDR)
 #define MONITOR_MM2S_BASE XPAR_AXIS_STREAM_PROBE_MM2S_BASEADDR
@@ -470,14 +470,19 @@ static int run_backpressure(void)
         if (run_one_frame(sequence, length, FRAME_COUNT) != XST_SUCCESS) {
             ++snapshot->backpressure_failed;
             backpressure_mode = 0;
-            monitor_configure_backpressure(MONITOR_S2MM_BASE, 0U);
             snapshot->backpressure_status = SNAPSHOT_FAIL;
             memory_barrier();
             return XST_FAILURE;
         }
     }
+    if (snapshot->backpressure_stall_cycles == 0U) {
+        backpressure_mode = 0;
+        ++snapshot->backpressure_failed;
+        snapshot->backpressure_status = SNAPSHOT_FAIL;
+        memory_barrier();
+        return fail("backpressure_not_observed");
+    }
     backpressure_mode = 0;
-    monitor_configure_backpressure(MONITOR_S2MM_BASE, 0U);
     snapshot->backpressure_status = SNAPSHOT_PASS;
     memory_barrier();
     xil_printf("B2_BACKPRESSURE_PASS frames=%u crc32=0x%08x last_sequence=%u stall_cycles=%u\r\n",
@@ -572,6 +577,16 @@ int main(void)
 
     while (1) {
         sleep(1U);
+        /* 终态重复发送正式 marker，避免监听晚打开时丢失一次性结果。 */
+        xil_printf("B2_PRESSURE_PASS frames=%u crc32=0x%08x last_sequence=%u\r\n",
+                   snapshot->pressure_passed, snapshot->pressure_crc32,
+                   snapshot->pressure_last_sequence);
+        xil_printf("B2_BACKPRESSURE_PASS frames=%u crc32=0x%08x last_sequence=%u stall_cycles=%u\r\n",
+                   snapshot->backpressure_passed, snapshot->backpressure_crc32,
+                   snapshot->backpressure_last_sequence,
+                   snapshot->backpressure_stall_cycles);
+        xil_printf("B2_DMA_PASS frames=%u rejected_zero=%u\r\n",
+                   FRAME_COUNT - rejected_zero, rejected_zero);
         xil_printf("B2_DMA_ALIVE PASS\r\n");
     }
 }

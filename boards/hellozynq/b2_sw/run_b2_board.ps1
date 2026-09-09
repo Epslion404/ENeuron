@@ -30,6 +30,13 @@ function Open-SerialPort {
     return $port
 }
 
+function Get-ProbeValue {
+    param([string]$Text, [string]$Key)
+    $match = [regex]::Match($Text, "(?m)^" + [regex]::Escape($Key) + "=(\d+)\s*$")
+    if ($match.Success) { return [uint64]$match.Groups[1].Value }
+    return $null
+}
+
 $scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $repoRoot = (Resolve-Path (Join-Path $scriptRoot '..\..\..')).Path
 $gitHead = (& git -C $repoRoot rev-parse HEAD).Trim()
@@ -166,6 +173,32 @@ if (Test-Path -LiteralPath $probeTcl) {
         ''
     }
 }
+$probeReadAvailable = $probeText.Contains('B2_PROBE_MM2S_BYTES=') -and $probeText.Contains('B2_PROBE_S2MM_BYTES=')
+$jtagPressureStatus = Get-ProbeValue $probeText 'B2_STATUS_PRESSURE_STATUS'
+$jtagPressureTotal = Get-ProbeValue $probeText 'B2_STATUS_PRESSURE_TOTAL'
+$jtagPressurePassed = Get-ProbeValue $probeText 'B2_STATUS_PRESSURE_PASSED'
+$jtagPressureFailed = Get-ProbeValue $probeText 'B2_STATUS_PRESSURE_FAILED'
+$jtagBackpressureStatus = Get-ProbeValue $probeText 'B2_STATUS_BACKPRESSURE_STATUS'
+$jtagBackpressureTotal = Get-ProbeValue $probeText 'B2_STATUS_BACKPRESSURE_TOTAL'
+$jtagBackpressurePassed = Get-ProbeValue $probeText 'B2_STATUS_BACKPRESSURE_PASSED'
+$jtagBackpressureFailed = Get-ProbeValue $probeText 'B2_STATUS_BACKPRESSURE_FAILED'
+$jtagBackpressureStallCycles = Get-ProbeValue $probeText 'B2_STATUS_BACKPRESSURE_STALL_CYCLES'
+$jtagMm2sStall = Get-ProbeValue $probeText 'B2_PROBE_MM2S_STALL'
+$jtagS2mmStall = Get-ProbeValue $probeText 'B2_PROBE_S2MM_STALL'
+$jtagUartCr = Get-ProbeValue $probeText 'B2_UART_CR'
+$jtagUartMr = Get-ProbeValue $probeText 'B2_UART_MR'
+$jtagUartBaudgen = Get-ProbeValue $probeText 'B2_UART_BAUDGEN'
+$jtagUartSr = Get-ProbeValue $probeText 'B2_UART_SR'
+$jtagUartBauddiv = Get-ProbeValue $probeText 'B2_UART_BAUDDIV'
+$jtagUartConfigured = $null -ne $jtagUartCr -and $null -ne $jtagUartMr -and
+    $null -ne $jtagUartBaudgen -and $null -ne $jtagUartBauddiv -and
+    (($jtagUartCr -band 0x14) -eq 0x14) -and $jtagUartMr -eq 0x20 -and
+    $jtagUartBaudgen -eq 124 -and $jtagUartBauddiv -eq 6
+$jtagPass = $probeExitCode -eq 0 -and $probeReadAvailable -and
+    $jtagPressureStatus -eq 2 -and $jtagPressureFailed -eq 0 -and
+    $jtagBackpressureStatus -eq 2 -and $jtagBackpressureFailed -eq 0 -and
+    $jtagBackpressureStallCycles -gt 0
+$jtagStatus = if ($jtagPass) { 'PASS' } elseif ($probeReadAvailable) { 'FAIL' } else { 'UNAVAILABLE' }
 $status = if ($uartText.Contains('B2_DMA_PASS')) { 'PASS' } elseif ($uartText.Contains('B2_DMA_FAIL')) { 'FAIL' } else { 'NO_TERMINAL_MARKER' }
 $runManifest = [ordered]@{
     schema_version = 1
@@ -184,7 +217,25 @@ $runManifest = [ordered]@{
     xsct_program_pass = $xsctText.Contains('B2_FPGA_PROGRAM_PASS')
     xsct_download_pass = $xsctText.Contains('B2_ELF_DOWNLOAD_PASS')
     probe_exit_code = $probeExitCode
-    probe_read_available = $probeText.Contains('B2_PROBE_MM2S_BYTES=') -and $probeText.Contains('B2_PROBE_S2MM_BYTES=')
+    probe_read_available = $probeReadAvailable
+    jtag_status = $jtagStatus
+    jtag_pressure_status = $jtagPressureStatus
+    jtag_pressure_total = $jtagPressureTotal
+    jtag_pressure_passed = $jtagPressurePassed
+    jtag_pressure_failed = $jtagPressureFailed
+    jtag_backpressure_status = $jtagBackpressureStatus
+    jtag_backpressure_total = $jtagBackpressureTotal
+    jtag_backpressure_passed = $jtagBackpressurePassed
+    jtag_backpressure_failed = $jtagBackpressureFailed
+    jtag_backpressure_stall_cycles = $jtagBackpressureStallCycles
+    jtag_mm2s_stall = $jtagMm2sStall
+    jtag_s2mm_stall = $jtagS2mmStall
+    jtag_uart_cr = $jtagUartCr
+    jtag_uart_mr = $jtagUartMr
+    jtag_uart_baudgen = $jtagUartBaudgen
+    jtag_uart_sr = $jtagUartSr
+    jtag_uart_bauddiv = $jtagUartBauddiv
+    jtag_uart_configured = $jtagUartConfigured
     probe_log_sha256 = if (Test-Path -LiteralPath $probeStdout) {
         (Get-FileHash -Algorithm SHA256 -LiteralPath $probeStdout).Hash.ToLowerInvariant()
     } else {
@@ -197,5 +248,6 @@ $runManifest = [ordered]@{
 $runManifestPath = Join-Path $runRoot 'run_manifest.json'
 $runManifest | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $runManifestPath -Encoding utf8
 Write-Output "B2_BOARD_STATUS=$status"
+Write-Output "B2_JTAG_STATUS=$jtagStatus"
 Write-Output "B2_RUN_MANIFEST=$runManifestPath"
 if ($status -ne 'PASS' -or $process.ExitCode -ne 0 -or -not $runManifest.xsct_program_pass -or -not $runManifest.xsct_download_pass) { exit 1 }
