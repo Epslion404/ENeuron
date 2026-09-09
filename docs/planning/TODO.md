@@ -654,7 +654,7 @@ P15 硬门：双时钟逐 beat bit-exact；reset/ready-valid/FIFO 满空无丢�
 #### P16-B2：AXI DMA和固定帧流协议
 
 - [x] B2-00：已冻结 `xc7z020clg484-2` 低地址 DMA 布局合同：模型、mask、命令/样本/响应/结果和 loopback 缓冲区均落在已验证 `[0x01000000,0x01100000)` 窗口内，manifest 明确 `B1_HIGH_DDR_PENDING`；机器验证器和合同见 `tools/repro/b2_dma_address_layout.json`、`verify_b2_dma_address_layout.py`、`docs/planning/NPU_ZYNQ7020_B2_ADDRESS_LAYOUT_V1.md`。这只开放低地址 B2-MVP，不代表完整 `B1-GATE`、网络化 B1C 或 B4 通过；任何基础设施变化都必须重跑受影响的 B1 项。
-- [ ] B2-D1：冻结首轮 DMA方案。推荐 AXI DMA simple mode + polling先跑通，再增加 interrupt；scatter-gather不进入首轮，除非 simple mode无法满足已冻结吞吐目标。
+- [x] B2-D1：已冻结首轮 DMA 控制合同：AXI DMA simple mode、单次 buffer、polling、S2MM 先行、TX flush/RX invalidate、1 us polling、1 s 传输超时、500 次 reset poll、错误/超时寄存器快照和单次短帧恢复；scatter-gather、micro-DMA、interrupt 均不进入首轮。合同与验证器见 `docs/planning/NPU_ZYNQ7020_B2_DMA_CONTRACT_V1.md`、`tools/repro/b2_dma_contract.json`、`verify_b2_dma_contract.py`。
 - [ ] B2-01：冻结 PS DDR发送/接收缓冲区的物理地址、大小、对齐、最大帧长和所有权状态机；逐步写清 `CPU填充→flush→DMA拥有→完成→invalidate→CPU读取`，CPU不得在 DMA拥有缓冲区时修改内容。
 - [ ] B2-02：冻结 DMA控制合同：simple mode、polling、超时、状态寄存器采样、错误清除和复位顺序；每次超时都保存 DMA寄存器、缓冲区头尾、PL计数器和当前 sequence。
 - [ ] B2-03：先实现 PL AXI-Stream loopback，不接 NPU；发送端和接收端都记录 byte数、beat数、`TKEEP`、`TLAST`位置、sequence、CRC和硬件周期，且 loopback顶层有独立资源/时序报告。

@@ -2,7 +2,7 @@
 
 当前门禁边界（中等精简）：`xc7z020clg484-2` NPU + ENeuron 动态剪枝为活动主线；`archive/legacy/` 不触发日常 CI/PR 门。旧 `xc7z020clg400-1` 的 NP7/T3 物理材料仅作历史参考。B1 高地址 DDR、PHY、UDP 是板卡资格支线，仍阻塞板级 `B1-GATE`，但不阻塞低地址容量满足条件下的 NPU MVP；CH340 按 `VID_1A86:PID_7523` 查找而非固定 COM 号。
 
-当前合同层级为阶段合同 `NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`，中等精简后的 P16 TODO 当前活动计数为 `66`；P16-E 公共证据合同和 P16-S 统一停止条件为常驻合同，不计入一次性计数。NP8 是 `DEFERRED_OPTIONAL`，NP9 已并入 P16 的 B2/B3/B4。B2-00 地址布局已冻结，主线下一步为 B2-D1；B1 高地址 DDR/PHY/UDP 仅为板卡资格支线。当前活动分支精确 HEAD 以 Git 与 `workflow_resume.ps1 -Mode Check` 为准；B1 诊断执行链仍为 B1-06B6 UART 基准 → B1-06B7 OCM 高地址最小复现，既有诊断未发送 GO，DDR 访问数为 0。
+当前合同层级为阶段合同 `NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`，中等精简后的 P16 TODO 当前活动计数为 `65`；P16-E 公共证据合同和 P16-S 统一停止条件为常驻合同，不计入一次性计数。NP8 是 `DEFERRED_OPTIONAL`，NP9 已并入 P16 的 B2/B3/B4。B2-00 地址布局与 B2-D1 DMA 控制合同均已冻结，主线下一步为不接 NPU 的 PL AXI-Stream loopback 和低地址实板 DMA 回环；B1 高地址 DDR/PHY/UDP 仅为板卡资格支线。当前活动分支精确 HEAD 以 Git 与 `workflow_resume.ps1 -Mode Check` 为准；B1 诊断执行链仍为 B1-06B6 UART 基准 → B1-06B7 OCM 高地址最小复现，既有诊断未发送 GO，DDR 访问数为 0。
 
 B2-00 已形成可复现的低地址布局合同：窗口 `[0x01000000,0x01100000)`，9 个 4 KiB 区域、总保留 `36 KiB`，最大 DMA frame `4096` bytes；`verify_b2_dma_address_layout.py` 输出 `B2_DMA_LAYOUT_PASS`。状态为 `B2_00_LOW_ADDRESS_LAYOUT_FROZEN`，下一步 B2-D1。`B1_HIGH_DDR_PENDING` 保持不变，B2-00 不等同于高地址 DDR 或完整 B1-GATE 通过。
 
