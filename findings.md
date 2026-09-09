@@ -1584,3 +1584,10 @@
 - 生成的本地证据为 `boards/hellozynq/b2_hw/build/hello_zynq_b2.bit` 和 `hello_zynq_b2.xsa`。它们绑定构建时 HEAD `9b64b55`，源码修正提交后必须重建，不能与新 HEAD 的软件 ELF 混用。
 - 新增 `boards/hellozynq/b2_sw/src/main.c`、`build_b2_sw.tcl`、`run_b2_sw_build.ps1`、`program_b2.tcl` 和 `run_b2_board.ps1`。Vitis 2024.1 生成 BSP 时实际编译 `axidma_v9_18`，应用构建通过；应用只执行一条 64-byte loopback 帧，记录 sequence、TX/RX CR/SR/BTT、CRC 和 cache ownership 标志。
 - 这一步只证明硬件实现和软件构建可复现；尚未证明 UART/JTAG 下载、DDR↔DMA↔PL 实际回环、背压、边界帧、错误恢复、压力或 B2-GATE。`B1_HIGH_DDR_PENDING` 继续有效。
+
+## 2026-09-09 B2 同源重建与 TODO 复核
+
+- `proc_sys_reset` 修复后的 Vivado 2024.1 构建绑定 HEAD `bba093603d501f157169f3c321fb77a62fcf4406`；timing summary 为 WNS/WHS=`+0.240/+0.036 ns`、TNS/THS=`0/0`，route error=0，DRC 为 0 error、1 warning、4 advisory。
+- 新 bitstream/XSA SHA-256 分别为 `d694fa02e0e6b5d25dfc72becc302104632268b4dc930b8709780dbebb08d918`、`68dc2b8e0c4e324bc1bacccdecfa384100042f10a94fae9f43d3a1b2b021897a`。
+- Vitis 2024.1 已用上述 XSA 重建 standalone ELF，SHA-256=`e37d7cb6869644ddc0c8a7db06698764561064ae96c8231a4e643cab095911a9`；BSP 继续使用 `axidma_v9_18`。
+- B2-01 的地址、容量、对齐、最大帧长和所有权顺序已有三层一致证据：布局合同、DMA 合同、`main.c` 实现，因此应关闭，避免与 B2-00/B2-D1 重复计门。B2-03 仍缺真实搬运和 PL 侧计数/协议证据，不能关闭。

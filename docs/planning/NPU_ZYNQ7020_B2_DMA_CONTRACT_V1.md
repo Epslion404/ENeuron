@@ -6,7 +6,7 @@
 
 ## 目的与边界
 
-本合同只冻结低地址 DMA MVP 的控制方式和机器证据字段。它不证明 AXI DMA 已经实例化、PL loopback 已经实现，也不关闭 B2-01～B2-GATE、B1-GATE、NPU、ENeuron、网络或功耗门。
+本合同只冻结低地址 DMA MVP 的控制方式和机器证据字段。它不证明 PL loopback 已完成实板传输，也不关闭 B2-03～B2-GATE、B1-GATE、NPU、ENeuron、网络或功耗门；B2-01 已由布局合同和本合同约束落地。
 
 首轮采用 AXI DMA simple mode、单次 buffer、polling；不启用 scatter-gather、micro-DMA 或 interrupt。只有 simple mode 无法满足已经冻结的吞吐目标时，才重新提交 DMA 模式裁定。
 
@@ -58,4 +58,4 @@
 
 ## 进入下一门的条件
 
-本合同验证通过后才可实施 B2-01/B2-02 的软件和硬件切片。下一片仍必须先做不接 NPU 的 PL AXI-Stream loopback，并保留低地址布局合同中的 `loopback_tx=0x01006000`、`loopback_rx=0x01007000`。在正常、背压、边界、错误和复位场景的真实 DDR↔DMA↔PL 双向证据完成前，不得接入 NPU 或报告动态剪枝加速/功耗收益。
+B2-01/B2-02 已按本合同完成布局、所有权和控制软件切片。下一片仍必须先做不接 NPU 的 PL AXI-Stream loopback，并保留低地址布局合同中的 `loopback_tx=0x01006000`、`loopback_rx=0x01007000`。在正常、背压、边界、错误和复位场景的真实 DDR↔DMA↔PL 双向证据完成前，不得接入 NPU 或报告动态剪枝加速/功耗收益。

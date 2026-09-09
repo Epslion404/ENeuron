@@ -1665,3 +1665,10 @@
 - 新增 `test_b2_dma_app_contract.py`，验证低地址缓冲区、64-byte 对齐、S2MM→MM2S 顺序、cache flush/invalidate、超时/寄存器快照和构建身份；定向测试 `5/5` 通过。
 - `run_b2_sw_build.ps1` 使用生成的 B2 XSA 生成 standalone BSP，Vitis 2024.1 实际编译 `axidma_v9_18`，生成 `b2_dma_loopback.elf`；软件构建退出码为 0。
 - 当前边界：硬件/软件产物尚绑定旧 HEAD `9b64b55`，必须在源码提交后重建；尚未执行实板 program、ELF download 或 DMA loopback，不能关闭 B2-03～B2-GATE。
+
+## 2026-09-09 B2 同源重建与 TODO 校正
+
+- `proc_sys_reset` 修复后的 Vivado 2024.1 重建完成，HEAD=`bba0936`；WNS/WHS=`+0.240/+0.036 ns`、TNS/THS=`0/0`、route/DRC error=0，生成新的 bitstream/XSA。
+- Vitis 2024.1 使用新 XSA 重建 standalone ELF；bitstream/XSA/ELF SHA-256 分别为 `d694fa02...d918`、`68dc2b8e...897a`、`e37d7cb6...11a9`。
+- B2 定向合同回归 `24/24` 通过，PowerShell 入口解析和 `git diff --check` 通过。
+- TODO 复核关闭 B2-01，活动 P16 未完成项从 64 降为 63；B2-03～B2-GATE 保持未完成，下一步为实板 64-byte loopback。

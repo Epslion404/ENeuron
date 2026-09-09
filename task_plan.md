@@ -1608,3 +1608,11 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 - [x] 完成不接 NPU 的 PS7/AXI DMA/AXI-Stream direct loopback 拓扑，并在 `xc7z020clg484-2` 上完成 Vivado implementation、route、timing 和 bitstream/XSA 生成。
 - [x] 新增 standalone `XAxiDma` simple-polling 软件入口，绑定低地址 loopback 缓冲区、cache ownership、S2MM→MM2S 顺序、超时和寄存器快照；Vitis 2024.1 构建通过。
 - [ ] 在真实板卡上验证低地址 DDR↔DMA↔PL 双向传输；随后补齐边界帧、背压、错误/复位恢复和 10000 帧压力，才能关闭 B2-GATE。
+
+## 2026-09-09 B2 同源重建与 TODO 校正
+
+- [x] 完成 `proc_sys_reset` 修复后的 Vivado 2024.1 重建，确认 HEAD=`bba0936`、WNS/WHS=`+0.240/+0.036 ns`、route/DRC error=0。
+- [x] 使用新 XSA 重建 Vitis standalone ELF，确认 bitstream/XSA/ELF 绑定同一 HEAD。
+- [x] 复核 B2-01：地址、大小、对齐、最大帧长和 CPU/DMA 所有权均已由合同与软件冻结，改为完成；B2-03 仍等待实板与 PL 侧证据。
+- [x] 定向 B2 合同回归 `24/24` 通过，恢复检查显示活动 P16 TODO 降为 63。
+- [ ] 执行单条 64-byte 实板 loopback；通过后再扩展边界、背压、错误/复位和压力门。

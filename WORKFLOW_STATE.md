@@ -4,7 +4,7 @@
 
 最后更新：2026-09-09
 
-状态：`ACTIVE / PHASE2_FASTLANE_V1 / B0_COMPLETE_MAIN_102DEE2 / B1A_HW_DEFINITION_COMPLETE / B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DIAG_READY_NO_GO / B1B_HIGH_DDR_PENDING / B2_00_LOW_ADDRESS_LAYOUT_FROZEN / B2_D1_DMA_CONTRACT_FROZEN / B2_DMA_SW_BUILD_READY / B2_HW_BITSTREAM_XSA_BUILT_NOT_PROGRAMMED / B1_GATE_FALSE / XC7Z020CLG484_2_CONFIRMED / T3_XPM_XSIM_PASS / T3_XC7Z020_OOC_PASS / RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN / GITHUB_ACTIONS_DISABLED`
+状态：`ACTIVE / PHASE2_FASTLANE_V1 / B0_COMPLETE_MAIN_102DEE2 / B1A_HW_DEFINITION_COMPLETE / B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DIAG_READY_NO_GO / B1B_HIGH_DDR_PENDING / B2_00_LOW_ADDRESS_LAYOUT_FROZEN / B2_D1_DMA_CONTRACT_FROZEN / B2_01_BUFFER_OWNERSHIP_FROZEN / B2_DMA_SW_BUILD_READY / B2_HW_BITSTREAM_XSA_BUILT_NOT_PROGRAMMED / B1_GATE_FALSE / XC7Z020CLG484_2_CONFIRMED / T3_XPM_XSIM_PASS / T3_XC7Z020_OOC_PASS / RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN / GITHUB_ACTIONS_DISABLED`
 
 ## 当前活动目标
 
@@ -12,11 +12,11 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 
 当前阶段活动合同：`docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`。关联主线合同为 `docs/planning/TODO.md`、`docs/planning/NPU_PRUNING_TODO.md` 和 `docs/planning/NPU_PRUNING_NP7_TODO.md`。阶段 2 只用真实板卡证据关闭任务；仿真与 OOC 继续作为开发辅助和历史基线。
 
-2026-09-09：B2-D1 首轮 AXI DMA 控制合同已冻结为 simple mode、单次 buffer、polling、S2MM 先行、1 us polling、1 s 传输超时、500 次 reset poll、错误/超时寄存器快照和一次短帧恢复；合同验证通过，但尚未实例化 DMA 或进行实板传输。
+2026-09-09：B2-D1 首轮 AXI DMA 控制合同已冻结为 simple mode、单次 buffer、polling、S2MM 先行、1 us polling、1 s 传输超时、500 次 reset poll、错误/超时寄存器快照和一次短帧恢复；DMA 已进入 B2 loopback 拓扑，但尚未进行实板传输。
 
-2026-09-09：B2 loopback 拓扑已在 Vivado 2024.1、`xc7z020clg484-2` 上完成实现并生成 `.bit/.xsa`；post-route WNS/WHS=`+0.232/+0.016 ns`、TNS/THS=`0/0`、route error=`0`、DRC error=`0`。当前 DRC 仅有 1 个继承的 GMII/RGMII 时钟缓冲 warning 和 4 个 DMA BRAM advisory，不能代替实板证据。
+2026-09-09：B2 loopback 拓扑在修正 AXI 协议转换和 `proc_sys_reset` 同步复位后，已于 HEAD `bba0936` 使用 Vivado 2024.1、`xc7z020clg484-2` 重建 `.bit/.xsa`；post-route WNS/WHS=`+0.240/+0.036 ns`、TNS/THS=`0/0`、route error=`0`、DRC error=`0`。bitstream/XSA SHA-256 分别为 `d694fa02...d918`、`68dc2b8e...897a`；当前 DRC 仅有 1 个继承的 GMII/RGMII 时钟缓冲 warning 和 4 个 DMA BRAM advisory，不能代替实板证据。
 
-2026-09-09：新增 `boards/hellozynq/b2_sw` standalone DMA polling 应用和构建/上板入口；Vitis 2024.1 BSP 实际包含 `axidma_v9_18`，应用绑定低地址 `loopback_tx=0x01006000`、`loopback_rx=0x01007000`，执行 RX(S2MM)先行、TX flush、RX invalidate、1 us polling 和 1 s 超时。软件构建已通过，尚未下载或执行实板 DMA 搬运。
+2026-09-09：新增 `boards/hellozynq/b2_sw` standalone DMA polling 应用和构建/上板入口；Vitis 2024.1 BSP 实际包含 `axidma_v9_18`，应用绑定低地址 `loopback_tx=0x01006000`、`loopback_rx=0x01007000`，执行 RX(S2MM)先行、TX flush、RX invalidate、1 us polling 和 1 s 超时。软件已使用 HEAD `bba0936` 的新 XSA 重建，ELF SHA-256=`e37d7cb6...11a9`；尚未下载或执行实板 DMA 搬运。
 
 ## 当前事实
 
@@ -83,7 +83,7 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 
 ## 下一动作
 
-主线下一动作是P16-B2-D1：在已冻结的低地址布局合同上冻结 AXI DMA simple-mode、polling、超时、错误清除和复位顺序，随后实现 loopback。B1-06B6串口接收故障和高地址DDR诊断继续作为板卡资格支线，仍禁止在UART READY前发送GO，也禁止在B1-06F前进入B1C；它们不再阻塞低地址窗口内的NPU MVP。
+主线下一动作是 P16-B2-03 的实板最小回环：使用 HEAD `bba0936` 同源的 bitstream/XSA/ELF，先验证单条 64-byte 低地址 DDR↔DMA↔PL loopback，再扩展边界帧、背压、错误/复位恢复和 10000 帧压力。B1-06B6 串口接收故障和高地址 DDR 诊断继续作为板卡资格支线；B2-GATE 通过前不得接入 NPU 或报告剪枝加速、功耗收益。
 
 ## 2026-09-05 V2 OOC 签核结果
 
