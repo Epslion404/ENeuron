@@ -14,6 +14,7 @@
 #define WRAP_STATUS_BASE 0x01008280U
 #define RECOVERY_STATUS_BASE 0x01008300U
 #define GAP_STATUS_BASE 0x01008340U
+#define ERROR_STATUS_BASE 0x01008380U
 #define MAX_FRAME_BYTES 4096U
 #define BUFFER_ALIGNMENT 64U
 #define POLL_INTERVAL_US 1U
@@ -64,6 +65,7 @@
 
 #define MONITOR_CONTROL_OFFSET 0x00U
 #define MONITOR_BACKPRESSURE_OFFSET 0x04U
+#define MONITOR_ERROR_CONFIG_OFFSET 0x08U
 #define MONITOR_SAMPLE_OFFSET 0x20U
 #define MONITOR_TOTAL_DATA_BEATS_OFFSET 0x50U
 #define MONITOR_TOTAL_TLASTS_OFFSET 0x80U
@@ -159,6 +161,23 @@ struct gap_snapshot {
     u32 gap_crc32_xor;
 };
 
+struct error_snapshot {
+    u32 error_status;
+    u32 error_mode;
+    u32 error_observed;
+    u32 error_timeout_observed;
+    u32 error_dma_error_observed;
+    u32 error_reset_passed;
+    u32 error_recovery_passed;
+    u32 error_failed;
+    u32 error_sequence;
+    u32 error_recovery_sequence;
+    u32 error_mm2s_tlast;
+    u32 error_s2mm_tlast;
+    u32 error_mm2s_beats;
+    u32 error_s2mm_beats;
+};
+
 struct frame_ledger {
     u32 sequence;
     u32 length_bytes;
@@ -206,6 +225,8 @@ static volatile struct recovery_snapshot *const recovery_snapshot_state =
     (volatile struct recovery_snapshot *)RECOVERY_STATUS_BASE;
 static volatile struct gap_snapshot *const gap_snapshot_state =
     (volatile struct gap_snapshot *)GAP_STATUS_BASE;
+static volatile struct error_snapshot *const error_snapshot_state =
+    (volatile struct error_snapshot *)ERROR_STATUS_BASE;
 static volatile struct frame_ledger *const ledger =
     (volatile struct frame_ledger *)STATUS_LEDGER_BASE;
 static volatile struct monitor_status *const monitor_status =
@@ -281,6 +302,12 @@ static u32 monitor_active(UINTPTR base)
 static void monitor_configure_backpressure(UINTPTR base, u32 config)
 {
     Xil_Out32(base + MONITOR_BACKPRESSURE_OFFSET, config);
+    memory_barrier();
+}
+
+static void monitor_configure_error(UINTPTR base, u32 config)
+{
+    Xil_Out32(base + MONITOR_ERROR_CONFIG_OFFSET, config);
     memory_barrier();
 }
 
@@ -839,6 +866,138 @@ static int run_recovery(void)
     return XST_SUCCESS;
 }
 
+static int run_error_injection(void)
+{
+    const u32 sequence = recovery_snapshot_state->recovery_sequence + 3U;
+    const u32 recovery_sequence = sequence + 1U;
+    const u32 length = 64U;
+    volatile u8 *const tx = (volatile u8 *)TX_BUFFER_BASE;
+    volatile u8 *const rx = (volatile u8 *)RX_BUFFER_BASE;
+    monitor_snapshot mm2s;
+    monitor_snapshot s2mm;
+    u32 index;
+    u32 elapsed;
+    u32 status;
+    u32 tx_sr;
+    u32 rx_sr;
+    u32 outcome = 0U;
+
+    error_snapshot_state->error_status = SNAPSHOT_RUNNING;
+    error_snapshot_state->error_mode = 1U; /* missing TLAST */
+    error_snapshot_state->error_observed = 0U;
+    error_snapshot_state->error_timeout_observed = 0U;
+    error_snapshot_state->error_dma_error_observed = 0U;
+    error_snapshot_state->error_reset_passed = 0U;
+    error_snapshot_state->error_recovery_passed = 0U;
+    error_snapshot_state->error_failed = 0U;
+    error_snapshot_state->error_sequence = sequence;
+    error_snapshot_state->error_recovery_sequence = recovery_sequence;
+    error_snapshot_state->error_mm2s_tlast = 0U;
+    error_snapshot_state->error_s2mm_tlast = 0U;
+    error_snapshot_state->error_mm2s_beats = 0U;
+    error_snapshot_state->error_s2mm_beats = 0U;
+    memory_barrier();
+
+    monitor_reset(MONITOR_MM2S_BASE);
+    monitor_reset(MONITOR_S2MM_BASE);
+    monitor_configure_error(MONITOR_MM2S_BASE, 1U);
+    monitor_configure_error(MONITOR_S2MM_BASE, 0U);
+    for (index = 0U; index < length; ++index) {
+        tx[index] = (u8)(sequence + index * 3U + 0x11U);
+        rx[index] = 0U;
+    }
+    Xil_DCacheFlushRange(TX_BUFFER_BASE, length);
+    Xil_DCacheInvalidateRange(RX_BUFFER_BASE, length);
+    status = XAxiDma_SimpleTransfer(&dma, RX_BUFFER_BASE, length,
+                                    XAXIDMA_DEVICE_TO_DMA);
+    if (status != XST_SUCCESS) {
+        error_snapshot_state->error_dma_error_observed = 1U;
+        outcome = 2U;
+    } else {
+        status = XAxiDma_SimpleTransfer(&dma, TX_BUFFER_BASE, length,
+                                         XAXIDMA_DMA_TO_DEVICE);
+        if (status != XST_SUCCESS) {
+            error_snapshot_state->error_dma_error_observed = 1U;
+            outcome = 2U;
+        }
+    }
+    elapsed = 0U;
+    while (outcome == 0U && elapsed < TRANSFER_TIMEOUT_US) {
+        tx_sr = read_reg(XAXIDMA_TX_OFFSET, XAXIDMA_SR_OFFSET);
+        rx_sr = read_reg(XAXIDMA_RX_OFFSET, XAXIDMA_SR_OFFSET);
+        if ((tx_sr | rx_sr) & XAXIDMA_ERR_ALL_MASK) {
+            error_snapshot_state->error_dma_error_observed = 1U;
+            outcome = 2U;
+            break;
+        }
+        if (!XAxiDma_Busy(&dma, XAXIDMA_DEVICE_TO_DMA) &&
+            !XAxiDma_Busy(&dma, XAXIDMA_DMA_TO_DEVICE)) {
+            outcome = 3U;
+            break;
+        }
+        usleep(POLL_INTERVAL_US);
+        ++elapsed;
+    }
+    if (outcome == 0U) {
+        error_snapshot_state->error_timeout_observed = 1U;
+    }
+    monitor_capture(MONITOR_MM2S_BASE, &mm2s);
+    monitor_capture(MONITOR_S2MM_BASE, &s2mm);
+    error_snapshot_state->error_mm2s_tlast = mm2s.total_tlasts_lo;
+    error_snapshot_state->error_s2mm_tlast = s2mm.total_tlasts_lo;
+    error_snapshot_state->error_mm2s_beats = mm2s.total_beats;
+    error_snapshot_state->error_s2mm_beats = s2mm.total_beats;
+    capture_registers();
+    if ((error_snapshot_state->error_timeout_observed == 1U ||
+         error_snapshot_state->error_dma_error_observed == 1U) &&
+        error_snapshot_state->error_s2mm_tlast == 0U) {
+        error_snapshot_state->error_observed = 1U;
+    }
+    if (error_snapshot_state->error_observed == 0U) {
+        ++error_snapshot_state->error_failed;
+        error_snapshot_state->error_status = SNAPSHOT_FAIL;
+        memory_barrier();
+        return fail("missing_tlast_not_observed");
+    }
+    if (reset_and_wait() != XST_SUCCESS) {
+        ++error_snapshot_state->error_failed;
+        error_snapshot_state->error_status = SNAPSHOT_FAIL;
+        memory_barrier();
+        return fail("error_injection_reset_timeout");
+    }
+    error_snapshot_state->error_reset_passed = 1U;
+    monitor_reset(MONITOR_MM2S_BASE);
+    monitor_reset(MONITOR_S2MM_BASE);
+    monitor_configure_error(MONITOR_MM2S_BASE, 0U);
+    monitor_configure_error(MONITOR_S2MM_BASE, 0U);
+    gap_mode = 1;
+    status = run_one_frame_at(recovery_sequence, 4U, FRAME_COUNT,
+                              TX_BUFFER_BASE, RX_BUFFER_BASE);
+    gap_mode = 0;
+    if (status != XST_SUCCESS) {
+        ++error_snapshot_state->error_failed;
+        error_snapshot_state->error_status = SNAPSHOT_FAIL;
+        memory_barrier();
+        return fail("error_injection_recovery_failed");
+    }
+    error_snapshot_state->error_recovery_passed = 1U;
+    error_snapshot_state->error_status = SNAPSHOT_PASS;
+    memory_barrier();
+    xil_printf("B2_ERROR_INJECTION_PASS mode=missing_tlast observed=%u timeout=%u "
+               "dma_error=%u reset=%u recovered=%u sequence=%u recovery_sequence=%u "
+               "mm2s_tlast=%u s2mm_tlast=%u\r\n",
+               error_snapshot_state->error_observed,
+               error_snapshot_state->error_timeout_observed,
+               error_snapshot_state->error_dma_error_observed,
+               error_snapshot_state->error_reset_passed,
+               error_snapshot_state->error_recovery_passed,
+               error_snapshot_state->error_sequence,
+               error_snapshot_state->error_recovery_sequence,
+               error_snapshot_state->error_mm2s_tlast,
+               error_snapshot_state->error_s2mm_tlast);
+    return XST_SUCCESS;
+}
+
 static int run_gap(void)
 {
     const u32 first_sequence = recovery_snapshot_state->recovery_sequence + 1U;
@@ -856,6 +1015,20 @@ static int run_gap(void)
     gap_snapshot_state->gap_first_crc32 = 0U;
     gap_snapshot_state->gap_second_crc32 = 0U;
     gap_snapshot_state->gap_crc32_xor = 0U;
+    error_snapshot_state->error_status = 0U;
+    error_snapshot_state->error_mode = 0U;
+    error_snapshot_state->error_observed = 0U;
+    error_snapshot_state->error_timeout_observed = 0U;
+    error_snapshot_state->error_dma_error_observed = 0U;
+    error_snapshot_state->error_reset_passed = 0U;
+    error_snapshot_state->error_recovery_passed = 0U;
+    error_snapshot_state->error_failed = 0U;
+    error_snapshot_state->error_sequence = 0U;
+    error_snapshot_state->error_recovery_sequence = 0U;
+    error_snapshot_state->error_mm2s_tlast = 0U;
+    error_snapshot_state->error_s2mm_tlast = 0U;
+    error_snapshot_state->error_mm2s_beats = 0U;
+    error_snapshot_state->error_s2mm_beats = 0U;
     memory_barrier();
 
     pressure_mode = 0;
@@ -1040,6 +1213,10 @@ int main(void)
         return XST_FAILURE;
     }
 
+    if (run_error_injection() != XST_SUCCESS) {
+        return XST_FAILURE;
+    }
+
     snapshot->status = SNAPSHOT_PASS;
     memory_barrier();
     xil_printf("B2_DMA_PASS frames=%u rejected_zero=%u\r\n",
@@ -1088,6 +1265,18 @@ int main(void)
                    gap_snapshot_state->gap_second_length,
                    gap_snapshot_state->gap_requested_us,
                    gap_snapshot_state->gap_crc32_xor);
+        xil_printf("B2_ERROR_INJECTION_PASS mode=missing_tlast observed=%u timeout=%u "
+                   "dma_error=%u reset=%u recovered=%u sequence=%u recovery_sequence=%u "
+                   "mm2s_tlast=%u s2mm_tlast=%u\r\n",
+                   error_snapshot_state->error_observed,
+                   error_snapshot_state->error_timeout_observed,
+                   error_snapshot_state->error_dma_error_observed,
+                   error_snapshot_state->error_reset_passed,
+                   error_snapshot_state->error_recovery_passed,
+                   error_snapshot_state->error_sequence,
+                   error_snapshot_state->error_recovery_sequence,
+                   error_snapshot_state->error_mm2s_tlast,
+                   error_snapshot_state->error_s2mm_tlast);
         xil_printf("B2_DMA_ALIVE PASS\r\n");
     }
 }

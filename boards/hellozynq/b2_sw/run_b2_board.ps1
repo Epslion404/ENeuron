@@ -178,6 +178,7 @@ try {
                      $received.ToString().Contains('B2_WRAP_PASS') -and
                      $received.ToString().Contains('B2_RECOVERY_PASS') -and
                      $received.ToString().Contains('B2_GAP_PASS') -and
+                     $received.ToString().Contains('B2_ERROR_INJECTION_PASS') -and
                      $received.ToString().Contains('B2_DMA_PASS frames=')) -or
                     $received.ToString().Contains('B2_DMA_FAIL')) { break }
             }
@@ -284,6 +285,20 @@ $jtagGapSecondSequence = Get-ProbeValue $probeText 'B2_STATUS_GAP_SECOND_SEQUENC
 $jtagGapFirstLength = Get-ProbeValue $probeText 'B2_STATUS_GAP_FIRST_LENGTH'
 $jtagGapSecondLength = Get-ProbeValue $probeText 'B2_STATUS_GAP_SECOND_LENGTH'
 $jtagGapCrcXor = Get-ProbeValue $probeText 'B2_STATUS_GAP_CRC_XOR'
+$jtagErrorStatus = Get-ProbeValue $probeText 'B2_STATUS_ERROR_STATUS'
+$jtagErrorMode = Get-ProbeValue $probeText 'B2_STATUS_ERROR_MODE'
+$jtagErrorObserved = Get-ProbeValue $probeText 'B2_STATUS_ERROR_OBSERVED'
+$jtagErrorTimeout = Get-ProbeValue $probeText 'B2_STATUS_ERROR_TIMEOUT'
+$jtagErrorDmaError = Get-ProbeValue $probeText 'B2_STATUS_ERROR_DMA_ERROR'
+$jtagErrorReset = Get-ProbeValue $probeText 'B2_STATUS_ERROR_RESET'
+$jtagErrorRecovery = Get-ProbeValue $probeText 'B2_STATUS_ERROR_RECOVERY'
+$jtagErrorFailed = Get-ProbeValue $probeText 'B2_STATUS_ERROR_FAILED'
+$jtagErrorSequence = Get-ProbeValue $probeText 'B2_STATUS_ERROR_SEQUENCE'
+$jtagErrorRecoverySequence = Get-ProbeValue $probeText 'B2_STATUS_ERROR_RECOVERY_SEQUENCE'
+$jtagErrorMm2sTlast = Get-ProbeValue $probeText 'B2_STATUS_ERROR_MM2S_TLAST'
+$jtagErrorS2mmTlast = Get-ProbeValue $probeText 'B2_STATUS_ERROR_S2MM_TLAST'
+$jtagErrorMm2sBeats = Get-ProbeValue $probeText 'B2_STATUS_ERROR_MM2S_BEATS'
+$jtagErrorS2mmBeats = Get-ProbeValue $probeText 'B2_STATUS_ERROR_S2MM_BEATS'
 $jtagMm2sStall = Get-ProbeValue $probeText 'B2_PROBE_MM2S_STALL'
 $jtagS2mmStall = Get-ProbeValue $probeText 'B2_PROBE_S2MM_STALL'
 $jtagUartCr = Get-ProbeValue $probeText 'B2_UART_CR'
@@ -325,13 +340,22 @@ $jtagPass = $probeExitCode -eq 0 -and $probeReadAvailable -and
     $jtagGapFirstSequence -eq 10330 -and
     $jtagGapSecondSequence -eq 10331 -and
     $jtagGapFirstLength -eq 4 -and
-    $jtagGapSecondLength -eq 64
+    $jtagGapSecondLength -eq 64 -and
+    $jtagErrorStatus -eq 2 -and
+    $jtagErrorMode -eq 1 -and
+    $jtagErrorObserved -eq 1 -and
+    (($jtagErrorTimeout -eq 1) -or ($jtagErrorDmaError -eq 1)) -and
+    $jtagErrorReset -eq 1 -and
+    $jtagErrorRecovery -eq 1 -and
+    $jtagErrorFailed -eq 0 -and
+    $jtagErrorS2mmTlast -eq 0
 $jtagStatus = if ($jtagPass) { 'PASS' } elseif ($probeReadAvailable) { 'FAIL' } else { 'UNAVAILABLE' }
 $uartPass = $uartText.Contains('B2_PRESSURE_PASS') -and
     $uartText.Contains('B2_BACKPRESSURE_PASS') -and
     $uartText.Contains('B2_WRAP_PASS') -and
     $uartText.Contains('B2_RECOVERY_PASS') -and
     $uartText.Contains('B2_GAP_PASS') -and
+    $uartText.Contains('B2_ERROR_INJECTION_PASS') -and
     $uartText.Contains('B2_DMA_PASS frames=')
 $xsctExitCode = if ($process.HasExited) { [int]$process.ExitCode } else { $null }
 $status = if ($uartPass -and $jtagPass -and $xsctExitCode -eq 0 -and
@@ -394,6 +418,36 @@ $runManifest = [ordered]@{
     jtag_gap_first_length = $jtagGapFirstLength
     jtag_gap_second_length = $jtagGapSecondLength
     jtag_gap_crc_xor = $jtagGapCrcXor
+    jtag_error_status = $jtagErrorStatus
+    jtag_error_mode = $jtagErrorMode
+    jtag_error_observed = $jtagErrorObserved
+    jtag_error_timeout = $jtagErrorTimeout
+    jtag_error_dma_error = $jtagErrorDmaError
+    jtag_error_reset = $jtagErrorReset
+    jtag_error_recovery = $jtagErrorRecovery
+    jtag_error_failed = $jtagErrorFailed
+    jtag_error_sequence = $jtagErrorSequence
+    jtag_error_recovery_sequence = $jtagErrorRecoverySequence
+    jtag_error_mm2s_tlast = $jtagErrorMm2sTlast
+    jtag_error_s2mm_tlast = $jtagErrorS2mmTlast
+    jtag_error_mm2s_beats = $jtagErrorMm2sBeats
+    jtag_error_s2mm_beats = $jtagErrorS2mmBeats
+    jtag_error_injection = [ordered]@{
+        status = $jtagErrorStatus
+        mode = $jtagErrorMode
+        observed = $jtagErrorObserved
+        timeout = $jtagErrorTimeout
+        dma_error = $jtagErrorDmaError
+        reset = $jtagErrorReset
+        recovered = $jtagErrorRecovery
+        failed = $jtagErrorFailed
+        sequence = $jtagErrorSequence
+        recovery_sequence = $jtagErrorRecoverySequence
+        mm2s_tlast = $jtagErrorMm2sTlast
+        s2mm_tlast = $jtagErrorS2mmTlast
+        mm2s_beats = $jtagErrorMm2sBeats
+        s2mm_beats = $jtagErrorS2mmBeats
+    }
     ledger_pass = $ledgerPass
     jtag_ledger = $ledgerRecords
     jtag_mm2s_stall = $jtagMm2sStall

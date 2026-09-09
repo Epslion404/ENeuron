@@ -54,3 +54,4 @@ T3 已完成并通过。真实 AMD XPM/xsim 报告 `vivado_npu_zynq7020_t3_xsim/
 # OF6 证据更新（历史记录）
 
 OF4g 修正 `committed` 模型冻结边界，OF5 验证模型/mask/runtime hard reset 丢弃 staging、结果和冻结状态并恢复 `epoch=0`、全开 mask、`model_valid=0`；OF6 对 OF1-OF5 做最终汇总，`test_npu_eneuron_reference.py` 为 48/48、CI-Fast 为 8/8，曾合并至 `main@0982ac5`。该段保留作为协议签核历史；当前权威状态以上方“当前签核门”和 DSP V1 manifest 为准。
+B2 missing-TLAST 覆盖（2026-09-09）：正式 run `20260909T133721Z`（HEAD `b2332a0`）在 COM10 实板通过 UART/JTAG/XSCT；missing_tlast observed=1，DMA error/reset/recovered/failed=1/1/1/0，注入/恢复 sequence=10332/10333，MM2S/S2MM TLAST=0/0、beats=16/16，recovery sequence=10329 保持不变。该切片为 `B2_MISSING_TLAST_PASS`，但 B2-06/B2-08/B2-GATE 仍未完成。

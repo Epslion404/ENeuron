@@ -1694,3 +1694,21 @@
 - 复核发现 `struct frame_ledger` 在 `boards/hellozynq/b2_sw/src/main.c` 中为 16 个 `u32`、每条 64 bytes，8 条边界记录占用 `0x01008080..0x0100827F`。
 - `probe_b2_state.tcl` 仍使用 `index * 24` 且只读取 6 个字段，不能证明持久逐帧 PL ledger，第二条记录起始地址已落入上一条记录内部。
 - 本轮修复范围限定为 probe 地址步长、完整字段读取、合同测试和 runner 的结构化 ledger 校验；不改变 DMA/RTL 数据路径。
+
+## 2026-09-09 B2 error injection design
+
+- 选择单一 missing-TLAST 模式作为最小 B2-07 切片：MM2S probe 在输出端抑制 TLAST，S2MM 侧应无法完成正常帧；软件允许观察 timeout 或 DMA error，但必须保存 DMA/PL 快照。
+- 错误注入后必须执行 DMA reset、两个 probe clear、关闭注入，再以 4-byte 合法帧恢复并逐字节校验；任何恢复失败都使该切片 fail-closed。
+- 不在本切片引入 packetizer、未知消息类型或四流 fence；这些仍由后续 B2-06～B2-08 处理。
+
+## 2026-09-09 B2 missing-TLAST 实板结果
+
+- 合同测试 `40/40` 通过；Vivado 2024.1 目标 `xc7z020clg484-2` 实现门禁通过，`WNS=+0.179 ns`、`WHS=+0.006 ns`、`TNS/THS=0`、route/DRC hard error=`0`。
+- run `20260909T133721Z` 在 COM10 上 UART/JTAG/XSCT 全 PASS。JTAG 错误账本为 `status=2`、`mode=1`、`observed=1`、`dma_error=1`、`reset=1`、`recovery=1`、`failed=0`；注入 sequence=`10332`，恢复 sequence=`10333`。
+- 注入帧 MM2S/S2MM 均为 `16 beats`，TLAST 均为 `0`；恢复后 4-byte 合法帧重新通过。该结果证明最小 missing-TLAST 错误可重复观测并可恢复，但不代表 B2-07 的完整错误矩阵已经完成。
+
+## 2026-09-09 B2 packet reference
+
+- 外层 DMA frame 已冻结为 32-byte little-endian header + payload + 4-byte CRC32，最大完整帧 4096 bytes；`COMMAND/RESPONSE` 只接受非零 16-byte word 倍数，`SAMPLE` 必须 32 bytes，`RESULT` 必须 40 bytes。
+- `b2_packet_protocol.py` 是当前唯一字节级参考，`test_b2_packet_protocol.py` 覆盖 round-trip、TLAST、CRC、长度、保留位、未知 type 和超限拒绝，`7/7` 通过。
+- 该参考不改变已批准的高位 4-bit NPU opcode 和核心 8/10 beat 合同；RTL packetizer/depacketizer 尚未实现，不能将参考测试当作 B2-06 实板门。

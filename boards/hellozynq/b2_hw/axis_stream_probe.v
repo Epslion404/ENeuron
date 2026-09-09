@@ -66,6 +66,7 @@ module axis_stream_probe #(
 
     localparam [11:0] CONTROL_ADDR = 12'h000;
     localparam [11:0] BACKPRESSURE_ADDR = 12'h004;
+    localparam [11:0] ERROR_CONFIG_ADDR = 12'h008;
     localparam [11:0] SAMPLE_ADDR = 12'h020;
     localparam [11:0] BEATS_ADDR = 12'h050;
     localparam [11:0] TLAST_ADDR = 12'h080;
@@ -81,6 +82,7 @@ module axis_stream_probe #(
     reg [31:0] stall_count;
     reg [31:0] starve_count;
     reg [31:0] backpressure_config;
+    reg [31:0] error_config;
     reg [7:0] backpressure_phase;
     reg backpressure_stall;
     reg fifo_valid;
@@ -99,6 +101,7 @@ module axis_stream_probe #(
     wire stop_now;
     wire stream_fire;
     wire input_fire;
+    wire drop_tlast;
 
     function [31:0] keep_bytes;
         input [KEEP_WIDTH-1:0] keep;
@@ -114,7 +117,9 @@ module axis_stream_probe #(
     /* 输出拍先锁存，再由寄存器化暂停状态插入气泡；暂停期间 payload 保持不变。 */
     assign m_axis_tdata = fifo_tdata;
     assign m_axis_tkeep = fifo_tkeep;
-    assign m_axis_tlast = fifo_tlast;
+    /* error_config[0] 是受控 missing-TLAST 注入（missing_tlast），仅用于 B2 错误恢复取证。 */
+    assign drop_tlast = error_config[0];
+    assign m_axis_tlast = fifo_tlast && !drop_tlast;
     assign m_axis_tvalid = s_axi_aresetn && fifo_valid && !backpressure_stall;
     assign s_axis_tready = s_axi_aresetn && active && !fifo_valid;
     assign stream_fire = m_axis_tvalid && m_axis_tready;
@@ -146,6 +151,7 @@ module axis_stream_probe #(
             stall_count <= 32'd0;
             starve_count <= 32'd0;
             backpressure_config <= 32'd0;
+            error_config <= 32'd0;
             backpressure_phase <= 8'd0;
             backpressure_stall <= 1'b0;
             fifo_valid <= 1'b0;
@@ -179,6 +185,7 @@ module axis_stream_probe #(
                 s_axi_rresp <= 2'b00;
                 case (s_axi_araddr)
                     BACKPRESSURE_ADDR: s_axi_rdata <= backpressure_config;
+                    ERROR_CONFIG_ADDR: s_axi_rdata <= error_config;
                     SAMPLE_ADDR: s_axi_rdata <= {31'd0, active};
                     BEATS_ADDR: s_axi_rdata <= accepted_beats;
                     TLAST_ADDR: s_axi_rdata <= tlast_count;
@@ -233,7 +240,7 @@ module axis_stream_probe #(
                         accepted_beats <= accepted_beats + 32'd1;
                         total_bytes <= total_bytes + keep_bytes(fifo_tkeep);
                         last_tkeep <= fifo_tkeep;
-                        if (fifo_tlast) begin
+                        if (m_axis_tlast) begin
                             tlast_count <= tlast_count + 32'd1;
                             active <= 1'b0;
                         end
@@ -270,6 +277,9 @@ module axis_stream_probe #(
                 backpressure_config <= write_data;
                 backpressure_phase <= 8'd0;
                 backpressure_stall <= 1'b0;
+            end
+            if (write_fire && (write_addr == ERROR_CONFIG_ADDR)) begin
+                error_config <= write_data;
             end
         end
     end

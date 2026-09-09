@@ -58,3 +58,4 @@ run-2归档位于 `artifacts/logs/hellozynq_b0/20260907T152656Z_df16ed6c_run2_ma
 ## 发布状态
 
 PR #69最终HEAD `02514b5...` 已于 `2026-09-07T16:17:15Z` 合并，merge commit为 `102dee2...`。Actions已关闭，空 `statusCheckRollup`只表示未运行；B0合并依据是本机定向验证、Vivado/JTAG/现场证据及PR CLEAN/MERGEABLE。B1从该main提交启动。
+  - **B2 missing-TLAST 切片（2026-09-09）。** run `20260909T133721Z`（HEAD `b2332a0`）在目标板验证 `B2_MISSING_TLAST_PASS / PASS_UART_JTAG_XSCT`：missing_tlast observed=`1`，dma_error/reset/recovered/failed=`1/1/1/0`，注入/恢复 sequence=`10332/10333`，MM2S/S2MM TLAST=`0/0`、beats=`16/16`，recovery sequence=`10329` 保持不变。manifest SHA-256=`F4D559…FE9B7`，ELF=`0abb11b0…e1ee3`，bit/XSA=`922b9cd6…0c64d`/`5b78919b…c2a9f`。该切片为 `B2_MISSING_TLAST_PASS`，但 B2-06/B2-08/B2-GATE 仍未完成。

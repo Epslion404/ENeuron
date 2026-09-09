@@ -1666,7 +1666,7 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 
 ## 2026-09-09 B2 inter-frame gap slice
 
-状态：`IN_PROGRESS`
+状态：`COMPLETE`
 
 - [x] 先添加两个合法帧之间 1 ms 间歇的合同测试，明确它不等同于 ready 低电平恢复。
 - [x] 在不改变已有 recovery sequence 的前提下，增加独立 gap ledger、UART/JTAG marker 和 fail-closed 判定。
@@ -1696,3 +1696,32 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 - [x] 在 COM10 实板执行新同源 run `20260909T125200Z`；8/8 ledger 记录通过，UART/JTAG/XSCT 和既有 pressure/backpressure/wrap/recovery/gap 证据保持 PASS。
 
 结果：B2-03/B2-05 的逐帧持久 ledger 子门已完成；B2-GATE 仍等待可控错误注入和 packetizer/fence。
+
+## 2026-09-09 B2 missing-TLAST error-injection slice
+
+状态：`IN_PROGRESS`
+
+目标：在不接入 packetizer 的前提下，用轻量 AXI-Stream probe 的独立控制位制造一次可审计的 missing-TLAST 场景；要求观察到 DMA timeout/error，保存 PL TLAST 计数和 DMA 快照，随后 reset/clear 后以 4-byte 合法帧恢复。
+
+步骤：
+- [x] 先写 probe、软件和 runner 的负向合同测试。
+- [x] 实现 probe `error_config` 的 missing-TLAST 控制与 JTAG 状态区。
+- [x] 实现 standalone 软件的错误注入/恢复 ledger 和 UART marker。
+- [x] 重建 Vivado bit/XSA、Vitis ELF，执行合同/物理/实板验证。
+- [x] 更新 TODO、报告和 findings；Nexus/提交推送留待本轮收口。
+
+结果：合同测试 `40/40` 通过；Vivado 2024.1 实现门禁通过（WNS=`+0.179 ns`、WHS=`+0.006 ns`、TNS/THS=`0`、route/DRC hard error=`0`）；实板 run `20260909T133721Z` 在 COM10 上 UART/JTAG/XSCT 全 PASS，missing-TLAST 观察到 `dma_error=1`、`reset=1`、`recovered=1`、`failed=0`，注入与恢复帧的 MM2S/S2MM TLAST 均为 `0`。该结果只关闭 B2-03/B2-05 的错误注入子门，不关闭 B2-06～B2-08 或 B2-GATE。
+
+## 2026-09-09 B2 packet reference slice
+
+状态：`COMPLETE_REFERENCE / RTL_PENDING`
+
+- [x] 冻结 32-byte little-endian header、四类 message type、payload 长度和 4096-byte DMA 上限。
+- [x] 冻结 COMMAND/RESPONSE 的 128-bit word、SAMPLE 的 8×32-bit beat、RESULT 的 10×signed-INT32 beat 映射。
+- [x] 冻结 TLAST、CRC32、version/type/flags/header-length 校验和整帧拒绝语义。
+- [x] 实现 `b2_packet_protocol.py`，合同测试 `7/7` 通过。
+- [ ] 实现 RTL packetizer/depacketizer，并在实板上验证错误帧不会进入核心。
+
+边界：本切片只提供主机侧字节级参考，不关闭 B2-06、B2-07、B2-08 或 B2-GATE。
+
+停止条件：若 missing-TLAST 未形成可重复 timeout/error，保留证据并不把 B2-07 写成完成；不得接入 NPU/ENeuron。

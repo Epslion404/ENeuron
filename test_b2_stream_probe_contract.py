@@ -106,6 +106,16 @@ class B2StreamProbeContractTests(unittest.TestCase):
         ):
             self.assertIn(token, self.state_probe)
 
+    def test_probe_exposes_controlled_missing_tlast_injection(self):
+        for token in (
+            "ERROR_CONFIG_ADDR",
+            "error_config",
+            "drop_tlast",
+            "missing_tlast",
+            "ERROR_CONFIG_ADDR",
+        ):
+            self.assertIn(token, self.probe)
+
 
 if __name__ == "__main__":
     unittest.main()

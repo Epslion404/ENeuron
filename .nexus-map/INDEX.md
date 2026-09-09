@@ -184,3 +184,4 @@ T2 双时钟协同切片已扩展通过：`tb_npu_zynq7020_t2_variable_clocks.sv
 - 若任务涉及接口修改、新增跨模块调用、删除或重命名公共函数：运行 `query_graph.py --impact <目标文件>` 确认影响半径后再写代码。
 - 若任务需要判断某文件被谁引用：运行 `query_graph.py --who-imports <模块名>`。
 - 若仓库结构发生重大变化：任务完成后重新评估并更新 Nexus 知识库。
+B2 missing-TLAST 切片（2026-09-09）：run `20260909T133721Z`（HEAD `b2332a0`，COM10）在 `xc7z020clg484-2` 实板验证为 `B2_MISSING_TLAST_PASS / PASS_UART_JTAG_XSCT`；`missing_tlast observed=1`，`dma_error/reset/recovered/failed=1/1/1/0`，注入/恢复 sequence=`10332/10333`，MM2S/S2MM TLAST=`0/0`、beats=`16/16`，recovery sequence=`10329` 保持不变。manifest SHA-256=`F4D559…FE9B7`，ELF=`0abb11b0…e1ee3`，bit/XSA=`922b9cd6…0c64d`/`5b78919b…c2a9f`。该切片通过不等于 B2-06/B2-08/B2-GATE 整体完成。

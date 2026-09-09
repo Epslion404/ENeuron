@@ -301,6 +301,30 @@ class B2DmaAppContractTests(unittest.TestCase):
         ):
             self.assertIn(token, self.board)
 
+    def test_missing_tlast_error_injection_contract_is_present(self):
+        for token in (
+            "ERROR_STATUS_BASE 0x01008380U",
+            "error_injection",
+            "error_mode",
+            "error_timeout_observed",
+            "error_reset_passed",
+            "error_recovery_passed",
+            "B2_ERROR_INJECTION_PASS",
+        ):
+            self.assertIn(token, self.source)
+        probe = (B2_SW / "probe_b2_state.tcl").read_text(encoding="utf-8")
+        for address in ("0x01008380", "0x01008384", "0x01008388", "0x0100838C"):
+            self.assertIn(address, probe)
+        for token in (
+            "B2_STATUS_ERROR_STATUS",
+            "B2_STATUS_ERROR_MODE",
+            "B2_STATUS_ERROR_TIMEOUT",
+            "B2_STATUS_ERROR_RECOVERY",
+            "jtag_error_injection",
+            "B2_ERROR_INJECTION_PASS",
+        ):
+            self.assertIn(token, self.board)
+
 
 if __name__ == "__main__":
     unittest.main()

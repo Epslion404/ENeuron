@@ -1785,3 +1785,17 @@
 - 已修正 probe 按 `index * 64` 读取 8 条记录的全部 16 个字段；runner 现在逐条检查 sequence、长度、状态、cache invalidate、MM2S/S2MM beats、TLAST 和 bytes，并将记录写入 manifest。
 - 实板新 run `20260909T125200Z`（HEAD `76e06b6`）UART/JTAG/XSCT 全 PASS，ledger `8/8` 通过；压力 `10000/10000`、背压 `64/64`、wrap `256/256`、recovery 和 gap 均保持通过。
 - B2-03/B2-05 的持久 ledger 子门完成；B2-GATE 仍未关闭，下一片优先可控错误注入，随后 packetizer/fence。
+
+## 2026-09-09 B2 missing-TLAST 错误注入完成
+
+- 在 `axis_stream_probe` 增加独立 `error_config[0]`，只抑制 MM2S 输出 TLAST，不改变正常路径和 packetizer 接口；软件/runner 保存错误状态、DMA 状态、PL beat/TLAST 快照，并在 reset/clear 后发送 4-byte 合法恢复帧。
+- 合同测试 `test_b2_stream_probe_contract.py`、`test_b2_dma_app_contract.py` 共 `40/40` 通过；Vivado 2024.1 完整实现与 bit/XSA 生成通过，`WNS=+0.179 ns`、`WHS=+0.006 ns`、`TNS/THS=0`、route/DRC hard error=`0`。
+- 同源 Vitis ELF 与 bitstream 在 COM10 实板 run `20260909T133721Z` 通过：UART/JTAG/XSCT 全 PASS；pressure=`10000/10000`、backpressure=`64/64`、wrap=`256/256`、recovery=`1/1/1/0`、error=`observed=1,dma_error=1,reset=1,recovered=1,failed=0`，注入与接收 TLAST 均为 `0`。
+- B2-03/B2-05 的错误注入子门已完成；B2-07 仍只完成 missing-TLAST 子场景，B2-06 packetizer/depacketizer、B2-08 四流 fence 和 B2-GATE 继续保持关闭。
+
+## 2026-09-09 B2 packet reference slice
+
+- 冻结 `docs/planning/NPU_ZYNQ7020_B2_PACKET_CONTRACT_V1.md`：32-byte little-endian header、`ENB2` magic、version/type/flags/header length、sequence/sample/model/epoch/status、payload length 和 CRC32。
+- `COMMAND/RESPONSE` payload 按 16-byte little-endian 128-bit word；`SAMPLE` 固定 8×32-bit（32 bytes）；`RESULT` 固定 10×signed INT32（40 bytes）；完整 DMA frame 上限 4096 bytes，TLAST 必须在整帧末端出现。
+- 新增 `b2_packet_protocol.py` 与 `test_b2_packet_protocol.py`，覆盖正常 round-trip、CRC/保留位/长度/TLAST/超限拒绝，测试 `7/7` 通过。
+- 该切片只完成主机侧参考，不把 RTL packetizer/depacketizer 或错误帧实板丢弃能力写成已完成；下一步仍是 RTL 实现和 B2-08 fence。
