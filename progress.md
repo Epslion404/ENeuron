@@ -1767,3 +1767,21 @@
 - 新增独立 gap ledger `0x01008340..0x0100836C`、`B2_GAP_PASS` UART marker 和 runner/JTAG fail-closed 字段；gap 模式关闭 probe 背压，明确 `usleep(1000)` 只表示 CPU 提交间歇，不等同于 `TREADY=0`。
 - 当前 HEAD `da9147ab9dc5a445d29c2f61e08e39dab87b5552` 同源 Vitis 构建和实板运行 `20260909T115218Z` 通过：COM10 UART/JTAG/XSCT PASS，gap `2/2`，4-byte→64-byte，sequence `10330/10331`，CRC XOR=`0x8B08CC4D`；recovery sequence `10329` 保持不变。
 - B2 合同回归已扩展为 `59/59`，PowerShell AST 和 `git diff --check` 通过。B2-03/B2-05/B2-GATE 仍未关闭，下一片为 ready 低电平恢复与可控错误注入。
+
+## 2026-09-09 B2 ready 停止→恢复实板通过
+
+- `axis_stream_probe` 的 `SAMPLE` 寄存器返回 `active`；因 `s_axis_tready = reset_n && active && !fifo_valid`，在 recovery 中采样 S2MM `active=1→0→1`，把 ready 低电平和恢复从间接推断变为 JTAG 证据。
+- 当前 HEAD `76e06b6681bd2ddd5a9daea54878dc651d0ba33f` 同源 Vitis 构建和实板运行 `20260909T121336Z` 通过：COM10 UART/JTAG/XSCT PASS，recovery timeout/reset/passed/failed=`1/1/1/0`，sequence=`10329`，ready=`1→0→1`，gap=`2/2`，背压累计 `stall_cycles=83079`。
+- B2-03/B2-05/B2-GATE 仍未关闭；剩余硬缺口是跨长度逐帧 TLAST 持久 ledger、可控错误注入及 packetizer/fence。
+
+## 2026-09-09 B2 ledger probe 修正启动
+
+- 最新 TX/RX 交换后实板复测 `20260909T122248Z` 仍 UART/JTAG/XSCT 全 PASS；在继续 B2 前审计发现边界 ledger probe 与 C 结构体布局不一致。
+- 当前切片目标：按 64-byte 记录读取 8 条完整 ledger，并在 runner manifest 中记录/验证序列、长度、状态、CRC、DMA beat、TLAST、bytes 等字段；随后用同源实板重新取证。
+
+## 2026-09-09 B2 persistent ledger slice 完成
+
+- 先写合同测试得到 RED：原 `probe_b2_state.tcl` 以 24-byte stride 读取 64-byte `frame_ledger`，无法形成可靠逐帧证据。
+- 已修正 probe 按 `index * 64` 读取 8 条记录的全部 16 个字段；runner 现在逐条检查 sequence、长度、状态、cache invalidate、MM2S/S2MM beats、TLAST 和 bytes，并将记录写入 manifest。
+- 实板新 run `20260909T125200Z`（HEAD `76e06b6`）UART/JTAG/XSCT 全 PASS，ledger `8/8` 通过；压力 `10000/10000`、背压 `64/64`、wrap `256/256`、recovery 和 gap 均保持通过。
+- B2-03/B2-05 的持久 ledger 子门完成；B2-GATE 仍未关闭，下一片优先可控错误注入，随后 packetizer/fence。

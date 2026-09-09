@@ -1674,4 +1674,25 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 
 结果：当前工作树同源构建并实板运行 `20260909T115218Z` 通过；gap `2/2`，序列 `10330/10331`，长度 `4/64`，请求间歇 `1000 us`，CRC XOR=`0x8B08CC4D`。原 recovery sequence 保持 `10329`。
 
+## 2026-09-09 B2 ready stop/recovery slice
+
+状态：`COMPLETE`
+
+- [x] 利用现有 probe `SAMPLE(active)` 寄存器，在 stop 前、stop 后和 DMA reset/clear 后分别采样 S2MM active。
+- [x] 将 `ready_before=1`、`ready_stopped=0`、`ready_after_reset=1` 写入 recovery ledger、UART marker、JTAG probe 和 runner fail-closed 判定。
+- [x] 在提交 `76e06b6` 同源 ELF 上实板验证 `20260909T121336Z`：UART/JTAG/XSCT PASS，recovery `1/1/1/0`，ready `1→0→1`，gap `2/2`。
+
+剩余：跨长度逐帧 PL ledger、可控错误注入和 packetizer/fence。
+
 关键假设：`axis_stream_probe` 的 control bit1 会让 `s_axis_tready=0`，足以使 S2MM simple transfer 超时；恢复路径必须在 reset 后显式重新激活两个 probe。
+
+## 2026-09-09 B2 persistent ledger slice
+
+状态：`COMPLETE`
+
+- [x] 先写负向合同测试，暴露 probe 以 24-byte stride 读取 64-byte `frame_ledger` 的布局错误。
+- [x] 修正 `probe_b2_state.tcl`：8 条记录按 64-byte stride 读取全部 16 个 `u32` 字段。
+- [x] 修正 `run_b2_board.ps1`：解析 ledger，按边界长度、状态、DMA beats、TLAST、bytes 和 cache invalidate 做 fail-closed 校验，并将结构化记录写入 manifest。
+- [x] 在 COM10 实板执行新同源 run `20260909T125200Z`；8/8 ledger 记录通过，UART/JTAG/XSCT 和既有 pressure/backpressure/wrap/recovery/gap 证据保持 PASS。
+
+结果：B2-03/B2-05 的逐帧持久 ledger 子门已完成；B2-GATE 仍等待可控错误注入和 packetizer/fence。

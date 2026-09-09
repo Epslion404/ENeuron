@@ -2,17 +2,17 @@
 
 ## 结论
 
-在 `xc7z020clg484-2`、bitstream/XSA 与 `da9147ab9dc5a445d29c2f61e08e39dab87b5552` 软件构建绑定下，UART、JTAG 和 XSCT 下载均通过。TX/RX 交换后的 COM10 链路稳定，B2 当前已覆盖正常边界、压力、受控背压、连续回绕、DMA reset 恢复短帧和独立软件发送间歇。
+在 `xc7z020clg484-2`、bitstream/XSA 与 `76e06b6681bd2ddd5a9daea54878dc651d0ba33f` 软件构建绑定下，UART、JTAG 和 XSCT 下载均通过。TX/RX 交换后的 COM10 链路稳定，B2 当前已覆盖正常边界、压力、受控背压、连续回绕、DMA reset 恢复短帧、ready 停止→恢复和独立软件发送间歇。
 
-本证据仍不关闭 B2-GATE：packetizer/depacketizer、四条逻辑流 fence、ready 低电平恢复、更完整逐帧持久 ledger 和可控错误注入尚未完成。
+本证据仍不关闭 B2-GATE：packetizer/depacketizer、四条逻辑流 fence 和可控错误注入尚未完成。逐帧持久 ledger 已在本轮修正 probe 布局并通过实板 fail-closed 校验，但它仍只是 B2-03/B2-05 的一个子门。
 
 ## 运行身份
 
-- Manifest：`boards/hellozynq/b2_sw/build/da9147ab9dc5a445d29c2f61e08e39dab87b5552/direct/runs/20260909T115218Z/run_manifest.json`
+- Manifest：`boards/hellozynq/b2_sw/build/76e06b6681bd2ddd5a9daea54878dc651d0ba33f/direct/runs/20260909T125200Z/run_manifest.json`
 - UART：`COM10`，115200 8N1，`uart_pass=true`，`uart_reconnects=0`
 - Bitstream SHA-256：`ef9740002e9b5e54ef0479e647b07bf3fc3577d8b552fdb6ed35d3f14fc5175a`
 - XSA SHA-256：`8419e00eff65f4a3cd70ee397cab3bdb0e3351496dfe9b8cdcbe337ae8ab4185`
-- ELF SHA-256：`41c6ab2d8ffe4ca4a579db199ed04adc292acf13ad6d54d2e7918d757bb63ca7`
+- ELF SHA-256：`7fbcc85aa964a02e30d61f2e47e53e3f70e0e8421275852ba2e36963831d9f3e`
 
 ## 结果摘要
 
@@ -24,8 +24,10 @@
 | 连续回绕 | `256/256`，64 slots，slot mask 全覆盖，`rollovers=3` |
 | DMA 恢复 | timeout=`1`，reset=`1`，恢复帧=`1`，failed=`0` |
 | 软件发送间歇 | `2/2`，`4→64` bytes，`gap_us=1000`，failed=`0` |
+| ready 停止→恢复 | `active=1→0→1`，timeout=`1`，reset=`1`，恢复帧=`1` |
+| 逐帧持久 ledger | `8/8` 记录通过；完整读取 64-byte 结构体，覆盖 `0/1/4/16/64/512/1472/4096` bytes |
 
-恢复场景不是未对齐地址拒绝：软件先停止 S2MM probe 使接收端不再 ready，等待 1 秒合同超时；随后执行 DMA reset，清除并重新激活两个 probe，再发送 4-byte 合法帧并逐字节校验。恢复帧 sequence=`10329`，CRC32=`0xD3E3C978`。
+恢复场景不是未对齐地址拒绝：软件先确认 S2MM probe `active=1`，写 stop 后确认 `active=0`（由 probe 逻辑即 `TREADY=0`），等待 1 秒合同超时；随后执行 DMA reset，清除并重新激活两个 probe，确认 `active=1` 后发送 4-byte 合法帧并逐字节校验。恢复帧 sequence=`10329`，CRC32=`0xD3E3C978`。
 
 ## 验证范围
 
@@ -35,8 +37,9 @@
 - Vitis/XSCT 2024.1 软件构建（通过）
 - PowerShell AST 检查（通过）
 - `git diff --check`（通过；仅换行提示）
-- 实板 `run_b2_board.ps1 -PortName COM10 -ListenSeconds 60`（PASS，HEAD=`da9147a`，run=`20260909T115218Z`）
+- 实板 `run_b2_board.ps1 -PortName COM10 -ListenSeconds 60`（PASS，HEAD=`76e06b6`，run=`20260909T125200Z`）
+- JTAG ledger 校验：8 条记录按 `frame_ledger` 的 64-byte stride 读取；每条记录的 sequence、长度、状态、DMA beats、TLAST 和 bytes 均符合预期。
 
 ## 剩余门
 
-B2-GATE 仍保持关闭。下一优先级是把恢复证据扩展到 ready 低电平恢复和可控错误注入，并建立四条逻辑流的 packetizer/depacketizer、接受/完成计数和 fence 顺序证据；在此之前不接入 NPU，也不报告动态剪枝加速或功耗收益。
+B2-GATE 仍保持关闭。下一优先级是可控错误注入，并建立四条逻辑流的 packetizer/depacketizer、接受/完成计数和 fence 顺序证据；在此之前不接入 NPU，也不报告动态剪枝加速或功耗收益。

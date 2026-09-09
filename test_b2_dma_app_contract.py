@@ -280,6 +280,27 @@ class B2DmaAppContractTests(unittest.TestCase):
         for address in ("0x0100831C", "0x01008320", "0x01008324"):
             self.assertIn(address, probe)
 
+    def test_persistent_ledger_probe_matches_c_layout(self):
+        probe = (B2_SW / "probe_b2_state.tcl").read_text(encoding="utf-8")
+        self.assertIn("($index * 64)", probe)
+        for field in (
+            "SEQ", "LEN", "STATUS", "CRC", "ELAPSED", "INVALIDATE",
+            "MM2S_BEATS", "S2MM_BEATS", "MM2S_TLAST_LO", "MM2S_TLAST_HI",
+            "S2MM_TLAST_LO", "S2MM_TLAST_HI", "MM2S_BYTES_LO", "MM2S_BYTES_HI",
+            "S2MM_BYTES_LO", "S2MM_BYTES_HI",
+        ):
+            self.assertIn("_" + field + "=[mrd", probe)
+
+    def test_board_runner_fail_closes_on_persistent_ledger(self):
+        for token in (
+            "jtag_ledger",
+            "ledger_pass",
+            "ledgerLengths",
+            "mm2s_beats",
+            "s2mm_tlast",
+        ):
+            self.assertIn(token, self.board)
+
 
 if __name__ == "__main__":
     unittest.main()

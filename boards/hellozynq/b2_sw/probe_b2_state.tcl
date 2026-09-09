@@ -91,13 +91,24 @@ for {set index 0} {$index < 16} {incr index} {
 puts "B2_RX_WORDS_END"
 puts "B2_LEDGER_BEGIN"
 for {set index 0} {$index < 8} {incr index} {
-    set base [expr {0x01008080 + ($index * 24)}]
-    puts [format "B2_LEDGER_%02d_SEQ=0x%08X" $index [mrd -value $base]]
-    puts [format "B2_LEDGER_%02d_LEN=0x%08X" $index [mrd -value [expr {$base + 4}]]]
-    puts [format "B2_LEDGER_%02d_STATUS=0x%08X" $index [mrd -value [expr {$base + 8}]]]
-    puts [format "B2_LEDGER_%02d_CRC=0x%08X" $index [mrd -value [expr {$base + 12}]]]
-    puts [format "B2_LEDGER_%02d_ELAPSED=0x%08X" $index [mrd -value [expr {$base + 16}]]]
-    puts [format "B2_LEDGER_%02d_INVALIDATE=0x%08X" $index [mrd -value [expr {$base + 20}]]]
+    # frame_ledger 是 16 个 u32，必须按 64 bytes 读取，避免记录之间重叠。
+    set base [expr {0x01008080 + ($index * 64)}]
+    puts "B2_LEDGER_[format %02d $index]_SEQ=[mrd -force -value $base]"
+    puts "B2_LEDGER_[format %02d $index]_LEN=[mrd -force -value [expr {$base + 4}]]"
+    puts "B2_LEDGER_[format %02d $index]_STATUS=[mrd -force -value [expr {$base + 8}]]"
+    puts "B2_LEDGER_[format %02d $index]_CRC=[mrd -force -value [expr {$base + 12}]]"
+    puts "B2_LEDGER_[format %02d $index]_ELAPSED=[mrd -force -value [expr {$base + 16}]]"
+    puts "B2_LEDGER_[format %02d $index]_INVALIDATE=[mrd -force -value [expr {$base + 20}]]"
+    puts "B2_LEDGER_[format %02d $index]_MM2S_BEATS=[mrd -force -value [expr {$base + 24}]]"
+    puts "B2_LEDGER_[format %02d $index]_S2MM_BEATS=[mrd -force -value [expr {$base + 28}]]"
+    puts "B2_LEDGER_[format %02d $index]_MM2S_TLAST_LO=[mrd -force -value [expr {$base + 32}]]"
+    puts "B2_LEDGER_[format %02d $index]_MM2S_TLAST_HI=[mrd -force -value [expr {$base + 36}]]"
+    puts "B2_LEDGER_[format %02d $index]_S2MM_TLAST_LO=[mrd -force -value [expr {$base + 40}]]"
+    puts "B2_LEDGER_[format %02d $index]_S2MM_TLAST_HI=[mrd -force -value [expr {$base + 44}]]"
+    puts "B2_LEDGER_[format %02d $index]_MM2S_BYTES_LO=[mrd -force -value [expr {$base + 48}]]"
+    puts "B2_LEDGER_[format %02d $index]_MM2S_BYTES_HI=[mrd -force -value [expr {$base + 52}]]"
+    puts "B2_LEDGER_[format %02d $index]_S2MM_BYTES_LO=[mrd -force -value [expr {$base + 56}]]"
+    puts "B2_LEDGER_[format %02d $index]_S2MM_BYTES_HI=[mrd -force -value [expr {$base + 60}]]"
 }
 puts "B2_LEDGER_END"
 if {[catch {

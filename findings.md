@@ -1681,3 +1681,16 @@
 - gap 状态区固定为 `0x01008340..0x0100836C`，与 recovery 状态区和 monitor 状态区不重叠；JTAG ledger 为 `status=2`、`total=2`、`passed=2`、`failed=0`、`requested_us=1000`、CRC XOR=`0x8B08CC4D`。
 - 运行 `boards/hellozynq/b2_sw/build/da9147ab9dc5a445d29c2f61e08e39dab87b5552/direct/runs/20260909T115218Z/` 在 `COM10` 上 UART/JTAG/XSCT 全部 PASS，UART 无重连；runner 已把 gap 字段纳入 fail-closed 总体判定和 manifest。
 - 该证据只证明 CPU 两次合法提交之间的发送间歇，不证明 `TREADY=0` 的 ready 恢复，也不关闭 B2-03/B2-05/B2-GATE；下一片优先做 ready 低电平停止→恢复的独立 ledger，再补可控错误注入和 packetizer。
+
+## 2026-09-09 B2 ready stop/recovery 实板验证
+
+- `axis_stream_probe` 的 `SAMPLE` 读口返回 `active`，而 RTL 定义 `s_axis_tready = s_axi_aresetn && active && !fifo_valid`；因此在 recovery 中对 S2MM probe 写 control=2 后读取 `active=0`，可直接证明 `TREADY=0`。
+- 提交 `76e06b6` 的正式 run `20260909T121336Z` 在 COM10 上 UART/JTAG/XSCT 全部 PASS；recovery ledger 为 `ready_before=1`、`ready_stopped=0`、`ready_after_reset=1`，timeout/reset/passed/failed=`1/1/1/0`，recovery sequence=`10329`。
+- 同一 run 保持 gap `2/2`（sequence=`10330/10331`、4B→64B、1000 us）和全部既有压力/背压/回绕结果，背压累计 `stall_cycles=83079`。
+- 该证据关闭 ready 停止→恢复子片，但不关闭 B2-03/B2-05/B2-GATE；剩余为跨长度逐帧 TLAST 持久 ledger、可控错误注入和 packetizer/fence。
+
+## 2026-09-09 B2 ledger probe audit
+
+- 复核发现 `struct frame_ledger` 在 `boards/hellozynq/b2_sw/src/main.c` 中为 16 个 `u32`、每条 64 bytes，8 条边界记录占用 `0x01008080..0x0100827F`。
+- `probe_b2_state.tcl` 仍使用 `index * 24` 且只读取 6 个字段，不能证明持久逐帧 PL ledger，第二条记录起始地址已落入上一条记录内部。
+- 本轮修复范围限定为 probe 地址步长、完整字段读取、合同测试和 runner 的结构化 ledger 校验；不改变 DMA/RTL 数据路径。

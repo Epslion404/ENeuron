@@ -32,9 +32,20 @@ function Open-SerialPort {
 
 function Get-ProbeValue {
     param([string]$Text, [string]$Key)
-    $match = [regex]::Match($Text, "(?m)^" + [regex]::Escape($Key) + "=(\d+)\s*$")
-    if ($match.Success) { return [uint64]$match.Groups[1].Value }
+    $match = [regex]::Match($Text, "(?m)^" + [regex]::Escape($Key) + "=(0x[0-9A-Fa-f]+|\d+)\s*$")
+    if ($match.Success) {
+        $token = $match.Groups[1].Value
+        if ($token.StartsWith('0x', [StringComparison]::OrdinalIgnoreCase)) {
+            return [Convert]::ToUInt64($token.Substring(2), 16)
+        }
+        return [uint64]$token
+    }
     return $null
+}
+
+function Get-LedgerValue {
+    param([string]$Text, [int]$Index, [string]$Field)
+    return Get-ProbeValue $Text ("B2_LEDGER_{0:D2}_{1}" -f $Index, $Field)
 }
 
 $scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -197,6 +208,44 @@ if (Test-Path -LiteralPath $probeTcl) {
     }
 }
 $probeReadAvailable = $probeText.Contains('B2_PROBE_MM2S_BYTES=') -and $probeText.Contains('B2_PROBE_S2MM_BYTES=')
+$ledgerLengths = @(0, 1, 4, 16, 64, 512, 1472, 4096)
+$ledgerRecords = @()
+$ledgerPass = $true
+for ($index = 0; $index -lt $ledgerLengths.Count; ++$index) {
+    $length = [uint64]$ledgerLengths[$index]
+    $expectedBeats = [uint64][Math]::Ceiling($length / 4.0)
+    $record = [ordered]@{
+        index = $index
+        sequence = Get-LedgerValue $probeText $index 'SEQ'
+        length_bytes = Get-LedgerValue $probeText $index 'LEN'
+        status = Get-LedgerValue $probeText $index 'STATUS'
+        crc32 = Get-LedgerValue $probeText $index 'CRC'
+        elapsed_us = Get-LedgerValue $probeText $index 'ELAPSED'
+        cache_invalidate = Get-LedgerValue $probeText $index 'INVALIDATE'
+        mm2s_beats = Get-LedgerValue $probeText $index 'MM2S_BEATS'
+        s2mm_beats = Get-LedgerValue $probeText $index 'S2MM_BEATS'
+        mm2s_tlast = Get-LedgerValue $probeText $index 'MM2S_TLAST_LO'
+        s2mm_tlast = Get-LedgerValue $probeText $index 'S2MM_TLAST_LO'
+        mm2s_bytes = Get-LedgerValue $probeText $index 'MM2S_BYTES_LO'
+        s2mm_bytes = Get-LedgerValue $probeText $index 'S2MM_BYTES_LO'
+    }
+    $expectedStatus = if ($index -eq 0) { 4 } else { 2 }
+    $expectedInvalidate = if ($index -eq 0) { 0 } else { 2 }
+    $recordPass = $null -ne $record.sequence -and
+        $record.sequence -eq ($index + 1) -and
+        $record.length_bytes -eq $length -and
+        $record.status -eq $expectedStatus -and
+        $record.cache_invalidate -eq $expectedInvalidate -and
+        $record.mm2s_beats -eq $expectedBeats -and
+        $record.s2mm_beats -eq $expectedBeats -and
+        $record.mm2s_tlast -eq $(if ($length -eq 0) { 0 } else { 1 }) -and
+        $record.s2mm_tlast -eq $(if ($length -eq 0) { 0 } else { 1 }) -and
+        $record.mm2s_bytes -eq $length -and
+        $record.s2mm_bytes -eq $length
+    $record['pass'] = $recordPass
+    $ledgerRecords += [pscustomobject]$record
+    if (-not $recordPass) { $ledgerPass = $false }
+}
 $jtagPressureStatus = Get-ProbeValue $probeText 'B2_STATUS_PRESSURE_STATUS'
 $jtagPressureTotal = Get-ProbeValue $probeText 'B2_STATUS_PRESSURE_TOTAL'
 $jtagPressurePassed = Get-ProbeValue $probeText 'B2_STATUS_PRESSURE_PASSED'
@@ -247,6 +296,7 @@ $jtagUartConfigured = $null -ne $jtagUartCr -and $null -ne $jtagUartMr -and
     (($jtagUartCr -band 0x14) -eq 0x14) -and $jtagUartMr -eq 0x20 -and
     $jtagUartBaudgen -eq 124 -and $jtagUartBauddiv -eq 6
 $jtagPass = $probeExitCode -eq 0 -and $probeReadAvailable -and
+    $ledgerPass -and
     $jtagPressureStatus -eq 2 -and $jtagPressureFailed -eq 0 -and
     $jtagBackpressureStatus -eq 2 -and $jtagBackpressureFailed -eq 0 -and
     $jtagBackpressureStallCycles -gt 0 -and
@@ -344,6 +394,8 @@ $runManifest = [ordered]@{
     jtag_gap_first_length = $jtagGapFirstLength
     jtag_gap_second_length = $jtagGapSecondLength
     jtag_gap_crc_xor = $jtagGapCrcXor
+    ledger_pass = $ledgerPass
+    jtag_ledger = $ledgerRecords
     jtag_mm2s_stall = $jtagMm2sStall
     jtag_s2mm_stall = $jtagS2mmStall
     jtag_uart_cr = $jtagUartCr
