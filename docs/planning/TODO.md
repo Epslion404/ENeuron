@@ -2,7 +2,7 @@
 
 ## 当前主线校正（2026-09-08）
 
-本文件前半部分保留 Pulse-Mini P0-P13 的历史研发合同；当前日常主线是 P16 的 `xc7z020clg484-2` 板级集成、传统 NPU + ENeuron 动态剪枝和 NP7 共享 lane。本轮校验基线为工作树 `codex/b1b-high-ddr-board-repro`、HEAD=`ef0495b0a363195d27ba7efc019127523f9affcf`；提交后的精确 HEAD 以 `workflow_resume.ps1 -Mode Check` 和 Git 为准。B1-06B7 使用的已生成 OCM 诊断产物仍绑定构建身份 `dae5473ba72d6cfaee12ed8e103c0efad190ed4a`。当前工作树仍保留用户已有的 `artifacts/results/rtl_smoke_results.json` 改动，不把它混入本轮文档/知识库提交。该基线收口 TODO/Nexus、串口端口选择入口和历史资料，不改变已签核的 B1B 诊断 ELF 或硬件身份。Pulse-Mini-L/L2 不参与当前 NPU 日常门，但其已完成证据仍保留供追溯。
+本文件前半部分保留 Pulse-Mini P0-P13 的历史研发合同；当前日常主线是 P16 的 `xc7z020clg484-2` 板级集成、传统 NPU + ENeuron 动态剪枝和 NP7 共享 lane。当前精确 HEAD、工作树状态和活动 TODO 计数以 `workflow_resume.ps1 -Mode Check` 与 Git 为准；历史审计基线为 `d7e1035`。B1-06B7 使用的已生成 OCM 诊断产物仍绑定构建身份 `dae5473ba72d6cfaee12ed8e103c0efad190ed4a`。当前工作树仍保留用户已有的 `artifacts/results/rtl_smoke_results.json` 改动，不把它混入本轮文档/知识库提交。该基线收口 TODO/Nexus、串口端口选择入口和历史资料，不改变已签核的 B1B 诊断 ELF 或硬件身份。Pulse-Mini-L/L2 不参与当前 NPU 日常门，但其已完成证据仍保留供追溯。
 
 当前板级状态：低地址 `0x01000000–0x010FFFFF` 的 1 MiB DDR 已完成三次冷启动；高地址诊断尚未真正访问 DDR。CH340 以 `VID_1A86:PID_7523` 识别，COM 号不固定，本次环境探测（2026-09-08）为 COM10。B1C PHY/UDP 继续后置；B2 可先按低地址容量满足模型/DMA 缓冲区的条件启动 MVP，完整 `B1-GATE` 仍是进入网络化 B1C/B4 的门槛。
 
@@ -649,11 +649,11 @@ P15 硬门：双时钟逐 beat bit-exact；reset/ready-valid/FIFO 满空无丢�
 - [ ] B1-10：对三档 payload 各保存发送数、接收数、错误数、超时数、重复/乱序数和往返时间分布；吞吐只作基础设施基线，不与 NPU性能混写。
 - [ ] B1-11：B1B部分已归档构建manifest、XSA/bitstream/ELF哈希、三次冷启动UART原始日志、DDR逐项摘要、OCM结果、机器摘要和阶段报告；MDIO快照、Host逐包账本与拔插恢复日志待B1C补齐。
 - [ ] B1-RECOVERY：UART失败先停在PS时钟/复位/串口；DDR失败时禁止继续网络；PHY ID错误先停在MDIO/复位/时钟；UDP错误只在前三项通过后定位 lwIP或Host，不同时改多个层级。
-- [ ] B1-GATE：UART稳定、DDR零错误、PHY可识别且千兆链路成立、UDP三档payload零错序/零内容错误、拔插可恢复后，才能进入 DMA；B1 不声明 NPU已经接入。
+- [ ] B1-GATE：UART稳定、DDR零错误、PHY可识别且千兆链路成立、UDP三档payload零错序/零内容错误、拔插可恢复后，才能关闭网络化 B1C 并进入完整 B4；B1 不声明 NPU已经接入。低地址窗口内的 B2-MVP 由 B2-00 明确授权，不等同于 B1-GATE 通过。
 
 #### P16-B2：AXI DMA和固定帧流协议
 
-- [ ] B2-00：B2-DMA MVP 入口可接受 `B1A=PASS + B1B低地址1 MiB三次冷启动=PASS` 的组合，但必须先证明冻结模型/DMA缓冲区完全落在已验证窗口内，并在 manifest 中明确 `B1_HIGH_DDR_PENDING`。完整 `B1-GATE=PASS` 仍是 B1C 网络化路径和 B4 的入口；任何基础设施变化都必须重跑受影响的 B1 项。
+- [x] B2-00：已冻结 `xc7z020clg484-2` 低地址 DMA 布局合同：模型、mask、命令/样本/响应/结果和 loopback 缓冲区均落在已验证 `[0x01000000,0x01100000)` 窗口内，manifest 明确 `B1_HIGH_DDR_PENDING`；机器验证器和合同见 `tools/repro/b2_dma_address_layout.json`、`verify_b2_dma_address_layout.py`、`docs/planning/NPU_ZYNQ7020_B2_ADDRESS_LAYOUT_V1.md`。这只开放低地址 B2-MVP，不代表完整 `B1-GATE`、网络化 B1C 或 B4 通过；任何基础设施变化都必须重跑受影响的 B1 项。
 - [ ] B2-D1：冻结首轮 DMA方案。推荐 AXI DMA simple mode + polling先跑通，再增加 interrupt；scatter-gather不进入首轮，除非 simple mode无法满足已冻结吞吐目标。
 - [ ] B2-01：冻结 PS DDR发送/接收缓冲区的物理地址、大小、对齐、最大帧长和所有权状态机；逐步写清 `CPU填充→flush→DMA拥有→完成→invalidate→CPU读取`，CPU不得在 DMA拥有缓冲区时修改内容。
 - [ ] B2-02：冻结 DMA控制合同：simple mode、polling、超时、状态寄存器采样、错误清除和复位顺序；每次超时都保存 DMA寄存器、缓冲区头尾、PL计数器和当前 sequence。

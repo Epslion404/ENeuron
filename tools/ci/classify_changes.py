@@ -32,7 +32,7 @@ def classify_paths(paths: Iterable[str], *, run_all: bool = False) -> dict[str, 
             selected["npu_oracle"] = True
         elif _matches(path, "host_bridge_xpm*", "test_host_bridge_xpm_wrapper.py", "xpm_fifo_async*"):
             selected["xpm_cdc"] = True
-        elif _matches(path, "npu_zynq7020_t1_wrapper.sv", "tb_npu_zynq7020_t1_wrapper.sv", "tb_npu_zynq7020_t1_fifo_boundary.sv", "tb_npu_zynq7020_t1_fence_accept.sv", "tb_npu_zynq7020_t2_variable_clocks.sv", "tb_xpm_fifo_async_matrix.sv", "tb_npu_zynq7020_t2_interleave_reset.sv", "test_reproducibility.py", "tools/repro/*", "REPRODUCE.md"):
+        elif _matches(path, "npu_zynq7020_t1_wrapper.sv", "tb_npu_zynq7020_t1_wrapper.sv", "tb_npu_zynq7020_t1_fifo_boundary.sv", "tb_npu_zynq7020_t1_fence_accept.sv", "tb_npu_zynq7020_t2_variable_clocks.sv", "tb_xpm_fifo_async_matrix.sv", "tb_npu_zynq7020_t2_interleave_reset.sv", "test_reproducibility.py", "tools/repro/*", "verify_b2_dma_address_layout.py", "REPRODUCE.md"):
             selected["t1_repro"] = True
         elif _matches(
             path,

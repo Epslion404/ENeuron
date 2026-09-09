@@ -1,0 +1,88 @@
+{
+  "schema": "b2_dma_address_layout_v1",
+  "target_part": "xc7z020clg484-2",
+  "board_gate_state": "B1_HIGH_DDR_PENDING",
+  "verified_window": {
+    "base": 16777216,
+    "end_exclusive": 17825792,
+    "size_bytes": 1048576,
+    "evidence": "docs/reports/HELLOZYNQ_B1B_UART_DDR_2026-09-08.md"
+  },
+  "cache_line_bytes": 64,
+  "region_alignment_bytes": 4096,
+  "max_dma_frame_bytes": 4096,
+  "regions": [
+    {
+      "name": "model_image",
+      "base": 16777216,
+      "capacity_bytes": 4096,
+      "payload_bytes": 2536,
+      "purpose": "634-word model image",
+      "dma_role": "tx_staging"
+    },
+    {
+      "name": "mask_image",
+      "base": 16781312,
+      "capacity_bytes": 4096,
+      "payload_bytes": 76,
+      "purpose": "19-word mask image",
+      "dma_role": "tx_staging"
+    },
+    {
+      "name": "command_tx",
+      "base": 16785408,
+      "capacity_bytes": 4096,
+      "payload_bytes": 0,
+      "purpose": "128-bit command/configuration frames",
+      "dma_role": "tx"
+    },
+    {
+      "name": "sample_tx",
+      "base": 16789504,
+      "capacity_bytes": 4096,
+      "payload_bytes": 32,
+      "purpose": "one 8-beat sample payload",
+      "dma_role": "tx"
+    },
+    {
+      "name": "response_rx",
+      "base": 16793600,
+      "capacity_bytes": 4096,
+      "payload_bytes": 0,
+      "purpose": "128-bit response/error frames",
+      "dma_role": "rx"
+    },
+    {
+      "name": "result_rx",
+      "base": 16797696,
+      "capacity_bytes": 4096,
+      "payload_bytes": 40,
+      "purpose": "one 10-beat result payload",
+      "dma_role": "rx"
+    },
+    {
+      "name": "loopback_tx",
+      "base": 16801792,
+      "capacity_bytes": 4096,
+      "payload_bytes": 0,
+      "purpose": "B2 simple-mode loopback source",
+      "dma_role": "tx"
+    },
+    {
+      "name": "loopback_rx",
+      "base": 16805888,
+      "capacity_bytes": 4096,
+      "payload_bytes": 0,
+      "purpose": "B2 simple-mode loopback destination",
+      "dma_role": "rx"
+    },
+    {
+      "name": "status_scratch",
+      "base": 16809984,
+      "capacity_bytes": 4096,
+      "payload_bytes": 0,
+      "purpose": "machine-readable counters and failure context",
+      "dma_role": "cpu_only"
+    }
+  ]
+}
