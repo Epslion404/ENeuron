@@ -59,3 +59,7 @@
 ## 进入下一门的条件
 
 B2-01/B2-02 已按本合同完成布局、所有权和控制软件切片。下一片仍必须先做不接 NPU 的 PL AXI-Stream loopback，并保留低地址布局合同中的 `loopback_tx=0x01006000`、`loopback_rx=0x01007000`。在正常、背压、边界、错误和复位场景的真实 DDR↔DMA↔PL 双向证据完成前，不得接入 NPU 或报告动态剪枝加速/功耗收益。
+
+## 已验证恢复切片
+
+提交 `875dd1e` 绑定的实板 run `20260909T111310Z` 已验证合同中的一次短帧恢复：停止 S2MM probe 使接收端不再 ready，观测到 1 秒 timeout，执行 `XAxiDma_Reset` 并等待 reset 完成，清除并重新激活两个 probe，再发送 4-byte 合法帧。UART/JTAG/XSCT 均 PASS，recovery 计数为 `timeout=1/reset=1/passed=1/failed=0`，sequence=`10329`，CRC32=`0xD3E3C978`。该证据只覆盖一次受控恢复，不替代 B2-GATE 要求的错误注入、packetizer 复位和更广 ready/间歇场景。
