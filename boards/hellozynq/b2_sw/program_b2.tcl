@@ -27,3 +27,4 @@ con
 puts "B2_CPU_RUN_PASS"
 after 1000
 disconnect
+exit 0

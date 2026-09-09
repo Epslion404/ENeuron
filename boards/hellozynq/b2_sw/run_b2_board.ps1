@@ -240,10 +240,14 @@ $jtagPass = $probeExitCode -eq 0 -and $probeReadAvailable -and
     $jtagWrapLastTxAddress -eq 0x01006FC0 -and
     $jtagWrapLastRxAddress -eq 0x01007FC0
 $jtagStatus = if ($jtagPass) { 'PASS' } elseif ($probeReadAvailable) { 'FAIL' } else { 'UNAVAILABLE' }
-$status = if ($uartText.Contains('B2_PRESSURE_PASS') -and
+$uartPass = $uartText.Contains('B2_PRESSURE_PASS') -and
     $uartText.Contains('B2_BACKPRESSURE_PASS') -and
     $uartText.Contains('B2_WRAP_PASS') -and
-    $uartText.Contains('B2_DMA_PASS')) { 'PASS' } elseif ($uartText.Contains('B2_DMA_FAIL')) { 'FAIL' } else { 'NO_TERMINAL_MARKER' }
+$uartText.Contains('B2_DMA_PASS')
+$xsctExitCode = if ($process.HasExited) { [int]$process.ExitCode } else { $null }
+$status = if ($uartPass -and $jtagPass -and $xsctExitCode -eq 0 -and
+    $xsctText.Contains('B2_FPGA_PROGRAM_PASS') -and
+    $xsctText.Contains('B2_ELF_DOWNLOAD_PASS')) { 'PASS' } elseif ($uartText.Contains('B2_DMA_FAIL')) { 'FAIL' } else { 'NO_TERMINAL_MARKER' }
 $runManifest = [ordered]@{
     schema_version = 1
     generated_at = [DateTime]::UtcNow.ToString('o')
@@ -257,7 +261,7 @@ $runManifest = [ordered]@{
     bitstream_sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $bitstream).Hash.ToLowerInvariant()
     xsa_sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $xsaCopy).Hash.ToLowerInvariant()
     elf_sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $elf).Hash.ToLowerInvariant()
-    xsct_exit_code = $process.ExitCode
+    xsct_exit_code = $xsctExitCode
     xsct_program_pass = $xsctText.Contains('B2_FPGA_PROGRAM_PASS')
     xsct_download_pass = $xsctText.Contains('B2_ELF_DOWNLOAD_PASS')
     probe_exit_code = $probeExitCode
@@ -297,6 +301,7 @@ $runManifest = [ordered]@{
         $null
     }
     uart_reconnects = $serialReconnects
+    uart_pass = $uartPass
     uart_terminal_marker = $status
     uart_log_sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $serialLog).Hash.ToLowerInvariant()
 }

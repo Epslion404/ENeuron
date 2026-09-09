@@ -102,6 +102,17 @@ class B2DmaAppContractTests(unittest.TestCase):
         probe = (B2_SW / "probe_b2_state.tcl").read_text(encoding="utf-8")
         self.assertIn("0x01008280", probe)
 
+    def test_wrap_probe_offsets_match_struct_layout(self):
+        probe = (B2_SW / "probe_b2_state.tcl").read_text(encoding="utf-8")
+        for address in (
+            "0x010082A0",  # rollovers
+            "0x010082A4",  # first TX
+            "0x010082A8",  # first RX
+            "0x010082AC",  # last TX
+            "0x010082B0",  # last RX
+        ):
+            self.assertIn(address, probe)
+
     def test_build_is_bound_to_b2_xsa(self):
         self.assertIn("hello_zynq_b2.xsa", self.build)
         self.assertIn("hello_zynq_b2.bit", self.board)
@@ -152,6 +163,12 @@ class B2DmaAppContractTests(unittest.TestCase):
             "B2_JTAG_STATUS",
         ):
             self.assertIn(token, self.board)
+
+    def test_board_runner_requires_jtag_and_uart_for_overall_pass(self):
+        self.assertIn("$uartPass", self.board)
+        self.assertIn("$uartPass -and $jtagPass", self.board)
+        self.assertIn("$xsctExitCode -eq 0", self.board)
+        self.assertIn("exit 0", (B2_SW / "program_b2.tcl").read_text(encoding="utf-8"))
 
     def test_board_runner_records_ps_uart_configuration(self):
         for token in (
