@@ -1712,3 +1712,9 @@
 - 外层 DMA frame 已冻结为 32-byte little-endian header + payload + 4-byte CRC32，最大完整帧 4096 bytes；`COMMAND/RESPONSE` 只接受非零 16-byte word 倍数，`SAMPLE` 必须 32 bytes，`RESULT` 必须 40 bytes。
 - `b2_packet_protocol.py` 是当前唯一字节级参考，`test_b2_packet_protocol.py` 覆盖 round-trip、TLAST、CRC、长度、保留位、未知 type 和超限拒绝，`7/7` 通过。
 - 该参考不改变已批准的高位 4-bit NPU opcode 和核心 8/10 beat 合同；RTL packetizer/depacketizer 尚未实现，不能将参考测试当作 B2-06 实板门。
+
+## 2026-09-09 B2 RTL ingress packetizer
+
+- `b2_packet_ingress.sv` 在发布前缓存最多 4060-byte payload（1015 个 32-bit word），避免坏帧的半条命令或半个样本进入核心。
+- CRC 状态按标准 reflected Ethernet CRC32（多项式 `0xEDB88320`）逐个 little-endian byte 更新，CRC word 不参与自身计算；与 Python `zlib.crc32` 参考向量一致。
+- 独立仿真已证明合法 SAMPLE/COMMAND 映射、坏 CRC 拒绝和 CRC word 缺失 TLAST 拒绝；RTL ingress 不是完整 packetizer，反向 egress 和实板集成仍待完成。

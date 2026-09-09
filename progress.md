@@ -1799,3 +1799,10 @@
 - `COMMAND/RESPONSE` payload 按 16-byte little-endian 128-bit word；`SAMPLE` 固定 8×32-bit（32 bytes）；`RESULT` 固定 10×signed INT32（40 bytes）；完整 DMA frame 上限 4096 bytes，TLAST 必须在整帧末端出现。
 - 新增 `b2_packet_protocol.py` 与 `test_b2_packet_protocol.py`，覆盖正常 round-trip、CRC/保留位/长度/TLAST/超限拒绝，测试 `7/7` 通过。
 - 该切片只完成主机侧参考，不把 RTL packetizer/depacketizer 或错误帧实板丢弃能力写成已完成；下一步仍是 RTL 实现和 B2-08 fence。
+
+## 2026-09-09 B2 RTL ingress packetizer slice
+
+- 新增 `b2_packet_ingress.sv`，采用 32-bit AXI 输入、完整帧缓存和 CRC32 标准算法；只有 header/payload/CRC/TLAST 全部合法后才向下游发布。
+- `COMMAND` payload 按四个 32-bit word 组合为一个 128-bit command；`SAMPLE` payload 按 8 个 32-bit beat 输出，并保持 sequence、model ID、mask epoch、sample ID。
+- `tb_b2_packet_ingress.sv` 覆盖合法 SAMPLE/COMMAND、坏 CRC、CRC 缺失 TLAST；实跑输出 `B2_PACKET_INGRESS_PASS`。
+- 该切片完成 B2-06 ingress 仿真子门；RESPONSE/RESULT egress、T1 wrapper 对接、完整错误矩阵和 XC7Z020 实板验证仍未完成。

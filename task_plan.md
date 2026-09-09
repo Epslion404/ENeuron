@@ -1724,4 +1724,16 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 
 边界：本切片只提供主机侧字节级参考，不关闭 B2-06、B2-07、B2-08 或 B2-GATE。
 
+## 2026-09-09 B2 RTL ingress packetizer slice
+
+状态：`COMPLETE_INGRESS / EGRESS_PENDING`
+
+- [x] 实现 `b2_packet_ingress.sv`：32-bit AXI 帧完整缓存后再校验 header、长度、CRC 和 TLAST。
+- [x] 合法 `COMMAND` 映射为 128-bit command stream，合法 `SAMPLE` 映射为 8 个 32-bit sample beat，并保持 sequence/model/epoch/sample ID。
+- [x] 坏 CRC、缺失 TLAST、错误 keep、错误方向和非法长度均在整帧边界产生错误，不发布半帧。
+- [x] 新增 `tb_b2_packet_ingress.sv`，Icarus 输出 `B2_PACKET_INGRESS_PASS`。
+- [ ] 实现 RESPONSE/RESULT egress，与 `npu_zynq7020_t1_wrapper` 对接并完成实板验证。
+
+边界：该切片只关闭 ingress 仿真子门，不关闭 B2-06、B2-07、B2-08 或 B2-GATE。
+
 停止条件：若 missing-TLAST 未形成可重复 timeout/error，保留证据并不把 B2-07 写成完成；不得接入 NPU/ENeuron。

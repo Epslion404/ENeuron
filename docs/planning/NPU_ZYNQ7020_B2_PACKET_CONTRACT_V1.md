@@ -1,6 +1,6 @@
 # ZYNQ7020 B2 外层 DMA Packet 合同 V1
 
-状态：`B2-06_REFERENCE_FROZEN / RTL_PENDING`
+状态：`B2-06_INGRESS_PASS / EGRESS_PENDING`
 
 目标器件：`xc7z020clg484-2`
 
@@ -51,7 +51,9 @@ DMA 完成时必须同时满足帧总长度与 `payload length` 一致、`TLAST=
 
 - 参考编码器/解码器：`b2_packet_protocol.py`。
 - 合同测试：`test_b2_packet_protocol.py`。
-- 当前只完成主机侧长度/CRC/字节序参考；RTL packetizer、四流 fence、错误
-  帧丢弃和 XC7Z020 实板验证仍属于 B2-06～B2-08 后续工作。
+- 当前已完成主机侧字节级参考和独立 RTL ingress 仿真；RTL egress、四流
+  fence、错误帧实板丢弃和 XC7Z020 集成验证仍属于 B2-06～B2-08 后续工作。
+- `b2_packet_ingress.sv` 先完整缓存 Host→NPU 帧，再校验 CRC/TLAST/长度后
+  发布 `COMMAND` 或 `SAMPLE`；坏帧只产生错误脉冲，不向核心输出半帧。
 - 不兼容旧的低位 8-bit Oracle opcode 布局；命令 payload 内仍使用已批准的
   `[127:124]` 高位 4-bit NPU opcode 合同。
