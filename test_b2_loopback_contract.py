@@ -34,6 +34,14 @@ class B2LoopbackContractTests(unittest.TestCase):
         self.assertIn("axi_dma_0/M_AXIS_MM2S", self.bd)
         self.assertIn("axi_dma_0/S_AXIS_S2MM", self.bd)
 
+    def test_gp0_axi3_is_converted_to_dma_axi4lite(self):
+        self.assertIn("xilinx.com:ip:axi_protocol_converter:2.1", self.bd)
+        self.assertIn("CONFIG.SI_PROTOCOL {AXI3}", self.bd)
+        self.assertIn("CONFIG.MI_PROTOCOL {AXI4LITE}", self.bd)
+        self.assertIn("processing_system7_0/M_AXI_GP0", self.bd)
+        self.assertIn("axi_protocol_converter_0/S_AXI", self.bd)
+        self.assertIn("axi_protocol_converter_0/M_AXI", self.bd)
+
     def test_build_targets_board_part_and_existing_constraints(self):
         self.assertIn("set part xc7z020clg484-2", self.build)
         self.assertIn("create_b2_bd.tcl", self.build)

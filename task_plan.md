@@ -1605,4 +1605,6 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 - [x] 读取本机 Vitis 2024.1 `axidma_v9_18` 驱动、硬件头文件和 simple polling 示例，确认寄存器偏移、simple/SG 边界、BTT 启动、reset 和 cache 维护语义。
 - [x] 先写负向测试，再新增 `b2_dma_contract.json` 与 fail-closed `verify_b2_dma_contract.py`；并将验证器归入 `t1_repro` 定向门。
 - [x] 形成 `docs/planning/NPU_ZYNQ7020_B2_DMA_CONTRACT_V1.md`，冻结 S2MM→MM2S、polling、超时、快照和恢复顺序。
-- [ ] 下一步：实现不接 NPU 的 PL AXI-Stream loopback，并在真实板卡上验证低地址 DDR↔DMA↔PL 双向传输。
+- [x] 完成不接 NPU 的 PS7/AXI DMA/AXI-Stream direct loopback 拓扑，并在 `xc7z020clg484-2` 上完成 Vivado implementation、route、timing 和 bitstream/XSA 生成。
+- [x] 新增 standalone `XAxiDma` simple-polling 软件入口，绑定低地址 loopback 缓冲区、cache ownership、S2MM→MM2S 顺序、超时和寄存器快照；Vitis 2024.1 构建通过。
+- [ ] 在真实板卡上验证低地址 DDR↔DMA↔PL 双向传输；随后补齐边界帧、背压、错误/复位恢复和 10000 帧压力，才能关闭 B2-GATE。

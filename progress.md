@@ -1657,3 +1657,11 @@
 - 首次定向分类测试发现新验证器未命中 `t1_repro`，已修正 `tools/ci/classify_changes.py` 并补充回归断言。
 - 验证结果：`test_b2_dma_contract.py` 与 `test_b2_dma_address_layout.py` 共 `12/12 OK`；两个 verifier 均 PASS；`git diff --check` 通过。未运行 Vivado、未下载 bitstream、未发送 GO、未访问 DDR。
 - 当前状态新增 `B2_D1_DMA_CONTRACT_FROZEN`；下一动作是不接 NPU 的 PL AXI-Stream loopback 和低地址实板 DMA 回环。
+
+## 2026-09-09 B2 loopback 构建与 DMA 软件准备
+
+- 复核当前 PR #88 工作树的 Vivado 会话已正常结束；`hello_zynq_b2.bit`、`hello_zynq_b2.xsa`、utilization/timing/route/DRC 报告和 `signoff_summary.txt` 均已生成。
+- 物理报告：器件 `xc7z020clg484-2`，设计 Fully Routed，WNS/WHS=`+0.232/+0.016 ns`，TNS/THS=`0/0`，route error=`0`，DRC error=`0`；仅保留 1 个 GMII/RGMII 时钟缓冲 warning 与 4 个 DMA BRAM advisory。
+- 新增 `test_b2_dma_app_contract.py`，验证低地址缓冲区、64-byte 对齐、S2MM→MM2S 顺序、cache flush/invalidate、超时/寄存器快照和构建身份；定向测试 `5/5` 通过。
+- `run_b2_sw_build.ps1` 使用生成的 B2 XSA 生成 standalone BSP，Vitis 2024.1 实际编译 `axidma_v9_18`，生成 `b2_dma_loopback.elf`；软件构建退出码为 0。
+- 当前边界：硬件/软件产物尚绑定旧 HEAD `9b64b55`，必须在源码提交后重建；尚未执行实板 program、ELF download 或 DMA loopback，不能关闭 B2-03～B2-GATE。

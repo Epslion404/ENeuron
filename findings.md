@@ -1576,3 +1576,11 @@
 - 首轮合同固定 `1..4096` bytes、64-byte buffer 对齐、1 us polling、1 s 传输超时、500 次 reset poll；错误/超时必须先保存寄存器和上下文，再 reset，最多用已知短帧恢复一次。
 - 合同验证器初版未被 CI 分类器识别，定向测试先复现该问题，再将 `verify_b2_dma_contract.py` 加入 `t1_repro`；当前 B2 合同与既有布局合计 `12/12` 测试通过。
 - 该合同只关闭 B2-D1；尚未实例化 DMA、生成含 DMA 的 bitstream、执行实板搬运，也未关闭 B2-01～B2-GATE。
+
+## 2026-09-09 B2 loopback 实现与软件构建
+
+- `boards/hellozynq/b2_hw/create_b2_bd.tcl` 已修正 PS7 `M_AXI_GP0` AXI3 到 DMA `S_AXI_LITE` AXI4-Lite 的 protocol converter，补齐 GP0 时钟连接，并按 Vivado 2024.1 实际接口移除不存在的 DMA stream clock 和 PS7 HP reset 引脚连接。
+- B2 构建在 `xc7z020clg484-2` 上完成：`opt_design`、`place_design`、`route_design` 和 `write_bitstream` 均成功；时序 `WNS=+0.232 ns`、`WHS=+0.016 ns`、TNS/THS 为 0；8354 个 routable nets 全部完成路由；DRC error 为 0。
+- 生成的本地证据为 `boards/hellozynq/b2_hw/build/hello_zynq_b2.bit` 和 `hello_zynq_b2.xsa`。它们绑定构建时 HEAD `9b64b55`，源码修正提交后必须重建，不能与新 HEAD 的软件 ELF 混用。
+- 新增 `boards/hellozynq/b2_sw/src/main.c`、`build_b2_sw.tcl`、`run_b2_sw_build.ps1`、`program_b2.tcl` 和 `run_b2_board.ps1`。Vitis 2024.1 生成 BSP 时实际编译 `axidma_v9_18`，应用构建通过；应用只执行一条 64-byte loopback 帧，记录 sequence、TX/RX CR/SR/BTT、CRC 和 cache ownership 标志。
+- 这一步只证明硬件实现和软件构建可复现；尚未证明 UART/JTAG 下载、DDR↔DMA↔PL 实际回环、背压、边界帧、错误恢复、压力或 B2-GATE。`B1_HIGH_DDR_PENDING` 继续有效。

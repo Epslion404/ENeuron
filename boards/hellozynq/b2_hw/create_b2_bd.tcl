@@ -49,6 +49,13 @@ set_property -dict [list \
 set reset_inverter [create_bd_cell -type ip -vlnv xilinx.com:ip:util_vector_logic:2.0 util_vector_logic_0]
 set_property -dict [list CONFIG.C_OPERATION {not} CONFIG.C_SIZE {1}] $reset_inverter
 
+set axi_control_converter [create_bd_cell -type ip -vlnv xilinx.com:ip:axi_protocol_converter:2.1 axi_protocol_converter_0]
+set_property -dict [list \
+    CONFIG.SI_PROTOCOL {AXI3} \
+    CONFIG.MI_PROTOCOL {AXI4LITE} \
+    CONFIG.DATA_WIDTH {32} \
+] $axi_control_converter
+
 set dma [create_bd_cell -type ip -vlnv xilinx.com:ip:axi_dma:7.1 axi_dma_0]
 set_property -dict [list \
     CONFIG.c_include_sg {0} \
@@ -76,8 +83,9 @@ connect_bd_intf_net [get_bd_intf_ports RGMII_0] [get_bd_intf_pins gmii_to_rgmii_
 connect_bd_intf_net [get_bd_intf_pins processing_system7_0/GMII_ETHERNET_0] [get_bd_intf_pins gmii_to_rgmii_0/GMII]
 connect_bd_intf_net [get_bd_intf_pins processing_system7_0/MDIO_ETHERNET_0] [get_bd_intf_pins gmii_to_rgmii_0/MDIO_GEM]
 
-# DMA 控制面由 PS GP0 访问，两个内存面通过 SmartConnect 汇聚到 HP0。
-connect_bd_intf_net [get_bd_intf_pins processing_system7_0/M_AXI_GP0] [get_bd_intf_pins axi_dma_0/S_AXI_LITE]
+# DMA 控制面由 PS GP0 经 AXI3→AXI4-Lite 协议转换器访问，两个内存面通过 SmartConnect 汇聚到 HP0。
+connect_bd_intf_net [get_bd_intf_pins processing_system7_0/M_AXI_GP0] [get_bd_intf_pins axi_protocol_converter_0/S_AXI]
+connect_bd_intf_net [get_bd_intf_pins axi_protocol_converter_0/M_AXI] [get_bd_intf_pins axi_dma_0/S_AXI_LITE]
 connect_bd_intf_net [get_bd_intf_pins axi_dma_0/M_AXI_MM2S] [get_bd_intf_pins dma_mem_smartconnect/S00_AXI]
 connect_bd_intf_net [get_bd_intf_pins axi_dma_0/M_AXI_S2MM] [get_bd_intf_pins dma_mem_smartconnect/S01_AXI]
 connect_bd_intf_net [get_bd_intf_pins dma_mem_smartconnect/M00_AXI] [get_bd_intf_pins processing_system7_0/S_AXI_HP0]
@@ -89,14 +97,16 @@ connect_bd_net [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins gmii_to
 connect_bd_net [get_bd_pins processing_system7_0/FCLK_RESET0_N] [get_bd_pins util_vector_logic_0/Op1]
 connect_bd_net [get_bd_pins util_vector_logic_0/Res] [get_bd_pins gmii_to_rgmii_0/rx_reset] [get_bd_pins gmii_to_rgmii_0/tx_reset]
 
-foreach pin {s_axi_lite_aclk m_axi_mm2s_aclk m_axi_s2mm_aclk m_axis_mm2s_aclk s_axis_s2mm_aclk} {
+foreach pin {s_axi_lite_aclk m_axi_mm2s_aclk m_axi_s2mm_aclk} {
     connect_bd_net [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins axi_dma_0/$pin]
 }
+connect_bd_net [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins axi_protocol_converter_0/aclk]
+connect_bd_net [get_bd_pins processing_system7_0/FCLK_RESET0_N] [get_bd_pins axi_protocol_converter_0/aresetn]
 connect_bd_net [get_bd_pins processing_system7_0/FCLK_RESET0_N] [get_bd_pins axi_dma_0/axi_resetn]
 connect_bd_net [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins dma_mem_smartconnect/aclk]
 connect_bd_net [get_bd_pins processing_system7_0/FCLK_RESET0_N] [get_bd_pins dma_mem_smartconnect/aresetn]
+connect_bd_net [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK]
 connect_bd_net [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins processing_system7_0/S_AXI_HP0_ACLK]
-connect_bd_net [get_bd_pins processing_system7_0/FCLK_RESET0_N] [get_bd_pins processing_system7_0/S_AXI_HP0_ARESETN]
 
 assign_bd_address
 validate_bd_design

@@ -91,3 +91,7 @@ boards/hellozynq/b1a_hw/build/
 
 # Local HelloZynq B1B Vitis workspace, ELF and board-run logs.
 boards/hellozynq/b1b_sw/build/
+
+# Local HelloZynq B2 Vivado and Vitis workspaces, bitstream, XSA and ELF.
+boards/hellozynq/b2_hw/build/
+boards/hellozynq/b2_sw/build/
