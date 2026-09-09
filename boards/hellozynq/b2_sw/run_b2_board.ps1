@@ -165,6 +165,7 @@ try {
                 if (($received.ToString().Contains('B2_PRESSURE_PASS') -and
                      $received.ToString().Contains('B2_BACKPRESSURE_PASS') -and
                      $received.ToString().Contains('B2_WRAP_PASS') -and
+                     $received.ToString().Contains('B2_RECOVERY_PASS') -and
                      $received.ToString().Contains('B2_DMA_PASS frames=')) -or
                     $received.ToString().Contains('B2_DMA_FAIL')) { break }
             }
@@ -215,6 +216,11 @@ $jtagWrapFirstTxAddress = Get-ProbeValue $probeText 'B2_STATUS_WRAP_FIRST_TX_ADD
 $jtagWrapFirstRxAddress = Get-ProbeValue $probeText 'B2_STATUS_WRAP_FIRST_RX_ADDR'
 $jtagWrapLastTxAddress = Get-ProbeValue $probeText 'B2_STATUS_WRAP_LAST_TX_ADDR'
 $jtagWrapLastRxAddress = Get-ProbeValue $probeText 'B2_STATUS_WRAP_LAST_RX_ADDR'
+$jtagRecoveryStatus = Get-ProbeValue $probeText 'B2_STATUS_RECOVERY_STATUS'
+$jtagRecoveryTimeout = Get-ProbeValue $probeText 'B2_STATUS_RECOVERY_TIMEOUT'
+$jtagRecoveryReset = Get-ProbeValue $probeText 'B2_STATUS_RECOVERY_RESET'
+$jtagRecoveryPassed = Get-ProbeValue $probeText 'B2_STATUS_RECOVERY_PASSED'
+$jtagRecoveryFailed = Get-ProbeValue $probeText 'B2_STATUS_RECOVERY_FAILED'
 $jtagMm2sStall = Get-ProbeValue $probeText 'B2_PROBE_MM2S_STALL'
 $jtagS2mmStall = Get-ProbeValue $probeText 'B2_PROBE_S2MM_STALL'
 $jtagUartCr = Get-ProbeValue $probeText 'B2_UART_CR'
@@ -238,11 +244,17 @@ $jtagPass = $probeExitCode -eq 0 -and $probeReadAvailable -and
     $jtagWrapFirstTxAddress -eq 0x01006000 -and
     $jtagWrapFirstRxAddress -eq 0x01007000 -and
     $jtagWrapLastTxAddress -eq 0x01006FC0 -and
-    $jtagWrapLastRxAddress -eq 0x01007FC0
+    $jtagWrapLastRxAddress -eq 0x01007FC0 -and
+    $jtagRecoveryStatus -eq 2 -and
+    $jtagRecoveryTimeout -eq 1 -and
+    $jtagRecoveryReset -eq 1 -and
+    $jtagRecoveryPassed -eq 1 -and
+    $jtagRecoveryFailed -eq 0
 $jtagStatus = if ($jtagPass) { 'PASS' } elseif ($probeReadAvailable) { 'FAIL' } else { 'UNAVAILABLE' }
 $uartPass = $uartText.Contains('B2_PRESSURE_PASS') -and
     $uartText.Contains('B2_BACKPRESSURE_PASS') -and
     $uartText.Contains('B2_WRAP_PASS') -and
+    $uartText.Contains('B2_RECOVERY_PASS') -and
     $uartText.Contains('B2_DMA_PASS frames=')
 $xsctExitCode = if ($process.HasExited) { [int]$process.ExitCode } else { $null }
 $status = if ($uartPass -and $jtagPass -and $xsctExitCode -eq 0 -and
@@ -287,6 +299,11 @@ $runManifest = [ordered]@{
     jtag_wrap_first_rx_address = $jtagWrapFirstRxAddress
     jtag_wrap_last_tx_address = $jtagWrapLastTxAddress
     jtag_wrap_last_rx_address = $jtagWrapLastRxAddress
+    jtag_recovery_status = $jtagRecoveryStatus
+    jtag_recovery_timeout = $jtagRecoveryTimeout
+    jtag_recovery_reset = $jtagRecoveryReset
+    jtag_recovery_passed = $jtagRecoveryPassed
+    jtag_recovery_failed = $jtagRecoveryFailed
     jtag_mm2s_stall = $jtagMm2sStall
     jtag_s2mm_stall = $jtagS2mmStall
     jtag_uart_cr = $jtagUartCr

@@ -215,6 +215,30 @@ class B2DmaAppContractTests(unittest.TestCase):
         alive_loop = self.source[self.source.index("while (1)") :]
         self.assertIn("B2_DMA_PASS", alive_loop)
 
+    def test_dma_reset_recovery_contract_is_present(self):
+        for token in (
+            "RECOVERY_STATUS_BASE 0x01008300U",
+            "recovery_timeout_observed",
+            "recovery_reset_passed",
+            "recovery_passed",
+            "recovery_failed",
+            "B2_RECOVERY_PASS",
+            "recovery_after_reset",
+        ):
+            self.assertIn(token, self.source)
+        for token in (
+            "B2_STATUS_RECOVERY_STATUS",
+            "B2_STATUS_RECOVERY_TIMEOUT",
+            "B2_STATUS_RECOVERY_RESET",
+            "B2_STATUS_RECOVERY_PASSED",
+            "B2_STATUS_RECOVERY_FAILED",
+            "B2_RECOVERY_PASS",
+        ):
+            self.assertIn(token, self.board)
+        probe = (B2_SW / "probe_b2_state.tcl").read_text(encoding="utf-8")
+        for address in ("0x01008300", "0x01008304", "0x01008308", "0x0100830C", "0x01008310"):
+            self.assertIn(address, probe)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1664,3 +1664,12 @@
 - 回绕状态区固定为 `0x01008280`。原候选 `0x01008200` 会覆盖边界账本第 6 槽，已通过合同测试拒绝该布局。
 - wrap 模式逐帧检查 PL beats/bytes/TLAST/TKEEP，并通过 64-bit slot mask、sequence、CRC XOR、最后 TX/RX 地址形成 JTAG/UART 摘要；该切片不改变 Vivado bitstream 或 NPU 接口。
 - 当前仅完成源代码合同与语法层验证，尚未形成新的 ELF 或实板回绕证据，B2-03/B2-04/B2-05/B2-GATE 继续保持未完成。
+# 2026-09-09 B2 recovery findings
+
+- `axis_stream_probe` 已有 AXI-Lite control：bit0 clear 会清状态并 `active<=1`，bit1 stop 会 `active<=0`；`s_axis_tready` 由 `active && !fifo_valid` 驱动。
+- 因此可以在不改 BD 拓扑的前提下，对 S2MM probe 写 control=2，使接收端不再 ready；DMA simple transfer 应在 1 s 合同超时，随后由软件调用既有 `reset_and_wait()`。
+- reset 后必须对 MM2S/S2MM 都写 clear=1→0，恢复 active，再提交一条长度 4 的合法帧并逐字节校验。
+- 实板确认上述假设成立：停止 S2MM 后确实观测到 1 秒 timeout，DMA reset 返回成功，两个 probe clear 后合法 4-byte 帧完成；最终 JTAG recovery status=2、timeout=1、reset=1、passed=1、failed=0。
+- 该切片的恢复状态区位于 `0x01008300..0x01008318`，与边界 ledger (`0x01008080..0x0100813F`)、wrap 状态 (`0x01008280..0x010082B0`) 和 monitor 状态 (`0x01008400`) 不重叠。
+- 当前恢复实现仍是独立软件路径，未提供 packetizer 状态/四逻辑流 fence 证据；因此不能据此关闭 B2-GATE 或接入 NPU。
+- 现有 `run_one_frame_at()` 遇到 timeout 会直接 `fail()` 并终止整轮，因此恢复场景需要独立函数，不能复用失败即退出的普通帧路径。

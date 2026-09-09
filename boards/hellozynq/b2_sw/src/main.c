@@ -12,6 +12,7 @@
 #define RX_BUFFER_BASE 0x01007000U
 #define STATUS_BASE 0x01008000U
 #define WRAP_STATUS_BASE 0x01008280U
+#define RECOVERY_STATUS_BASE 0x01008300U
 #define MAX_FRAME_BYTES 4096U
 #define BUFFER_ALIGNMENT 64U
 #define POLL_INTERVAL_US 1U
@@ -125,6 +126,16 @@ struct wrap_snapshot {
     u32 wrap_last_rx_address;
 };
 
+struct recovery_snapshot {
+    u32 recovery_status;
+    u32 recovery_timeout_observed;
+    u32 recovery_reset_passed;
+    u32 recovery_passed;
+    u32 recovery_failed;
+    u32 recovery_sequence;
+    u32 recovery_crc32;
+};
+
 struct frame_ledger {
     u32 sequence;
     u32 length_bytes;
@@ -168,6 +179,8 @@ static volatile struct dma_snapshot *const snapshot =
     (volatile struct dma_snapshot *)STATUS_BASE;
 static volatile struct wrap_snapshot *const wrap_snapshot_state =
     (volatile struct wrap_snapshot *)WRAP_STATUS_BASE;
+static volatile struct recovery_snapshot *const recovery_snapshot_state =
+    (volatile struct recovery_snapshot *)RECOVERY_STATUS_BASE;
 static volatile struct frame_ledger *const ledger =
     (volatile struct frame_ledger *)STATUS_LEDGER_BASE;
 static volatile struct monitor_status *const monitor_status =
@@ -225,6 +238,12 @@ static void monitor_reset(UINTPTR base)
 {
     Xil_Out32(base + MONITOR_CONTROL_OFFSET, 1U);
     Xil_Out32(base + MONITOR_CONTROL_OFFSET, 0U);
+    memory_barrier();
+}
+
+static void monitor_stop(UINTPTR base)
+{
+    Xil_Out32(base + MONITOR_CONTROL_OFFSET, 2U);
     memory_barrier();
 }
 
@@ -624,6 +643,159 @@ static int run_wrap(void)
     return XST_SUCCESS;
 }
 
+static int run_recovery(void)
+{
+    const u32 sequence = FRAME_COUNT + PRESSURE_FRAME_COUNT +
+                         BACKPRESSURE_FRAME_COUNT + WRAP_FRAME_COUNT + 1U;
+    volatile u8 *const tx = (volatile u8 *)TX_BUFFER_BASE;
+    volatile u8 *const rx = (volatile u8 *)RX_BUFFER_BASE;
+    u32 index;
+    u32 elapsed;
+    u32 status;
+    u32 tx_sr;
+    u32 rx_sr;
+    const u32 length = 4U;
+
+    recovery_snapshot_state->recovery_status = SNAPSHOT_RUNNING;
+    recovery_snapshot_state->recovery_timeout_observed = 0U;
+    recovery_snapshot_state->recovery_reset_passed = 0U;
+    recovery_snapshot_state->recovery_passed = 0U;
+    recovery_snapshot_state->recovery_failed = 0U;
+    recovery_snapshot_state->recovery_sequence = sequence;
+    recovery_snapshot_state->recovery_crc32 = 0U;
+    memory_barrier();
+
+    /* 停止 S2MM 接收端，构造受控 timeout；不使用未对齐地址伪造错误。 */
+    monitor_reset(MONITOR_MM2S_BASE);
+    monitor_reset(MONITOR_S2MM_BASE);
+    monitor_stop(MONITOR_S2MM_BASE);
+    for (index = 0U; index < length; ++index) {
+        tx[index] = (u8)(sequence + index * 3U + 0x11U);
+        rx[index] = 0U;
+    }
+    Xil_DCacheFlushRange(TX_BUFFER_BASE, length);
+    Xil_DCacheInvalidateRange(RX_BUFFER_BASE, length);
+    status = XAxiDma_SimpleTransfer(&dma, RX_BUFFER_BASE, length,
+                                    XAXIDMA_DEVICE_TO_DMA);
+    if (status != XST_SUCCESS) {
+        ++recovery_snapshot_state->recovery_failed;
+        recovery_snapshot_state->recovery_status = SNAPSHOT_FAIL;
+        memory_barrier();
+        return fail("recovery_submit_s2mm");
+    }
+    status = XAxiDma_SimpleTransfer(&dma, TX_BUFFER_BASE, length,
+                                    XAXIDMA_DMA_TO_DEVICE);
+    if (status != XST_SUCCESS) {
+        ++recovery_snapshot_state->recovery_failed;
+        recovery_snapshot_state->recovery_status = SNAPSHOT_FAIL;
+        memory_barrier();
+        return fail("recovery_submit_mm2s");
+    }
+    elapsed = 0U;
+    while (elapsed < TRANSFER_TIMEOUT_US) {
+        tx_sr = read_reg(XAXIDMA_TX_OFFSET, XAXIDMA_SR_OFFSET);
+        rx_sr = read_reg(XAXIDMA_RX_OFFSET, XAXIDMA_SR_OFFSET);
+        if ((tx_sr | rx_sr) & XAXIDMA_ERR_ALL_MASK) {
+            ++recovery_snapshot_state->recovery_failed;
+            recovery_snapshot_state->recovery_status = SNAPSHOT_FAIL;
+            memory_barrier();
+            return fail("recovery_dma_error");
+        }
+        if (!XAxiDma_Busy(&dma, XAXIDMA_DEVICE_TO_DMA) &&
+            !XAxiDma_Busy(&dma, XAXIDMA_DMA_TO_DEVICE)) {
+            break;
+        }
+        usleep(POLL_INTERVAL_US);
+        ++elapsed;
+    }
+    if (elapsed != TRANSFER_TIMEOUT_US) {
+        ++recovery_snapshot_state->recovery_failed;
+        recovery_snapshot_state->recovery_status = SNAPSHOT_FAIL;
+        memory_barrier();
+        return fail("recovery_timeout_not_observed");
+    }
+    recovery_snapshot_state->recovery_timeout_observed = 1U;
+    capture_registers();
+    if (reset_and_wait() != XST_SUCCESS) {
+        ++recovery_snapshot_state->recovery_failed;
+        recovery_snapshot_state->recovery_status = SNAPSHOT_FAIL;
+        memory_barrier();
+        return fail("recovery_reset_timeout");
+    }
+    recovery_snapshot_state->recovery_reset_passed = 1U;
+
+    /* reset 后显式清除并重新激活两个 probe，再验证合法短帧。 */
+    monitor_reset(MONITOR_MM2S_BASE);
+    monitor_reset(MONITOR_S2MM_BASE);
+    monitor_configure_backpressure(MONITOR_S2MM_BASE, 0U);
+    for (index = 0U; index < length; ++index) {
+        tx[index] = (u8)(sequence + index * 3U + 0x11U);
+        rx[index] = 0U;
+    }
+    Xil_DCacheFlushRange(TX_BUFFER_BASE, length);
+    Xil_DCacheInvalidateRange(RX_BUFFER_BASE, length);
+    status = XAxiDma_SimpleTransfer(&dma, RX_BUFFER_BASE, length,
+                                    XAXIDMA_DEVICE_TO_DMA);
+    if (status != XST_SUCCESS) {
+        ++recovery_snapshot_state->recovery_failed;
+        recovery_snapshot_state->recovery_status = SNAPSHOT_FAIL;
+        memory_barrier();
+        return fail("recovery_after_reset_submit_s2mm");
+    }
+    status = XAxiDma_SimpleTransfer(&dma, TX_BUFFER_BASE, length,
+                                    XAXIDMA_DMA_TO_DEVICE);
+    if (status != XST_SUCCESS) {
+        ++recovery_snapshot_state->recovery_failed;
+        recovery_snapshot_state->recovery_status = SNAPSHOT_FAIL;
+        memory_barrier();
+        return fail("recovery_after_reset_submit_mm2s");
+    }
+    elapsed = 0U;
+    while (elapsed < TRANSFER_TIMEOUT_US) {
+        tx_sr = read_reg(XAXIDMA_TX_OFFSET, XAXIDMA_SR_OFFSET);
+        rx_sr = read_reg(XAXIDMA_RX_OFFSET, XAXIDMA_SR_OFFSET);
+        if ((tx_sr | rx_sr) & XAXIDMA_ERR_ALL_MASK) {
+            ++recovery_snapshot_state->recovery_failed;
+            recovery_snapshot_state->recovery_status = SNAPSHOT_FAIL;
+            memory_barrier();
+            return fail("recovery_after_reset_dma_error");
+        }
+        if (!XAxiDma_Busy(&dma, XAXIDMA_DEVICE_TO_DMA) &&
+            !XAxiDma_Busy(&dma, XAXIDMA_DMA_TO_DEVICE)) {
+            break;
+        }
+        usleep(POLL_INTERVAL_US);
+        ++elapsed;
+    }
+    if (elapsed == TRANSFER_TIMEOUT_US) {
+        ++recovery_snapshot_state->recovery_failed;
+        recovery_snapshot_state->recovery_status = SNAPSHOT_FAIL;
+        memory_barrier();
+        return fail("recovery_after_reset_timeout");
+    }
+    Xil_DCacheInvalidateRange(RX_BUFFER_BASE, length);
+    for (index = 0U; index < length; ++index) {
+        u8 expected = (u8)(sequence + index * 3U + 0x11U);
+        if (rx[index] != expected) {
+            ++recovery_snapshot_state->recovery_failed;
+            recovery_snapshot_state->recovery_status = SNAPSHOT_FAIL;
+            memory_barrier();
+            return fail("recovery_after_reset_payload_mismatch");
+        }
+    }
+    recovery_snapshot_state->recovery_crc32 = crc32((const u8 *)rx, length);
+    recovery_snapshot_state->recovery_passed = 1U;
+    recovery_snapshot_state->recovery_status = SNAPSHOT_PASS;
+    memory_barrier();
+    xil_printf("B2_RECOVERY_PASS timeout=%u reset=%u frames=%u sequence=%u crc32=0x%08x\r\n",
+               recovery_snapshot_state->recovery_timeout_observed,
+               recovery_snapshot_state->recovery_reset_passed,
+               recovery_snapshot_state->recovery_passed,
+               recovery_snapshot_state->recovery_sequence,
+               recovery_snapshot_state->recovery_crc32);
+    return XST_SUCCESS;
+}
+
 int main(void)
 {
     XAxiDma_Config *config;
@@ -667,6 +839,13 @@ int main(void)
     wrap_snapshot_state->wrap_first_rx_address = 0U;
     wrap_snapshot_state->wrap_last_tx_address = 0U;
     wrap_snapshot_state->wrap_last_rx_address = 0U;
+    recovery_snapshot_state->recovery_status = 0U;
+    recovery_snapshot_state->recovery_timeout_observed = 0U;
+    recovery_snapshot_state->recovery_reset_passed = 0U;
+    recovery_snapshot_state->recovery_passed = 0U;
+    recovery_snapshot_state->recovery_failed = 0U;
+    recovery_snapshot_state->recovery_sequence = 0U;
+    recovery_snapshot_state->recovery_crc32 = 0U;
     for (index = 0U; index < FRAME_COUNT; ++index) {
         record_ledger(index, index + 1U, 0U, SNAPSHOT_RUNNING, 0U, 0U, 0U,
                       &empty_monitor, &empty_monitor);
@@ -719,6 +898,10 @@ int main(void)
         return XST_FAILURE;
     }
 
+    if (run_recovery() != XST_SUCCESS) {
+        return XST_FAILURE;
+    }
+
     snapshot->status = SNAPSHOT_PASS;
     memory_barrier();
     xil_printf("B2_DMA_PASS frames=%u rejected_zero=%u\r\n",
@@ -747,6 +930,12 @@ int main(void)
                    wrap_snapshot_state->wrap_last_tx_address);
         xil_printf("B2_DMA_PASS frames=%u rejected_zero=%u\r\n",
                    FRAME_COUNT - rejected_zero, rejected_zero);
+        xil_printf("B2_RECOVERY_PASS timeout=%u reset=%u frames=%u sequence=%u crc32=0x%08x\r\n",
+                   recovery_snapshot_state->recovery_timeout_observed,
+                   recovery_snapshot_state->recovery_reset_passed,
+                   recovery_snapshot_state->recovery_passed,
+                   recovery_snapshot_state->recovery_sequence,
+                   recovery_snapshot_state->recovery_crc32);
         xil_printf("B2_DMA_ALIVE PASS\r\n");
     }
 }

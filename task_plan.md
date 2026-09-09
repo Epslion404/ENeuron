@@ -1650,3 +1650,18 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 - [ ] 现场复核 V14/V15 外部 USB-TTL 的 TX/RX 交叉、共地、3.3 V 电平和端口占用；复核前不放宽 UART 门禁。
 
 错误记录：两次同时追加 `findings.md`/`progress.md` 的补丁使用了错误尾部上下文，校验失败且未修改文件；第三次先用 `rg` 确认真实行文本后再应用。
+# 2026-09-09 B2 DMA reset-recovery slice
+
+状态：`IN_PROGRESS`
+
+- [x] 读取当前 B2 合同、DMA 软件和 AXI-Stream probe，确认可用的受控故障入口是 probe 的 `stop` 控制位。
+- [x] 先添加恢复合同测试（超时/复位/恢复帧的可见字段和终端 marker），取得 RED。
+- [x] 实现最小恢复场景：停止 S2MM probe 造成一次受控超时，执行 DMA reset，清除 probe，再发送合法短帧。
+- [x] 更新 probe、runner、JTAG manifest 和实板证据；保持现有正常/压力/背压/wrap 语义不变。
+- [x] 运行定向回归，重建同源 ELF，实板验证并更新 B2 TODO/Nexus；Nexus 已先同步 wrap，恢复证据待最新 manifest 再同步。
+
+结果：定向回归 `58/58`、Vitis/XSCT 构建通过；实板 run `20260909T110436Z` UART/JTAG/XSCT PASS，recovery `timeout=1/reset=1/passed=1/failed=0`。
+
+下一阶段：补齐发送间歇/ready 恢复、持久逐帧 PL ledger、可控错误注入，再进入 packetizer/depacketizer。
+
+关键假设：`axis_stream_probe` 的 control bit1 会让 `s_axis_tready=0`，足以使 S2MM simple transfer 超时；恢复路径必须在 reset 后显式重新激活两个 probe。

@@ -657,15 +657,15 @@ P15 硬门：双时钟逐 beat bit-exact；reset/ready-valid/FIFO 满空无丢�
 - [x] B2-D1：已冻结首轮 DMA 控制合同：AXI DMA simple mode、单次 buffer、polling、S2MM 先行、TX flush/RX invalidate、1 us polling、1 s 传输超时、500 次 reset poll、错误/超时寄存器快照和单次短帧恢复；scatter-gather、micro-DMA、interrupt 均不进入首轮。合同与验证器见 `docs/planning/NPU_ZYNQ7020_B2_DMA_CONTRACT_V1.md`、`tools/repro/b2_dma_contract.json`、`verify_b2_dma_contract.py`。
 - [x] B2-01：已冻结 PS DDR发送/接收缓冲区为 `0x01006000/0x01007000`、各 4 KiB、64-byte 对齐、最大帧长 4096 bytes；布局合同、DMA 合同和 standalone 软件共同落实 `CPU填充→flush→DMA拥有→完成→invalidate→CPU读取`，DMA拥有期间 CPU 不修改对应 buffer。
 - [x] B2-02：已由 B2-D1 合同冻结 DMA 控制：simple mode、polling、超时、状态寄存器采样、错误清除和复位顺序；每次超时保存 DMA 寄存器、缓冲区头尾、PL 计数器和当前 sequence。该项不再与 B2-D1 重复计数。
-- [ ] B2-03：PL AXI-Stream direct loopback 已完成构建，并已在实板以 JTAG 状态区和 UART 证明边界矩阵与受控背压帧搬运；最新轻量双向 `axis_stream_probe` 构建在 `xc7z020clg484-2` 通过 routed/DRC/bitgen（`WNS=+0.017 ns`、`WHS=+0.014 ns`、`TNS/THS=0`、route/DRC error=`0`），同源 run `20260909T094406Z` 的 UART/JTAG 均 PASS，backpressure 为 `64/64`、`failed=0`、`stall_cycles=83082`，S2MM 最终 probe `STALL=3`。软件已加入 256 帧/64-slot 连续回绕切片，但尚未形成新 ELF 的实板证据；仍需补齐多长度 PL 侧逐帧观测、sequence/CRC 对齐和错误/复位恢复，故本项保持未完成。官方 `axi_stream_monitor` 单 monitor 实验在当前顶层 setup 失败，不作为正式物理基线。
-- [ ] B2-04：已在实板执行 `0/1/4/16/64/512/1472/4096` bytes 边界矩阵：8 帧总计、7 帧 PASS、0 长度明确拒绝、失败数为 0，最后 4096-byte TX/RX 逐字一致；源码已加入跨 64 个对齐 slot 的 256 帧回绕测试，仍需新 ELF 的连续回绕与独立下一帧恢复证据。
-- [ ] B2-05：已完成同一低地址合同上的 10000 帧固定长度序列压力切片，且最新 run `20260909T094406Z` 已完成受控接收背压与 UART 终止切片：UART/JTAG 均 PASS，JTAG pressure `10000/10000`、backpressure `64/64`、两者 `failed=0`，累计 `stall_cycles=83082`，S2MM probe 最终 `STALL=3`；AXI VALID 保持合同测试与物理构建均通过。源码已加入 256 帧连续回绕，但尚未上板；仍需发送间歇、跨长度逐帧 TLAST 稳定、ready 恢复和错误/复位恢复，故本项保持未完成。
+- [ ] B2-03：PL AXI-Stream direct loopback 已完成构建，并已在 `xc7z020clg484-2` 实板以 JTAG 状态区和 UART 证明边界、压力、受控背压、256 帧回绕及一次受控恢复；正式 run `20260909T110436Z` 的 UART/JTAG/XSCT 均 PASS，pressure=`10000/10000`、backpressure=`64/64`、stall=`83082`、wrap=`256/256`、rollovers=`3`，recovery=`timeout=1/reset=1/passed=1/failed=0`。仍需补齐更完整逐帧 PL ledger、发送间歇/ready 恢复和可控错误注入，故本项保持未完成。官方 `axi_stream_monitor` 单 monitor 实验在当前顶层 setup 失败，不作为正式物理基线。
+- [x] B2-04：正式 run `20260909T110436Z` 已完成 `0/1/4/16/64/512/1472/4096` bytes 边界矩阵：8 帧总计、7 帧 PASS、0 长度明确拒绝、失败数为 0；同一 ELF 完成 64 个 64-byte 对齐 slot 的 256 帧回绕，slot mask 低/高均全 1、rollovers=`3`、TX `0x01006000→0x01006FC0`、RX `0x01007000→0x01007FC0`，并在同一 run 中完成 reset 后独立 4-byte 合法短帧恢复。
+- [ ] B2-05：正式 run `20260909T110436Z` 已完成同一低地址合同上的 10000 帧压力和 64 帧受控接收背压，UART/JTAG 均 PASS，失败数均为 0，累计 `stall_cycles=83082`；恢复切片也已通过，但仍需发送间歇、跨长度逐帧 TLAST 持久 ledger、ready 恢复和可控错误注入，故本项保持未完成。
 - [ ] B2-06：实现外层 packetizer/depacketizer，把 DMA帧映射为现有128-bit命令/响应、8-beat样本和10-beat结果；明确每类消息的最短/精确长度、字段偏移和字节序。TLAST只在外层检查，不能改变已冻结核心 framing合同。
 - [ ] B2-07：覆盖早到/晚到/缺失 TLAST、错误长度、未知消息类型、错误保留位、超时和中途复位；错误帧必须被完整丢弃或明确拒绝，不得留下半条命令、半个样本、半个模型或旧结果。
 - [ ] B2-08：为命令、样本、响应、结果四条逻辑流分别记录接受数和完成数；跨流 fence 前后保存计数器，证明模型/mask提交、样本和结果没有越过已冻结顺序边界。
 - [ ] B2-09：同时记录 PS软件时间戳、DMA开始/完成、PL入/出流周期和核心侧接受/完成计数；统一定义时间戳起止点，为后续拆分“网口、软件、DMA、计算”耗时建立可比较基线。
 - [ ] B2-10：证据包保存输入/输出二进制、CRC、sequence账本、cache维护记录、错误注入结果、寄存器快照、bitstream/ELF哈希、资源和时序，形成真实 DMA回环及协议适配摘要。
-- [ ] B2-RECOVERY：任何 DMA错误先停止提交新帧，按冻结顺序复位 DMA和 packetizer，清除未完成所有权并用一条已知短帧验证恢复；恢复失败则重新加载当前 bitstream/ELF，不直接进入 NPU测试。
+- [x] B2-RECOVERY：在 `20260909T110436Z` 实板 run 中停止 S2MM probe，观测到一次真实 timeout，随后按冻结顺序执行 DMA reset、重新激活两个 probe，并用 sequence=`10329` 的 4-byte 合法短帧恢复；JTAG recovery status=`2`、timeout=`1`、reset=`1`、passed=`1`、failed=`0`。packetizer 尚未接入，因此 packetizer 复位仍由 B2-07/B2-GATE 覆盖。
 - [ ] B2-GATE：真实 DDR↔DMA↔PL双向搬运和协议适配在正常、背压、边界、错误、复位场景均零丢失/重复/乱序后，才能接入 NPU；B2-MVP 可在已验证低地址窗口内先执行 DMA/协议正确性门，但在 B1-GATE 完成前不得宣称网络化 B1/B4 通过或报告端到端剪枝加速。
 
 #### P16-B3：传统 NPU + ENeuron 固定向量

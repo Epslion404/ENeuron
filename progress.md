@@ -1753,3 +1753,11 @@
 - `main.c` 新增 `run_wrap()`：256 帧、64 个 64-byte slot、1/4/16/64-byte 混合长度；参数化 DMA/cache 路径并在 wrap 模式逐帧校验 AXI-Stream beats/bytes/TLAST/TKEEP。
 - 回绕状态区由候选 `0x01008200` 修正为 `0x01008280`，避免覆盖边界账本；`probe_b2_state.tcl` 与 `run_b2_board.ps1` 已纳入 wrap 状态、slot mask 和 UART marker 的 fail-closed 条件。
 - 当前仍待以新提交 HEAD 重建 ELF，并在 `xc7z020clg484-2` 实板验证 256 帧回绕；未提前改变 B2-03/B2-04/B2-05/B2-GATE 状态。
+# 2026-09-09 B2 reset-recovery slice
+
+- 已确认 TX/RX 交换后的 COM10 实板运行通过：UART/JTAG 双 PASS，pressure 10000/10000，backpressure 64/64，wrap 256/256、rollovers=3。
+- 当前最新运行 manifest：`boards/hellozynq/b2_sw/build/f7f01b04e2e54bd3fc3a227830dc07e144ad4c82/direct/runs/20260909T105109Z/run_manifest.json`。
+- 下一实现切片选定为受控 S2MM stop → DMA timeout → software reset → probe clear → 合法短帧恢复；不使用未对齐地址伪造 DMA error。
+- 恢复切片已实现并实板通过：run `20260909T110436Z`，UART/JTAG/XSCT 全 PASS；timeout=1、reset=1、恢复帧=1、failed=0，sequence=10329、CRC32=`0xD3E3C978`。
+- 新增 `RECOVERY_STATUS_BASE=0x01008300` 状态区、JTAG probe 字段和 runner fail-closed 判定；普通边界帧统计保持 `7 PASS + 1 reject`。
+- B2-04 已可关闭；B2-03/B2-05/B2-GATE 继续保持未完成，剩余发送间歇/ready 恢复、持久逐帧 ledger、错误注入和 packetizer。

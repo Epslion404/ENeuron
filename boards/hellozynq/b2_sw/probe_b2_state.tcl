@@ -55,6 +55,13 @@ puts "B2_STATUS_WRAP_FIRST_TX_ADDR=[mrd -value 0x010082A4]"
 puts "B2_STATUS_WRAP_FIRST_RX_ADDR=[mrd -value 0x010082A8]"
 puts "B2_STATUS_WRAP_LAST_TX_ADDR=[mrd -value 0x010082AC]"
 puts "B2_STATUS_WRAP_LAST_RX_ADDR=[mrd -value 0x010082B0]"
+puts "B2_STATUS_RECOVERY_STATUS=[mrd -value 0x01008300]"
+puts "B2_STATUS_RECOVERY_TIMEOUT=[mrd -value 0x01008304]"
+puts "B2_STATUS_RECOVERY_RESET=[mrd -value 0x01008308]"
+puts "B2_STATUS_RECOVERY_PASSED=[mrd -value 0x0100830C]"
+puts "B2_STATUS_RECOVERY_FAILED=[mrd -value 0x01008310]"
+puts "B2_STATUS_RECOVERY_SEQUENCE=[mrd -value 0x01008314]"
+puts "B2_STATUS_RECOVERY_CRC=[mrd -value 0x01008318]"
 puts "B2_TX_WORDS_BEGIN"
 for {set index 0} {$index < 16} {incr index} {
     set address [expr {0x01006000 + ($index * 4)}]
