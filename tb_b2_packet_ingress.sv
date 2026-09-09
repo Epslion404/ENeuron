@@ -75,6 +75,15 @@ module tb_b2_packet_ingress;
         expect_error(4'h2);
         if (cmd_valid || sample_valid || busy) $fatal(1, "bad version frame leaked state");
 
+        // 未知消息类型必须明确拒绝，不能解释为 command 或 sample。
+        send_word(32'h3242_4e45, 1'b0);
+        send_word(32'h0800_7f01, 1'b0);
+        send_word(32'h0000_0010, 1'b0);
+        for (i = 0; i < 5; i = i + 1) send_word(32'h0000_0000, 1'b0);
+        send_word(32'h0000_0000, 1'b1);
+        expect_error(4'h3);
+        if (cmd_valid || sample_valid || busy) $fatal(1, "unknown type frame leaked state");
+
         // SAMPLE: sequence=7, sample_id=42, model_id=3, epoch=11.
         send_word(32'h3242_4e45, 1'b0);
         send_word(32'h0800_0201, 1'b0);

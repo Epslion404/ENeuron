@@ -13,6 +13,7 @@
 - 当前物理实现仍在 `route_design` 第 5.2 轮；日志报告布线拥塞及 `147240` 个 overlap 节点，尚无 `route_design completed`、最终 timing signoff、bitstream/XSA 或 `B2_BUILD_PASS`。
 - B2-07 增量：`tb_b2_packet_ingress.sv` 新增单拍坏 magic 帧场景，验证 `ERR_BAD_MAGIC` 且 `cmd_valid/sample_valid/busy` 均不泄露；ingress 合同测试 4/4、T1 复现门通过。该切片不关闭 B2-07 完整错误矩阵。
 - B2-07 再增量：新增错误版本完整帧场景，验证帧边界返回 `ERR_BAD_VERSION` 且不释放下游 payload；ingress 合同测试 4/4、T1 复现门继续通过。完整错误矩阵仍未关闭。
+- B2-07 再增量：新增未知消息类型完整帧场景，验证返回 `ERR_BAD_TYPE` 且不释放下游 payload；ingress 合同测试 4/4、T1 复现门继续通过。
 - 最新进展：第 5.2 轮已结束并进入 `Phase 5.3 Global Iteration 2`；中间 timing summary 为 `WNS=-7.854 ns`、`TNS=-396387.086 ns`，`WHS/THS=N/A`。这不是最终 signoff，route 仍未完成。
 - 第 5.3 轮当前报告 overlap=`135963`，较前一轮 `113569` 回升，表明 rip-up/reroute 尚未收敛；进程仍活跃，不能据此宣称 route 失败。
 
