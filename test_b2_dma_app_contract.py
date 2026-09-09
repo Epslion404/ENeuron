@@ -136,6 +136,7 @@ class B2DmaAppContractTests(unittest.TestCase):
 
     def test_board_runner_waits_for_pressure_terminal_marker(self):
         self.assertIn("B2_PRESSURE_PASS", self.board)
+        self.assertIn("B2_DMA_PASS frames=", self.board)
         self.assertIn("B2_DMA_FAIL", self.board)
 
     def test_board_runner_tolerates_uart_handle_reset_during_fpga_programming(self):

@@ -165,7 +165,7 @@ try {
                 if (($received.ToString().Contains('B2_PRESSURE_PASS') -and
                      $received.ToString().Contains('B2_BACKPRESSURE_PASS') -and
                      $received.ToString().Contains('B2_WRAP_PASS') -and
-                     $received.ToString().Contains('B2_DMA_PASS')) -or
+                     $received.ToString().Contains('B2_DMA_PASS frames=')) -or
                     $received.ToString().Contains('B2_DMA_FAIL')) { break }
             }
         }
@@ -243,7 +243,7 @@ $jtagStatus = if ($jtagPass) { 'PASS' } elseif ($probeReadAvailable) { 'FAIL' } 
 $uartPass = $uartText.Contains('B2_PRESSURE_PASS') -and
     $uartText.Contains('B2_BACKPRESSURE_PASS') -and
     $uartText.Contains('B2_WRAP_PASS') -and
-$uartText.Contains('B2_DMA_PASS')
+    $uartText.Contains('B2_DMA_PASS frames=')
 $xsctExitCode = if ($process.HasExited) { [int]$process.ExitCode } else { $null }
 $status = if ($uartPass -and $jtagPass -and $xsctExitCode -eq 0 -and
     $xsctText.Contains('B2_FPGA_PROGRAM_PASS') -and
