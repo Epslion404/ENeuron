@@ -19,6 +19,7 @@ EXPECTED_RESULTS = {
     "np7_formal_and_mutations.json",
     "np7_software_cost_manifest.json",
     "npu_single_clock_ooc_manifest.json",
+    "b2_packet_memory_ooc_manifest.json",
     "rtl_smoke_results.json",
 }
 

@@ -1,8 +1,12 @@
 # 测试面与缺口
 
+状态更正（2026-09-10）：当前仓库 HEAD 为 `f4827e20b1d7ecf59c14238738b2d71c5a07f662`。本文件较早的 2026-09-09 条目保留为历史切片说明，其中对 B2-03/B2-04/B2-05 的“未关闭”描述由后续正式边界、压力、背压、回绕、恢复、间歇和 missing-TLAST 证据 supersede。当前测试缺口以 `docs/planning/TODO.md` P16-B2 为准：B2-06/B2-07/B2-08/B2-09/B2-10 与 B2-GATE 尚未完成。
+
+TODO 计数更正：`workflow_resume.ps1 -Mode Check` 在 HEAD `f4827e2` 上报告 `TODO.md:P16=59`；本文其余 `63` 计数均为历史快照。
+
 当前覆盖边界：活动部署目标为 `xc7z020clg484-2`，NPU + ENeuron 动态剪枝证据优先。`archive/legacy/` 材料不参与日常门；旧 `xc7z020clg400-1` NP7/T3 物理结果只作历史参考。B1 高地址 DDR/PHY/UDP 属于板卡资格支线，完整 `B1-GATE` 仍待关闭；低地址窗口满足模型/DMA 容量后可继续 NPU MVP。CH340 以 `VID_1A86:PID_7523` 识别，COM10 仅为现场枚举记录。
 
-合同/统计边界（2026-09-09）：当前阶段合同为 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`；P16 TODO、`NPU_PRUNING_TODO.md` 和 `NPU_PRUNING_NP7_TODO.md` 为关联合同，P16 当前活动未完成项为 `63`。当前活动分支为 `codex/b1b-high-ddr-board-repro`、仓库 HEAD=`55822aebb34eef9f49995fc203214b3aa1c2581f`。最终 VALID 保持修复的物理门禁已通过（`WNS/WHS=+0.017/+0.014 ns`）；正式实板 run `20260909T094406Z` 已通过 UART/JTAG，pressure=`10000/10000`、backpressure=`64/64`、failed=0、stall_cycles=83082、S2MM `STALL=3`。B2-03/B2-05/B2-GATE 未关闭，B1 高地址 DDR 访问仍为 0。
+合同/统计边界（2026-09-10）：当前阶段合同为 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`；P16 TODO、`NPU_PRUNING_TODO.md` 和 `NPU_PRUNING_NP7_TODO.md` 为关联合同，P16 当前活动未完成项为 `59`。当前活动分支为 `codex/b1b-high-ddr-board-repro`、仓库 HEAD=`f4827e20b1d7ecf59c14238738b2d71c5a07f662`。最终 VALID 保持修复的物理门禁已通过（`WNS/WHS=+0.017/+0.014 ns`）；后续正式实板切片已补齐 B2-03/B2-04/B2-05 所需边界、压力、背压、回绕、恢复、间歇和 missing-TLAST 证据。B2-06/B2-07/B2-08/B2-09/B2-10/B2-GATE 仍未关闭，B1 高地址 DDR 访问仍为 0。
 
 B2 观测器覆盖（2026-09-09）：官方双/单 monitor 的 routed setup 失败分别为 `WNS/TNS=-0.325/-11.113 ns`（127 个端点）和 `-0.284/-22.272 ns`（256 个端点），均不计入正式物理通过。当前工作树覆盖配置 period 非零、zero-stall fail-closed、首个 `input_fire` 启动 phase，以及 `TVALID=1/TREADY=0` 时冻结 phase 保持 VALID/payload；六个 B2 合同测试文件 `51/51` 通过。正式实板 run `20260909T105109Z`（HEAD `f7f01b0`）及 recovery run `20260909T110436Z` 已验证 UART/JTAG/XSCT、受控 S2MM `STALL>0`，并完成连续回绕 `256/256` 帧、`64/64` slot、`rollovers=3`，recovery timeout/reset/passed/failed=`1/1/1/0`、sequence=`10329`、CRC32=`0xD3E3C978`；该切片为 BOARD_PASS，但错误注入、间歇/ready 恢复、更完整逐帧 PL 观测和 B2-03/B2-04/B2-05/B2-GATE 整体关闭仍待完成。
 
@@ -21,7 +25,7 @@ B1A-HW覆盖（2026-09-08）：干净提交`29edf6a...`的Vivado 2024.1完整构
 当前 T2 随机矩阵增量（2026-09-07）：统一复现入口 `--t2-random-matrix` 使用固定种子 `20260907` 生成 24 个唯一半周期/相位组合，按 `2000 + 400 × NPU_HALF` 个 Host 周期设置每组观察预算，完整运行后返回 `REPRO_G2_T2_RANDOM_MATRIX_PASS`。该证据记为 `T2_RANDOM_CLOCK_MATRIX_GREEN`，属于可复现的有限随机压力集，不是频率/相位数学穷举。
 
 generated_by: nexus-mapper v2 / manual synthesis
-verified_at: 2026-09-09
+verified_at: 2026-09-10
 provenance: repository test names, signoff summaries, workflow state, latest GitHub/Webhook evidence
 
 已覆盖：Python/RTL 协同仿真、有限形式安全与可达性、负向 mutation、Tile/System Vivado OOC、XPM 仿真、NP4B 三模型 60000 事务签核；CI-Fast V1 已完成 workflow 全量、文档轻量和 NPU-only 定向路径验证。CI Action 已升级到 `actions/checkout@v7` 与 `actions/setup-python@v7` 的 Node 24 基线，分类合同要求任何 workflow 变更运行全量门。NPU oracle 新增并通过 `test_zero_activity_with_closed_gate_emits_no_reads_or_macs`、`test_frequent_epoch_switches_never_mix_masks`、`test_pending_slot_backpressure_rejects_overwrite` 三项最坏情况测试。

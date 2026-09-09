@@ -3,12 +3,13 @@
   "verified_at": "2026-09-10",
   "label": "B2 packet-NPU integration",
   "deployment_target_part": "xc7z020clg484-2",
-  "source_head": "1d0e3ba",
+  "source_head": "f4827e20b1d7ecf59c14238738b2d71c5a07f662",
   "commits": {
     "adapter": "cb9eb66",
     "adapter_e2e": "62f2d8b",
     "bd_integration": "ea35d74",
-    "verilog_bd_reference": "1d0e3ba"
+    "verilog_bd_reference": "1d0e3ba",
+    "packet_memory_probe": "f4827e2"
   },
   "rtl": {
     "adapter": "b2_npu_packet_adapter.sv",
@@ -48,11 +49,17 @@
         "reserved flags -> error 0x4"
       ],
       "invariant": "rejected frames do not leak cmd_valid, sample_valid, or busy"
+    },
+    "B2_PACKET_MEMORY_INFERENCE_CONTRACT_PASS": {
+      "test": "test_b2_packet_memory_inference_contract.py",
+      "result": "1/1 PASS",
+      "scope": "static XPM BRAM wrapper and ingress bank structure contract; OOC mapping is recorded separately"
     }
   },
   "memory_probe": {
     "status": "EGRESS_BRAM_INFERRED_INGRESS_BANK_NOT_INFERRED",
-    "source_state": "uncommitted_worktree",
+    "source_state": "committed_head",
+    "commit": "f4827e20b1d7ecf59c14238738b2d71c5a07f662",
     "rtl": [
       "b2_packet_bram.sv",
       "b2_packet_egress.sv",
@@ -82,7 +89,7 @@
     "timing_gate": "PASS_WNS_0.179_WHS_0.006_TNS_0_THS_0_ROUTE_ERRORS_0_DRC_HARD_ERRORS_0",
     "boundary": "Artifacts predate ea35d74/1d0e3ba; no routed, bitstream, XSA, or board evidence exists yet for the packet-NPU top."
   },
-  "next_gate": "Rebuild Vivado B2 from source_head 1d0e3ba, inspect routed timing/DRC, then program and validate packet path on the target board.",
+  "next_gate": "Rebuild Vivado B2 from current source_head f4827e2, inspect routed timing/DRC, then program and validate packet path on the target board.",
   "forbidden_claims": [
     "packet-NPU top physically signed off",
     "packet path validated on board",

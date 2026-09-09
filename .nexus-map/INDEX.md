@@ -8,7 +8,11 @@
 
 证据边界：当前部署和最终板级物理签核目标是 `xc7z020clg484-2`。`xc7z020clg400-1` 上的 T3/NP7 OOC、时序和资源报告只作为历史结构参考，不得写成 `clg484-2` 已签核；`archive/legacy/` 中的材料不进入日常 CI/PR 门。B1 高地址 DDR、PHY 和 UDP 属于板卡资格支线，仍阻塞完整 `B1-GATE`，但在已验证低地址窗口足以容纳模型与 DMA 缓冲区时，不阻塞 NPU MVP 的 RTL/软件推进。CH340 运行脚本按 `VID_1A86:PID_7523` 识别设备，`COM10` 只是现场枚举结果，不是固定合同。
 
-合同与恢复口径（2026-09-09）：`WORKFLOW_STATE.md` 指定 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md` 为当前阶段合同；中等精简后的主线 TODO 仅统计 `docs/planning/TODO.md` 的 P16，B2-01 收口后当前活动计数为 `63`。`P16-E` 公共证据合同与 `P16-S` 统一停止条件是持续适用的常驻合同，不计入一次性计数；`NP8` 为 `DEFERRED_OPTIONAL`，`NP9` 已并入 P16 的 B2/B3/B4，不再维护第二套板级任务。主线已完成 B2 受控背压、UART/JTAG、连续回绕与 recovery 切片收口，当前 HEAD=`875dd1eaf3cea28b75d7bd10762758fe9bf73d55`；B2-03/B2-04/B2-05 仍待更完整 PL 逐帧观测、间歇/ready 恢复和错误注入，B2-GATE 尚未通过。B1 高地址 DDR/PHY/UDP 仅为板卡资格支线。唯一合同设备为 `VID_1A86:PID_7523` 的外置 CH340，现场枚举为 COM10；COM6/COM7 为蓝牙串口并排除。
+合同与恢复口径（2026-09-10）：`WORKFLOW_STATE.md` 指定 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md` 为当前阶段合同；中等精简后的主线 TODO 仅统计 `docs/planning/TODO.md` 的 P16，当前活动计数为 `59`。`P16-E` 公共证据合同与 `P16-S` 统一停止条件是持续适用的常驻合同，不计入一次性计数；`NP8` 为 `DEFERRED_OPTIONAL`，`NP9` 已并入 P16 的 B2/B3/B4，不再维护第二套板级任务。当前 HEAD=`f4827e20b1d7ecf59c14238738b2d71c5a07f662`；B2-03/B2-04/B2-05 已按 TODO 的正式实板证据收口，B2-06/B2-07/B2-08/B2-09/B2-10 与 B2-GATE 仍未完成。B1 高地址 DDR/PHY/UDP 仅为板卡资格支线。唯一合同设备为 `VID_1A86:PID_7523` 的外置 CH340，现场枚举为 COM10；COM6/COM7 为蓝牙串口并排除。
+
+状态更正（2026-09-10）：上方为当前权威状态；本文件后续 2026-09-09 历史段落中若仍写“B2-03/B2-04/B2-05 未关闭”，均由后续正式边界、压力、背压、回绕、恢复、间歇和 missing-TLAST 证据 supersede。当前待关闭项仅为 B2-06/B2-07/B2-08/B2-09/B2-10 与 B2-GATE；BRAM 探针已由 HEAD `f4827e2` 提交，不能再标为未提交工作树。
+
+TODO 计数更正：`workflow_resume.ps1 -Mode Check` 在 HEAD `f4827e2` 上报告 `TODO.md:P16=59`；本文其余 `63` 计数均为历史快照。
 
 B2-00 已完成（2026-09-08）：低地址 DDR 窗口 `[0x01000000,0x01100000)` 内冻结 9 个 4 KiB 区域，总保留 `36 KiB`，最大 DMA frame 为 `4096` bytes；机器 manifest `tools/repro/b2_dma_address_layout.json` 与 `verify_b2_dma_address_layout.py` 验证通过，状态为 `B2_00_LOW_ADDRESS_LAYOUT_FROZEN`。B2-D1 已完成并单独记录；所有 manifest 继续保留 `B1_HIGH_DDR_PENDING`，不把 B2-00 误写成完整 B1-GATE 或高地址 DDR 通过。
 
@@ -44,7 +48,7 @@ P16 阶段 2 总路线见 `.nexus-map/arch/p16_board_validation.md` 和 `.nexus-
 当前校正（2026-09-07）：T3 证据已用提交 `c2bc03f` 重跑并绑定；顶层资源为 `2467 LUT / 2301 FF / 6 RAMB36 / 1 RAMB18 / 4 DSP48E1`。下方旧快照中的 `822cf93` 仅保留历史来源，不覆盖本条。
 
 generated_by: nexus-mapper v2 / manual synthesis from raw probe
-verified_at: 2026-09-09
+verified_at: 2026-09-10
 provenance: `.nexus-map/raw/ast_nodes.json`, `git_stats.json`, `file_tree.txt`（最后提交于 `c46320e`，文件树按版本化基线排除工作区未跟踪文件）；其后的单时钟 RTL、测试与 OOC 证据由版本化文件、manifest 和文档人工核对
 
 T3 最新机器可读签核覆盖见 `.nexus-map/concepts/t3_signoff.json`，人类摘要见 `.nexus-map/arch/t3_signoff.md`；它们优先于早期生成快照中的 `T3_XPM_XSIM_OOC_PENDING` 字样。

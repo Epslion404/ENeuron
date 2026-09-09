@@ -51,6 +51,9 @@ module npu_zynq7020_t1_wrapper #(
     logic cmd_full, cmd_empty, cmd_wr_rst_busy, cmd_rd_rst_busy;
     logic [127:0] cmd_dout;
     logic cmd_wr_en, cmd_rd_en;
+    // FIFO BRAM 输出先进入本地保持槽，隔离 FIFO 到核心的长组合路径。
+    logic cmd_hold_valid;
+    logic [127:0] cmd_hold_data;
     // response FIFO: NPU -> Host
     logic rsp_full, rsp_empty, rsp_wr_rst_busy, rsp_rd_rst_busy;
     logic [127:0] rsp_dout;
@@ -178,13 +181,14 @@ module npu_zynq7020_t1_wrapper #(
         .injectsbiterr(1'b0), .injectdbiterr(1'b0), .sbiterr(), .dbiterr()
     );
 
-    wire [3:0] command_opcode = cmd_dout[127:124];
+    wire cmd_prefetch = command_fifo_ready_npu && !cmd_empty && !cmd_hold_valid;
+    wire [3:0] command_opcode = cmd_hold_data[127:124];
     wire command_is_fence = command_opcode == OP_SAMPLE_FENCE;
     wire command_fields_bad =
-        |cmd_dout[87:32] ||
-        ((command_opcode != 4'h9) && (|cmd_dout[123:120])) ||
-        ((command_opcode == 4'h9) && (|cmd_dout[123:121])) ||
-        (command_is_fence && (|cmd_dout[119:88]));
+        |cmd_hold_data[87:32] ||
+        ((command_opcode != 4'h9) && (|cmd_hold_data[123:120])) ||
+        ((command_opcode == 4'h9) && (|cmd_hold_data[123:121])) ||
+        (command_is_fence && (|cmd_hold_data[119:88]));
     wire command_fifo_ready_npu = !npu_rst && !npu_any_fifo_busy;
     wire response_fifo_ready_npu = !npu_rst && !npu_any_fifo_busy && !rsp_full;
     wire result_fifo_ready_npu = !npu_rst && !npu_any_fifo_busy && !result_full;
@@ -259,19 +263,17 @@ module npu_zynq7020_t1_wrapper #(
     assign host_infer_frozen = infer_frozen_host_sync[1];
     assign host_error = error_host_sync[1];
 
-    // 命令 FIFO 只有在核心能够接收、或 fence 能够原子地产生确认时才出队。
-    assign core_cmd_valid = command_fifo_ready_npu && !cmd_empty && !command_is_fence &&
+    // 命令 FIFO 先预取到保持槽，再由核心消费；避免 FIFO BRAM 输出直达核心写使能。
+    assign cmd_rd_en = cmd_prefetch;
+    wire fence_accept = cmd_hold_valid && command_is_fence && !fence_response_pending &&
+        response_fifo_ready_npu && core_sample_ready && !core_result_valid && !core_rsp_valid &&
+        !sample_window_open_npu && !sample_window_open_host_npu_d2 && !core_mask_staging_open;
+    wire error_accept = cmd_hold_valid && (command_fields_bad || fence_staging_blocked) &&
+        !fence_response_pending && !error_response_pending && response_fifo_ready_npu && !core_rsp_valid;
+    wire core_accept = core_cmd_valid && core_cmd_ready_wire;
+    wire cmd_consume = fence_accept || error_accept || core_accept;
+    assign core_cmd_valid = command_fifo_ready_npu && cmd_hold_valid && !command_is_fence &&
         !command_fields_bad && !error_response_pending;
-    assign cmd_rd_en = command_fifo_ready_npu && !cmd_empty &&
-        ((command_is_fence && !fence_response_pending && response_fifo_ready_npu &&
-          core_sample_ready && !core_result_valid && !core_rsp_valid &&
-          !sample_window_open_npu && !sample_window_open_host_npu_d2 &&
-          !core_mask_staging_open) ||
-         ((command_fields_bad || fence_staging_blocked) &&
-          !fence_response_pending && !error_response_pending &&
-          response_fifo_ready_npu && !core_rsp_valid) ||
-         (!command_is_fence && !command_fields_bad && !error_response_pending &&
-          core_cmd_ready_wire));
 
     assign core_rsp_ready = response_fifo_ready_npu && !fence_response_pending &&
         !error_response_pending;
@@ -287,7 +289,7 @@ module npu_zynq7020_t1_wrapper #(
 
     npu_eneuron_single_clock_skeleton core (
         .clk(npu_clk), .rst(npu_rst),
-        .cmd_payload(cmd_dout), .cmd_valid(core_cmd_valid), .cmd_ready(core_cmd_ready_wire),
+        .cmd_payload(cmd_hold_data), .cmd_valid(core_cmd_valid), .cmd_ready(core_cmd_ready_wire),
         .rsp_payload(core_rsp_payload_raw), .rsp_valid(core_rsp_valid), .rsp_ready(core_rsp_ready),
         .sample_data(core_sample_data), .sample_id(core_sample_id),
         .sample_valid(core_sample_valid), .sample_ready(core_sample_ready),
@@ -301,6 +303,8 @@ module npu_zynq7020_t1_wrapper #(
 
     always_ff @(posedge npu_clk) begin
         if (npu_rst) begin
+            cmd_hold_valid <= 1'b0;
+            cmd_hold_data <= '0;
             sample_window_open_npu <= 1'b0;
             sample_count_npu <= '0;
             fence_response_pending <= 1'b0;
@@ -311,19 +315,25 @@ module npu_zynq7020_t1_wrapper #(
             sample_window_open_host_npu_d1 <= 1'b0;
             sample_window_open_host_npu_d2 <= 1'b0;
         end else begin
+            if (cmd_prefetch) begin
+                cmd_hold_data <= cmd_dout;
+                cmd_hold_valid <= 1'b1;
+            end else if (cmd_consume) begin
+                cmd_hold_valid <= 1'b0;
+            end
             sample_window_open_host_npu_d1 <= sample_window_open_host;
             sample_window_open_host_npu_d2 <= sample_window_open_host_npu_d1;
-            if (cmd_rd_en && command_is_fence && !command_fields_bad && !core_mask_staging_open) begin
+            if (fence_accept) begin
                 sample_window_open_npu <= 1'b1;
                 sample_count_npu <= '0;
                 fence_response_pending <= 1'b1;
-                fence_id_npu <= cmd_dout[31:0];
+                fence_id_npu <= cmd_hold_data[31:0];
             end
-            if (cmd_rd_en && (command_fields_bad || fence_staging_blocked)) begin
+            if (error_accept) begin
                 error_response_pending <= 1'b1;
                 error_response_payload <= {
                     RSP_FENCE + 1'b1, 4'h1, command_opcode, 4'hf,
-                    cmd_dout[31:0], cmd_dout[119:88], 48'd0
+                    cmd_hold_data[31:0], cmd_hold_data[119:88], 48'd0
                 };
             end
             if (sample_rd_en) begin
