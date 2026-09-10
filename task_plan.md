@@ -1,5 +1,12 @@
 # 2026-09-08 UART重分配 V14/V15
 
+## 2026-09-10 最新 B2 构建收口
+
+- [x] 完成 `b4b95fa` 的 Vivado 2024.1 route、DRC、bitstream/XSA 生成。
+- [x] 归档失败分析证据到 `artifacts/logs/b2_packet_npu_route_timing_fail_20260910_b4b95fa/`。
+- [x] 更新 Nexus、artifact 索引和进度记录，统一最新时序事实。
+- [ ] 修复 `mac_accumulator` 200 MHz setup 路径并重建；在 WNS/TNS/THS 与 route/DRC 全绿前禁止上板。
+
 ## 2026-09-09 B2 route 当前观察
 
 - [x] 已确认 Vivado 物理实现从 `place_design/phys_opt_design` 进入 `route_design`；进程仍活跃，route 日志持续有 CPU 进展。

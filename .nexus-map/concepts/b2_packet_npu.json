@@ -3,7 +3,9 @@
   "verified_at": "2026-09-10",
   "label": "B2 packet-NPU integration",
   "deployment_target_part": "xc7z020clg484-2",
-  "source_head": "89cbbf6ecff3e15b63576068e6261b2e904e654c",
+  "repository_head": "90701bad3c5cc321a40836126f794d811b8eb611",
+  "repository_worktree": "DIRTY_UNCOMMITTED_RTL_AND_TEST_CHANGES",
+  "source_head": "b4b95fa0e563ed99b14ffc4fcc80453e94806b1e",
   "commits": {
     "adapter": "cb9eb66",
     "adapter_e2e": "62f2d8b",
@@ -11,9 +13,10 @@
     "verilog_bd_reference": "1d0e3ba",
     "packet_memory_probe": "f4827e2",
     "command_fifo_timing_slice": "195e6e7",
-    "current_build_alignment": "89cbbf6",
+    "current_build_alignment": "b4b95fa",
     "egress_crc_pipeline": "8d57e7e",
-    "local_group_mask_cache": "89cbbf6"
+    "local_group_mask_cache": "89cbbf6",
+    "model_write_staging": "b4b95fa"
   },
   "rtl": {
     "adapter": "b2_npu_packet_adapter.sv",
@@ -88,16 +91,16 @@
   "physical_build": {
     "status": "ROUTED_BIT_XSA_PASS_TIMING_FAIL",
     "artifact_dir": "boards/hellozynq/b2_hw/build/",
-    "artifact_git_head": "89cbbf6ecff3e15b63576068e6261b2e904e654c",
+    "artifact_git_head": "b4b95fa0e563ed99b14ffc4fcc80453e94806b1e",
     "artifact_part": "xc7z020clg484-2",
-    "bitstream_sha256": "9369e2964b1655b4d28274a776001481e2836509c9e173d9724f55cb84b98a09",
-    "xsa_sha256": "1c25a0e2bb63ea232f5ef8f79a5a98c2a4d3e79b2f21933a74f05456ee6a382a",
-    "timing_gate": "FAIL_WNS_-1.168_TNS_-1001.103_WHS_+0.036_THS_0_SETUP_FAILING_ENDPOINTS_3237",
+    "bitstream_sha256": "0d6184f89a76e32f922f6d01882f3da9c5678f8ce5bdcb2fbe4cb37e368eda9d",
+    "xsa_sha256": "73279ab61e74cfe2190b527daf67948986f9b2b5bda43719b527b307ebbcaa",
+    "timing_gate": "FAIL_WNS_-0.589_TNS_-45.751_WHS_+0.019_THS_0_SETUP_FAILING_ENDPOINTS_363",
     "route_errors": 0,
     "drc_hard_errors": 0,
-    "worst_path": "core/compute_unit_index_reg[1]_rep -> model_staging_reg_r1_64_127_9_11/RAMA -> model_word_latched[9] -> lane_product_1/B[1]",
-    "boundary": "Route, DRC, bitstream and XSA generation succeeded, but 200 MHz setup timing is not met. Local per-neuron group-mask caching reduced the prior worst slack but moved the critical path into the index-to-model-RAM/DSP data chain. No timing signoff or board evidence exists yet.",
-    "evidence_dir": "artifacts/logs/b2_packet_npu_route_timing_fail_20260910_89cbbf6/"
+    "worst_path": "core/mac_accumulator_reg[0]/C -> core/mac_accumulator_reg[28]/D",
+    "boundary": "Route, DRC, bitstream and XSA generation succeeded, but 200 MHz setup timing is not met. Model-write staging improved the prior index-to-model-RAM/DSP path, but the MAC accumulator path still fails by 0.589 ns. No timing signoff or board evidence exists yet.",
+    "evidence_dir": "artifacts/logs/b2_packet_npu_route_timing_fail_20260910_b4b95fa/"
   },
   "next_gate": "Repair the NPU core compute_unit_index-to-compute_group_index setup path, rerun 200 MHz timing until WNS/TNS/THS and route/DRC gates are green, then program and validate packet path on the target board.",
   "forbidden_claims": [

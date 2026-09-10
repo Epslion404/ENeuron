@@ -1,5 +1,12 @@
 # 进度记录
 
+## 2026-09-10 B2 packet-NPU model-write staging 构建
+
+- `b4b95fa` 已完成 `route_design`、DRC、bitstream 和 XSA 生成；目标器件为 `xc7z020clg484-2`，route errors=`0`、DRC hard errors=`0`。
+- 200 MHz `clk_fpga_0` setup 仍未通过：`WNS=-0.589 ns`、`TNS=-45.751 ns`、`363` 个失败端点；hold 为 `WHS=+0.019 ns`、`THS=0`。构建脚本按门禁失败，未产生 `B2_TIMING_PASS`。
+- 最差路径已转为 `mac_accumulator_reg[0]/C -> mac_accumulator_reg[28]/D`，数据延迟 `5.526 ns`，逻辑 `2.961 ns`、布线 `2.565 ns`。
+- 失败分析证据已归档到 `artifacts/logs/b2_packet_npu_route_timing_fail_20260910_b4b95fa/`。bit/XSA 不得上板；下一步继续做 NPU 核心流水/累加器时序修复，B2-06～B2-10 与 B2-GATE 保持未完成。
+
 ## 2026-09-10 B2 packet-NPU 最新物理构建
 
 - HEAD=`89cbbf6ecff3e15b63576068e6261b2e904e654c` 的 Vivado 2024.1 构建已完成 route、DRC、bitstream 和 XSA 生成；目标器件为 `xc7z020clg484-2`，route errors=`0`，DRC hard errors=`0`，产物已归档到 `artifacts/logs/b2_packet_npu_route_timing_fail_20260910_89cbbf6/`。
