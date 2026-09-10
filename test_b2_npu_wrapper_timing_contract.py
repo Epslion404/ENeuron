@@ -67,6 +67,9 @@ class B2NpuWrapperTimingContractTests(unittest.TestCase):
         self.assertIn("mac_accumulator_lo <= mac_low_sum_comb[15:0]", source)
         self.assertIn("mac_accumulator_hi <= mac_high_sum_comb", source)
         self.assertIn("mac_accumulator = {mac_accumulator_hi, mac_accumulator_lo}", source)
+        self.assertIn("mac_high_sum_c0", source)
+        self.assertIn("mac_high_sum_c1", source)
+        self.assertIn("mac_low_sum_comb[16] ? mac_high_sum_c1", source)
         self.assertNotIn("lane_sum_latched <= lane_sum_comb", source.split("COMPUTE_L0_GROUP_EXECUTE", 1)[1].split("COMPUTE_L0_GROUP_COMMIT", 1)[0])
 
     def test_core_registers_model_write_before_bram_update(self):

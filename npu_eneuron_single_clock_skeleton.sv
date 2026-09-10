@@ -102,6 +102,8 @@ module npu_eneuron_single_clock_skeleton (
     logic signed [15:0] mac_accumulator_hi;
     logic signed [31:0] mac_accumulator;
     logic [16:0] mac_low_sum_comb;
+    logic [15:0] mac_high_sum_c0;
+    logic [15:0] mac_high_sum_c1;
     logic [15:0] mac_high_sum_comb;
     logic signed [31:0] lane_sum_latched;
     logic signed [31:0] lane_sum_comb;
@@ -230,7 +232,10 @@ module npu_eneuron_single_clock_skeleton (
     always_comb begin
         mac_accumulator = {mac_accumulator_hi, mac_accumulator_lo};
         mac_low_sum_comb = {1'b0, mac_accumulator_lo} + {1'b0, lane_sum_comb[15:0]};
-        mac_high_sum_comb = mac_accumulator_hi + lane_sum_comb[31:16] + mac_low_sum_comb[16];
+        // 高半字并行计算两种 carry 情况，避免低半字 carry 穿过整条 32-bit 加法链。
+        mac_high_sum_c0 = mac_accumulator_hi + lane_sum_comb[31:16];
+        mac_high_sum_c1 = mac_accumulator_hi + lane_sum_comb[31:16] + 16'd1;
+        mac_high_sum_comb = mac_low_sum_comb[16] ? mac_high_sum_c1 : mac_high_sum_c0;
     end
 
     always_comb begin
