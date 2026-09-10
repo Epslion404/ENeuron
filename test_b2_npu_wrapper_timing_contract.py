@@ -42,6 +42,19 @@ class B2NpuWrapperTimingContractTests(unittest.TestCase):
         self.assertNotIn("active_mask_enabled((compute_unit_index * 16)", source)
         self.assertNotIn("active_mask_enabled(512 + (compute_unit_index * 8)", source)
 
+    def test_core_uses_registered_model_address_for_group_fetch(self):
+        source = (ROOT / "npu_eneuron_single_clock_skeleton.sv").read_text(encoding="utf-8")
+        self.assertIn("compute_model_addr", source)
+        self.assertIn("model_staging[compute_model_addr]", source)
+        self.assertNotIn(
+            "model_staging[(compute_unit_index * 16) + compute_group_index]",
+            source,
+        )
+        self.assertNotIn(
+            "model_staging[544 + (compute_unit_index * 8) + compute_group_index]",
+            source,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
