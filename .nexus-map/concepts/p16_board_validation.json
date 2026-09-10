@@ -8,9 +8,9 @@
   },
   "workflow_context": {
     "active_branch": "codex/b1b-high-ddr-board-repro",
-    "current_head": "639b4036b5dc9871bb21e3d13a38faba725672ce",
-    "worktree_status": "DIRTY_UNCOMMITTED_DOCUMENTATION_AND_EVIDENCE_CHANGES",
-    "worktree_entries": ["artifacts/logs/b2_packet_npu_route_timing_fail_20260910_639b403/", ".nexus-map/"],
+    "current_head": "2a033ef07d316f01bb9b71ef25af9edbf04b366f",
+    "worktree_status": "CLEAN",
+    "worktree_entries": [],
     "parent_audit_baseline": "d7e1035",
     "execution_chain": ["B2-03_BOARD_MINIMAL_LOOPBACK", "B2-04_BOUNDARY_FRAMES", "B2-05_BACKPRESSURE_AND_PRESSURE"],
     "qualification_execution_chain": ["B1-06B6_UART_BASELINE", "B1-06B7_OCM_HIGH_DDR_MINIMAL_REPRODUCTION"],

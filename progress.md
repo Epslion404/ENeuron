@@ -1883,3 +1883,4 @@
 - 同源 Vivado 2024.1 构建已完成 route、bitstream/XSA 和 DRC；`route errors=0`、`DRC hard errors=0`，但 `clk_fpga_0` 200 MHz setup 失败：`WNS=-1.958 ns`、`TNS=-3308.760 ns`、`5902` 个失败端点，`WHS=+0.055 ns`、`THS=0`。
 - 最差路径已从 egress BRAM/CRC 移到 NPU 核心控制网络：`compute_unit_index_reg[0]` → `compute_group_index_reg[2]`，数据延迟 `6.574 ns`，布线延迟 `5.077 ns`。
 - 失败证据归档于 `artifacts/logs/b2_packet_npu_route_timing_fail_20260910_8d57e7e/`；bit/XSA 仅作分析，禁止上板。下一步改做核心控制路径切片。
+- `70e8caf` 已完成同源 Vivado 2024.1 route、bitstream/XSA 和报告归档；目标器件为 `xc7z020clg484-2`，route errors=`0`、DRC hard errors=`0`，但 200 MHz setup 仍失败：`WNS=-1.595 ns`、`TNS=-1103.714 ns`、`3304` 个失败端点，`WHS=+0.036 ns`、`THS=0`。最差路径为 `mac_accumulator_lo[3]_i_15_psdsp/C -> mac_accumulator_hi_reg[13]/D`，数据延迟 `6.530 ns`。证据归档于 `artifacts/logs/b2_packet_npu_route_timing_fail_20260910_70e8caf/`；bit/XSA 仅作分析，禁止上板。B2-06～B2-10、B2-GATE 和 ENeuron A/B 继续未完成。

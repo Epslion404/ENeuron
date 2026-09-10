@@ -1799,5 +1799,7 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 - [x] 记录 carry-select 结构功能通过、200 MHz 顶层时序失败的边界。
 - [x] 登记用户提供的三组 JSON/日志证据，并区分交换 TX/RX 的 UART PASS 与 packet-NPU 物理门。
 - [ ] 在新的时序结构获得 `WNS/TNS/THS` 和 route/DRC 全绿前，不下载 bit/XSA，不进入 B3/ENeuron A/B。
+- [x] 完成 `70e8caf` 同源构建并归档 bit/XSA、报告、Vivado 日志和 SHA-256 清单；最终 `WNS=-1.595 ns`、`TNS=-1103.714 ns`、`WHS=+0.036 ns`、`THS=0`，route errors/DRC hard errors 均为 `0`。
+- [ ] 基于最终最差路径 `mac_accumulator_lo[3]_i_15_psdsp/C -> mac_accumulator_hi_reg[13]/D` 设计下一轮 MAC 累加器流水/结构修复；在 200 MHz 通过前保持 B2-06～B2-10、B2-GATE 和 ENeuron A/B 未完成。
 
 错误记录：本轮构建脚本最终以预期的 B2 timing gate exception 退出；这不是 Vivado 崩溃，最终 bit/XSA 已生成并被完整归档。

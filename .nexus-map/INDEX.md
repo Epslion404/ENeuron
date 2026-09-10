@@ -8,13 +8,13 @@
 
 证据边界：当前部署和最终板级物理签核目标是 `xc7z020clg484-2`。`xc7z020clg400-1` 上的 T3/NP7 OOC、时序和资源报告只作为历史结构参考，不得写成 `clg484-2` 已签核；`archive/legacy/` 中的材料不进入日常 CI/PR 门。B1 高地址 DDR、PHY 和 UDP 属于板卡资格支线，仍阻塞完整 `B1-GATE`，但在已验证低地址窗口足以容纳模型与 DMA 缓冲区时，不阻塞 NPU MVP 的 RTL/软件推进。CH340 运行脚本按 `VID_1A86:PID_7523` 识别设备，`COM10` 只是现场枚举结果，不是固定合同。
 
-合同与恢复口径（2026-09-10）：`WORKFLOW_STATE.md` 指定 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md` 为当前阶段合同；中等精简后的主线 TODO 仅统计 `docs/planning/TODO.md` 的 P16，当前活动计数为 `59`。`P16-E` 公共证据合同与 `P16-S` 统一停止条件是持续适用的常驻合同，不计入一次性计数；`NP8` 为 `DEFERRED_OPTIONAL`，`NP9` 已并入 P16 的 B2/B3/B4，不再维护第二套板级任务。当前仓库 HEAD=`639b4036b5dc9871bb21e3d13a38faba725672ce`；工作树存在未提交的 Nexus/证据归档改动。B2-03/B2-04/B2-05 已按 TODO 的正式实板证据收口，当前待关闭项为 B2-06/B2-07/B2-08/B2-09/B2-10 与 B2-GATE。B1 高地址 DDR/PHY/UDP 仅为板卡资格支线。唯一合同设备为 `VID_1A86:PID_7523` 的外置 CH340，现场枚举为 COM10；COM6/COM7 为蓝牙串口并排除。
+合同与恢复口径（2026-09-10）：`WORKFLOW_STATE.md` 指定 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md` 为当前阶段合同；中等精简后的主线 TODO 仅统计 `docs/planning/TODO.md` 的 P16，当前活动计数为 `59`。`P16-E` 公共证据合同与 `P16-S` 统一停止条件是持续适用的常驻合同，不计入一次性计数；`NP8` 为 `DEFERRED_OPTIONAL`，`NP9` 已并入 P16 的 B2/B3/B4，不再维护第二套板级任务。当前仓库 HEAD=`2a033ef07d316f01bb9b71ef25af9edbf04b366f`；工作树干净。B2-03/B2-04/B2-05 已按 TODO 的正式实板证据收口，当前待关闭项为 B2-06/B2-07/B2-08/B2-09/B2-10 与 B2-GATE。B1 高地址 DDR/PHY/UDP 仅为板卡资格支线。唯一合同设备为 `VID_1A86:PID_7523` 的外置 CH340，现场枚举为 COM10；COM6/COM7 为蓝牙串口并排除。
 
 状态更正（2026-09-10）：上方为当前权威状态；本文件后续 2026-09-09 历史段落中若仍写“B2-03/B2-04/B2-05 未关闭”，均由后续正式边界、压力、背压、回绕、恢复、间歇和 missing-TLAST 证据 supersede。当前待关闭项仅为 B2-06/B2-07/B2-08/B2-09/B2-10 与 B2-GATE；BRAM 探针已由 `f4827e2` 提交，命令 FIFO 保持槽时序切片已由 `195e6e7` 提交，但尚未以该 RTL 重跑完整 Vivado。
 
-TODO 计数更正：`workflow_resume.ps1 -Mode Check` 于 2026-09-10 在 HEAD `639b403` 上报告 `TODO.md:P16=59`；本文其余 `63` 计数均为历史快照。
+TODO 计数更正：`workflow_resume.ps1 -Mode Check` 于 2026-09-10 在 HEAD `2a033ef` 上报告 `TODO.md:P16=59`；本文其余 `63` 计数均为历史快照。
 
-B2 packet-NPU 当前物理边界（2026-09-10）：最新完整 Vivado 2024.1 构建绑定源 HEAD=`639b4036b5dc9871bb21e3d13a38faba725672ce`，目标器件为 `xc7z020clg484-2`；route errors=`0`、DRC hard errors=`0`，但 200 MHz setup 失败（`WNS=-1.287 ns`、`TNS=-384.021 ns`、`1942` 个失败端点，`WHS=+0.051 ns`、`THS=0`）。证据目录为 `artifacts/logs/b2_packet_npu_route_timing_fail_20260910_639b403/`；carry-select MAC 累加器未达到时序签核。当前仓库 HEAD=`639b403`，工作树仍有用户未提交 Nexus/证据改动；最新 bit/XSA 仅作失败分析，不得上板。
+B2 packet-NPU 当前物理边界（2026-09-10）：最新完整 Vivado 2024.1 构建绑定源 HEAD=`639b4036b5dc9871bb21e3d13a38faba725672ce`，目标器件为 `xc7z020clg484-2`；route errors=`0`、DRC hard errors=`0`，但 200 MHz setup 失败（`WNS=-1.287 ns`、`TNS=-384.021 ns`、`1942` 个失败端点，`WHS=+0.051 ns`、`THS=0`）。证据目录为 `artifacts/logs/b2_packet_npu_route_timing_fail_20260910_639b403/`；carry-select MAC 累加器未达到时序签核。当前仓库 HEAD=`2a033ef`，工作树干净；最新 bit/XSA 仅作失败分析，不得上板。
 
 B2-00 已完成（2026-09-08）：低地址 DDR 窗口 `[0x01000000,0x01100000)` 内冻结 9 个 4 KiB 区域，总保留 `36 KiB`，最大 DMA frame 为 `4096` bytes；机器 manifest `tools/repro/b2_dma_address_layout.json` 与 `verify_b2_dma_address_layout.py` 验证通过，状态为 `B2_00_LOW_ADDRESS_LAYOUT_FROZEN`。B2-D1 已完成并单独记录；所有 manifest 继续保留 `B1_HIGH_DDR_PENDING`，不把 B2-00 误写成完整 B1-GATE 或高地址 DDR 通过。
 

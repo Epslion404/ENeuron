@@ -1759,6 +1759,10 @@
 - CRC 状态按标准 reflected Ethernet CRC32（多项式 `0xEDB88320`）逐个 little-endian byte 更新，CRC word 不参与自身计算；与 Python `zlib.crc32` 参考向量一致。
 - 独立仿真已证明合法 SAMPLE/COMMAND 映射、坏 CRC 拒绝和 CRC word 缺失 TLAST 拒绝；RTL ingress 不是完整 packetizer，反向 egress 和实板集成仍待完成。
 
+## 2026-09-10 B2 response epoch timing attempt
+
+- `70e8caf` 的响应 epoch 副本修复没有改善顶层时序：route/DRC 无硬错误，但 `clk_fpga_0` 200 MHz setup 为 `WNS=-1.595 ns`、`TNS=-1103.714 ns`、`3304` 个失败端点。最终最差路径是 `mac_accumulator_lo[3]_i_15_psdsp/C -> mac_accumulator_hi_reg[13]/D`，15 级逻辑、数据延迟 `6.530 ns`（logic `3.740 ns`、route `2.790 ns`）。当前瓶颈重新集中在 MAC 高位累加器链；失败证据已归档到 `artifacts/logs/b2_packet_npu_route_timing_fail_20260910_70e8caf/`，bit/XSA 禁止上板。
+
 ## 2026-09-09 B2 RTL egress packetizer
 
 - `b2_packet_egress.sv` 采用 response 优先仲裁；response 通过 `rsp_last` 结束，result 固定 10 beat。输出顺序为 8-word header、payload words、1-word CRC。

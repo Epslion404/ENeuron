@@ -1,0 +1,12 @@
+{
+  "hello_zynq_b2.bit": "38c703ad940f980d846a4db6598211658305edf585629eface687ffcaf4c9e50",
+  "route_status_impl.rpt": "b579c8c6e09afedb0f17371dfcd301b2e8415d1edd3fb0e38f8a1ee7abbacdf0",
+  "utilization_impl.rpt": "4ff5dfff1c6bb7eabd4f67f5f532a4fc8d78185dc268079e2ea96a27972d51a2",
+  "build_manifest.json": "7d7c3c11ec3cbf858a32879b8f6ad73d0a2df2a73f6701b1a7291e3d04cffe7c",
+  "README.md": "db1043dc0696273bb7b846551bcaa1514f8fc8d4554db118e17960690f40292f",
+  "signoff_summary.txt": "a8ea4d89ad4f5602bb8c1414385a27cad1a4ec6a92a965ba7e89bace67b60164",
+  "drc_impl.rpt": "e070c60736c330de31cf95128786e175ebe46eaf4ab93e4d7e5b3c552d5a1a26",
+  "hello_zynq_b2.xsa": "6ab1323ef245d96c7f22e7907ddae1459414420ebc4a4e2cc6d1406b525a95dd",
+  "timing_impl.rpt": "483acbc826e0aae79198bc6e1f586d02f45d33e6ef4c1dd3309b546a06ecf545",
+  "vivado_run.log": "44a00137f24a1eb9525d2cf70d5440383f5bf8ab8bb9f5c67701942c9e80e100"
+}

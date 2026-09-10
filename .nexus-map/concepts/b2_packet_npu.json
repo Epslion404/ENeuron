@@ -3,9 +3,9 @@
   "verified_at": "2026-09-10",
   "label": "B2 packet-NPU integration",
   "deployment_target_part": "xc7z020clg484-2",
-  "repository_head": "639b4036b5dc9871bb21e3d13a38faba725672ce",
-  "repository_worktree": "DIRTY_UNCOMMITTED_DOCUMENTATION_AND_EVIDENCE_CHANGES",
-  "worktree_entries": ["artifacts/logs/b2_packet_npu_route_timing_fail_20260910_639b403/", ".nexus-map/"],
+  "repository_head": "2a033ef07d316f01bb9b71ef25af9edbf04b366f",
+  "repository_worktree": "CLEAN",
+  "worktree_entries": [],
   "source_head": "639b4036b5dc9871bb21e3d13a38faba725672ce",
   "commits": {
     "adapter": "cb9eb66",

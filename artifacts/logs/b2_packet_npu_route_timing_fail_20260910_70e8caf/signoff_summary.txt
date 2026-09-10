@@ -1,0 +1,12 @@
+B2_BUILD_HEAD=70e8caf7dde10a2a23f851693a38019be1df401f
+B2_PART=xc7z020clg484-2
+B2_TOP=design_1_wrapper
+B2_DMA_MODE=SIMPLE_POLLING
+B2_DMA_SG=0
+B2_DMA_STREAM_WIDTH=32
+B2_DMA_MEMORY_WIDTH=64
+B2_DMA_LOOPBACK=MM2S_PACKET_NPU_S2MM
+B2_NPU_CLOCK_HZ=200000000
+B2_NPU_DSP_EXPECTED=4
+B2_BITSTREAM=D:/Documents/Code/ENeuron-board-b0/boards/hellozynq/b2_hw/build/hello_zynq_b2.bit
+B2_XSA=D:/Documents/Code/ENeuron-board-b0/boards/hellozynq/b2_hw/build/hello_zynq_b2.xsa

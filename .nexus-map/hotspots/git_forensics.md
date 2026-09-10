@@ -2,7 +2,7 @@
 
 当前门禁边界（中等精简）：`xc7z020clg484-2` NPU + ENeuron 动态剪枝为活动主线；`archive/legacy/` 不触发日常 CI/PR 门。旧 `xc7z020clg400-1` 的 NP7/T3 物理材料仅作历史参考。B1 高地址 DDR、PHY、UDP 是板卡资格支线，仍阻塞板级 `B1-GATE`，但不阻塞低地址容量满足条件下的 NPU MVP；CH340 按 `VID_1A86:PID_7523` 查找而非固定 COM 号。
 
-当前合同层级为阶段合同 `NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`，中等精简后的 P16 TODO 当前活动计数为 `63`；P16-E 公共证据合同和 P16-S 统一停止条件为常驻合同。当前 HEAD=`f7f01b04e2e54bd3fc3a227830dc07e144ad4c82`，B2-03/B2-04/B2-05 仍是主线执行点；旧配置的实板数据通过伴随 `stall=0`，随后 zero-stall fail-closed 正确拒绝。最终 VALID 保持修复构建、UART/JTAG、连续回绕与 recovery 实板验证均已完成，但 B2-03/B2-04/B2-05/B2-GATE 仍因更完整逐帧 PL 观测、间歇/ready 恢复和错误注入未收口，不能写成 B2 门禁通过。
+当前合同层级为阶段合同 `NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`，中等精简后的 P16 TODO 当前活动计数为 `59`；P16-E 公共证据合同和 P16-S 统一停止条件为常驻合同。当前 HEAD=`2a033ef07d316f01bb9b71ef25af9edbf04b366f`，B2-03/B2-04/B2-05 实板切片已收口，主线执行点为 B2-06 packet-NPU 时序修复；最新完整构建绑定 `639b403`，200 MHz setup 失败（WNS=`-1.287 ns`），B2-06～B2-10 与 B2-GATE 仍未完成。旧配置的实板数据通过伴随 `stall=0`，随后 zero-stall fail-closed 正确拒绝；不得把 packet-NPU 失败分析 bit/XSA 写成可上板身份。
 
 B2-00 已形成可复现的低地址布局合同：窗口 `[0x01000000,0x01100000)`，9 个 4 KiB 区域、总保留 `36 KiB`，最大 DMA frame `4096` bytes；`verify_b2_dma_address_layout.py` 输出 `B2_DMA_LAYOUT_PASS`。状态为 `B2_00_LOW_ADDRESS_LAYOUT_FROZEN`，已进入 B2-D1/loopback 软件执行链。`B1_HIGH_DDR_PENDING` 保持不变，B2-00 不等同于高地址 DDR 或完整 B1-GATE 通过。
 

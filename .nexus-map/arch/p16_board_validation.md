@@ -1,13 +1,13 @@
 # P16 项目阶段 2：实板验证路线
 
 
-verified_at: 2026-09-09
+verified_at: 2026-09-10
 
 当前边界（中等精简）：实板部署目标为 `xc7z020clg484-2`，NPU + ENeuron 动态剪枝是活动主线。高地址 DDR、PHY、UDP 只属于板卡资格支线，仍用于关闭完整 `B1-GATE`，不阻塞低地址容量满足条件下的 NPU MVP。外置 CH340 由 `VID_1A86:PID_7523` 识别，COM 编号不是稳定契约；旧 `clg400-1` NP7/T3 物理结果和 `archive/legacy/` 材料均不参与日常门。
 
 authoritative_sources: `docs/planning/TODO.md`、`task_plan.md`、`findings.md`、`progress.md`
 
-当前工作流上下文（2026-09-09）：活动分支为 `codex/b1b-high-ddr-board-repro`，当前仓库 HEAD=`f7f01b04e2e54bd3fc3a227830dc07e144ad4c82`，父级审计基线为 `d7e1035`。主线已完成 B2 受控背压、UART/JTAG、连续回绕与 recovery 切片收口；正式 run `20260909T105109Z` 绑定 bit/XSA=`ef974000…5175a`/`8419e00e…4185`、同源 ELF SHA-256=`dfe8088a…9082d0`，run_manifest.status=PASS，pressure=10000/10000、backpressure=64/64、连续回绕=256/256、rollovers=3，UART/JTAG 均 PASS。recovery run `20260909T110436Z` 绑定同一 HEAD/bit/XSA，UART/JTAG/XSCT 均 PASS，timeout=1、reset=1、passed=1、failed=0，sequence=10329、CRC32=`0xD3E3C978`，recovery ELF SHA-256=`f2706099…e0363`。B2-03/B2-04/B2-05/B2-GATE 仍保留更完整逐帧 PL 观测、间歇/ready 恢复与错误注入缺口；B1-06B6 UART 基准 → B1-06B7 OCM 高地址最小复现仍为板卡资格支线。
+当前工作流上下文（2026-09-10）：活动分支为 `codex/b1b-high-ddr-board-repro`，当前仓库 HEAD=`2a033ef07d316f01bb9b71ef25af9edbf04b366f`，工作树干净，父级审计基线为 `d7e1035`。最新 packet-NPU 完整构建绑定源码 HEAD=`639b403`，目标器件为 `xc7z020clg484-2`，200 MHz setup 时序失败（WNS=`-1.287 ns`、TNS=`-384.021 ns`、1942 个 setup 失败端点，WHS=`+0.051 ns`、THS=`0`），证据归档于 `artifacts/logs/b2_packet_npu_route_timing_fail_20260910_639b403/`；bit/XSA 仅作失败分析，不得上板。B2-03/B2-04/B2-05 实板切片已收口，B2-06～B2-10 与 B2-GATE 仍未完成；B1-06B6 UART 基准 → B1-06B7 OCM 高地址最小复现仍为板卡资格支线。
 
 监听观察：2026-09-08 按 VID/PID 监听 COM10 10 秒（115200 8N1）读取 0 字节，未见 `ENEURON_B1B_BEGIN`/`ALIVE`/`PASS`；未下载 bitstream/ELF、未发送 GO，DDR access=0。该观察不改变 `B1-06B6_UART_BASELINE_PENDING`，也不是 DDR 失败证据。
 
