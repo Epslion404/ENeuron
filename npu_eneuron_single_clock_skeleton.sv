@@ -86,6 +86,8 @@ module npu_eneuron_single_clock_skeleton (
     logic [31:0] mask_staging_epoch;
     logic [31:0] mask_published_epoch;
     logic [31:0] mask_active_epoch;
+    // 响应路径使用独立副本，避免 active epoch 的高扇出状态网直达响应寄存器。
+    logic [31:0] mask_response_epoch;
 
     logic        compute_active;
     logic [3:0]  compute_state;
@@ -294,6 +296,7 @@ module npu_eneuron_single_clock_skeleton (
             mask_staging_epoch <= 32'd0;
             mask_published_epoch <= 32'd0;
             mask_active_epoch <= 32'd0;
+            mask_response_epoch <= 32'd0;
             mask_valid <= 1'b0;
             compute_active <= 1'b0;
             compute_state <= COMPUTE_IDLE;
@@ -339,7 +342,7 @@ module npu_eneuron_single_clock_skeleton (
                         4'h7, cmd_opcode, 4'hf,
                         (cmd_opcode >= OP_MASK_BEGIN && cmd_opcode <= OP_MASK_ABORT) ?
                             {27'd0, mask_word_index} : {22'd0, model_word_index},
-                        mask_active_epoch
+                        mask_response_epoch
                     );
                 end else if (cmd_opcode == OP_MODEL_BEGIN) begin
                     if (model_state == MODEL_EMPTY) begin
@@ -386,7 +389,7 @@ module npu_eneuron_single_clock_skeleton (
                         rsp_valid <= 1'b1;
                         rsp_payload <= make_error_response(
                             4'h4, cmd_opcode, {2'd0, mask_state},
-                            {27'd0, mask_word_index}, mask_active_epoch
+                            {27'd0, mask_word_index}, mask_response_epoch
                         );
                     end
                 end else if (cmd_opcode == OP_MASK_DATA) begin
@@ -401,7 +404,7 @@ module npu_eneuron_single_clock_skeleton (
                         rsp_valid <= 1'b1;
                         rsp_payload <= make_error_response(
                             4'h5, cmd_opcode, {2'd0, mask_state},
-                            {27'd0, mask_word_index}, mask_active_epoch
+                            {27'd0, mask_word_index}, mask_response_epoch
                         );
                     end
                 end else if (cmd_opcode == OP_MASK_COMMIT) begin
@@ -413,7 +416,7 @@ module npu_eneuron_single_clock_skeleton (
                         rsp_valid <= 1'b1;
                         rsp_payload <= make_error_response(
                             4'h6, cmd_opcode, {2'd0, mask_state},
-                            {27'd0, mask_word_index}, mask_active_epoch
+                            {27'd0, mask_word_index}, mask_response_epoch
                         );
                     end
                 end else if (cmd_opcode == OP_MASK_ABORT) begin
@@ -425,7 +428,7 @@ module npu_eneuron_single_clock_skeleton (
                         rsp_valid <= 1'b1;
                         rsp_payload <= make_error_response(
                             4'h7, cmd_opcode, {2'd0, mask_state},
-                            {27'd0, mask_word_index}, mask_active_epoch
+                            {27'd0, mask_word_index}, mask_response_epoch
                         );
                     end
                 end else if (cmd_opcode == OP_STATE_CLEAR) begin
@@ -436,7 +439,7 @@ module npu_eneuron_single_clock_skeleton (
                         rsp_valid <= 1'b1;
                         rsp_payload <= make_error_response(
                             4'h8, cmd_opcode, {2'd0, mask_state},
-                            {27'd0, mask_word_index}, mask_active_epoch
+                            {27'd0, mask_word_index}, mask_response_epoch
                         );
                     end
                 end else if (cmd_opcode == OP_FREEZE_SET) begin
@@ -447,7 +450,7 @@ module npu_eneuron_single_clock_skeleton (
                         rsp_valid <= 1'b1;
                         rsp_payload <= make_error_response(
                             4'h9, cmd_opcode, {2'd0, mask_state},
-                            {27'd0, mask_word_index}, mask_active_epoch
+                            {27'd0, mask_word_index}, mask_response_epoch
                         );
                     end
                 end else begin
@@ -470,6 +473,7 @@ module npu_eneuron_single_clock_skeleton (
                         for (activate_mask_index = 0; activate_mask_index < 19; activate_mask_index = activate_mask_index + 1)
                             mask_active_words[activate_mask_index] <= mask_staging[activate_mask_index];
                         mask_active_epoch <= mask_published_epoch;
+                        mask_response_epoch <= mask_published_epoch;
                         sample_mask_epoch_reg <= mask_published_epoch;
                         mask_state <= MASK_EMPTY;
                         mask_word_index <= 5'd0;

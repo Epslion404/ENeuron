@@ -78,6 +78,19 @@ class B2NpuWrapperTimingContractTests(unittest.TestCase):
             self.assertIn(token, source)
         self.assertIn("model_staging[model_write_addr] <= model_write_data", source)
 
+    def test_core_replicates_active_epoch_for_error_response_path(self):
+        source = (ROOT / "npu_eneuron_single_clock_skeleton.sv").read_text(encoding="utf-8")
+        self.assertIn("mask_response_epoch", source)
+        self.assertIn("mask_response_epoch <= mask_published_epoch", source)
+        self.assertNotIn(
+            "make_error_response(\n                            4'h4, cmd_opcode, {2'd0, mask_state},\n                            {27'd0, mask_word_index}, mask_active_epoch",
+            source,
+        )
+        self.assertNotIn(
+            "make_error_response(\n                            4'h6, cmd_opcode, {2'd0, mask_state},\n                            {27'd0, mask_word_index}, mask_active_epoch",
+            source,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
