@@ -41,6 +41,8 @@ HelloZynq B1B 的 UART/DDR 原始机器证据保存在 `logs/hellozynq_b1b/<唯�
 
 ## B2 packet-NPU 物理构建证据
 
+| `logs/b2_packet_npu_route_timing_fail_20260910_0bacdea/` | MAC low-carry register 后的完整 route/bit/XSA 结果；route/DRC 通过但 setup 失败，`WNS=-0.489 ns`、`TNS=-121.268 ns`、`885` 个 setup failing endpoints；最差路径为 `mask_active_epoch_reg[1]_replica -> rsp_payload_reg[85]` |
+
 | 证据目录 | 结论 |
 |---|---|
 | `logs/b2_packet_npu_route_timing_fail_20260909_1bfeb12/` | 保持槽切片后的 route/bit/XSA 结果；200 MHz setup 失败，`WNS=-2.750 ns` |

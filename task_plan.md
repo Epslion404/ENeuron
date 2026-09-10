@@ -1810,8 +1810,10 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 - [x] 为 L0/L1 增加独立 `GROUP_ACCUM` 状态，保持 packet、T1 wrapper 和四 DSP 接口不变。
 - [x] 更新计算周期合同：全开 mask 从 `1902` 增至 `2494` 周期；关闭组仍在 FETCH 直接跳过。
 - [x] B2/单时钟定向回归 `104/104` 通过。
-- [ ] 在干净提交身份上运行 Vivado 2024.1 完整 route/timing；只有 200 MHz WNS/TNS/THS 与 route/DRC 全绿才保留并进入板级 packet path。
+- [x] 在同源提交 `0bacdea` 上完成 Vivado 2024.1 完整 route/timing；route/DRC/bit/XSA 均生成，但 200 MHz setup 未过门禁（`WNS=-0.489 ns`、`TNS=-121.268 ns`、`WHS=+0.013 ns`、`THS=0`）。
+- [x] 增加 `mask_next_epoch`，在 mask 激活边界预计算下一合法 epoch，移除 mask begin/commit 热路径上的 `mask_active_epoch + 1` 组合进位链；相关定向回归 `19/19` 通过，计算周期不变。
+- [ ] 在新提交身份上运行 Vivado 2024.1 完整 route/timing；在 `WNS/TNS/THS` 全绿前保持 bit/XSA 为 `analysis_only_no_download`，不进入板级 packet path。
 
 取舍：该切片用每个启用 group 增加一拍换取切断低段 carry 到高段累加器的组合路径。若物理改善不足以抵消约 31% 的全开 mask 周期增长，应回收该方案并改用更高吞吐的归约结构。
 
-错误记录：本轮构建脚本最终以预期的 B2 timing gate exception 退出；这不是 Vivado 崩溃，最终 bit/XSA 已生成并被完整归档。
+错误记录：本轮构建脚本最终以预期的 B2 timing gate exception 退出；这不是 Vivado 崩溃，最终 bit/XSA 已生成并归档到 `artifacts/logs/b2_packet_npu_route_timing_fail_20260910_0bacdea/`。

@@ -96,6 +96,17 @@ class B2NpuWrapperTimingContractTests(unittest.TestCase):
             "make_error_response(\n                            4'h4, cmd_opcode, {2'd0, mask_state},\n                            {27'd0, mask_word_index}, mask_active_epoch",
             source,
         )
+
+    def test_core_registers_next_mask_epoch_instead_of_rebuilding_increment_chain(self):
+        source = (ROOT / "npu_eneuron_single_clock_skeleton.sv").read_text(encoding="utf-8")
+        for token in (
+            "mask_next_epoch",
+            "mask_next_epoch <= 32'd1",
+            "mask_next_epoch <= mask_published_epoch + 32'd1",
+            "cmd_epoch == mask_next_epoch",
+        ):
+            self.assertIn(token, source)
+        self.assertNotIn("cmd_epoch == (mask_active_epoch + 32'd1)", source)
         self.assertNotIn(
             "make_error_response(\n                            4'h6, cmd_opcode, {2'd0, mask_state},\n                            {27'd0, mask_word_index}, mask_active_epoch",
             source,

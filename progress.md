@@ -1885,3 +1885,10 @@
 - 失败证据归档于 `artifacts/logs/b2_packet_npu_route_timing_fail_20260910_8d57e7e/`；bit/XSA 仅作分析，禁止上板。下一步改做核心控制路径切片。
 - `70e8caf` 已完成同源 Vivado 2024.1 route、bitstream/XSA 和报告归档；目标器件为 `xc7z020clg484-2`，route errors=`0`、DRC hard errors=`0`，但 200 MHz setup 仍失败：`WNS=-1.595 ns`、`TNS=-1103.714 ns`、`3304` 个失败端点，`WHS=+0.036 ns`、`THS=0`。最差路径为 `mac_accumulator_lo[3]_i_15_psdsp/C -> mac_accumulator_hi_reg[13]/D`，数据延迟 `6.530 ns`。证据归档于 `artifacts/logs/b2_packet_npu_route_timing_fail_20260910_70e8caf/`；bit/XSA 仅作分析，禁止上板。B2-06～B2-10、B2-GATE 和 ENeuron A/B 继续未完成。
 - 已实现 MAC low-carry register 切片：L0/L1 的 group commit 先寄存低段结果/carry 和高段加数，下一拍更新高段，切断 `70e8caf` 的低段 carry→高段累加器路径。B2/单时钟定向回归 `104/104` 通过；全开 mask 计算周期由 `1902` 增至 `2494`，物理门仍待 Vivado 同源构建确认。
+
+## 2026-09-10 B2 MAC low-carry register 物理结果
+
+- 同源 HEAD `0bacdea29d9947772946657c41abef8ef95b0502` 的 Vivado 2024.1 完整实现已完成：route errors=`0`、DRC hard errors=`0`、bit/XSA 生成成功。
+- 200 MHz `clk_fpga_0` setup 仍未通过：`WNS=-0.489 ns`、`TNS=-121.268 ns`、`885` 个失败端点；hold 为 `WHS=+0.013 ns`、`THS=0`。最差路径已从 MAC carry 链转移到 `mask_active_epoch_reg[1]_replica/C -> rsp_payload_reg[85]/R`，数据延迟 `4.922 ns`，其中逻辑 `2.877 ns`、布线 `2.045 ns`。
+- 该切片相对 `70e8caf` 的 `WNS=-1.595 ns` 有改善，但全开 mask 计算周期增加约 `31%`（`1902 -> 2494`），尚不足以进入 packet path 或 ENeuron A/B。bit/XSA 与报告已归档至 `artifacts/logs/b2_packet_npu_route_timing_fail_20260910_0bacdea/`，状态为 `analysis_only_no_download`。
+- 已实现下一轮 `mask_next_epoch` 控制链切片，移除 mask begin/commit 上重复的 `mask_active_epoch + 1` 组合加法；mask、控制、随机序列、计算和结构合同 `19/19` 通过，等待新提交身份的 Vivado 200 MHz routed timing。

@@ -1769,6 +1769,13 @@
 - 全开 mask 的计算周期从 `1902` 增至 `2494`，增加 `592` 拍；第二组测试向量为 `2488`，全关 mask 仍为 `718`。这说明周期代价只随实际启用 group 数增长，与动态剪枝方向一致，但 dense 基线吞吐下降约 31%。
 - B2 与单时钟相关定向回归 `104/104` 通过。物理价值仍未证明；必须用同源 Vivado route/timing 结果决定保留或回收。
 
+## 2026-09-10 B2 MAC low-carry register routed 结果
+
+- `0bacdea` 同源构建完成 route、bit/XSA、报告和 DRC；route errors=`0`，DRC hard errors=`0`。
+- 最终 `clk_fpga_0` 200 MHz setup 为 `WNS=-0.489 ns`、`TNS=-121.268 ns`、`885` 个失败端点；hold 为 `WHS=+0.013 ns`、`THS=0`。最差路径为 `mask_active_epoch_reg[1]_replica/C -> rsp_payload_reg[85]/R`，12 级逻辑，数据延迟 `4.922 ns`（logic `2.877 ns`、route `2.045 ns`）。
+- 该结果证明低段 carry→高段累加器路径已不再是首要瓶颈，但新的 mask/response 控制路径仍无法满足 5 ns 周期。由于 dense 周期从 `1902` 增至 `2494`，当前方案只保留作物理分析，不下载、不做实板 packet 验证。
+- 新一轮候选把 `mask_active_epoch + 1` 改为在 mask 激活边界更新的 `mask_next_epoch` 寄存器。该变更不改变 epoch 单调递增、发布后等待样本边界激活或错误响应格式，目标是去掉命令判定和寄存器使能上的 32 位组合进位链；物理收益仍需 routed timing 证明。
+
 ## 2026-09-09 B2 RTL egress packetizer
 
 - `b2_packet_egress.sv` 采用 response 优先仲裁；response 通过 `rsp_last` 结束，result 固定 10 beat。输出顺序为 8-word header、payload words、1-word CRC。

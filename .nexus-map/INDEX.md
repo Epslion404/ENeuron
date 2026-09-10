@@ -14,7 +14,7 @@
 
 TODO 计数更正：`workflow_resume.ps1 -Mode Check` 于 2026-09-10 在 HEAD `bc9ed89` 上报告 `TODO.md:P16=59`；本文其余 `63` 计数均为历史快照。
 
-B2 packet-NPU 当前物理边界（2026-09-10）：最新完整 Vivado 2024.1 构建绑定源 HEAD=`70e8caf7dde10a2a23f851693a38019be1df401f`，目标器件为 `xc7z020clg484-2`；route errors=`0`、DRC hard errors=`0`，但 200 MHz setup 失败（`WNS=-1.595 ns`、`TNS=-1103.714 ns`、`3304` 个失败端点，`WHS=+0.036 ns`、`THS=0`）。证据目录为 `artifacts/logs/b2_packet_npu_route_timing_fail_20260910_70e8caf/`；最差路径为 `mac_accumulator_lo[3]_i_15_psdsp/C -> mac_accumulator_hi_reg[13]/D`。当前仓库 HEAD=`bc9ed89`，工作树干净；最新 bit/XSA 仅作失败分析，不得上板。
+B2 packet-NPU 当前物理边界（2026-09-10）：最新完整 Vivado 2024.1 构建绑定源 HEAD=`0bacdea29d9947772946657c41abef8ef95b0502`，目标器件为 `xc7z020clg484-2`；route errors=`0`、DRC hard errors=`0`，但 200 MHz setup 失败（`WNS=-0.489 ns`、`TNS=-121.268 ns`、`885` 个失败端点，`WHS=+0.013 ns`、`THS=0`）。证据目录为 `artifacts/logs/b2_packet_npu_route_timing_fail_20260910_0bacdea/`；最差路径为 `mask_active_epoch_reg[1]_replica/C -> rsp_payload_reg[85]/R`。当前 bit/XSA 仅作失败分析，不得上板。
 
 B2-00 已完成（2026-09-08）：低地址 DDR 窗口 `[0x01000000,0x01100000)` 内冻结 9 个 4 KiB 区域，总保留 `36 KiB`，最大 DMA frame 为 `4096` bytes；机器 manifest `tools/repro/b2_dma_address_layout.json` 与 `verify_b2_dma_address_layout.py` 验证通过，状态为 `B2_00_LOW_ADDRESS_LAYOUT_FROZEN`。B2-D1 已完成并单独记录；所有 manifest 继续保留 `B1_HIGH_DDR_PENDING`，不把 B2-00 误写成完整 B1-GATE 或高地址 DDR 通过。
 

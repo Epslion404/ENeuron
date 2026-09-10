@@ -72,7 +72,7 @@ B2 packet-NPU egress CRC 分拍后构建（2026-09-10）：HEAD=`8d57e7e` 已完
 
 B2 packet-NPU 局部 group mask 缓存后构建（2026-09-10）：HEAD=`89cbbf6` 已完成 route、bit/XSA 和 DRC，`route errors=0`、`DRC hard errors=0`，但 200 MHz setup 仍失败：`WNS=-1.168 ns`、`TNS=-1001.103 ns`、`3237` 个失败端点，hold=`WHS=+0.036 ns`、`THS=0`。最差路径为 `compute_unit_index_reg[1]_rep -> model_staging_reg_r1_64_127_9_11/RAMA -> model_word_latched[9] -> lane_product_1/B[1]`，数据延迟 `5.521 ns`，布线占 `4.191 ns`。证据归档于 `artifacts/logs/b2_packet_npu_route_timing_fail_20260910_89cbbf6/`；该构建仍记为 `ROUTED_BIT_XSA_PASS_TIMING_FAIL`，bit/XSA 不得上板。
 
-当前仓库 HEAD=`bc9ed89` 是物理失败证据的归档提交；最新完整构建绑定源 HEAD=`70e8caf`，证据归档于 `artifacts/logs/b2_packet_npu_route_timing_fail_20260910_70e8caf/`。工作树干净，当前 bit/XSA 仅作失败分析，不能写成时序通过或上板输入。
+当前仓库最新完整构建绑定源 HEAD=`0bacdea`，证据归档于 `artifacts/logs/b2_packet_npu_route_timing_fail_20260910_0bacdea/`。route/DRC/bit/XSA 生成成功，但 200 MHz setup 失败（`WNS=-0.489 ns`、`TNS=-121.268 ns`、`885` 个失败端点）；当前 bit/XSA 仅作失败分析，不能写成时序通过或上板输入。
 
 B2 packet-NPU model-write staging 后构建（2026-09-10）：HEAD=`b4b95fa` 已完成 route、bit/XSA 和 DRC，`route errors=0`、`DRC hard errors=0`，但 200 MHz setup 失败：`WNS=-0.589 ns`、`TNS=-45.751 ns`、`363` 个失败端点，hold=`WHS=+0.019 ns`、`THS=0`。最差路径为 `mac_accumulator_reg[0]/C -> mac_accumulator_reg[28]/D`，数据延迟 `5.526 ns`，逻辑 `2.961 ns`、布线 `2.565 ns`。该构建仍为 `ROUTED_BIT_XSA_PASS_TIMING_FAIL`，bit/XSA 不得上板。
 

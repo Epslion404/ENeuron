@@ -88,6 +88,8 @@ module npu_eneuron_single_clock_skeleton (
     logic [31:0] mask_staging_epoch;
     logic [31:0] mask_published_epoch;
     logic [31:0] mask_active_epoch;
+    // 预计算下一合法 mask epoch，避免每条 mask 命令重复展开 32 位加法链。
+    logic [31:0] mask_next_epoch;
     // 响应路径使用独立副本，避免 active epoch 的高扇出状态网直达响应寄存器。
     logic [31:0] mask_response_epoch;
 
@@ -293,6 +295,7 @@ module npu_eneuron_single_clock_skeleton (
             mask_staging_epoch <= 32'd0;
             mask_published_epoch <= 32'd0;
             mask_active_epoch <= 32'd0;
+            mask_next_epoch <= 32'd1;
             mask_response_epoch <= 32'd0;
             mask_valid <= 1'b0;
             compute_active <= 1'b0;
@@ -380,7 +383,7 @@ module npu_eneuron_single_clock_skeleton (
                         );
                     end
                 end else if (cmd_opcode == OP_MASK_BEGIN) begin
-                    if (mask_state == MASK_EMPTY && cmd_epoch == (mask_active_epoch + 32'd1)) begin
+                    if (mask_state == MASK_EMPTY && cmd_epoch == mask_next_epoch) begin
                         mask_state <= MASK_LOADING;
                         mask_word_index <= 5'd0;
                         mask_staging_epoch <= cmd_epoch;
@@ -408,7 +411,7 @@ module npu_eneuron_single_clock_skeleton (
                     end
                 end else if (cmd_opcode == OP_MASK_COMMIT) begin
                     if (mask_state == MASK_COMPLETE && cmd_epoch == mask_staging_epoch &&
-                        cmd_epoch == (mask_active_epoch + 32'd1)) begin
+                        cmd_epoch == mask_next_epoch) begin
                         mask_state <= MASK_PUBLISHED;
                         mask_published_epoch <= cmd_epoch;
                     end else begin
@@ -472,6 +475,7 @@ module npu_eneuron_single_clock_skeleton (
                         for (activate_mask_index = 0; activate_mask_index < 19; activate_mask_index = activate_mask_index + 1)
                             mask_active_words[activate_mask_index] <= mask_staging[activate_mask_index];
                         mask_active_epoch <= mask_published_epoch;
+                        mask_next_epoch <= mask_published_epoch + 32'd1;
                         mask_response_epoch <= mask_published_epoch;
                         sample_mask_epoch_reg <= mask_published_epoch;
                         mask_state <= MASK_EMPTY;
