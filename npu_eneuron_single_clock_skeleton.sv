@@ -126,6 +126,9 @@ module npu_eneuron_single_clock_skeleton (
     // 634 words are deliberately represented by a small staging array in this
     // protocol slice. Later implementation may infer BRAM without changing the port contract.
     logic [31:0] model_staging [0:633];
+    logic        model_write_pending;
+    logic [9:0]  model_write_addr;
+    logic [31:0] model_write_data;
     logic [31:0] mask_staging [0:18];
     logic [31:0] mask_active_words [0:18];
 
@@ -233,7 +236,7 @@ module npu_eneuron_single_clock_skeleton (
     // 配置握手优先于样本首拍；响应槽背压期间整个命令口停住。
     always_comb begin
         // mask staging/publish 可与部分输入、计算和结果输出并行；其它命令等待严格运行空闲。
-        cmd_ready = !rsp_valid &&
+        cmd_ready = !rsp_valid && !model_write_pending &&
                     (cmd_is_mask || (!sample_active && !compute_active && !result_active));
         // 配置只抢占样本首 beat；部分样本期间命令口被阻塞，输入必须继续前进。
         sample_ready = model_valid && !compute_active && !result_active && !rsp_valid &&
@@ -259,6 +262,9 @@ module npu_eneuron_single_clock_skeleton (
             model_state <= MODEL_EMPTY;
             model_word_index <= 10'd0;
             model_valid <= 1'b0;
+            model_write_pending <= 1'b0;
+            model_write_addr <= 10'd0;
+            model_write_data <= 32'd0;
             sample_active <= 1'b0;
             sample_beat_index <= 4'd0;
             sample_id_reg <= 32'd0;
@@ -295,6 +301,14 @@ module npu_eneuron_single_clock_skeleton (
                 mask_active_words[reset_mask_index] <= 32'hffff_ffff;
             mask_active_words[18] <= 32'h0000_ffff;
         end else begin
+            if (model_write_pending) begin
+                model_staging[model_write_addr] <= model_write_data;
+                if (model_write_addr == 10'd633)
+                    model_state <= MODEL_COMPLETE;
+                model_word_index <= model_write_addr + 10'd1;
+                model_write_pending <= 1'b0;
+            end
+
             // 单槽错误响应：消费前保持 payload/valid 稳定，消费拍不接受新命令。
             if (rsp_valid && rsp_ready) begin
                 rsp_valid <= 1'b0;
@@ -325,11 +339,9 @@ module npu_eneuron_single_clock_skeleton (
                 end else if (cmd_opcode == OP_MODEL_DATA) begin
                     if (model_state == MODEL_LOADING && model_word_index < 10'd634 &&
                         model_word_payload_valid(model_word_index, cmd_word)) begin
-                        model_staging[model_word_index] <= cmd_word;
-                        if (model_word_index == 10'd633) begin
-                            model_state <= MODEL_COMPLETE;
-                        end
-                        model_word_index <= model_word_index + 10'd1;
+                        model_write_addr <= model_word_index;
+                        model_write_data <= cmd_word;
+                        model_write_pending <= 1'b1;
                     end else begin
                         rsp_valid <= 1'b1;
                         rsp_payload <= make_error_response(

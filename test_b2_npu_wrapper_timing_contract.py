@@ -67,6 +67,12 @@ class B2NpuWrapperTimingContractTests(unittest.TestCase):
         self.assertIn("mac_accumulator <= mac_accumulator + lane_sum_comb", source)
         self.assertNotIn("lane_sum_latched <= lane_sum_comb", source.split("COMPUTE_L0_GROUP_EXECUTE", 1)[1].split("COMPUTE_L0_GROUP_COMMIT", 1)[0])
 
+    def test_core_registers_model_write_before_bram_update(self):
+        source = (ROOT / "npu_eneuron_single_clock_skeleton.sv").read_text(encoding="utf-8")
+        for token in ("model_write_pending", "model_write_data", "model_write_addr", "model_write_pending <= 1'b1"):
+            self.assertIn(token, source)
+        self.assertIn("model_staging[model_write_addr] <= model_write_data", source)
+
 
 if __name__ == "__main__":
     unittest.main()
