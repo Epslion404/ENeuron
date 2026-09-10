@@ -64,7 +64,9 @@ class B2NpuWrapperTimingContractTests(unittest.TestCase):
     def test_core_registers_dsp_products_before_sum(self):
         source = (ROOT / "npu_eneuron_single_clock_skeleton.sv").read_text(encoding="utf-8")
         self.assertIn("lane_product_0 <= lane_activation_0 * lane_weight_0", source)
-        self.assertIn("mac_accumulator <= mac_accumulator + lane_sum_comb", source)
+        self.assertIn("mac_accumulator_lo <= mac_low_sum_comb[15:0]", source)
+        self.assertIn("mac_accumulator_hi <= mac_high_sum_comb", source)
+        self.assertIn("mac_accumulator = {mac_accumulator_hi, mac_accumulator_lo}", source)
         self.assertNotIn("lane_sum_latched <= lane_sum_comb", source.split("COMPUTE_L0_GROUP_EXECUTE", 1)[1].split("COMPUTE_L0_GROUP_COMMIT", 1)[0])
 
     def test_core_registers_model_write_before_bram_update(self):
