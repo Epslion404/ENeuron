@@ -1802,4 +1802,16 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 - [x] 完成 `70e8caf` 同源构建并归档 bit/XSA、报告、Vivado 日志和 SHA-256 清单；最终 `WNS=-1.595 ns`、`TNS=-1103.714 ns`、`WHS=+0.036 ns`、`THS=0`，route errors/DRC hard errors 均为 `0`。
 - [ ] 基于最终最差路径 `mac_accumulator_lo[3]_i_15_psdsp/C -> mac_accumulator_hi_reg[13]/D` 设计下一轮 MAC 累加器流水/结构修复；在 200 MHz 通过前保持 B2-06～B2-10、B2-GATE 和 ENeuron A/B 未完成。
 
+## 2026-09-10 B2 MAC low-carry register slice
+
+状态：`FUNCTIONAL_PASS / PHYSICAL_PENDING`
+
+- [x] 先增加结构合同，要求低 16 位和 carry 在高 16 位更新前寄存。
+- [x] 为 L0/L1 增加独立 `GROUP_ACCUM` 状态，保持 packet、T1 wrapper 和四 DSP 接口不变。
+- [x] 更新计算周期合同：全开 mask 从 `1902` 增至 `2494` 周期；关闭组仍在 FETCH 直接跳过。
+- [x] B2/单时钟定向回归 `104/104` 通过。
+- [ ] 在干净提交身份上运行 Vivado 2024.1 完整 route/timing；只有 200 MHz WNS/TNS/THS 与 route/DRC 全绿才保留并进入板级 packet path。
+
+取舍：该切片用每个启用 group 增加一拍换取切断低段 carry 到高段累加器的组合路径。若物理改善不足以抵消约 31% 的全开 mask 周期增长，应回收该方案并改用更高吞吐的归约结构。
+
 错误记录：本轮构建脚本最终以预期的 B2 timing gate exception 退出；这不是 Vivado 崩溃，最终 bit/XSA 已生成并被完整归档。

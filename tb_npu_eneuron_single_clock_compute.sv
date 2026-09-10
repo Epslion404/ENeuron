@@ -507,7 +507,7 @@ module tb_npu_eneuron_single_clock_compute;
         // hidden31 的最后一组为 60，output9 最后一组得到 60-1=59。
 `ifdef TIMING_REPAIR_CONTRACT
 `ifdef TIMING_REPAIR_V2_CONTRACT
-        start_contract(592, 512, 80, 1902);
+        start_contract(592, 512, 80, 2494);
 `else
         start_contract(592, 512, 80, 1860);
 `endif
@@ -521,7 +521,7 @@ module tb_npu_eneuron_single_clock_compute;
 `ifdef TIMING_REPAIR_CONTRACT
         check_contract();
 `ifdef TIMING_REPAIR_V2_CONTRACT
-        start_contract(590, 511, 79, 1898);
+        start_contract(590, 511, 79, 2488);
 `else
         start_contract(590, 511, 79, 1856);
 `endif
@@ -553,7 +553,7 @@ module tb_npu_eneuron_single_clock_compute;
         publish_mask(32'd3, 3);
 `ifdef TIMING_REPAIR_CONTRACT
 `ifdef TIMING_REPAIR_V2_CONTRACT
-        start_contract(591, 511, 80, 1900);
+        start_contract(591, 511, 80, 2491);
 `else
         start_contract(591, 511, 80, 1858);
 `endif
@@ -569,11 +569,7 @@ module tb_npu_eneuron_single_clock_compute;
     end
 
     initial begin
-`ifdef TIMING_REPAIR_V2_CONTRACT
-        repeat (9500) @(posedge clk);
-`else
-        repeat (9000) @(posedge clk);
-`endif
+        repeat (12000) @(posedge clk);
         $fatal(1, "watchdog: compute tracer did not finish");
     end
 endmodule

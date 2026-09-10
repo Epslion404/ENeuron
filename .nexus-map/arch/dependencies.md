@@ -2,7 +2,7 @@
 
 当前依赖边界：`xc7z020clg484-2` NPU + ENeuron 动态剪枝是活动主线；`archive/legacy/` 不参与日常门。B1 高地址 DDR、PHY、UDP 继续阻塞完整网络化 `B1-GATE`、B1C 和依赖网络的 B4，但在低地址窗口足以容纳模型/DMA 缓冲区时，不阻塞当前低地址 B2-MVP 的构建与实板回环，也不阻塞后续 NPU MVP 的 RTL/软件推进。旧 `clg400-1` NP7/T3 物理结果仅作历史参考。
 
-当前阶段合同由 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md` 主导，P16 TODO 段、`NPU_PRUNING_TODO.md` 和 `NPU_PRUNING_NP7_TODO.md` 提供关联合同；当前 P16 活动未完成项为 `59`。当前活动分支为 `codex/b1b-high-ddr-board-repro`、仓库 HEAD=`2a033ef07d316f01bb9b71ef25af9edbf04b366f`；B2-03/B2-04/B2-05 实板切片已收口，当前依赖链进入 B2-06 packet-NPU 时序修复。最新完整构建绑定 `639b403`，200 MHz setup 失败（WNS=`-1.287 ns`）；B2-06～B2-10 与 B2-GATE 仍未完成。旧 B1-06B6 → B1-06B7 资格支线不变。
+当前阶段合同由 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md` 主导，P16 TODO 段、`NPU_PRUNING_TODO.md` 和 `NPU_PRUNING_NP7_TODO.md` 提供关联合同；当前 P16 活动未完成项为 `59`。当前活动分支为 `codex/b1b-high-ddr-board-repro`、仓库 HEAD=`bc9ed891a0620a8c1524d14512202eb26d677249`；B2-03/B2-04/B2-05 实板切片已收口，当前依赖链进入 B2-06 packet-NPU 时序修复。最新完整构建绑定 `70e8caf`，200 MHz setup 失败（WNS=`-1.595 ns`）；B2-06～B2-10 与 B2-GATE 仍未完成。旧 B1-06B6 → B1-06B7 资格支线不变。
 
 B2 观测依赖（2026-09-09）：官方双/单 `axi_stream_monitor:1.1` 顶层实验分别以 `WNS=-0.325 ns`、`WNS=-0.284 ns` 失败。提交 `e26c7c1` 的物理门禁已通过，但 `20260909T063702Z` 暴露旧配置 period=0、stall=0 的假阳性；`20260909T065258Z` 已由零 stall fail-closed 正确拒绝。当前配置为 `0x04030201`，首个输入后启动 phase，并在 `fifo_valid && !backpressure_stall && !m_axis_tready` 时冻结 phase 以保持 AXI VALID/payload；51/51 定向合同通过。正式 run `20260909T105109Z`（HEAD `f7f01b0`）及 recovery run `20260909T110436Z` 已通过 UART/JTAG/XSCT，压力=`10000/10000`、受控背压=`64/64`、连续回绕=`256/256` 帧、`rollovers=3`，recovery timeout/reset/passed/failed=`1/1/1/0`、sequence=`10329`、CRC32=`0xD3E3C978`；B2-03/B2-04/B2-05/B2-GATE 仍保持未完成，间歇/ready 恢复、错误注入和更完整逐帧 PL 观测仍待完成。
 

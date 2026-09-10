@@ -7,7 +7,7 @@ verified_at: 2026-09-10
 
 authoritative_sources: `docs/planning/TODO.md`、`task_plan.md`、`findings.md`、`progress.md`
 
-当前工作流上下文（2026-09-10）：活动分支为 `codex/b1b-high-ddr-board-repro`，当前仓库 HEAD=`2a033ef07d316f01bb9b71ef25af9edbf04b366f`，工作树干净，父级审计基线为 `d7e1035`。最新 packet-NPU 完整构建绑定源码 HEAD=`639b403`，目标器件为 `xc7z020clg484-2`，200 MHz setup 时序失败（WNS=`-1.287 ns`、TNS=`-384.021 ns`、1942 个 setup 失败端点，WHS=`+0.051 ns`、THS=`0`），证据归档于 `artifacts/logs/b2_packet_npu_route_timing_fail_20260910_639b403/`；bit/XSA 仅作失败分析，不得上板。B2-03/B2-04/B2-05 实板切片已收口，B2-06～B2-10 与 B2-GATE 仍未完成；B1-06B6 UART 基准 → B1-06B7 OCM 高地址最小复现仍为板卡资格支线。
+当前工作流上下文（2026-09-10）：活动分支为 `codex/b1b-high-ddr-board-repro`，当前仓库 HEAD=`bc9ed891a0620a8c1524d14512202eb26d677249`，工作树干净，父级审计基线为 `d7e1035`。最新 packet-NPU 完整构建绑定源码 HEAD=`70e8caf`，目标器件为 `xc7z020clg484-2`，200 MHz setup 时序失败（WNS=`-1.595 ns`、TNS=`-1103.714 ns`、3304 个 setup 失败端点，WHS=`+0.036 ns`、THS=`0`），最差路径为 `mac_accumulator_lo[3]_i_15_psdsp/C -> mac_accumulator_hi_reg[13]/D`，证据归档于 `artifacts/logs/b2_packet_npu_route_timing_fail_20260910_70e8caf/`；bit/XSA 仅作失败分析，不得上板。B2-03/B2-04/B2-05 实板切片已收口，B2-06～B2-10 与 B2-GATE 仍未完成；B1-06B6 UART 基准 → B1-06B7 OCM 高地址最小复现仍为板卡资格支线。
 
 监听观察：2026-09-08 按 VID/PID 监听 COM10 10 秒（115200 8N1）读取 0 字节，未见 `ENEURON_B1B_BEGIN`/`ALIVE`/`PASS`；未下载 bitstream/ELF、未发送 GO，DDR access=0。该观察不改变 `B1-06B6_UART_BASELINE_PENDING`，也不是 DDR 失败证据。
 

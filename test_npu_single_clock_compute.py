@@ -56,7 +56,7 @@ class NpuSingleClockComputeTests(unittest.TestCase):
         """V1 的 1860/1856/676/1858 周期合同保留为历史反证。"""
         ran = self._run_compute_tracer(contract="v1")
         self.assertNotEqual(ran.returncode, 0, "V1 historical contract unexpectedly accepted by V2 RTL")
-        self.assertIn("compute cycle mismatch got=1902 expected=1860", ran.stdout + ran.stderr)
+        self.assertIn("compute cycle mismatch got=2494 expected=1860", ran.stdout + ran.stderr)
 
     def test_timing_repair_v2_contract(self) -> None:
         ran = self._run_compute_tracer(contract="v2")

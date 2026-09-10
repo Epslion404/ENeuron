@@ -62,11 +62,13 @@ module npu_eneuron_single_clock_skeleton (
     localparam logic [3:0] COMPUTE_L0_GROUP_FETCH = 4'd3;
     localparam logic [3:0] COMPUTE_L0_GROUP_EXECUTE = 4'd4;
     localparam logic [3:0] COMPUTE_L0_GROUP_COMMIT  = 4'd5;
+    localparam logic [3:0] COMPUTE_L0_GROUP_ACCUM   = 4'd13;
     localparam logic [3:0] COMPUTE_L1_BIAS_FETCH  = 4'd6;
     localparam logic [3:0] COMPUTE_L1_BIAS_LOAD   = 4'd7;
     localparam logic [3:0] COMPUTE_L1_GROUP_FETCH = 4'd8;
     localparam logic [3:0] COMPUTE_L1_GROUP_EXECUTE = 4'd9;
     localparam logic [3:0] COMPUTE_L1_GROUP_COMMIT  = 4'd10;
+    localparam logic [3:0] COMPUTE_L1_GROUP_ACCUM   = 4'd14;
     localparam logic [3:0] COMPUTE_L0_WRITEBACK      = 4'd11;
     localparam logic [3:0] COMPUTE_L1_WRITEBACK      = 4'd12;
 
@@ -99,14 +101,13 @@ module npu_eneuron_single_clock_skeleton (
     // 组权重地址提前一拍寄存，避免 unit/group 动态索引直达模型 RAM。
     logic [9:0] compute_model_addr;
     logic [31:0] model_word_latched;
-    // 将累加器拆为两个 16-bit 段，保留 32-bit 二补码结果但缩短单段 carry 链。
+    // 将累加器拆为两个 16-bit 段；低段结果和 carry 先寄存，再更新高段。
     logic signed [15:0] mac_accumulator_lo;
     logic signed [15:0] mac_accumulator_hi;
     logic signed [31:0] mac_accumulator;
     logic [16:0] mac_low_sum_comb;
-    logic [15:0] mac_high_sum_c0;
-    logic [15:0] mac_high_sum_c1;
-    logic [15:0] mac_high_sum_comb;
+    logic [16:0] mac_low_sum_latched;
+    logic [15:0] mac_high_lane_sum_latched;
     logic signed [31:0] lane_sum_latched;
     logic signed [31:0] lane_sum_comb;
     logic signed [31:0] lane_pair_sum_01;
@@ -234,10 +235,6 @@ module npu_eneuron_single_clock_skeleton (
     always_comb begin
         mac_accumulator = {mac_accumulator_hi, mac_accumulator_lo};
         mac_low_sum_comb = {1'b0, mac_accumulator_lo} + {1'b0, lane_sum_comb[15:0]};
-        // 高半字并行计算两种 carry 情况，避免低半字 carry 穿过整条 32-bit 加法链。
-        mac_high_sum_c0 = mac_accumulator_hi + lane_sum_comb[31:16];
-        mac_high_sum_c1 = mac_accumulator_hi + lane_sum_comb[31:16] + 16'd1;
-        mac_high_sum_comb = mac_low_sum_comb[16] ? mac_high_sum_c1 : mac_high_sum_c0;
     end
 
     always_comb begin
@@ -307,6 +304,8 @@ module npu_eneuron_single_clock_skeleton (
             model_word_latched <= 32'd0;
             mac_accumulator_lo <= 16'sd0;
             mac_accumulator_hi <= 16'sd0;
+            mac_low_sum_latched <= 17'd0;
+            mac_high_lane_sum_latched <= 16'd0;
             lane_sum_latched <= 32'sd0;
             lane_activation_latched_0 <= 8'sd0;
             lane_activation_latched_1 <= 8'sd0;
@@ -544,15 +543,19 @@ module npu_eneuron_single_clock_skeleton (
                     end
                     COMPUTE_L0_GROUP_COMMIT: begin
                         lane_sum_latched <= lane_sum_comb;
+                        // 先锁存低段结果和高段加数，下一拍再更新高段，切断 carry 链。
+                        mac_low_sum_latched <= mac_low_sum_comb;
+                        mac_high_lane_sum_latched <= lane_sum_comb[31:16];
+                        compute_state <= COMPUTE_L0_GROUP_ACCUM;
+                    end
+                    COMPUTE_L0_GROUP_ACCUM: begin
+                        mac_accumulator_lo <= mac_low_sum_latched[15:0];
+                        mac_accumulator_hi <= mac_accumulator_hi + mac_high_lane_sum_latched + mac_low_sum_latched[16];
                         // 最后一组必须使用 EXECUTE 已锁存的新组和，不能读取旧 accumulator。
                         if (compute_group_index == 5'd15) begin
-                            mac_accumulator_lo <= mac_low_sum_comb[15:0];
-                            mac_accumulator_hi <= mac_high_sum_comb;
                             compute_group_index <= 5'd0;
                             compute_state <= COMPUTE_L0_WRITEBACK;
                         end else begin
-                            mac_accumulator_lo <= mac_low_sum_comb[15:0];
-                            mac_accumulator_hi <= mac_high_sum_comb;
                             compute_group_index <= compute_group_index + 5'd1;
                             compute_model_addr <= compute_model_addr + 10'd1;
                             compute_state <= COMPUTE_L0_GROUP_FETCH;
@@ -610,14 +613,17 @@ module npu_eneuron_single_clock_skeleton (
                     end
                     COMPUTE_L1_GROUP_COMMIT: begin
                         lane_sum_latched <= lane_sum_comb;
+                        mac_low_sum_latched <= mac_low_sum_comb;
+                        mac_high_lane_sum_latched <= lane_sum_comb[31:16];
+                        compute_state <= COMPUTE_L1_GROUP_ACCUM;
+                    end
+                    COMPUTE_L1_GROUP_ACCUM: begin
+                        mac_accumulator_lo <= mac_low_sum_latched[15:0];
+                        mac_accumulator_hi <= mac_accumulator_hi + mac_high_lane_sum_latched + mac_low_sum_latched[16];
                         if (compute_group_index == 5'd7) begin
-                            mac_accumulator_lo <= mac_low_sum_comb[15:0];
-                            mac_accumulator_hi <= mac_high_sum_comb;
                             compute_group_index <= 5'd0;
                             compute_state <= COMPUTE_L1_WRITEBACK;
                         end else begin
-                            mac_accumulator_lo <= mac_low_sum_comb[15:0];
-                            mac_accumulator_hi <= mac_high_sum_comb;
                             compute_group_index <= compute_group_index + 5'd1;
                             compute_model_addr <= compute_model_addr + 10'd1;
                             compute_state <= COMPUTE_L1_GROUP_FETCH;

@@ -1763,6 +1763,12 @@
 
 - `70e8caf` 的响应 epoch 副本修复没有改善顶层时序：route/DRC 无硬错误，但 `clk_fpga_0` 200 MHz setup 为 `WNS=-1.595 ns`、`TNS=-1103.714 ns`、`3304` 个失败端点。最终最差路径是 `mac_accumulator_lo[3]_i_15_psdsp/C -> mac_accumulator_hi_reg[13]/D`，15 级逻辑、数据延迟 `6.530 ns`（logic `3.740 ns`、route `2.790 ns`）。当前瓶颈重新集中在 MAC 高位累加器链；失败证据已归档到 `artifacts/logs/b2_packet_npu_route_timing_fail_20260910_70e8caf/`，bit/XSA 禁止上板。
 
+## 2026-09-10 B2 MAC low-carry register
+
+- 新结构在 `GROUP_COMMIT` 锁存低 16 位加法结果、carry 和高 16 位 lane sum，在新增 `GROUP_ACCUM` 拍更新高 16 位累加器；外部 ready/valid、packet 合同和四个 DSP 乘法器不变。
+- 全开 mask 的计算周期从 `1902` 增至 `2494`，增加 `592` 拍；第二组测试向量为 `2488`，全关 mask 仍为 `718`。这说明周期代价只随实际启用 group 数增长，与动态剪枝方向一致，但 dense 基线吞吐下降约 31%。
+- B2 与单时钟相关定向回归 `104/104` 通过。物理价值仍未证明；必须用同源 Vivado route/timing 结果决定保留或回收。
+
 ## 2026-09-09 B2 RTL egress packetizer
 
 - `b2_packet_egress.sv` 采用 response 优先仲裁；response 通过 `rsp_last` 结束，result 固定 10 beat。输出顺序为 8-word header、payload words、1-word CRC。
