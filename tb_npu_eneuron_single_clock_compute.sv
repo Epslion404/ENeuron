@@ -317,7 +317,9 @@ module tb_npu_eneuron_single_clock_compute;
 
             if (monitor_initialized && dut.lane_sum_latched !== previous_lane_sum &&
                 previous_compute_state != COMPUTE_L0_GROUP_EXECUTE &&
-                previous_compute_state != COMPUTE_L1_GROUP_EXECUTE)
+                previous_compute_state != COMPUTE_L1_GROUP_EXECUTE &&
+                previous_compute_state != COMPUTE_L0_GROUP_COMMIT &&
+                previous_compute_state != COMPUTE_L1_GROUP_COMMIT)
                 $fatal(1, "lane_sum_latched changed outside EXECUTE previous_state=%0d",
                        previous_compute_state);
 

@@ -100,6 +100,8 @@ module npu_eneuron_single_clock_skeleton (
     logic signed [31:0] mac_accumulator;
     logic signed [31:0] lane_sum_latched;
     logic signed [31:0] lane_sum_comb;
+    logic signed [31:0] lane_pair_sum_01;
+    logic signed [31:0] lane_pair_sum_23;
     logic signed [7:0] lane_activation_latched_0;
     logic signed [7:0] lane_activation_latched_1;
     logic signed [7:0] lane_activation_latched_2;
@@ -217,17 +219,15 @@ module npu_eneuron_single_clock_skeleton (
         lane_weight_3 = $signed(model_word_latched[31:24]);
     end
 
-    assign lane_product_0 = lane_activation_0 * lane_weight_0;
-    assign lane_product_1 = lane_activation_1 * lane_weight_1;
-    assign lane_product_2 = lane_activation_2 * lane_weight_2;
-    assign lane_product_3 = lane_activation_3 * lane_weight_3;
-
     always_comb begin
-        lane_sum_comb =
+        // 两级平衡加法树减少 DSP 输出后的串行 carry 深度。
+        lane_pair_sum_01 =
             {{16{lane_product_0[15]}}, lane_product_0} +
-            {{16{lane_product_1[15]}}, lane_product_1} +
+            {{16{lane_product_1[15]}}, lane_product_1};
+        lane_pair_sum_23 =
             {{16{lane_product_2[15]}}, lane_product_2} +
             {{16{lane_product_3[15]}}, lane_product_3};
+        lane_sum_comb = lane_pair_sum_01 + lane_pair_sum_23;
     end
 
     // 配置握手优先于样本首拍；响应槽背压期间整个命令口停住。
@@ -501,17 +501,22 @@ module npu_eneuron_single_clock_skeleton (
                         end
                     end
                     COMPUTE_L0_GROUP_EXECUTE: begin
-                        lane_sum_latched <= lane_sum_comb;
                         compute_state <= COMPUTE_L0_GROUP_COMMIT;
+                        // 在 EXECUTE 边界寄存 DSP 输出，避免乘法器结果直达累加树。
+                        lane_product_0 <= lane_activation_0 * lane_weight_0;
+                        lane_product_1 <= lane_activation_1 * lane_weight_1;
+                        lane_product_2 <= lane_activation_2 * lane_weight_2;
+                        lane_product_3 <= lane_activation_3 * lane_weight_3;
                     end
                     COMPUTE_L0_GROUP_COMMIT: begin
+                        lane_sum_latched <= lane_sum_comb;
                         // 最后一组必须使用 EXECUTE 已锁存的新组和，不能读取旧 accumulator。
                         if (compute_group_index == 5'd15) begin
-                            mac_accumulator <= mac_accumulator + lane_sum_latched;
+                            mac_accumulator <= mac_accumulator + lane_sum_comb;
                             compute_group_index <= 5'd0;
                             compute_state <= COMPUTE_L0_WRITEBACK;
                         end else begin
-                            mac_accumulator <= mac_accumulator + lane_sum_latched;
+                            mac_accumulator <= mac_accumulator + lane_sum_comb;
                             compute_group_index <= compute_group_index + 5'd1;
                             compute_model_addr <= compute_model_addr + 10'd1;
                             compute_state <= COMPUTE_L0_GROUP_FETCH;
@@ -560,16 +565,20 @@ module npu_eneuron_single_clock_skeleton (
                         end
                     end
                     COMPUTE_L1_GROUP_EXECUTE: begin
-                        lane_sum_latched <= lane_sum_comb;
                         compute_state <= COMPUTE_L1_GROUP_COMMIT;
+                        lane_product_0 <= lane_activation_0 * lane_weight_0;
+                        lane_product_1 <= lane_activation_1 * lane_weight_1;
+                        lane_product_2 <= lane_activation_2 * lane_weight_2;
+                        lane_product_3 <= lane_activation_3 * lane_weight_3;
                     end
                     COMPUTE_L1_GROUP_COMMIT: begin
+                        lane_sum_latched <= lane_sum_comb;
                         if (compute_group_index == 5'd7) begin
-                            mac_accumulator <= mac_accumulator + lane_sum_latched;
+                            mac_accumulator <= mac_accumulator + lane_sum_comb;
                             compute_group_index <= 5'd0;
                             compute_state <= COMPUTE_L1_WRITEBACK;
                         end else begin
-                            mac_accumulator <= mac_accumulator + lane_sum_latched;
+                            mac_accumulator <= mac_accumulator + lane_sum_comb;
                             compute_group_index <= compute_group_index + 5'd1;
                             compute_model_addr <= compute_model_addr + 10'd1;
                             compute_state <= COMPUTE_L1_GROUP_FETCH;

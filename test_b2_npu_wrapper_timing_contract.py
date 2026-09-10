@@ -55,6 +55,18 @@ class B2NpuWrapperTimingContractTests(unittest.TestCase):
             source,
         )
 
+    def test_core_uses_balanced_lane_sum_tree(self):
+        source = (ROOT / "npu_eneuron_single_clock_skeleton.sv").read_text(encoding="utf-8")
+        for token in ("lane_pair_sum_01", "lane_pair_sum_23"):
+            self.assertIn(token, source)
+        self.assertIn("lane_pair_sum_01 + lane_pair_sum_23", source)
+
+    def test_core_registers_dsp_products_before_sum(self):
+        source = (ROOT / "npu_eneuron_single_clock_skeleton.sv").read_text(encoding="utf-8")
+        self.assertIn("lane_product_0 <= lane_activation_0 * lane_weight_0", source)
+        self.assertIn("mac_accumulator <= mac_accumulator + lane_sum_comb", source)
+        self.assertNotIn("lane_sum_latched <= lane_sum_comb", source.split("COMPUTE_L0_GROUP_EXECUTE", 1)[1].split("COMPUTE_L0_GROUP_COMMIT", 1)[0])
+
 
 if __name__ == "__main__":
     unittest.main()
