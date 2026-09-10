@@ -29,6 +29,19 @@ class B2NpuWrapperTimingContractTests(unittest.TestCase):
             source,
         )
 
+    def test_core_caches_each_units_group_mask_before_group_loop(self):
+        source = (ROOT / "npu_eneuron_single_clock_skeleton.sv").read_text(encoding="utf-8")
+        for token in (
+            "compute_unit_mask_latched",
+            "compute_unit_mask_latched <= l0_unit_mask(compute_unit_index)",
+            "compute_unit_mask_latched <= l1_unit_mask(compute_unit_index)",
+            "compute_unit_mask_latched[compute_group_index[3:0]]",
+            "compute_unit_mask_latched[compute_group_index[2:0]]",
+        ):
+            self.assertIn(token, source)
+        self.assertNotIn("active_mask_enabled((compute_unit_index * 16)", source)
+        self.assertNotIn("active_mask_enabled(512 + (compute_unit_index * 8)", source)
+
 
 if __name__ == "__main__":
     unittest.main()

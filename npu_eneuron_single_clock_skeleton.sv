@@ -91,6 +91,9 @@ module npu_eneuron_single_clock_skeleton (
     logic [3:0]  compute_state;
     logic [5:0]  compute_unit_index;
     logic [4:0]  compute_group_index;
+    // 每个神经元进入 bias fetch 时锁存自己的组掩码，避免 group 循环反复
+    // 通过 unit index 访问 592-bit mask 阵列，降低控制扇出与动态索引路径。
+    logic [15:0] compute_unit_mask_latched;
     logic [31:0] model_word_latched;
     logic signed [31:0] mac_accumulator;
     logic signed [31:0] lane_sum_latched;
@@ -180,6 +183,25 @@ module npu_eneuron_single_clock_skeleton (
         end
     endfunction
 
+    function automatic logic [15:0] l0_unit_mask(input logic [5:0] unit_index);
+        integer mask_bit;
+        begin
+            for (mask_bit = 0; mask_bit < 16; mask_bit = mask_bit + 1)
+                l0_unit_mask[mask_bit] =
+                    mask_active_words[(unit_index * 16 + mask_bit) >> 5][(unit_index * 16 + mask_bit) & 31];
+        end
+    endfunction
+
+    function automatic logic [15:0] l1_unit_mask(input logic [5:0] unit_index);
+        integer mask_bit;
+        begin
+            l1_unit_mask = 16'd0;
+            for (mask_bit = 0; mask_bit < 8; mask_bit = mask_bit + 1)
+                l1_unit_mask[mask_bit] =
+                    mask_active_words[(512 + unit_index * 8 + mask_bit) >> 5][(512 + unit_index * 8 + mask_bit) & 31];
+        end
+    endfunction
+
     // L0/L1 共用同一组四个 signed 8×8 乘法器。数组只在 FETCH 提供激活值，
     // EXECUTE 只使用稳定锁存器；每个乘积先符号扩展到 INT32 再求和。
     always_comb begin
@@ -253,6 +275,7 @@ module npu_eneuron_single_clock_skeleton (
             compute_state <= COMPUTE_IDLE;
             compute_unit_index <= 6'd0;
             compute_group_index <= 5'd0;
+            compute_unit_mask_latched <= 16'd0;
             model_word_latched <= 32'd0;
             mac_accumulator <= 32'sd0;
             lane_sum_latched <= 32'sd0;
@@ -445,6 +468,7 @@ module npu_eneuron_single_clock_skeleton (
                 case (compute_state)
                     COMPUTE_L0_BIAS_FETCH: begin
                         model_word_latched <= model_staging[512 + compute_unit_index];
+                        compute_unit_mask_latched <= l0_unit_mask(compute_unit_index);
                         compute_state <= COMPUTE_L0_BIAS_LOAD;
                     end
                     COMPUTE_L0_BIAS_LOAD: begin
@@ -453,7 +477,7 @@ module npu_eneuron_single_clock_skeleton (
                         compute_state <= COMPUTE_L0_GROUP_FETCH;
                     end
                     COMPUTE_L0_GROUP_FETCH: begin
-                        if (active_mask_enabled((compute_unit_index * 16) + compute_group_index)) begin
+                        if (compute_unit_mask_latched[compute_group_index[3:0]]) begin
                             model_word_latched <= model_staging[(compute_unit_index * 16) + compute_group_index];
                             lane_activation_latched_0 <=
                                 $signed({4'b0000, input_pixels[(compute_group_index * 4) + 0]});
@@ -500,6 +524,7 @@ module npu_eneuron_single_clock_skeleton (
                     end
                     COMPUTE_L1_BIAS_FETCH: begin
                         model_word_latched <= model_staging[624 + compute_unit_index];
+                        compute_unit_mask_latched <= l1_unit_mask(compute_unit_index);
                         compute_state <= COMPUTE_L1_BIAS_LOAD;
                     end
                     COMPUTE_L1_BIAS_LOAD: begin
@@ -508,7 +533,7 @@ module npu_eneuron_single_clock_skeleton (
                         compute_state <= COMPUTE_L1_GROUP_FETCH;
                     end
                     COMPUTE_L1_GROUP_FETCH: begin
-                        if (active_mask_enabled(512 + (compute_unit_index * 8) + compute_group_index)) begin
+                        if (compute_unit_mask_latched[compute_group_index[2:0]]) begin
                             model_word_latched <= model_staging[544 + (compute_unit_index * 8) + compute_group_index];
                             lane_activation_latched_0 <=
                                 $signed({1'b0, hidden_values[(compute_group_index * 4) + 0]});
