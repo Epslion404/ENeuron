@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-09-10T03:07:04.296436Z",
+  "git_head": "f7ab94b82b11061d48969827b1af899acbda74d0",
+  "git_worktree_clean": false,
+  "vivado": "vivado v2024.1 (64-bit)",
+  "part": "xc7z020clg484-2",
+  "top": "design_1_wrapper",
+  "source_head": "f7ab94b82b11061d48969827b1af899acbda74d0",
+  "timing_gate": {
+    "pass": false,
+    "clock": "clk_fpga_0",
+    "period_ns": 5.0,
+    "wns_ns": -1.598,
+    "tns_ns": -1152.961,
+    "setup_failing_endpoints": 3372,
+    "whs_ns": 0.015,
+    "ths_ns": 0.0
+  },
+  "route_errors": 0,
+  "drc_hard_errors": 0,
+  "worst_path": "core/mac_accumulator_lo[7]/C -> core/mac_accumulator_hi[15]/D",
+  "data_path_delay_ns": 6.456,
+  "logic_delay_ns": 3.651,
+  "route_delay_ns": 2.805,
+  "artifact_sha256": {
+    "hello_zynq_b2.bit": "38cc1238a5f0137dc0728fa30230ab1adf9a93ea3997fe160240e9ebd7a2c103",
+    "hello_zynq_b2.xsa": "48beb55708a5b400349c1c47f56fa66bce794ae217d56dec1ef490daaffbfa88",
+    "timing_impl.rpt": "bd00bcf92e0c2d4d16dc9c5a23af00513b3c14e6953fb6ef03cf6bbc7ea25deb",
+    "route_status_impl.rpt": "b3079bf44bdcd8dcfa9fe1bbfeac68b8e6c4002f56860c10c4a5c197132f68a1",
+    "drc_impl.rpt": "56d3b90830e574b44fe5fbd708441f3bcadabca63f1eeeeadab3fa6d63e4d3b3",
+    "utilization_impl.rpt": "c297c55fc48be4bc0a2c0726453d209d84e4f461faa0db96c936c19576728e17",
+    "vivado_run.log": "5219315f9cc8ef7da22245f0a777f4ee0e854295bc20db253c32d467315bcd21",
+    "signoff_summary.txt": "89c7dbc3db12a13341e51dc3c429cf342a18c4af08d862bdcd33f4be4da2a1e6"
+  },
+  "evidence_boundary": "Route/DRC/bitstream/XSA generation succeeded, but 200 MHz setup timing failed. Artifacts are retained for failure analysis only and must not be programmed to the board."
+}

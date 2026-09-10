@@ -1,5 +1,12 @@
 # 调研与实验发现
 
+## 2026-09-10 carry-select MAC 物理反证
+
+- `639b403` 将 MAC 高位累加改为 carry-select：低 16 位计算实际 carry，高 16 位并行计算 carry=0/1 两种结果，再选择输出；结构合同、定向回归和 bit-exact 随机回归均通过。
+- 完整 `xc7z020clg484-2` route/DRC/bit/XSA 均生成成功，但 200 MHz setup 仍失败：`WNS=-1.287 ns`、`TNS=-384.021 ns`、`1942` 个 setup failing endpoints，`WHS=+0.051 ns`、`THS=0`。
+- 相比 `b4b95fa` 的 `WNS=-0.589 ns`，本轮 carry-select 在完整顶层反而退化；该结构不作为新的物理基线，后续需重新选择更小的累加/流水边界。
+- 用户提供的三组 B2 日志已在仓库：早期背压运行、timing-fail 原始日志、交换 TX/RX 后 UART/JTAG/XSCT `PASS`。它们可进入正式审计，但必须与当前 packet-NPU 失败证据分层记录。
+
 ## 2026-09-09 route 进展与资源瓶颈
 
 - 当前 route 仍在运行，第 5.2 轮 overlap 从 `147240` 降到 `113569`；不能将长时间运行误判为失败。

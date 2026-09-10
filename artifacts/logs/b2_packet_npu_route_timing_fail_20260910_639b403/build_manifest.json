@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-09-10T03:34:21Z",
+  "git_head": "639b4036b5dc9871bb21e3d13a38faba725672ce",
+  "git_worktree_clean": false,
+  "vivado": "vivado v2024.1 (64-bit)",
+  "part": "xc7z020clg484-2",
+  "top": "design_1_wrapper",
+  "source_head": "639b4036b5dc9871bb21e3d13a38faba725672ce",
+  "timing_gate": {
+    "pass": false,
+    "clock": "clk_fpga_0",
+    "period_ns": 5.0,
+    "wns_ns": -1.287,
+    "tns_ns": -384.021,
+    "setup_failing_endpoints": 1942,
+    "whs_ns": 0.051,
+    "ths_ns": 0.0
+  },
+  "route_errors": 0,
+  "drc_hard_errors": 0,
+  "artifact_sha256_file": "artifact_sha256.json",
+  "evidence_boundary": "Route/DRC/bitstream/XSA generation succeeded, but 200 MHz setup timing failed. Artifacts are retained for failure analysis only and must not be programmed to the board."
+}

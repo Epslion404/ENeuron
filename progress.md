@@ -1,5 +1,13 @@
 # 进度记录
 
+## 2026-09-10 B2 packet-NPU carry-select 构建
+
+- 提交 `639b403` 的 Vivado 2024.1 完整构建已完成 route、DRC、bitstream 和 XSA 生成；目标器件为 `xc7z020clg484-2`，route errors=`0`、DRC hard errors=`0`。
+- 200 MHz `clk_fpga_0` setup 仍未通过：`WNS=-1.287 ns`、`TNS=-384.021 ns`、`1942` 个失败端点；hold 为 `WHS=+0.051 ns`、`THS=0`。脚本按门禁失败，未产生 `B2_TIMING_PASS`。
+- carry-select MAC 结构已通过 `13/13` 定向回归和 `20×100` bit-exact 随机回归，但完整顶层物理时序仍失败；失败证据已归档到 `artifacts/logs/b2_packet_npu_route_timing_fail_20260910_639b403/`，bit/XSA 禁止上板。
+- 交换 TX/RX 后的用户 UART/JTAG/XSCT 目录 `b2_backpressure_uart_pass_20260909_55822ae/` 保持正式 `PASS`，但它绑定的是早期 loopback bit/XSA，不等价于当前 packet-NPU 物理通过。
+- B2-06～B2-10 与 B2-GATE 继续未完成；ENeuron 动态剪枝吞吐/功耗 A/B 尚无合法测量入口。
+
 ## 2026-09-10 B2 packet-NPU model-write staging 构建
 
 - `b4b95fa` 已完成 `route_design`、DRC、bitstream 和 XSA 生成；目标器件为 `xc7z020clg484-2`，route errors=`0`、DRC hard errors=`0`。

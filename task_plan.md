@@ -1790,3 +1790,14 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 边界：本切片只关闭 response/result egress 仿真子门，不关闭 B2-06、B2-07、B2-08 或 B2-GATE。
 
 停止条件：若 missing-TLAST 未形成可重复 timeout/error，保留证据并不把 B2-07 写成完成；不得接入 NPU/ENeuron。
+# 2026-09-10 最新状态收口
+
+状态：`IN_PROGRESS`
+
+- [x] 轮询并完成 `639b403` 的 Vivado 2024.1 构建。
+- [x] 归档 `bit/XSA/report/log` 与 SHA-256 manifest 到 `artifacts/logs/b2_packet_npu_route_timing_fail_20260910_639b403/`。
+- [x] 记录 carry-select 结构功能通过、200 MHz 顶层时序失败的边界。
+- [x] 登记用户提供的三组 JSON/日志证据，并区分交换 TX/RX 的 UART PASS 与 packet-NPU 物理门。
+- [ ] 在新的时序结构获得 `WNS/TNS/THS` 和 route/DRC 全绿前，不下载 bit/XSA，不进入 B3/ENeuron A/B。
+
+错误记录：本轮构建脚本最终以预期的 B2 timing gate exception 退出；这不是 Vivado 崩溃，最终 bit/XSA 已生成并被完整归档。

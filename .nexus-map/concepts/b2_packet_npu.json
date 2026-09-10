@@ -3,9 +3,10 @@
   "verified_at": "2026-09-10",
   "label": "B2 packet-NPU integration",
   "deployment_target_part": "xc7z020clg484-2",
-  "repository_head": "90701bad3c5cc321a40836126f794d811b8eb611",
-  "repository_worktree": "DIRTY_UNCOMMITTED_RTL_AND_TEST_CHANGES",
-  "source_head": "b4b95fa0e563ed99b14ffc4fcc80453e94806b1e",
+  "repository_head": "639b4036b5dc9871bb21e3d13a38faba725672ce",
+  "repository_worktree": "DIRTY_UNCOMMITTED_DOCUMENTATION_AND_EVIDENCE_CHANGES",
+  "worktree_entries": ["artifacts/logs/b2_packet_npu_route_timing_fail_20260910_639b403/", ".nexus-map/"],
+  "source_head": "639b4036b5dc9871bb21e3d13a38faba725672ce",
   "commits": {
     "adapter": "cb9eb66",
     "adapter_e2e": "62f2d8b",
@@ -13,10 +14,11 @@
     "verilog_bd_reference": "1d0e3ba",
     "packet_memory_probe": "f4827e2",
     "command_fifo_timing_slice": "195e6e7",
-    "current_build_alignment": "b4b95fa",
+    "current_build_alignment": "639b403",
     "egress_crc_pipeline": "8d57e7e",
     "local_group_mask_cache": "89cbbf6",
-    "model_write_staging": "b4b95fa"
+    "model_write_staging": "b4b95fa",
+    "carry_select_mac": "639b403"
   },
   "rtl": {
     "adapter": "b2_npu_packet_adapter.sv",
@@ -91,18 +93,18 @@
   "physical_build": {
     "status": "ROUTED_BIT_XSA_PASS_TIMING_FAIL",
     "artifact_dir": "boards/hellozynq/b2_hw/build/",
-    "artifact_git_head": "b4b95fa0e563ed99b14ffc4fcc80453e94806b1e",
+    "artifact_git_head": "639b4036b5dc9871bb21e3d13a38faba725672ce",
     "artifact_part": "xc7z020clg484-2",
-    "bitstream_sha256": "0d6184f89a76e32f922f6d01882f3da9c5678f8ce5bdcb2fbe4cb37e368eda9d",
-    "xsa_sha256": "73279ab61e74cfe2190b527daf67948986f9b2b5bda43719b527b307ebbcaa",
-    "timing_gate": "FAIL_WNS_-0.589_TNS_-45.751_WHS_+0.019_THS_0_SETUP_FAILING_ENDPOINTS_363",
+    "bitstream_sha256": "5b1b0f39bba461a14ff2815adcecc55788265a4aefd85c42d250f7be18cb1f6c",
+    "xsa_sha256": "6adb88f530abbbeb4aff068355df10d20bde25f7d378a4fed148ecedde2ff89f",
+    "timing_gate": "FAIL_WNS_-1.287_TNS_-384.021_WHS_+0.051_THS_0_SETUP_FAILING_ENDPOINTS_1942",
     "route_errors": 0,
     "drc_hard_errors": 0,
-    "worst_path": "core/mac_accumulator_reg[0]/C -> core/mac_accumulator_reg[28]/D",
-    "boundary": "Route, DRC, bitstream and XSA generation succeeded, but 200 MHz setup timing is not met. Model-write staging improved the prior index-to-model-RAM/DSP path, but the MAC accumulator path still fails by 0.589 ns. No timing signoff or board evidence exists yet.",
-    "evidence_dir": "artifacts/logs/b2_packet_npu_route_timing_fail_20260910_b4b95fa/"
+    "worst_path": "see artifacts/logs/b2_packet_npu_route_timing_fail_20260910_639b403/timing_impl.rpt",
+    "boundary": "Route, DRC, bitstream and XSA generation succeeded, but 200 MHz setup timing is not met. The carry-select MAC accumulation experiment passed functional regression but did not close the top-level timing gate. No timing signoff or board evidence exists yet.",
+    "evidence_dir": "artifacts/logs/b2_packet_npu_route_timing_fail_20260910_639b403/"
   },
-  "next_gate": "Repair the NPU core compute_unit_index-to-compute_group_index setup path, rerun 200 MHz timing until WNS/TNS/THS and route/DRC gates are green, then program and validate packet path on the target board.",
+  "next_gate": "Repair the NPU core mac_accumulator setup path, rerun 200 MHz timing until WNS/TNS/THS and route/DRC gates are green, then program and validate packet path on the target board.",
   "forbidden_claims": [
     "packet-NPU top physically signed off",
     "packet path validated on board",

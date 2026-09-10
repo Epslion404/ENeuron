@@ -47,5 +47,7 @@ HelloZynq B1B 的 UART/DDR 原始机器证据保存在 `logs/hellozynq_b1b/<唯�
 | `logs/b2_packet_npu_route_timing_fail_20260910_8d57e7e/` | egress CRC 分拍后的 route/bit/XSA 结果；route/DRC 通过但 setup 失败，`WNS=-1.958 ns`，最差路径已迁移到 NPU 核心控制网络 |
 | `logs/b2_packet_npu_route_timing_fail_20260910_89cbbf6/` | 局部 group mask 缓存后的完整 route/bit/XSA 结果；route/DRC 通过但 setup 失败，`WNS=-1.168 ns`、`TNS=-1001.103 ns`，最差路径为 `compute_unit_index -> model_staging RAM -> model_word_latched -> DSP48` |
 | `logs/b2_packet_npu_route_timing_fail_20260910_b4b95fa/` | model-write staging 后的完整 route/bit/XSA 结果；route/DRC 通过但 setup 失败，`WNS=-0.589 ns`、`TNS=-45.751 ns`，最差路径为 `mac_accumulator_reg[0] -> mac_accumulator_reg[28]` |
+| `logs/b2_packet_npu_route_timing_fail_20260910_f7ab94b/` | 分段高/低 16 位累加器实验；route/DRC 通过但 setup 失败，`WNS=-1.598 ns`、`TNS=-1152.961 ns`，已证明该拆分方案退化 |
+| `logs/b2_packet_npu_route_timing_fail_20260910_639b403/` | carry-select MAC 累加器后的完整 route/bit/XSA 结果；route/DRC 通过但 setup 失败，`WNS=-1.287 ns`、`TNS=-384.021 ns`，`1942` 个 setup failing endpoints |
 
 这些 bit/XSA 仅用于失败分析，不得作为时序签核或实板下载输入。
