@@ -1812,7 +1812,9 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 - [x] B2/单时钟定向回归 `104/104` 通过。
 - [x] 在同源提交 `0bacdea` 上完成 Vivado 2024.1 完整 route/timing；route/DRC/bit/XSA 均生成，但 200 MHz setup 未过门禁（`WNS=-0.489 ns`、`TNS=-121.268 ns`、`WHS=+0.013 ns`、`THS=0`）。
 - [x] 增加 `mask_next_epoch`，在 mask 激活边界预计算下一合法 epoch，移除 mask begin/commit 热路径上的 `mask_active_epoch + 1` 组合进位链；相关定向回归 `19/19` 通过，计算周期不变。
-- [ ] 在新提交身份上运行 Vivado 2024.1 完整 route/timing；在 `WNS/TNS/THS` 全绿前保持 bit/XSA 为 `analysis_only_no_download`，不进入板级 packet path。
+- [x] 在提交 `2f2ce03` 上完成 Vivado 2024.1 route/timing：`WNS=-0.279 ns`、`TNS=-8.283 ns`、`141` 个 setup 失败端点，route/DRC/hold 正常；归档后继续禁止上板。
+- [x] 将 egress BRAM 读请求改为寄存预取，利用 CRC 分拍空档切断 `output_index -> response_mem ENARDEN` 路径；相关定向回归 `24/24` 通过。
+- [ ] 在新提交身份上再次运行 Vivado 2024.1 完整 route/timing；只有 `WNS/TNS/THS`、route 和 DRC 全绿才进入板级 packet path。
 
 取舍：该切片用每个启用 group 增加一拍换取切断低段 carry 到高段累加器的组合路径。若物理改善不足以抵消约 31% 的全开 mask 周期增长，应回收该方案并改用更高吞吐的归约结构。
 

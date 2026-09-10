@@ -1892,3 +1892,5 @@
 - 200 MHz `clk_fpga_0` setup 仍未通过：`WNS=-0.489 ns`、`TNS=-121.268 ns`、`885` 个失败端点；hold 为 `WHS=+0.013 ns`、`THS=0`。最差路径已从 MAC carry 链转移到 `mask_active_epoch_reg[1]_replica/C -> rsp_payload_reg[85]/R`，数据延迟 `4.922 ns`，其中逻辑 `2.877 ns`、布线 `2.045 ns`。
 - 该切片相对 `70e8caf` 的 `WNS=-1.595 ns` 有改善，但全开 mask 计算周期增加约 `31%`（`1902 -> 2494`），尚不足以进入 packet path 或 ENeuron A/B。bit/XSA 与报告已归档至 `artifacts/logs/b2_packet_npu_route_timing_fail_20260910_0bacdea/`，状态为 `analysis_only_no_download`。
 - 已实现下一轮 `mask_next_epoch` 控制链切片，移除 mask begin/commit 上重复的 `mask_active_epoch + 1` 组合加法；mask、控制、随机序列、计算和结构合同 `19/19` 通过，等待新提交身份的 Vivado 200 MHz routed timing。
+- `2f2ce03` 顶层构建完成：route/DRC/bit/XSA 成功，但 200 MHz setup 仍为 `WNS=-0.279 ns`、`TNS=-8.283 ns`、`141` 个失败端点；证据归档于 `artifacts/logs/b2_packet_npu_route_timing_fail_20260910_2f2ce03/`，禁止上板。
+- 已将 egress response/result BRAM 读使能和地址改为在输出 word fire 时寄存预取，利用既有四拍 CRC 空档切断 `output_index -> BRAM ENARDEN` 组合路径；定向回归 `24/24` 与 `B2_PACKET_EGRESS_PASS` 通过。

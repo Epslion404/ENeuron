@@ -27,6 +27,19 @@ class B2PacketEgressContractTests(unittest.TestCase):
         ):
             self.assertIn(token, source)
 
+    def test_bram_read_requests_are_registered_during_crc_gap(self):
+        source = (ROOT / "b2_packet_egress.sv").read_text(encoding="utf-8")
+        self.assertNotIn("assign response_mem_rd_en", source)
+        self.assertNotIn("assign result_mem_rd_en", source)
+        for token in (
+            "response_mem_rd_en <= 1'b0",
+            "result_mem_rd_en <= 1'b0",
+            "output_index == HEADER_WORDS - 1",
+            "response_mem_rd_en <= 1'b1",
+            "result_mem_rd_en <= 1'b1",
+        ):
+            self.assertIn(token, source)
+
     def test_changes_use_t1_repro_scope(self):
         scopes = classify_paths(["b2_packet_egress.sv", "tb_b2_packet_egress.sv", "test_b2_packet_egress_contract.py"])
         self.assertTrue(scopes["t1_repro"])

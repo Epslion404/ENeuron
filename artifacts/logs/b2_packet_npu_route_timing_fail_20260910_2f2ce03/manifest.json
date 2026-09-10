@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "archived_at": "2026-09-10T16:32:33.1943716Z",
+  "git_head": "2f2ce0339cb668e6eb1b0ddc20715aaf37d39a51",
+  "part": "xc7z020clg484-2",
+  "top": "design_1_wrapper",
+  "status": "analysis_only_no_download",
+  "timing": {
+    "wns_ns": -0.279,
+    "tns_ns": -8.283,
+    "whs_ns": 0.036,
+    "ths_ns": 0.0,
+    "setup_failing_endpoints": 141,
+    "route_errors": 0,
+    "drc_hard_errors": 0,
+    "worst_path": "output_index_reg[3]/C -> response_mem/ENARDEN"
+  },
+  "files": {
+    "hello_zynq_b2.bit": "f0874c0e59176e7a9126e8564e52f07c61dcd03a86674e077face21aa5d2739c",
+    "hello_zynq_b2.xsa": "769529236e8c283f57632fcae5f5f61fdb83353598f5e9b9e7370f77c67d55a6",
+    "timing_impl.rpt": "72fc730b78d8e17c64bce2884cedc12fbcbb783cee09b85bcb9283466a625745",
+    "route_status_impl.rpt": "7b1bb9f2173022b45d63f781fe02abfa46ca3e22ec3289902f515d97755a4e55",
+    "drc_impl.rpt": "b1dd60c4ff550fd9cbab79a6756f89eaaa594e6bca5098c143165ec1911fcf54",
+    "utilization_impl.rpt": "f0e600c200ae43e0ca18b26a312e8fcb7495334e01ffe8eccb7255a4158c06dd",
+    "signoff_summary.txt": "dc96182579e401f3c0adf5a549b173f88f44da2ae3287d2286e1cb27b25c817c",
+    "vivado_run.log": "c8775f8c5f9be5c0e46319bc7ec355fffee5ded1eacbbac72c0b0d473eccd506"
+  }
+}

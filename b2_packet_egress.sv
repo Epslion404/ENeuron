@@ -52,32 +52,8 @@ module b2_packet_egress #(
     assign response_mem_wr_en = rsp_fire && ((state == ST_IDLE) ||
         (response_word_count + 1'b1 <= RESPONSE_WORD_CAPACITY));
     assign response_mem_wr_addr = (state == ST_IDLE) ? '0 : response_word_count[$clog2(RESPONSE_WORD_CAPACITY)-1:0];
-    assign response_mem_rd_en =
-        ((state == ST_OUTPUT) && (output_index >= HEADER_WORDS) &&
-         (output_index < output_frame_words) && !output_data_valid && !crc_busy) ||
-        (m_fire && (output_index == HEADER_WORDS - 1)) ||
-        (m_fire && (output_index >= HEADER_WORDS) &&
-         (output_index < output_frame_words - 1) &&
-         (((output_index - HEADER_WORDS) & 3) == 3));
-    assign response_mem_rd_addr =
-        (m_fire && (output_index == HEADER_WORDS - 1)) ? '0 :
-        (m_fire && (output_index >= HEADER_WORDS) &&
-         (((output_index - HEADER_WORDS) & 3) == 3)) ?
-            (((output_index - HEADER_WORDS) >> 2) + 1'b1) :
-        ((output_index - HEADER_WORDS) >> 2);
     assign result_mem_wr_en = result_fire && ((state == ST_IDLE) || (result_word_count < 10));
     assign result_mem_wr_addr = (state == ST_IDLE) ? '0 : result_word_count[3:0];
-    assign result_mem_rd_en =
-        ((state == ST_OUTPUT) && (output_index >= HEADER_WORDS) &&
-         (output_index < output_frame_words) && !output_data_valid && !crc_busy) ||
-        (m_fire && (output_index == HEADER_WORDS - 1)) ||
-        (m_fire && (output_index >= HEADER_WORDS) &&
-         (output_index < output_frame_words - 1));
-    assign result_mem_rd_addr =
-        (m_fire && (output_index == HEADER_WORDS - 1)) ? '0 :
-        (m_fire && (output_index >= HEADER_WORDS)) ?
-            (output_index - HEADER_WORDS + 1'b1) :
-        (output_index - HEADER_WORDS);
 
     b2_packet_bram #(.DATA_WIDTH(128), .DEPTH(RESPONSE_WORD_CAPACITY)) response_mem (
         .clk(clk), .rst(rst), .wr_en(response_mem_wr_en), .wr_addr(response_mem_wr_addr),
@@ -177,10 +153,17 @@ module b2_packet_egress #(
             crc_byte_index <= '0;
             crc_busy <= 1'b0;
             output_data_valid <= 1'b0;
+            response_mem_rd_en <= 1'b0;
+            response_mem_rd_addr <= '0;
+            result_mem_rd_en <= 1'b0;
+            result_mem_rd_addr <= '0;
             error_valid <= 1'b0;
             error_code <= '0;
         end else begin
             error_valid <= 1'b0;
+            // CRC 分拍期间完成下一 payload word 的同步 BRAM 预取。
+            response_mem_rd_en <= 1'b0;
+            result_mem_rd_en <= 1'b0;
 
             if (crc_busy) begin
                 // 每拍只展开一个字节，切断 BRAM 输出到 CRC 状态寄存器的长组合路径。
@@ -197,6 +180,26 @@ module b2_packet_egress #(
                 (output_index < output_frame_words) && !output_data_valid) begin
                 output_data_valid <= 1'b1;
             end else if (m_fire) begin
+                if (output_index == HEADER_WORDS - 1) begin
+                    if (message_type_reg == TYPE_RESPONSE) begin
+                        response_mem_rd_en <= 1'b1;
+                        response_mem_rd_addr <= '0;
+                    end else begin
+                        result_mem_rd_en <= 1'b1;
+                        result_mem_rd_addr <= '0;
+                    end
+                end else if ((output_index >= HEADER_WORDS) &&
+                             (output_index < output_frame_words - 1)) begin
+                    if ((message_type_reg == TYPE_RESPONSE) &&
+                        (((output_index - HEADER_WORDS) & 3) == 3)) begin
+                        response_mem_rd_en <= 1'b1;
+                        response_mem_rd_addr <=
+                            ((output_index - HEADER_WORDS) >> 2) + 1'b1;
+                    end else if (message_type_reg == TYPE_RESULT) begin
+                        result_mem_rd_en <= 1'b1;
+                        result_mem_rd_addr <= output_index - HEADER_WORDS + 1'b1;
+                    end
+                end
                 if (output_index == output_frame_words) begin
                     state <= ST_IDLE;
                     output_index <= '0;

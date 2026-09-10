@@ -1776,6 +1776,12 @@
 - 该结果证明低段 carry→高段累加器路径已不再是首要瓶颈，但新的 mask/response 控制路径仍无法满足 5 ns 周期。由于 dense 周期从 `1902` 增至 `2494`，当前方案只保留作物理分析，不下载、不做实板 packet 验证。
 - 新一轮候选把 `mask_active_epoch + 1` 改为在 mask 激活边界更新的 `mask_next_epoch` 寄存器。该变更不改变 epoch 单调递增、发布后等待样本边界激活或错误响应格式，目标是去掉命令判定和寄存器使能上的 32 位组合进位链；物理收益仍需 routed timing 证明。
 
+## 2026-09-10 B2 egress BRAM read-enable timing
+
+- `2f2ce03` routed timing 将 setup 收敛到 `WNS=-0.279 ns`、`TNS=-8.283 ns`、`141` 个失败端点，说明 `mask_next_epoch` 有效；最差路径迁移到 egress `output_index_reg[3]/C -> response_mem ENARDEN`，数据延迟 `4.862 ns`，其中 route 占 `3.396 ns`。
+- response/result BRAM 读请求原由 `output_index`、frame 长度、CRC busy 和 payload 类型组合生成。CRC 每个输出 word 已占四拍，因此改为在 word fire 时发出单拍寄存预取请求，可利用 CRC 空档完成同步读，不增加 AXI 输出 word 数或 CRC 周期。
+- egress 字节级仿真 `B2_PACKET_EGRESS_PASS`，相关定向回归 `24/24` 通过；物理收益仍需新提交的顶层 routed timing 证明。
+
 ## 2026-09-09 B2 RTL egress packetizer
 
 - `b2_packet_egress.sv` 采用 response 优先仲裁；response 通过 `rsp_last` 结束，result 固定 10 beat。输出顺序为 8-word header、payload words、1-word CRC。
