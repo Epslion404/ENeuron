@@ -1894,3 +1894,10 @@
 - 已实现下一轮 `mask_next_epoch` 控制链切片，移除 mask begin/commit 上重复的 `mask_active_epoch + 1` 组合加法；mask、控制、随机序列、计算和结构合同 `19/19` 通过，等待新提交身份的 Vivado 200 MHz routed timing。
 - `2f2ce03` 顶层构建完成：route/DRC/bit/XSA 成功，但 200 MHz setup 仍为 `WNS=-0.279 ns`、`TNS=-8.283 ns`、`141` 个失败端点；证据归档于 `artifacts/logs/b2_packet_npu_route_timing_fail_20260910_2f2ce03/`，禁止上板。
 - 已将 egress response/result BRAM 读使能和地址改为在输出 word fire 时寄存预取，利用既有四拍 CRC 空档切断 `output_index -> BRAM ENARDEN` 组合路径；定向回归 `24/24` 与 `B2_PACKET_EGRESS_PASS` 通过。
+
+## 2026-09-10 B2 egress BRAM 预取物理重建
+
+- 提交 `074ed56` 的同源 Vivado 2024.1 实现已完成 route、bitstream/XSA、报告和 DRC；route errors=`0`，DRC hard errors=`0`。
+- 最终 200 MHz setup 为 `WNS=-0.052 ns`、`TNS=-0.134 ns`、6 个失败端点；hold 为 `WHS=+0.073 ns`、`THS=0`。最差路径为 `compute_unit_mask_latched_reg[3]/C -> compute_group_index_reg[1]/D`，数据延迟 `4.687 ns`，布线占 `3.272 ns`。
+- 本轮 bit/XSA 和完整 `vivado_run.log` 已归档至 `artifacts/logs/b2_packet_npu_route_timing_fail_20260910_074ed56/`，manifest 标为 `analysis_only_no_download`；继续禁止上板，ENeuron A/B 尚未开始。
+- 归档时首次按原始 CRLF 文本计算哈希会与 Git 规范化后的字节不一致，已改用 staged Git blob 哈希绑定文本报告；bit/XSA 二进制哈希未变。一次多文件 Nexus 补丁因上下文漂移失败，随后已按文件追加并完成 JSON 校验。

@@ -14,7 +14,7 @@
 
 TODO 计数更正：`workflow_resume.ps1 -Mode Check` 于 2026-09-10 在 HEAD `bc9ed89` 上报告 `TODO.md:P16=59`；本文其余 `63` 计数均为历史快照。
 
-B2 packet-NPU 当前物理边界（2026-09-10）：最新完整 Vivado 2024.1 构建绑定源 HEAD=`0bacdea29d9947772946657c41abef8ef95b0502`，目标器件为 `xc7z020clg484-2`；route errors=`0`、DRC hard errors=`0`，但 200 MHz setup 失败（`WNS=-0.489 ns`、`TNS=-121.268 ns`、`885` 个失败端点，`WHS=+0.013 ns`、`THS=0`）。证据目录为 `artifacts/logs/b2_packet_npu_route_timing_fail_20260910_0bacdea/`；最差路径为 `mask_active_epoch_reg[1]_replica/C -> rsp_payload_reg[85]/R`。当前 bit/XSA 仅作失败分析，不得上板。
+B2 packet-NPU 当前物理边界（2026-09-10）：最新完整 Vivado 2024.1 构建绑定源 HEAD=`2f2ce0339cb668e6eb1b0ddc20715aaf37d39a51`，目标器件为 `xc7z020clg484-2`；route errors=`0`、DRC hard errors=`0`，但 200 MHz setup 失败（`WNS=-0.279 ns`、`TNS=-8.283 ns`、`141` 个失败端点，`WHS=+0.036 ns`、`THS=0`）。证据目录为 `artifacts/logs/b2_packet_npu_route_timing_fail_20260910_2f2ce03/`；最差路径为 `output_index_reg[3]/C -> response_mem/ENARDEN`。bit/XSA 状态为 `analysis_only_no_download`，不得上板。
 
 B2-00 已完成（2026-09-08）：低地址 DDR 窗口 `[0x01000000,0x01100000)` 内冻结 9 个 4 KiB 区域，总保留 `36 KiB`，最大 DMA frame 为 `4096` bytes；机器 manifest `tools/repro/b2_dma_address_layout.json` 与 `verify_b2_dma_address_layout.py` 验证通过，状态为 `B2_00_LOW_ADDRESS_LAYOUT_FROZEN`。B2-D1 已完成并单独记录；所有 manifest 继续保留 `B1_HIGH_DDR_PENDING`，不把 B2-00 误写成完整 B1-GATE 或高地址 DDR 通过。
 
@@ -201,3 +201,5 @@ B2 packet-NPU 物理构建更新（2026-09-10）：HEAD=`1bfeb12` 的 Vivado 202
 B2 packet-NPU egress CRC 分拍后重建（2026-09-10）：提交 `8d57e7e` 的 Vivado 2024.1 构建完成 route、bit/XSA 和 DRC，但 200 MHz setup 仍失败：`WNS=-1.958 ns`、`TNS=-3308.760 ns`、`5902` 个失败端点；hold=`WHS=+0.055 ns`、`THS=0`，route errors=`0`、DRC hard errors=`0`。最差路径已离开 egress BRAM/CRC，转为 `core/compute_unit_index_reg[0]`→`compute_group_index_reg[2]` 控制路径，数据延迟 `6.574 ns`（布线 `5.077 ns`，8 级逻辑）。bit/XSA 仅作失败分析，不得上板。
 
 B2 packet memory BRAM 化探针（2026-09-10，已归档）：`b2_packet_egress.sv` 已将 response/result payload 从大范围分布式缓存改为 `b2_packet_bram.sv` 的 XPM simple-dual-port block RAM；Vivado 2024.1、器件 `xc7z020clg484-2` 综合报告 `artifacts/logs/b2_packet_memory_ooc_20260910_bram/b2_packet_egress_utilization.rpt` 显示新 egress 为 `532 LUT / 251 FF / 2 RAMB36 / 1 RAMB18`，其中 `response_mem=2 RAMB36`、`result_mem=1 RAMB18`。相对旧 egress 约 `35944 LUT / 0 BRAM`，约减少 `35412 LUT`，但该差值是 OOC 综合探针，不是完整顶层 routed 结果。`b2_packet_ingress.sv` 已改为四 bank、同步读路径并加 `ram_style="block"`；当前报告仍为 `2085 LUT / 1408 LUTRAM / 488 FF / 0 BRAM`，说明 bank 化尚未被 Vivado 推断为 BRAM，不能宣称 ingress BRAM 化完成。合同测试 `test_b2_packet_memory_inference_contract.py` 仅检查结构声明；packet 语义、时序和实板验证仍待补齐。
+
+B2 packet-NPU 最新物理重建（2026-09-10）：提交 `074ed56` 的 egress BRAM 预取已完成 route、bit/XSA 和 DRC，但 200 MHz setup 仍失败（`WNS=-0.052 ns`、`TNS=-0.134 ns`、6 个失败端点，`WHS=+0.073 ns`、`THS=0`）；最差路径为 `compute_unit_mask_latched_reg[3]/C -> compute_group_index_reg[1]/D`。证据归档于 `artifacts/logs/b2_packet_npu_route_timing_fail_20260910_074ed56/`，bit/XSA 标记为 `analysis_only_no_download`，不得上板或进入 ENeuron A/B。

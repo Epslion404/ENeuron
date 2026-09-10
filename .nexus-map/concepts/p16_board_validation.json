@@ -8,7 +8,7 @@
   },
   "workflow_context": {
     "active_branch": "codex/b1b-high-ddr-board-repro",
-    "current_head": "0bacdea29d9947772946657c41abef8ef95b0502",
+    "current_head": "074ed56886f4aad36bb9ce3149dbc54926e959d8",
     "worktree_status": "DIRTY",
     "worktree_entries": [
       ".nexus-map/arch/test_coverage.md",
@@ -16,7 +16,7 @@
       "findings.md",
       "progress.md",
       "task_plan.md",
-      "artifacts/logs/b2_packet_npu_route_timing_fail_20260910_0bacdea/"
+      "artifacts/logs/b2_packet_npu_route_timing_fail_20260910_074ed56/"
     ],
     "parent_audit_baseline": "d7e1035",
     "execution_chain": ["B2-03_BOARD_MINIMAL_LOOPBACK", "B2-04_BOUNDARY_FRAMES", "B2-05_BACKPRESSURE_AND_PRESSURE"],
@@ -115,20 +115,21 @@
     },
     "packet_npu_build": {
       "status": "ROUTED_BIT_XSA_PASS_TIMING_FAIL",
-      "git_head": "0bacdea29d9947772946657c41abef8ef95b0502",
+      "git_head": "074ed56886f4aad36bb9ce3149dbc54926e959d8",
       "part": "xc7z020clg484-2",
-      "bitstream": "artifacts/logs/b2_packet_npu_route_timing_fail_20260910_0bacdea/hello_zynq_b2.bit",
-      "xsa": "artifacts/logs/b2_packet_npu_route_timing_fail_20260910_0bacdea/hello_zynq_b2.xsa",
-      "timing_report": "artifacts/logs/b2_packet_npu_route_timing_fail_20260910_0bacdea/timing_impl.rpt",
-      "wns_ns": -0.489,
-      "tns_ns": -121.268,
-      "setup_failing_endpoints": 885,
-      "whs_ns": 0.013,
+      "bitstream": "artifacts/logs/b2_packet_npu_route_timing_fail_20260910_074ed56/hello_zynq_b2.bit",
+      "xsa": "artifacts/logs/b2_packet_npu_route_timing_fail_20260910_074ed56/hello_zynq_b2.xsa",
+      "timing_report": "artifacts/logs/b2_packet_npu_route_timing_fail_20260910_074ed56/timing_impl.rpt",
+      "wns_ns": -0.052,
+      "tns_ns": -0.134,
+      "setup_failing_endpoints": 6,
+      "whs_ns": 0.073,
       "ths_ns": 0.0,
       "route_errors": 0,
       "drc_hard_errors": 0,
-      "worst_path": "mask_active_epoch_reg[1]_replica/C -> rsp_payload_reg[85]/R",
-      "board_programming": "FORBIDDEN_UNTIL_TIMING_GREEN"
+      "worst_path": "compute_unit_mask_latched_reg[3]/C -> compute_group_index_reg[1]/D",
+      "board_programming": "FORBIDDEN_ANALYSIS_ONLY_NO_DOWNLOAD",
+      "download_policy": "analysis_only_no_download"
     },
     "software_build": {
       "git_head": "6f3d40e6f0470bbb57a9a10fb107ffc892add25c",

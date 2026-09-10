@@ -2,7 +2,7 @@
 
 当前门禁边界（中等精简）：`xc7z020clg484-2` NPU + ENeuron 动态剪枝为活动主线；`archive/legacy/` 不触发日常 CI/PR 门。旧 `xc7z020clg400-1` 的 NP7/T3 物理材料仅作历史参考。B1 高地址 DDR、PHY、UDP 是板卡资格支线，仍阻塞板级 `B1-GATE`，但不阻塞低地址容量满足条件下的 NPU MVP；CH340 按 `VID_1A86:PID_7523` 查找而非固定 COM 号。
 
-当前合同层级为阶段合同 `NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`，中等精简后的 P16 TODO 当前活动计数为 `59`；P16-E 公共证据合同和 P16-S 统一停止条件为常驻合同。当前 HEAD=`bc9ed891a0620a8c1524d14512202eb26d677249`，B2-03/B2-04/B2-05 实板切片已收口，主线执行点为 B2-06 packet-NPU 时序修复；最新完整构建绑定 `70e8caf`，200 MHz setup 失败（WNS=`-1.595 ns`），B2-06～B2-10 与 B2-GATE 仍未完成。旧配置的实板数据通过伴随 `stall=0`，随后 zero-stall fail-closed 正确拒绝；不得把 packet-NPU 失败分析 bit/XSA 写成可上板身份。
+当前合同层级为阶段合同 `NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`，中等精简后的 P16 TODO 当前活动计数为 `59`；P16-E 公共证据合同和 P16-S 统一停止条件为常驻合同。当前 HEAD=`bc9ed891a0620a8c1524d14512202eb26d677249`，B2-03/B2-04/B2-05 实板切片已收口，主线执行点为 B2-06 packet-NPU 时序修复；最新完整构建绑定 `2f2ce03`，200 MHz setup 失败（WNS=`-0.279 ns`、TNS=`-8.283 ns`、141 个失败端点，WHS=`+0.036 ns`、THS=`0`），最差路径为 `output_index_reg[3]/C -> response_mem/ENARDEN`，B2-06～B2-10 与 B2-GATE 仍未完成。旧配置的实板数据通过伴随 `stall=0`，随后 zero-stall fail-closed 正确拒绝；不得把 packet-NPU 失败分析 bit/XSA（`analysis_only_no_download`）写成可上板身份。
 
 B2-00 已形成可复现的低地址布局合同：窗口 `[0x01000000,0x01100000)`，9 个 4 KiB 区域、总保留 `36 KiB`，最大 DMA frame `4096` bytes；`verify_b2_dma_address_layout.py` 输出 `B2_DMA_LAYOUT_PASS`。状态为 `B2_00_LOW_ADDRESS_LAYOUT_FROZEN`，已进入 B2-D1/loopback 软件执行链。`B1_HIGH_DDR_PENDING` 保持不变，B2-00 不等同于高地址 DDR 或完整 B1-GATE 通过。
 
@@ -31,3 +31,5 @@ verified_at: 2026-09-09
 provenance: `.nexus-map/raw/git_stats.json`（最后提交于 `c46320e`；仓库内未发现可复现生成脚本，后续基线由 Git 与 manifest 人工核对）
 
 最近一次 raw 探针快照统计 263 次提交、5 位作者；该数字只代表 `c46320e` 时点。PR #62 已合并为 `main@e8dc947`（merge commit `e8dc9477dbfc7a9311dd00c514a986580ad2b84b`），最终 HEAD `a4832cc3bddd96ba2f94c295ae99c1d12713abf3` 的 Actions run `33915028445` 为 success；Webhook 收到同 SHA，但 `signature_verified=false`，只作到达通知。DSP V1 实现与 OOC report head 为 `5055073`：恰好 4 个 DSP48E1，功能、固定 `20×100` 随机、完整回归、hold/route/DRC 已通过，但 100 MHz setup `WNS=-0.673 ns / TNS=-6.462 ns / 22` 个端点失败。热点已从 V2 审核切换为 V2 实施；实施地图为 `docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V2_IMPLEMENTATION_MAP.md`，KISS 方案复用 signed 32-bit `mac_accumulator`，不新增 `writeback_value_latched`，仅预计新增四个 signed 8-bit 激活锁存器（约 32 FF）。TR7-TR12 已批准，当前计算 RTL 进入 V2 RED→RTL→回归流程。`np75_tmp_sparse_protocol.ys` 是用户未跟踪文件，不得纳入提交或 Nexus；物理结果不得外推为板级吞吐、功耗或网络性能。
+
+最新 B2 提交取证（2026-09-10）：HEAD=`074ed56886f4aad36bb9ce3149dbc54926e959d8` 的 egress BRAM 预取构建已完成 route/bit/XSA/DRC，但 setup 仍失败（WNS=`-0.052 ns`、TNS=`-0.134 ns`、6 个失败端点，WHS=`+0.073 ns`、THS=`0`）。失败证据已归档至 `artifacts/logs/b2_packet_npu_route_timing_fail_20260910_074ed56/`；bit/XSA 继续禁止下载。

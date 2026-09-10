@@ -1782,6 +1782,14 @@
 - response/result BRAM 读请求原由 `output_index`、frame 长度、CRC busy 和 payload 类型组合生成。CRC 每个输出 word 已占四拍，因此改为在 word fire 时发出单拍寄存预取请求，可利用 CRC 空档完成同步读，不增加 AXI 输出 word 数或 CRC 周期。
 - egress 字节级仿真 `B2_PACKET_EGRESS_PASS`，相关定向回归 `24/24` 通过；物理收益仍需新提交的顶层 routed timing 证明。
 
+## 2026-09-10 B2 egress BRAM 预取物理结果
+
+- 同源 HEAD `074ed56886f4aad36bb9ce3149dbc54926e959d8` 的 Vivado 2024.1 完整实现已完成；route errors=`0`、DRC hard errors=`0`，bit/XSA 生成成功。
+- 200 MHz `clk_fpga_0` setup 仍失败：`WNS=-0.052 ns`、`TNS=-0.134 ns`、6 个失败端点；hold 为 `WHS=+0.073 ns`、`THS=0`。
+- 最差路径为 `compute_unit_mask_latched_reg[3]/C -> compute_group_index_reg[1]/D`，数据延迟 `4.687 ns`，其中逻辑 `1.415 ns`、布线 `3.272 ns`；布线约占 69.8%。因此 egress 预取切片已消除上一轮 BRAM ENARDEN 主路径，但当前瓶颈迁移到 NPU mask/group 控制路径。
+- 证据完整归档于 `artifacts/logs/b2_packet_npu_route_timing_fail_20260910_074ed56/`，manifest 状态为 `analysis_only_no_download`；不得将该 bit/XSA 下载实板，也不能进入 ENeuron A/B。
+- Vivado 主机日志显示为 `2026-09-11 00:42–00:51`，比当前任务日期 `2026-09-10` 快一天；归档目录按任务日期命名，提交身份与哈希不受影响。
+
 ## 2026-09-09 B2 RTL egress packetizer
 
 - `b2_packet_egress.sv` 采用 response 优先仲裁；response 通过 `rsp_last` 结束，result 固定 10 beat。输出顺序为 8-word header、payload words、1-word CRC。

@@ -3,7 +3,7 @@
   "verified_at": "2026-09-10",
   "label": "B2 packet-NPU integration",
   "deployment_target_part": "xc7z020clg484-2",
-  "repository_head": "0bacdea29d9947772946657c41abef8ef95b0502",
+  "repository_head": "074ed56886f4aad36bb9ce3149dbc54926e959d8",
   "repository_worktree": "DIRTY",
   "worktree_entries": [
     ".nexus-map/arch/test_coverage.md",
@@ -11,9 +11,9 @@
     "findings.md",
     "progress.md",
     "task_plan.md",
-    "artifacts/logs/b2_packet_npu_route_timing_fail_20260910_0bacdea/"
+    "artifacts/logs/b2_packet_npu_route_timing_fail_20260910_074ed56/"
   ],
-  "source_head": "0bacdea29d9947772946657c41abef8ef95b0502",
+  "source_head": "074ed56886f4aad36bb9ce3149dbc54926e959d8",
   "commits": {
     "adapter": "cb9eb66",
     "adapter_e2e": "62f2d8b",
@@ -21,7 +21,8 @@
     "verilog_bd_reference": "1d0e3ba",
     "packet_memory_probe": "f4827e2",
     "command_fifo_timing_slice": "195e6e7",
-    "current_build_alignment": "0bacdea",
+    "current_build_alignment": "074ed56",
+    "egress_bram_prefetch": "074ed56",
     "egress_crc_pipeline": "8d57e7e",
     "local_group_mask_cache": "89cbbf6",
     "model_write_staging": "b4b95fa",
@@ -100,18 +101,19 @@
   "physical_build": {
     "status": "ROUTED_BIT_XSA_PASS_TIMING_FAIL",
     "artifact_dir": "boards/hellozynq/b2_hw/build/",
-    "artifact_git_head": "0bacdea29d9947772946657c41abef8ef95b0502",
+    "artifact_git_head": "074ed56886f4aad36bb9ce3149dbc54926e959d8",
     "artifact_part": "xc7z020clg484-2",
-    "bitstream_sha256": "f3200dde73685e7d60edaa944b7139619e79a862661f2e9f7532b89e153ee2f4",
-    "xsa_sha256": "3d8d580d7e96e5da6eae7d015b29071c42a9e02f7a5c3ed6aec0bbec0fc0664e",
-    "timing_gate": "FAIL_WNS_-0.489_TNS_-121.268_WHS_+0.013_THS_0_SETUP_FAILING_ENDPOINTS_885",
+    "bitstream_sha256": "6b06e1626dd072ea3b7eea2035dc74a6e6c9b7253c3bea358dbed04c0b805f32",
+    "xsa_sha256": "3999daa8fb16b0f35ecc925c9c75389b3ca236506bfb258d9b653165e20837ad",
+    "timing_gate": "FAIL_WNS_-0.052_TNS_-0.134_WHS_+0.073_THS_0_SETUP_FAILING_ENDPOINTS_6",
     "route_errors": 0,
     "drc_hard_errors": 0,
-    "worst_path": "mask_active_epoch_reg[1]_replica/C -> rsp_payload_reg[85]/R",
-    "boundary": "Route, DRC, bitstream and XSA generation succeeded, but 200 MHz setup timing is not met. The worst path is the replicated mask epoch control path into response payload storage; bitstream/XSA are analysis-only and must not be downloaded. No timing signoff or board evidence exists yet.",
-    "evidence_dir": "artifacts/logs/b2_packet_npu_route_timing_fail_20260910_0bacdea/"
+    "worst_path": "compute_unit_mask_latched_reg[3]/C -> compute_group_index_reg[1]/D",
+    "boundary": "Route, DRC, bitstream and XSA generation succeeded, but 200 MHz setup timing is not met. The egress BRAM ENARDEN path improved, and the remaining worst path is the NPU mask/group control path; this build is analysis_only_no_download and must not be programmed.",
+    "evidence_dir": "artifacts/logs/b2_packet_npu_route_timing_fail_20260910_074ed56/",
+    "download_policy": "analysis_only_no_download"
   },
-  "next_gate": "Repair the NPU core mac_accumulator setup path, rerun 200 MHz timing until WNS/TNS/THS and route/DRC gates are green, then program and validate packet path on the target board.",
+  "next_gate": "Repair the NPU compute_unit_mask_latched -> compute_group_index setup path, rerun 200 MHz timing until WNS/TNS/THS and route/DRC gates are green, then program and validate packet path on the target board.",
   "forbidden_claims": [
     "packet-NPU top physically signed off",
     "packet path validated on board",

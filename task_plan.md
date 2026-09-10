@@ -5,7 +5,11 @@
 - [x] 完成 `b4b95fa` 的 Vivado 2024.1 route、DRC、bitstream/XSA 生成。
 - [x] 归档失败分析证据到 `artifacts/logs/b2_packet_npu_route_timing_fail_20260910_b4b95fa/`。
 - [x] 更新 Nexus、artifact 索引和进度记录，统一最新时序事实。
-- [ ] 修复 `mac_accumulator` 200 MHz setup 路径并重建；在 WNS/TNS/THS 与 route/DRC 全绿前禁止上板。
+- [x] 完成 `074ed56` 的 egress BRAM 预取物理重建；route、bitstream、XSA 和 DRC 生成成功。
+- [x] 归档结果到 `artifacts/logs/b2_packet_npu_route_timing_fail_20260910_074ed56/`，并保留用户授权进入仓库的 JSON/日志证据。
+- [ ] 修复当前 `compute_unit_mask_latched -> compute_group_index` 200 MHz setup 路径并重建；在 WNS/TNS/THS 与 route/DRC 全绿前禁止上板。
+
+本轮最终签核：`WNS=-0.052 ns`、`TNS=-0.134 ns`、6 个 setup failing endpoints，`WHS=+0.073 ns`、`THS=0`，route errors=`0`，DRC hard errors=`0`。bit/XSA 仅为 `analysis_only_no_download`。
 
 ## 2026-09-09 B2 route 当前观察
 
