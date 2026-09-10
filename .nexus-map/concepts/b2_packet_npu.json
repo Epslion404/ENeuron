@@ -3,7 +3,7 @@
   "verified_at": "2026-09-10",
   "label": "B2 packet-NPU integration",
   "deployment_target_part": "xc7z020clg484-2",
-  "source_head": "8d57e7e232f543c76704f09c9640bb5aa8832834",
+  "source_head": "89cbbf6ecff3e15b63576068e6261b2e904e654c",
   "commits": {
     "adapter": "cb9eb66",
     "adapter_e2e": "62f2d8b",
@@ -11,8 +11,9 @@
     "verilog_bd_reference": "1d0e3ba",
     "packet_memory_probe": "f4827e2",
     "command_fifo_timing_slice": "195e6e7",
-    "current_build_alignment": "1bfeb12",
-    "egress_crc_pipeline": "8d57e7e"
+    "current_build_alignment": "89cbbf6",
+    "egress_crc_pipeline": "8d57e7e",
+    "local_group_mask_cache": "89cbbf6"
   },
   "rtl": {
     "adapter": "b2_npu_packet_adapter.sv",
@@ -87,15 +88,16 @@
   "physical_build": {
     "status": "ROUTED_BIT_XSA_PASS_TIMING_FAIL",
     "artifact_dir": "boards/hellozynq/b2_hw/build/",
-    "artifact_git_head": "8d57e7e232f543c76704f09c9640bb5aa8832834",
+    "artifact_git_head": "89cbbf6ecff3e15b63576068e6261b2e904e654c",
     "artifact_part": "xc7z020clg484-2",
-    "bitstream_sha256": "9f0e41f5f95fb8a3267aae451c4a0845512fef189daa5d386e8ef99038891ab2",
-    "xsa_sha256": "aaa3df83db12058447e3d26a09b6d71672265904fb13d252a90a23ea58cd129c",
-    "timing_gate": "FAIL_WNS_-1.958_TNS_-3308.760_WHS_+0.055_THS_0_SETUP_FAILING_ENDPOINTS_5902",
+    "bitstream_sha256": "9369e2964b1655b4d28274a776001481e2836509c9e173d9724f55cb84b98a09",
+    "xsa_sha256": "1c25a0e2bb63ea232f5ef8f79a5a98c2a4d3e79b2f21933a74f05456ee6a382a",
+    "timing_gate": "FAIL_WNS_-1.168_TNS_-1001.103_WHS_+0.036_THS_0_SETUP_FAILING_ENDPOINTS_3237",
     "route_errors": 0,
     "drc_hard_errors": 0,
-    "worst_path": "core/compute_unit_index_reg[0]_replica_1/C -> core/compute_group_index_reg[2]__0/CE",
-    "boundary": "Route and bit/XSA generation succeeded, but 200 MHz setup timing is not met. Egress CRC is now byte-pipelined; the current worst path is in the NPU core control network. No timing signoff or board evidence exists yet."
+    "worst_path": "core/compute_unit_index_reg[1]_rep -> model_staging_reg_r1_64_127_9_11/RAMA -> model_word_latched[9] -> lane_product_1/B[1]",
+    "boundary": "Route, DRC, bitstream and XSA generation succeeded, but 200 MHz setup timing is not met. Local per-neuron group-mask caching reduced the prior worst slack but moved the critical path into the index-to-model-RAM/DSP data chain. No timing signoff or board evidence exists yet.",
+    "evidence_dir": "artifacts/logs/b2_packet_npu_route_timing_fail_20260910_89cbbf6/"
   },
   "next_gate": "Repair the NPU core compute_unit_index-to-compute_group_index setup path, rerun 200 MHz timing until WNS/TNS/THS and route/DRC gates are green, then program and validate packet path on the target board.",
   "forbidden_claims": [

@@ -1,5 +1,12 @@
 # 进度记录
 
+## 2026-09-10 B2 packet-NPU 最新物理构建
+
+- HEAD=`89cbbf6ecff3e15b63576068e6261b2e904e654c` 的 Vivado 2024.1 构建已完成 route、DRC、bitstream 和 XSA 生成；目标器件为 `xc7z020clg484-2`，route errors=`0`，DRC hard errors=`0`，产物已归档到 `artifacts/logs/b2_packet_npu_route_timing_fail_20260910_89cbbf6/`。
+- 200 MHz `clk_fpga_0` setup 仍未通过：`WNS=-1.168 ns`、`TNS=-1001.103 ns`、`3237` 个失败端点；hold 为 `WHS=+0.036 ns`、`THS=0`。`B2_TIMING_PASS` 未产生，脚本按门禁返回失败；bit/XSA 不得上板。
+- 最差路径已从 `compute_unit_index` 复制网络迁移到 NPU 核心数据链：`compute_unit_index_reg[1]_rep -> model_staging_reg_r1_64_127_9_11/RAMA -> model_word_latched[9] -> lane_product_1/B[1]`，数据延迟 `5.521 ns`，其中布线 `4.191 ns`。
+- 下一步是针对索引到模型 RAM/DSP 的结构性流水或局部地址解码修复，重跑同一 200 MHz route/timing 门；在 B2-GATE 与 B3 物理门完成前，不测算动态剪枝加速或功耗收益。
+
 ## 2026-09-09 B2 route 当前观察
 
 - Vivado 进程仍在 `route_design` 第 5.2 轮，CPU 时间持续增加；overlap 已由 `147240` 降至 `113569`，说明路由器仍在迭代而非退出。
