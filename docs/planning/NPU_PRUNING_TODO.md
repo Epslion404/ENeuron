@@ -1,12 +1,14 @@
 # ENeuron NPU 局部自动剪枝与动态门控计划
 
-状态：`NP4B_COMPLETED / NP6_PARTIAL / NP7_SIGNED_OFF / NPU_V2_FUNCTIONAL_GREEN / T3_CLG400_EVIDENCE_RECORDED / CLG484_2_FINAL_PHYSICAL_PENDING`
+状态：`NP4B_COMPLETED / NP6_PARTIAL / NP7_SIGNED_OFF / NPU_V2_FUNCTIONAL_GREEN / T3_CLG400_EVIDENCE_RECORDED / B2_PACKET_NPU_PHYSICAL_PASS / B2_PACKET_PATH_PENDING / CLG484_2_FINAL_PHYSICAL_COMPLETE`
 
-日期：2026-08-28
+日期：2026-09-11
 
 范围：规划与验收合同；NP0-NP7 已执行，当前转入传统 NPU + ENeuron 集成和 `xc7z020clg484-2` 板级路线；不直接改写已签核神经元 RTL。Pulse-Mini-L/L2 的 NP1-NP7 材料保留为历史对照，不作为当前日常门。
 
-当前物理边界：现有单时钟和 T3 OOC 证据绑定 `xc7z020clg400-1`，只能作为结构/协议参考；目标 `xc7z020clg484-2` 的最终 routed 证据仍待单独重建。
+当前物理边界：现有单时钟和 T3 OOC 证据绑定 `xc7z020clg400-1`，只能作为结构/协议参考；目标 `xc7z020clg484-2` 的最终 routed 证据已在 2026-09-11 完成。
+
+当前集成边界：最新物理修复提交包含 `e3db1a1` 后的 ingress 写请求寄存和实现策略调整；B2/NPU 合同回归已通过。目标 `xc7z020clg484-2` 顶层 Vivado 2024.1 routed timing 全绿（`WNS=+0.012 ns`、`TNS=0`、`WHS=+0.036 ns`、`THS=0`、setup/hold 失败端点为 0、route/DRC hard error 为 0），bit/XSA 已生成。B2-GATE 尚需板级 packet path 证据，B3 和 ENeuron A/B 仍未开放。
 
 ## 1. 目标
 

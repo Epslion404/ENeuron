@@ -1,14 +1,14 @@
 {
   "$schema": "nexus-mapper/plan/v1",
   "plan_id": "p16-board-validation-phase2",
-  "verified_at": "2026-09-10",
+  "verified_at": "2026-09-11",
   "target": {
     "board": "HelloZynq",
     "part": "xc7z020clg484-2"
   },
   "workflow_context": {
     "active_branch": "codex/b1b-high-ddr-board-repro",
-    "current_head": "074ed56886f4aad36bb9ce3149dbc54926e959d8",
+    "current_head": "e3db1a187151b8ca4b445ec6714131a069b56e3a",
     "worktree_status": "DIRTY",
     "worktree_entries": [
       ".nexus-map/arch/test_coverage.md",
@@ -23,13 +23,13 @@
     "qualification_execution_chain": ["B1-06B6_UART_BASELINE", "B1-06B7_OCM_HIGH_DDR_MINIMAL_REPRODUCTION"],
     "ddr_accesses_so_far": 0
   },
-  "status": "P16_B0_COMPLETE / FASTLANE_V1 / B1A_HW_DEFINITION_COMPLETE / B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DDR_PENDING / B2_00_LOW_ADDRESS_LAYOUT_FROZEN / B2_D1_DMA_CONTRACT_FROZEN / B2_01_BUFFER_OWNERSHIP_FROZEN / B2_STREAM_PROBE_BOARD_PASS / B2_BACKPRESSURE_UART_JTAG_PASS / B2_AXI_VALID_HOLD_FIX_BUILD_PASS / B2_CONTINUOUS_WRAP_BOARD_PASS / B2_RECOVERY_BOARD_PASS / B2_GAP_PASS / B2_MISSING_TLAST_BOARD_PASS / B2_PACKET_NPU_ROUTED_BIT_XSA_TIMING_FAIL / B2_06_B2_10_PENDING / B2_GATE_PENDING",
+  "status": "P16_B0_COMPLETE / FASTLANE_V1 / B1A_HW_DEFINITION_COMPLETE / B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DDR_PENDING / B2_00_LOW_ADDRESS_LAYOUT_FROZEN / B2_D1_DMA_CONTRACT_FROZEN / B2_01_BUFFER_OWNERSHIP_FROZEN / B2_STREAM_PROBE_BOARD_PASS / B2_BACKPRESSURE_UART_JTAG_PASS / B2_AXI_VALID_HOLD_FIX_BUILD_PASS / B2_CONTINUOUS_WRAP_BOARD_PASS / B2_RECOVERY_BOARD_PASS / B2_GAP_PASS / B2_MISSING_TLAST_BOARD_PASS / B2_PACKET_NPU_PHYSICAL_GATE_PASS / B2_06_B2_10_PENDING / B2_GATE_PENDING",
   "stage2_complete": false,
   "current_gate": "B2-06-PACKET-NPU-INTEGRATION",
   "active_stage_contract": "docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md",
   "related_contracts": ["docs/planning/TODO.md#P16", "docs/planning/NPU_PRUNING_TODO.md", "docs/planning/NPU_PRUNING_NP7_TODO.md"],
   "workflow_resume_counts": "P16=59",
-  "current_execution_point": "B2-06_PACKET_NPU_TIMING_REPAIR",
+  "current_execution_point": "B2-06_PACKET_PATH_BOARD_VALIDATION",
   "ddr_accesses_so_far": 0,
   "b0": {
     "source_commit": "f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06",
@@ -84,7 +84,7 @@
     "gate_pass": true
   },
   "b2": {
-    "status": "IN_PROGRESS_LOW_ADDRESS_MVP_B2_01_COMPLETE_STREAM_PROBE_BOARD_PASS_BACKPRESSURE_UART_JTAG_PASS_VALID_HOLD_FIX_BUILD_PASS_B2_PACKET_NPU_ROUTED_BIT_XSA_TIMING_FAIL_B2_06_B2_10_PENDING_B2_GATE_PENDING_B1_GATE_PENDING",
+    "status": "IN_PROGRESS_LOW_ADDRESS_MVP_B2_01_COMPLETE_STREAM_PROBE_BOARD_PASS_BACKPRESSURE_UART_JTAG_PASS_VALID_HOLD_FIX_BUILD_PASS_B2_PACKET_NPU_PHYSICAL_GATE_PASS_B2_06_B2_10_PENDING_B2_GATE_PENDING_B1_GATE_PENDING",
     "low_address_window": "[0x01000000,0x01100000)",
     "dma_mode": "AXI_DMA_SIMPLE_POLLING",
     "control_contract": "S2MM_FIRST_1US_POLL_1S_TIMEOUT_500_RESET_POLL",
@@ -114,22 +114,35 @@
       "manifest": "boards/hellozynq/b2_hw/build/build_manifest.json"
     },
     "packet_npu_build": {
-      "status": "ROUTED_BIT_XSA_PASS_TIMING_FAIL",
-      "git_head": "074ed56886f4aad36bb9ce3149dbc54926e959d8",
+      "status": "ROUTED_BIT_XSA_PASS_TIMING_PASS",
+      "git_head": "e3db1a187151b8ca4b445ec6714131a069b56e3a",
       "part": "xc7z020clg484-2",
-      "bitstream": "artifacts/logs/b2_packet_npu_route_timing_fail_20260910_074ed56/hello_zynq_b2.bit",
-      "xsa": "artifacts/logs/b2_packet_npu_route_timing_fail_20260910_074ed56/hello_zynq_b2.xsa",
-      "timing_report": "artifacts/logs/b2_packet_npu_route_timing_fail_20260910_074ed56/timing_impl.rpt",
-      "wns_ns": -0.052,
-      "tns_ns": -0.134,
-      "setup_failing_endpoints": 6,
-      "whs_ns": 0.073,
+      "bitstream": "boards/hellozynq/b2_hw/build/hello_zynq_b2.bit",
+      "xsa": "boards/hellozynq/b2_hw/build/hello_zynq_b2.xsa",
+      "timing_report": "boards/hellozynq/b2_hw/build/timing_impl.rpt",
+      "wns_ns": 0.012,
+      "tns_ns": 0.0,
+      "setup_failing_endpoints": 0,
+      "whs_ns": 0.036,
       "ths_ns": 0.0,
       "route_errors": 0,
       "drc_hard_errors": 0,
-      "worst_path": "compute_unit_mask_latched_reg[3]/C -> compute_group_index_reg[1]/D",
-      "board_programming": "FORBIDDEN_ANALYSIS_ONLY_NO_DOWNLOAD",
-      "download_policy": "analysis_only_no_download"
+      "worst_path": "NONE (all setup/hold endpoints meet timing)",
+      "board_programming": "ALLOWED_AFTER_IDENTITY_CHECK",
+      "download_policy": "manifest_bound_board_validation",
+      "latest_mask_scan_rebuild": {
+        "git_head": "0f71f49f8afcf7067992cbba5d8b810c45a6182f",
+        "status": "ANALYSIS_ONLY_NO_DOWNLOAD",
+        "targeted_regression": "16 passed",
+        "b2_npu_regression": "158 passed / 115 subtests",
+        "wns_ns": -0.056,
+        "tns_ns": -0.096,
+        "setup_failing_endpoints": 3,
+        "route_errors": 0,
+        "drc_hard_errors": 0,
+        "downloaded": false,
+        "scope_limit": "mask-scan RTL optimization; no board programming or ENeuron A/B"
+      }
     },
     "software_build": {
       "git_head": "6f3d40e6f0470bbb57a9a10fb107ffc892add25c",

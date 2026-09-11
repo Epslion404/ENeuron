@@ -1908,3 +1908,25 @@
 - 验证：`pytest -q test_b2_npu_wrapper_timing_contract.py test_npu_single_clock_compute.py`，结果 `16 passed`。
 - B2/NPU 相关完整回归：`158 passed, 115 subtests passed in 44.30s`。
 - 下一步：补跑 B2/NPU 相关回归，随后视本机 Vivado 2024.1 可用性进行 routed timing 重建。
+
+## 2026-09-11 `e3db1a1` 顶层物理结果
+
+- Vivado 2024.1 构建已结束，runner 退出码 `1`；最终 `WNS=-0.087 ns`、`TNS=-0.451 ns`、22 个 setup 失败端点，`WHS=+0.013 ns`、`THS=0`。
+- route errors=`0`、DRC hard errors=`0`；当前 bit/XSA 仅作分析，不允许下载。
+- egress 元数据 CE 路径已消失，当前最差路径转到 AXI DMA S2MM 内部，主要其余失败端点为 ingress 分布式 RAM 写使能。
+- 下一步读取 `build_b2.tcl` 的实现策略与 `b2_packet_ingress.sv` 写入结构，选择最小修复后先跑合同测试，再进行下一次顶层 route/timing。
+
+## 2026-09-11 `e3db1a1` + ingress pipeline routed 结果
+
+- 合同回归 `34 passed`，仓库复现入口 `REPRO_G0_MANIFEST_PASS`、`REPRO_G1_T1_PROTOCOL_SLICE_PASS` 通过。
+- 显式 post-place `AggressiveExplore` 后，最终 routed timing 为 `WNS=-0.081 ns`、`TNS=-1.505 ns`、`WHS=+0.036 ns`、`THS=0`；route/DRC 硬错误为 0，runner 按预期退出码 `1`。
+- 失败端点主要是 `mask_next_epoch_reg[3] -> rsp_payload_reg[*]`，不是 ingress RAM WE；ingress pipeline 只带来约 `0.006 ns` WNS 改善，未关闭物理门。
+- 构建日志未出现 post-route phys-opt 命令；下一轮只增加 `STEPS.POST_ROUTE_PHYS_OPT_DESIGN.IS_ENABLED=true`，验证实现流程本身是否还有可用余量。
+- 失败构建不会刷新 `build_manifest.json`，当前目录 manifest 仍为旧 `b2332a0`，不可作为本轮证据。
+
+## 2026-09-11 B2 packet-NPU 物理门通过
+
+- 第三次构建启用 `STEPS.POST_ROUTE_PHYS_OPT_DESIGN.IS_ENABLED=true`，日志确认 post-route `phys_opt_design -directive AggressiveExplore` 实际执行。
+- 最终 routed timing：`WNS=+0.012 ns`、`TNS=0`、`WHS=+0.036 ns`、`THS=0`；setup/hold 失败端点为 0、route errors=0、DRC hard errors=0。
+- `hello_zynq_b2.bit`、`hello_zynq_b2.xsa` 与报告均生成；manifest 绑定 HEAD `e3db1a1` 和本轮源码哈希，但因工作树存在未提交改动仍标记 `git_worktree_clean=false`。
+- 合同回归已通过 `106 passed`；下一步提交当前修复并在 clean worktree 重建，随后进入板级 packet path 验证。

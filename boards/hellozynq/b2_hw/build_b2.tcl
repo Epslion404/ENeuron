@@ -36,6 +36,9 @@ generate_target all [get_files */design_1.bd]
 export_ip_user_files -of_objects [get_files */design_1.bd] -no_script -sync -force -quiet
 
 set_property strategy Performance_Explore [get_runs impl_1]
+set_property STEPS.PHYS_OPT_DESIGN.ARGS.DIRECTIVE AggressiveExplore [get_runs impl_1]
+set_property STEPS.POST_ROUTE_PHYS_OPT_DESIGN.IS_ENABLED true [get_runs impl_1]
+set_property STEPS.POST_ROUTE_PHYS_OPT_DESIGN.ARGS.DIRECTIVE AggressiveExplore [get_runs impl_1]
 launch_runs impl_1 -to_step write_bitstream -jobs 8
 wait_on_run impl_1
 set run_status [get_property STATUS [get_runs impl_1]]

@@ -28,6 +28,18 @@ class B2PacketIngressContractTests(unittest.TestCase):
         ):
             self.assertIn(token, source)
 
+    def test_payload_ram_write_is_registered(self):
+        source = (ROOT / "b2_packet_ingress.sv").read_text(encoding="utf-8")
+        for token in (
+            "payload_write_pending",
+            "payload_write_bank",
+            "payload_write_addr",
+            "payload_write_data",
+            "if (payload_write_pending)",
+        ):
+            self.assertIn(token, source)
+        self.assertNotIn("payload_mem_bank0[payload_word_index >> 2] <= s_data", source)
+
     def test_changes_use_t1_repro_scope(self):
         scopes = classify_paths(["b2_packet_ingress.sv", "tb_b2_packet_ingress.sv", "test_b2_packet_ingress_contract.py"])
         self.assertTrue(scopes["t1_repro"])

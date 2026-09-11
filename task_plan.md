@@ -1827,8 +1827,33 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 - [x] 增加 `mask_next_epoch`，在 mask 激活边界预计算下一合法 epoch，移除 mask begin/commit 热路径上的 `mask_active_epoch + 1` 组合进位链；相关定向回归 `19/19` 通过，计算周期不变。
 - [x] 在提交 `2f2ce03` 上完成 Vivado 2024.1 route/timing：`WNS=-0.279 ns`、`TNS=-8.283 ns`、`141` 个 setup 失败端点，route/DRC/hold 正常；归档后继续禁止上板。
 - [x] 将 egress BRAM 读请求改为寄存预取，利用 CRC 分拍空档切断 `output_index -> response_mem ENARDEN` 路径；相关定向回归 `24/24` 通过。
-- [ ] 在新提交身份上再次运行 Vivado 2024.1 完整 route/timing；只有 `WNS/TNS/THS`、route 和 DRC 全绿才进入板级 packet path。
+- [x] 在提交 `e3db1a1` 上再次运行 Vivado 2024.1 完整 route/timing；egress 元数据路径已退出失败端点，但整体物理门仍未通过。
+- [ ] 处理当前最差 AXI DMA 内部路径和 ingress 状态译码到分布式 RAM 写使能路径；只有 `WNS/TNS/THS`、route 和 DRC 全绿才进入板级 packet path。
 
 取舍：该切片用每个启用 group 增加一拍换取切断低段 carry 到高段累加器的组合路径。若物理改善不足以抵消约 31% 的全开 mask 周期增长，应回收该方案并改用更高吞吐的归约结构。
 
 错误记录：本轮构建脚本最终以预期的 B2 timing gate exception 退出；这不是 Vivado 崩溃，最终 bit/XSA 已生成并归档到 `artifacts/logs/b2_packet_npu_route_timing_fail_20260910_0bacdea/`。
+
+## 2026-09-11 B2 egress 元数据隔离物理结果
+
+状态：`FUNCTIONAL_PASS / PHYSICAL_PENDING`
+
+- [x] 提交 `e3db1a1` 将新帧元数据寄存器更新拆到独立时序块，相关合同 `12/12` 与 Icarus `B2_PACKET_EGRESS_PASS` 通过。
+- [x] 完成 Vivado 2024.1 顶层 route/timing：`WNS=-0.087 ns`、`TNS=-0.451 ns`、22 个 setup 失败端点，`WHS=+0.013 ns`、`THS=0`，route errors=`0`、DRC hard errors=`0`。
+- [x] 确认上一轮 egress `output_index -> metadata CE` 路径已退出失败端点。
+- [ ] 检查实现策略及 ingress 写使能结构，优先采用不改变 packet 协议和 NPU 周期合同的最小修复。
+- [ ] 时序全绿前保持 `analysis_only_no_download`，不下载当前 bit/XSA，不进入 B3 或 ENeuron A/B。
+- [ ] 显式启用 `post_route_phys_opt_design` 并确认其命令实际出现在 Vivado 日志；失败构建不得复用目录中的旧 manifest。
+
+错误记录：恢复时误查了不存在的 `build/impl_1/runme.log`；实际日志位于 `build/project/hello_zynq_b2.runs/impl_1/runme.log`，后续按真实路径读取。
+
+## 2026-09-11 B2 packet-NPU 物理门通过
+
+状态：`FUNCTIONAL_PASS / PHYSICAL_PASS / BOARD_PACKET_PENDING`
+
+- [x] 增加 ingress payload RAM 写请求寄存，切断状态译码到 RAM 写使能的直接路径。
+- [x] 启用 impl post-place 与 post-route `AggressiveExplore`，并确认日志执行 post-route phys-opt。
+- [x] 完成 `xc7z020clg484-2`、200 MHz routed timing gate：`WNS=+0.012 ns`、`TNS=0`、`WHS=+0.036 ns`、`THS=0`、setup/hold 失败端点为 0、route/DRC hard error 为 0。
+- [x] 合同回归 `106 passed`，仓库复现入口 `REPRO_G0_MANIFEST_PASS`、`REPRO_G1_T1_PROTOCOL_SLICE_PASS` 通过。
+- [ ] 提交当前修复后，在 clean worktree 重建并确认 manifest `git_worktree_clean=true`、HEAD 与源码/报告/bit/XSA 哈希一致。
+- [ ] 物理门通过后进入板级 packet path、错误恢复、fence/计数器和功耗证据；B3 与 ENeuron A/B 仍保持关闭。

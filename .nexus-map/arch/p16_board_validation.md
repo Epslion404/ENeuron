@@ -1,13 +1,13 @@
 # P16 项目阶段 2：实板验证路线
 
 
-verified_at: 2026-09-10
+verified_at: 2026-09-11
 
 当前边界（中等精简）：实板部署目标为 `xc7z020clg484-2`，NPU + ENeuron 动态剪枝是活动主线。高地址 DDR、PHY、UDP 只属于板卡资格支线，仍用于关闭完整 `B1-GATE`，不阻塞低地址容量满足条件下的 NPU MVP。外置 CH340 由 `VID_1A86:PID_7523` 识别，COM 编号不是稳定契约；旧 `clg400-1` NP7/T3 物理结果和 `archive/legacy/` 材料均不参与日常门。
 
 authoritative_sources: `docs/planning/TODO.md`、`task_plan.md`、`findings.md`、`progress.md`
 
-当前工作流上下文（2026-09-10）：活动分支为 `codex/b1b-high-ddr-board-repro`，当前仓库 HEAD=`bc9ed891a0620a8c1524d14512202eb26d677249`，工作树干净，父级审计基线为 `d7e1035`。最新 packet-NPU 完整构建绑定源码 HEAD=`2f2ce03`，目标器件为 `xc7z020clg484-2`，200 MHz setup 时序失败（WNS=`-0.279 ns`、TNS=`-8.283 ns`、141 个 setup 失败端点，WHS=`+0.036 ns`、THS=`0`），最差路径为 `output_index_reg[3]/C -> response_mem/ENARDEN`，证据归档于 `artifacts/logs/b2_packet_npu_route_timing_fail_20260910_2f2ce03/`；bit/XSA 标记为 `analysis_only_no_download`，不得上板。B2-03/B2-04/B2-05 实板切片已收口，B2-06～B2-10 与 B2-GATE 仍未完成；B1-06B6 UART 基准 → B1-06B7 OCM 高地址最小复现仍为板卡资格支线。
+当前工作流上下文（2026-09-11）：活动分支为 `codex/b1b-high-ddr-board-repro`，当前仓库 HEAD=`e3db1a187151b8ca4b445ec6714131a069b56e3a`，父级审计基线为 `d7e1035`。最新 packet-NPU 完整构建目标器件为 `xc7z020clg484-2`，200 MHz routed timing 全绿（WNS=`+0.012 ns`、TNS=`0`、WHS=`+0.036 ns`、THS=`0`），setup/hold 失败端点为 0，route/DRC hard error=0；post-route phys-opt 已执行，bit/XSA 已生成。B2-03/B2-04/B2-05 与 B2-PHY 已收口，B2-06～B2-10 与 B2-GATE 仍未完成；B1-06B6 UART 基准 → B1-06B7 OCM 高地址最小复现仍为板卡资格支线。
 
 监听观察：2026-09-08 按 VID/PID 监听 COM10 10 秒（115200 8N1）读取 0 字节，未见 `ENEURON_B1B_BEGIN`/`ALIVE`/`PASS`；未下载 bitstream/ELF、未发送 GO，DDR access=0。该观察不改变 `B1-06B6_UART_BASELINE_PENDING`，也不是 DDR 失败证据。
 

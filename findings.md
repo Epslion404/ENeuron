@@ -1802,3 +1802,20 @@
 - 该方案移除了 `compute_unit_mask_latched[compute_group_index]` 动态位选，避免 mask 判定直接进入 group index 更新链；未新增状态和接口。
 - 定向回归 `pytest -q test_b2_npu_wrapper_timing_contract.py test_npu_single_clock_compute.py`：`16 passed`。
 - 物理时序尚未重建；此前 074ed56 证据仍为 `WNS=-0.052 ns`、`TNS=-0.134 ns`、6 个 setup 失败端点，禁止下载实板。
+
+## 2026-09-11 egress 元数据隔离物理结果
+
+- 提交 `e3db1a1` 的 Vivado 2024.1 完整实现结束，runner 因 timing gate 失败以退出码 `1` 收口；bit/XSA 生成不代表可下载。
+- 最终 summary 为 `WNS=-0.087 ns`、`TNS=-0.451 ns`、22 个 setup 失败端点、`WHS=+0.013 ns`、`THS=0`；route errors=`0`，DRC hard errors=`0`。
+- egress `output_index_reg -> mask_epoch/model/sample/sequence metadata CE` 已不在失败端点中，说明 `e3db1a1` 的局部修复有效。
+- 当前最差路径位于 AXI DMA S2MM scatter 内部：`sig_max_first_increment_reg[0] -> sig_btt_eq_0_reg`，slack=`-0.087 ns`。其余主要轻微违例来自 ingress `state_reg[0] -> payload_mem_* WE`，另有一条 wrapper/core reset 控制路径。
+- 下一轮应同时审查 Vivado implementation strategy 和 ingress 写使能译码；不能把 DMA IP 内部的最差路径误归因于 NPU 或 egress。
+- 本轮 `build_manifest.json` 未被 runner 更新，仍绑定旧提交 `b2332a0`；timing gate 失败时该文件必须视为无效证据。
+- 虽然新 `gen_run.xml` 列出 `post_route_phys_opt_design`，但 `vivado_run.log` 未见对应 `phys_opt_design` 命令，当前只能确认 post-place `AggressiveExplore` 已执行。
+
+## 2026-09-11 B2 packet-NPU 物理门通过
+
+- 在 ingress 写请求寄存、post-place/post-route `AggressiveExplore` 后，Vivado 2024.1 顶层 routed timing 全绿：`WNS=+0.012 ns`、`TNS=0`、`WHS=+0.036 ns`、`THS=0`。
+- setup/hold 失败端点为 0，route errors=`0`，DRC hard errors=`0`；日志确认实际执行 `phys_opt_design -directive AggressiveExplore`（post-route mode）。
+- bit/XSA 已成功生成；`build_manifest.json` 记录源码、报告、bit/XSA SHA-256。当前 manifest 的 `git_worktree_clean=false`，需在提交后 clean-worktree 重建以完成最终可复现性校验。
+- 物理门通过不等于 B2-GATE 通过；下一步是板级 packet path、错误恢复、fence/计数器和功耗证据，B3 与 ENeuron A/B 暂不开始。

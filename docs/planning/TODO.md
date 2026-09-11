@@ -1,10 +1,12 @@
 # Pulse-Mini 开发计划
 
-## 当前主线校正（2026-09-09）
+## 当前主线校正（2026-09-11）
 
 本文件前半部分保留 Pulse-Mini P0-P13 的历史研发合同；当前日常主线是 P16 的 `xc7z020clg484-2` 板级集成、传统 NPU + ENeuron 动态剪枝和 NP7 共享 lane。当前精确 HEAD、工作树状态和活动 TODO 计数以 `workflow_resume.ps1 -Mode Check` 与 Git 为准；历史审计基线为 `d7e1035`。B1-06B7 使用的已生成 OCM 诊断产物仍绑定构建身份 `dae5473ba72d6cfaee12ed8e103c0efad190ed4a`。当前工作树仍保留用户已有的 `artifacts/results/rtl_smoke_results.json` 改动，不把它混入本轮文档/知识库提交。该基线收口 TODO/Nexus、串口端口选择入口和历史资料，不改变已签核的 B1B 诊断 ELF 或硬件身份。Pulse-Mini-L/L2 不参与当前 NPU 日常门，但其已完成证据仍保留供追溯。
 
 当前板级状态：低地址 `0x01000000–0x010FFFFF` 的 1 MiB DDR 已完成三次冷启动；高地址诊断尚未真正访问 DDR。CH340 以 `VID_1A86:PID_7523` 识别，COM 号不固定，本次环境探测（2026-09-08）为 COM10。B1C PHY/UDP 继续后置；B2 可先按低地址容量满足模型/DMA 缓冲区的条件启动 MVP，完整 `B1-GATE` 仍是进入网络化 B1C/B4 的门槛。
+
+当前 NPU 集成状态：最新物理修复在 `e3db1a1` 后增加 ingress 写请求寄存，并启用 post-route `AggressiveExplore`。目标 Vivado 2024.1 `xc7z020clg484-2` routed timing 已通过：200 MHz `WNS=+0.012 ns`、`TNS=0`、`WHS=+0.036 ns`、`THS=0`、setup/hold 失败端点为 0、route/DRC hard error 为 0；bit/XSA 与 manifest 已生成。B2-GATE 仍需板级 packet path 证据，B3 和 ENeuron A/B 保持未完成。
 
 ## 2026-09-07 资源裁剪审查门
 
@@ -660,6 +662,7 @@ P15 硬门：双时钟逐 beat bit-exact；reset/ready-valid/FIFO 满空无丢�
 - [x] B2-03：PL AXI-Stream direct loopback 已在 `xc7z020clg484-2` 实板以 JTAG 状态区和 UART 证明边界、压力、受控背压、256 帧回绕、一次受控恢复、提交间歇和 missing-TLAST 错误恢复；正式 run `20260909T133721Z`（HEAD `b2332a0`）UART/JTAG/XSCT 均 PASS，pressure=`10000/10000`、backpressure=`64/64`、wrap=`256/256`、recovery=`timeout=1/reset=1/passed=1/failed=0`、error=`dma_error=1/reset=1/recovered=1/failed=0`。8 条跨长度 ledger 按 64-byte 结构体完整读取并通过；官方 `axi_stream_monitor` 单 monitor 实验不作为正式物理基线。
 - [x] B2-04：正式 run `20260909T115218Z` 已完成 `0/1/4/16/64/512/1472/4096` bytes 边界矩阵：8 帧总计、7 帧 PASS、1 帧零长度明确拒绝、失败数为 0；同一 ELF 完成 64 个 64-byte 对齐 slot 的 256 帧回绕，slot mask 低/高均全 1、rollovers=`3`、TX `0x01006000→0x01006FC0`、RX `0x01007000→0x01007FC0`，并在同一 run 中完成 reset 后独立 4-byte 合法短帧恢复。
 - [x] B2-05：正式 run `20260909T133721Z` 已完成同一低地址合同上的 10000 帧压力、64 帧受控接收背压、256 帧回绕、两个合法帧之间的 1 ms 软件发送间歇、ready 低电平停止→恢复和 missing-TLAST 错误恢复；UART/JTAG 均 PASS，压力/背压/回绕/恢复/错误场景失败数均为 0，`stall_cycles=83079`，ready=`1→0→1`，gap=`2/2`，错误场景 `dma_error=1/reset=1/recovered=1`。8 条跨长度边界 ledger 已按 64-byte 结构体完整读回并逐条通过。
+- [x] B2-PHY：packet-NPU 顶层在 `xc7z020clg484-2`、200 MHz `clk_fpga_0` 下通过 routed timing gate：`WNS=+0.012 ns`、`TNS=0`、`WHS=+0.036 ns`、`THS=0`、setup/hold 失败端点为 0、route errors=0、DRC hard errors=0。bit/XSA 已生成并绑定 `build_manifest.json`；下一步是板级 packet path，不代表 B2-GATE 已完成。
 - [ ] B2-06：外层 DMA packet 合同已冻结；主机侧参考、Host→NPU ingress、NPU→Host egress、response 错误切片和合法 `mask/fence/sample/result` 端到端切片均已仿真通过（`B2_PACKET_INGRESS_PASS`、`B2_PACKET_EGRESS_PASS`、`B2_NPU_PACKET_ADAPTER_PASS`、`B2_NPU_PACKET_ADAPTER_E2E_PASS`），覆盖完整缓存、固定 beat 映射、CRC/TLAST/长度和基础 sideband 回显。仍需补齐多 packet 元数据关联、完整错误矩阵、板级 packet path 并在 XC7Z020 实板验证。
 - [ ] B2-07：覆盖早到/晚到/缺失 TLAST、错误长度、未知消息类型、错误保留位、超时和中途复位；错误帧必须被完整丢弃或明确拒绝，不得留下半条命令、半个样本、半个模型或旧结果。
 - [ ] B2-08：为命令、样本、响应、结果四条逻辑流分别记录接受数和完成数；跨流 fence 前后保存计数器，证明模型/mask提交、样本和结果没有越过已冻结顺序边界。

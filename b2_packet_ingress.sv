@@ -86,6 +86,10 @@ module b2_packet_ingress #(
     logic        output_data_valid;
     logic        frame_error;
     logic [3:0]  frame_error_code;
+    logic        payload_write_pending;
+    logic [1:0]  payload_write_bank;
+    logic [8:0]  payload_write_addr;
+    logic [31:0] payload_write_data;
 
     wire s_fire = s_valid && s_ready;
     wire cmd_fire = cmd_valid && cmd_ready;
@@ -149,10 +153,25 @@ module b2_packet_ingress #(
             output_data_valid <= 1'b0;
             frame_error <= 1'b0;
             frame_error_code <= '0;
+            payload_write_pending <= 1'b0;
+            payload_write_bank <= '0;
+            payload_write_addr <= '0;
+            payload_write_data <= '0;
             error_valid <= 1'b0;
             error_code <= '0;
         end else begin
             error_valid <= 1'b0;
+            payload_write_pending <= 1'b0;
+
+            // 先寄存 payload 写请求，避免帧状态译码直接驱动 RAM 写使能。
+            if (payload_write_pending) begin
+                case (payload_write_bank)
+                    2'd0: payload_mem_bank0[payload_write_addr] <= payload_write_data;
+                    2'd1: payload_mem_bank1[payload_write_addr] <= payload_write_data;
+                    2'd2: payload_mem_bank2[payload_write_addr] <= payload_write_data;
+                    default: payload_mem_bank3[payload_write_addr] <= payload_write_data;
+                endcase
+            end
 
             if ((state == ST_CMD_OUT || state == ST_SAMPLE_OUT) && !output_data_valid) begin
                 if (state == ST_CMD_OUT) begin
@@ -314,12 +333,10 @@ module b2_packet_ingress #(
                             frame_error_code <= ERR_BAD_LENGTH;
                             state <= ST_DROP;
                         end else begin
-                            case (payload_word_index[1:0])
-                                2'd0: payload_mem_bank0[payload_word_index >> 2] <= s_data;
-                                2'd1: payload_mem_bank1[payload_word_index >> 2] <= s_data;
-                                2'd2: payload_mem_bank2[payload_word_index >> 2] <= s_data;
-                                default: payload_mem_bank3[payload_word_index >> 2] <= s_data;
-                            endcase
+                            payload_write_pending <= 1'b1;
+                            payload_write_bank <= payload_word_index[1:0];
+                            payload_write_addr <= payload_word_index >> 2;
+                            payload_write_data <= s_data;
                             crc_state <= crc32_word(crc_state, s_data);
                             if (payload_word_index + 1'b1 >= payload_word_expected) begin
                                 state <= ST_CRC;

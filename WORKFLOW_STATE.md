@@ -2,15 +2,17 @@
 
 模式：`PERSISTENT_WORKFLOW_V1`
 
-最后更新：2026-09-09
+最后更新：2026-09-11
 
-状态：`ACTIVE / PHASE2_FASTLANE_V1 / B0_COMPLETE_MAIN_102DEE2 / B1A_HW_DEFINITION_COMPLETE / B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DIAG_READY_NO_GO / B1B_HIGH_DDR_PENDING / B2_00_LOW_ADDRESS_LAYOUT_FROZEN / B2_D1_DMA_CONTRACT_FROZEN / B2_01_BUFFER_OWNERSHIP_FROZEN / B2_DMA_SW_BUILD_READY / B2_BOUNDARY_PRESSURE_BACKPRESSURE_UART_JTAG_PASS / B1_GATE_FALSE / XC7Z020CLG484_2_CONFIRMED / T3_XPM_XSIM_PASS / T3_XC7Z020_OOC_PASS / RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN / GITHUB_ACTIONS_DISABLED`
+状态：`ACTIVE / PHASE2_FASTLANE_V1 / B0_COMPLETE_MAIN_102DEE2 / B1A_HW_DEFINITION_COMPLETE / B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DIAG_READY_NO_GO / B1B_HIGH_DDR_PENDING / B2_00_LOW_ADDRESS_LAYOUT_FROZEN / B2_D1_DMA_CONTRACT_FROZEN / B2_01_BUFFER_OWNERSHIP_FROZEN / B2_DMA_SW_BUILD_READY / B2_BOUNDARY_PRESSURE_BACKPRESSURE_UART_JTAG_PASS / B2_NPU_PHYSICAL_GATE_PASS / B2_PACKET_PATH_PENDING / B1_GATE_FALSE / XC7Z020CLG484_2_CONFIRMED / T3_XPM_XSIM_PASS / T3_XC7Z020_OOC_PASS / RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN / GITHUB_ACTIONS_DISABLED`
 
 ## 当前活动目标
 
 NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定及 TR1-TR6 已批准。管理员于 2026-09-05 批准 TR7-TR12，V2 已完成测试先行、RTL 实施、功能回归和 Vivado 2024.1 OOC。DSP V1 实现、真实 OOC 失败证据和全部 22 个失败端点审计已经合入；V2 KISS 审核材料经 PR #62 合入 `main@e8dc947`，V2 实现提交为 `f744bff2bdde68e138a7b2b348ce103bec1ab469`。
 
 当前阶段活动合同：`docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`。关联主线合同为 `docs/planning/TODO.md`、`docs/planning/NPU_PRUNING_TODO.md` 和 `docs/planning/NPU_PRUNING_NP7_TODO.md`。阶段 2 只用真实板卡证据关闭任务；仿真与 OOC 继续作为开发辅助和历史基线。
+
+2026-09-11：`e3db1a1` 后的 ingress 写请求寄存与 `AggressiveExplore`/post-route phys-opt 修复已完成。`xc7z020clg484-2`、200 MHz 顶层 routed timing 全绿：`WNS=+0.012 ns`、`TNS=0`、`WHS=+0.036 ns`、`THS=0`、setup/hold 失败端点为 0、route errors=0、DRC hard errors=0；bit/XSA 已生成并绑定 manifest。下一步转入板级 packet path，尚未进入 B3 或 ENeuron A/B。
 
 2026-09-09：B2-D1 首轮 AXI DMA 控制合同已冻结为 simple mode、单次 buffer、polling、S2MM 先行、1 us polling、1 s 传输超时、500 次 reset poll、错误/超时寄存器快照和一次短帧恢复；DMA 已进入 B2 loopback 拓扑，随后已完成低地址实板传输。
 
@@ -96,7 +98,7 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 
 ## 下一动作
 
-主线下一动作是 P16-B2-03 的实板完整性收口：保留当前 JTAG 状态采集合同，补齐 UART/PL 多长度观测、错误/复位恢复和跨 cache-line/连续回绕证据。无背压 10000 帧与受控背压 64 帧已通过，但 B2-GATE 通过前不得接入 NPU 或报告剪枝加速、功耗收益。B1-06B6 串口接收故障和高地址 DDR 诊断继续作为板卡资格支线。
+主线下一动作是完成 B2-06～B2-10 的板级 packet-NPU 验证，再关闭 B2-GATE；物理门已通过，可使用本次 manifest 绑定的 bit/XSA。B3 与 ENeuron A/B 仍需等待 packet path、计数器/fence、错误恢复和功耗证据。B1-06B6 串口接收故障和高地址 DDR 诊断仍为独立板卡资格支线。
 
 ## 2026-09-05 V2 OOC 签核结果
 
