@@ -1857,3 +1857,12 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 - [x] 合同回归 `106 passed`，仓库复现入口 `REPRO_G0_MANIFEST_PASS`、`REPRO_G1_T1_PROTOCOL_SLICE_PASS` 通过。
 - [ ] 提交当前修复后，在 clean worktree 重建并确认 manifest `git_worktree_clean=true`、HEAD 与源码/报告/bit/XSA 哈希一致。
 - [ ] 物理门通过后进入板级 packet path、错误恢复、fence/计数器和功耗证据；B3 与 ENeuron A/B 仍保持关闭。
+
+## 2026-09-11 B2 packet smoke 实板切片
+
+- [x] 新增 `packet_main.c` 与 `run_b2_packet_sw_build.ps1`，复用既有 BSP/链接布局生成独立 `b2_packet_smoke.elf` 和 packet manifest。
+- [x] 修正命令 128-bit word 的 opcode/epoch little-endian 分拆，装载 634 个模型 word 和 19 个 mask word，并校验 fence/result payload。
+- [x] 修正 TX-only DMA 等待条件：DMA 方向值不是 bit mask；同时逐帧重新激活会在 TLAST 后自动停用的 `axis_stream_probe`。
+- [x] 修正 packet runner 的空日志和 CH340 重连处理，保留每次失败运行目录，不覆盖原始证据。
+- [x] 实板 run `20260911T045732Z`（COM15，`VID_1A86:PID_7523`）通过：UART/JTAG/XSCT、634 model、19 mask、fence、sample/result 全 PASS；bit SHA-256=`41e785ec1af4c6f182069c86ba23f8190862430bae38aa0dd5ecaca6a9141d90`。
+- [ ] 该切片仍不关闭 B2-06～B2-10 总门：多 packet 元数据关联、完整错误矩阵、四流计数器、统一时间戳和功耗证据待补；B2-GATE、B3、ENeuron A/B 继续冻结。

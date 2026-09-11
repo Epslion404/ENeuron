@@ -1,10 +1,12 @@
 # 核心领域概念
 
-当前主线（2026-09-11）：部署目标为 `xc7z020clg484-2`，聚焦 NPU + ENeuron 动态剪枝。`archive/legacy/` 不参与日常门；旧 `xc7z020clg400-1` 的 NP7/T3 物理证据仅作历史参考。B1 高地址 DDR、PHY、UDP 属于板卡资格支线，完整 `B1-GATE` 仍未关闭，但不阻塞低地址 B2-MVP。当前 HEAD 为 `e3db1a187151b8ca4b445ec6714131a069b56e3a`；packet-NPU 顶层已通过 200 MHz routed timing（WNS=`+0.012 ns`、TNS=`0`、WHS=`+0.036 ns`、THS=`0`，route/DRC hard error=0），下一步是 B2 packet path 和 B2-GATE，ENeuron A/B 继续保持未完成。
+当前摘要校正（2026-09-11）：HEAD=`97398bf641b49ef2f2ab6b16edd68b6327a14488`，P16 当前活动未完成项为 `59`。`xc7z020clg484-2` packet-NPU 已通过 200 MHz routed timing gate（WNS=`+0.012 ns`、TNS=`0`、WHS=`+0.036 ns`、THS=`0`，route/DRC hard error=0）；下一步为 B2-06～B2-10 packet path 与 B2-GATE，B2-PHY 不再是待办门。
 
-状态更新（2026-09-11）：mask-scan 优化构建绑定 `0f71f49`，当前工作树为后续 probe/egress 与 ingress pipeline 切片 `e3db1a1`。B2 packet-NPU 适配器合同与 sample/result E2E 切片分别为 `B2_NPU_PACKET_ADAPTER_PASS`、`B2_NPU_PACKET_ADAPTER_E2E_PASS`；`b2_npu_axis_top.v` 已作为 B2 BD Verilog reference 接入源码。`xc7z020clg484-2` routed build 的 200 MHz timing 已通过（WNS=`+0.012 ns`、TNS=`0`、WHS=`+0.036 ns`、THS=`0`，route/DRC hard error=0），状态转为物理通过，尚未完成板级 packet path。
+当前主线（2026-09-11）：部署目标为 `xc7z020clg484-2`，聚焦 NPU + ENeuron 动态剪枝。`archive/legacy/` 不参与日常门；旧 `xc7z020clg400-1` 的 NP7/T3 物理证据仅作历史参考。B1 高地址 DDR、PHY、UDP 属于板卡资格支线，完整 `B1-GATE` 仍未关闭，但不阻塞低地址 B2-MVP。当前 HEAD 为 `97398bf641b49ef2f2ab6b16edd68b6327a14488`；packet-NPU 顶层已通过 200 MHz routed timing（WNS=`+0.012 ns`、TNS=`0`、WHS=`+0.036 ns`、THS=`0`，route/DRC hard error=0），下一步是 B2 packet path 和 B2-GATE，ENeuron A/B 继续保持未完成。
 
-- `ACTIVE_CONTRACT_HIERARCHY`：当前阶段合同为 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`；`docs/planning/TODO.md` 的 P16 段、`docs/planning/NPU_PRUNING_TODO.md` 和 `docs/planning/NPU_PRUNING_NP7_TODO.md` 为关联合同。P16 当前活动未完成项为 `60`；当前主线为 B2-PHY/B2-06 packet-NPU 200 MHz 时序修复，B2-PHY、B2-06～B2-10 与 B2-GATE 未完成。
+状态更新（2026-09-11）：mask-scan 优化构建绑定 `0f71f49`，当前工作树为 packet-NPU 物理通过后的 B2 packet-path 验证基线 `97398bf`。B2 packet-NPU 适配器合同与 sample/result E2E 切片分别为 `B2_NPU_PACKET_ADAPTER_PASS`、`B2_NPU_PACKET_ADAPTER_E2E_PASS`；`b2_npu_axis_top.v` 已作为 B2 BD Verilog reference 接入源码。`xc7z020clg484-2` routed build 的 200 MHz timing 已通过（WNS=`+0.012 ns`、TNS=`0`、WHS=`+0.036 ns`、THS=`0`，route/DRC hard error=0），状态转为物理通过，尚未完成板级 packet path。
+
+- `ACTIVE_CONTRACT_HIERARCHY`：当前阶段合同为 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`；`docs/planning/TODO.md` 的 P16 段、`docs/planning/NPU_PRUNING_TODO.md` 和 `docs/planning/NPU_PRUNING_NP7_TODO.md` 为关联合同。P16 当前活动未完成项为 `59`；当前主线为 B2-06～B2-10 packet path 与 B2-GATE，B2-PHY 已通过。
 - `B1_06B6_UART_BASELINE_PENDING`：当前先按 VID/PID 恢复 CH340 UART 接收基准；此前诊断停在 READY 等待 GO，`command=0`、`completed_accesses=0`，尚未进行 DDR 访问。执行链固定为 B1-06B6 UART 基准 → B1-06B7 OCM 高地址最小复现；B1-06B7 高地址探针必须以后续 UART 基准通过为前提。
 - `B1_06B6_COM10_PASSIVE_LISTEN_NO_BYTES`：2026-09-08 按 `VID_1A86:PID_7523` 对 COM10 以 115200 8N1 监听 10 秒，读取 0 字节，未见 `ENEURON_B1B_BEGIN`、`ALIVE` 或 `PASS`；未下载 bitstream/ELF、未发送 GO，DDR access=0。该观察保持 `B1-06B6_UART_BASELINE_PENDING`，不是 DDR 失败证据。
 

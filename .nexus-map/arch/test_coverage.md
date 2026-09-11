@@ -1,12 +1,14 @@
 # 测试面与缺口
 
-状态更正（2026-09-11）：当前工作树 HEAD 为 `e3db1a187151b8ca4b445ec6714131a069b56e3a`，最新 packet-NPU 物理修复已完成。此前 2026-09-09/10 条目保留为历史切片说明；B2-03/B2-04/B2-05 与 B2-PHY 已收口。当前测试缺口以 `docs/planning/TODO.md` P16-B2 为准：B2-06/B2-07/B2-08/B2-09/B2-10 与 B2-GATE 尚未完成。B2/NPU 合同回归为 `106 passed`，packet-NPU routed timing 为 `WNS=+0.012 ns`、`TNS=0`、`WHS=+0.036 ns`、`THS=0`，route/DRC hard error=0。
+当前摘要校正（2026-09-11）：HEAD=`97398bf641b49ef2f2ab6b16edd68b6327a14488`，P16 当前活动未完成项为 `59`。B2-PHY 已通过：`xc7z020clg484-2`、200 MHz routed timing 为 WNS=`+0.012 ns`、TNS=`0`、WHS=`+0.036 ns`、THS=`0`，setup/hold 失败端点为 0，route/DRC hard error=0。当前测试缺口为 B2-06～B2-10 packet path 与 B2-GATE；旧 timing fail/analysis_only_no_download 摘要均为历史记录。
+
+状态更正（2026-09-11）：当前工作树 HEAD 为 `97398bf641b49ef2f2ab6b16edd68b6327a14488`，最新 packet-NPU 物理修复已完成。此前 2026-09-09/10 条目保留为历史切片说明；B2-03/B2-04/B2-05 与 B2-PHY 已收口。当前测试缺口以 `docs/planning/TODO.md` P16-B2 为准：B2-06/B2-07/B2-08/B2-09/B2-10 与 B2-GATE 尚未完成。B2/NPU 合同回归为 `106 passed`，packet-NPU routed timing 为 `WNS=+0.012 ns`、`TNS=0`、`WHS=+0.036 ns`、`THS=0`，route/DRC hard error=0。
 
 TODO 计数更正：`workflow_resume.ps1 -Mode Check` 于 2026-09-10 在 HEAD `bc9ed89` 上报告 `TODO.md:P16=59`；本文其余 `63` 计数均为历史快照。
 
 当前覆盖边界：活动部署目标为 `xc7z020clg484-2`，NPU + ENeuron 动态剪枝证据优先。`archive/legacy/` 材料不参与日常门；旧 `xc7z020clg400-1` NP7/T3 物理结果只作历史参考。B1 高地址 DDR/PHY/UDP 属于板卡资格支线，完整 `B1-GATE` 仍待关闭；低地址窗口满足模型/DMA 容量后可继续 NPU MVP。CH340 以 `VID_1A86:PID_7523` 识别，COM10 仅为现场枚举记录。
 
-合同/统计边界（2026-09-11）：当前阶段合同为 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`；P16 TODO、`NPU_PRUNING_TODO.md` 和 `NPU_PRUNING_NP7_TODO.md` 为关联合同。当前活动分支为 `codex/b1b-high-ddr-board-repro`。最终 VALID 保持修复的物理门禁已通过（`WNS/WHS=+0.017/+0.014 ns`）；后续正式实板切片已补齐 B2-03/B2-04/B2-05 所需边界、压力、背压、回绕、恢复、间歇和 missing-TLAST 证据。B2-PHY、B2-06/B2-07/B2-08/B2-09/B2-10/B2-GATE 仍未关闭，B1 高地址 DDR 访问仍为 0。最新 packet-NPU 构建证据绑定 `0f71f49`，200 MHz setup `WNS=-0.056 ns`、`TNS=-0.096 ns`、3 个失败端点，状态为 `analysis_only_no_download`。
+合同/统计边界（2026-09-11）：当前阶段合同为 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`；P16 TODO、`NPU_PRUNING_TODO.md` 和 `NPU_PRUNING_NP7_TODO.md` 为关联合同。当前活动分支为 `codex/b1b-high-ddr-board-repro`。最终 VALID 保持修复的物理门禁已通过（`WNS/WHS=+0.017/+0.014 ns`）；后续正式实板切片已补齐 B2-03/B2-04/B2-05 所需边界、压力、背压、回绕、恢复、间歇和 missing-TLAST 证据。B2-PHY 已关闭，当前缺口为 B2-06/B2-07/B2-08/B2-09/B2-10 与 B2-GATE，B1 高地址 DDR 访问仍为 0。最新 packet-NPU 构建证据绑定 `97398bf`，200 MHz routed timing `WNS=+0.012 ns`、`TNS=0`、`WHS=+0.036 ns`、`THS=0`，route/DRC hard error=0。
 
 B2 观测器覆盖（2026-09-09）：官方双/单 monitor 的 routed setup 失败分别为 `WNS/TNS=-0.325/-11.113 ns`（127 个端点）和 `-0.284/-22.272 ns`（256 个端点），均不计入正式物理通过。当前工作树覆盖配置 period 非零、zero-stall fail-closed、首个 `input_fire` 启动 phase，以及 `TVALID=1/TREADY=0` 时冻结 phase 保持 VALID/payload；六个 B2 合同测试文件 `51/51` 通过。正式实板 run `20260909T105109Z`（HEAD `f7f01b0`）及 recovery run `20260909T110436Z` 已验证 UART/JTAG/XSCT、受控 S2MM `STALL>0`，并完成连续回绕 `256/256` 帧、`64/64` slot、`rollovers=3`，recovery timeout/reset/passed/failed=`1/1/1/0`、sequence=`10329`、CRC32=`0xD3E3C978`；该切片为 BOARD_PASS，但错误注入、间歇/ready 恢复、更完整逐帧 PL 观测和 B2-03/B2-04/B2-05/B2-GATE 整体关闭仍待完成。
 

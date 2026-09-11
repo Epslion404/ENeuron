@@ -668,6 +668,7 @@ P15 硬门：双时钟逐 beat bit-exact；reset/ready-valid/FIFO 满空无丢�
 - [ ] B2-08：为命令、样本、响应、结果四条逻辑流分别记录接受数和完成数；跨流 fence 前后保存计数器，证明模型/mask提交、样本和结果没有越过已冻结顺序边界。
 - [ ] B2-09：同时记录 PS软件时间戳、DMA开始/完成、PL入/出流周期和核心侧接受/完成计数；统一定义时间戳起止点，为后续拆分“网口、软件、DMA、计算”耗时建立可比较基线。
 - [ ] B2-10：证据包保存输入/输出二进制、CRC、sequence账本、cache维护记录、错误注入结果、寄存器快照、bitstream/ELF哈希、资源和时序，形成真实 DMA回环及协议适配摘要。
+- 2026-09-11 packet smoke 实板切片：在提交 `97398bf`、`xc7z020clg484-2`、200 MHz bitstream（SHA-256=`41e785ec1af4c6f182069c86ba23f8190862430bae38aa0dd5ecaca6a9141d90`）上，`run_b2_packet_board.ps1` 使用 CH340 `VID_1A86:PID_7523`、COM15 完成 FPGA program、ELF download、634 个 model word、19 个 mask word、fence response、8-beat sample 和 10-beat result；UART/JTAG/XSCT 机器判定均 PASS，证据目录为 `boards/hellozynq/b2_sw/build/97398bf641b49ef2f2ab6b16edd68b6327a14488/direct/runs/20260911T045732Z/`。该切片关闭 B2-06 的“合法 packet path 实板最小子门”和 B2-08 的“单 fence/sample 顺序子门”，但多 packet 元数据关联、完整错误矩阵、四流计数器、时间戳和功耗证据仍未完成，B2-GATE 不变。
 - [x] B2-RECOVERY：在 `20260909T121336Z` 实板 run 中先确认 S2MM probe `active=1`，写 stop 后确认 `active=0`（即 `TREADY=0`），观测到一次真实 timeout；随后按冻结顺序执行 DMA reset、重新激活两个 probe，并确认 `active=1` 后用 sequence=`10329` 的 4-byte 合法短帧恢复。JTAG recovery status=`2`、timeout=`1`、reset=`1`、passed=`1`、failed=`0`、ready=`1→0→1`。随后 gap 使用 sequence=`10330/10331` 完成 `4→64` bytes 两帧合法搬运和 `1000 us` 软件间歇。packetizer 尚未接入，因此 packetizer 复位仍由 B2-07/B2-GATE 覆盖。
 - [ ] B2-GATE：真实 DDR↔DMA↔PL双向搬运和协议适配在正常、背压、边界、错误、复位场景均零丢失/重复/乱序后，才能接入 NPU；B2-MVP 可在已验证低地址窗口内先执行 DMA/协议正确性门，但在 B1-GATE 完成前不得宣称网络化 B1/B4 通过或报告端到端剪枝加速。
 

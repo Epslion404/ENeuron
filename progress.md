@@ -1930,3 +1930,11 @@
 - 最终 routed timing：`WNS=+0.012 ns`、`TNS=0`、`WHS=+0.036 ns`、`THS=0`；setup/hold 失败端点为 0、route errors=0、DRC hard errors=0。
 - `hello_zynq_b2.bit`、`hello_zynq_b2.xsa` 与报告均生成；manifest 绑定 HEAD `e3db1a1` 和本轮源码哈希，但因工作树存在未提交改动仍标记 `git_worktree_clean=false`。
 - 合同回归已通过 `106 passed`；下一步提交当前修复并在 clean worktree 重建，随后进入板级 packet path 验证。
+
+## 2026-09-11 B2 packet smoke 实板通过
+
+- 新增 `boards/hellozynq/b2_sw/src/packet_main.c`、`run_b2_packet_sw_build.ps1` 和 `run_b2_packet_board.ps1`；packet ELF 构建通过，manifest 绑定 bit/XSA/ELF 哈希。
+- 调试并修正：DMA TX-only 等待方向值误当 bit mask、probe 每个 TLAST 后自动停用、串口重连/空日志处理、fence response little-endian word 解码。
+- 合同测试 `test_b2_packet_board_contract.py`：`4 passed`；PowerShell AST 解析通过；`test_b2_npu_wrapper_timing_contract.py test_npu_single_clock_compute.py`：`16 passed`。
+- 实板 run `20260911T045732Z`：COM15/CH340 `VID_1A86:PID_7523`，UART/JTAG/XSCT PASS；model `634`、mask `19`、fence/sample/result 全 PASS。run manifest 为 `boards/hellozynq/b2_sw/build/97398bf641b49ef2f2ab6b16edd68b6327a14488/direct/runs/20260911T045732Z/run_manifest.json`。
+- 仍未关闭：B2-06～B2-10 总门、B2-GATE、多 packet 元数据/错误矩阵/四流计数/统一时间戳/功耗；B3 和 ENeuron 1.0、Pulse-Mini-L/L2 继续冻结。

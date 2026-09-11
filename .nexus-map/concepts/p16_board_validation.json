@@ -8,7 +8,7 @@
   },
   "workflow_context": {
     "active_branch": "codex/b1b-high-ddr-board-repro",
-    "current_head": "e3db1a187151b8ca4b445ec6714131a069b56e3a",
+    "current_head": "97398bf641b49ef2f2ab6b16edd68b6327a14488",
     "worktree_status": "DIRTY",
     "worktree_entries": [
       ".nexus-map/arch/test_coverage.md",
@@ -115,7 +115,7 @@
     },
     "packet_npu_build": {
       "status": "ROUTED_BIT_XSA_PASS_TIMING_PASS",
-      "git_head": "e3db1a187151b8ca4b445ec6714131a069b56e3a",
+      "git_head": "97398bf641b49ef2f2ab6b16edd68b6327a14488",
       "part": "xc7z020clg484-2",
       "bitstream": "boards/hellozynq/b2_hw/build/hello_zynq_b2.bit",
       "xsa": "boards/hellozynq/b2_hw/build/hello_zynq_b2.xsa",
@@ -209,7 +209,7 @@
       "targeted_contract_tests": "51/51_PASS",
       "board_dma_transfer": "BOUNDARY_PRESSURE_AND_CONTROLLED_BACKPRESSURE_UART_JTAG_PASS; 20260909T094406Z",
       "pl_counters": "MM2S_AND_S2MM_PROBE_READ; S2MM_STALL=3; BACKPRESSURE_STALL_CYCLES=83082",
-      "b2_gate": "PENDING_B2_03_B2_05_EVIDENCE_GAPS",
+      "b2_gate": "PENDING_B2_06_B2_10_PACKET_PATH_AND_EVIDENCE_GAPS",
       "board_evidence_manifest": "artifacts/logs/b2_backpressure_uart_pass_20260909_55822ae/run_manifest.json",
       "board_evidence_sha256": "50ee8d61714704a8e228b20eb8dd4ea7da655ec56063b2f6ee9b2aaa5ee48007",
       "probe_log": "artifacts/logs/b2_backpressure_uart_pass_20260909_55822ae/probe_stdout.log",
@@ -445,7 +445,7 @@
         "busy/stall 在背压或 TLAST 场景不能单独作为严格证据",
         "真实 TKEEP 与 TLAST beat 位置仍需独立采样或明确推导"
       ],
-      "next_action": "补齐多长度逐帧 PL 观测、错误注入与复位恢复，并复核 TVALID 保持证据；连续 buffer 回绕已完成实板验证，B2-03/B2-04/B2-05/B2-GATE 保持未完成"
+      "next_action": "完成 B2-06～B2-10 packet path 及 B2-GATE 板级证据；B2-PHY 已通过"
     },
     "forbidden_claims": ["B2-03 fully closed", "B2-05 fully closed", "B2-GATE passed", "NPU integrated", "pruning speedup or power gain measured"]
   },

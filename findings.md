@@ -1819,3 +1819,11 @@
 - setup/hold 失败端点为 0，route errors=`0`，DRC hard errors=`0`；日志确认实际执行 `phys_opt_design -directive AggressiveExplore`（post-route mode）。
 - bit/XSA 已成功生成；`build_manifest.json` 记录源码、报告、bit/XSA SHA-256。当前 manifest 的 `git_worktree_clean=false`，需在提交后 clean-worktree 重建以完成最终可复现性校验。
 - 物理门通过不等于 B2-GATE 通过；下一步是板级 packet path、错误恢复、fence/计数器和功耗证据，B3 与 ENeuron A/B 暂不开始。
+
+## 2026-09-11 B2 packet smoke 实板调试与通过
+
+- 首次直接复用裸 DMA ELF 会在 packet ingress 首帧超时；根因是裸 payload 没有 `ENB2` header/CRC，不是 TX/RX 方向或物理时序问题。
+- packet 软件初版暴露两处板级契约问题：`XAXIDMA_DMA_TO_DEVICE` 是方向值 `0`，不能参与 bit-mask 等待；`axis_stream_probe` 在每个 TLAST 后自动停用，必须每帧重新 clear/activate。修复后 634 个模型命令可连续发送。
+- fence response 按 RTL `{RSP_FENCE,0,OP_SAMPLE_FENCE,0,fence_id,active_epoch,48'd0}` 解码；little-endian DMA word 为 `0,0,0x0F000000,0xD0A00000`，软件检查已与该布局一致。
+- 实板 run `20260911T045732Z` 在 COM15（CH340 `VID_1A86:PID_7523`）通过：`B2_PACKET_BEGIN`、634 model words、19 mask words、`B2_PACKET_FENCE_PASS`、`B2_PACKET_RESULT_PASS`、`B2_PACKET_PASS`；XSCT FPGA/ELF 下载也通过。证据目录：`boards/hellozynq/b2_sw/build/97398bf641b49ef2f2ab6b16edd68b6327a14488/direct/runs/20260911T045732Z/`。
+- 该结果只关闭合法 packet ingress/egress 实板最小切片；多 outstanding packet、完整错误矩阵、四流计数、时间戳、功耗和 B2-GATE 仍未完成。
