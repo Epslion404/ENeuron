@@ -40,6 +40,17 @@ class B2PacketEgressContractTests(unittest.TestCase):
         ):
             self.assertIn(token, source)
 
+    def test_frame_metadata_enable_is_independent_of_output_index(self):
+        source = (ROOT / "b2_packet_egress.sv").read_text(encoding="utf-8")
+        for token in (
+            "wire rsp_metadata_fire = rsp_fire && (state == ST_IDLE)",
+            "wire result_metadata_fire = result_fire && (state == ST_IDLE)",
+            "always_ff @(posedge clk)",
+            "if (rsp_metadata_fire)",
+            "else if (result_metadata_fire)",
+        ):
+            self.assertIn(token, source)
+
     def test_changes_use_t1_repro_scope(self):
         scopes = classify_paths(["b2_packet_egress.sv", "tb_b2_packet_egress.sv", "test_b2_packet_egress_contract.py"])
         self.assertTrue(scopes["t1_repro"])

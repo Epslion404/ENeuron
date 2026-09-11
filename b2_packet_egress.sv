@@ -81,6 +81,10 @@ module b2_packet_egress #(
     wire rsp_fire = rsp_valid && rsp_ready;
     wire result_fire = result_valid && result_ready;
     wire m_fire = m_valid && m_ready;
+    // 元数据只在新帧首拍更新，避免输出索引/下游 READY 参与寄存器 CE 组合链。
+    wire rsp_metadata_fire = rsp_fire && (state == ST_IDLE) &&
+        (response_word_count + 1'b1 <= RESPONSE_WORD_CAPACITY);
+    wire result_metadata_fire = result_fire && (state == ST_IDLE);
 
     function automatic [31:0] crc32_byte(input [31:0] crc, input [7:0] data);
         integer bit_index;
@@ -136,18 +140,36 @@ module b2_packet_egress #(
 
     always_ff @(posedge clk) begin
         if (rst) begin
-            state <= ST_IDLE;
-            payload_word_count <= '0;
-            response_word_count <= '0;
-            result_word_count <= '0;
-            output_index <= '0;
-            output_frame_words <= '0;
             sequence_reg <= '0;
             sample_id_reg <= '0;
             model_id_reg <= '0;
             mask_epoch_reg <= '0;
             status_reg <= '0;
             message_type_reg <= '0;
+        end else if (rsp_metadata_fire) begin
+            sequence_reg <= rsp_sequence;
+            model_id_reg <= rsp_model_id;
+            mask_epoch_reg <= rsp_mask_epoch;
+            status_reg <= rsp_status;
+            message_type_reg <= TYPE_RESPONSE;
+        end else if (result_metadata_fire) begin
+            sequence_reg <= result_sequence;
+            sample_id_reg <= result_sample_id;
+            model_id_reg <= result_model_id;
+            mask_epoch_reg <= result_mask_epoch;
+            status_reg <= result_status;
+            message_type_reg <= TYPE_RESULT;
+        end
+    end
+
+    always_ff @(posedge clk) begin
+        if (rst) begin
+            state <= ST_IDLE;
+            payload_word_count <= '0;
+            response_word_count <= '0;
+            result_word_count <= '0;
+            output_index <= '0;
+            output_frame_words <= '0;
             crc_state <= 32'hFFFF_FFFF;
             crc_word_data <= '0;
             crc_byte_index <= '0;
@@ -218,11 +240,6 @@ module b2_packet_egress #(
                         state <= ST_IDLE;
                     end else begin
                         response_word_count <= 1;
-                        sequence_reg <= rsp_sequence;
-                        model_id_reg <= rsp_model_id;
-                        mask_epoch_reg <= rsp_mask_epoch;
-                        status_reg <= rsp_status;
-                        message_type_reg <= TYPE_RESPONSE;
                         if (rsp_last) begin
                             payload_word_count <= 4;
                             output_frame_words <= HEADER_WORDS + 4;
@@ -246,12 +263,6 @@ module b2_packet_egress #(
             end else if (result_fire) begin
                 if (state == ST_IDLE) begin
                     result_word_count <= 1;
-                    sequence_reg <= result_sequence;
-                    sample_id_reg <= result_sample_id;
-                    model_id_reg <= result_model_id;
-                    mask_epoch_reg <= result_mask_epoch;
-                    status_reg <= result_status;
-                    message_type_reg <= TYPE_RESULT;
                     state <= ST_RESULT_COLLECT;
                 end else if ((result_sample_id != sample_id_reg) ||
                              (result_model_id != model_id_reg) ||
