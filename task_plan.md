@@ -1864,5 +1864,5 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 - [x] 修正命令 128-bit word 的 opcode/epoch little-endian 分拆，装载 634 个模型 word 和 19 个 mask word，并校验 fence/result payload。
 - [x] 修正 TX-only DMA 等待条件：DMA 方向值不是 bit mask；同时逐帧重新激活会在 TLAST 后自动停用的 `axis_stream_probe`。
 - [x] 修正 packet runner 的空日志和 CH340 重连处理，保留每次失败运行目录，不覆盖原始证据。
-- [x] 实板 run `20260911T045732Z`（COM15，`VID_1A86:PID_7523`）通过：UART/JTAG/XSCT、634 model、19 mask、fence、sample/result 全 PASS；bit SHA-256=`41e785ec1af4c6f182069c86ba23f8190862430bae38aa0dd5ecaca6a9141d90`。
+- [x] 实板 run `20260911T051400Z`（HEAD `8c8e44c`，COM15，`VID_1A86:PID_7523`）通过：UART/JTAG/XSCT、634 model、19 mask、fence、sample/result 全 PASS；bit SHA-256=`41e785ec1af4c6f182069c86ba23f8190862430bae38aa0dd5ecaca6a9141d90`、ELF SHA-256=`9579c2bd956029996697b8546ef8715bc2cc63ff4f48e1b7115730751efbb119`。
 - [ ] 该切片仍不关闭 B2-06～B2-10 总门：多 packet 元数据关联、完整错误矩阵、四流计数器、统一时间戳和功耗证据待补；B2-GATE、B3、ENeuron A/B 继续冻结。
