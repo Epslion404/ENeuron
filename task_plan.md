@@ -9,6 +9,15 @@
 - [x] 归档结果到 `artifacts/logs/b2_packet_npu_route_timing_fail_20260910_074ed56/`，并保留用户授权进入仓库的 JSON/日志证据。
 - [ ] 修复当前 `compute_unit_mask_latched -> compute_group_index` 200 MHz setup 路径并重建；在 WNS/TNS/THS 与 route/DRC 全绿前禁止上板。
 
+## 2026-09-11 mask-scan 时序修复切片
+
+- [x] 清理半成品 `GROUP_CHECK/compute_group_active` 编辑，恢复可编译状态。
+- [x] 改为无额外周期的 `compute_group_mask_scan` 逐组右移，保持计算协议和现有周期合同。
+- [x] 更新 B2 结构合同测试，禁止 group-index 动态 mask 位选。
+- [x] 定向回归通过：`16 passed`。
+- [x] 运行 B2/NPU 相关完整回归并记录结果：`158 passed, 115 subtests passed`。
+- [ ] 在可用 Vivado 环境中完成 `xc7z020clg484-2` routed timing 重建；未全绿前保持 `analysis_only_no_download`。
+
 本轮最终签核：`WNS=-0.052 ns`、`TNS=-0.134 ns`、6 个 setup failing endpoints，`WHS=+0.073 ns`、`THS=0`，route errors=`0`，DRC hard errors=`0`。bit/XSA 仅为 `analysis_only_no_download`。
 
 ## 2026-09-09 B2 route 当前观察

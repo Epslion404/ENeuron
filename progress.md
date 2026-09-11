@@ -1901,3 +1901,10 @@
 - 最终 200 MHz setup 为 `WNS=-0.052 ns`、`TNS=-0.134 ns`、6 个失败端点；hold 为 `WHS=+0.073 ns`、`THS=0`。最差路径为 `compute_unit_mask_latched_reg[3]/C -> compute_group_index_reg[1]/D`，数据延迟 `4.687 ns`，布线占 `3.272 ns`。
 - 本轮 bit/XSA 和完整 `vivado_run.log` 已归档至 `artifacts/logs/b2_packet_npu_route_timing_fail_20260910_074ed56/`，manifest 标为 `analysis_only_no_download`；继续禁止上板，ENeuron A/B 尚未开始。
 - 归档时首次按原始 CRLF 文本计算哈希会与 Git 规范化后的字节不一致，已改用 staged Git blob 哈希绑定文本报告；bit/XSA 二进制哈希未变。一次多文件 Nexus 补丁因上下文漂移失败，随后已按文件追加并完成 JSON 校验。
+# 2026-09-11
+
+- 修复未完成的 `GROUP_CHECK/compute_group_active` 中间状态，采用 `compute_group_mask_scan` 无额外周期方案。
+- 更新 `test_b2_npu_wrapper_timing_contract.py` 的结构合同，避免测试继续要求已删除的动态位选。
+- 验证：`pytest -q test_b2_npu_wrapper_timing_contract.py test_npu_single_clock_compute.py`，结果 `16 passed`。
+- B2/NPU 相关完整回归：`158 passed, 115 subtests passed in 44.30s`。
+- 下一步：补跑 B2/NPU 相关回归，随后视本机 Vivado 2024.1 可用性进行 routed timing 重建。

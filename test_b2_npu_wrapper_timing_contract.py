@@ -35,10 +35,12 @@ class B2NpuWrapperTimingContractTests(unittest.TestCase):
             "compute_unit_mask_latched",
             "compute_unit_mask_latched <= l0_unit_mask(compute_unit_index)",
             "compute_unit_mask_latched <= l1_unit_mask(compute_unit_index)",
-            "compute_unit_mask_latched[compute_group_index[3:0]]",
-            "compute_unit_mask_latched[compute_group_index[2:0]]",
+            "compute_group_mask_scan <= compute_unit_mask_latched",
+            "if (compute_group_mask_scan[0])",
+            "compute_group_mask_scan <= compute_group_mask_scan >> 1",
         ):
             self.assertIn(token, source)
+        self.assertNotIn("compute_unit_mask_latched[compute_group_index", source)
         self.assertNotIn("active_mask_enabled((compute_unit_index * 16)", source)
         self.assertNotIn("active_mask_enabled(512 + (compute_unit_index * 8)", source)
 
@@ -111,7 +113,6 @@ class B2NpuWrapperTimingContractTests(unittest.TestCase):
             "make_error_response(\n                            4'h6, cmd_opcode, {2'd0, mask_state},\n                            {27'd0, mask_word_index}, mask_active_epoch",
             source,
         )
-
 
 if __name__ == "__main__":
     unittest.main()

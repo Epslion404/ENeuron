@@ -1795,3 +1795,10 @@
 - `b2_packet_egress.sv` 采用 response 优先仲裁；response 通过 `rsp_last` 结束，result 固定 10 beat。输出顺序为 8-word header、payload words、1-word CRC。
 - response/result 都先缓存再发送，避免下游背压期间修改 header 或 payload；result 的 sideband 改变会产生错误脉冲且不生成 packet。
 - 独立 Icarus 测试 `B2_PACKET_EGRESS_PASS` 通过，并与 Python 参考向量逐 word 对比；当前尚未完成 wrapper/DMA 连接和实板验证。
+# 2026-09-11 mask-scan 修复
+
+- 当前工作树原先是不可编译的中间编辑：引用了不存在的 `GROUP_CHECK` 状态和 `compute_group_active`。
+- 已恢复为无额外周期的 mask scan：每个 `BIAS_LOAD` 锁存 `compute_group_mask_scan`，`GROUP_FETCH` 检查 bit0，跳过组或完成累加后右移一位。
+- 该方案移除了 `compute_unit_mask_latched[compute_group_index]` 动态位选，避免 mask 判定直接进入 group index 更新链；未新增状态和接口。
+- 定向回归 `pytest -q test_b2_npu_wrapper_timing_contract.py test_npu_single_clock_compute.py`：`16 passed`。
+- 物理时序尚未重建；此前 074ed56 证据仍为 `WNS=-0.052 ns`、`TNS=-0.134 ns`、6 个 setup 失败端点，禁止下载实板。

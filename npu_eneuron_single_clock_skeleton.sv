@@ -100,6 +100,8 @@ module npu_eneuron_single_clock_skeleton (
     // 每个神经元进入 bias fetch 时锁存自己的组掩码，避免 group 循环反复
     // 通过 unit index 访问 592-bit mask 阵列，降低控制扇出与动态索引路径。
     logic [15:0] compute_unit_mask_latched;
+    // 按组循环右移 mask，避免 group index 动态位选进入 next-index 组合链。
+    logic [15:0] compute_group_mask_scan;
     // 组权重地址提前一拍寄存，避免 unit/group 动态索引直达模型 RAM。
     logic [9:0] compute_model_addr;
     logic [31:0] model_word_latched;
@@ -303,6 +305,7 @@ module npu_eneuron_single_clock_skeleton (
             compute_unit_index <= 6'd0;
             compute_group_index <= 5'd0;
             compute_unit_mask_latched <= 16'd0;
+            compute_group_mask_scan <= 16'd0;
             compute_model_addr <= 10'd0;
             model_word_latched <= 32'd0;
             mac_accumulator_lo <= 16'sd0;
@@ -515,10 +518,11 @@ module npu_eneuron_single_clock_skeleton (
                         mac_accumulator_lo <= $signed(model_word_latched[15:0]);
                         mac_accumulator_hi <= $signed(model_word_latched[31:16]);
                         compute_group_index <= 5'd0;
+                        compute_group_mask_scan <= compute_unit_mask_latched;
                         compute_state <= COMPUTE_L0_GROUP_FETCH;
                     end
                     COMPUTE_L0_GROUP_FETCH: begin
-                        if (compute_unit_mask_latched[compute_group_index[3:0]]) begin
+                        if (compute_group_mask_scan[0]) begin
                             model_word_latched <= model_staging[compute_model_addr];
                             lane_activation_latched_0 <=
                                 $signed({4'b0000, input_pixels[(compute_group_index * 4) + 0]});
@@ -535,6 +539,7 @@ module npu_eneuron_single_clock_skeleton (
                         end else begin
                             compute_group_index <= compute_group_index + 5'd1;
                             compute_model_addr <= compute_model_addr + 10'd1;
+                            compute_group_mask_scan <= compute_group_mask_scan >> 1;
                         end
                     end
                     COMPUTE_L0_GROUP_EXECUTE: begin
@@ -562,6 +567,7 @@ module npu_eneuron_single_clock_skeleton (
                         end else begin
                             compute_group_index <= compute_group_index + 5'd1;
                             compute_model_addr <= compute_model_addr + 10'd1;
+                            compute_group_mask_scan <= compute_group_mask_scan >> 1;
                             compute_state <= COMPUTE_L0_GROUP_FETCH;
                         end
                     end
@@ -586,10 +592,11 @@ module npu_eneuron_single_clock_skeleton (
                         mac_accumulator_lo <= $signed(model_word_latched[15:0]);
                         mac_accumulator_hi <= $signed(model_word_latched[31:16]);
                         compute_group_index <= 5'd0;
+                        compute_group_mask_scan <= compute_unit_mask_latched;
                         compute_state <= COMPUTE_L1_GROUP_FETCH;
                     end
                     COMPUTE_L1_GROUP_FETCH: begin
-                        if (compute_unit_mask_latched[compute_group_index[2:0]]) begin
+                        if (compute_group_mask_scan[0]) begin
                             model_word_latched <= model_staging[compute_model_addr];
                             lane_activation_latched_0 <=
                                 $signed({1'b0, hidden_values[(compute_group_index * 4) + 0]});
@@ -606,6 +613,7 @@ module npu_eneuron_single_clock_skeleton (
                         end else begin
                             compute_group_index <= compute_group_index + 5'd1;
                             compute_model_addr <= compute_model_addr + 10'd1;
+                            compute_group_mask_scan <= compute_group_mask_scan >> 1;
                         end
                     end
                     COMPUTE_L1_GROUP_EXECUTE: begin
@@ -630,6 +638,7 @@ module npu_eneuron_single_clock_skeleton (
                         end else begin
                             compute_group_index <= compute_group_index + 5'd1;
                             compute_model_addr <= compute_model_addr + 10'd1;
+                            compute_group_mask_scan <= compute_group_mask_scan >> 1;
                             compute_state <= COMPUTE_L1_GROUP_FETCH;
                         end
                     end
