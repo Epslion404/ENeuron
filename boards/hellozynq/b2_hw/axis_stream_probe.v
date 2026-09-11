@@ -96,6 +96,8 @@ module axis_stream_probe #(
     reg [11:0] write_addr;
     reg [31:0] write_data;
     reg [3:0] write_strb;
+    reg [11:0] read_addr;
+    reg read_pending;
     wire write_fire;
     wire clear_now;
     wire stop_now;
@@ -127,7 +129,7 @@ module axis_stream_probe #(
 
     assign s_axi_awready = s_axi_aresetn && !aw_pending && !s_axi_bvalid;
     assign s_axi_wready = s_axi_aresetn && !w_pending && !s_axi_bvalid;
-    assign s_axi_arready = s_axi_aresetn && !s_axi_rvalid;
+    assign s_axi_arready = s_axi_aresetn && !s_axi_rvalid && !read_pending;
     assign write_fire = aw_pending && w_pending && !s_axi_bvalid;
     assign clear_now = write_fire && (write_addr == CONTROL_ADDR) && write_data[0];
     assign stop_now = write_fire && (write_addr == CONTROL_ADDR) && write_data[1];
@@ -144,6 +146,8 @@ module axis_stream_probe #(
             write_addr <= 12'd0;
             write_data <= 32'd0;
             write_strb <= 4'd0;
+            read_addr <= 12'd0;
+            read_pending <= 1'b0;
             accepted_beats <= 32'd0;
             total_bytes <= 32'd0;
             tlast_count <= 32'd0;
@@ -181,9 +185,14 @@ module axis_stream_probe #(
             end
 
             if (s_axi_arvalid && s_axi_arready) begin
+                read_addr <= s_axi_araddr;
+                read_pending <= 1'b1;
+            end
+            if (read_pending && !s_axi_rvalid) begin
+                read_pending <= 1'b0;
                 s_axi_rvalid <= 1'b1;
                 s_axi_rresp <= 2'b00;
-                case (s_axi_araddr)
+                case (read_addr)
                     BACKPRESSURE_ADDR: s_axi_rdata <= backpressure_config;
                     ERROR_CONFIG_ADDR: s_axi_rdata <= error_config;
                     SAMPLE_ADDR: s_axi_rdata <= {31'd0, active};

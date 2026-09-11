@@ -67,6 +67,18 @@ class B2StreamProbeContractTests(unittest.TestCase):
             self.probe,
         )
 
+    def test_probe_axi_read_address_is_registered_before_data_decode(self):
+        for token in (
+            "reg [11:0] read_addr",
+            "reg read_pending",
+            "assign s_axi_arready = s_axi_aresetn && !s_axi_rvalid && !read_pending",
+            "read_addr <= s_axi_araddr",
+            "read_pending <= 1'b1",
+            "if (read_pending && !s_axi_rvalid)",
+            "case (read_addr)",
+        ):
+            self.assertIn(token, self.probe)
+
     def test_backpressure_phase_starts_on_first_captured_beat(self):
         self.assertIn("else if (input_fire)", self.probe)
         self.assertIn("避免等待 DMA 首拍时相位漂移", self.probe)
