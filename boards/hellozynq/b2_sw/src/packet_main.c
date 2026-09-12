@@ -23,6 +23,15 @@
 #define MODEL_ID 3U
 #define MASK_EPOCH 1U
 
+#ifdef B3_DENSE
+#define APPLICATION_MODE "b3_dense"
+static const s32 EXPECTED_DENSE_LOGITS[10] = {
+    165, -18, 14, 0, 0, 0, 0, 0, 0, 153
+};
+#else
+#define APPLICATION_MODE "b2_packet_smoke"
+#endif
+
 #if defined(XPAR_AXIDMA_0_DEVICE_ID)
 #define DMA_DEVICE_ID XPAR_AXIDMA_0_DEVICE_ID
 #elif defined(XPAR_AXI_DMA_0_DEVICE_ID)
@@ -138,11 +147,37 @@ static void set_command_fields(u32 words[4], u32 opcode, u32 epoch,
 
 static u32 model_word_for_index(u32 index)
 {
+#ifdef B3_DENSE
+    // B3 固定向量：非零 INT8 权重覆盖低层多个输入组和输出层多个通道。
+    switch (index) {
+        case 0U: return 0x0103FE01U;
+        case 1U: return 0x02FF0102U;
+        case 16U: return 0xFE0201FFU;
+        case 17U: return 0x0102FF01U;
+        case 34U: return 0x03FF0102U;
+        case 51U: return 0x01010101U;
+        case 68U: return 0x0102FF03U;
+        case 512U: return 0x00000005U;
+        case 513U: return 0xFFFFFFFDU;
+        case 514U: return 0x00000004U;
+        case 516U: return 0x00000002U;
+        case 544U: return 0x0301FF02U;
+        case 552U: return 0x01FE02FFU;
+        case 561U: return 0x01010101U;
+        case 616U: return 0x02FF0003U;
+        case 624U: return 0x00000007U;
+        case 625U: return 0xFFFFFFFCU;
+        case 626U: return 0x00000001U;
+        case 633U: return 0xFFFFFFFEU;
+        default: return 0U;
+    }
+#else
     // 其余 word 保持零，三个非零 bias 用于确认板上确实完成了模型装载。
     if (index == 624U) return 3U;
     if (index == 625U) return 0xFFFFFFFBU;
     if (index == 633U) return 0xFFFFFFFFU;
     return 0U;
+#endif
 }
 
 static u32 finish_frame(volatile u32 *frame, u32 word_count)
@@ -189,7 +224,11 @@ static u32 build_sample_frame(volatile u32 *frame, u32 sample_id,
     frame[6] = epoch;
     frame[7] = 0U;
     for (index = 0U; index < 8U; ++index) {
+#ifdef B3_DENSE
+        frame[8U + index] = 0x87654321U;
+#else
         frame[8U + index] = 0U;
+#endif
     }
     return finish_frame(frame, 16U);
 }
@@ -298,12 +337,39 @@ static int send_sample_and_check(void)
     Xil_DCacheInvalidateRange(RX_BUFFER_BASE, MAX_FRAME_BYTES);
     if (response_words != 19U || rx[1] != 0x08000401U || rx[2] != 40U ||
         rx[3] != request_sequence || rx[4] != sample_id ||
-        rx[5] != MODEL_ID || rx[6] != MASK_EPOCH ||
-        rx[8] != 3U || rx[9] != 0xFFFFFFFBU || rx[17] != 0xFFFFFFFFU) {
+        rx[5] != MODEL_ID || rx[6] != MASK_EPOCH) {
+        return fail("result_response");
+    }
+#ifdef B3_DENSE
+    {
+        u32 index;
+        u32 crc = 0xFFFFFFFFU;
+        s32 result_logits[10];
+        for (index = 0U; index < 18U; ++index) {
+            crc = crc32_word(crc, rx[index]);
+        }
+        if (rx[18] != ~crc) {
+            return fail("b3_result_crc");
+        }
+        for (index = 0U; index < 10U; ++index) {
+            result_logits[index] = (s32)rx[8U + index];
+            if (result_logits[index] != EXPECTED_DENSE_LOGITS[index]) {
+                xil_printf("B3_DENSE_LOGIT_FAIL index=%u expected=%d actual=%d\r\n",
+                           index, EXPECTED_DENSE_LOGITS[index],
+                           result_logits[index]);
+                return fail("b3_logit_mismatch");
+            }
+        }
+        xil_printf("B3_DENSE_PASS sequence=%u sample_id=0x%08x response_words=%u logits=165,-18,14,0,0,0,0,0,0,153\r\n",
+                   request_sequence, sample_id, response_words);
+    }
+#else
+    if (rx[8] != 3U || rx[9] != 0xFFFFFFFBU || rx[17] != 0xFFFFFFFFU) {
         return fail("result_response");
     }
     xil_printf("B2_PACKET_RESULT_PASS sequence=%u sample_id=0x%08x response_words=%u\r\n",
                request_sequence, sample_id, response_words);
+#endif
     ++sequence;
     return XST_SUCCESS;
 }
@@ -315,6 +381,7 @@ int main(void)
 
     Xil_DCacheDisable();
     xil_printf("B2_PACKET_BEGIN\r\n");
+    xil_printf("APPLICATION_MODE=%s\r\n", APPLICATION_MODE);
     xil_printf("PROTOCOL=ENB2_PACKET_NPU_V1\r\n");
     xil_printf("TARGET=xc7z020clg484-2\r\n");
     xil_printf("TX_BUFFER=0x%08x RX_BUFFER=0x%08x\r\n",
@@ -349,11 +416,23 @@ int main(void)
     if (send_fence_and_check() != XST_SUCCESS) return XST_FAILURE;
     if (send_sample_and_check() != XST_SUCCESS) return XST_FAILURE;
 
+#ifdef B3_DENSE
     xil_printf("B2_PACKET_PASS model_words=%u mask_words=%u\r\n",
                MODEL_WORDS, MASK_WORDS);
+    xil_printf("B3_DENSE_PASS model_words=%u mask_words=%u\r\n",
+               MODEL_WORDS, MASK_WORDS);
+#else
+    xil_printf("B2_PACKET_PASS model_words=%u mask_words=%u\r\n",
+               MODEL_WORDS, MASK_WORDS);
+#endif
     while (1) {
         sleep(1U);
+#ifdef B3_DENSE
+        xil_printf("B3_DENSE_PASS model_words=%u mask_words=%u\r\n",
+                   MODEL_WORDS, MASK_WORDS);
+#else
         xil_printf("B2_PACKET_PASS model_words=%u mask_words=%u\r\n",
                    MODEL_WORDS, MASK_WORDS);
+#endif
     }
 }

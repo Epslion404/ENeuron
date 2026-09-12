@@ -1,22 +1,19 @@
-# Pulse-Mini 开发计划
+# P16 板级 NPU 与 ENeuron 规划
 
-## 当前主线校正（2026-09-11）
+## 当前主线校正（2026-09-12）
 
-本文件前半部分保留 Pulse-Mini P0-P13 的历史研发合同；当前日常主线是 P16 的 `xc7z020clg484-2` 板级集成、传统 NPU + ENeuron 动态剪枝和 NP7 共享 lane。当前精确 HEAD、工作树状态和活动 TODO 计数以 `workflow_resume.ps1 -Mode Check` 与 Git 为准；历史审计基线为 `d7e1035`。B1-06B7 使用的已生成 OCM 诊断产物仍绑定构建身份 `dae5473ba72d6cfaee12ed8e103c0efad190ed4a`。当前工作树仍保留用户已有的 `artifacts/results/rtl_smoke_results.json` 改动，不把它混入本轮文档/知识库提交。该基线收口 TODO/Nexus、串口端口选择入口和历史资料，不改变已签核的 B1B 诊断 ELF 或硬件身份。Pulse-Mini-L/L2 不参与当前 NPU 日常门，但其已完成证据仍保留供追溯。
+本文件前半部分保留 Pulse-Mini P0-P13 的历史研发合同；当前日常主线是 P16 的 `xc7z020clg484-2` 板级集成、传统 NPU + ENeuron 动态剪枝和 NP7 共享 lane。当前精确 HEAD、工作树状态和活动 TODO 计数以 `workflow_resume.ps1 -Mode Check` 与 Git 为准；历史审计基线为 `d7e1035`。B1-06B7 使用的已生成 OCM 诊断产物仍绑定构建身份 `dae5473ba72d6cfaee12ed8e103c0efad190ed4a`。工作树可能包含与本轮无关的未提交修改，文档/知识库收口不得覆盖或混入这些改动。该基线收口 TODO/Nexus、串口端口选择入口和历史资料，不改变已签核的 B1B 诊断 ELF 或硬件身份。Pulse-Mini-L/L2 不参与当前 NPU 日常门，但其已完成证据仍保留供追溯。
 
-当前板级状态：低地址 `0x01000000–0x010FFFFF` 的 1 MiB DDR 已完成三次冷启动；高地址诊断尚未真正访问 DDR。CH340 以 `VID_1A86:PID_7523` 识别，COM 号不固定，本次环境探测（2026-09-08）为 COM10。B1C PHY/UDP 继续后置；B2 可先按低地址容量满足模型/DMA 缓冲区的条件启动 MVP，完整 `B1-GATE` 仍是进入网络化 B1C/B4 的门槛。
+当前板级状态：低地址 `0x01000000–0x010FFFFF` 的 1 MiB DDR 已完成三次冷启动；高地址诊断尚未真正访问 DDR。CH340 以 `VID_1A86:PID_7523` 识别，COM 号不固定；2026-09-08 环境探测为 COM10，2026-09-12 packet smoke 使用 COM15。B1C PHY/UDP 继续后置；B2 可先按低地址容量满足模型/DMA 缓冲区的条件启动 MVP，完整 `B1-GATE` 仍是进入网络化 B1C/B4 的门槛。
 
-当前 NPU 集成状态：最新物理修复在 `e3db1a1` 后增加 ingress 写请求寄存，并启用 post-route `AggressiveExplore`。目标 Vivado 2024.1 `xc7z020clg484-2` routed timing 已通过：200 MHz `WNS=+0.012 ns`、`TNS=0`、`WHS=+0.036 ns`、`THS=0`、setup/hold 失败端点为 0、route/DRC hard error 为 0；bit/XSA 与 manifest 已生成。B2-GATE 仍需板级 packet path 证据，B3 和 ENeuron A/B 保持未完成。
+当前 NPU 集成状态（2026-09-12）：HEAD `88bec9e9bdbec1de53ef45d2f22e4275308c0237` 对应的 Vivado 2024.1 `xc7z020clg484-2` routed timing 已通过：200 MHz `WNS=+0.005 ns`、`TNS=0`、`WHS=+0.034 ns`、`THS=0`、setup/hold 失败端点为 0、route/DRC hard error 为 0；bit/XSA 与 packet manifest 已绑定。`20260912T040206Z` 实板 smoke 在 COM15 通过，验证 634 model words、19 mask words、fence、8-beat sample 和 10-beat result；随后 `0x40430000` 状态块读取成功。B2-GATE、B2-07 完整错误矩阵、B2-09 时间戳和 B2-10 正式证据包仍未完成；B3 固定向量和 ENeuron 动态剪枝 A/B 是当前实验主线。
 
 ## 2026-09-07 资源裁剪审查门
 
 - [x] 完成 `NPU_ZYNQ7020_RESOURCE_CUT_REVIEW_V1.md`，基于当前 Vivado/RTL 证据列出可裁、可配置裁和不可裁项目。
-- [ ] 管理员选择是否实施 C1 固定模型 ROM/BRAM 配置。
-- [ ] 管理员选择是否实施 C2 `INFER_ONLY` ENeuron 构建配置。
-- [ ] 若批准 C1/C2，先建立独立 A/B OOC 顶层和逐拍等价测试，不覆盖训练基线。
-- [ ] C3 固定拓扑特化、C4 ID/epoch 缩短、C5 调试端口关闭暂不实施，等待 C1/C2 实测收益。
-- [ ] C6-C9（删除快照、原地更新、FIFO 合并/缩深、位宽缩减）必须单独形成新裁定，当前禁止直接改签核 RTL。
 - [x] 管理员决定：所有资源裁剪延后到第一次完整端到端运行成功之后；此前只完成 T1/T2/T3 证据，不改裁剪基线。
+
+本轮不实施 C1-C9，也不把它们计入当前活动 TODO；首次完整端到端运行后按 B4-14 重新逐项评审。届时仍需为每项裁剪建立独立 A/B、逐拍等价测试和新的物理证据，不能直接改签核 RTL。
 
 日期：2026-08-19  
 状态：`V2_IMPLEMENTED / VIVADO_OOC_100MHZ_PASS`；实施状态：`P8_NETWORK_SIGNED_OFF / PR64_MERGED / TR1_TR6_APPROVED / TR7_TR12_APPROVED / RTL_TIMING_REPAIR_GREEN / FULL_REGRESSION_GREEN / DSP_GATE_PASS / VIVADO_OOC_PASS`
@@ -597,7 +594,7 @@ P15 硬门：双时钟逐 beat bit-exact；reset/ready-valid/FIFO 满空无丢�
 - [ ] B1B：PS7、正式UART路径和低地址1 MiB DDR已完成三次冷启动；PR #75已合并OCM驻留高地址诊断。当前先用 `VID_1A86:PID_7523` 恢复串口接收基准，再执行`0x10000000`最小复现并关闭高地址异常。
 - [ ] B1C：在B1B主线基线上完成PHY、MDIO和最小UDP实板门，形成B1-GATE最终摘要。
 
-当前主线执行链：`B2-00 低地址容量证明 -> B2-D1 DMA方案冻结 -> B2-01～B2-GATE -> B3 NPU + ENeuron固定向量`。B1-06B6～B1-06F高地址DDR诊断保留为板卡资格支线，B1C仍在B1-06F之后；支线未关闭时必须标记`B1_HIGH_DDR_PENDING`，但不再阻塞满足B2-00入口条件的NPU MVP。
+当前主线执行链：`B2 packet-NPU 基线 -> B3 dense/full-open/静态 mask 固定向量 -> ENeuron 动态 mask A/B -> B4 网口端到端 A/B`。B2-GATE 仍是更完整发布门，但不再阻塞首次固定向量和动态剪枝实验；B1-06B6～B1-06F 高地址 DDR 诊断和 B1C PHY/UDP 保留为板卡资格支线。
 
 #### P16-B0：PL 配置、50 MHz 时钟和 LED
 
@@ -662,26 +659,27 @@ P15 硬门：双时钟逐 beat bit-exact；reset/ready-valid/FIFO 满空无丢�
 - [x] B2-03：PL AXI-Stream direct loopback 已在 `xc7z020clg484-2` 实板以 JTAG 状态区和 UART 证明边界、压力、受控背压、256 帧回绕、一次受控恢复、提交间歇和 missing-TLAST 错误恢复；正式 run `20260909T133721Z`（HEAD `b2332a0`）UART/JTAG/XSCT 均 PASS，pressure=`10000/10000`、backpressure=`64/64`、wrap=`256/256`、recovery=`timeout=1/reset=1/passed=1/failed=0`、error=`dma_error=1/reset=1/recovered=1/failed=0`。8 条跨长度 ledger 按 64-byte 结构体完整读取并通过；官方 `axi_stream_monitor` 单 monitor 实验不作为正式物理基线。
 - [x] B2-04：正式 run `20260909T115218Z` 已完成 `0/1/4/16/64/512/1472/4096` bytes 边界矩阵：8 帧总计、7 帧 PASS、1 帧零长度明确拒绝、失败数为 0；同一 ELF 完成 64 个 64-byte 对齐 slot 的 256 帧回绕，slot mask 低/高均全 1、rollovers=`3`、TX `0x01006000→0x01006FC0`、RX `0x01007000→0x01007FC0`，并在同一 run 中完成 reset 后独立 4-byte 合法短帧恢复。
 - [x] B2-05：正式 run `20260909T133721Z` 已完成同一低地址合同上的 10000 帧压力、64 帧受控接收背压、256 帧回绕、两个合法帧之间的 1 ms 软件发送间歇、ready 低电平停止→恢复和 missing-TLAST 错误恢复；UART/JTAG 均 PASS，压力/背压/回绕/恢复/错误场景失败数均为 0，`stall_cycles=83079`，ready=`1→0→1`，gap=`2/2`，错误场景 `dma_error=1/reset=1/recovered=1`。8 条跨长度边界 ledger 已按 64-byte 结构体完整读回并逐条通过。
-- [x] B2-PHY：packet-NPU 顶层在 `xc7z020clg484-2`、200 MHz `clk_fpga_0` 下通过 routed timing gate：`WNS=+0.012 ns`、`TNS=0`、`WHS=+0.036 ns`、`THS=0`、setup/hold 失败端点为 0、route errors=0、DRC hard errors=0。bit/XSA 已生成并绑定 `build_manifest.json`；下一步是板级 packet path，不代表 B2-GATE 已完成。
-- [ ] B2-06：外层 DMA packet 合同已冻结；主机侧参考、Host→NPU ingress、NPU→Host egress、response 错误切片和合法 `mask/fence/sample/result` 端到端切片均已仿真通过（`B2_PACKET_INGRESS_PASS`、`B2_PACKET_EGRESS_PASS`、`B2_NPU_PACKET_ADAPTER_PASS`、`B2_NPU_PACKET_ADAPTER_E2E_PASS`），覆盖完整缓存、固定 beat 映射、CRC/TLAST/长度和基础 sideband 回显。仍需补齐多 packet 元数据关联、完整错误矩阵、板级 packet path 并在 XC7Z020 实板验证。
-- [ ] B2-07：覆盖早到/晚到/缺失 TLAST、错误长度、未知消息类型、错误保留位、超时和中途复位；错误帧必须被完整丢弃或明确拒绝，不得留下半条命令、半个样本、半个模型或旧结果。
-- [ ] B2-08：为命令、样本、响应、结果四条逻辑流分别记录接受数和完成数；跨流 fence 前后保存计数器，证明模型/mask提交、样本和结果没有越过已冻结顺序边界。
-- [ ] B2-09：同时记录 PS软件时间戳、DMA开始/完成、PL入/出流周期和核心侧接受/完成计数；统一定义时间戳起止点，为后续拆分“网口、软件、DMA、计算”耗时建立可比较基线。
-- [ ] B2-10：证据包保存输入/输出二进制、CRC、sequence账本、cache维护记录、错误注入结果、寄存器快照、bitstream/ELF哈希、资源和时序，形成真实 DMA回环及协议适配摘要。
+- [x] B2-PHY：packet-NPU 顶层在 `xc7z020clg484-2`、200 MHz `clk_fpga_0` 下通过 routed timing gate：`WNS=+0.005 ns`、`TNS=0`、`WHS=+0.034 ns`、`THS=0`、setup/hold 失败端点为 0、route errors=0、DRC hard errors=0。bit/XSA 已生成并绑定 `build_manifest.json`；合法 packet path 和 `0x40430000` 状态块已有实板证据，不代表 B2-GATE 已完成。
+- [ ] B2-06：外层 DMA packet 合同已冻结；主机侧参考、Host→NPU ingress、NPU→Host egress、response 错误切片和合法 `mask/fence/sample/result` 端到端切片均已仿真通过（`B2_PACKET_INGRESS_PASS`、`B2_PACKET_EGRESS_PASS`、`B2_NPU_PACKET_ADAPTER_PASS`、`B2_NPU_PACKET_ADAPTER_E2E_PASS`）。2026-09-12、HEAD `88bec9e` 的合法 packet path 实板最小子门已通过：634 model words、19 mask words、fence response、8-beat sample 和 10-beat result，UART/JTAG/XSCT 均 PASS；整项仍需多 packet 元数据关联、完整错误矩阵和跨场景恢复证据。
+- [ ] B2-07：packetizer 错误矩阵仍未闭合。需独立覆盖早到/晚到/缺失 TLAST、错误长度、未知消息类型、错误保留位、坏 magic/version/type/flags、坏 TKEEP、坏 CRC、超时和中途复位；每个错误帧必须完整丢弃或明确拒绝，不得留下半条命令、半个样本、半个模型、半个 mask 或旧结果。旧 DMA/probe loopback 的 missing-TLAST 恢复只能作为旁证，不能替代本项 packetizer 证据。
+- [ ] B2-08：2026-09-12 新 bit/XSA 已完成 `0x40430000` 实板读取：`status=1`，command/sample/response/result 实时计数为 `658/658`、`8/8`、`1/1`、`10 beats/1 packet`，fence snapshot valid。仍需补齐多 packet 元数据关联、背压、错误、reset 后计数不重复/不丢失的机器可读账本；旧软件状态区 `0x01008000` 尚未由 packet smoke 初始化，不能作为完成证据。
+- 历史记录（2026-09-11）B2-08 板级状态子门：统一入口 `run_b2_checks.ps1` 实跑 `117 passed`、T1 两门 PASS、`git diff --check` 无错误；第三种响应结构完整 Vivado 重建为 `WNS=-0.030 ns/TNS=-0.203 ns`、`WHS=+0.036 ns/THS=0`。该失败构建只用于定位上一轮 setup 瓶颈，bit/XSA 不得上板；当前正式物理基线见上面的 B2-PHY 条目。
+- [ ] B2-09：需同时记录 PS 软件时间戳、DMA 开始/完成、PL 入/出流周期和核心侧接受/完成计数，并冻结统一起止点；现有 packet smoke 的运行时间和单次 UART/JTAG 结果不能替代该分段耗时基线。
+- [ ] B2-10：已有合法 packet smoke 的输入/输出、CRC、sequence、cache、寄存器和 bit/XSA/ELF 身份材料，但尚未形成覆盖错误注入、完整恢复、资源/时序和跨场景关联的正式证据包；需汇总为机器可读摘要后再关闭。
 - 2026-09-11 packet smoke 实板切片：在提交 `8c8e44c`、`xc7z020clg484-2`、200 MHz bitstream（SHA-256=`41e785ec1af4c6f182069c86ba23f8190862430bae38aa0dd5ecaca6a9141d90`）上，`run_b2_packet_board.ps1` 使用 CH340 `VID_1A86:PID_7523`、COM15 完成 FPGA program、ELF download、634 个 model word、19 个 mask word、fence response、8-beat sample 和 10-beat result；UART/JTAG/XSCT 机器判定均 PASS，证据目录为 `boards/hellozynq/b2_sw/build/8c8e44c9c013fbb6a52431498bb00e03e29580c4/direct/runs/20260911T051400Z/`。该切片关闭 B2-06 的“合法 packet path 实板最小子门”和 B2-08 的“单 fence/sample 顺序子门”，但多 packet 元数据关联、完整错误矩阵、四流计数器、时间戳和功耗证据仍未完成，B2-GATE 不变。
 - [x] B2-RECOVERY：在 `20260909T121336Z` 实板 run 中先确认 S2MM probe `active=1`，写 stop 后确认 `active=0`（即 `TREADY=0`），观测到一次真实 timeout；随后按冻结顺序执行 DMA reset、重新激活两个 probe，并确认 `active=1` 后用 sequence=`10329` 的 4-byte 合法短帧恢复。JTAG recovery status=`2`、timeout=`1`、reset=`1`、passed=`1`、failed=`0`、ready=`1→0→1`。随后 gap 使用 sequence=`10330/10331` 完成 `4→64` bytes 两帧合法搬运和 `1000 us` 软件间歇。packetizer 尚未接入，因此 packetizer 复位仍由 B2-07/B2-GATE 覆盖。
-- [ ] B2-GATE：真实 DDR↔DMA↔PL双向搬运和协议适配在正常、背压、边界、错误、复位场景均零丢失/重复/乱序后，才能接入 NPU；B2-MVP 可在已验证低地址窗口内先执行 DMA/协议正确性门，但在 B1-GATE 完成前不得宣称网络化 B1/B4 通过或报告端到端剪枝加速。
+- [ ] B2-GATE：真实 DDR↔DMA↔PL 双向搬运和协议适配在正常、背压、边界、错误、复位场景均零丢失/重复/乱序后，才能作为发布基线；当前 packet-NPU 已在低地址 MVP 上接入并完成合法路径 smoke，但在 B2-GATE 完成前不得宣称完整协议鲁棒性或网络化 B1/B4 通过。
 
 #### P16-B3：传统 NPU + ENeuron 固定向量
 
-- [ ] B3-00：入口只接受 `B2-GATE=PASS` 的 DMA/协议实现；冻结 B2 bitstream/ELF/协议版本作为对照，并为接入 NPU 后的新 bitstream建立独立 manifest。
+- [ ] B3-00：以当前 `PHYSICAL_PASS` packet-NPU bitstream/ELF/协议版本作为实验基线，冻结其 manifest；B2-GATE 继续作为发布门，不阻塞首次固定向量 A/B。首个实验门必须先证明 NPU 数值计算可用，再谈剪枝收益。
 - [ ] B3-01：保持当前 `64→32→10`、634个模型word、8-beat样本和10-beat结果不变；冻结模型word顺序、INT8/uint4解释、bias、隐藏层饱和、样本集合、期望10-logit、预测类别和所有文件 SHA-256。
 - [ ] B3-02：生成一份可由 Python参考模型和 Host工具共同读取的黄金 manifest；每个样本至少保存 sample ID、8个输入beat、dense logits、候选 mask epoch、gated logits和预期类别，禁止手工复制两套期望值。
 - [ ] B3-03：把已签核 NPU wrapper、DMA适配、周期计数器和最小可观测寄存器接入同一顶层；可观测项至少包含当前模式、active/pending epoch、接受/完成样本数、执行/跳过组数、协议错误和首错 sample ID。不得为调试修改数值语义、mask原子性或四 DSP合同。
 - [ ] B3-04：完成完整 bitstream实现，检查 Host/NPU/AXI相关时钟域 setup/hold、CDC、route、DRC、恰好4个 DSP48E1以及核心、wrapper、FIFO、DMA、packetizer分层资源；任一物理硬门失败时该 bitstream不得下载作正式测试。
 - [ ] B3-05：上板后先读取版本/能力寄存器，核对协议版本、模型规模、构建 Git SHA、bitstream标识和四 DSP配置；身份不符时拒绝装载模型和样本。
-- [ ] B3-06：先运行 dense/bypass；逐样本核对10个结果beat、sample ID、mask epoch和预测类别与冻结黄金输出完全一致，并核对执行组数等于 dense期望。
-- [ ] B3-07：运行 gate启用但全开 mask，结果必须与 dense/bypass逐 beat bit-exact一致；执行组数不得减少。这一步只证明门控通路透明，不证明剪枝有效。
+- [ ] B3-06：先运行 dense/bypass；逐样本核对10个 logit 对应的结果 beat、sample ID、mask epoch 和预测类别与冻结黄金输出完全一致，并核对执行组数等于 dense 期望。这一步才是 NPU 数值功能门，不由 packet smoke 代替。
+- [ ] B3-07：运行 gate 启用但全开 mask，10 个 logit 必须与 dense/bypass 逐 beat bit-exact 一致；执行组数不得减少。这一步只证明门控通路透明，不证明剪枝有效。
 - [ ] B3-08：先由 Host重放冻结的合法 mixed mask，包括严格 `2:4` 候选；逐样本保存执行组、跳过组、硬件周期和输出。该步隔离 NPU门控执行器，不把静态 Host mask称为 ENeuron自动决策。
 - [ ] B3-09：再接通 ENeuron证据→结构化 mask→pending bank→fence提交路径；保存每次决策使用的神经元证据、gain、组内候选、最终 mask、提交 epoch和生效样本。相同输入与初始状态重复运行应得到相同决策。
 - [ ] B3-10：对 ENeuron产生的 mask逐组检查严格 `2:4` 合法性；非法 mask必须在配置/提交阶段明确拒绝，不能静默钳位或把全关模式计作有效剪枝。全关只作协议负向或负载下界。
@@ -691,6 +689,8 @@ P15 硬门：双时钟逐 beat bit-exact；reset/ready-valid/FIFO 满空无丢�
 - [ ] B3-14：为每个正式模式报告样本正确数、logit完全一致数、类别一致数、每样本硬件周期、执行/跳过组、协议错误、恢复次数和资源；静态 mask与 ENeuron动态 mask分开统计。
 - [ ] B3-RECOVERY：若 dense错误先停在模型装载/量化/计算；full-open错误停在门控透明路径；static mask错误停在mask位序/epoch/NPU跳过；只有前三者全过后才诊断 ENeuron决策，不允许用调整训练参数掩盖基础执行错误。
 - [ ] B3-GATE：dense、全开、Host静态 `2:4` 和 live-ENeuron四类模式的协议、黄金输出或决策合同、epoch原子性和复位恢复全部通过，且同一 bitstream 的物理实现硬门通过，才能进入网口 A/B。
+
+2026-09-12 实板子门：`run_b2_packet_board.ps1 -PortName COM15` 使用当前 `xc7z020clg484-2` bitstream 和 B3 ELF 通过；`B3_DENSE_PASS` 核对完整 10 个 logits、结果 CRC、sample/model/epoch 元数据和 19-word 结果帧，黄金输出为 `165,-18,14,0,0,0,0,0,0,153`。这只关闭 B3 dense/full-open 固定向量子门；bypass 对照、执行/跳过组计数、静态 `2:4`、live-ENeuron 和恢复矩阵仍保持未完成。
 
 #### P16-B4：网口端到端 dense/gated A/B
 

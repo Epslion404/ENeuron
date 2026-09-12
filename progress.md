@@ -1,5 +1,71 @@
 # 进度记录
 
+## 2026-09-12 B3 dense 固定向量实板子门
+
+- 新增 `-B3Dense` 软件构建模式；manifest 记录 `application_mode=b3_dense`、输入模式和 10 个黄金 logits。
+- B3 程序在结果帧上逐项检查 10 个 signed INT32 logits、sample/model/epoch、长度和 CRC；默认 B2 smoke 路径保持不变。
+- COM15 实板 run `20260912T050553Z` 通过：当前 bitstream/XSA、B3 ELF 下载成功，`B3_DENSE_PASS` 输出 `165,-18,14,0,0,0,0,0,0,153`。
+- 该结果证明当前固定向量的 NPU 数值通路可用；尚未证明 bypass 等价、执行组计数、静态 `2:4` 或 ENeuron 动态剪枝收益，因此 B3-06/B3-GATE 不关闭。
+
+## 当前 egress 复位控制切片
+
+- 针对最新报告中的 `mask_epoch_reg -> output_frame_words -> payload/result counter reset` 路径，先为 egress 的 `payload_word_count`、`response_word_count`、`result_word_count` 和 `output_frame_words` 增加 `(* extract_reset = "no" *)` 结构合同。
+- 先写合同后改 RTL：`test_b2_packet_egress_contract.py` 首轮按预期 RED，加入属性后定向回归 `13 passed`。
+- 直接调用 `iverilog/vvp` 未执行：当前 PowerShell PATH 没有这两个命令；后续使用仓库既有复现入口和 Vivado 物理构建验证。
+- 下一步：运行统一 B2 检查；通过后重建 `xc7z020clg484-2` / 200 MHz routed timing，确认 reset 控制集路径是否消失且协议周期不变。
+
+## 2026-09-11 B2-08 第二种结构物理终态
+
+- 统一入口 `run_b2_checks.ps1` 实跑通过：B2 合同 `116 passed`，T1 两门 PASS，`git diff --check` PASS，最终 `B2_CHECKS_PASS`。
+- 使用同一脚本路径发起物理重建；首次构建在 `place_design` 被外部中断且无 Vivado error/crash 标记，随后只重启物理子脚本取得正式终态。
+- 第二种结构（禁止 `rsp_payload` reset 抽取）重建完成：`WNS=-0.031 ns`、`TNS=-0.260 ns`、`WHS=+0.009 ns`、`THS=0`、route/DRC hard error=`0`。bit/XSA 已生成但 manifest 为 `B2_SIGNOFF_PASS=0`，禁止上板。
+- 旧 `cmd_epoch -> rsp_payload/R` 路径已消失；当前最差 NPU 失败路径是 `cmd_hold_data[1] -> rsp_payload/CE`，进入第三种错误响应候选无条件锁存结构。
+- 第三种结构已实现：每次命令握手无条件锁存由 opcode/state/index/epoch 组成的错误响应候选，各错误分支只置 `rsp_valid`。定向 wrapper/skeleton/mask/control 回归 `16 passed`。
+
+## 2026-09-11 重复验证脚本
+
+- 新增 `run_b2_checks.ps1`，统一执行 workflow Check、自动枚举 B2 合同测试、T1 复现和 `git diff --check`；`-Full` 与 `-Vivado` 为显式扩展选项。
+- 新增 `test_run_b2_checks_contract.py`，合同测试 `3 passed`；Windows PowerShell 5.1 所需 UTF-8 BOM/CRLF 已对齐现有脚本格式。
+- 实际编排通过：B2 合同 `115 passed`，`REPRO_G0_MANIFEST_PASS`、`REPRO_G1_T1_PROTOCOL_SLICE_PASS`，最终输出 `B2_CHECKS_PASS`、退出码 `0`。
+- 该脚本不执行板卡下载，不把计数器 RTL 切片升级为板级计数证据；B2-GATE、B3、ENeuron A/B 状态不变。
+- `-Vivado` 首次失败验证发现旧绿色 manifest 残留；runner 已改为先写当前 signoff/哈希，再在失败时返回非零，软件构建同时拒绝 `B2_SIGNOFF_PASS!=1`。
+- 本轮复核确认入口、文档引用和 fail-closed 结构仍在；Vivado 物理构建会话未重启并已取得终态，随后统一检查入口实际执行通过。
+- 验证记录：`test_run_b2_checks_contract.py` 为 `3 passed`。首次 PowerShell AST 检查因在 PowerShell 内再次调用 `powershell -Command`，变量被外层提前展开而产生空管道解析错误；这是校验命令错误，下一次改用当前进程直接创建 scriptblock。
+- PowerShell 当前进程直接解析通过：`RUN_B2_CHECKS_PARSE_PASS`。
+- 读取实现日志时假定了错误的工程目录 `build/hello_zynq_b2.runs/impl_1`，该路径不存在；随后 `rg --files` 也未枚举到生成目录。后续从构建脚本中的实际 `project_dir`/run 路径定位，不重复该路径假设。
+- 第二次按 `project/hello_zynq_b2.runs/impl_1` 读取 `runme.log` 时文件仍未生成；随后枚举确认工程名和目录均正确，只是 `impl_1` 当时仍在等待 OOC/top synth，启动实现后日志正常出现。
+
+## 2026-09-11 B2-08 四流计数器切片启动
+
+- 复核 HEAD、TODO、packet board manifest 和规划文件；确认本轮不重复状态汇报，直接推进 B2-08。
+- 已将本轮范围限制为四流接受/完成计数与 fence 顺序快照，暂不扩大到 AXI-Lite、完整时间戳或全部错误矩阵。
+- Nexus 子代理已开始只读审计 B2-07/B2-08 覆盖与知识库同步点。
+
+## 2026-09-11 B2-08 第一条 GREEN
+
+- 先写测试再实现计数器；预期 RED 后补齐 adapter 输出和握手计数逻辑。
+- 定向 E2E 合同已通过：`3 passed`。
+- 当前计数器的 frame complete 通过输出 TLAST 握手计数，fence snapshot 在 fence response 接受时锁存；随后已接入 `0x40430000` 顶层 AXI-Lite 状态区。
+
+## 2026-09-11 B2-08 回归与物理重建
+
+- `test_b2_npu_packet_adapter_e2e_contract.py`：`3 passed`；packet/T1 相关定向回归：`44 passed`。
+- 当时全部 `test_b2_*.py` 为 `107 passed`；加入状态块和构建 manifest 合同后当前为 `114 passed`，T1 输出 `REPRO_G0_MANIFEST_PASS`、`REPRO_G1_T1_PROTOCOL_SLICE_PASS`。
+- `workflow_resume.ps1 -Mode Check`：PASS，HEAD=`88bec9e`，P16 未完成项=`59`。
+- 新增 `0x40430000` 只读 AXI-Lite 状态块并完成仿真；全部 B2 合同 `114 passed`，T1 复现通过。
+- Vivado 2024.1 `xc7z020clg484-2` 重建已完成综合、布局、route、DRC、bit/XSA；资源为 `9743 LUT / 11599 FF / 12 BRAM tile / 4 DSP`，route errors=`0`、DRC hard errors=`0`。
+- 最终 200 MHz setup 为 `WNS=-0.113 ns`、`TNS=-6.958 ns`、166 个失败端点；hold 为 `WHS=+0.009 ns`、`THS=0`。runner 正确返回退出码 1，产物禁止上板。
+
+## 2026-09-11 B2-08 setup 最小修复
+
+- 从 `timing_impl.rpt` 确认最差路径为命令 reserved-field 宽归约到 mask staging CE，不是新增 AXI-Lite 状态块的数据路径。
+- `test_b2_npu_wrapper_timing_contract.py` 新增结构门，要求字段检查与命令保持槽同步寄存。
+- `npu_zynq7020_t1_wrapper.sv` 新增 `cmd_hold_fields_bad`，在 `cmd_prefetch` 时从 `cmd_dout` 计算并锁存；定向 wrapper/packet 合同 `18 passed`。
+- 同一会话完整重建终态：`WNS=-0.088 ns/TNS=-0.796 ns/20 endpoints`，`WHS=+0.047 ns/THS=0`，route/DRC hard error=`0`；资源为 `9734 LUT / 11598 FF / 12 BRAM tile / 4 DSP`。
+- runner 正确写入当前 manifest 的 `B2_SIGNOFF_PASS=0` 并退出 `1`；新最差路径为 `cmd_hold_data[90]/C -> rsp_payload[72]/R`，旧 `cmd_hold_data[65] -> mask_staging CE` 路径已消失。
+- 已启动第二轮只读路径审计；本轮先冻结 20 个失败端点的共同 source/destination 结构，再修改 RTL，避免把 `-0.088 ns` 当作换 seed 可解决的问题。
+- 第二轮结构合同已取得预期 RED：`test_b2_npu_wrapper_timing_contract.py` 为 `1 failed, 11 passed`，缺少 `extract_reset="no"`；失败仅来自新增合同。
+
 ## 2026-09-10 B2 packet-NPU carry-select 构建
 
 - 提交 `639b403` 的 Vivado 2024.1 完整构建已完成 route、DRC、bitstream 和 XSA 生成；目标器件为 `xc7z020clg484-2`，route errors=`0`、DRC hard errors=`0`。
@@ -1938,3 +2004,42 @@
 - 合同测试 `test_b2_packet_board_contract.py`：`4 passed`；PowerShell AST 解析通过；`test_b2_npu_wrapper_timing_contract.py test_npu_single_clock_compute.py`：`16 passed`。
 - 实板 run `20260911T051400Z`：HEAD `8c8e44c`、COM15/CH340 `VID_1A86:PID_7523`，UART/JTAG/XSCT PASS；model `634`、mask `19`、fence/sample/result 全 PASS。run manifest 为 `boards/hellozynq/b2_sw/build/8c8e44c9c013fbb6a52431498bb00e03e29580c4/direct/runs/20260911T051400Z/run_manifest.json`。
 - 仍未关闭：B2-06～B2-10 总门、B2-GATE、多 packet 元数据/错误矩阵/四流计数/统一时间戳/功耗；B3 和 ENeuron 1.0、Pulse-Mini-L/L2 继续冻结。
+
+## 2026-09-12 B2 物理门恢复
+
+- 针对上一轮唯一 setup 失败（AXI DMA S2MM 内部 `sig_btt_cntr_dup_reg[0] -> sig_btt_eq_0_reg`，`WNS=-0.004 ns`），先补充实现策略合同，再将 Vivado 2024.1 impl strategy 从 `Performance_Explore` 切换为 `Performance_ExploreWithRemap`；未修改 RTL、packet 协议、NPU 周期或地址布局。
+- 同源完整重建目标 `xc7z020clg484-2`、`clk_fpga_0=200 MHz`，最终结果为 `WNS=+0.005 ns`、`TNS=0`、`WHS=+0.034 ns`、`THS=0`、route errors=`0`、DRC hard errors=`0`；post-route phys_opt 实际执行但未改动网表。
+- 新产物：bit SHA-256=`782a977c8c14c0bea73a289a167eed048e7fa2da7e9b889c95ed815c34d93b6e`，XSA SHA-256=`5e6a31bd4fc3fc8dead04c749bd4e4cb5faf0aeb7b5e6b8b2f6233be2f715ef7`；manifest 已记录 `B2_SIGNOFF_PASS=1`，但因当前工作树有未提交改动仍为 `git_worktree_clean=false`。
+- 合同回归 `test_b2_stream_probe_contract.py test_b2_loopback_contract.py` 为 `19 passed`；该物理门通过允许进入当前 bitstream 的板级 packet/status 验证，但不关闭 B2-06～B2-10、B2-GATE 或 B3/ENeuron A/B。
+
+## 2026-09-12 B2 状态块实板读取
+
+- 使用同一运行目录 `boards/hellozynq/b2_sw/build/88bec9e9bdbec1de53ef45d2f22e4275308c0237/direct/runs/20260912T040206Z/` 的新 bit/XSA，在 `COM15` 上执行 `probe_b2_state.tcl`，XSCT 退出码为 `0`，原始输出已保存到 `status_probe_20260912T120539Z/`。
+- `0x40430000` 状态块可读且处于复位释放状态：`status=1`；四流计数为 `command 658/658`、`sample 8/8`、`response 1/1`、`result 10/1`（accepted/completed）。
+- `fence_snapshot_valid=1`；快照八槽原始值为 `0x00000292, 0x00000292, 0, 0, 1, 0, 0, 0`。该快照是 fence 接受时的历史锁存值，只覆盖当前单次 smoke。
+- 同次 probe 读取的旧软件状态区 `0x01008000` 未由 `b2_packet_smoke` 初始化，返回值不可解释；不得把它写成 DMA/错误矩阵/多 packet 账本证据。
+- 当前结论更新为 `FUNCTIONAL_PASS / PHYSICAL_PASS / BOARD_STATUS_PARTIAL`；B2-06～B2-10 和 B2-GATE 仍未关闭，B3、ENeuron 1.0、Pulse-Mini-L/L2 继续冻结。
+
+## 2026-09-12 文档与工作区中等精简启动
+
+- 用户要求整理文档与工作区，纠正矛盾和过时文档；本轮按已确认的“中等精简”执行。
+- 保留范围：当前 RTL/软件改动、物理构建报告、bit/XSA/ELF、实板 run manifest、UART/XSCT/status probe 原始证据。
+- 清理原则：当前状态只由少量入口文档表达；历史事实保留为日志；临时或可再生成内容只有在确认后才移入回收站。
+- 初审已定位 README、WORKFLOW_STATE 和 TODO 三处当前口径冲突；未修改 RTL，也未移动任何证据或生成物。
+- 已新增 `docs/CURRENT_STATUS.md`，统一当前基线、证据入口、未完成门限和下一步；已修正 README、docs 索引、TODO、NPU 剪枝计划和 WORKFLOW_STATE 的过时口径。
+- 已将根目录及归档中的可再生成缓存、仿真临时产物和 Vivado 临时日志移入系统回收站；当前 build、artifacts 日志/JSON、bit/XSA/ELF 均保留。
+- 验证：`workflow_resume.ps1 -Mode Check` 通过；文档/状态相关合同 `13 passed`；`git diff --check` 通过。
+
+## 2026-09-12 TODO 活动项复核
+
+- `docs/planning/TODO.md` 已将已批准延期的 C1-C9 资源裁剪从活动 checkbox 改为延期说明，避免与 `RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN` 重复计数。
+- 已把最新 `2026-09-12`、HEAD `88bec9e`、COM15 的 packet smoke 和 `result=10 beats/1 packet` 口径写入 B2 条目。
+- B3-00/B3-06/B3-07 已明确：packet smoke 只证明合法通路，首次实验必须先完成 dense 数值 bit-exact、full-open 透明性，再评估剪枝收益。
+- 验证：`workflow_resume.ps1 -Mode Check`、`test_run_b2_checks_contract.py`（3 passed）、`test_b2_npu_status_probe_contract.py`（5 passed）、`git diff --check` 均通过。
+
+## 2026-09-11 B2 重复检查脚本与最新物理终态
+
+- 新增并实跑 `run_b2_checks.ps1`：默认统一执行 workflow、全部 B2 合同、T1 和差异空白检查；结果 `117 passed`、T1 两门 PASS、`B2_CHECKS_PASS`。可选 `-Full` 和 `-Vivado`，默认不下载板卡。
+- 第三种错误响应结构相关定向合同通过；最终 timing report 中 `cmd_hold_data -> rsp_payload_reg/CE` 和 `/R` 均为 0。
+- 完整 Vivado 2024.1 重建结束：`WNS=-0.030 ns`、`TNS=-0.203 ns`、`WHS=+0.036 ns`、`THS=0`、route/DRC hard errors=`0`；runner 退出码 `1`，manifest 正确记录 `B2_SIGNOFF_PASS=0`。
+- 当前 setup 瓶颈迁到 egress 计数器复位控制；失败 bit/XSA 禁止上板，`0x40430000` 四流状态读取继续等待物理门恢复。

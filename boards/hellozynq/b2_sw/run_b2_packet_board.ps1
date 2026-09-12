@@ -42,6 +42,10 @@ if (-not (Test-Path -LiteralPath $manifestPath)) {
     throw "Run run_b2_packet_sw_build.ps1 first: $manifestPath"
 }
 $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
+$applicationMode = [string]$manifest.application_mode
+if ([string]::IsNullOrWhiteSpace($applicationMode)) { $applicationMode = 'b2_packet_smoke' }
+$terminalMarker = if ($applicationMode -eq 'b3_dense') { 'B3_DENSE_PASS' } else { 'B2_PACKET_PASS' }
+$resultMarker = if ($applicationMode -eq 'b3_dense') { 'B3_DENSE_PASS' } else { 'B2_PACKET_RESULT_PASS' }
 $bitstream = [string]$manifest.bitstream
 if (-not $bitstream) { $bitstream = Join-Path $repoRoot 'boards\hellozynq\b2_hw\build\hello_zynq_b2.bit' }
 $xsa = [string]$manifest.xsa
@@ -120,10 +124,12 @@ try {
             $listenDeadline = [DateTime]::UtcNow.AddSeconds($ListenSeconds)
         }
         if ($runStarted -and $received.ToString() -like '*B2_PACKET_BEGIN*') { $packetStarted = $true }
-        if ($runStarted -and $packetStarted -and $received.ToString() -like '*B2_PACKET_PASS*' -and
+        if ($runStarted -and $packetStarted -and $received.ToString() -like "*$terminalMarker*" -and
             $received.ToString() -like '*B2_PACKET_FENCE_PASS*' -and
-            $received.ToString() -like '*B2_PACKET_RESULT_PASS*') { break }
-        if ($runStarted -and $packetStarted -and $received.ToString() -like '*B2_PACKET_FAIL*') { break }
+            $received.ToString() -like "*$resultMarker*") { break }
+        if ($runStarted -and $packetStarted -and
+            (($received.ToString() -like '*B2_PACKET_FAIL*') -or
+             ($received.ToString() -like '*B3_DENSE_LOGIT_FAIL*'))) { break }
         if (-not $runStarted -and $process.HasExited) { break }
         if (-not $runStarted -and [DateTime]::UtcNow -ge $programDeadline) { break }
         if ($runStarted -and [DateTime]::UtcNow -ge $listenDeadline) { break }
@@ -164,16 +170,20 @@ $uartText = $received.ToString()
 $uartText | Set-Content -LiteralPath $serialLog -Encoding utf8
 $xsctText = [string](Get-Content -LiteralPath $xsctStdout -Raw)
 if ($null -eq $xsctText) { $xsctText = '' }
+$xsctStderrText = if (Test-Path -LiteralPath $xsctStderr) { [string](Get-Content -LiteralPath $xsctStderr -Raw) } else { '' }
+if ($null -eq $xsctStderrText) { $xsctStderrText = '' }
 $xsctExitCode = [int]$process.ExitCode
 $packetOffset = $uartText.IndexOf('B2_PACKET_BEGIN', [StringComparison]::Ordinal)
 $packetText = if ($packetOffset -ge 0) { $uartText.Substring($packetOffset) } else { '' }
 $uartPass = ($packetText -like '*B2_PACKET_BEGIN*') -and
     ($packetText -like '*B2_PACKET_FENCE_PASS*') -and
-    ($packetText -like '*B2_PACKET_RESULT_PASS*') -and
-    ($packetText -like '*B2_PACKET_PASS*')
+    ($packetText -like "*$resultMarker*") -and
+    ($packetText -like "*$terminalMarker*")
 $xsctProgramPass = $xsctText -like '*B2_FPGA_PROGRAM_PASS*'
 $xsctDownloadPass = $xsctText -like '*B2_ELF_DOWNLOAD_PASS*'
-$status = if ($uartPass -and $xsctExitCode -eq 0 -and $xsctProgramPass -and $xsctDownloadPass) { 'PASS' } elseif ($packetText -like '*B2_PACKET_FAIL*') { 'FAIL' } else { 'NO_TERMINAL_MARKER' }
+# XSCT 包装器可能在 Tcl error 时仍返回 0；明确识别“available targets: none”。
+$jtagTargetUnavailable = $xsctStderrText -match 'available targets:\s*none'
+$status = if ($jtagTargetUnavailable) { 'JTAG_TARGET_UNAVAILABLE' } elseif ($uartPass -and $xsctExitCode -eq 0 -and $xsctProgramPass -and $xsctDownloadPass) { 'PASS' } elseif ($packetText -like '*B2_PACKET_FAIL*') { 'FAIL' } else { 'NO_TERMINAL_MARKER' }
 $bitstreamHash = [string]((Get-FileHash -Algorithm SHA256 -LiteralPath $bitstream).Hash)
 $xsaHash = [string]((Get-FileHash -Algorithm SHA256 -LiteralPath $xsa).Hash)
 $elfHash = [string]((Get-FileHash -Algorithm SHA256 -LiteralPath $elf).Hash)
@@ -182,6 +192,8 @@ $runManifest = [ordered]@{
     schema_version = 1
     generated_at = [DateTime]::UtcNow.ToString('o')
     status = $status
+    application_mode = $applicationMode
+    terminal_marker = $terminalMarker
     git_head = $gitHead
     port = $PortName
     usb_vid = [string]$UsbVid
@@ -191,6 +203,7 @@ $runManifest = [ordered]@{
     xsa_sha256 = $xsaHash
     elf_sha256 = $elfHash
     xsct_exit_code = $xsctExitCode
+    jtag_target_unavailable = $jtagTargetUnavailable
     xsct_program_pass = $xsctProgramPass
     xsct_download_pass = $xsctDownloadPass
     uart_pass = $uartPass
