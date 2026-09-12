@@ -3,7 +3,7 @@
 日期：2026-09-13
 状态：`PROPOSED / DEFERRED_STRUCTURAL / NOT_DAILY_MAINLINE / RTL_NOT_AUTHORIZED`
 
-日常主线已改为 `B3-SPEED`/`B3-POWER`。本合同只冻结 B3-08b 若恢复实施时的语义。它不关闭任何实板门，也不再作为加速硬门。
+日常主线已改为 `B3-SPEED-GATE`/`B3-POWER-GATE`。本合同只冻结 B3-08b 若恢复实施时的语义。它不关闭任何实板门，也不再作为加速硬门。
 
 ## 已由源码冻结的事实
 

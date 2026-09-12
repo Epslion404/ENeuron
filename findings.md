@@ -1964,3 +1964,26 @@
 - `pending_mask_epoch` 应直接反映已发布但未在下一样本边界激活的 epoch；当无 pending mask 时返回 0，另用 staging-open 状态保留“尚在装载”与“已提交待生效”的区别。
 - 每样本周期冻结为纯 NPU compute 窗口：第 8 个 sample beat 被 core 接受后启动，最后一个 logit 写回并使 result 输出可用时锁存。该值不包含 DMA、packet 封装、result backpressure 或 UART 时间。
 - core 锁存周期已与原 V2 testbench 外部计数逐场景一致：全开 `2494`、关闭两组 `2488`、全关 `718`、只关闭一组 `2491`。这些是计算周期，不是端到端延迟。
+## 2026-09-13 新模型进展初核
+
+- HEAD `7c4dba9` 已提交并推送 B3-POWER 仪器合同；状态正确保持 `POWER_NOT_MEASURED`，没有用 Vivado 估算冒充板上功耗。
+- `B3-MVP-GATE` 的实板/物理证据仍成立：RTL `be84596`、200 MHz、WNS `+0.045 ns`、DSP48E1=4；dense/full-open 为 2494 cycles，static/live 为 1606 cycles。
+- 当前所谓 `B3-SPEED` 关闭实际表示分段测量完成且得到 `NO_END_TO_END_SPEEDUP`：局部节省 888 cycles≈4.4 us，被 DMA、PS live 决策和 UART 观测开销掩盖。TODO 把这一负结果写成 `[x] B3-SPEED`，存在将“已测”误读为“速度目标通过”的管理风险。
+- 当前本地分支仍名为 `codex/b1b-high-ddr-board-repro` 并跟踪同名远端，但实际提交已经进入 B3，分支身份过时。
+- 未提交 `npu_eneuron_reference.py`/测试正在建立 4-bit lane mask 参考语义；尚无 RTL、协议、Vivado 或实板证据。
+- B3-SPEED 报告原先硬编码 `end_to_end_accelerated=false`，并未从重复端到端测量计算；PS/DMA/UART 窗口还存在包含关系。已改成单样本诊断、嵌套不可相加、速度门打开。
+- B3-POWER 原实现只要求 `external_power_w`，空仪器合同和无 trace 行仍能得到 PASS。已补齐六字段非空、外部来源、trace 和有限正功率的 fail-closed 检查。
+- 通用 lane-mask 数值实现会按置位 lane 做 MAC，并对非空 nibble 计一次 group read；这与裁定的“严格 2:4 仍读取 592 个 group word、执行 1184 个 MAC”一致。现有未提交代码仍只是 Python oracle 切片，不构成 B3-08b 完成。
+- 统一 B2 回归暴露两处历史结构合同未随 B3 状态块更新：SmartConnect 已从 3 个改为 4 个 MI，构建门实现已由旧 `Assert-B2TimingGreen` 收敛到 `Get-B2SignoffMetrics` + `signoff_pass`。测试应跟随当前真实接口，不能为满足旧 token 回退实现。
+- 源码核对确认第 4 个 MI 连接 `b2_npu_status_probe_0/S_AXI`；构建脚本同时保留 timing、route、DRC 三类字段，并以三者合取的 `signoff_pass` 拒绝不合格产物。两份旧合同测试只需同步当前接口和门控 API。
+- 首轮差异审查确认 speed 派生字段已从含混布尔值改为诊断状态/门状态，并把动态主指标改为 dense-live；power 新检查拒绝空仪器合同、非正或非有限功率、缺失来源/trace。lane-mask oracle 的读组/MAC 语义与测试一致，但它仍是未提交的纯 Python 能力，不应并入已完成的 B3 管理修复结论。
+- 二轮 power 审查发现仍有一处实质管理错误：`build_power_report()` 在数据仅达到 `MEASURED` 时无条件写 `power_gate=PASS`，完全没有比较 dense 与 live 是否降低，也没有冻结重复性/不确定度门限。这会让“完成测量”再次冒充“达到降功耗目标”；必须像 SPEED 一样拆分测量状态与目标门，当前没有可批准的门限时只能保持 `power_gate=OPEN`。
+- 已按 fail-closed 修复：仪器/trace/正数功率只足以关闭 `B3-POWER-MEASURED`；`B3-POWER-GATE` 还需事前冻结重复次数、板级平均功率、每次正确推理能耗、统计量和超过仪器不确定度的最小改善门限。当前报告无论未测或仅测量都不会自动输出 PASS。
+- live-ENeuron 交叉审查：Python 与板端 C 都以四组贡献绝对值量化到 0..3，按 evidence 降序且索引升序打破平局选 top-2，位序/组偏移一致。实现确实现场生成 mask，不是静态表重放；但每个 meta 的控制器只 observe 一次，且 PS 先做 dense L0、再重复 L0 组贡献、再做 L1 贡献，所以它证明的是单样本软件决策通路，不是 PL 内动态神经元或端到端加速。
+- 分支管理复核确认 `codex/b3-goal-review` 已无 upstream；`origin/codex/b1b-high-ddr-board-repro` 只作为指向同一旧提交的远端 ref 显示，未被删除或改写。另有约 606 MB 的三个未跟踪 Vivado/失败证据目录和 4 KB `.planning/`；它们不属于本轮提交边界，暂不删除、不暂存。
+- 严格 2:4 决策表仍明确 `PROPOSED / RTL_NOT_AUTHORIZED`：现有板端只有 19-word 组级 mask；Python lane-mask oracle 的 74-word/1184 MAC 语义正确，但不能据此勾 B3-08b、运行 Vivado 或声称周期/功耗收益。已把决策表中过时的日常门名同步为 SPEED/POWER 目标门。
+- 中等精简留下一个可复现的测试管理问题：`archive/legacy` 下的测试仍被默认 pytest 递归收集，根目录还有一批旧 ENeuron 1.0/Pulse-Mini/digit8x8 测试；其依赖文件已移动到归档或不再位于旧相对路径，导致全仓默认命令 42 fail + 12 error。当前 B2/B3 专用入口全绿不能消除这个默认入口矛盾，应把 legacy 与当前主线的收集边界显式化，而不是修补已冻结历史代码。
+- Git 证据显示该矛盾源于 `449cc7e chore: streamline active TODO and legacy workspace`：提交把大量旧源码和部分测试移动到 `archive/legacy`，但仓库没有 `pytest.ini/pyproject` 收集边界，且若干依赖旧相对路径的根级测试仍留在活动树。`run_b2_checks.ps1 -Full` 目前调用裸 `pytest -q`，所以其“完整 Python 回归”选项名不副实、必然踩入冻结归档。
+- `archive/legacy/README.md` 明确这些内容“不再参与当前日常开发门”，因此默认主线验证应排除该子树。另有一个非 legacy 的 B0 历史证据测试单独失败：manifest 中 runner SHA 与当前 `run_b0_power_off_probe.ps1` 不同；这不是本轮 B3 回归，需保留为历史证据新鲜度问题，不能通过改写旧 manifest 掩盖。
+- B0 hash 差异进一步定位：`git diff 5affe99..HEAD -- run_b0_power_off_probe.ps1` 为空，文件内容自证据提交后未改；失败来自测试对 PowerShell 文件做 raw SHA，而 checkout 会受 CRLF/LF 影响。证据文本已普遍使用 canonical-LF 哈希，这个 runner 校验也应改为 canonical-LF，并验证其确实匹配 manifest 后再修测试。
+- 修正后默认收集为 392 项，完整当前主线回归 `391 passed, 1 skipped, 134 subtests passed`；B0 证据定向 `8 passed, 3 subtests passed`。这不是删除历史测试：文件仍保留，只是落实 `archive/legacy/README.md` 已声明的“历史不参与日常门”。

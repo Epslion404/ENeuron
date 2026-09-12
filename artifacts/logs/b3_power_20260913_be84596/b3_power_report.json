@@ -100,5 +100,6 @@
     "\u79ef\u5206\u7a97\u53e3": null
   },
   "status": "POWER_NOT_MEASURED",
+  "power_goal_status": "NOT_PROVEN",
   "power_gate": "OPEN"
 }
