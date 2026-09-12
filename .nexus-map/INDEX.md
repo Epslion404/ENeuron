@@ -2,17 +2,63 @@
 
 > generated_by: nexus-mapper v2 / manual synthesis
 > verified_at: 2026-09-12
-> provenance: Git HEAD `fe25a7081f6a93e9d63c888ea581dc5595d84b4a` 与已提交 Host/manifest 人工核对；未提交 status probe / 计数器 RTL 不进入签核源码身份。raw 探针仍绑定历史 `c46320e`。旧 t0-state 工作区不是现状。
+> provenance: live tree=`D:/Documents/Code/ENeuron-board-b0`，分支 `codex/b1b-high-ddr-board-repro` / PR #88。bitstream RTL 身份 `be84596`。`D:/Documents/Code/ENeuron` 不是当前 live tree。raw 探针仍绑定历史 `c46320e`。
 
-## 当前权威快照（2026-09-12，覆盖后文旧 HEAD / 旧工作树）
+## 当前权威快照（2026-09-12，B3-MVP-GATE 已关）
 
-器件 `xc7z020clg484-2`。主线是板上 packet-NPU + ENeuron 动态剪枝。已提交 HEAD=`fe25a70`，主题 `feat(board): add live ENeuron group_4way host decision`。工作树 DIRTY，含未提交 status probe / 计数器 RTL，不得写成已签核源码身份。
+器件 `xc7z020clg484-2`。主线是板上 packet-NPU + ENeuron 组级动态剪枝。live tree 是本工作树，不是 `D:/Documents/Code/ENeuron`。
 
-已有实板证据：B0、B1A、低地址 B1B、B2 packet smoke、B3 dense/full-open/bypass、B3-08a 组级 static mixed。当前门 `B3-MVP-GATE → B3-STRICT-GATE → B4-RELEASE-GATE`。B2-GATE 仍是发布门，不阻塞 MVP。严格连接级 `2:4` 仍是 B3-08b，属于 STRICT。
+B3-MVP-GATE 已在同一份集中 Vivado 2024.1 bitstream 上关闭：RTL 身份 `be84596`，200 MHz FCLK0。WNS=+0.045 ns，TNS=0，WHS=+0.036 ns，THS=0，route/DRC hard errors=0，DSP48E1=4。
+- bit SHA-256=`0ecbe76274c39418f2a60a88358d3ff6f09f5a2ed73a44a3a419c34eb91d3a11`
+- XSA SHA-256=`135d979d61c629922ee5419e51dd97ef045d9bab79930432816d09f109291d1a`
 
-B3-09 组级 live 路径已关闭。`eneuron_group4way_live.py` 用 ENeuron S2、gain=1，把每四个 NPU 组当 meta-neuron，按当前样本组 MAC 贡献量化 0..3 后保留 2 组。`packet_main.c` 的 `B3_LIVE_ENEURON` 在 PS 现场计算 mask。COM15 run `20260912T131302Z` UART `B3_LIVE_ENEURON_PASS` logits=`165,-18,14,0,0,0,0,0,0,153`；JTAG execute/skip=`296/296`、fence valid。证据 `artifacts/logs/b3_live_eneuron_pass_20260912_fe25a70/`。不是严格连接级 `2:4`。
+冻结 AXI-Lite 状态块 `0x40430000`：0x00-0x4C 不变；0x50 runtime_status；0x54/0x58 active/pending mask epoch；0x5C last NPU compute cycles；0x60 protocol errors。pending epoch 来自 `mask_state==MASK_PUBLISHED`，不是 `mask_valid`。
 
-下一实板动作：B3-11 epoch 重叠，再 B3-13/B3-14 小集合周期 A/B。CH340 按 `VID_1A86:PID_7523` 识别；双设备时必须显式 COM15。`archive/legacy/` 与旧 `xc7z020clg400-1` OOC 不进入日常门。本文件后续段落保留为证据日志；凡与本快照冲突的 B3-09 状态以本条为准。
+板卡 COM15 CH340 `VID_1A86:PID_7523`。B3-11 hold：MASK_COMMIT 后、下一样本前 `active=0 pending=1`；样本后 `active=1 pending=0`。
+
+四模式 A/B 两轮一致：dense/full-open 592/0 组、2494 cycles、logits 165,-18,14,0,0,0,0,0,0,153；static mixed 296/296、1606 cycles、logits 74,-18,...,114、`decision_source=host_replay_static_mixed`；live-ENeuron 296/296、1606 cycles、logits 与 dense 相同、`decision_source=live_eneuron_s2`。
+
+只可声称：`group_4way` 动态剪枝正确性 + 局部 NPU 周期差值 888 cycles。不可声称：网口加速、测得功耗、严格连接级 `2:4`、B2-GATE。证据：`artifacts/logs/b3_mvp_20260912_be84596/`。
+
+下一门：`B3-STRICT-GATE`（lane 2:4、10k 样本）→ B2-GATE 剩余 → B4 网口/功耗。`archive/legacy/` 与旧 `xc7z020clg400-1` OOC 不进入日常门。后文若仍写 B3-MVP 未关或 B3-09 实板 pending，以本条为准。
+
+## 当前活动范围
+
+主线固定 `xc7z020clg484-2`：NPU 单时钟、ENeuron 组级动态剪枝、NP7 共享 lane，以及 B1/B2/B3/B4 集成。活动入口：`npu_eneuron_*`、`npu_zynq7020_t1_wrapper.sv`、`local_prune_*`、`eneuron_group4way_live.py`、`np7_*`、`b2_npu_status_probe.v`。CH340 按 VID/PID 识别；双设备时必须显式 COM15。合同：`docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`。状态串：`FUNCTIONAL_PASS / PHYSICAL_PASS / B3_MVP_GATE_PASS / B3_STRICT_PENDING / B2_GATE_PENDING`。
+
+## 主要系统
+
+- live-ENeuron Host：`eneuron_group4way_live.py`、`packet_main.c`（`B3_LIVE_ENEURON`）
+- 单时钟 NPU：`npu_eneuron_single_clock_skeleton.sv`、`npu_zynq7020_t1_wrapper.sv`
+- packet 与状态块：`b2_npu_packet_adapter.sv`、`b2_npu_status_probe.v`（`0x40430000`）
+- 剪枝 / NP7：`local_prune_gate_2of4.sv`、`np7_shared_synapse_lane.sv`
+- 实板：`boards/hellozynq/`；规划：`WORKFLOW_STATE.md`、`docs/CURRENT_STATUS.md`
+
+## 必读路由
+
+- `.nexus-map/arch/systems.md`
+- `.nexus-map/arch/dependencies.md`
+- `.nexus-map/arch/test_coverage.md`
+- `.nexus-map/hotspots/git_forensics.md`
+- `.nexus-map/concepts/domains.md`
+
+## [操作指南] 强制执行步骤
+
+> 本节是对所有读取本文件的 AI 发出的硬性操作指令，不是建议。
+
+### 步骤1 — 必须先读完以下所有文件（顺序不限）
+
+- `.nexus-map/arch/systems.md`
+- `.nexus-map/arch/dependencies.md`
+- `.nexus-map/arch/test_coverage.md`
+- `.nexus-map/hotspots/git_forensics.md`
+- `.nexus-map/concepts/domains.md`
+
+### 步骤2 — 按任务类型追加操作
+
+- 接口修改、新增跨模块调用、删除或重命名公共函数：运行 `query_graph.py --impact <目标文件>`。
+- 判断某文件被谁引用：运行 `query_graph.py --who-imports <模块名>`。
+- 仓库结构发生重大变化：任务完成后更新 Nexus 知识库。本轮仅外科更新，不做全仓 remap。
 
 ## 当前活动范围（中等精简）
 

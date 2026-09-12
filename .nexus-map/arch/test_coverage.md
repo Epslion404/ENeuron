@@ -2,11 +2,11 @@
 
 > generated_by: nexus-mapper v2 / manual synthesis
 > verified_at: 2026-09-12
-> provenance: Git HEAD `fe25a70`、已提交测试/manifest 与既有实板 run 人工核对；未提交 status probe / 计数器 RTL 不进入签核源码身份。
+> provenance: 实板证据 `artifacts/logs/b3_mvp_20260912_be84596/` 与 `test_b3_mvp_report_contract.py`。
 
 ## 当前权威覆盖（2026-09-12）
 
-器件 `xc7z020clg484-2`。已提交 HEAD=`fe25a70`。已有实板证据：B0、B1A、低地址 B1B、B2 packet smoke、B3 dense/full-open/bypass、B3-08a 组级 static mixed。B3-09 Host 合同已接通，实板 ELF/JTAG 未关闭。Host 合同 ≠ 板级通过。严格连接级 `2:4` 仍是 B3-08b。工作树 DIRTY 的 status probe / 计数器 RTL 不是已签核源码身份。
+器件 `xc7z020clg484-2`。`B3-MVP-GATE` 已关。B3-04 物理门 WNS=+0.045 ns DSP=4。B3-11 COM15 hold `0x54=0 0x58=1`。B3-13/14 两轮：dense/full-open 2494 cycles 592/0；static/live 1606 cycles 296/296。`test_b3_mvp_report_contract.py` 读取提交的 comparison JSON，禁止把 live 与 static 合成一行。缺口：严格 `2:4`、10000 样本、B2-GATE、网口、功耗。
 
 B3-09 Host 覆盖（2026-09-12）：`test_eneuron_group4way_live.py` 6/6。覆盖每 meta 恰好保留 2 组、active/skip=`296/296`、粒度 `group_4way`、`strict_2of4_candidate=false`、S2 gain=1、live mask 不等于冻结 static mixed、同输入确定性、NPU 参考 logits 对齐、manifest `b3_live_eneuron` 与 oracle 一致、ledger 记录 evidence/gain/epoch/sample。`test_b2_packet_board_contract.py` 断言 `-DB3_LIVE_ENEURON`、`B3_LIVE_ENEURON_PASS`，且源码不含 `B3_LIVE_ENEURON_MASK_WORDS`。期望 logits=`165,-18,14,0,0,0,0,0,0,153`，mask word1=`0x33393335`。缺口：`b3_live_eneuron` ELF 尚未在 COM15 以 UART/JTAG 关闭本项。
 

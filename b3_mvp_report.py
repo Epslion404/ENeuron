@@ -113,3 +113,81 @@ def build_comparison(records: Mapping[str, Mapping[str, object]]) -> dict[str, o
 
 def write_comparison(path: Path, comparison: Mapping[str, object]) -> None:
     path.write_text(json.dumps(comparison, indent=2), encoding="utf-8")
+
+
+DECISION_SOURCE_BY_MODE = {
+    "b3_dense": "none_full_open_or_dense",
+    "b3_full_open": "host_full_open_mask",
+    "b3_static_mixed": "host_replay_static_mixed",
+    "b3_live_eneuron": "live_eneuron_s2",
+}
+
+
+def parse_logits_from_uart(text: str) -> tuple[int, ...]:
+    """从实板 UART PASS 行解析 logits= 列表，不重算黄金值。"""
+    for raw in text.splitlines():
+        line = raw.strip()
+        if "_PASS" not in line or "logits=" not in line:
+            continue
+        marker = "logits="
+        start = line.find(marker)
+        if start < 0:
+            continue
+        payload = line[start + len(marker):].split()[0]
+        values = tuple(int(part) for part in payload.split(",") if part != "")
+        if len(values) != 10:
+            raise ValueError(f"UART logits length {len(values)} != 10")
+        return values
+    raise ValueError("UART log missing logits= PASS line")
+
+
+def record_from_run_dir(run_dir: Path, mode: str) -> dict[str, object]:
+    """从一次 packet board run 目录生成 B3-14 行。"""
+    manifest = json.loads((run_dir / "run_manifest.json").read_text(encoding="utf-8-sig"))
+    probe_path = run_dir / "post_pass_probe.log"
+    if not probe_path.is_file():
+        raise ValueError(f"{run_dir} missing post_pass_probe.log")
+    uart_path = run_dir / "uart.log"
+    if not uart_path.is_file():
+        raise ValueError(f"{run_dir} missing uart.log")
+    probe_text = probe_path.read_text(encoding="utf-8-sig")
+    uart_text = uart_path.read_text(encoding="utf-8-sig")
+    if mode == "b3_live_eneuron" and "decision_source=live_eneuron_s2" not in uart_text:
+        raise ValueError("live-ENeuron UART must name live_eneuron_s2")
+    if mode == "b3_static_mixed" and "B3_LIVE_ENEURON" in uart_text:
+        raise ValueError("static mixed UART must not use the live-ENeuron marker")
+    return record_from_artifacts(
+        mode=mode,
+        run_manifest=manifest,
+        probe_text=probe_text,
+        logits=parse_logits_from_uart(uart_text),
+        decision_source=DECISION_SOURCE_BY_MODE[mode],
+    )
+
+
+def comparison_from_run_dirs(run_dirs: Mapping[str, Path]) -> dict[str, object]:
+    records = {
+        mode: record_from_run_dir(Path(run_dirs[mode]), mode)
+        for mode in REQUIRED_MODES
+    }
+    return build_comparison(records)
+
+
+if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Build B3-14 comparison from four packet board runs")
+    parser.add_argument("--dense", type=Path, required=True)
+    parser.add_argument("--full-open", type=Path, required=True)
+    parser.add_argument("--static-mixed", type=Path, required=True)
+    parser.add_argument("--live-eneuron", type=Path, required=True)
+    parser.add_argument("--out", type=Path, required=True)
+    args = parser.parse_args()
+    comparison = comparison_from_run_dirs({
+        "b3_dense": args.dense,
+        "b3_full_open": args.full_open,
+        "b3_static_mixed": args.static_mixed,
+        "b3_live_eneuron": args.live_eneuron,
+    })
+    write_comparison(args.out, comparison)
+    print(f"B3_14_COMPARISON={args.out}")

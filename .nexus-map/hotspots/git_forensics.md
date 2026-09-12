@@ -2,23 +2,21 @@
 
 > generated_by: nexus-mapper v2 / manual synthesis
 > verified_at: 2026-09-12
-> provenance: Git HEAD `fe25a70` 与 `git show --stat` 人工核对；raw `git_stats.json` 仍绑定历史 `c46320e`。未提交 status probe / 计数器 RTL 不是签核源码身份。旧 t0-state 工作区不是现状。
+> provenance: live tree=`D:/Documents/Code/ENeuron-board-b0`，分支 `codex/b1b-high-ddr-board-repro` / PR #88。bitstream RTL 身份 `be84596`。raw `git_stats.json` 仍绑定历史 `c46320e`。`D:/Documents/Code/ENeuron` 不是当前 live tree。
 
-## 当前权威取证（2026-09-12）
+## 当前权威取证（2026-09-12，B3-MVP-GATE 已关）
 
-已提交 HEAD=`fe25a7081f6a93e9d63c888ea581dc5595d84b4a`，主题 `feat(board): add live ENeuron group_4way host decision`。该提交只改 Host/manifest/文档：`eneuron_group4way_live.py`、`test_eneuron_group4way_live.py`、`boards/hellozynq/b2_sw/src/packet_main.c`、`tools/repro/b3_fixed_vector_manifest.json` 等 12 文件，**不含生产 RTL**。
+live tree 是本工作树，分支 `codex/b1b-high-ddr-board-repro` / PR #88，不是 `D:/Documents/Code/ENeuron`。bitstream RTL 身份 `be845965d7df8b4018e6b32b8b5b4e350fb0488a`（`feat(board): fail-closed B3-04 DSP48E1 count of 4`）。仓库 HEAD 可能继续前移（例如比较器提交 `43cfe9d`）；下载/签核物理身份仍是 `be84596`。
 
-工作树 DIRTY。未提交/未跟踪的 status probe 与计数器相关文件包括 `b2_npu_packet_adapter.sv`、`npu_eneuron_single_clock_skeleton.sv`、`npu_zynq7020_t1_wrapper.sv`、`boards/hellozynq/b2_hw/b2_npu_axis_top.v`、`boards/hellozynq/b2_hw/b2_npu_status_probe.v`、`tb_b2_npu_status_probe.sv`。这些不是已签核源码身份。
+同一份集中 Vivado 2024.1 bitstream：`xc7z020clg484-2`、200 MHz FCLK0，WNS=+0.045 ns，TNS=0，WHS=+0.036 ns，THS=0，route/DRC hard errors=0，DSP48E1=4。bit SHA-256=`0ecbe76274c39418f2a60a88358d3ff6f09f5a2ed73a44a3a419c34eb91d3a11`，XSA SHA-256=`135d979d61c629922ee5419e51dd97ef045d9bab79930432816d09f109291d1a`。hw_build_manifest 记录 `git_worktree_clean=false`，不得把 dirty tree 回写成 clean release。证据 `artifacts/logs/b3_mvp_20260912_be84596/`。
 
-已有实板证据：B0、B1A、低地址 B1B、B2 packet smoke、B3 dense/full-open/bypass、B3-08a 组级 static mixed。B3-09 Host 已接通，实板 ELF/JTAG 未关闭。Host 合同 ≠ 板级通过。严格连接级 `2:4` 仍是 B3-08b。后文 `f070577`/`88bec9e`/`c3a50eb` 只描述当时产物身份。
+B3-MVP-GATE 已关。COM15 CH340 `VID_1A86:PID_7523`。B3-11 hold：MASK_COMMIT 后 `active=0 pending=1`，样本后 `active=1 pending=0`。四模式 A/B 两轮一致：dense/full-open 592/0、2494 cycles；static mixed 296/296、1606 cycles、`host_replay_static_mixed`；live-ENeuron 296/296、1606 cycles、`live_eneuron_s2`。只可声称 `group_4way` 动态剪枝正确性 + 局部 NPU 周期差值 888 cycles。不可声称网口加速、测得功耗、严格 `2:4`、B2-GATE。
 
-B3 固定向量证据（2026-09-12）：同一 `f070577` bit/XSA 的 dense `20260912T050553Z`、bypass `20260912T053341Z`、full-open `20260912T053426Z` 均在 COM15 通过，10 个 logits 逐项一致。后续计数器 bitstream 已补 execute/skip 实板核对并关闭 B3-00/B3-06/B3-07。静态 `2:4`、live-ENeuron 实板和恢复矩阵仍未关闭。
+前置 Host 提交 `fe25a70` 只改 Host/manifest/文档，不含生产 RTL。历史 packet smoke `88bec9e`/`97398bf` 与计数器 `c3a50eb` 只描述当时产物。后文若仍写 B3-09 实板 pending 或未提交 status probe 为唯一身份，以本条为准。
 
-B3 计数器构建取证（2026-09-12）：remap 构建生成 bit/XSA 但 signoff `WNS=-0.010 ns`，明确禁止上板；恢复基线策略的构建只有 route 中间 `WNS=-0.044 ns`，最终报告前 Vivado 进程消失且没有 signoff，不能推定通过。第三次 `route_design -directive Explore` 绑定 HEAD `c3a50eb` 通过物理门，并已有 dense/full-open/bypass 与 B3-08a 实板计数读回。该物理身份不是当前提交 HEAD `fe25a70`，也不是未提交 RTL。
+当前门禁边界（中等精简）：`xc7z020clg484-2` 板上 packet-NPU + ENeuron 组级动态剪枝为活动主线；`archive/legacy/` 不触发日常 CI/PR 门。旧 `xc7z020clg400-1` 的 NP7/T3 物理材料仅作历史参考。B1 高地址 DDR、PHY、UDP 仍阻塞完整 `B1-GATE`。CH340 按 `VID_1A86:PID_7523` 查找；双设备时必须显式 COM15。
 
-当前门禁边界（中等精简）：`xc7z020clg484-2` 板上 packet-NPU + ENeuron 动态剪枝为活动主线；`archive/legacy/` 不触发日常 CI/PR 门。旧 `xc7z020clg400-1` 的 NP7/T3 物理材料仅作历史参考。B1 高地址 DDR、PHY、UDP 是板卡资格支线，仍阻塞板级 `B1-GATE`，但不阻塞低地址容量满足条件下的 NPU MVP；CH340 按 `VID_1A86:PID_7523` 查找而非固定 COM 号。
-
-当前合同层级为阶段合同 `NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`。当前已提交 HEAD=`fe25a70`。packet-NPU 物理/smoke 身份仍绑定历史 `88bec9e`/`97398bf`；计数器 bit/XSA 绑定 `c3a50eb`。B3-09 Host 合同已绿，实板未关闭。B2-GATE 仍未关闭。
+当前合同层级为阶段合同 `NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`。下一门：`B3-STRICT-GATE`（lane 2:4、10k 样本）、B2-GATE 剩余、B4 网口/功耗。
 
 B2-00 已形成可复现的低地址布局合同：窗口 `[0x01000000,0x01100000)`，9 个 4 KiB 区域、总保留 `36 KiB`，最大 DMA frame `4096` bytes；`verify_b2_dma_address_layout.py` 输出 `B2_DMA_LAYOUT_PASS`。状态为 `B2_00_LOW_ADDRESS_LAYOUT_FROZEN`，已进入 B2-D1/loopback 软件执行链。`B1_HIGH_DDR_PENDING` 保持不变，B2-00 不等同于高地址 DDR 或完整 B1-GATE 通过。
 

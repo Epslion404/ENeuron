@@ -65,11 +65,13 @@ class B2PacketBoardContractTests(unittest.TestCase):
             "[switch]$B3Bypass",
             "[switch]$B3StaticMixed",
             "[switch]$B3LiveEneuron",
+            "[switch]$B3EpochOverlap",
             "-DB3_DENSE",
             "-DB3_FULL_OPEN",
             "-DB3_BYPASS",
             "-DB3_STATIC_MIXED",
             "-DB3_LIVE_ENEURON",
+            "-DB3_EPOCH_OVERLAP",
             "b3_dense",
             "b3_full_open",
             "b3_bypass",
@@ -124,7 +126,21 @@ class B2PacketBoardContractTests(unittest.TestCase):
 
     def test_packet_board_runner_selects_terminal_marker_from_manifest(self):
         source = (ROOT / "boards/hellozynq/b2_sw/run_b2_packet_board.ps1").read_text(encoding="utf-8")
-        for token in ("application_mode", "B3_DENSE_PASS", "B3_FULL_OPEN_PASS", "B3_BYPASS_PASS", "B3_STATIC_MIXED_PASS", "B3_LIVE_ENEURON_PASS", "terminal_marker"):
+        for token in ("application_mode", "B3_DENSE_PASS", "B3_FULL_OPEN_PASS", "B3_BYPASS_PASS", "B3_STATIC_MIXED_PASS", "B3_LIVE_ENEURON_PASS", "B3_EPOCH_OVERLAP_PASS", "B3_11_PENDING_HOLD", "terminal_marker"):
+            self.assertIn(token, source)
+
+    def test_packet_board_runner_probes_status_block_and_epoch_hold(self):
+        source = (ROOT / "boards/hellozynq/b2_sw/run_b2_packet_board.ps1").read_text(encoding="utf-8")
+        for token in (
+            "Invoke-B2StateProbe",
+            "Get-ProbeU32",
+            "post_pass_probe.log",
+            "pending_hold_probe.log",
+            "B2_NPU_ACTIVE_MASK_EPOCH",
+            "B2_NPU_PENDING_MASK_EPOCH",
+            "EPOCH_HOLD_MISMATCH",
+            "AddSeconds(30)",
+        ):
             self.assertIn(token, source)
 
     def test_changes_use_b2_board_scope(self):

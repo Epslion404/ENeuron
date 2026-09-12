@@ -4,7 +4,8 @@ param(
     [switch]$B3FullOpen,
     [switch]$B3Bypass,
     [switch]$B3StaticMixed,
-    [switch]$B3LiveEneuron
+    [switch]$B3LiveEneuron,
+    [switch]$B3EpochOverlap
 )
 
 $ErrorActionPreference = 'Stop'
@@ -50,14 +51,15 @@ if (-not $xparameters -or -not $libxil -or -not $linkerScript -or -not $xilinxSp
 
 $includeDir = Split-Path -Parent $xparameters.FullName
 $libDir = Split-Path -Parent $libxil.FullName
-$modeCount = @($B3Dense, $B3FullOpen, $B3Bypass, $B3StaticMixed, $B3LiveEneuron | Where-Object { $_ }).Count
-if ($modeCount -gt 1) { throw 'B3Dense, B3FullOpen, B3Bypass, B3StaticMixed and B3LiveEneuron are mutually exclusive' }
-$applicationMode = if ($B3Bypass) { 'b3_bypass' } elseif ($B3StaticMixed) { 'b3_static_mixed' } elseif ($B3LiveEneuron) { 'b3_live_eneuron' } elseif ($B3FullOpen) { 'b3_full_open' } elseif ($B3Dense) { 'b3_dense' } else { 'b2_packet_smoke' }
+$modeCount = @($B3Dense, $B3FullOpen, $B3Bypass, $B3StaticMixed, $B3LiveEneuron, $B3EpochOverlap | Where-Object { $_ }).Count
+if ($modeCount -gt 1) { throw 'B3 mode switches are mutually exclusive' }
+$applicationMode = if ($B3Bypass) { 'b3_bypass' } elseif ($B3StaticMixed) { 'b3_static_mixed' } elseif ($B3LiveEneuron) { 'b3_live_eneuron' } elseif ($B3EpochOverlap) { 'b3_epoch_overlap' } elseif ($B3FullOpen) { 'b3_full_open' } elseif ($B3Dense) { 'b3_dense' } else { 'b2_packet_smoke' }
 $elfStem = "b2_packet_$applicationMode"
 $modeSpec = $null
 if ($applicationMode -like 'b3_*') {
-    $modeSpec = $goldenSample.modes.PSObject.Properties[$applicationMode].Value
-    if ($null -eq $modeSpec) { throw "B3 golden manifest has no mode: $applicationMode" }
+    $goldenModeName = if ($applicationMode -eq 'b3_epoch_overlap') { 'b3_dense' } else { $applicationMode }
+    $modeSpec = $goldenSample.modes.PSObject.Properties[$goldenModeName].Value
+    if ($null -eq $modeSpec) { throw "B3 golden manifest has no mode: $goldenModeName" }
     $expectedLogits = @($modeSpec.expected_logits)
     $maskWords = [int]$modeSpec.mask_words
     $inputPattern = [string]$goldenSample.input_pattern
@@ -68,6 +70,8 @@ if ($applicationMode -like 'b3_*') {
         '0x33333333 repeated; group_4way mixed mask, strict_2of4_candidate=false'
     } elseif ($applicationMode -eq 'b3_live_eneuron') {
         'Host live ENeuron S2 group_4way; computed on PS, not frozen mixed replay'
+    } elseif ($applicationMode -eq 'b3_epoch_overlap') {
+        'MASK_COMMIT then hold for JTAG 0x54/0x58 before first sample'
     } else {
         'full-open group_4way mask'
     }
@@ -83,6 +87,7 @@ if ($B3FullOpen) { $compileDefines += '-DB3_FULL_OPEN' }
 if ($B3Bypass) { $compileDefines += '-DB3_BYPASS' }
 if ($B3StaticMixed) { $compileDefines += '-DB3_STATIC_MIXED' }
 if ($B3LiveEneuron) { $compileDefines += '-DB3_LIVE_ENEURON' }
+if ($B3EpochOverlap) { $compileDefines += '-DB3_EPOCH_OVERLAP' }
 $objectPath = Join-Path $outRoot "packet_main_$applicationMode.o"
 $elfPath = Join-Path $outRoot "$elfStem.elf"
 $generatedHeader = Join-Path $outRoot 'b3_fixed_vector_generated.h'

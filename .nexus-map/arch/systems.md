@@ -2,15 +2,11 @@
 
 > generated_by: nexus-mapper v2 / manual synthesis
 > verified_at: 2026-09-12
-> provenance: Git HEAD `fe25a70` 与已提交 Host/manifest 人工核对；未提交 status probe / 计数器 RTL 不是签核源码身份。旧 t0-state 工作区不是现状。
+> provenance: 实板证据 `artifacts/logs/b3_mvp_20260912_be84596/`；RTL 身份 `be84596`。旧 t0-state 工作区不是现状。
 
 ## 当前权威快照（2026-09-12）
 
-器件 `xc7z020clg484-2`。主线是板上 packet-NPU + ENeuron 动态剪枝。已提交 HEAD=`fe25a7081f6a93e9d63c888ea581dc5595d84b4a`。工作树 DIRTY，含未提交 status probe / 计数器 RTL，不得写成已签核源码身份。
-
-已有实板证据：B0、B1A、低地址 B1B、B2 packet smoke、B3 dense/full-open/bypass、B3-08a 组级 static mixed。B3-09 Host 已接通：`eneuron_group4way_live.py` 用 ENeuron S2 gain=1 把每四个 NPU 组当 meta-neuron，按当前样本组 MAC 贡献量化 0..3 后保留 2 组；`packet_main.c` 的 `B3_LIVE_ENEURON` 在 PS 现场计算 mask，不重放冻结 mixed 表。期望 logits=`165,-18,14,0,0,0,0,0,0,153`；active/skip=`296/296`；mask word1=`0x33393335`，不等于 static mixed。实板 ELF/JTAG 未关闭。Host 合同 ≠ 板级通过。严格连接级 `2:4` 仍是 B3-08b。
-
-当前门为 `B3-MVP-GATE`。下一实板依赖是 B3-09 ELF/JTAG，然后 B3-03、B3-11 与小集合周期 A/B。后文旧 HEAD（`88bec9e`/`c3a50eb`/`f070577`）只描述当时证据身份，不是当前提交态。
+器件 `xc7z020clg484-2`。`B3-MVP-GATE` 已关。集中 bitstream `be84596`：WNS=+0.045 ns、DSP48E1=4，bit=`0ecbe762...3a11`。状态块 `0x40430000` 0x50/54/58/5C/60 已实板读回；pending=`MASK_PUBLISHED`。COM15 hold `active=0 pending=1`。四模式两轮：dense/full-open 2494 cycles 592/0；static/live 1606 cycles 296/296。live=`live_eneuron_s2`。下一门 `B3-STRICT-GATE` 与 `B2-GATE`。
 
 ## 当前边界校正（中等精简）
 

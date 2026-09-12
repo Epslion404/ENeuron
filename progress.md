@@ -1,5 +1,19 @@
 # 进度记录
 
+## 2026-09-12 B3-MVP-GATE 实板关闭
+
+- 集中 Vivado 2024.1：`WNS=+0.045 ns` / `TNS=0` / `WHS=+0.036 ns` / `THS=0` / DSP48E1=4。bit=`0ecbe762...3a11`，XSA=`135d979d...91d1a`，RTL HEAD `be84596`。
+- overlap 两次 COM15：hold `0x54=0 0x58=1`，样本后 `active=1 pending=0`，logits 黄金 dense。0x50/5C/60 可读。
+- 四模式两轮周期完全一致：dense/full-open 2494 cycles 592/0；static/live 1606 cycles 296/296。live `decision_source=live_eneuron_s2`。
+- 只声称组级动态剪枝正确性与局部周期差 888 cycles。功耗未测。
+
+## 2026-09-12 B3-04 集中实现进行中
+
+- 已启动一次 `run_b2_build.ps1`（Vivado 2024.1、`xc7z020clg484-2`、200 MHz）。`place_design` 完成，post-place 估计 WNS=+0.069 ns，进入 `phys_opt_design`。未完成 route/signoff 前禁止上板。
+- Host 侧 `B3EpochOverlap`：MASK_COMMIT 后打印 `B3_11_PENDING_HOLD` 并 sleep 8s；runner 在该窗口 JTAG 读 0x54/0x58，要求 active=0/pending=1，否则 `EPOCH_HOLD_MISMATCH`。PASS 后再打 `post_pass_probe.log`。
+- B3-14 报告器改为从真实 run 目录读 `uart.log`+`post_pass_probe.log`；live 必须带 `decision_source=live_eneuron_s2`。合同测试通过。
+- 计算中 overlap 仍只能由 Icarus 证明：200 MHz 下约 2494 周期 ≈ 12 µs，PS DMA 来不及在计算窗口 commit。
+
 ## 2026-09-12 B3-11 epoch 重叠仿真
 
 - 根因：`mask_valid` ≠ pending。pending 映射改为 `MASK_PUBLISHED` 后，compute tracer 在计算中 commit epoch=1 时 `active=0 pending=1`，当前结果仍 epoch=0；下一样本首 beat `active=1 pending=0`。

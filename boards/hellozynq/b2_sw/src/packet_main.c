@@ -47,13 +47,17 @@
 #define APPLICATION_MODE "b3_dense"
 #define SAMPLE_MASK_EPOCH MASK_EPOCH
 #define SEND_MASK_COMMANDS 1
+#elif defined(B3_EPOCH_OVERLAP)
+#define APPLICATION_MODE "b3_epoch_overlap"
+#define SAMPLE_MASK_EPOCH MASK_EPOCH
+#define SEND_MASK_COMMANDS 1
 #else
 #define APPLICATION_MODE "b2_packet_smoke"
 #define SAMPLE_MASK_EPOCH MASK_EPOCH
 #define SEND_MASK_COMMANDS 1
 #endif
 
-#if defined(B3_BYPASS) || defined(B3_FULL_OPEN) || defined(B3_DENSE) || defined(B3_STATIC_MIXED) || defined(B3_LIVE_ENEURON)
+#if defined(B3_BYPASS) || defined(B3_FULL_OPEN) || defined(B3_DENSE) || defined(B3_STATIC_MIXED) || defined(B3_LIVE_ENEURON) || defined(B3_EPOCH_OVERLAP)
 #define B3_NUMERIC_CHECK 1
 #if defined(B3_STATIC_MIXED)
 static const s32 *const expected_logits = B3_STATIC_MIXED_LOGITS;
@@ -550,6 +554,9 @@ static int send_sample_and_check(void)
         #elif defined(B3_FULL_OPEN)
         xil_printf("B3_FULL_OPEN_PASS sequence=%u sample_id=0x%08x response_words=%u mask_words=%u logits=165,-18,14,0,0,0,0,0,0,153\r\n",
                    request_sequence, sample_id, response_words, MASK_WORDS);
+        #elif defined(B3_EPOCH_OVERLAP)
+        xil_printf("B3_EPOCH_OVERLAP_PASS sequence=%u sample_id=0x%08x response_words=%u mask_words=%u logits=165,-18,14,0,0,0,0,0,0,153 result_epoch=%u\r\n",
+                   request_sequence, sample_id, response_words, MASK_WORDS, SAMPLE_MASK_EPOCH);
         #else
         xil_printf("B3_DENSE_PASS sequence=%u sample_id=0x%08x response_words=%u mask_words=%u logits=165,-18,14,0,0,0,0,0,0,153\r\n",
                    request_sequence, sample_id, response_words, MASK_WORDS);
@@ -628,6 +635,10 @@ int main(void)
         if (send_command(OP_MASK_DATA, MASK_EPOCH, mask_word) != XST_SUCCESS) return XST_FAILURE;
     }
     if (send_command(OP_MASK_COMMIT, MASK_EPOCH, 0U) != XST_SUCCESS) return XST_FAILURE;
+#if defined(B3_EPOCH_OVERLAP)
+    xil_printf("B3_11_PENDING_HOLD expected_active=0 expected_pending=1\r\n");
+    sleep(8U);
+#endif
 #endif
     if (send_fence_and_check() != XST_SUCCESS) return XST_FAILURE;
     if (send_sample_and_check() != XST_SUCCESS) return XST_FAILURE;
@@ -647,6 +658,8 @@ int main(void)
                STRICT_2OF4_CANDIDATE);
     #elif defined(B3_FULL_OPEN)
     xil_printf("B3_FULL_OPEN_PASS model_words=%u mask_words=%u\r\n", MODEL_WORDS, MASK_WORDS);
+    #elif defined(B3_EPOCH_OVERLAP)
+    xil_printf("B3_EPOCH_OVERLAP_PASS model_words=%u mask_words=%u\r\n", MODEL_WORDS, MASK_WORDS);
     #else
     xil_printf("B3_DENSE_PASS model_words=%u mask_words=%u\r\n", MODEL_WORDS, MASK_WORDS);
     #endif
@@ -669,6 +682,8 @@ int main(void)
                    STRICT_2OF4_CANDIDATE);
         #elif defined(B3_FULL_OPEN)
         xil_printf("B3_FULL_OPEN_PASS model_words=%u mask_words=%u\r\n", MODEL_WORDS, MASK_WORDS);
+        #elif defined(B3_EPOCH_OVERLAP)
+        xil_printf("B3_EPOCH_OVERLAP_PASS model_words=%u mask_words=%u\r\n", MODEL_WORDS, MASK_WORDS);
         #else
         xil_printf("B3_DENSE_PASS model_words=%u mask_words=%u\r\n", MODEL_WORDS, MASK_WORDS);
         #endif

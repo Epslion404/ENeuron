@@ -2,11 +2,11 @@
 
 > generated_by: nexus-mapper v2 / manual synthesis
 > verified_at: 2026-09-12
-> provenance: Git HEAD `fe25a70` 与已提交 Host/manifest 人工核对；未提交 status probe / 计数器 RTL 不是签核源码身份。旧 t0-state 工作区不是现状。
+> provenance: 实板证据 `artifacts/logs/b3_mvp_20260912_be84596/`；RTL 身份 `be84596`。旧 t0-state 工作区不是现状。
 
 ## 当前权威概念边界（2026-09-12）
 
-器件 `xc7z020clg484-2`。主线是板上 packet-NPU + ENeuron 动态剪枝。已提交 HEAD=`fe25a70`。已有实板证据：B0、B1A、低地址 B1B、B2 packet smoke、B3 dense/full-open/bypass、B3-08a 组级 static mixed。B3-09 Host 已接通，实板 ELF/JTAG 未关闭。Host 合同 ≠ 板级通过。严格连接级 `2:4` 仍是 B3-08b。
+器件 `xc7z020clg484-2`。`B3-MVP-GATE` 已关：组级 `group_4way` live-ENeuron 正确，局部 NPU 周期 dense 2494 → gated 1606。pending epoch=`MASK_PUBLISHED`，不是 `mask_valid`。严格连接级 `2:4` 仍是 B3-08b / `B3-STRICT-GATE`。功耗未测。
 
 - `B3_LIVE_ENEURON_HOST_GREEN / B3_09_BOARD_PENDING`：提交 `fe25a70` 接通 Host 侧 live 路径。`eneuron_group4way_live.py` 用 ENeuron S2、gain=1，把每四个 NPU 组当 meta-neuron，由当前样本组 MAC 贡献量化 0..3 后原子保留 2 组，打包 19-word `group_4way` mask。`packet_main.c` 的 `B3_LIVE_ENEURON` 在 PS 装载模型后现场计算同一 mask，禁止 `B3_LIVE_ENEURON_MASK_WORDS` 冻结表。期望 logits=`165,-18,14,0,0,0,0,0,0,153`，active/skip=`296/296`，mask word1=`0x33393335`，不等于 static mixed。Python 合同 6/6。该状态不是实板通过，也不关闭 B3-08b。
 - `DIRTY_WORKTREE_NOT_SIGNOFF`：当前工作树含未提交 status probe / 计数器 RTL；它们不是已签核源码身份，不能替代 HEAD `fe25a70`。

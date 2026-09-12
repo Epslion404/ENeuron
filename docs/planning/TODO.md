@@ -678,7 +678,7 @@ B3 分为两级：先用现有 `group_4way` mask 完成 `B3-MVP-GATE`，只回�
 - [ ] B3-01：在 `B3-STRICT-GATE` 前冻结完整发布身份：保持当前 `64→32→10`、634个模型word、8-beat样本和10-beat结果不变，固定模型word顺序、INT8/uint4解释、bias、隐藏层饱和、样本集合、期望10-logit、预测类别和所有文件 SHA-256。B3-MVP 每次实板 run 仍必须保存当次 bit/XSA/ELF/manifest 身份，但不因最终 clean-worktree 发布包未冻结而阻塞开发实验。
 - [x] B3-02：已生成 `tools/repro/b3_fixed_vector_manifest.json`，Python 通过 `b3_fixed_vector_manifest.py` 重建模型、输入、mask 和 dense/static 输出，Host 通过 `run_b2_packet_sw_build.ps1` 校验同一 manifest 并生成板端 C 头文件；样本包含 sample ID、8 个输入 beat、dense/gated logits、mask epoch、mask 数据和预期类别，禁止手工维护两套期望值。合同测试见 `test_b3_fixed_vector_manifest_contract.py`、`test_b3_fixed_vector_manifest_loader.py`。
 - [x] B3-03：RTL/合同已把 runtime_status、active/pending epoch、last_compute_cycles、protocol_error_count 接到 `0x40430000` 状态块；`test_b2_npu_status_probe_contract` 6/6。实验模式仍由 Host run manifest 冻结。物理读回与 DSP/时序门随 B3-04 集中 bitstream，本次不单独跑 Vivado。
-- [ ] B3-04：在 B3-03、B3-09 和 B3-11 的 RTL 稳定且快速回归通过后，集中执行一次完整 bitstream 实现；检查 Host/NPU/AXI 相关时钟域 setup/hold、CDC、route、DRC、恰好4个 DSP48E1 以及核心、wrapper、FIFO、DMA、packetizer 分层资源。文档或纯 Host 改动不触发 PL 重建；任一物理硬门失败时该 bitstream 不得下载作正式测试。
+- [x] B3-04：集中 `xc7z020clg484-2` / 200 MHz bitstream 通过物理硬门：`WNS=+0.045 ns`、`TNS=0`、`WHS=+0.036 ns`、`THS=0`、route/DRC hard errors=0、DSP48E1=4。bit SHA-256=`0ecbe76274c39418f2a60a88358d3ff6f09f5a2ed73a44a3a419c34eb91d3a11`，RTL 身份 `be84596`。证据 `artifacts/logs/b3_mvp_20260912_be84596/`。
 - [ ] B3-05：在 `B3-STRICT-GATE` 前补齐正式能力/身份门；上板后先读取版本/能力寄存器，核对协议版本、模型规模、构建 Git SHA、bitstream标识和四 DSP配置，身份不符时拒绝装载模型和样本。B3-MVP 允许使用当次 run manifest 绑定并核对同等身份字段。
 - [x] B3-06：先运行 dense/bypass；逐样本核对10个 logit 对应的结果 beat、sample ID、mask epoch 和预测类别与冻结黄金输出完全一致，并核对执行组数等于 dense 期望。这一步才是 NPU 数值功能门，不由 packet smoke 代替。
 - [x] B3-07：运行 gate 启用但全开 mask，10 个 logit 必须与 dense/bypass 逐 beat bit-exact 一致；执行组数不得减少。这一步只证明门控通路透明，不证明剪枝有效。
@@ -686,14 +686,14 @@ B3 分为两级：先用现有 `group_4way` mask 完成 `B3-MVP-GATE`，只回�
 - [ ] B3-08b：补齐严格连接级 `2:4` 候选的 Host 重放与逐样本周期/输出证据；当前 RTL 的 592-bit mask 仍是一位控制四权重组，不能用 B3-08a 关闭本项。Host 编码基础合同已记录于 `docs/verification/NPU_STRICT_2OF4_HOST_CONTRACT_V1.md`，但尚未扩展板端协议/RTL。
 - [x] B3-09：Host 在 PS 上用 ENeuron S2（gain=1）从当前样本现场计算 `group_4way` mask，不重放冻结 mixed 表。COM15 实板 run `20260912T131302Z` UART `B3_LIVE_ENEURON_PASS` logits=`165,-18,14,0,0,0,0,0,0,153`；JTAG execute/skip=`296/296`、fence valid。证据 `artifacts/logs/b3_live_eneuron_pass_20260912_fe25a70/`。只关闭组级 live 路径，不是严格 `2:4`。
 - [ ] B3-10：在 `B3-STRICT-GATE` 前将 ENeuron 输出扩展为严格连接级 `2:4` mask，并逐组检查合法性；非法 mask 必须在配置/提交阶段明确拒绝，不能静默钳位或把全关模式计作有效剪枝。全关只作协议负向或负载下界。
-- [x] B3-11：RTL/仿真已证明计算中 MASK_COMMIT 后 `active=旧 epoch`、`pending=新 epoch`（`mask_state==MASK_PUBLISHED`，不是 `mask_valid`）；当前结果 beat 仍回显旧 epoch；下一样本首 beat 才 `active=新 epoch`、`pending=0`。定向 `B3_11_PENDING_VISIBLE` / `B3_11_EPOCH_OVERLAP_PASS` 与 V2 周期合同通过。JTAG 0x54/0x58 实板读回随 B3-04 集中 bitstream，本次不单独跑 Vivado。
+- [x] B3-11：RTL/仿真已证明计算中 MASK_COMMIT 后 `active=旧 epoch`、`pending=新 epoch`（`mask_state==MASK_PUBLISHED`，不是 `mask_valid`）。COM15 实板 hold 窗口两次读回 `0x54=0` / `0x58=1`，样本后 `active=1 pending=0`。计算中 overlap 因 ~12 µs 窗口无法由 PS DMA 命中，保持 Icarus 证明。
 - [ ] B3-12：在 `B3-STRICT-GATE` 前覆盖响应背压、结果背压、错误命令、非法 epoch、重复提交、模型/掩码中途复位和重新装载，并记录协议错误与首错 sample ID；恢复后首个合法样本不得混入旧模型、旧 mask、旧 sample ID 或未完成计数。
-- [ ] B3-13：为 B3-MVP 冻结一个小样本集和固定运行顺序，在同一 bitstream 上连续运行 dense、full-open、static-group_4way 和 live-ENeuron-group_4way；首错即停并保存完整上下文。此阶段不要求10000样本、多轮网口统计或外部功耗仪器。
-- [ ] B3-14：为 B3-MVP 分别报告四种模式的样本数、logit/决策合同结果、每样本 NPU 周期、执行/跳过组数、epoch 和协议错误；静态 mask 与 ENeuron 动态 mask 分开统计。本项只支撑局部计算周期结论，不外推端到端加速或功耗收益。
+- [x] B3-13：同一 bitstream、COM15，固定顺序 dense → full-open → static-group_4way → live-ENeuron-group_4way，两轮均 PASS；live 为 `decision_source=live_eneuron_s2`，不是 Host 冻结 mixed 重放。
+- [x] B3-14：四种模式分行报告。dense/full-open：`592/0` 组、`2494` cycles；static/live：`296/296` 组、`1606` cycles。live 与 static 决策源和 logits 均未合并。只允许声称组级动态剪枝正确性与局部 NPU 周期差值。
 - [ ] B3-15：在 `B3-STRICT-GATE` 前为 dense、full-open、static-2:4 和 live-ENeuron-2:4 每种正式模式至少连续运行10000样本；所有模式首错即停并保存完整上下文。
 - [ ] B3-16：为 `B3-STRICT-GATE` 报告每个正式模式的样本正确数、logit完全一致数、类别一致数、每样本硬件周期、执行/跳过组、协议错误、恢复次数和资源；静态 mask 与 ENeuron 动态 mask 分开统计。
 - [ ] B3-RECOVERY：若 dense错误先停在模型装载/量化/计算；full-open错误停在门控透明路径；static mask错误停在mask位序/epoch/NPU跳过；只有前三者全过后才诊断 ENeuron决策，不允许用调整训练参数掩盖基础执行错误。
-- [ ] B3-MVP-GATE：已完成 B3-00、B3-02、B3-06、B3-07 和 B3-08a，再通过 B3-03、B3-04、B3-09、B3-11、B3-13 和 B3-14；在同一通过物理门的 bitstream 上完成 dense、full-open、static-group_4way 和 live-ENeuron-group_4way 小集合 A/B，数值/决策合同、epoch 原子性和 NPU 周期证据必须可回放。本门通过只允许声称“组级动态剪枝正确性与局部周期差值已测”，不代表严格 `2:4`、完整 B2 发布、网口加速或功耗收益。
+- [x] B3-MVP-GATE：B3-00/02/03/04/06/07/08a/09/11/13/14 已在同一通过物理门的 bitstream 上关闭。只允许声称组级 `group_4way` 动态剪枝正确性与局部 NPU 周期差值（dense 2494 → gated 1606）。不代表严格 `2:4`、完整 B2 发布、网口加速或功耗收益。
 - [ ] B3-STRICT-GATE：先通过 B3-MVP-GATE，再完成 B3-01、B3-05、B3-08b、B3-10、B3-12、B3-15、B3-16 和 B3-RECOVERY；dense、全开、Host 静态严格 `2:4` 和 live-ENeuron 严格 `2:4` 的长稳定性、协议、epoch 原子性与复位恢复全部通过后，才能进入 B4 发布验证。
 
 历史记录（2026-09-12、旧计数器 bitstream）：`20260912T050553Z` dense、`20260912T053341Z` bypass、`20260912T053426Z` full-open 均通过输出校验，但当时没有同源 execute/skip 物理读回，因此不能单独关闭 B3-06/B3-07。

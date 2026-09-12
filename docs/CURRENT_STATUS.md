@@ -4,12 +4,15 @@
 
 ## 结论
 
-当前项目状态为：`FUNCTIONAL_PASS / PHYSICAL_PASS / B3_FIXED_VECTOR_PASS / B3_09_LIVE_ENEURON_GROUP4WAY_PASS / B3_03_OBS_RTL_GREEN / B3_11_EPOCH_SIM_GREEN / BOARD_STATUS_PARTIAL`。
+当前项目状态为：`FUNCTIONAL_PASS / PHYSICAL_PASS / B3_MVP_GATE_PASS / B3_STRICT_PENDING / B2_GATE_PENDING`。
 
-主线是 `xc7z020clg484-2` 上的 packet-NPU 与 ENeuron 动态剪枝 A/B。B3-09 实板已关；B3-03/B3-11 的 RTL 与仿真已绿（pending 来自 `MASK_PUBLISHED`）。还没有完成 B3-04 集中 bitstream、B3-13/14 周期 A/B、严格连接级 `2:4` 或 B2-GATE。
+主线是 `xc7z020clg484-2` 上的 packet-NPU 与 ENeuron 组级动态剪枝。B3-MVP-GATE 已关：同一 200 MHz bitstream 上 dense/full-open/static/live 小集合 A/B、epoch 读回和局部周期差值可回放。严格连接级 `2:4`、B2-GATE、网口和功耗仍未完成。
 
 ## 已确认事实
 
+- B3-04 集中实现（RTL 身份 `be84596`）通过：`WNS=+0.045 ns`、`TNS=0`、`WHS=+0.036 ns`、`THS=0`、DSP48E1=4。bit SHA-256=`0ecbe76274c39418f2a60a88358d3ff6f09f5a2ed73a44a3a419c34eb91d3a11`，XSA SHA-256=`135d979d61c629922ee5419e51dd97ef045d9bab79930432816d09f109291d1a`。
+- B3-11 实板：COM15 overlap 两次 hold 窗口 JTAG `0x54=0` / `0x58=1`，样本后 `active=1 pending=0`。0x50/5C/60 可读；0x00–0x4C 未改址。
+- B3-13/14 两轮一致：dense/full-open `592/0` 组、`2494` cycles、logits `165,-18,...,153`；static `296/296`、`1606` cycles、logits `74,-18,...,114`；live `296/296`、`1606` cycles、logits 与 dense 相同且 `decision_source=live_eneuron_s2`。证据 `artifacts/logs/b3_mvp_20260912_be84596/`。
 - Vivado 2024.1，器件 `xc7z020clg484-2`，`clk_fpga_0=200 MHz`。
 - 已签核 packet 基线 routed timing：`WNS=+0.005 ns`、`TNS=0`、`WHS=+0.034 ns`、`THS=0`；route errors 和 DRC hard errors 均为 `0`。
 - 计数器版本第三次 routed build `build_route_explore_20260912` 通过 `xc7z020clg484-2`、200 MHz 物理门：`WNS=+0.008 ns`、`TNS=0`、`WHS=+0.036 ns`、`THS=0`，route errors/DRC hard errors 为 `0`，DSP48E1 为 `4`。bit SHA-256=`5c6ebc07beb4bae83f5ddd1870ad2e4f53ccf56b244ae7577186c8398c910a88`，XSA SHA-256=`862883742e77e48c566fc49cc14746bc70830e27c894bdf948085c534177a614`。
@@ -37,7 +40,7 @@
 - clean worktree 重建，确认最终可复现 manifest。
 - B2-06～B2-10 的多 packet、完整错误矩阵、复位账本、统一时间戳和正式机器证据包。
 - B2-GATE 发布门。
-- B3-00、B3-02、B3-06、B3-07 和 B3-08a 已在同一通过物理门的计数器 bitstream 上关闭；B3-02 的 Python/Host 共享 manifest 已通过合同测试。B3-01 仍待补齐全量文件 SHA-256 与最终 clean 身份冻结；B3-03～B3-05、严格连接级 `2:4`、ENeuron 动态 mask A/B、epoch 原子性/恢复矩阵、周期和功耗测量仍未完成，不能外推为完整 B3-GATE。
+- B3-MVP-GATE 已关。B3-01/05/08b/10/12/15/16 与严格 `2:4` 仍待 `B3-STRICT-GATE`。B2-GATE、网口和外部功耗未测（`POWER_NOT_MEASURED`）。
 - 计数器对外仍保持 32 位 AXI-Lite 读口；核心内部加法收窄为 24 位，可覆盖 B3-13 的 10000 样本上限（`592 * 10000 = 5,920,000 < 2^24`）。
 - Pulse-Mini-L/L2 集成。它们是冻结的候选/历史支线，不是当前日常门。
 
@@ -45,9 +48,9 @@
 
 ## 下一步
 
-1. B3-04：B3-03/09/11 RTL 已稳定，集中一次 `xc7z020clg484-2` 200 MHz 实现；文档/纯 Host 改动不重建 PL。
-2. B3-13/B3-14：同一 bitstream 上 dense / full-open / static / live 小集合周期 A/B，读 0x5C 末次 compute cycles 与 execute/skip。
-3. 严格 `2:4`、10000 样本、网口、功耗不在 B3-MVP 内。
+1. `B3-STRICT-GATE`：严格连接级 `2:4`、10000 样本、恢复矩阵。
+2. B2-GATE 剩余项（多 packet 错误矩阵、统一时间戳、正式证据包）。
+3. B4 网口与外部功耗。不把 888 cycle 局部差值写成端到端加速或功耗收益。
 
 ## 文档口径
 

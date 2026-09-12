@@ -33,6 +33,34 @@ function Open-SerialPort {
     return $port
 }
 
+function Invoke-B2StateProbe {
+    param(
+        [Parameter(Mandatory = $true)][string]$OutPath,
+        [Parameter(Mandatory = $true)][string]$ErrPath,
+        [int]$TimeoutMs = 20000
+    )
+    $probe = Start-Process -FilePath $XsctPath -ArgumentList @(
+        (Join-Path $scriptRoot 'probe_b2_state.tcl')
+    ) -RedirectStandardOutput $OutPath -RedirectStandardError $ErrPath -WindowStyle Hidden -PassThru
+    if (-not $probe.WaitForExit($TimeoutMs)) {
+        $probe.Kill()
+        throw "probe_b2_state.tcl timed out: $OutPath"
+    }
+    return [int]$probe.ExitCode
+}
+
+function Get-ProbeU32 {
+    param(
+        [Parameter(Mandatory = $true)][string]$Text,
+        [Parameter(Mandatory = $true)][string]$Key
+    )
+    $match = [regex]::Match($Text, "(?m)^$([regex]::Escape($Key))=(\S+)")
+    if (-not $match.Success) { throw "probe log missing $Key" }
+    $value = $match.Groups[1].Value
+    if ($value -like '0x*') { return [Convert]::ToUInt32($value.Substring(2), 16) }
+    return [uint32]$value
+}
+
 $scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $repoRoot = (Resolve-Path (Join-Path $scriptRoot '..\..\..')).Path
 $gitHead = (& git -C $repoRoot rev-parse HEAD).Trim()
@@ -50,6 +78,7 @@ $markerByMode = @{
     b3_bypass = 'B3_BYPASS_PASS'
     b3_static_mixed = 'B3_STATIC_MIXED_PASS'
     b3_live_eneuron = 'B3_LIVE_ENEURON_PASS'
+    b3_epoch_overlap = 'B3_EPOCH_OVERLAP_PASS'
 }
 $terminalMarker = if ($markerByMode.ContainsKey($applicationMode)) { $markerByMode[$applicationMode] } else { 'B2_PACKET_PASS' }
 $resultMarker = if ($markerByMode.ContainsKey($applicationMode)) { $markerByMode[$applicationMode] } else { 'B2_PACKET_RESULT_PASS' }
@@ -122,6 +151,11 @@ $programDeadline = [DateTime]::UtcNow.AddSeconds(60)
 $listenDeadline = $null
 $runStarted = $false
 $packetStarted = $false
+$pendingHoldProbed = $false
+$holdProbeOut = Join-Path $runRoot 'pending_hold_probe.log'
+$holdProbeErr = Join-Path $runRoot 'pending_hold_probe.err'
+$postProbeOut = Join-Path $runRoot 'post_pass_probe.log'
+$postProbeErr = Join-Path $runRoot 'post_pass_probe.err'
 try {
     while ($true) {
         $xsctText = if (Test-Path -LiteralPath $xsctStdout) { [string](Get-Content -LiteralPath $xsctStdout -Raw) } else { '' }
@@ -131,6 +165,11 @@ try {
             $listenDeadline = [DateTime]::UtcNow.AddSeconds($ListenSeconds)
         }
         if ($runStarted -and $received.ToString() -like '*B2_PACKET_BEGIN*') { $packetStarted = $true }
+        if ($runStarted -and -not $pendingHoldProbed -and $received.ToString() -like '*B3_11_PENDING_HOLD*') {
+            $pendingHoldProbed = $true
+            if ($null -ne $listenDeadline) { $listenDeadline = $listenDeadline.AddSeconds(30) }
+            [void](Invoke-B2StateProbe -OutPath $holdProbeOut -ErrPath $holdProbeErr)
+        }
         if ($runStarted -and $packetStarted -and $received.ToString() -like "*$terminalMarker*" -and
             $received.ToString() -like '*B2_PACKET_FENCE_PASS*' -and
             $received.ToString() -like "*$resultMarker*") { break }
@@ -190,7 +229,29 @@ $xsctProgramPass = $xsctText -like '*B2_FPGA_PROGRAM_PASS*'
 $xsctDownloadPass = $xsctText -like '*B2_ELF_DOWNLOAD_PASS*'
 # XSCT 包装器可能在 Tcl error 时仍返回 0；明确识别“available targets: none”。
 $jtagTargetUnavailable = $xsctStderrText -match 'available targets:\s*none'
-$status = if ($jtagTargetUnavailable) { 'JTAG_TARGET_UNAVAILABLE' } elseif ($uartPass -and $xsctExitCode -eq 0 -and $xsctProgramPass -and $xsctDownloadPass) { 'PASS' } elseif ($packetText -like '*B2_PACKET_FAIL*') { 'FAIL' } else { 'NO_TERMINAL_MARKER' }
+$epochHoldPass = $true
+$epochHoldActive = $null
+$epochHoldPending = $null
+if ($applicationMode -eq 'b3_epoch_overlap') {
+    if (-not $pendingHoldProbed -or -not (Test-Path -LiteralPath $holdProbeOut)) {
+        $epochHoldPass = $false
+    } else {
+        $holdText = [string](Get-Content -LiteralPath $holdProbeOut -Raw)
+        if ($null -eq $holdText) { $holdText = '' }
+        try {
+            $epochHoldActive = Get-ProbeU32 -Text $holdText -Key 'B2_NPU_ACTIVE_MASK_EPOCH'
+            $epochHoldPending = Get-ProbeU32 -Text $holdText -Key 'B2_NPU_PENDING_MASK_EPOCH'
+            if ($epochHoldActive -ne 0 -or $epochHoldPending -ne 1) { $epochHoldPass = $false }
+        } catch {
+            $epochHoldPass = $false
+        }
+    }
+}
+$postProbeExit = $null
+if ($uartPass -and -not $jtagTargetUnavailable) {
+    $postProbeExit = Invoke-B2StateProbe -OutPath $postProbeOut -ErrPath $postProbeErr
+}
+$status = if ($jtagTargetUnavailable) { 'JTAG_TARGET_UNAVAILABLE' } elseif ($applicationMode -eq 'b3_epoch_overlap' -and -not $epochHoldPass) { 'EPOCH_HOLD_MISMATCH' } elseif ($uartPass -and $xsctExitCode -eq 0 -and $xsctProgramPass -and $xsctDownloadPass) { 'PASS' } elseif ($packetText -like '*B2_PACKET_FAIL*') { 'FAIL' } else { 'NO_TERMINAL_MARKER' }
 $bitstreamHash = [string]((Get-FileHash -Algorithm SHA256 -LiteralPath $bitstream).Hash)
 $xsaHash = [string]((Get-FileHash -Algorithm SHA256 -LiteralPath $xsa).Hash)
 $elfHash = [string]((Get-FileHash -Algorithm SHA256 -LiteralPath $elf).Hash)
@@ -217,6 +278,11 @@ $runManifest = [ordered]@{
     uart_terminal_marker = $status
     uart_reconnects = $serialReconnects
     uart_log_sha256 = $uartLogHash
+    pending_hold_probed = $pendingHoldProbed
+    epoch_hold_pass = $epochHoldPass
+    epoch_hold_active = $epochHoldActive
+    epoch_hold_pending = $epochHoldPending
+    post_probe_exit_code = $postProbeExit
 }
 $runManifestPath = Join-Path $runRoot 'run_manifest.json'
 $runManifest | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $runManifestPath -Encoding utf8

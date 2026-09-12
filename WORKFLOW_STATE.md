@@ -12,7 +12,9 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 
 当前阶段活动合同：`docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`。关联主线合同为 `docs/planning/TODO.md`、`docs/planning/NPU_PRUNING_TODO.md` 和 `docs/planning/NPU_PRUNING_NP7_TODO.md`。阶段 2 只用真实板卡证据关闭任务；仿真与 OOC 继续作为开发辅助和历史基线。
 
-2026-09-12：新 bit/XSA 在 `COM15` 上完成 `probe_b2_state.tcl`，`0x40430000` 状态块读取成功（status=`1`）；command/sample/response/result 实时 accepted/completed=`658/658`、`8/8`、`1/1`、`10/1`，fence snapshot valid。旧 `0x01008000` 软件状态区未由 packet smoke 初始化，仍不可作为账本证据；B2-06～B2-10、B2-GATE、B3 和 ENeuron A/B 继续未完成。
+2026-09-12：B3-MVP-GATE 关闭。集中 bitstream RTL 身份 `be84596`：WNS=`+0.045 ns`、DSP48E1=`4`，bit SHA-256=`0ecbe762...3a11`。COM15 两次 overlap hold 读 `active=0 pending=1`；四种模式两轮 A/B 周期 dense/full-open=`2494`、static/live=`1606`。只证明组级动态剪枝正确性与局部 NPU 周期差。B3-STRICT、B2-GATE、网口、功耗未完成。
+
+2026-09-12：新 bit/XSA 在 `COM15` 上完成 `probe_b2_state.tcl`，`0x40430000` 状态块读取成功（status=`1`）；command/sample/response/result 实时 accepted/completed=`658/658`、`8/8`、`1/1`、`10/1`，fence snapshot valid。旧 `0x01008000` 软件状态区未由 packet smoke 初始化，仍不可作为账本证据；B2-06～B2-10、B2-GATE 继续未完成。
 
 2026-09-12：第三次改变实现假设的计数器 routed build `build_route_explore_20260912` 在 `xc7z020clg484-2`、200 MHz 通过物理门（WNS=`+0.008 ns`、TNS=`0`、WHS=`+0.036 ns`、THS=`0`、route/DRC hard errors=`0`、DSP48E1=`4`）。同一 bit/XSA 在 COM15 完成 dense `20260912T093643Z`、full-open `20260912T094035Z`、bypass `20260912T094155Z` 三次固定向量运行；黄金 logits、CRC、元数据和结果帧均通过，JTAG 读回 execute/skip=`592/0`、fence snapshot valid。B3-00、B3-06、B3-07 已完成；静态 `2:4`、live-ENeuron、周期/功耗和 B2 发布门仍未完成。
 

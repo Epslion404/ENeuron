@@ -1,5 +1,17 @@
 # 调研与实验发现
 
+## 2026-09-12 B3-MVP 局部周期
+
+- 同一 bit 上 dense/full-open 末次 compute cycles 均为 2494；static mixed 与 live-ENeuron 均为 1606。差值 888 cycles，对应 296 组 skip。
+- live logits 仍等于 dense，因为本稀疏模型被跳过组对固定向量贡献为 0；static mixed 改变输出为 `74,-18,...,114`。因此不能用 logits 把 live 和 static 合成一行。
+- 0x5C 是样本结束后的锁存值，不是墙钟；不能外推以太网吞吐或功耗。
+
+## 2026-09-12 B3-04/B3-11 实板采样窗口
+
+- PS DMA 无法打中“当前样本计算期间 MASK_COMMIT”：NPU 计算约 2494 周期 @ 200 MHz ≈ 12 µs，MASK 包往返是毫秒级。实板改为 commit 后、下一样本前的 8s hold，读 0x54/0x58；计算中 overlap 保持 Icarus `B3_11_PENDING_VISIBLE`。
+- `mask_valid` 不是 pending。pending 必须来自 `mask_state==MASK_PUBLISHED`。
+- 状态块冻结：0x00–0x4C 不变；0x50 runtime、0x54/0x58 epoch、0x5C last cycles、0x60 protocol errors。
+
 ## 2026-09-12 B3-11 pending epoch 映射
 
 - 公开 `pending_mask_epoch` 必须来自 `mask_state == MASK_PUBLISHED`。`mask_valid` 只表示“已在样本首 beat 激活”，commit 后、下一样本前它仍为 0。
