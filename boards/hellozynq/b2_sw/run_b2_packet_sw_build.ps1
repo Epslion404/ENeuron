@@ -91,38 +91,41 @@ $env:PATH = "$toolBin;$(Split-Path -Parent $makePath);$env:PATH"
 $env:RDI_PLATFORM = 'win64'
 
 # 从黄金 manifest 生成板端只读头文件，避免 C 源码维护第二套模型/样本/mask 常量。
-$headerLines = [System.Collections.Generic.List[string]]::new()
 $goldenManifestSha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $goldenManifestPath).Hash.ToLowerInvariant()
-$headerLines.Add('#ifndef B3_FIXED_VECTOR_GENERATED_H')
-$headerLines.Add('#define B3_FIXED_VECTOR_GENERATED_H')
-$headerLines.Add(('#define B3_MANIFEST_SCHEMA_SHA256 "{0}"' -f $goldenManifestSha256))
-$headerLines.Add("#define B3_MODEL_WORD_COUNT $([int]$golden.model.word_count)U")
-$headerLines.Add("#define B3_MASK_WORD_COUNT $([int]$goldenSample.modes.b3_dense.mask_words)U")
-$headerLines.Add('static inline u32 b3_model_word_for_index(u32 index) {')
-$headerLines.Add('    switch (index) {')
+$headerLines = @(
+    '#ifndef B3_FIXED_VECTOR_GENERATED_H',
+    '#define B3_FIXED_VECTOR_GENERATED_H',
+    ('#define B3_MANIFEST_SCHEMA_SHA256 "{0}"' -f $goldenManifestSha256),
+    "#define B3_MODEL_WORD_COUNT $([int]$golden.model.word_count)U",
+    "#define B3_MASK_WORD_COUNT $([int]$goldenSample.modes.b3_dense.mask_words)U",
+    'static inline u32 b3_model_word_for_index(u32 index) {',
+    '    switch (index) {'
+)
 foreach ($entry in $golden.model.nonzero_words.PSObject.Properties) {
     $value = [Convert]::ToUInt64(([string]$entry.Value).Replace('0x', ''), 16)
-    $headerLines.Add(('        case {0}U: return 0x{1:X8}U;' -f [int]$entry.Name, $value))
+    $headerLines += ('        case {0}U: return 0x{1:X8}U;' -f [int]$entry.Name, $value)
 }
-$headerLines.Add('        default: return 0U;')
-$headerLines.Add('    }')
-$headerLines.Add('}')
-$headerLines.Add('static const u32 B3_SAMPLE_INPUT_BEATS[8] = {')
-$headerLines.Add(('    ' + (($goldenSample.input_beats | ForEach-Object { '{0}U' -f $_ }) -join ', ') + ','))
-$headerLines.Add('};')
+$headerLines += @(
+    '        default: return 0U;',
+    '    }',
+    '}',
+    'static const u32 B3_SAMPLE_INPUT_BEATS[8] = {',
+    ('    ' + (($goldenSample.input_beats | ForEach-Object { '{0}U' -f $_ }) -join ', ') + ','),
+    '};'
+)
 foreach ($modeName in @('b3_dense', 'b3_static_mixed', 'b3_live_eneuron', 'b3_bypass')) {
     $mode = $goldenSample.modes.PSObject.Properties[$modeName].Value
     $logitName = if ($modeName -eq 'b3_static_mixed') { 'B3_STATIC_MIXED_LOGITS' } elseif ($modeName -eq 'b3_live_eneuron') { 'B3_LIVE_ENEURON_LOGITS' } else { 'B3_DENSE_LOGITS' }
     if ($modeName -ne 'b3_bypass') {
-        $headerLines.Add(('static const s32 {0}[10] = {{ {1} }};' -f $logitName, (($mode.expected_logits | ForEach-Object { '{0}' -f $_ }) -join ', ')))
+        $headerLines += ('static const s32 {0}[10] = {{ {1} }};' -f $logitName, (($mode.expected_logits | ForEach-Object { '{0}' -f $_ }) -join ', '))
     }
 }
 foreach ($modeName in @('b3_dense', 'b3_static_mixed')) {
     $mode = $goldenSample.modes.PSObject.Properties[$modeName].Value
     $arrayName = if ($modeName -eq 'b3_static_mixed') { 'B3_STATIC_MIXED_MASK_WORDS' } else { 'B3_FULL_OPEN_MASK_WORDS' }
-    $headerLines.Add(('static const u32 {0}[19] = {{ {1} }};' -f $arrayName, (($mode.mask_words_data | ForEach-Object { '{0}U' -f $_ }) -join ', ')))
+    $headerLines += ('static const u32 {0}[19] = {{ {1} }};' -f $arrayName, (($mode.mask_words_data | ForEach-Object { '{0}U' -f $_ }) -join ', '))
 }
-$headerLines.Add('#endif')
+$headerLines += '#endif'
 $headerLines | Set-Content -LiteralPath $generatedHeader -Encoding ascii
 
 & $gccPath @commonFlags @compileDefines '-O2' '-g' '-Wall' '-Wextra' '-fno-tree-loop-distribute-patterns' `

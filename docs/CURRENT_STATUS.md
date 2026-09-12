@@ -4,9 +4,9 @@
 
 ## 结论
 
-当前项目状态为：`FUNCTIONAL_PASS / PHYSICAL_PASS / B3_FIXED_VECTOR_PASS / B3_LIVE_ENEURON_HOST_GREEN / BOARD_STATUS_PARTIAL`。
+当前项目状态为：`FUNCTIONAL_PASS / PHYSICAL_PASS / B3_FIXED_VECTOR_PASS / B3_09_LIVE_ENEURON_GROUP4WAY_PASS / BOARD_STATUS_PARTIAL`。
 
-主线是 `xc7z020clg484-2` 上的 packet-NPU 与 ENeuron 动态剪枝 A/B。当前已经完成 NPU packet 基线、计数器物理门、dense/full-open/bypass 固定向量实板闭环、组级 `group_4way` 静态 mixed mask 实板闭环，以及 Host 侧 live ENeuron S2 组级决策（Python/C，尚未用该 ELF 关闭实板门）。还没有完成 live-ENeuron 实板 A/B、严格连接级 `2:4`、功耗收益或 B2-GATE。
+主线是 `xc7z020clg484-2` 上的 packet-NPU 与 ENeuron 动态剪枝 A/B。当前已经完成 NPU packet 基线、计数器物理门、dense/full-open/bypass 固定向量、组级 static mixed，以及 **B3-09 live ENeuron S2 组级动态 mask 实板闭环**。还没有完成 B3-11 epoch 重叠、B3-MVP-GATE 全套 A/B、严格连接级 `2:4`、功耗收益或 B2-GATE。
 
 ## 已确认事实
 
@@ -17,6 +17,7 @@
 - 新计数器版本在 COM15 完成三次同源实板运行：dense `20260912T093643Z`、full-open `20260912T094035Z`、bypass `20260912T094155Z`。三次均通过 XSCT/JTAG/UART、完整结果帧 CRC、sample/model/epoch 元数据和黄金 logits `165,-18,14,0,0,0,0,0,0,153`。
 - 三次运行后的 `probe_b2_state.tcl` 均读回 `sample=8/8`、`response=1/1`、`result=10/1`、`fence_snapshot_valid=1`，并且 `execute_group_count=592`、`skip_group_count=0`；command 计数为 dense/full-open `658/658`、bypass `637/637`。这关闭 B3-00、B3-06、B3-07，不代表静态 `2:4` 或 live-ENeuron 已完成。
 - 静态 mixed run `20260912T102046Z` 使用同一 bit/XSA、COM15 和 `b3_static_mixed` ELF 通过 UART；`B3_STATIC_MASK_VALID` 报告 `592` 组中 `296/296`，结果 logits 为 `74,-18,14,0,0,0,0,0,0,114`。随后 XSCT probe 读回 `sample=8/8`、`response=1/1`、`result=10/1`、`fence_snapshot_valid=1`、`execute_group_count=296`、`skip_group_count=296`。该证据只关闭组级 static mixed 子门，不关闭严格连接级 `2:4`。
+- live ENeuron run `20260912T131302Z`（HEAD `fe25a70`、COM15、同一 bit/XSA）UART `B3_LIVE_ENEURON_PASS`，logits=`165,-18,14,0,0,0,0,0,0,153`，`decision_source=live_eneuron_s2`。JTAG `execute/skip=296/296`、`fence_snapshot_valid=1`。证据 `artifacts/logs/b3_live_eneuron_pass_20260912_fe25a70/`。关闭 B3-09 组级 live 路径，不是严格 `2:4`。
 
 证据入口：
 
@@ -44,10 +45,10 @@
 
 ## 下一步
 
-1. 用现有通过物理门的 bit/XSA 构建 `b3_live_eneuron` ELF，在 COM15 上跑 live S2 决策：UART `B3_LIVE_ENEURON_PASS`、JTAG execute/skip=`296/296`、logits 与黄金 `165,-18,...,153` 一致。
-2. 该实板切片关闭 B3-09 的组级 live 路径，不关闭严格 `2:4`。
-3. 再补 B3-11 epoch 重叠、B3-13/B3-14 小集合 A/B；严格连接级 `2:4` 仍走 B3-08b。
-4. clean worktree 重建正式物理身份，以及 B2-GATE / 功耗，继续不阻塞首次 live A/B。
+1. B3-11：样本计算中发布下一 mask epoch，证明结果绑定旧 epoch。
+2. B3-13/B3-14：同一 bitstream 上 dense / full-open / static-group_4way / live-ENeuron 小集合周期 A/B。
+3. B3-08b 严格连接级 `2:4` 仍需协议/RTL 扩展，不阻塞 B3-MVP-GATE。
+4. clean worktree 重建正式物理身份；B2-GATE 与功耗不阻塞当前 MVP。
 
 ## 文档口径
 

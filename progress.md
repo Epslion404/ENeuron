@@ -5,7 +5,8 @@
 - 新增 `eneuron_group4way_live.py` 与 `test_eneuron_group4way_live.py`：6/6 通过。
 - 定向合同 `test_b3_fixed_vector_manifest_contract`、`test_b2_packet_board_contract` 与 live 测试合计 22/22。
 - `packet_main.c` 增加 `B3_LIVE_ENEURON`：模型装载后用 S2 现场生成 19-word mask，再走既有 MASK/fence/sample。
-- 下一步：`run_b2_packet_sw_build.ps1 -B3LiveEneuron` 后在现有 bit/XSA、COM15 上板。
+- COM15 实板 `20260912T131302Z` UART `B3_LIVE_ENEURON_PASS`；JTAG execute/skip=`296/296`、fence valid。证据目录 `artifacts/logs/b3_live_eneuron_pass_20260912_fe25a70/`。
+- ELF 构建曾因 BSP/XSA 尚未按新 HEAD 生成、以及 `List[string]::new()` 在本机 PowerShell 返回空而失败；改为先建 BSP、再用数组写头文件后通过。双 CH340 时必须显式 `-PortName COM15`。
 
 ## 2026-09-12 严格 2:4 Host 合同基础
 

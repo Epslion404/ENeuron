@@ -5,7 +5,7 @@
 - 现有 19-word mask 仍是一位开关一个四权重组。live 路径把每 4 个相邻组做成一个 meta-neuron，用 `LocalPrune2of4` S2 从当前样本的组贡献 `|MAC|` 量化证据（ENeuron `quantize_eligibility`，gain=1），一次 OBSERVE+COMMIT 后恰好保留 2 组。
 - 当前 B3 稀疏模型上，148 次提交里只有 9 次出现非零证据；决策 mask 为 word1=`0x33393335`、其余与 `0x33333333` 同类，**不等于**冻结 static mixed 全 `0x33333333`。参考 logits 与 dense 相同：`165,-18,14,0,0,0,0,0,0,153`，因为被跳过的组对这套权重贡献为 0。
 - Host C 必须现场计算 mask，禁止生成 `B3_LIVE_ENEURON_MASK_WORDS` 常量。manifest 只保存期望输出供核对。
-- 这关闭的是算法/Host 合同，不是实板 B3-09，也不是严格连接级 `2:4`。
+- COM15 实板已关闭 B3-09：UART logits 与黄金一致，JTAG execute/skip=`296/296`。这关闭的是组级 live 路径，不是严格连接级 `2:4`。
 
 ## 2026-09-12 严格 2:4 Host 合同边界
 

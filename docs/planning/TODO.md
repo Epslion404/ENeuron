@@ -684,7 +684,7 @@ B3 分为两级：先用现有 `group_4way` mask 完成 `B3-MVP-GATE`，只回�
 - [x] B3-07：运行 gate 启用但全开 mask，10 个 logit 必须与 dense/bypass 逐 beat bit-exact 一致；执行组数不得减少。这一步只证明门控通路透明，不证明剪枝有效。
 - [x] B3-08a：由 Host 重放冻结的组级 mixed mask；在同一通过物理门的 bit/XSA 和 COM15 上完成静态 mask 合法性、输出、执行/跳过组和 fence 证据。结果为 `296/296` 组、logits `74,-18,14,0,0,0,0,0,0,114`，粒度明确为 `group_4way`，不是严格连接级 `2:4`，也不是 ENeuron 自动决策。
 - [ ] B3-08b：补齐严格连接级 `2:4` 候选的 Host 重放与逐样本周期/输出证据；当前 RTL 的 592-bit mask 仍是一位控制四权重组，不能用 B3-08a 关闭本项。Host 编码基础合同已记录于 `docs/verification/NPU_STRICT_2OF4_HOST_CONTRACT_V1.md`，但尚未扩展板端协议/RTL。
-- [ ] B3-09：Host 侧 live 路径已接通：`eneuron_group4way_live.py` 用 ENeuron S2（gain=1）把每四个 NPU 组当作 meta-neuron，由当前样本贡献幅度量化为 0..3 后原子保留两路，打包为 19-word `group_4way` mask；PS `packet_main.c` 在装载模型后现场计算同一 mask，不读取冻结 mixed 表。Python 合同 6/6。预期 logits=`165,-18,14,0,0,0,0,0,0,153`、active/skip=`296/296`。**实板 ELF/JTAG 尚未关闭本项。**
+- [x] B3-09：Host 在 PS 上用 ENeuron S2（gain=1）从当前样本现场计算 `group_4way` mask，不重放冻结 mixed 表。COM15 实板 run `20260912T131302Z` UART `B3_LIVE_ENEURON_PASS` logits=`165,-18,14,0,0,0,0,0,0,153`；JTAG execute/skip=`296/296`、fence valid。证据 `artifacts/logs/b3_live_eneuron_pass_20260912_fe25a70/`。只关闭组级 live 路径，不是严格 `2:4`。
 - [ ] B3-10：在 `B3-STRICT-GATE` 前将 ENeuron 输出扩展为严格连接级 `2:4` mask，并逐组检查合法性；非法 mask 必须在配置/提交阶段明确拒绝，不能静默钳位或把全关模式计作有效剪枝。全关只作协议负向或负载下界。
 - [ ] B3-11：在样本计算进行中发布下一 mask epoch，证明当前结果仍绑定旧 epoch；只有 fence成功且到达下一样本边界后才激活新 epoch，响应与结果中的 epoch必须能重建这一顺序。
 - [ ] B3-12：在 `B3-STRICT-GATE` 前覆盖响应背压、结果背压、错误命令、非法 epoch、重复提交、模型/掩码中途复位和重新装载，并记录协议错误与首错 sample ID；恢复后首个合法样本不得混入旧模型、旧 mask、旧 sample ID 或未完成计数。
