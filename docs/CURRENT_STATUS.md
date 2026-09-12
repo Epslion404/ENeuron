@@ -4,42 +4,49 @@
 
 ## 结论
 
-当前项目状态为：`FUNCTIONAL_PASS / PHYSICAL_PASS / BOARD_STATUS_PARTIAL`。
+当前项目状态为：`FUNCTIONAL_PASS / PHYSICAL_PASS / B3_FIXED_VECTOR_PASS / BOARD_STATUS_PARTIAL`。
 
-主线是 `xc7z020clg484-2` 上的 packet-NPU 与 ENeuron 动态剪枝 A/B。当前已经完成 NPU packet 基线和最小实板闭环，但还没有完成动态剪枝收益、功耗收益或 B2-GATE。
+主线是 `xc7z020clg484-2` 上的 packet-NPU 与 ENeuron 动态剪枝 A/B。当前已经完成 NPU packet 基线、计数器物理门和 dense/full-open/bypass 固定向量实板闭环，但还没有完成静态 `2:4`、live-ENeuron 动态剪枝收益、功耗收益或 B2-GATE。
 
 ## 已确认事实
 
 - Vivado 2024.1，器件 `xc7z020clg484-2`，`clk_fpga_0=200 MHz`。
-- 最新 routed timing：`WNS=+0.005 ns`、`TNS=0`、`WHS=+0.034 ns`、`THS=0`；route errors 和 DRC hard errors 均为 `0`。
-- 最新 packet smoke HEAD：`88bec9e9bdbec1de53ef45d2f22e4275308c0237`。
-- 实板 run：`20260912T040206Z`，`COM15`，XSCT/JTAG/UART 均为 `PASS`。
-- packet smoke 验证了 634 个 model words、19 个 mask words、fence、sample 和 result。
-- `0x40430000` 状态块读取成功：command `658/658`、sample `8/8`、response `1/1`、result `10/1`；fence snapshot valid。
-- B3 dense 固定向量已完成一次实板数值子门：run `20260912T050553Z`、COM15，B3 ELF SHA-256 为 `3dc79b7319eb7112131c7b9ff39011013640afc48a316f9745587570ea27368c`；完整 10 个 signed INT32 logits 与黄金值 `165,-18,14,0,0,0,0,0,0,153` 一致，结果帧 CRC、sample ID、model ID、mask epoch 和长度均通过。
+- 已签核 packet 基线 routed timing：`WNS=+0.005 ns`、`TNS=0`、`WHS=+0.034 ns`、`THS=0`；route errors 和 DRC hard errors 均为 `0`。
+- 计数器版本第三次 routed build `build_route_explore_20260912` 通过 `xc7z020clg484-2`、200 MHz 物理门：`WNS=+0.008 ns`、`TNS=0`、`WHS=+0.036 ns`、`THS=0`，route errors/DRC hard errors 为 `0`，DSP48E1 为 `4`。bit SHA-256=`5c6ebc07beb4bae83f5ddd1870ad2e4f53ccf56b244ae7577186c8398c910a88`，XSA SHA-256=`862883742e77e48c566fc49cc14746bc70830e27c894bdf948085c534177a614`。
+- 当前文档 HEAD 为 `379c8d8`；物理产物 manifest 绑定源码构建身份 `c3a50eb`，Nexus 文档提交未改变 RTL/软件源文件，工作树仍非 clean，后续需在 clean worktree 重建正式 manifest。
+- 新计数器版本在 COM15 完成三次同源实板运行：dense `20260912T093643Z`、full-open `20260912T094035Z`、bypass `20260912T094155Z`。三次均通过 XSCT/JTAG/UART、完整结果帧 CRC、sample/model/epoch 元数据和黄金 logits `165,-18,14,0,0,0,0,0,0,153`。
+- 三次运行后的 `probe_b2_state.tcl` 均读回 `sample=8/8`、`response=1/1`、`result=10/1`、`fence_snapshot_valid=1`，并且 `execute_group_count=592`、`skip_group_count=0`；command 计数为 dense/full-open `658/658`、bypass `637/637`。这关闭 B3-00、B3-06、B3-07，不代表静态 `2:4` 或 live-ENeuron 已完成。
 
 证据入口：
 
 - [packet run manifest](../boards/hellozynq/b2_sw/build/88bec9e9bdbec1de53ef45d2f22e4275308c0237/direct/runs/20260912T040206Z/run_manifest.json)
 - [status probe 原始输出](../boards/hellozynq/b2_sw/build/88bec9e9bdbec1de53ef45d2f22e4275308c0237/direct/runs/20260912T040206Z/status_probe_20260912T120539Z/probe_stdout.log)
 - [硬件构建 manifest](../boards/hellozynq/b2_sw/build/88bec9e9bdbec1de53ef45d2f22e4275308c0237/direct/build_manifest.json)
+- [计数器版本 dense run](../boards/hellozynq/b2_sw/build/379c8d84859b8430c4ccde0b4e22ad5ce74781c9/direct/runs/20260912T093643Z/run_manifest.json)
+- [计数器版本 full-open run](../boards/hellozynq/b2_sw/build/379c8d84859b8430c4ccde0b4e22ad5ce74781c9/direct/runs/20260912T094035Z/run_manifest.json)
+- [计数器版本 bypass run](../boards/hellozynq/b2_sw/build/379c8d84859b8430c4ccde0b4e22ad5ce74781c9/direct/runs/20260912T094155Z/run_manifest.json)
+- [dense 计数器 probe](../boards/hellozynq/b2_sw/build/c3a50ebd83bf1e93bd155c502e5abdb810cec431/direct/runs/20260912T093643Z/counter_probe_20260912T094100Z/probe_stdout.log)
+- [full-open 计数器 probe](../boards/hellozynq/b2_sw/build/379c8d84859b8430c4ccde0b4e22ad5ce74781c9/direct/runs/20260912T094035Z/counter_probe_20260912T094200Z/probe_stdout.log)
+- [bypass 计数器 probe](../boards/hellozynq/b2_sw/build/379c8d84859b8430c4ccde0b4e22ad5ce74781c9/direct/runs/20260912T094155Z/counter_probe_20260912T094300Z/probe_stdout.log)
+- [计数器版本硬件 manifest](../boards/hellozynq/b2_hw/build/build_manifest.json)
 
 ## 尚未完成
 
 - clean worktree 重建，确认最终可复现 manifest。
 - B2-06～B2-10 的多 packet、完整错误矩阵、复位账本、统一时间戳和正式机器证据包。
 - B2-GATE 发布门。
-- B3 dense/bypass 完整对照、静态 `2:4` 与 ENeuron 动态 mask A/B、周期和功耗测量。当前仅完成 dense/full-open 固定向量子门，不能外推为完整 B3-GATE。
+- B3-00、B3-06、B3-07 已在同一通过物理门的计数器 bitstream 上关闭；仍缺 B3-01～B3-05 的完整身份/黄金 manifest 收口、静态 `2:4` 与 ENeuron 动态 mask A/B、epoch 原子性/恢复矩阵、周期和功耗测量，不能外推为完整 B3-GATE。
+- 计数器对外仍保持 32 位 AXI-Lite 读口；核心内部加法收窄为 24 位，可覆盖 B3-13 的 10000 样本上限（`592 * 10000 = 5,920,000 < 2^24`）。
 - Pulse-Mini-L/L2 集成。它们是冻结的候选/历史支线，不是当前日常门。
 
 旧软件状态区 `0x01008000` 没有由 packet smoke 初始化，当前读取值不可作为账本证据。
 
 ## 下一步
 
-1. 固化当前 packet-NPU 基线和 clean rebuild 身份。
-2. 用固定向量完成 bypass 对照，再进入静态 `2:4` mask。
-3. 接入 ENeuron 动态 mask，记录结果一致性、执行/跳过 group、周期和功耗。
-4. 再补齐影响发布的 B2 错误矩阵和正式证据包。
+1. 在当前文档提交后的 clean worktree 上重建同源 bit/XSA/ELF，冻结正式 manifest 身份。
+2. 进入 Host 静态 `2:4` mask，逐组核对合法性、输出一致性、执行/跳过组和周期。
+3. 接入 ENeuron 证据到动态 mask 的 pending/fence/epoch 路径，再做重复性、恢复和精度 A/B。
+4. 在统一时间戳和外部测量条件下补齐周期、吞吐和功耗/能耗证据，并继续收口 B2 发布门。
 
 ## 文档口径
 

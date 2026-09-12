@@ -2,9 +2,9 @@
 
 模式：`PERSISTENT_WORKFLOW_V1`
 
-最后更新：2026-09-11
+最后更新：2026-09-12
 
-状态：`ACTIVE / PHASE2_FASTLANE_V1 / B0_COMPLETE_MAIN_102DEE2 / B1A_HW_DEFINITION_COMPLETE / B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DIAG_READY_NO_GO / B1B_HIGH_DDR_PENDING / B2_00_LOW_ADDRESS_LAYOUT_FROZEN / B2_D1_DMA_CONTRACT_FROZEN / B2_01_BUFFER_OWNERSHIP_FROZEN / B2_DMA_SW_BUILD_READY / B2_BOUNDARY_PRESSURE_BACKPRESSURE_UART_JTAG_PASS / B2_NPU_PHYSICAL_GATE_PASS / B2_PACKET_PATH_PENDING / B1_GATE_FALSE / XC7Z020CLG484_2_CONFIRMED / T3_XPM_XSIM_PASS / T3_XC7Z020_OOC_PASS / RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN / GITHUB_ACTIONS_DISABLED`
+状态：`ACTIVE / PHASE2_FASTLANE_V1 / B0_COMPLETE_MAIN_102DEE2 / B1A_HW_DEFINITION_COMPLETE / B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DIAG_READY_NO_GO / B1B_HIGH_DDR_PENDING / B2_00_LOW_ADDRESS_LAYOUT_FROZEN / B2_D1_DMA_CONTRACT_FROZEN / B2_01_BUFFER_OWNERSHIP_FROZEN / B2_DMA_SW_BUILD_READY / B2_BOUNDARY_PRESSURE_BACKPRESSURE_UART_JTAG_PASS / B2_NPU_PHYSICAL_GATE_PASS / B2_PACKET_PATH_SMOKE_PASS / B2_08_COUNTER_RTL_SLICE_GREEN / B2_08_BOARD_STATUS_INTEGRATED_TIMING_PASS / B2_08_BOARD_READ_PARTIAL / B3_FIXED_VECTOR_PASS / B3_COUNTER_BOARD_592_0_PASS / B1_GATE_FALSE / XC7Z020CLG484_2_CONFIRMED / T3_XPM_XSIM_PASS / T3_XC7Z020_OOC_PASS / RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN / GITHUB_ACTIONS_DISABLED`
 
 ## 当前活动目标
 
@@ -12,7 +12,15 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 
 当前阶段活动合同：`docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`。关联主线合同为 `docs/planning/TODO.md`、`docs/planning/NPU_PRUNING_TODO.md` 和 `docs/planning/NPU_PRUNING_NP7_TODO.md`。阶段 2 只用真实板卡证据关闭任务；仿真与 OOC 继续作为开发辅助和历史基线。
 
-2026-09-11：`e3db1a1` 后的 ingress 写请求寄存与 `AggressiveExplore`/post-route phys-opt 修复已完成。`xc7z020clg484-2`、200 MHz 顶层 routed timing 全绿：`WNS=+0.012 ns`、`TNS=0`、`WHS=+0.036 ns`、`THS=0`、setup/hold 失败端点为 0、route errors=0、DRC hard errors=0；bit/XSA 已生成并绑定 manifest。下一步转入板级 packet path，尚未进入 B3 或 ENeuron A/B。
+2026-09-12：新 bit/XSA 在 `COM15` 上完成 `probe_b2_state.tcl`，`0x40430000` 状态块读取成功（status=`1`）；command/sample/response/result 实时 accepted/completed=`658/658`、`8/8`、`1/1`、`10/1`，fence snapshot valid。旧 `0x01008000` 软件状态区未由 packet smoke 初始化，仍不可作为账本证据；B2-06～B2-10、B2-GATE、B3 和 ENeuron A/B 继续未完成。
+
+2026-09-12：第三次改变实现假设的计数器 routed build `build_route_explore_20260912` 在 `xc7z020clg484-2`、200 MHz 通过物理门（WNS=`+0.008 ns`、TNS=`0`、WHS=`+0.036 ns`、THS=`0`、route/DRC hard errors=`0`、DSP48E1=`4`）。同一 bit/XSA 在 COM15 完成 dense `20260912T093643Z`、full-open `20260912T094035Z`、bypass `20260912T094155Z` 三次固定向量运行；黄金 logits、CRC、元数据和结果帧均通过，JTAG 读回 execute/skip=`592/0`、fence snapshot valid。B3-00、B3-06、B3-07 已完成；静态 `2:4`、live-ENeuron、周期/功耗和 B2 发布门仍未完成。
+
+2026-09-12 当前基线：HEAD `88bec9e9bdbec1de53ef45d2f22e4275308c0237` 对应的 packet-NPU 在 `xc7z020clg484-2`、200 MHz 通过 routed timing：`WNS=+0.005 ns`、`TNS=0`、`WHS=+0.034 ns`、`THS=0`，route/DRC hard errors 均为 0。`20260912T040206Z` 实板 packet smoke 在 COM15 通过；随后 `0x40430000` 状态块读取成功，command/sample/response/result 为 `658/658`、`8/8`、`1/1`、`10/1`，fence snapshot valid。当前状态是 `B2_08_BOARD_READ_PARTIAL`；B2-GATE、完整错误矩阵、统一时间戳、正式证据包和 ENeuron 动态剪枝 A/B 仍未完成。
+
+历史记录（2026-09-12 计数器第一次重建）：核心保留 32 位 AXI-Lite execute/skip 读口，仅将内部累加限制为 24 位（满足 B3-13 的 10000 样本上限）。定向回归 `25 passed`、统一 B2 检查 `123 passed`；该次 Vivado 重建为 `WNS/TNS=-0.010/-0.010 ns`、`WHS=+0.031 ns`，唯一 setup 失败在 AXI DMA S2MM 内部路径，因此该失败 bit/XSA 不得上板。后续第三次重建已通过，见上方当前事实。
+
+以下 2026-09-11 段落是历史失败/修复记录，不再代表当前基线：其中 `WNS=-0.030 ns` 的构建只用于定位上一轮 setup 瓶颈，禁止将其当作最新物理状态。
 
 2026-09-09：B2-D1 首轮 AXI DMA 控制合同已冻结为 simple mode、单次 buffer、polling、S2MM 先行、1 us polling、1 s 传输超时、500 次 reset poll、错误/超时寄存器快照和一次短帧恢复；DMA 已进入 B2 loopback 拓扑，随后已完成低地址实板传输。
 

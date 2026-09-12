@@ -1,11 +1,34 @@
 # 进度记录
 
+## 2026-09-12 B3 计数器物理门与同源实板闭环
+
+- 第三次改变实现假设的 Vivado 2024.1 routed build `boards/hellozynq/b2_hw/build_route_explore_20260912/` 完成并通过物理硬门：目标 `xc7z020clg484-2`、200 MHz，`WNS=+0.008 ns`、`TNS=0`、`WHS=+0.036 ns`、`THS=0`、setup/hold 失败端点为 0、route errors=0、DRC hard errors=0、DSP48E1=4。
+- bit/XSA SHA-256：`5c6ebc07beb4bae83f5ddd1870ad2e4f53ccf56b244AE7577186C8398C910A88` / `862883742e77e48c566fc49cc14746bc70830e27c894bdf948085c534177a614`。失败构建 `build_retry_20260912_pemr2/` 保留为历史证据，未覆盖。
+- 将通过的生成物同步到默认 `boards/hellozynq/b2_hw/build/`，按 manifest 哈希重建当前 HEAD `379c8d8` 的 Vitis BSP 和 packet ELF。
+- COM15 实板三次同源运行均 PASS：dense `20260912T093643Z`、full-open `20260912T094035Z`、bypass `20260912T094155Z`；10 个 logits 均为 `165,-18,14,0,0,0,0,0,0,153`，CRC、sample/model/epoch 和结果帧均通过。
+- 每次随后执行 `probe_b2_state.tcl`，读回 `sample=8/8`、`response=1/1`、`result=10/1`、`fence_snapshot_valid=1`，并确认 `execute_group_count=592`、`skip_group_count=0`；dense/full-open command=`658/658`，bypass command=`637/637`。
+- 结论：B3-00、B3-06、B3-07 已关闭；静态 `2:4`、live-ENeuron、epoch/恢复矩阵、周期/功耗和 B2-GATE 仍未完成。
+- 首次 packet ELF 构建失败原因为底层 BSP/XSA 生成与上层文件检查的竞态；随后分步执行 `run_b2_sw_build.ps1` 后重试成功，未修改协议或硬件语义。
+
 ## 2026-09-12 B3 dense 固定向量实板子门
 
 - 新增 `-B3Dense` 软件构建模式；manifest 记录 `application_mode=b3_dense`、输入模式和 10 个黄金 logits。
 - B3 程序在结果帧上逐项检查 10 个 signed INT32 logits、sample/model/epoch、长度和 CRC；默认 B2 smoke 路径保持不变。
 - COM15 实板 run `20260912T050553Z` 通过：当前 bitstream/XSA、B3 ELF 下载成功，`B3_DENSE_PASS` 输出 `165,-18,14,0,0,0,0,0,0,153`。
 - 该结果证明当前固定向量的 NPU 数值通路可用；尚未证明 bypass 等价、执行组计数、静态 `2:4` 或 ENeuron 动态剪枝收益，因此 B3-06/B3-GATE 不关闭。
+
+## 2026-09-12 B3 bypass/full-open 固定向量对照
+
+- `20260912T053341Z` 在 COM15 通过 `B3_BYPASS_PASS`；不发送 mask 命令，使用 RTL 复位后的默认全开 mask。
+- `20260912T053426Z` 在 COM15 通过 `B3_FULL_OPEN_PASS`；显式发送 19 个全开 mask words。
+- 两次输出均与 dense 固定向量一致，三次运行复用同一 bitstream SHA-256=`782a977c8c14c0bea73a289a167eed048e7fa2da7e9b889c95ed815c34d93b6e` 和 XSA SHA-256=`5e6a31bd4fc3fc8dead04c749bd4e4cb5faf0aeb7b5e6b8b2f6233be2f715ef7`。
+- 历史结论（计数器物理门完成前）：这关闭了 B3 dense/bypass/full-open 的输出对照子门，但 B3-06/B3-07 仍不整体关闭；含新执行/跳过组寄存器的物理重建和 `592/0` 计数核对尚未完成。当前结论见本文件顶部的 B3 计数器物理门记录。
+
+## 2026-09-12 执行/跳过组计数器物理重建
+
+- 计数器切片第一次 routed build（`Performance_ExploreWithRemap`）完成 bit/XSA，但最终 signoff 为 `WNS=-0.010 ns/TNS=-0.010 ns/WHS=+0.031 ns/THS=0`；route/DRC hard error 为 0，失败端点位于 AXI DMA S2MM 内部，未下载实板。
+- 第二次恢复已通过基线策略 `Performance_Explore`；路由后中间值改善到 `WNS=-0.044 ns/TNS=-0.044 ns/WHS=+0.036 ns/THS=0`，但最终 timing report 前 Vivado 进程消失，未产生新的 signoff，按未完成构建保留。
+- 当前计数器物理证据仍缺失，B3-06/B3-07 不关闭；下一步先减少 execute/skip 计数器的跨域和顶层高扇出，再做第三次可判定重建。
 
 ## 当前 egress 复位控制切片
 
@@ -2043,3 +2066,10 @@
 - 第三种错误响应结构相关定向合同通过；最终 timing report 中 `cmd_hold_data -> rsp_payload_reg/CE` 和 `/R` 均为 0。
 - 完整 Vivado 2024.1 重建结束：`WNS=-0.030 ns`、`TNS=-0.203 ns`、`WHS=+0.036 ns`、`THS=0`、route/DRC hard errors=`0`；runner 退出码 `1`，manifest 正确记录 `B2_SIGNOFF_PASS=0`。
 - 当前 setup 瓶颈迁到 egress 计数器复位控制；失败 bit/XSA 禁止上板，`0x40430000` 四流状态读取继续等待物理门恢复。
+
+## 2026-09-12 计数器宽度切片与重建复核
+
+- 先补充 `test_b2_npu_wrapper_timing_contract.py` 的 RED 合同，再将 execute/skip 计数器的内部累加限制为 24 位；AXI-Lite 对外读口仍为 32 位，B3-13 的 10000 样本需求上限为 `5,920,000`，低于 `2^24`。
+- 定向 NPU/状态回归为 `25 passed`，统一 `run_b2_checks.ps1` 为 `123 passed`、T1 两门 PASS、`B2_CHECKS_PASS`。
+- 同策略独立 Vivado 2024.1 重建目录为 `boards/hellozynq/b2_hw/build_retry_20260912_pemr2/`；route、bit/XSA 均生成，但最终 timing 仍为 `WNS=-0.010 ns`、`TNS=-0.010 ns`、`WHS=+0.031 ns`、`THS=0`，唯一 setup 失败仍在 AXI DMA S2MM `sig_max_first_increment_reg[2]_replica -> sig_btt_eq_0_reg`，按 fail-closed 规则禁止上板。
+- 结论：计数器宽度切片没有恢复物理门；下一步需要针对 DMA 内部路径或更强实现策略做一次不同假设的修复，不能继续重复同策略重建。

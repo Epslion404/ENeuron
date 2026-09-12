@@ -672,14 +672,14 @@ P15 硬门：双时钟逐 beat bit-exact；reset/ready-valid/FIFO 满空无丢�
 
 #### P16-B3：传统 NPU + ENeuron 固定向量
 
-- [ ] B3-00：以当前 `PHYSICAL_PASS` packet-NPU bitstream/ELF/协议版本作为实验基线，冻结其 manifest；B2-GATE 继续作为发布门，不阻塞首次固定向量 A/B。首个实验门必须先证明 NPU 数值计算可用，再谈剪枝收益。
+- [x] B3-00：以当前 `PHYSICAL_PASS` packet-NPU bitstream/ELF/协议版本作为实验基线，冻结其 manifest；B2-GATE 继续作为发布门，不阻塞首次固定向量 A/B。首个实验门已先证明 NPU 数值计算可用，再进入剪枝收益验证。
 - [ ] B3-01：保持当前 `64→32→10`、634个模型word、8-beat样本和10-beat结果不变；冻结模型word顺序、INT8/uint4解释、bias、隐藏层饱和、样本集合、期望10-logit、预测类别和所有文件 SHA-256。
 - [ ] B3-02：生成一份可由 Python参考模型和 Host工具共同读取的黄金 manifest；每个样本至少保存 sample ID、8个输入beat、dense logits、候选 mask epoch、gated logits和预期类别，禁止手工复制两套期望值。
 - [ ] B3-03：把已签核 NPU wrapper、DMA适配、周期计数器和最小可观测寄存器接入同一顶层；可观测项至少包含当前模式、active/pending epoch、接受/完成样本数、执行/跳过组数、协议错误和首错 sample ID。不得为调试修改数值语义、mask原子性或四 DSP合同。
 - [ ] B3-04：完成完整 bitstream实现，检查 Host/NPU/AXI相关时钟域 setup/hold、CDC、route、DRC、恰好4个 DSP48E1以及核心、wrapper、FIFO、DMA、packetizer分层资源；任一物理硬门失败时该 bitstream不得下载作正式测试。
 - [ ] B3-05：上板后先读取版本/能力寄存器，核对协议版本、模型规模、构建 Git SHA、bitstream标识和四 DSP配置；身份不符时拒绝装载模型和样本。
-- [ ] B3-06：先运行 dense/bypass；逐样本核对10个 logit 对应的结果 beat、sample ID、mask epoch 和预测类别与冻结黄金输出完全一致，并核对执行组数等于 dense 期望。这一步才是 NPU 数值功能门，不由 packet smoke 代替。
-- [ ] B3-07：运行 gate 启用但全开 mask，10 个 logit 必须与 dense/bypass 逐 beat bit-exact 一致；执行组数不得减少。这一步只证明门控通路透明，不证明剪枝有效。
+- [x] B3-06：先运行 dense/bypass；逐样本核对10个 logit 对应的结果 beat、sample ID、mask epoch 和预测类别与冻结黄金输出完全一致，并核对执行组数等于 dense 期望。这一步才是 NPU 数值功能门，不由 packet smoke 代替。
+- [x] B3-07：运行 gate 启用但全开 mask，10 个 logit 必须与 dense/bypass 逐 beat bit-exact 一致；执行组数不得减少。这一步只证明门控通路透明，不证明剪枝有效。
 - [ ] B3-08：先由 Host重放冻结的合法 mixed mask，包括严格 `2:4` 候选；逐样本保存执行组、跳过组、硬件周期和输出。该步隔离 NPU门控执行器，不把静态 Host mask称为 ENeuron自动决策。
 - [ ] B3-09：再接通 ENeuron证据→结构化 mask→pending bank→fence提交路径；保存每次决策使用的神经元证据、gain、组内候选、最终 mask、提交 epoch和生效样本。相同输入与初始状态重复运行应得到相同决策。
 - [ ] B3-10：对 ENeuron产生的 mask逐组检查严格 `2:4` 合法性；非法 mask必须在配置/提交阶段明确拒绝，不能静默钳位或把全关模式计作有效剪枝。全关只作协议负向或负载下界。
@@ -690,7 +690,11 @@ P15 硬门：双时钟逐 beat bit-exact；reset/ready-valid/FIFO 满空无丢�
 - [ ] B3-RECOVERY：若 dense错误先停在模型装载/量化/计算；full-open错误停在门控透明路径；static mask错误停在mask位序/epoch/NPU跳过；只有前三者全过后才诊断 ENeuron决策，不允许用调整训练参数掩盖基础执行错误。
 - [ ] B3-GATE：dense、全开、Host静态 `2:4` 和 live-ENeuron四类模式的协议、黄金输出或决策合同、epoch原子性和复位恢复全部通过，且同一 bitstream 的物理实现硬门通过，才能进入网口 A/B。
 
-2026-09-12 实板子门：`run_b2_packet_board.ps1 -PortName COM15` 使用当前 `xc7z020clg484-2` bitstream 和 B3 ELF 通过；`B3_DENSE_PASS` 核对完整 10 个 logits、结果 CRC、sample/model/epoch 元数据和 19-word 结果帧，黄金输出为 `165,-18,14,0,0,0,0,0,0,153`。这只关闭 B3 dense/full-open 固定向量子门；bypass 对照、执行/跳过组计数、静态 `2:4`、live-ENeuron 和恢复矩阵仍保持未完成。
+历史记录（2026-09-12、旧计数器 bitstream）：`20260912T050553Z` dense、`20260912T053341Z` bypass、`20260912T053426Z` full-open 均通过输出校验，但当时没有同源 execute/skip 物理读回，因此不能单独关闭 B3-06/B3-07。
+
+历史记录（2026-09-12、计数器第一次重建）：为保持 AXI-Lite 32 位寄存器契约，核心只将 execute/skip 累加器内部加法收窄为 24 位；该宽度覆盖 B3-13 的 10000 样本上限（`592 * 10000 = 5,920,000`）。定向回归 `25 passed`，统一 B2 检查 `123 passed`；同策略重建为 `WNS=-0.010 ns`，产物禁止上板。
+
+2026-09-12 当前计数器物理与实板门：第三次改变实现假设的 routed build `build_route_explore_20260912` 在 `xc7z020clg484-2`、200 MHz 通过物理门：`WNS=+0.008 ns`、`TNS=0`、`WHS=+0.036 ns`、`THS=0`、setup/hold 失败端点为 0、route errors=0、DRC hard errors=0、DSP48E1=4。bit SHA-256=`5c6ebc07beb4bae83f5ddd1870ad2e4f53ccf56b244ae7577186c8398c910a88`，XSA SHA-256=`862883742e77e48c566fc49cc14746bc70830e27c894bdf948085c534177a614`。在同一 bit/XSA、COM15 和 packet 协议上，dense run `20260912T093643Z`、full-open run `20260912T094035Z`、bypass run `20260912T094155Z` 均通过黄金 logits `165,-18,14,0,0,0,0,0,0,153`、CRC、sample/model/epoch 元数据和结果帧校验；JTAG probe 分别读回 `execute=592`、`skip=0`，`fence_snapshot_valid=1`。因此 B3-00、B3-06、B3-07 已关闭；静态 `2:4`、live-ENeuron、epoch/恢复矩阵、周期和功耗仍待完成。
 
 #### P16-B4：网口端到端 dense/gated A/B
 
