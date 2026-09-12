@@ -128,7 +128,7 @@ class HelloZynqB0EvidenceTests(unittest.TestCase):
         )
         self.assertEqual(
             manifest["runner_sha256"],
-            sha256(
+            canonical_lf_sha256(
                 ROOT
                 / "boards"
                 / "hellozynq"
