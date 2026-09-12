@@ -686,7 +686,7 @@ B3 分为两级：先用现有 `group_4way` mask 完成 `B3-MVP-GATE`，只回�
 - [ ] B3-08b：补齐严格连接级 `2:4` 候选的 Host 重放与逐样本周期/输出证据；当前 RTL 的 592-bit mask 仍是一位控制四权重组，不能用 B3-08a 关闭本项。Host 编码基础合同已记录于 `docs/verification/NPU_STRICT_2OF4_HOST_CONTRACT_V1.md`，但尚未扩展板端协议/RTL。
 - [x] B3-09：Host 在 PS 上用 ENeuron S2（gain=1）从当前样本现场计算 `group_4way` mask，不重放冻结 mixed 表。COM15 实板 run `20260912T131302Z` UART `B3_LIVE_ENEURON_PASS` logits=`165,-18,14,0,0,0,0,0,0,153`；JTAG execute/skip=`296/296`、fence valid。证据 `artifacts/logs/b3_live_eneuron_pass_20260912_fe25a70/`。只关闭组级 live 路径，不是严格 `2:4`。
 - [ ] B3-10：在 `B3-STRICT-GATE` 前将 ENeuron 输出扩展为严格连接级 `2:4` mask，并逐组检查合法性；非法 mask 必须在配置/提交阶段明确拒绝，不能静默钳位或把全关模式计作有效剪枝。全关只作协议负向或负载下界。
-- [ ] B3-11：在样本计算进行中发布下一 mask epoch，证明当前结果仍绑定旧 epoch；只有 fence成功且到达下一样本边界后才激活新 epoch，响应与结果中的 epoch必须能重建这一顺序。
+- [x] B3-11：RTL/仿真已证明计算中 MASK_COMMIT 后 `active=旧 epoch`、`pending=新 epoch`（`mask_state==MASK_PUBLISHED`，不是 `mask_valid`）；当前结果 beat 仍回显旧 epoch；下一样本首 beat 才 `active=新 epoch`、`pending=0`。定向 `B3_11_PENDING_VISIBLE` / `B3_11_EPOCH_OVERLAP_PASS` 与 V2 周期合同通过。JTAG 0x54/0x58 实板读回随 B3-04 集中 bitstream，本次不单独跑 Vivado。
 - [ ] B3-12：在 `B3-STRICT-GATE` 前覆盖响应背压、结果背压、错误命令、非法 epoch、重复提交、模型/掩码中途复位和重新装载，并记录协议错误与首错 sample ID；恢复后首个合法样本不得混入旧模型、旧 mask、旧 sample ID 或未完成计数。
 - [ ] B3-13：为 B3-MVP 冻结一个小样本集和固定运行顺序，在同一 bitstream 上连续运行 dense、full-open、static-group_4way 和 live-ENeuron-group_4way；首错即停并保存完整上下文。此阶段不要求10000样本、多轮网口统计或外部功耗仪器。
 - [ ] B3-14：为 B3-MVP 分别报告四种模式的样本数、logit/决策合同结果、每样本 NPU 周期、执行/跳过组数、epoch 和协议错误；静态 mask 与 ENeuron 动态 mask 分开统计。本项只支撑局部计算周期结论，不外推端到端加速或功耗收益。

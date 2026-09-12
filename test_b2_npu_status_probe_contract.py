@@ -22,6 +22,19 @@ class B2NpuStatusProbeContractTests(unittest.TestCase):
         self.runner = (HW / "run_b2_build.ps1").read_text(encoding="utf-8")
         self.probe_tcl = (SW / "probe_b2_state.tcl").read_text(encoding="utf-8")
 
+    def test_legacy_counter_addresses_stay_in_0x00_0x4c(self):
+        """0x00–0x4C 的既有实板读口不得被 0x50–0x60 扩展挤走。"""
+        self.assertIn("STATUS_ADDR = 12'h000", self.probe)
+        self.assertIn("COMMAND_ACCEPT_ADDR = 12'h004", self.probe)
+        self.assertIn("EXECUTE_GROUP_ADDR = 12'h048", self.probe)
+        self.assertIn("SKIP_GROUP_ADDR = 12'h04C", self.probe)
+        self.assertIn("RUNTIME_STATUS_ADDR = 12'h050", self.probe)
+        self.assertIn("ACTIVE_MASK_EPOCH_ADDR = 12'h054", self.probe)
+        self.assertIn("PENDING_MASK_EPOCH_ADDR = 12'h058", self.probe)
+        self.assertIn("LAST_COMPUTE_CYCLES_ADDR = 12'h05C", self.probe)
+        self.assertIn("PROTOCOL_ERROR_COUNT_ADDR = 12'h060", self.probe)
+        self.assertIn("FENCE_SNAPSHOT_VALID_ADDR = 12'h024", self.probe)
+
     def test_status_probe_has_read_only_axi_lite_and_snapshot_registers(self):
         for token in (
             "module b2_npu_status_probe",

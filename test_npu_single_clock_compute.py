@@ -52,6 +52,25 @@ class NpuSingleClockComputeTests(unittest.TestCase):
         self.assertEqual(ran.returncode, 0, ran.stdout + ran.stderr)
         self.assertIn("PASS npu single-clock real compute tracer", ran.stdout)
 
+    def test_pending_epoch_maps_from_published_state_not_mask_valid(self) -> None:
+        """mask_valid 表示样本边界已激活；pending 只能来自 MASK_PUBLISHED。"""
+        rtl = (ROOT / "npu_eneuron_single_clock_skeleton.sv").read_text(encoding="utf-8")
+        self.assertIn(
+            "pending_mask_epoch = (mask_state == MASK_PUBLISHED) ? mask_published_epoch : 32'd0;",
+            rtl,
+        )
+        self.assertNotRegex(
+            rtl,
+            r"pending_mask_epoch\s*=\s*mask_valid",
+        )
+        self.assertIn("host_pending_mask_epoch", (ROOT / "npu_zynq7020_t1_wrapper.sv").read_text(encoding="utf-8"))
+
+    def test_b3_11_overlap_keeps_current_result_on_old_epoch(self) -> None:
+        ran = self._run_compute_tracer(contract=None)
+        self.assertEqual(ran.returncode, 0, ran.stdout + ran.stderr)
+        self.assertIn("B3_11_PENDING_VISIBLE active=0 pending=1 mask_valid=0 mask_state=3", ran.stdout)
+        self.assertIn("B3_11_EPOCH_OVERLAP_PASS active=1 pending=0", ran.stdout)
+
     def test_timing_repair_v1_contract(self) -> None:
         """V1 的 1860/1856/676/1858 周期合同保留为历史反证。"""
         ran = self._run_compute_tracer(contract="v1")

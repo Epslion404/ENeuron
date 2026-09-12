@@ -1,5 +1,13 @@
 # 调研与实验发现
 
+## 2026-09-12 B3-11 pending epoch 映射
+
+- 公开 `pending_mask_epoch` 必须来自 `mask_state == MASK_PUBLISHED`。`mask_valid` 只表示“已在样本首 beat 激活”，commit 后、下一样本前它仍为 0。
+- 用 `mask_valid` 当 pending 源会在重叠发布时得到 active=0/pending=0，这是错误状态源，不是 mask 生命周期缺陷。
+- 只改了这一处组合映射；MASK_COMMIT 仍进入 PUBLISHED，样本首 beat 仍把 published 拷进 active 并清回 EMPTY。
+- 状态块地址冻结：0x50 runtime、0x54/0x58 active/pending epoch、0x5C last cycles、0x60 协议错误；0x00–0x4C 不变。
+- 仿真：`B3_11_PENDING_VISIBLE active=0 pending=1 mask_valid=0 mask_state=3`，随后 `B3_11_EPOCH_OVERLAP_PASS active=1 pending=0`。实板 0x54/0x58 读回等 B3-04。
+
 ## 2026-09-12 B3-09 live ENeuron 组级决策
 
 - 现有 19-word mask 仍是一位开关一个四权重组。live 路径把每 4 个相邻组做成一个 meta-neuron，用 `LocalPrune2of4` S2 从当前样本的组贡献 `|MAC|` 量化证据（ENeuron `quantize_eligibility`，gain=1），一次 OBSERVE+COMMIT 后恰好保留 2 组。

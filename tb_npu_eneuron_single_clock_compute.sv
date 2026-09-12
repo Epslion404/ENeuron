@@ -527,6 +527,11 @@ module tb_npu_eneuron_single_clock_compute;
         if (active_mask_epoch !== 32'd0 || pending_mask_epoch !== 32'd1)
             $fatal(1, "published mask epoch state mismatch active=%0d pending=%0d mask_valid=%0d published=%0d",
                    active_mask_epoch, pending_mask_epoch, mask_valid, dut.mask_published_epoch);
+        if (mask_valid !== 1'b0 || dut.mask_state !== 2'd3)
+            $fatal(1, "pending must come from MASK_PUBLISHED, not mask_valid; mask_valid=%0d mask_state=%0d",
+                   mask_valid, dut.mask_state);
+        $display("B3_11_PENDING_VISIBLE active=%0d pending=%0d mask_valid=%0d mask_state=%0d",
+                 active_mask_epoch, pending_mask_epoch, mask_valid, dut.mask_state);
         check_result(32'h101, 32'd0, 32'sd137, 32'sd59);
 `ifdef TIMING_REPAIR_CONTRACT
         check_contract();
@@ -541,6 +546,8 @@ module tb_npu_eneuron_single_clock_compute;
         send_sample(32'h102);
         if (active_mask_epoch !== 32'd1 || pending_mask_epoch !== 32'd0)
             $fatal(1, "published mask epoch did not activate atomically at sample boundary");
+        $display("B3_11_EPOCH_OVERLAP_PASS active=%0d pending=%0d",
+                 active_mask_epoch, pending_mask_epoch);
         check_result(32'h102, 32'd1, -32'sd117, -32'sd1);
 `ifdef TIMING_REPAIR_CONTRACT
         check_contract();

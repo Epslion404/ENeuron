@@ -4,9 +4,9 @@
 
 ## 结论
 
-当前项目状态为：`FUNCTIONAL_PASS / PHYSICAL_PASS / B3_FIXED_VECTOR_PASS / B3_09_LIVE_ENEURON_GROUP4WAY_PASS / BOARD_STATUS_PARTIAL`。
+当前项目状态为：`FUNCTIONAL_PASS / PHYSICAL_PASS / B3_FIXED_VECTOR_PASS / B3_09_LIVE_ENEURON_GROUP4WAY_PASS / B3_03_OBS_RTL_GREEN / B3_11_EPOCH_SIM_GREEN / BOARD_STATUS_PARTIAL`。
 
-主线是 `xc7z020clg484-2` 上的 packet-NPU 与 ENeuron 动态剪枝 A/B。当前已经完成 NPU packet 基线、计数器物理门、dense/full-open/bypass 固定向量、组级 static mixed，以及 **B3-09 live ENeuron S2 组级动态 mask 实板闭环**。还没有完成 B3-11 epoch 重叠、B3-MVP-GATE 全套 A/B、严格连接级 `2:4`、功耗收益或 B2-GATE。
+主线是 `xc7z020clg484-2` 上的 packet-NPU 与 ENeuron 动态剪枝 A/B。B3-09 实板已关；B3-03/B3-11 的 RTL 与仿真已绿（pending 来自 `MASK_PUBLISHED`）。还没有完成 B3-04 集中 bitstream、B3-13/14 周期 A/B、严格连接级 `2:4` 或 B2-GATE。
 
 ## 已确认事实
 
@@ -45,10 +45,9 @@
 
 ## 下一步
 
-1. B3-11：样本计算中发布下一 mask epoch（RTL 与 B3-03 一起稳定后，才进入 B3-04 集中 bitstream）。
-2. B3-04：B3-03/09/11 RTL 稳定后一次 Vivado 实现；文档/纯 Host 改动不重建 PL。
-3. B3-13/B3-14：同一 bitstream 上 dense / full-open / static / live 小集合周期 A/B。
-4. 严格 `2:4`、10000 样本、网口、功耗不在 B3-MVP 内。
+1. B3-04：B3-03/09/11 RTL 已稳定，集中一次 `xc7z020clg484-2` 200 MHz 实现；文档/纯 Host 改动不重建 PL。
+2. B3-13/B3-14：同一 bitstream 上 dense / full-open / static / live 小集合周期 A/B，读 0x5C 末次 compute cycles 与 execute/skip。
+3. 严格 `2:4`、10000 样本、网口、功耗不在 B3-MVP 内。
 
 ## 文档口径
 

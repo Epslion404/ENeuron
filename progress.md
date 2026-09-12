@@ -1,5 +1,12 @@
 # 进度记录
 
+## 2026-09-12 B3-11 epoch 重叠仿真
+
+- 根因：`mask_valid` ≠ pending。pending 映射改为 `MASK_PUBLISHED` 后，compute tracer 在计算中 commit epoch=1 时 `active=0 pending=1`，当前结果仍 epoch=0；下一样本首 beat `active=1 pending=0`。
+- 新增结构合同：禁止 `pending_mask_epoch = mask_valid...`；状态块 0x00–0x4C 地址冻结测试通过。
+- `test_npu_single_clock_compute` 相关 4 项与 `test_b2_npu_status_probe_contract` 7 项通过。未跑 Vivado。
+
+
 ## 2026-09-12 加速 TODO 对齐后推进 B3-03
 
 - 最新 TODO 把日常门收成 B3-MVP 六项：03/04/09/11/13/14。B3-09 已关。
