@@ -1,12 +1,14 @@
 # ENeuron NPU 局部自动剪枝与动态门控计划
 
-状态：`NP4B_COMPLETED / NP6_PARTIAL / NP7_SIGNED_OFF / NPU_V2_FUNCTIONAL_GREEN / T3_CLG400_EVIDENCE_RECORDED / CLG484_2_FINAL_PHYSICAL_PENDING`
+状态：`NP4B_COMPLETED / NP6_PARTIAL / NP7_SIGNED_OFF / NPU_V2_FUNCTIONAL_GREEN / T3_CLG400_EVIDENCE_RECORDED / B2_PACKET_NPU_PHYSICAL_PASS / B2_PACKET_PATH_SMOKE_PASS / B2_08_BOARD_READ_PARTIAL / B3_FIXED_VECTOR_PASS / B3_COUNTER_BOARD_592_0_PASS / CLG484_2_FINAL_PHYSICAL_COMPLETE`
 
-日期：2026-08-28
+日期：2026-09-12
 
 范围：规划与验收合同；NP0-NP7 已执行，当前转入传统 NPU + ENeuron 集成和 `xc7z020clg484-2` 板级路线；不直接改写已签核神经元 RTL。Pulse-Mini-L/L2 的 NP1-NP7 材料保留为历史对照，不作为当前日常门。
 
-当前物理边界：现有单时钟和 T3 OOC 证据绑定 `xc7z020clg400-1`，只能作为结构/协议参考；目标 `xc7z020clg484-2` 的最终 routed 证据仍待单独重建。
+当前物理边界：现有单时钟和 T3 OOC 证据绑定 `xc7z020clg400-1`，只能作为结构/协议参考；目标 `xc7z020clg484-2` 的最终 routed 证据已在 2026-09-12 完成。
+
+当前集成边界：HEAD=`13abdb7`，`B3-MVP-GATE` 与 `B3-SPEED` 已关（RTL `be84596`）。墙钟分段证明 888 cycle ≈ 4.4 µs 被 DMA/UART 掩盖。日常下一门是 `B3-POWER`。严格连接级 `2:4` 是结构实验。B2-GATE 仍是网口发布门。
 
 ## 1. 目标
 

@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-09-10",
+  "git_head": "70e8caf7dde10a2a23f851693a38019be1df401f",
+  "vivado": "2024.1",
+  "part": "xc7z020clg484-2",
+  "top": "design_1_wrapper",
+  "clock": "clk_fpga_0",
+  "clock_hz": 200000000,
+  "timing_pass": false,
+  "wns_ns": -1.595,
+  "tns_ns": -1103.714,
+  "setup_failing_endpoints": 3304,
+  "whs_ns": 0.036,
+  "ths_ns": 0.0,
+  "route_errors": 0,
+  "drc_hard_errors": 0,
+  "worst_path": {
+    "source": "mac_accumulator_lo[3]_i_15_psdsp/C",
+    "destination": "mac_accumulator_hi_reg[13]/D",
+    "data_path_delay_ns": 6.53,
+    "logic_delay_ns": 3.74,
+    "route_delay_ns": 2.79,
+    "logic_levels": 15
+  },
+  "bitstream": "hello_zynq_b2.bit",
+  "xsa": "hello_zynq_b2.xsa",
+  "board_use": "analysis_only_no_download"
+}

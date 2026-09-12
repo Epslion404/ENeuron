@@ -1,18 +1,105 @@
 # ENeuron 知识库入口
 
+> generated_by: nexus-mapper v2 / manual synthesis
+> verified_at: 2026-09-12
+> provenance: live tree=`D:/Documents/Code/ENeuron-board-b0`，分支 `codex/b1b-high-ddr-board-repro` / PR #88。bitstream RTL 身份 `be84596`。`D:/Documents/Code/ENeuron` 不是当前 live tree。raw 探针仍绑定历史 `c46320e`。
+
+## 当前权威快照（2026-09-12，B3-MVP-GATE 已关）
+
+器件 `xc7z020clg484-2`。主线是板上 packet-NPU + ENeuron 组级动态剪枝。live tree 是本工作树，不是 `D:/Documents/Code/ENeuron`。
+
+B3-MVP-GATE 已在同一份集中 Vivado 2024.1 bitstream 上关闭：RTL 身份 `be84596`，200 MHz FCLK0。WNS=+0.045 ns，TNS=0，WHS=+0.036 ns，THS=0，route/DRC hard errors=0，DSP48E1=4。
+- bit SHA-256=`0ecbe76274c39418f2a60a88358d3ff6f09f5a2ed73a44a3a419c34eb91d3a11`
+- XSA SHA-256=`135d979d61c629922ee5419e51dd97ef045d9bab79930432816d09f109291d1a`
+
+冻结 AXI-Lite 状态块 `0x40430000`：0x00-0x4C 不变；0x50 runtime_status；0x54/0x58 active/pending mask epoch；0x5C last NPU compute cycles；0x60 protocol errors。pending epoch 来自 `mask_state==MASK_PUBLISHED`，不是 `mask_valid`。
+
+板卡 COM15 CH340 `VID_1A86:PID_7523`。B3-11 hold：MASK_COMMIT 后、下一样本前 `active=0 pending=1`；样本后 `active=1 pending=0`。
+
+四模式 A/B 两轮一致：dense/full-open 592/0 组、2494 cycles、logits 165,-18,14,0,0,0,0,0,0,153；static mixed 296/296、1606 cycles、logits 74,-18,...,114、`decision_source=host_replay_static_mixed`；live-ENeuron 296/296、1606 cycles、logits 与 dense 相同、`decision_source=live_eneuron_s2`。
+
+只可声称：`group_4way` 动态剪枝正确性 + 局部 NPU 周期差值 888 cycles。不可声称：网口加速、测得功耗、严格连接级 `2:4`、B2-GATE。证据：`artifacts/logs/b3_mvp_20260912_be84596/`。
+
+下一门：`B3-POWER`（外部功耗）。`B3-SPEED` 已关：888 cycle ≈ 4.4 µs，被 DMA/UART 掩盖，证据 `artifacts/logs/b3_speed_20260912_be84596/`。严格 2:4 是结构实验，不是加速硬门。`archive/legacy/` 与旧 `xc7z020clg400-1` OOC 不进入日常门。后文若仍写下一门是 B3-08b 或 B3-STRICT，以本条为准。
+
+## 当前活动范围
+
+主线固定 `xc7z020clg484-2`：NPU 单时钟、ENeuron 组级动态剪枝、NP7 共享 lane，以及 B1/B2/B3/B4 集成。活动入口：`npu_eneuron_*`、`npu_zynq7020_t1_wrapper.sv`、`local_prune_*`、`eneuron_group4way_live.py`、`np7_*`、`b2_npu_status_probe.v`。CH340 按 VID/PID 识别；双设备时必须显式 COM15。合同：`docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`。状态串：`FUNCTIONAL_PASS / PHYSICAL_PASS / B3_MVP_GATE_PASS / B3_SPEED_PASS / B3_POWER_PENDING / B3_STRICT_DEFERRED_STRUCTURAL / B2_GATE_PENDING`。
+
+## 主要系统
+
+- live-ENeuron Host：`eneuron_group4way_live.py`、`packet_main.c`（`B3_LIVE_ENEURON`）
+- 单时钟 NPU：`npu_eneuron_single_clock_skeleton.sv`、`npu_zynq7020_t1_wrapper.sv`
+- packet 与状态块：`b2_npu_packet_adapter.sv`、`b2_npu_status_probe.v`（`0x40430000`）
+- 剪枝 / NP7：`local_prune_gate_2of4.sv`、`np7_shared_synapse_lane.sv`
+- 实板：`boards/hellozynq/`；规划：`WORKFLOW_STATE.md`、`docs/CURRENT_STATUS.md`
+
+## 必读路由
+
+- `.nexus-map/arch/systems.md`
+- `.nexus-map/arch/dependencies.md`
+- `.nexus-map/arch/test_coverage.md`
+- `.nexus-map/hotspots/git_forensics.md`
+- `.nexus-map/concepts/domains.md`
+
+## [操作指南] 强制执行步骤
+
+> 本节是对所有读取本文件的 AI 发出的硬性操作指令，不是建议。
+
+### 步骤1 — 必须先读完以下所有文件（顺序不限）
+
+- `.nexus-map/arch/systems.md`
+- `.nexus-map/arch/dependencies.md`
+- `.nexus-map/arch/test_coverage.md`
+- `.nexus-map/hotspots/git_forensics.md`
+- `.nexus-map/concepts/domains.md`
+
+### 步骤2 — 按任务类型追加操作
+
+- 接口修改、新增跨模块调用、删除或重命名公共函数：运行 `query_graph.py --impact <目标文件>`。
+- 判断某文件被谁引用：运行 `query_graph.py --who-imports <模块名>`。
+- 仓库结构发生重大变化：任务完成后更新 Nexus 知识库。本轮仅外科更新，不做全仓 remap。
+
 ## 当前活动范围（中等精简）
 
-主线固定为 `xc7z020clg484-2`：NPU 单时钟计算、ENeuron 动态剪枝、NP7 共享 lane，以及 B1/B2/B3/B4 集成。活动入口见 `npu_eneuron_*`、`npu_zynq7020_t1_wrapper.sv`、`local_prune_*`、`eneuron_local_prune_wrapper.sv`、`digital_lif_engine.sv` 和 `np7_*`。绑定旧 `xc7z020clg400-1` 的 OOC 只能作结构参考，不能替代目标器件最终 routed 证据。
+主线固定为 `xc7z020clg484-2`：NPU 单时钟计算、ENeuron 动态剪枝、NP7 共享 lane，以及 B1/B2/B3/B4 集成。活动入口见 `npu_eneuron_*`、`npu_zynq7020_t1_wrapper.sv`、`local_prune_*`、`eneuron_local_prune_wrapper.sv`、`digital_lif_engine.sv`、`eneuron_group4way_live.py` 和 `np7_*`。绑定旧 `xc7z020clg400-1` 的 OOC 只能作结构参考，不能替代目标器件最终 routed 证据。
 
-`archive/legacy/` 下的 Pulse-Mini、digit8x8、G4、旧 Tile/Host Bridge、NP6/NP7 旧物理报告和普通历史结果不参与当前日常门。高地址 DDR 与 B1C UDP 保留为板卡资格支线；低地址窗口满足模型/DMA 容量后即可推进 NPU MVP。当前硬门仍是 bit-exact、dense/full-open 等价、mask/epoch 原子切换、reset/backpressure/CDC、目标器件 routed timing/DRC，以及同条件周期/吞吐/功耗测量。
+`archive/legacy/` 下的 Pulse-Mini、digit8x8、G4、旧 Tile/Host Bridge、NP6/NP7 旧物理报告和普通历史结果不参与当前日常门。高地址 DDR 与 B1C UDP 保留为板卡资格支线；低地址窗口满足模型/DMA 容量后即可推进 NPU MVP。当前执行层级为 `B3-MVP-GATE → B3-STRICT-GATE → B4-RELEASE-GATE`：MVP 先验证现有 `group_4way` 上的 live-ENeuron 正确性和局部 NPU 周期差值；严格连接级 `2:4`、10000 样本和完整恢复属于 STRICT；网口与外部功耗属于 RELEASE。
 
-证据边界：当前部署和最终板级物理签核目标是 `xc7z020clg484-2`。`xc7z020clg400-1` 上的 T3/NP7 OOC、时序和资源报告只作为历史结构参考，不得写成 `clg484-2` 已签核；`archive/legacy/` 中的材料不进入日常 CI/PR 门。B1 高地址 DDR、PHY 和 UDP 属于板卡资格支线，仍阻塞完整 `B1-GATE`，但在已验证低地址窗口足以容纳模型与 DMA 缓冲区时，不阻塞 NPU MVP 的 RTL/软件推进。CH340 运行脚本按 `VID_1A86:PID_7523` 识别设备，`COM10` 只是现场枚举结果，不是固定合同。
+证据边界：当前部署和最终板级物理签核目标是 `xc7z020clg484-2`。`xc7z020clg400-1` 上的 T3/NP7 OOC、时序和资源报告只作为历史结构参考，不得写成 `clg484-2` 已签核；`archive/legacy/` 中的材料不进入日常 CI/PR 门。B1 高地址 DDR、PHY 和 UDP 属于板卡资格支线，仍阻塞完整 `B1-GATE`，但在已验证低地址窗口足以容纳模型与 DMA 缓冲区时，不阻塞 NPU MVP 的 RTL/软件推进。CH340 运行脚本按 `VID_1A86:PID_7523` 识别设备，COM 号只是现场枚举结果，不是固定合同。
 
-合同与恢复口径（2026-09-08）：`WORKFLOW_STATE.md` 指定 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md` 为当前阶段合同；中等精简后的主线 TODO 仅统计 `docs/planning/TODO.md` 的 P16，当前活动计数为 `67`。`P16-E` 公共证据合同与 `P16-S` 统一停止条件是持续适用的常驻合同，不计入一次性计数；`NP8` 为 `DEFERRED_OPTIONAL`，`NP9` 已并入 P16 的 B2/B3/B4，不再维护第二套板级任务。主线为 `B2-00` 低地址 NPU MVP，B1 高地址 DDR/PHY/UDP 仅为板卡资格支线。当前精确 HEAD 和活动分支状态以 `workflow_resume.ps1 -Mode Check` 与 Git 动态读取；历史审计基线为 `d7e1035`。唯一合同设备为 `VID_1A86:PID_7523` 的外置 CH340，现场枚举为 COM10；COM6/COM7 为蓝牙串口并排除。
+合同与恢复口径（2026-09-12）：`WORKFLOW_STATE.md` 指定 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md` 为当前阶段合同；中等精简后的主线 TODO 仅统计 `docs/planning/TODO.md` 的 P16，当前活动计数以脚本实时输出为准。`P16-E` 公共证据合同与 `P16-S` 统一停止条件是持续适用的常驻合同，不计入一次性计数；`NP8` 为 `DEFERRED_OPTIONAL`，`NP9` 已并入 P16 的 B2/B3/B4。B3-00、B3-02、B3-06、B3-07、B3-08a 已关闭。B3-09 组级 live 实板已关闭。当前门为 `B3-MVP-GATE`，下一实现依赖是 B3-11 epoch 原子切换及 B3-13/B3-14 小集合周期 A/B。B2-GATE 仍是发布门，但不阻塞该 MVP；B3-STRICT 与 B4-RELEASE 的项目不前置到首次 live-ENeuron 实验。
+
+状态更正（2026-09-10）：上方为当前权威状态；本文件后续 2026-09-09 历史段落中若仍写“B2-03/B2-04/B2-05 未关闭”，均由后续正式边界、压力、背压、回绕、恢复、间歇和 missing-TLAST 证据 supersede。当前待关闭项仅为 B2-06/B2-07/B2-08/B2-09/B2-10 与 B2-GATE；BRAM 探针已由 `f4827e2` 提交，命令 FIFO 保持槽时序切片已由 `195e6e7` 提交，但尚未以该 RTL 重跑完整 Vivado。
+
+TODO 计数更正：`workflow_resume.ps1 -Mode Check` 于 2026-09-11 在 HEAD `97398bf` 上报告 `TODO.md:P16=59`；本文其余 `63` 计数均为历史快照。
+
+B2 packet-NPU 提交态物理基线（2026-09-11）：完整 Vivado 2024.1 构建绑定源 HEAD=`97398bf`，目标器件为 `xc7z020clg484-2`；200 MHz routed timing 全绿（`WNS=+0.012 ns`、`TNS=0`、`WHS=+0.036 ns`、`THS=0`），setup/hold 失败端点为 0，route errors=`0`、DRC hard errors=`0`。post-route `phys_opt_design -directive AggressiveExplore` 已在日志确认执行；该身份已完成合法 packet smoke。当前下载资格由下方 B2-08 工作树覆盖决定。
+
+B2-08 与 packet-NPU 当前实板状态（2026-09-12）：HEAD `88bec9e` 在 `xc7z020clg484-2`、200 MHz 通过 routed timing（`WNS=+0.005 ns`、`TNS=0`、`WHS=+0.034 ns`、`THS=0`，route/DRC hard errors=0），bit SHA-256=`782a977c…d93b6e`、XSA SHA-256=`5e6a31bd…15ef7`。`20260912T040206Z` 在 COM15 完成 FPGA/ELF/UART/JTAG/XSCT PASS，验证 634 model words、19 mask words、fence、8-beat sample 和 10-beat result；随后 `0x40430000` 读回 command/sample/response/result=`658/658`、`8/8`、`1/1`、`10 beats/1 packet`，fence snapshot valid。该结果是合法 packet path 和状态可见性的部分实板证据，不等价于数值 logit 正确、完整错误矩阵、B2-GATE 或剪枝收益。
+
+B3 入口（2026-09-12）：dense/bypass/full-open 与 execute/skip 实板核对已经关闭 B3-00、B3-06、B3-07；Host 重放 `group_4way` mixed mask 已关闭 B3-08a。B3-09 Host 已接通 `ENeuron evidence → 592-bit group_4way mask → pending bank → fence`，但实板 ELF/JTAG 尚未关闭。下一步是用现有 bit/XSA 上板 live ELF，再补 B3-03/B3-11 与同一 bitstream 上的 dense、full-open、static-group_4way、live-ENeuron-group_4way 小集合周期 A/B。不得把 Host 合同写成板级通过。
+
+B3-08a（2026-09-12）：提交 `73b12c3` 的 `b3_static_mixed` 在同一物理通过 bit/XSA、COM15 实板通过，run `20260912T102046Z`，manifest 位于 `boards/hellozynq/b2_sw/build/73b12c30baf1507876c6bff01059a2c28c919a8d/direct/runs/20260912T102046Z/run_manifest.json`；logits=`74,-18,14,0,0,0,0,0,0,114`，`fence_snapshot_valid=1`，execute/skip=`296/296`。粒度为 `group_4way`，不是严格连接级 `2:4`，也不是 ENeuron 自动决策；B3-08b 延后到 `B3-STRICT-GATE`。
+
+B3-09 实板（2026-09-12）：提交 `fe25a70`/`ab163fe`。COM15 UART `B3_LIVE_ENEURON_PASS` logits=`165,-18,14,0,0,0,0,0,0,153`；JTAG execute/skip=`296/296`、fence valid。证据 `artifacts/logs/b3_live_eneuron_pass_20260912_fe25a70/`。B3-09 已关闭；不是严格 `2:4`。
+
+B3-02 共享固定向量 manifest（2026-09-12）：`tools/repro/b3_fixed_vector_manifest.json` 作为 Python 参考模型与 Host PowerShell 构建的唯一输入；`b3_fixed_vector_manifest.py` 可重建 634 个模型 word、8 个输入 beat、19 个 group-level mask word，并校验 packed model SHA-256；`run_b2_packet_sw_build.ps1` 从同一 manifest 生成 `b3_fixed_vector_generated.h`。`test_b3_fixed_vector_manifest_contract.py` 与 `test_b3_fixed_vector_manifest_loader.py` 共 `6 passed`，Host 生成 C 头文件的合同也通过。B3-02 已关闭；B3-01 的完整发布身份冻结仍开放，但每次 MVP run 保存当次身份即可继续开发实验。该 manifest 不扩展严格连接级 `2:4`，也不构成 live-ENeuron 证据。
+
+B3 execute/skip 计数器物理重建（2026-09-12）：第三次使用 `route_design -directive Explore` 加既有 post-route `AggressiveExplore`，绑定 HEAD `c3a50eb`，在 `xc7z020clg484-2`、200 MHz 下物理硬门通过：`WNS/TNS=+0.008/0 ns`、`WHS/THS=+0.036/0 ns`、setup/hold 失败端点=0、route/DRC hard errors=0、DSP48E1=4。后续 dense/full-open/bypass 实板已读回 execute/skip=`592/0`，B3-00/B3-06/B3-07 已关闭。该物理身份不是当前提交 HEAD `fe25a70`，也不是未提交 RTL。
 
 B2-00 已完成（2026-09-08）：低地址 DDR 窗口 `[0x01000000,0x01100000)` 内冻结 9 个 4 KiB 区域，总保留 `36 KiB`，最大 DMA frame 为 `4096` bytes；机器 manifest `tools/repro/b2_dma_address_layout.json` 与 `verify_b2_dma_address_layout.py` 验证通过，状态为 `B2_00_LOW_ADDRESS_LAYOUT_FROZEN`。B2-D1 已完成并单独记录；所有 manifest 继续保留 `B1_HIGH_DDR_PENDING`，不把 B2-00 误写成完整 B1-GATE 或高地址 DDR 通过。
 
-B2-D1 已完成（2026-09-09）：首轮 DMA 控制合同冻结为 AXI DMA simple mode、单次 buffer、polling、S2MM 先行、1 us polling、1 s 传输超时、500 次 reset poll、错误/超时寄存器快照和一次短帧恢复；`verify_b2_dma_contract.py` 与 B2-00 布局验证合计 `12/12` 定向测试通过。状态为 `B2_D1_DMA_CONTRACT_FROZEN`，下一步是不接 NPU 的 PL AXI-Stream loopback，再做低地址实板 DMA 回环；尚未实例化 DMA、生成 bitstream 或执行实板搬运，`B1_HIGH_DDR_PENDING` 保持不变。
+B2-D1 已完成（2026-09-09）：首轮 DMA 控制合同冻结为 AXI DMA simple mode、单次 buffer、polling、S2MM 先行、1 us polling、1 s 传输超时、500 次 reset poll、错误/超时寄存器快照和一次短帧恢复；`verify_b2_dma_contract.py` 与 B2-00 布局验证合计 `12/12` 定向测试通过。状态为 `B2_D1_DMA_CONTRACT_FROZEN`；e26c7c1 的旧运行未产生受控背压，随后正式 run `20260909T094406Z` 在交换 USB-TTL TX/RX 后完成 UART/JTAG 收口；B2-03/B2-05 仍保留后续恢复与逐帧观测项；`B1_HIGH_DDR_PENDING` 保持不变。
+
+B2 loopback 身份与背压收口（2026-09-09）：最终 VALID 保持修复 bit/XSA=`ef974000…5175a`/`8419e00e…4185`，同源正式 run 绑定 HEAD `875dd1e` 与 ELF=`37722f3c…39056`，运行目录为 `boards/hellozynq/b2_sw/build/875dd1eaf3cea28b75d7bd10762758fe9bf73d55/direct/runs/20260909T111310Z/`。`20260909T111310Z` 在交换外部 USB-TTL TX/RX 后 `run_manifest.status=PASS`、UART/JTAG/XSCT/probe 均 PASS；边界为 `7 PASS + 1 zero-length reject + 0 fail`，pressure=`10000/10000`，backpressure=`64/64`、`stall_cycles=83082`，S2MM probe STALL=3。连续回绕另已完成 `256/256`、`64/64` slot、`rollovers=3`；B2-03/B2-04/B2-05/B2-GATE 仍未关闭，缺口为更完整 PL 逐帧观测、间歇/ready 恢复和错误注入。
+
+B2 观测器与背压收敛（2026-09-09）：官方双/单 `axi_stream_monitor:1.1` routed setup 实验分别以 `WNS=-0.325 ns`、`WNS=-0.284 ns` 失败，均不是正式 B2 物理基线。当前配置为 `0x04030201`（enable=1、stall length=2、period=3），软件在累计 stall 为 0 时 fail-closed；RTL 在首个 `input_fire` 后启动 phase，并在已公开 `TVALID` 等待 `TREADY` 时冻结 phase，避免撤回 VALID/payload。六个 B2 合同测试文件已扩展为 `51/51` 通过。最新正式 run `20260909T094406Z` 已同时取得 UART/JTAG PASS，pressure=`10000/10000`、backpressure=`64/64`、stall_cycles=83082、S2MM STALL=3。B2-03/B2-05/B2-GATE 仍未关闭，尚不得接入 NPU/ENeuron 或报告剪枝收益。
+B2 连续回绕切片（2026-09-09）：提交 `69ed289` 的软件/runner/probe 合同已由正式 run `20260909T111310Z`（HEAD `875dd1e`）在 `xc7z020clg484-2` 实板验证为 `BOARD_PASS`：`256/256` 帧、`64/64` slot 覆盖、`rollovers=3`，首末地址 `TX 0x01006000→0x01006FC0`、`RX 0x01007000→0x01007FC0`；bit/XSA/ELF SHA-256=`ef974000…5175a`/`8419e00e…4185`/`37722f3c…39056`。该切片通过不等于 B2-03/B2-04/B2-05/B2-GATE 整体关闭，更完整逐帧 PL 观测、间歇/ready 恢复与错误注入仍待完成。
+B2 recovery 切片（2026-09-09）：recovery run `20260909T111310Z`（HEAD `875dd1e`）在 `xc7z020clg484-2` 实板验证为 `BOARD_PASS / PASS_UART_JTAG_XSCT`，`jtag_recovery_status=2`，timeout/reset/passed/failed=`1/1/1/0`，sequence=`10329`、CRC32=`0xD3E3C978`；压力=`10000/10000`、受控背压=`64/64`、stall=`83082`、连续回绕=`256/256`、mask lo/hi 均为 `0xFFFFFFFF`、rollovers=`3`。manifest SHA-256=`044E22…A3226`，recovery ELF SHA-256=`37722f3c…39056`，bit/XSA SHA-256=`ef974000…5175a`/`8419e00e…4185`。该切片通过不等于 B2-03/B2-04/B2-05/B2-GATE 整体关闭；剩余缺口为更完整逐帧 PL 观测、间歇/ready 恢复覆盖和错误注入。
+B2 inter-frame gap 切片（2026-09-09）：run `20260909T115218Z`（HEAD `da9147a`，COM10）在 `xc7z020clg484-2` 实板验证为 `B2_GAP_PASS / PASS_UART_JTAG_XSCT`；新增 gap ledger `0x01008340..0x0100836C`，软件 `usleep(1000)`，4B→64B 两帧 `gap=2/2` 通过，sequence=`10330/10331`、CRC XOR=`0x8B08CC4D`，runner/JTAG fail-closed；recovery sequence=`10329` 保持不变。manifest SHA-256=`ACD260…CF211`，ELF SHA-256=`41c6ab2d…63ca7`，bit/XSA SHA-256=`ef974000…5175a`/`8419e00e…4185`。该切片通过不等于 B2-03/B2-04/B2-05/B2-GATE 整体关闭。
+
+B2 persistent DMA frame ledger 子门（2026-09-09）：提交 `5ff9088` 修复持久 ledger；前一实现 HEAD `76e06b6` 的正式 run `20260909T125200Z`（`xc7z020clg484-2`、COM10）取得 UART/JTAG/XSCT PASS，`ledger_pass=true`，8/8 边界记录完整并按 `64-byte` stride 读取。同期 pressure=`10000/10000`、backpressure=`64/64`、`stall_cycles=83082`、wrap=`256/256`、recovery ready=`1→0→1`、gap=`2/2`；新 ELF SHA-256=`7fbcc85aa964a02e30d61f2e47e53e3f70e0e8421275852ba2e36963831d9f3e`，bit/XSA 沿用既有有效身份。该历史子门当时未覆盖 `packetizer/fence`；后续 packet-NPU smoke 与 B2-08 状态块功能集成已完成，但状态块 setup、板级读回、B2-GATE 和 ENeuron A/B 仍未完成。
 
 当前执行点（2026-09-08）：活动链为 `B1-06B6` UART 基准复测 → `B1-06B7` OCM 高地址最小复现。先按 VID/PID 找到 CH340 并确认既有低地址应用的 banner/alive marker；通过后才进入 `B1-06B7`。此前两次诊断均停在 READY 等待 GO，`command=0`、`completed_accesses=0`，尚未进行任何 DDR 访问；不得把高地址探针写成已执行或把 UART 阻塞写成 DDR 失败。
 
@@ -30,13 +117,13 @@ B1A-HW更新（2026-09-08）：正式UART方向的可重建硬件定义已在干
 
 发布终态（2026-09-07）：PR #69最终HEAD为 `02514b5f4ffd3b5c6a033a2f2d9e6f7b6bcaef92`，于 `2026-09-07T16:17:15Z` 合并，merge commit为 `102dee2a004283ce4144aaf6ee0a2cee3ebd2887`。Actions关闭且checks为空；合并依据是本机Vivado/JTAG/实板证据、17项定向测试、37份JSON和PR CLEAN/MERGEABLE。
 
-P16 阶段 2 总路线见 `.nexus-map/arch/p16_board_validation.md` 和 `.nexus-map/concepts/p16_board_validation.json`。B0-GATE已在main关闭。B1–B4最终门仍串行，但安全增量按Fastlane V1通过小PR进入主线；合并中间切片不等于阶段通过。Host静态 `2:4` mask与live-ENeuron结果继续分开验收和统计。
+P16 阶段 2 总路线见 `.nexus-map/arch/p16_board_validation.md` 和 `.nexus-map/concepts/p16_board_validation.json`。B0-GATE已在main关闭。当前主线按 `B3-MVP-GATE → B3-STRICT-GATE → B4-RELEASE-GATE` 收口；B2-GATE 与板卡资格支线保留为发布依赖，不阻塞 B3-MVP。Host 静态 mask 与 live-ENeuron 结果继续分开验收和统计。
 
 当前校正（2026-09-07）：T3 证据已用提交 `c2bc03f` 重跑并绑定；顶层资源为 `2467 LUT / 2301 FF / 6 RAMB36 / 1 RAMB18 / 4 DSP48E1`。下方旧快照中的 `822cf93` 仅保留历史来源，不覆盖本条。
 
 generated_by: nexus-mapper v2 / manual synthesis from raw probe
-verified_at: 2026-09-08
-provenance: `.nexus-map/raw/ast_nodes.json`, `git_stats.json`, `file_tree.txt`（最后提交于 `c46320e`，文件树按版本化基线排除工作区未跟踪文件）；其后的单时钟 RTL、测试与 OOC 证据由版本化文件、manifest 和文档人工核对
+verified_at: 2026-09-12
+provenance: `.nexus-map/raw/ast_nodes.json`, `git_stats.json`, `file_tree.txt`（最后探针提交于 `c46320e`）；当前权威 HEAD=`fe25a70` 由 Git 与已提交 Host/manifest 人工核对。未提交 status probe / 计数器 RTL 排除在签核源码身份之外。
 
 T3 最新机器可读签核覆盖见 `.nexus-map/concepts/t3_signoff.json`，人类摘要见 `.nexus-map/arch/t3_signoff.md`；它们优先于早期生成快照中的 `T3_XPM_XSIM_OOC_PENDING` 字样。
 
@@ -44,6 +131,7 @@ ENeuron 是以 Python 黄金模型、SystemVerilog RTL、Icarus/Yosys/Vivado 验
 
 ## 主要系统
 
+- 组级 live-ENeuron Host：`eneuron_group4way_live.py`、`test_eneuron_group4way_live.py`、`boards/hellozynq/b2_sw/src/packet_main.c`（`B3_LIVE_ENEURON`）
 - 神经元与参考模型：`digital_lif_engine.sv`、`neuron_sim.py`、`pulse_mini_reference.py`
 - 网络/Tile/Host：`digital_snn_tile_4x2x2.sv`、`digital_snn_host_bridge_controller.sv`、`network_sim.py`
 - 单时钟 NPU + ENeuron 集成 RTL：`npu_eneuron_single_clock_skeleton.sv`；基础、mask epoch、控制、真实计算和随机逐拍入口分别为 `test_npu_single_clock_skeleton.py`、`test_npu_single_clock_mask.py`、`test_npu_single_clock_control.py`、`test_npu_single_clock_compute.py`、`test_npu_single_clock_random.py`
@@ -175,3 +263,18 @@ T2 双时钟协同切片已扩展通过：`tb_npu_zynq7020_t2_variable_clocks.sv
 - 若任务涉及接口修改、新增跨模块调用、删除或重命名公共函数：运行 `query_graph.py --impact <目标文件>` 确认影响半径后再写代码。
 - 若任务需要判断某文件被谁引用：运行 `query_graph.py --who-imports <模块名>`。
 - 若仓库结构发生重大变化：任务完成后重新评估并更新 Nexus 知识库。
+B2 missing-TLAST 切片（2026-09-09）：run `20260909T133721Z`（HEAD `b2332a0`，COM10）在 `xc7z020clg484-2` 实板验证为 `B2_MISSING_TLAST_PASS / PASS_UART_JTAG_XSCT`；`missing_tlast observed=1`，`dma_error/reset/recovered/failed=1/1/1/0`，注入/恢复 sequence=`10332/10333`，MM2S/S2MM TLAST=`0/0`、beats=`16/16`，recovery sequence=`10329` 保持不变。manifest SHA-256=`F4D559…FE9B7`，ELF=`0abb11b0…e1ee3`，bit/XSA=`922b9cd6…0c64d`/`5b78919b…c2a9f`。该切片通过不等于 B2-06/B2-08/B2-GATE 整体完成。
+
+B2 packet-NPU 适配器更新（2026-09-09）：`cb9eb66` 的 response 适配器切片与 `62f2d8b` 的 sample/result 端到端切片已分别通过 `B2_NPU_PACKET_ADAPTER_PASS`（4/4）和 `B2_NPU_PACKET_ADAPTER_E2E_PASS`（3/3）。`ea35d74` 将 `b2_npu_axis_top` 接入 B2 BD，`1d0e3ba` 固定为 `boards/hellozynq/b2_hw/b2_npu_axis_top.v` 的 Verilog BD reference；顶层合同测试 3/3。现有 Vivado bit/XSA/report 仍绑定旧 `b2332a0`，状态为 `STALE_PRE_PACKET_TOP_BUILD`，新顶层尚无目标器件 routed 或实板证据。
+
+B2-07 ingress fail-closed 增量（2026-09-10）：提交 `c1f3c8c`、`1b35180`、`2e6734c`、`0598d53` 在 `tb_b2_packet_ingress.sv` 新增坏 magic、错误 version、未知 type、保留 flags 四个坏帧子门；每项均验证明确错误码且 `cmd_valid/sample_valid/busy` 不泄漏。`test_b2_packet_ingress_contract.py` 为 `4/4 PASS`，`python -X utf8 tools/repro/verify_repository.py --t1` 输出 `REPRO_G0_MANIFEST_PASS` 与 `REPRO_G1_T1_PROTOCOL_SLICE_PASS`。这仍是 RTL/Icarus 证据；B2-07 其余错误矩阵、packet 顶层 routed/实板证据仍待完成。
+
+B2 packet-NPU 物理构建更新（2026-09-10）：HEAD=`1bfeb12` 的 Vivado 2024.1 构建已完成 route 并生成 bit/XSA（器件 `xc7z020clg484-2`，route errors=`0`，DRC hard errors=`0`），但 200 MHz `clk_fpga_0` setup 未通过：`WNS=-2.750 ns`、`TNS=-8221.926 ns`、`8788` 个 setup failing endpoints；hold 为 `WHS=+0.053 ns`、`THS=0`。最差路径已由此前 command FIFO→model staging 转移为 `egress/response_mem` BRAM→`crc_state`。新保持槽切片已提交，但时序仍未签核，不能进行实板下载或宣称 packet-NPU 物理通过。
+
+B2 packet-NPU egress CRC 分拍后重建（2026-09-10）：提交 `8d57e7e` 的 Vivado 2024.1 构建完成 route、bit/XSA 和 DRC，但 200 MHz setup 仍失败：`WNS=-1.958 ns`、`TNS=-3308.760 ns`、`5902` 个失败端点；hold=`WHS=+0.055 ns`、`THS=0`，route errors=`0`、DRC hard errors=`0`。最差路径已离开 egress BRAM/CRC，转为 `core/compute_unit_index_reg[0]`→`compute_group_index_reg[2]` 控制路径，数据延迟 `6.574 ns`（布线 `5.077 ns`，8 级逻辑）。bit/XSA 仅作失败分析，不得上板。
+
+B2 packet memory BRAM 化探针（2026-09-10，已归档）：`b2_packet_egress.sv` 已将 response/result payload 从大范围分布式缓存改为 `b2_packet_bram.sv` 的 XPM simple-dual-port block RAM；Vivado 2024.1、器件 `xc7z020clg484-2` 综合报告 `artifacts/logs/b2_packet_memory_ooc_20260910_bram/b2_packet_egress_utilization.rpt` 显示新 egress 为 `532 LUT / 251 FF / 2 RAMB36 / 1 RAMB18`，其中 `response_mem=2 RAMB36`、`result_mem=1 RAMB18`。相对旧 egress 约 `35944 LUT / 0 BRAM`，约减少 `35412 LUT`，但该差值是 OOC 综合探针，不是完整顶层 routed 结果。`b2_packet_ingress.sv` 已改为四 bank、同步读路径并加 `ram_style="block"`；当前报告仍为 `2085 LUT / 1408 LUTRAM / 488 FF / 0 BRAM`，说明 bank 化尚未被 Vivado 推断为 BRAM，不能宣称 ingress BRAM 化完成。合同测试 `test_b2_packet_memory_inference_contract.py` 仅检查结构声明；packet 语义、时序和实板验证仍待补齐。
+
+B2 packet-NPU 最新物理重建（2026-09-10）：提交 `074ed56` 的 egress BRAM 预取已完成 route、bit/XSA 和 DRC，但 200 MHz setup 仍失败（`WNS=-0.052 ns`、`TNS=-0.134 ns`、6 个失败端点，`WHS=+0.073 ns`、`THS=0`）；最差路径为 `compute_unit_mask_latched_reg[3]/C -> compute_group_index_reg[1]/D`。证据归档于 `artifacts/logs/b2_packet_npu_route_timing_fail_20260910_074ed56/`，bit/XSA 标记为 `analysis_only_no_download`，不得上板或进入 ENeuron A/B。
+
+B2 packet-NPU 当前状态（2026-09-11）：物理构建源 HEAD=`97398bf641b49ef2f2ab6b16edd68b6327a14488` 已通过 `xc7z020clg484-2`、200 MHz routed physical gate（WNS=+0.012 ns、TNS=0、WHS=+0.036 ns、THS=0，route/DRC hard errors=0）。随后软件/证据提交 `8c8e44c`、`591fe08`、`cbfd2b4` 完成 packet board smoke：FPGA program、ELF download、634 model words、19 mask words、fence、8-beat sample→10-beat result 以及 UART/JTAG/XSCT 均 PASS；bit/XSA/ELF SHA-256 记录在 `artifacts/logs/b2_packet_board_pass_20260911_8c8e44c/`。该切片只证明合法 packet path 的板级最小运行，不关闭 B2-06～B2-10 或 B2-GATE；B3 和 ENeuron A/B 仍未完成。

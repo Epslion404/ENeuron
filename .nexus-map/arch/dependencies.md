@@ -1,16 +1,26 @@
 # 依赖关系
 
-当前依赖边界：`xc7z020clg484-2` NPU + ENeuron 动态剪枝是活动主线；`archive/legacy/` 不参与日常门。B1 高地址 DDR、PHY、UDP 继续阻塞板卡 `B1-GATE` 和后续板级 B2，但在低地址窗口足以容纳模型/DMA 缓冲区时，不阻塞 NPU MVP 的 RTL/软件推进。旧 `clg400-1` NP7/T3 物理结果仅作历史参考。
+> generated_by: nexus-mapper v2 / manual synthesis
+> verified_at: 2026-09-12
+> provenance: Git HEAD `fe25a70` 与已提交 Host/manifest 人工核对；未提交 status probe / 计数器 RTL 不是签核源码身份。
 
-当前阶段合同由 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md` 主导，P16 TODO 段、`NPU_PRUNING_TODO.md` 和 `NPU_PRUNING_NP7_TODO.md` 提供关联合同；恢复摘要为 `82/10/0=92`。当前活动分支为 `codex/b1b-high-ddr-board-repro`、校验基线 HEAD=`ef0495b`；B1-06B6 UART 基准仍先于 B1-06B7 OCM 高地址最小复现，当前 DDR 访问数为 0。
+当前 B3 依赖（2026-09-12）：dense、bypass、full-open 与 Host static `group_4way` 已在 COM15 实板通过，B3-00/02/06/07/08a 已关闭。B3-09 Host 合同已接通（HEAD `fe25a70`），实板 ELF/JTAG 未关闭。下一依赖是现有 bit/XSA 上的 `b3_live_eneuron` 实板，然后 B3-03 最小观测与 B3-11 epoch 原子切换，随后用 B3-13/14 完成小集合周期 A/B。Host 合同 ≠ 板级通过。严格连接级 `2:4` 仍是 B3-08b。
 
-B1依赖（2026-09-08）：B0实板配置链 → B1A来源审计与可重建硬件定义 → B1B UART/DDR实板门 → B1C PHY/UDP与最终B1-GATE。B1B的正式UART和低地址1 MiB DDR已三次冷启动通过，下一板卡依赖是关闭`0x10000000`高地址异常；在此之前不能完成B1C最终签核或板级B2，但不阻塞满足低地址容量前提的NPU MVP。
+当前依赖边界：`xc7z020clg484-2` NPU + ENeuron 动态剪枝是活动主线；`archive/legacy/` 不参与日常门。`B3-MVP-GATE` 使用现有 `group_4way`，不依赖完整 B2-GATE、严格连接级 `2:4`、10000 样本、完整恢复、网口或外部功耗。后两类工作分别进入 `B3-STRICT-GATE` 与 `B4-RELEASE-GATE`。
+
+当前阶段合同由 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md` 主导，P16 TODO 段提供当前执行层级。开发链先关闭 `B3-MVP-GATE`；B2-06～B2-10/B2-GATE 可并行补齐发布证据，不再串行阻塞 MVP。B3-STRICT 在 MVP 之后，B4-RELEASE 只在完整 B2 与严格门之后启动。
+
+B2-08 依赖更新（2026-09-12）：adapter 四流计数和 fence snapshot 已进入 `b2_npu_axis_top`，并由 `0x40430000` 只读 AXI-Lite 状态块供 JTAG/PS 读取；HEAD `88bec9e` 的 200 MHz routed build 已通过，COM15 读回 command/sample/response/result=`658/658`、`8/8`、`1/1`、`10 beats/1 packet`，fence snapshot valid。该部分证据解除“状态块不可读”阻塞，但不解除完整多 packet/error/reset ledger、B2-GATE 或 B3 数值等价门。
+
+B2 观测依赖（2026-09-09）：官方双/单 `axi_stream_monitor:1.1` 顶层实验分别以 `WNS=-0.325 ns`、`WNS=-0.284 ns` 失败。提交 `e26c7c1` 的物理门禁已通过，但 `20260909T063702Z` 暴露旧配置 period=0、stall=0 的假阳性；`20260909T065258Z` 已由零 stall fail-closed 正确拒绝。当前配置为 `0x04030201`，首个输入后启动 phase，并在 `fifo_valid && !backpressure_stall && !m_axis_tready` 时冻结 phase 以保持 AXI VALID/payload；51/51 定向合同通过。正式 run `20260909T105109Z`（HEAD `f7f01b0`）及 recovery run `20260909T110436Z` 已通过 UART/JTAG/XSCT，压力=`10000/10000`、受控背压=`64/64`、连续回绕=`256/256` 帧、`rollovers=3`，recovery timeout/reset/passed/failed=`1/1/1/0`、sequence=`10329`、CRC32=`0xD3E3C978`；B2-03/B2-04/B2-05/B2-GATE 仍保持未完成，间歇/ready 恢复、错误注入和更完整逐帧 PL 观测仍待完成。
+
+B1依赖（2026-09-09）：B0实板配置链 → B1A来源审计与可重建硬件定义 → B1B UART/DDR实板门 → B1C PHY/UDP与最终B1-GATE。B1B的正式UART和低地址1 MiB DDR已三次冷启动通过，下一板卡资格依赖是关闭`0x10000000`高地址异常；在此之前不能完成B1C最终签核或网络化B2/B4，但不阻塞已获授权的低地址 B2-MVP 回环。
 
 当前校正（2026-09-07）：T3 真实 AMD XPM/xsim 与 XC7Z020 OOC 已在 `c2bc03f` 重跑通过；下方旧链路中的 `822cf93` 仅为历史快照。
 
 generated_by: nexus-mapper v2 / manual synthesis
-verified_at: 2026-09-08
-provenance: `.nexus-map/raw/ast_nodes.json` hub analysis and Python imports；SystemVerilog依赖由文件树/手工检查推断
+verified_at: 2026-09-12
+provenance: Git HEAD `fe25a70`；`.nexus-map/raw/ast_nodes.json` hub analysis and Python imports；SystemVerilog依赖由文件树/手工检查推断。未提交 RTL 排除在签核源码身份之外。
 
 ```mermaid
 graph TD
@@ -32,10 +42,11 @@ graph TD
   b0 --> b1a[P16 B1A: reproducible PS7 and RGMII hardware]
   b1a --> b1[P16 B1B/B1C: UART DDR PHY UDP]
   b1 --> b2[P16 B2: AXI DMA and fixed frame protocol]
-  b2 --> b3[P16 B3: traditional NPU plus ENeuron]
-  b3 --> b4[P16 B4: Ethernet end-to-end A/B]
-  hostmask[Host static 2:4 mask] -. validates NPU gating only .-> b3
-  live[live-ENeuron evidence and decision] -. proves automatic pruning path .-> b3
+  b2 --> mvp[P16 B3-MVP: group_4way live ENeuron]
+  mvp --> strict[P16 B3-STRICT: strict 2:4 and long recovery]
+  strict --> release[P16 B4-RELEASE: Ethernet and external power]
+  hostmask[Host static group_4way mask] -. validates MVP gating only .-> mvp
+  live[live-ENeuron evidence and decision] -. proves automatic pruning path .-> mvp
   changes[changed paths] --> classify[tools/ci/classify_changes.py]
   classify --> fast[fast-check]
   classify --> specialized[conditional specialized gates]
@@ -54,3 +65,5 @@ Vivado Tcl/runner → reports → verify_goal
 ```
 
 高扇入模块包括 `pulse_mini_reference.py`、`rtl_tile_cosim.py`、`pulse_mini_l2_reference.py`、`neuron_sim.py`、`local_prune_reference.py`、`network_sim.py` 和 `host_bridge_oracle.py`。AST 仅覆盖 Python；RTL→wrapper→network 方向是人工核对的结构依赖。
+
+当前 B2 依赖更新（2026-09-10）：`074ed56` 已证明 egress BRAM 预取将瓶颈从 `output_index -> response_mem ENARDEN` 推进到 NPU `compute_unit_mask_latched -> compute_group_index` 控制路径，但 setup 仍差 `52 ps`。因此 packet path 实板、动态剪枝 A/B、吞吐/周期/功耗测量继续被时序门阻塞。

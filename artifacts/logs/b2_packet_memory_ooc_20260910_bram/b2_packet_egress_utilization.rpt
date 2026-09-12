@@ -1,0 +1,37 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2024.1 (win64) Build 5076996 Wed May 22 18:37:14 MDT 2024
+| Date         : Thu Sep 10 05:58:47 2026
+| Host         : LAPTOP-AJQHFMKI running 64-bit major release  (build 9200)
+| Command      : report_utilization -hierarchical -file D:/Documents/Code/ENeuron-board-b0/artifacts/tmp_b2_packet_memory_probe_v3/b2_packet_egress_utilization.rpt
+| Design       : b2_packet_egress
+| Device       : xc7z020clg484-2
+| Speed File   : -2
+| Design State : Synthesized
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Utilization Design Information
+
+Table of Contents
+-----------------
+1. Utilization by Hierarchy
+
+1. Utilization by Hierarchy
+---------------------------
+
++----------------------------+-----------------------------------+------------+------------+---------+------+-----+--------+--------+------------+
+|          Instance          |               Module              | Total LUTs | Logic LUTs | LUTRAMs | SRLs | FFs | RAMB36 | RAMB18 | DSP Blocks |
++----------------------------+-----------------------------------+------------+------------+---------+------+-----+--------+--------+------------+
+| b2_packet_egress           |                             (top) |        532 |        532 |       0 |    0 | 251 |      2 |      1 |          0 |
+|   (b2_packet_egress)       |                             (top) |        186 |        186 |       0 |    0 | 251 |      0 |      0 |          0 |
+|   response_mem             |                    b2_packet_bram |        104 |        104 |       0 |    0 |   0 |      2 |      0 |          0 |
+|     mem                    |                 xpm_memory_sdpram |        104 |        104 |       0 |    0 |   0 |      2 |      0 |          0 |
+|       (mem)                |                 xpm_memory_sdpram |        103 |        103 |       0 |    0 |   0 |      0 |      0 |          0 |
+|       xpm_memory_base_inst |                   xpm_memory_base |          1 |          1 |       0 |    0 |   0 |      2 |      0 |          0 |
+|   result_mem               |    b2_packet_bram__parameterized0 |        242 |        242 |       0 |    0 |   0 |      0 |      1 |          0 |
+|     mem                    | xpm_memory_sdpram__parameterized0 |        242 |        242 |       0 |    0 |   0 |      0 |      1 |          0 |
+|       (mem)                | xpm_memory_sdpram__parameterized0 |        241 |        241 |       0 |    0 |   0 |      0 |      0 |          0 |
+|       xpm_memory_base_inst |   xpm_memory_base__parameterized0 |          1 |          1 |       0 |    0 |   0 |      0 |      1 |          0 |
++----------------------------+-----------------------------------+------------+------------+---------+------+-----+--------+--------+------------+
+
+

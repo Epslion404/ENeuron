@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "archived_at": "2026-09-10",
+  "git_head": "074ed56886f4aad36bb9ce3149dbc54926e959d8",
+  "part": "xc7z020clg484-2",
+  "top": "design_1_wrapper",
+  "status": "analysis_only_no_download",
+  "timing": {
+    "wns_ns": -0.052,
+    "tns_ns": -0.134,
+    "setup_failing_endpoints": 6,
+    "whs_ns": 0.073,
+    "ths_ns": 0.0,
+    "route_errors": 0,
+    "drc_hard_errors": 0,
+    "worst_path": "compute_unit_mask_latched_reg[3]/C -> compute_group_index_reg[1]/D"
+  },
+  "files": {
+    "hello_zynq_b2.bit": "6b06e1626dd072ea3b7eea2035dc74a6e6c9b7253c3bea358dbed04c0b805f32",
+    "hello_zynq_b2.xsa": "3999daa8fb16b0f35ecc925c9c75389b3ca236506bfb258d9b653165e20837ad",
+    "timing_impl.rpt": "42fb3b50f407a1e2ea513514b0e4513e040017bf943153dc0f92f04e734ea237",
+    "route_status_impl.rpt": "dd5a0744a85ea66dbedf7fb62e2b762450278fade3cd4af32f226b29257bcd2d",
+    "drc_impl.rpt": "12e00d55a87b7dd5379b39dde5a67846c9a9f2a8aba074bd2073d8b3b0f1078e",
+    "utilization_impl.rpt": "0742d6954ad273e200dfc80beac519541ed8465a059888fd4ad07de4dead85a5",
+    "signoff_summary.txt": "a00e0b3e3815b88768629f15b65285b0388151329d822386b57492611b78bbf5",
+    "vivado_run.log": "5d826b12eb9d04d9ef8218a4351594fc38474ba5269574ac05892ae3d43e4fe9"
+  }
+}

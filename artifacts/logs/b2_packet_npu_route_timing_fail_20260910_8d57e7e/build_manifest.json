@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-09-10T07:50:23Z",
+  "git_head": "8d57e7e232f543c76704f09c9640bb5aa8832834",
+  "git_worktree_clean": false,
+  "vivado": "vivado v2024.1 (64-bit)",
+  "part": "xc7z020clg484-2",
+  "top": "design_1_wrapper",
+  "source_sha256": {
+    "boards/hellozynq/b2_hw/axis_stream_probe.v": "311ed12ab10d9d0d4002a3228c28608edec83b6c03ecd4697d8e98a88b8b2ca0",
+    "boards/hellozynq/b2_hw/b2_npu_axis_top.v": "cc9259777d9bd478e6f770240d7dc7a5635b4f221abf3f142770ee8067f202e7",
+    "boards/hellozynq/b2_hw/create_b2_bd.tcl": "670b7787308e886374abc8304fd8d7e8fe980abfb818c6f7ad914a0c7b500927",
+    "boards/hellozynq/b2_hw/build_b2.tcl": "f5ab33f1e673292fe51bd9be3d2f90da90216c2c55e1229c224f4e2fad910d1c",
+    "boards/hellozynq/b2_hw/run_b2_build.ps1": "7faa5d69857d6f9b906ec01f2aebcfd53421ca351d7c47960c283d2737a61863",
+    "b2_npu_packet_adapter.sv": "a2a4f625a2d2fedf1da6a9b5afca54159950221801d66b2c86b9897d445b12ba",
+    "b2_packet_ingress.sv": "7a6e081f0ae3b1cc82827977d44750de9bab191e902c87eb8558f946755d8d92",
+    "b2_packet_bram.sv": "021edcd2fa51b8219dda3e72ae57c217c46a7be47e9dd3191808d3f356f8ec06",
+    "b2_packet_egress.sv": "3bed6a39c7974aecdbd85911b6ad1ae733905ba0898f0b53279f1a2636d02c7b",
+    "npu_zynq7020_t1_wrapper.sv": "108191d970fdf35bf054ee8a67a7d61ed0d482ee2aa7245a9ed7b0dc66c335c3",
+    "npu_eneuron_single_clock_skeleton.sv": "73bef98bd1e9d3deb81521dbd4e8b608569235110f332e273daac3447e9407f3"
+  },
+  "bitstream_sha256": "9f0e41f5f95fb8a3267aae451c4a0845512fef189daa5d386e8ef99038891ab2",
+  "xsa_sha256": "aaa3df83db12058447e3d26a09b6d71672265904fb13d252a90a23ea58cd129c",
+  "reports_sha256": {
+    "utilization_impl": "304cdee35204947383a6fb46bdae1bcb99d650e93e494439d0a753565c37c1b9",
+    "timing_impl": "8d364ad0f48c80199f4a0c8a4a0580d5121a6b8c60b8e2ad4433a2cab6ecad9f",
+    "route_status_impl": "ff08e27fdcf4b4fdc58a1b8089c86d78a172368b6828bb9ba0c902e2b79acd6f",
+    "drc_impl": "6913533e086b92f8692ad2e57d63f798fa8a725d518bb88cae14824b7b39c004"
+  },
+  "signoff": {
+    "B2_BUILD_HEAD": "8d57e7e232f543c76704f09c9640bb5aa8832834",
+    "B2_PART": "xc7z020clg484-2",
+    "B2_TOP": "design_1_wrapper",
+    "B2_NPU_CLOCK_HZ": "200000000",
+    "B2_TIMING_PASS": "0",
+    "B2_WNS_NS": "-1.958",
+    "B2_TNS_NS": "-3308.760",
+    "B2_WHS_NS": "0.055",
+    "B2_THS_NS": "0",
+    "B2_SETUP_FAILING_ENDPOINTS": 5902,
+    "B2_ROUTE_ERRORS": 0,
+    "B2_DRC_HARD_ERRORS": 0,
+    "B2_WORST_PATH": "core/compute_unit_index_reg[0]_replica_1/C -> core/compute_group_index_reg[2]__0/CE",
+    "B2_DATA_PATH_DELAY_NS": "6.574",
+    "B2_ROUTE_DELAY_NS": "5.077"
+  }
+}

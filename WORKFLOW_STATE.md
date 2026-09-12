@@ -2,9 +2,9 @@
 
 模式：`PERSISTENT_WORKFLOW_V1`
 
-最后更新：2026-09-09
+最后更新：2026-09-13
 
-状态：`ACTIVE / PHASE2_FASTLANE_V1 / B0_COMPLETE_MAIN_102DEE2 / B1A_HW_DEFINITION_COMPLETE / B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DIAG_READY_NO_GO / B1B_HIGH_DDR_PENDING / B2_00_LOW_ADDRESS_LAYOUT_FROZEN / B2_D1_DMA_CONTRACT_FROZEN / B1_GATE_FALSE / XC7Z020CLG484_2_CONFIRMED / T3_XPM_XSIM_PASS / T3_XC7Z020_OOC_PASS / RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN / GITHUB_ACTIONS_DISABLED`
+状态：`ACTIVE / PHASE2_FASTLANE_V1 / B0_COMPLETE_MAIN_102DEE2 / B1A_HW_DEFINITION_COMPLETE / B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DIAG_READY_NO_GO / B1B_HIGH_DDR_PENDING / B2_00_LOW_ADDRESS_LAYOUT_FROZEN / B2_D1_DMA_CONTRACT_FROZEN / B2_01_BUFFER_OWNERSHIP_FROZEN / B2_DMA_SW_BUILD_READY / B2_BOUNDARY_PRESSURE_BACKPRESSURE_UART_JTAG_PASS / B2_NPU_PHYSICAL_GATE_PASS / B2_PACKET_PATH_SMOKE_PASS / B2_08_COUNTER_RTL_SLICE_GREEN / B2_08_BOARD_STATUS_INTEGRATED_TIMING_PASS / B2_08_BOARD_READ_PARTIAL / B3_MVP_GATE_PASS / B3_FIXED_VECTOR_PASS / B3_COUNTER_BOARD_592_0_PASS / B3_GOAL_PENDING / B3_STRICT_DEFERRED_STRUCTURAL / B1_GATE_FALSE / XC7Z020CLG484_2_CONFIRMED / T3_XPM_XSIM_PASS / T3_XC7Z020_OOC_PASS / RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN / GITHUB_ACTIONS_DISABLED`
 
 ## 当前活动目标
 
@@ -12,7 +12,36 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 
 当前阶段活动合同：`docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`。关联主线合同为 `docs/planning/TODO.md`、`docs/planning/NPU_PRUNING_TODO.md` 和 `docs/planning/NPU_PRUNING_NP7_TODO.md`。阶段 2 只用真实板卡证据关闭任务；仿真与 OOC 继续作为开发辅助和历史基线。
 
-2026-09-09：B2-D1 首轮 AXI DMA 控制合同已冻结为 simple mode、单次 buffer、polling、S2MM 先行、1 us polling、1 s 传输超时、500 次 reset poll、错误/超时寄存器快照和一次短帧恢复；合同验证通过，但尚未实例化 DMA 或进行实板传输。
+2026-09-12：B3-MVP-GATE 关闭。集中 bitstream RTL 身份 `be84596`：WNS=`+0.045 ns`、DSP48E1=`4`，bit SHA-256=`0ecbe762...3a11`。COM15 两次 overlap hold 读 `active=0 pending=1`；四种模式两轮 A/B 周期 dense/full-open=`2494`、static/live=`1606`。只证明组级动态剪枝正确性与局部 NPU 周期差。B3-STRICT、B2-GATE、网口、功耗未完成。
+
+2026-09-12：新 bit/XSA 在 `COM15` 上完成 `probe_b2_state.tcl`，`0x40430000` 状态块读取成功（status=`1`）；command/sample/response/result 实时 accepted/completed=`658/658`、`8/8`、`1/1`、`10/1`，fence snapshot valid。旧 `0x01008000` 软件状态区未由 packet smoke 初始化，仍不可作为账本证据；B2-06～B2-10、B2-GATE 继续未完成。
+
+2026-09-12：第三次改变实现假设的计数器 routed build `build_route_explore_20260912` 在 `xc7z020clg484-2`、200 MHz 通过物理门（WNS=`+0.008 ns`、TNS=`0`、WHS=`+0.036 ns`、THS=`0`、route/DRC hard errors=`0`、DSP48E1=`4`）。同一 bit/XSA 在 COM15 完成 dense `20260912T093643Z`、full-open `20260912T094035Z`、bypass `20260912T094155Z` 三次固定向量运行；黄金 logits、CRC、元数据和结果帧均通过，JTAG 读回 execute/skip=`592/0`、fence snapshot valid。B3-00、B3-06、B3-07 已完成；静态 `2:4`、live-ENeuron、周期/功耗和 B2 发布门仍未完成。
+
+2026-09-12 当前基线：HEAD `88bec9e9bdbec1de53ef45d2f22e4275308c0237` 对应的 packet-NPU 在 `xc7z020clg484-2`、200 MHz 通过 routed timing：`WNS=+0.005 ns`、`TNS=0`、`WHS=+0.034 ns`、`THS=0`，route/DRC hard errors 均为 0。`20260912T040206Z` 实板 packet smoke 在 COM15 通过；随后 `0x40430000` 状态块读取成功，command/sample/response/result 为 `658/658`、`8/8`、`1/1`、`10/1`，fence snapshot valid。当前状态是 `B2_08_BOARD_READ_PARTIAL`；B2-GATE、完整错误矩阵、统一时间戳、正式证据包和 ENeuron 动态剪枝 A/B 仍未完成。
+
+历史记录（2026-09-12 计数器第一次重建）：核心保留 32 位 AXI-Lite execute/skip 读口，仅将内部累加限制为 24 位（满足 B3-13 的 10000 样本上限）。定向回归 `25 passed`、统一 B2 检查 `123 passed`；该次 Vivado 重建为 `WNS/TNS=-0.010/-0.010 ns`、`WHS=+0.031 ns`，唯一 setup 失败在 AXI DMA S2MM 内部路径，因此该失败 bit/XSA 不得上板。后续第三次重建已通过，见上方当前事实。
+
+以下 2026-09-11 段落是历史失败/修复记录，不再代表当前基线：其中 `WNS=-0.030 ns` 的构建只用于定位上一轮 setup 瓶颈，禁止将其当作最新物理状态。
+
+2026-09-09：B2-D1 首轮 AXI DMA 控制合同已冻结为 simple mode、单次 buffer、polling、S2MM 先行、1 us polling、1 s 传输超时、500 次 reset poll、错误/超时寄存器快照和一次短帧恢复；DMA 已进入 B2 loopback 拓扑，随后已完成低地址实板传输。
+
+2026-09-09：B2 轻量双向 `axis_stream_probe` 已完成 `Performance_Explore` 物理重建；`run_b2_build.ps1` 新增时序、布线和 DRC 硬错误 fail-closed 门禁，并将 probe RTL 纳入 source hash。当前 runner 实际输出 `B2_TIMING_PASS`，WNS/WHS=`+0.123/+0.023 ns`、TNS/THS=`0/0`、route errors=`0`、DRC hard errors=`0`；bit=`cfec6a40...e743d`、XSA=`6ee9d6f3...40cb`。该门禁只证明构建身份和物理报告可信，不关闭 B2-03/B2-05/B2-GATE。
+
+2026-09-09：B2 loopback 拓扑在修正 AXI 协议转换和 `proc_sys_reset` 同步复位后，已于 HEAD `bba0936` 使用 Vivado 2024.1、`xc7z020clg484-2` 重建 `.bit/.xsa`；post-route WNS/WHS=`+0.240/+0.036 ns`、TNS/THS=`0/0`、route error=`0`、DRC error=`0`。bitstream/XSA SHA-256 分别为 `d694fa02...d918`、`68dc2b8e...897a`；当前 DRC 仅有 1 个继承的 GMII/RGMII 时钟缓冲 warning 和 4 个 DMA BRAM advisory，不能代替实板证据。
+
+2026-09-09：新增 `boards/hellozynq/b2_sw` standalone DMA polling 应用和构建/上板入口；Vitis 2024.1 BSP 实际包含 `axidma_v9_18`，应用绑定低地址 `loopback_tx=0x01006000`、`loopback_rx=0x01007000`，执行 RX(S2MM)先行、TX flush、RX invalidate、1 us polling 和 1 s 超时。构建 manifest 绑定 ELF SHA-256=`48d29f596428c827f6407d951d2106ebe570c270551e83e4b517757acda88800`；该 ELF 已下载并执行，后续实板证据以独立 run manifest 为准。
+
+2026-09-09：使用同源 bitstream/XSA/ELF 完成第二次实板 program、ELF download 和 CPU run；UART `COM10` 仍为 `NO_TERMINAL_MARKER`。JTAG 状态账本确认边界矩阵 `0/1/4/16/64/512/1472/4096` bytes 共 8 帧，其中 7 帧 PASS、0 长度 1 帧拒绝、失败数 0；最后 4096-byte 帧 TX/RX payload word 一致，TX/RX SR=`0x1002`、BTT=`4096/4096`、CRC=`0xC0032E56`。证据目录为 `boards/hellozynq/b2_sw/build/6f3d40e6f0470bbb57a9a10fb107ffc892add25c/direct/runs/20260909T020159Z/`，摘要为 `b2_board_evidence.json`；这补强 B2-04 边界切片，但不关闭 B2-03/B2-GATE。
+2026-09-09：在同一 bitstream/XSA 上使用重新构建的压力 ELF 完成 10000 帧实板压力切片；JTAG 状态账本读取 `pressure_status=2`、`pressure_total=10000`、`pressure_passed=10000`、`pressure_failed=0`、`pressure_crc32_xor=0x7D51FB01`、`pressure_last_sequence=10008`。UART 仍为 `NO_TERMINAL_MARKER`，PL stream counter/TKEEP/TLAST 和可控背压仍不可观测。证据目录为 `boards/hellozynq/b2_sw/build/6f3d40e6f0470bbb57a9a10fb107ffc892add25c/direct/runs/20260909T022102Z/`，摘要为 `b2_board_evidence.json`；该结果补齐 B2-05 的压力切片，但不关闭 B2-03/B2-GATE。
+2026-09-09：为评估 PL 观测成本，临时构建了单 `axi_stream_monitor` 拓扑；bit/XSA 生成成功，但 routed setup 失败（`WNS=-0.284 ns`、`TNS=-22.272 ns`、256 个失败端点）。该产物不作为正式物理基线；当前源码已切换为轻量双向 `axis_stream_probe`，后续以 sampler 的 routed 结果为准。当前 probe/loopback 合同测试为 `16/16` 通过。
+2026-09-09：修复 `axis_stream_probe.v` 中 Vivado Verilog parser 不接受的 SystemVerilog 函数形参声明，使用 Vivado 2024.1 在 `xc7z020clg484-2` 完成独立 probe 拓扑的综合、实现、布线、DRC、bitgen 和 XSA 导出。正式构建摘要为 `WNS=+0.154 ns`、`WHS=+0.036 ns`、`TNS/THS=0`、route/DRC error=`0`、setup/hold 失败端点均为 `0`；资源约 `4931 LUT / 7011 FF / 2 RAMB36 / 2 RAMB18 / 0 DSP`。产物 SHA-256：bit=`994c512c9631ef21d59743d583a4563264a4f0e897e9fe6e71145b1bc7373f38`、XSA=`d43830c84cedb8d8d0e0d249bff24770ea0802648a8a6a10cd0f68fce78ef303`。该结果仅关闭“物理构建阻断”，尚未形成实板 probe 观测证据，B2-03/B2-GATE 保持未完成。
+
+2026-09-09：`run_b2_board.ps1` 新增烧写前 bitstream/XSA/ELF SHA-256 与 `build_manifest.json` 的 fail-closed 身份检查；不一致时在启动硬件服务器、打开串口和 FPGA program 前直接失败。PowerShell 解析通过，B2 DMA/stream monitor/stream probe 定向合同测试为 `23/23`，全部 B2 合同测试为 `42/42`；该修复不改变 B2-03～B2-GATE 未完成状态。
+2026-09-09：`probe_b2_state.tcl` 已扩展为读取 `0x40410000/0x40420000` 两个 probe 的 sample、beats、TLAST、bytes、cycles、stall、starve 和 last TKEEP，并由 runner 自动归档 stdout/stderr 与哈希。
+2026-09-09：新同源正式 run `20260909T045710Z` 完成 FPGA program、ELF download、CPU run；UART 为 `NO_TERMINAL_MARKER`，但自动归档的强制 JTAG probe 读取成功（`probe_exit_code=0`）。MM2S=`16 beats / 64 bytes / TLAST=1 / TKEEP=0xF / stall=0`，S2MM 同值；硬件周期=`1332/1268`、starve=`1316/1252`。证据为该 run 目录的 `b2_board_evidence.json`；B2-03/B2-GATE 仍未完成。
+2026-09-09：采用 AXI VALID 保持修复后的同源 bit/XSA/ELF 完成实板 run `20260909T073606Z`；JTAG `pressure=10000/10000`，`backpressure=64/64`、`failed=0`、`stall_cycles=83082`，MM2S/S2MM probe 最终帧均 `1 beat / 1 byte / TLAST=1 / TKEEP=1`，S2MM `STALL=3`。runner manifest 现保存 JTAG 摘要并输出 `B2_JTAG_STATUS=PASS`；UART `COM10` 仍为 `NO_TERMINAL_MARKER`，所以不关闭 UART 证据门。
+2026-09-09：交换外部 USB-TTL 的 TX/RX 后，同源 run `20260909T094406Z` 在 COM10 收到完整 UART 输出，`run_manifest.status=PASS`、`uart_terminal_marker=PASS`、XSCT/probe exit 均为 `0`；边界矩阵为 `7 PASS + 1 zero-length reject + 0 fail`，压力 `10000/10000`，受控背压 `64/64`、`stall_cycles=83082`。UART 外部链路门已关闭，历史 `UART_PENDING` 标记不再适用。
 
 ## 当前事实
 
@@ -79,7 +108,7 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 
 ## 下一动作
 
-主线下一动作是P16-B2-D1：在已冻结的低地址布局合同上冻结 AXI DMA simple-mode、polling、超时、错误清除和复位顺序，随后实现 loopback。B1-06B6串口接收故障和高地址DDR诊断继续作为板卡资格支线，仍禁止在UART READY前发送GO，也禁止在B1-06F前进入B1C；它们不再阻塞低地址窗口内的NPU MVP。
+主线下一动作是 `B3-POWER`：冻结外部功耗仪器合同，在同一 `group_4way` bit 上测 dense vs static vs live。B3-SPEED 已关：888 cycle ≈ 4.4 µs，被 DMA/UART 掩盖。严格 2:4 仍是结构实验。B2-GATE 挡网口发布。
 
 ## 2026-09-05 V2 OOC 签核结果
 

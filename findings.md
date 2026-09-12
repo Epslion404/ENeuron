@@ -1,5 +1,145 @@
 # 调研与实验发现
 
+## 2026-09-12 B3-MVP 局部周期
+
+- 同一 bit 上 dense/full-open 末次 compute cycles 均为 2494；static mixed 与 live-ENeuron 均为 1606。差值 888 cycles，对应 296 组 skip。
+- live logits 仍等于 dense，因为本稀疏模型被跳过组对固定向量贡献为 0；static mixed 改变输出为 `74,-18,...,114`。因此不能用 logits 把 live 和 static 合成一行。
+- 0x5C 是样本结束后的锁存值，不是墙钟；不能外推以太网吞吐或功耗。
+
+## 2026-09-12 B3-04/B3-11 实板采样窗口
+
+- PS DMA 无法打中“当前样本计算期间 MASK_COMMIT”：NPU 计算约 2494 周期 @ 200 MHz ≈ 12 µs，MASK 包往返是毫秒级。实板改为 commit 后、下一样本前的 8s hold，读 0x54/0x58；计算中 overlap 保持 Icarus `B3_11_PENDING_VISIBLE`。
+- `mask_valid` 不是 pending。pending 必须来自 `mask_state==MASK_PUBLISHED`。
+- 状态块冻结：0x00–0x4C 不变；0x50 runtime、0x54/0x58 epoch、0x5C last cycles、0x60 protocol errors。
+
+## 2026-09-12 B3-11 pending epoch 映射
+
+- 公开 `pending_mask_epoch` 必须来自 `mask_state == MASK_PUBLISHED`。`mask_valid` 只表示“已在样本首 beat 激活”，commit 后、下一样本前它仍为 0。
+- 用 `mask_valid` 当 pending 源会在重叠发布时得到 active=0/pending=0，这是错误状态源，不是 mask 生命周期缺陷。
+- 只改了这一处组合映射；MASK_COMMIT 仍进入 PUBLISHED，样本首 beat 仍把 published 拷进 active 并清回 EMPTY。
+- 状态块地址冻结：0x50 runtime、0x54/0x58 active/pending epoch、0x5C last cycles、0x60 协议错误；0x00–0x4C 不变。
+- 仿真：`B3_11_PENDING_VISIBLE active=0 pending=1 mask_valid=0 mask_state=3`，随后 `B3_11_EPOCH_OVERLAP_PASS active=1 pending=0`。实板 0x54/0x58 读回等 B3-04。
+
+## 2026-09-12 B3-09 live ENeuron 组级决策
+
+- 现有 19-word mask 仍是一位开关一个四权重组。live 路径把每 4 个相邻组做成一个 meta-neuron，用 `LocalPrune2of4` S2 从当前样本的组贡献 `|MAC|` 量化证据（ENeuron `quantize_eligibility`，gain=1），一次 OBSERVE+COMMIT 后恰好保留 2 组。
+- 当前 B3 稀疏模型上，148 次提交里只有 9 次出现非零证据；决策 mask 为 word1=`0x33393335`、其余与 `0x33333333` 同类，**不等于**冻结 static mixed 全 `0x33333333`。参考 logits 与 dense 相同：`165,-18,14,0,0,0,0,0,0,153`，因为被跳过的组对这套权重贡献为 0。
+- Host C 必须现场计算 mask，禁止生成 `B3_LIVE_ENEURON_MASK_WORDS` 常量。manifest 只保存期望输出供核对。
+- COM15 实板已关闭 B3-09：UART logits 与黄金一致，JTAG execute/skip=`296/296`。这关闭的是组级 live 路径，不是严格连接级 `2:4`。
+
+## 2026-09-12 严格 2:4 Host 合同边界
+
+- 当前板端 19 个 mask word 只表达 592 个四权重组是否启用；每组具体 lane 选择没有进入 packet/RTL，因此不能把 `group_4way` mixed mask 解释为严格连接级 `2:4`。
+- 严格候选需要 `592 × 4 = 2368` bit，即 74 个 32-bit word。Host 合同已独立实现并通过 `3 passed`，覆盖合法 mask round-trip、长度/类型拒绝和跨 word 边界非法组。
+- 下一步若关闭 B3-08b，必须新增协议版本或 opcode，并同步 RTL、软件 runner、周期计数和实板证据；在此之前保持 fail-closed，不复用现有 19-word 格式。
+
+## 2026-09-11 egress 计数器 reset 控制切片
+
+- 最新 `timing_impl.rpt` 的最差路径为 `mask_epoch_reg[1]/C -> payload_word_count_reg[7:8]/R`，共享 `output_frame_words` 和 `result_word_count` 的 7 级组合控制；其余失败端点还包括 `output_frame_words -> result_word_count/R`。
+- 该路径不改变 packet 数据内容，而是同步复位被 Vivado 提取为 FDRE 控制集后的实现形态。为保持 reset 在数据通路，先写结构合同，再给四个 egress 计数/帧长度寄存器加 `(* extract_reset = "no" *)`。
+- `test_b2_packet_egress_contract.py` 按预期先 RED，属性加入后定向回归 `13 passed`。直接 `iverilog/vvp` 因当前 PATH 未安装而未执行，不能作为仿真通过证据。
+- 待验证：统一 B2 检查和下一次 Vivado 200 MHz routed timing；只有 `WNS>=0/TNS=0/WHS>=0/THS=0` 且 route/DRC 为 0，才可把 bit/XSA 改列为可上板产物。
+
+## 2026-09-11 B2-08 错误响应 reset 抽取修复物理终态
+
+- `(* extract_reset = "no" *)` 已使上一轮 20 条 `cmd_hold_data[90] -> rsp_payload_reg[79:48]/R` 路径退出失败端点。
+- 完整 `xc7z020clg484-2`、200 MHz 重建终态：`WNS=-0.031 ns`、`TNS=-0.260 ns`、`WHS=+0.009 ns`、`THS=0`、route errors=`0`、DRC hard errors=`0`；manifest 正确标记 `B2_SIGNOFF_PASS=0`，软件与上板继续 fail-closed。
+- 当前 NPU 失败族转为 `cmd_hold_data[1] -> rsp_payload_reg[57/61/75]/CE`。路径由 `MODEL_DATA` 的 32-bit payload 合法性判断（4 个 CARRY4）经命令错误分支合并后驱动 payload 公共 CE，共 9 级逻辑、数据延迟 `4.780 ns`。
+- 下一结构应在每次 `cmd_valid && cmd_ready` 时无条件写入只依赖 opcode/state/index/epoch 的错误响应候选；合法性条件只决定是否置 `rsp_valid`。成功命令虽更新不可观察的 payload，但不产生响应，握手与错误响应周期不变。
+
+## 2026-09-11 重复验证脚本
+
+- 现有重复检查分散在 `workflow_resume.ps1`、`tools/repro/verify_repository.py` 和多组 B2 合同测试；PowerShell 不会按预期把 `test_b2_*.py` 展开成 pytest 参数。
+- 新增 `run_b2_checks.ps1` 统一编排默认门禁，并在命令完成后按退出码裁决；Git/Vivado 的 stderr 警告不会单独触发失败。
+- `-Vivado` 保持显式，因为物理重建耗时长且会更新构建产物；脚本默认不下载 bitstream、不启动板卡。
+- 首次失败构建暴露旧 `build_manifest.json` 未更新的问题：当前报告属于 `88bec9e`，旧 manifest 仍绑定 `97398bf` 的绿色时序。runner 已改为先持久化当前 signoff，再按门限退出；下游软件构建要求 `B2_SIGNOFF_PASS=1`。
+- 本轮复核确认脚本入口已被 README、合同测试和计划文件引用；默认路径不会触发 Vivado 或实板操作，`-Full` 与 `-Vivado` 必须显式启用。
+- 旧失败报告的 20 条 setup 路径均属于 `cmd_hold_data_reg[65] -> mask_staging_reg[*][*]/CE`，约 78% 数据延迟来自布线；SmartConnect 第四个 MI 不是直接失败路径。字段检查预寄存后的完整重建已结束，该旧主路径已消失。
+- 记录一次计划文件补丁失败：首次补丁错误地把一级标题当作目标上下文，未产生部分修改；后续改用实际二级标题定位。
+
+## 2026-09-11 B2-08 启动审计
+
+- 当前实际 HEAD 为 `88bec9e`，工作树干净；最新功能证据仍绑定 packet smoke HEAD `8c8e44c`。
+- `B2-PHY`、B2-03、B2-04、B2-05 已关闭；B2-06 仅关闭合法 packet path 实板最小子门，B2-08 仅关闭单 fence/sample 顺序子门。
+- 当前下一步选 B2-08 四流计数基础：它为多 packet 关联和跨流 fence 证明提供直接证据，且可以先用 RTL/合同测试建立可观测性，再进入实板 runner。
+- `WORKFLOW_STATE.md` 顶部仍写 `B2_PACKET_PATH_PENDING`，落后于 2026-09-11 packet smoke；完成本切片时应同步修正为“合法路径子门通过、总门未关闭”。
+- 首次计划文件补丁因 `findings.md` 标题不匹配被原子拒绝，随后改用实际标题重新应用，未产生部分修改。
+
+## 2026-09-11 B2-08 第一条 GREEN
+
+- `b2_npu_packet_adapter.sv` 已增加 8 个 32-bit accepted/completed 计数和 256-bit fence 快照；response/result complete 以适配器输出帧的 `m_valid && m_ready && m_last` 为准。
+- `tb_b2_npu_packet_adapter_e2e.sv` 的正常路径检查通过：命令 `22/22`、样本 `8/8`、response `accept=1/complete=1`、result `accept=10/complete=1`；fence 快照锁存 fence response 被接受时的前置计数。
+- 定向验证：`python -X utf8 -m pytest -q test_b2_npu_packet_adapter_e2e_contract.py`，结果 `3 passed`。
+- 当前计数器只通过 adapter 输出公开，顶层 `b2_npu_axis_top.v` 暂不接出，因此尚未形成板级可读寄存器证据；这是本轮明确边界。
+
+## 2026-09-11 B2-08 板级状态块与物理结果
+
+- 四流实时计数和 fence 快照已接入独立只读 AXI-Lite 状态块，基址 `0x40430000`；写请求完成握手并返回 `SLVERR`，不修改状态。
+- 状态块 AXI-Lite 仿真、顶层/BD合同和全部 B2 合同通过；Vivado 综合、布局、布线、bit/XSA 生成均完成，route errors=`0`、DRC hard errors=`0`、hold `WHS=+0.009 ns/THS=0`。
+- 最终 200 MHz setup 未签核：`WNS=-0.113 ns`、`TNS=-6.958 ns`、166 个 failing endpoints。该 bit/XSA 禁止上板，B2-08 仍为板级读取 pending。
+
+## 2026-09-11 B2-08 setup 路径定位
+
+- 最差路径不是状态块读 mux，而是 `cmd_hold_data[65]` 经 reserved-field 检查、`core_cmd_valid` 和核心命令条件到 `mask_staging[*][*]/CE`；6 级 LUT、逻辑 `1.063 ns`、布线 `3.811 ns`。
+- 根因是 56-bit reserved 字段组合归约参与 592-bit mask staging 写使能。状态块改变布局后让这条既有边缘路径从旧基线 `+0.012 ns` 退化为 `-0.113 ns`。
+- 最小修复是在 FIFO 预取到 `cmd_hold_data` 的同一拍锁存 `cmd_hold_fields_bad`。保持槽原本下一拍才可见，因此不增加协议周期；非法命令仍由 wrapper 生成错误响应，核心仍不会消费。
+
+## 2026-09-11 字段检查预寄存物理结果
+
+- 完整 `xc7z020clg484-2`、200 MHz 重建结束：`WNS=-0.088 ns`、`TNS=-0.796 ns`、20 个 setup failing endpoints，`WHS=+0.047 ns`、`THS=0`，route errors=`0`、DRC hard errors=`0`。
+- 原 `cmd_hold_data[65] -> mask_staging[*][*]/CE` 路径已从最差路径中消失，说明预寄存修复有效；新最差路径为 `cmd_hold_data[90]/C -> rsp_payload[72]/R`，8 级逻辑（`3 CARRY4 + 5 LUT6`），数据路径 `4.526 ns`，其中布线 `2.738 ns`。
+- 当前 bit/XSA 虽生成，但 manifest 明确记录 `B2_SIGNOFF_PASS=0`，软件构建继续 fail-closed，禁止下载实板。下一轮应切断错误响应复位/状态归约链，不能靠换 seed 宣称通过。
+- 最新报告展示的 setup 失败端点同属一族：source 均为 `cmd_hold_data_reg[90]/C`，destination 为 `rsp_payload_reg[*]/R`；前 8 条覆盖 `[72:75]`、`[48:49]`、`[52]`、`[70]`，说明问题是响应寄存器的同步清零条件，而不是 128-bit 响应数据 D 路径。
+- RTL 中 `cmd_hold_data[119:88]` 是 command epoch，核心多处分支会用 epoch 比较决定 `make_error_response`，综合后宽比较/状态条件折叠进 `rsp_payload` 的同步 reset。首选方向是把命令 epoch/opcode 等核心入口字段在 wrapper 预取时独立锁存并只向核心传窄字段，或在核心把错误响应的 valid/payload 选择与 payload 寄存器清零拆开；需先核对命令接口合同再选最小改法。
+
+## 2026-09-10 carry-select MAC 物理反证
+
+- `639b403` 将 MAC 高位累加改为 carry-select：低 16 位计算实际 carry，高 16 位并行计算 carry=0/1 两种结果，再选择输出；结构合同、定向回归和 bit-exact 随机回归均通过。
+- 完整 `xc7z020clg484-2` route/DRC/bit/XSA 均生成成功，但 200 MHz setup 仍失败：`WNS=-1.287 ns`、`TNS=-384.021 ns`、`1942` 个 setup failing endpoints，`WHS=+0.051 ns`、`THS=0`。
+- 相比 `b4b95fa` 的 `WNS=-0.589 ns`，本轮 carry-select 在完整顶层反而退化；该结构不作为新的物理基线，后续需重新选择更小的累加/流水边界。
+- 用户提供的三组 B2 日志已在仓库：早期背压运行、timing-fail 原始日志、交换 TX/RX 后 UART/JTAG/XSCT `PASS`。它们可进入正式审计，但必须与当前 packet-NPU 失败证据分层记录。
+
+## 2026-09-09 route 进展与资源瓶颈
+
+- 当前 route 仍在运行，第 5.2 轮 overlap 从 `147240` 降到 `113569`；不能将长时间运行误判为失败。
+- placement 报告显示完整设计 LUT=`48671/53200`、slice=`13300/13300`，NPU/packet 顶层综合 LUT=`43612`，DSP48E1=`4`，BRAM 余量充足。若 route 最终失败，优先评估 packet ingress/egress 分布式 payload memory 的 BRAM 化或流水化，保持协议与四 DSP 合同不变。
+- 第 5.2 轮结束后进入第 5.3 轮，Vivado 给出中间 timing `WNS=-7.854 ns`、`TNS=-396387.086 ns`、`WHS/THS=N/A`；这表明当前路由状态仍严重拥塞，不能以中间 timing 关闭物理门。
+- 第 5.3 轮 overlap 最新为 `135963`，较前一轮 `113569` 回升，说明拥塞优化在反复 rip-up/reroute，需等待最终 route status 才能决定是否进入局部资源修复。
+- B2-07 已补一条垂直错误切片：单拍坏 magic 帧返回 `ERR_BAD_MAGIC`，且不进入命令/样本输出状态；定向测试与 T1 复现通过。其余 version/type/flags/keep/TLAST/CRC/超时/复位矩阵仍待补齐。
+- 错误版本切片同样通过：完整帧返回 `ERR_BAD_VERSION`，且在帧边界前不泄露 payload；该结果只增加 B2-07 子覆盖，不改变整体门状态。
+- 未知类型切片通过：完整帧返回 `ERR_BAD_TYPE`，且不进入 command/sample 输出状态；flags/keep/TLAST/CRC/超时/复位矩阵仍待补齐。
+- 保留 flags 切片通过：完整帧返回 `ERR_BAD_FLAGS`，且不进入 command/sample 输出状态；该子门不改变 B2-07 整体未完成状态。
+- 首拍非法 `TKEEP` 切片通过：返回 `ERR_BAD_KEEP`，且不进入任何下游输出状态；错误长度、TLAST、CRC、超时/复位场景仍待补齐。
+
+## 2026-09-09 物理构建核验
+
+- `vivado.exe` 仍存活且 `impl_1/runme.log` 持续增长，当前位于 `place_design/phys_opt_design` 完成后的 `route_design`，不是观察超时或已失败。
+- BD、综合、`link_design`、`opt_design` 已完成，前置 DRC=`0 errors`。布局后估计时序为 WNS=`-8.182 ns`、TNS=`-181312.760 ns`；该值不是最终 signoff，但说明 200 MHz 目标存在高风险。
+- 下一判据是 route 后 timing summary、DRC/route errors、DSP48E1 数量和最终 bitstream/XSA；在这些证据齐全前不得把中间 DCP 当作可下载版本。
+- 后续 route 阶段已报告 `Congestion is preventing the router from routing all nets`，第 5.2 轮显示 `Number of Nodes with overlaps = 147240`；因此当前风险已从单纯负时序扩大为布线拥塞，必须等待终态后再决定是否拆分 packetizer 组合路径或调整时钟目标。
+- 已读取 placement 资源报告：全设计使用 `48671/53200` LUT（91.49%）、`13300/13300` slice（100%），NPU/packet 顶层综合切片已使用 `43612` LUT（81.98%），其中分布式 RAM 为 `4536` LUT；DSP48E1 恰为 `4`，BRAM 余量充足。拥塞主因更可能是 LUT/slice 接近器件上限及 ingress/egress 大型分布式 payload memory，而非 DSP 或 BRAM 不足。未经用户批准不改变协议容量；若 route 终态失败，首选局部 BRAM 化/流水化实验并单独重跑合同。
+
+## 2026-09-09 B2 packet adapter 首条集成证据
+
+- `b2_packet_ingress` 的整帧缓存/CRC 校验、`npu_zynq7020_t1_wrapper` 的 Host↔NPU FIFO 和 `b2_packet_egress` 的 RESPONSE 封装可以在同一 Host/NPU 双时钟 testbench 中连通。
+- 公开测试使用 sequence=`0x11223344`、model=`0x55667788`、mask epoch=`0x99aabbcc` 的未知 opcode COMMAND；响应帧保留这些 header 元数据，错误 payload 的 `RSP_ERROR` 高位也保持不变。
+- wrapper 当前没有外层 packet boundary、response sequence/model sideband；因此 adapter 暂用“每个 response word 一帧 + 最近命令元数据”。这只证明最小错误响应路径，不能证明多 packet 并发、完整 result 关联或跨流顺序。
+- 下一条最小证据应是合法 model/fence/sample/result 路径；若继续支持并发 packet，需要在 wrapper 或 adapter 增加明确的元数据/完成边界合同，而不是依赖时序猜测。
+
+## 2026-09-09 B2 packet adapter 合法样本闭环
+
+- 在 testbench 中预装 634-word 全零模型后，真实 packet 流程 `mask begin/data/commit → SAMPLE_FENCE → 8-beat SAMPLE → 10-beat RESULT` 通过，标记为 `B2_NPU_PACKET_ADAPTER_E2E_PASS`。
+- 该切片证明外层固定 32-byte/40-byte payload、fence 响应、sample/result sideband 和 TLAST 可以穿过 ingress、T1 wrapper、egress；不等于模型装载、并发 packet、完整错误矩阵或实板 packet path 已完成。
+- 为控制仿真粒度，模型装载不在该切片重复；既有 `tb_npu_zynq7020_t1_wrapper.sv` 已覆盖 634 个模型命令，适配器 E2E 只聚焦 packet 化的 mask/fence/sample/result。
+
+## 2026-09-09 B2 物理构建门禁收口
+
+- `run_b2_build.ps1` 新增 `Assert-B2TimingGreen`，从 `timing_impl.rpt` 的 Design Timing Summary 解析 WNS/TNS/WHS/THS，并对 route errors 与 DRC Error/Critical Warning 做 fail-closed 检查；已知 warning/advisory 不被误判为硬错误。
+- `axis_stream_probe.v` 已纳入构建 manifest 的 `source_sha256`。完整 Vivado 2024.1 runner 在 `xc7z020clg484-2` 上通过，输出 `WNS=+0.123 ns`、`WHS=+0.023 ns`、`TNS/THS=0`、route errors=`0`、DRC hard errors=`0`，并生成 `B2_TIMING_PASS`。
+- 构建身份：HEAD=`a404a8efe72babce623651dc7c6a04501e2713e6`；bit SHA-256=`cfec6a40d94b159e078202e47742868c5748019dc15976c6ee494dfe031e743d`；XSA SHA-256=`6ee9d6f359e2ad3cb69b9be31a8af684fd1b256defb6df56821ad5686daa40cb`。
+- 验证：B2 测试显式枚举后 `45 passed`；runner PowerShell AST 解析通过；manifest 由 PowerShell `ConvertFrom-Json` 读取通过。首次使用 `pytest test_b2_*.py` 和 Python `json.tool` 的失败分别是 PowerShell 通配符不展开、manifest UTF-8 BOM，未计为代码缺陷。
+- 当前证据只关闭物理构建门禁，不关闭 B2-03/B2-05/B2-GATE；实板可控背压、错误/复位恢复、连续回绕和 UART 终止标记仍缺失，NPU/ENeuron 仍不得接入正式链路。
+
 ## 2026-09-08 B1-D1批准与CH340接入
 
 - 用户批准B1-D1选择`bare-metal + lwIP`。首个实现切片只做裸机UART/DDR，避免把PHY、UDP和网络栈变量混入基础启动验证；lwIP保留为B1C网络阶段的软件路线。
@@ -1576,3 +1716,251 @@
 - 首轮合同固定 `1..4096` bytes、64-byte buffer 对齐、1 us polling、1 s 传输超时、500 次 reset poll；错误/超时必须先保存寄存器和上下文，再 reset，最多用已知短帧恢复一次。
 - 合同验证器初版未被 CI 分类器识别，定向测试先复现该问题，再将 `verify_b2_dma_contract.py` 加入 `t1_repro`；当前 B2 合同与既有布局合计 `12/12` 测试通过。
 - 该合同只关闭 B2-D1；尚未实例化 DMA、生成含 DMA 的 bitstream、执行实板搬运，也未关闭 B2-01～B2-GATE。
+
+## 2026-09-09 B2 loopback 实现与软件构建
+
+- `boards/hellozynq/b2_hw/create_b2_bd.tcl` 已修正 PS7 `M_AXI_GP0` AXI3 到 DMA `S_AXI_LITE` AXI4-Lite 的 protocol converter，补齐 GP0 时钟连接，并按 Vivado 2024.1 实际接口移除不存在的 DMA stream clock 和 PS7 HP reset 引脚连接。
+- B2 构建在 `xc7z020clg484-2` 上完成：`opt_design`、`place_design`、`route_design` 和 `write_bitstream` 均成功；时序 `WNS=+0.232 ns`、`WHS=+0.016 ns`、TNS/THS 为 0；8354 个 routable nets 全部完成路由；DRC error 为 0。
+- 生成的本地证据为 `boards/hellozynq/b2_hw/build/hello_zynq_b2.bit` 和 `hello_zynq_b2.xsa`。它们绑定构建时 HEAD `9b64b55`，源码修正提交后必须重建，不能与新 HEAD 的软件 ELF 混用。
+- 新增 `boards/hellozynq/b2_sw/src/main.c`、`build_b2_sw.tcl`、`run_b2_sw_build.ps1`、`program_b2.tcl` 和 `run_b2_board.ps1`。Vitis 2024.1 生成 BSP 时实际编译 `axidma_v9_18`，应用构建通过；应用只执行一条 64-byte loopback 帧，记录 sequence、TX/RX CR/SR/BTT、CRC 和 cache ownership 标志。
+- 这一步只证明硬件实现和软件构建可复现；尚未证明 UART/JTAG 下载、DDR↔DMA↔PL 实际回环、背压、边界帧、错误恢复、压力或 B2-GATE。`B1_HIGH_DDR_PENDING` 继续有效。
+
+## 2026-09-09 B2 同源重建与 TODO 复核
+
+- `proc_sys_reset` 修复后的 Vivado 2024.1 构建绑定 HEAD `bba093603d501f157169f3c321fb77a62fcf4406`；timing summary 为 WNS/WHS=`+0.240/+0.036 ns`、TNS/THS=`0/0`，route error=0，DRC 为 0 error、1 warning、4 advisory。
+- 新 bitstream/XSA SHA-256 分别为 `d694fa02e0e6b5d25dfc72becc302104632268b4dc930b8709780dbebb08d918`、`68dc2b8e0c4e324bc1bacccdecfa384100042f10a94fae9f43d3a1b2b021897a`。
+- Vitis 2024.1 已用上述 XSA 重建 standalone ELF，SHA-256=`e37d7cb6869644ddc0c8a7db06698764561064ae96c8231a4e643cab095911a9`；BSP 继续使用 `axidma_v9_18`。
+- B2-01 的地址、容量、对齐、最大帧长和所有权顺序已有三层一致证据：布局合同、DMA 合同、`main.c` 实现，因此应关闭，避免与 B2-00/B2-D1 重复计门。B2-03 仍缺真实搬运和 PL 侧计数/协议证据，不能关闭。
+
+## 2026-09-09 B2 首次实板最小回环
+
+- `run_b2_board.ps1 -ListenSeconds 30` 已完成真实 JTAG program、ELF download 和 CPU run；同一运行的 UART 结果为 `NO_TERMINAL_MARKER`，不是 `B2_DMA_FAIL`。
+- 随后的 XSCT 只读探针读取 `STATUS_BASE=0x01008000`：magic=`0x42324431`、status=`2 (PASS)`、sequence=`1`、length=`64`、TX/RX=`0x01006000/0x01007000`、cache flush/invalidate=`1/2`、TX/RX SR=`0x1002/0x1002`、BTT=`64/64`、CRC=`0x8A37CBDB`。
+- 原始探针日志和结构化摘要已保存到 `boards/hellozynq/b2_sw/build/6f3d40e6f0470bbb57a9a10fb107ffc892add25c/direct/runs/20260909T011828Z/`；重复探针读取的 TX/RX 十六个 32-bit word 全部一致，摘要 `payload_equal_64_bytes=true`，状态为 `MINIMAL_64B_DMA_PASS_UART_PENDING`。该证据证明一次真实低地址 DMA 回环，但尚未证明 PL 侧计数、UART 终止标记、边界/背压/错误恢复或压力门。
+
+## 2026-09-09 B2 边界矩阵实板复核
+
+- 新运行目录为 `boards/hellozynq/b2_sw/build/6f3d40e6f0470bbb57a9a10fb107ffc892add25c/direct/runs/20260909T020159Z/`；XSCT 日志确认 `B2_FPGA_PROGRAM_PASS`、`B2_ELF_DOWNLOAD_PASS`、`B2_CPU_RUN_PASS`，UART 日志只有换行字节，故机器状态仍为 `NO_TERMINAL_MARKER`。
+- JTAG ledger 给出 `8` 个槽位：`seq=1,len=0,status=0x4`；`seq=2..8` 对应 `1/4/16/64/512/1472/4096` bytes，全部 `status=0x2`；总计数 `8/7/1/0`（总数/通过/拒绝/失败）。这证明了零长度拒绝与七个合法长度在低地址 DDR 上的实际执行和顺序账本。
+- 4096-byte 末帧状态为 `TX/RX SR=0x1002`、`BTT=4096/4096`、CRC=`0xC0032E56`，TX/RX 可见 payload word 一致。探针标准输出 SHA-256 为 `e73fef7df766df80ec2bb0e4f399e35ce313134beb12e3a3e2486cb26c5011886`；结构化摘要同步固化在同一运行目录。
+- 证据边界：仍没有 PL 侧 stream counter、TKEEP/TLAST 逐 beat 观测，`probe_b2_state.tcl` 对 DMA PL 寄存器读回明确报告 `B2_DMA_PL_READ=UNAVAILABLE`；也没有连续回绕、背压、错误注入/复位恢复或 10000 帧压力。因此 B2-04 只能记为“边界矩阵切片已证实”，B2-03 和 B2-GATE 保持未完成。
+
+## 2026-09-09 B2 10000 帧实板压力切片
+
+- `main.c` 在保留边界矩阵的基础上增加固定长度序列 `{1,4,16,64,512,1472,4096}` 的 `10000` 次 DMA 回环；压力期间不写 8 槽边界 ledger，只在状态区保存总数、通过/失败数、最后 sequence 和 CRC XOR，避免覆盖边界证据。
+- 真实运行 `20260909T022102Z` 的 XSCT 日志确认 program/download/run 均 PASS；JTAG 读取 `pressure_status=2`、`pressure_total=10000`、`pressure_passed=10000`、`pressure_failed=0`、`pressure_crc32_xor=0x7D51FB01`、`pressure_last_sequence=10008`。该结果证明低地址 DDR↔DMA↔PL 在无注入背压条件下连续 10000 帧无软件报告失败。
+- 运行 manifest 的 ELF SHA-256 为 `b1b8cbc6c8ff262b8764403453c1269b1a5be3b1b39aacdb244c35616de0e79b`；probe stdout SHA-256 为 `790d7d3b17c84e89dac26d5e558eac617650dfee667004a15b82cfc488f35de1`。结构化证据已保存为同目录 `b2_board_evidence.json`。
+- 证据边界没有变化：UART `NO_TERMINAL_MARKER`；`B2_DMA_PL_READ=UNAVAILABLE`；未覆盖可控接收背压、发送间歇、TKEEP/TLAST、PL 周期计数、错误/复位恢复和连续 buffer 回绕。因此只推进 B2-05 的压力子项，不能关闭 B2-03、B2-05 或 B2-GATE。
+
+## 2026-09-09 B2 观测器时序实验
+
+- 单 `axi_stream_monitor` 实验拓扑可完成 Vivado 2024.1 bit/XSA 生成，但 post-route setup 未通过：`WNS=-0.284 ns`、`TNS=-22.272 ns`、`256` 个失败端点；hold、route error 和 DRC error 未失败。
+- 该结果说明官方 monitor 不能直接作为当前 100 MHz 顶层正式证据。源码已切换为轻量双向 `axis_stream_probe`，保留相同的 AXI-Lite 地址和软件快照字段；本次单 monitor build 目录只作为历史实验记录，不能与当前源码合同配套使用。
+- 下一步是验证轻量 probe 的 Vivado module reference、地址映射和 routed 时序；在获得新的 routed 通过证据前，不关闭 B2-03/B2-05/B2-GATE，也不进入 B3。
+
+## 2026-09-09 B2 背压配置与 AXI VALID 保持
+
+- 旧软件配置 `0x04000201` 的 period 字段为 `0`，按 RTL 合同等价于关闭背压；新配置 `0x04030201` 冻结为 enable=`1`、stall length=`2`、period=`3`，且软件在 `stall_cycles==0` 时 fail-closed。
+- 修复前实板运行 `20260909T065258Z` 在压力切片通过后停在 `backpressure_not_observed`，证明 fail-closed 生效，也证明旧链路没有产生受控 stall。
+- `m_axis_tvalid=fifo_valid&&!backpressure_stall` 原先可能在已公开 `TVALID=1,TREADY=0` 后因 phase 更新撤回 VALID。现于自然下游阻塞期间冻结 phase 并保持 `backpressure_stall=0`；合同测试先失败、修复后 stream probe `8/8` 通过。
+- 2026-09-09 15:07 的候选物理构建已通过：`WNS=+0.010 ns`、`WHS=+0.036 ns`、route/DRC hard error=`0`，bit SHA-256=`7bad70a6...d4717`、XSA SHA-256=`f31dcc6e...3553`。该构建发生在最后一次 VALID 保持修复之前，必须重建后才能上板作为正式候选。
+
+## 2026-09-09 B2 受控背压实板证据
+
+- 使用修复后同源身份 `bit=ef9740002e9b5e54ef0479e647b07bf3fc3577d8b552fdb6ed35d3f14fc5175a`、`xsa=8419e00eff65f4a3cd70ee397cab3bdb0e3351496dfe9b8cdcbe337ae8ab4185`、`elf=1f615e85c64f058219e10e09266109941bb90f2ba9b443cb7ce7b6d6fe214487` 完成实板 program/download/run，XSCT exit=`0`，probe exit=`0`。
+- JTAG 状态区读取：pressure `status=2,total=10000,passed=10000,failed=0`；backpressure `status=2,total=64,passed=64,failed=0,stall_cycles=83082`；MM2S probe `beats=1,bytes=1,TLAST=1,TKEEP=1,STALL=0`，S2MM probe 同样通过且 `STALL=3`。这证明受控背压确实发生并未破坏末帧数据。
+- UART `COM10` 仍为 `NO_TERMINAL_MARKER`，所以 runner 退出码仍为 `1`；该退出码表示 UART 证据缺失，不应覆盖 JTAG 已通过的事实。运行目录：`boards/hellozynq/b2_sw/build/e26c7c1427af79caa53ed7796f92424338c92ab5/direct/runs/20260909T072850Z/`。
+- 为避免 ignored build 目录中的正向证据丢失，已将 `20260909T073606Z` 的 6 个原始小日志/manifest 归档到 `artifacts/logs/b2_backpressure_pass_20260909_e26c7c1/`；不复制 bit/XSA/BSP 等大产物。
+
+## 2026-09-09 B2 UART 配置与物理链路边界
+
+- 同源复测 `20260909T083129Z` 的 UART 监听仍为 `NO_TERMINAL_MARKER`，但 JTAG 读取 PS UART0 `CR=0x114`、`MR=0x20`、`BAUDGEN=124`、`BAUDDIV=6`，软件 runner 判定 `jtag_uart_configured=true`。
+- `MR=0x20` 对应 8 data bits、无 parity、1 stop bit；以 100 MHz UART clock 和 `124/6` 分频得到约 115200 baud。该解释来自当前 Vitis 2024.1 BSP 的 `xuartps_hw.h`，不是手工猜测。
+- 被动监听在程序已运行后仍读取0字节，因此“只错过一次性启动 marker”不能解释现象；当前最小可信边界是 V14/V15 外部 USB-TTL 接线、共地、端口占用或电气连接仍需现场复核。
+- 证据目录：`artifacts/logs/b2_uart_config_jtag_pass_20260909_e26c7c1/`。该证据只增强诊断，不改变 UART、B2-03、B2-05、B2-GATE 的门状态。
+
+## 2026-09-09 B2 PS UART 内部自环
+
+- 使用可逆 XSCT 脚本临时设置 UART0 `MR` 的 local-loopback 位，读取 RX FIFO 后恢复原值；`ORIGINAL_MR=0x20`、`FINAL_MR=0x20`，收到 `64` 个应用字节，样本包含 `\nB2_P...`。
+- 该实验把故障边界从“软件或 UART 外设未发送”进一步收窄为 V14/V15 外部引脚、USB-TTL TX/RX 交叉、共地、电平或端口链路；外部 COM10 仍无字节，UART 门禁保持 fail-closed。
+- 脚本：`boards/hellozynq/b2_sw/probe_b2_uart_loopback.tcl`；原始日志：`artifacts/logs/b2_uart_config_jtag_pass_20260909_e26c7c1/uart_loopback.log`。
+
+## 2026-09-09 B2 外部 UART 交换线序后通过
+
+- 交换 TX/RX 后，COM10 收到当前运行的完整 UART 输出；正式 run `20260909T094406Z` 的 `run_manifest.json` 状态为 `PASS`，`uart_terminal_marker=PASS`，`xsct_exit_code=0`，`probe_exit_code=0`。
+- 首次尝试出现 XSCT 收尾超时，根因是旧程序循环发送的 marker 被新 runner 提前采信；runner 已改为等待当前 `B2_CPU_RUN_PASS`、清空旧串口输入缓存后再开始本次监听窗口。
+- 本次正式证据同时覆盖边界矩阵（7 PASS/1 拒绝/0 失败）、10000 帧压力、64 帧受控背压和 PS UART 配置；仍不等价于 B2-GATE，因为连续回绕、错误注入/复位恢复和完整逐帧 PL 观测缺失。
+## 2026-09-09 B2 连续回绕实现审计
+
+- 新增软件 ring-buffer 切片：`256` 帧、`64` 个 `64-byte` 对齐 slot，长度循环为 `1/4/16/64` bytes；TX/RX 地址分别在 `0x01006000..0x01006FC0` 和 `0x01007000..0x01007FC0` 内轮换，最后重新回到 slot 0。
+- 回绕状态区固定为 `0x01008280`。原候选 `0x01008200` 会覆盖边界账本第 6 槽，已通过合同测试拒绝该布局。
+- wrap 模式逐帧检查 PL beats/bytes/TLAST/TKEEP，并通过 64-bit slot mask、sequence、CRC XOR、最后 TX/RX 地址形成 JTAG/UART 摘要；该切片不改变 Vivado bitstream 或 NPU 接口。
+- 当前仅完成源代码合同与语法层验证，尚未形成新的 ELF 或实板回绕证据，B2-03/B2-04/B2-05/B2-GATE 继续保持未完成。
+# 2026-09-09 B2 recovery findings
+
+- `axis_stream_probe` 已有 AXI-Lite control：bit0 clear 会清状态并 `active<=1`，bit1 stop 会 `active<=0`；`s_axis_tready` 由 `active && !fifo_valid` 驱动。
+- 因此可以在不改 BD 拓扑的前提下，对 S2MM probe 写 control=2，使接收端不再 ready；DMA simple transfer 应在 1 s 合同超时，随后由软件调用既有 `reset_and_wait()`。
+- reset 后必须对 MM2S/S2MM 都写 clear=1→0，恢复 active，再提交一条长度 4 的合法帧并逐字节校验。
+- 实板确认上述假设成立：提交 `875dd1e` 的 run `20260909T111310Z` 中，停止 S2MM 后确实观测到 1 秒 timeout，DMA reset 返回成功，两个 probe clear 后合法 4-byte 帧完成；最终 JTAG recovery status=2、timeout=1、reset=1、passed=1、failed=0。
+- 该切片的恢复状态区位于 `0x01008300..0x01008318`，与边界 ledger (`0x01008080..0x0100813F`)、wrap 状态 (`0x01008280..0x010082B0`) 和 monitor 状态 (`0x01008400`) 不重叠。
+- 当前恢复实现仍是独立软件路径，未提供 packetizer 状态/四逻辑流 fence 证据；因此不能据此关闭 B2-GATE 或接入 NPU。
+- 下一切片采用独立 inter-frame gap 场景：在 recovery 完成后发送 4-byte 与 64-byte 合法帧，中间插入 1000 us 软件间歇；不改变已有 recovery sequence=10329，也不把软件间歇误报为 S2MM ready 低电平恢复。
+- 现有 `run_one_frame_at()` 遇到 timeout 会直接 `fail()` 并终止整轮，因此恢复场景需要独立函数，不能复用失败即退出的普通帧路径。
+
+## 2026-09-09 B2 inter-frame gap 实板验证
+
+- 在恢复成功后新增独立 gap 场景：sequence=`10330` 的 4-byte 合法帧完成后调用 `usleep(1000)`，再发送 sequence=`10331` 的 64-byte 合法帧；两帧均逐字节校验并记录 CRC。
+- gap 状态区固定为 `0x01008340..0x0100836C`，与 recovery 状态区和 monitor 状态区不重叠；JTAG ledger 为 `status=2`、`total=2`、`passed=2`、`failed=0`、`requested_us=1000`、CRC XOR=`0x8B08CC4D`。
+- 运行 `boards/hellozynq/b2_sw/build/da9147ab9dc5a445d29c2f61e08e39dab87b5552/direct/runs/20260909T115218Z/` 在 `COM10` 上 UART/JTAG/XSCT 全部 PASS，UART 无重连；runner 已把 gap 字段纳入 fail-closed 总体判定和 manifest。
+- 该证据只证明 CPU 两次合法提交之间的发送间歇，不证明 `TREADY=0` 的 ready 恢复，也不关闭 B2-03/B2-05/B2-GATE；下一片优先做 ready 低电平停止→恢复的独立 ledger，再补可控错误注入和 packetizer。
+
+## 2026-09-09 B2 ready stop/recovery 实板验证
+
+- `axis_stream_probe` 的 `SAMPLE` 读口返回 `active`，而 RTL 定义 `s_axis_tready = s_axi_aresetn && active && !fifo_valid`；因此在 recovery 中对 S2MM probe 写 control=2 后读取 `active=0`，可直接证明 `TREADY=0`。
+- 提交 `76e06b6` 的正式 run `20260909T121336Z` 在 COM10 上 UART/JTAG/XSCT 全部 PASS；recovery ledger 为 `ready_before=1`、`ready_stopped=0`、`ready_after_reset=1`，timeout/reset/passed/failed=`1/1/1/0`，recovery sequence=`10329`。
+- 同一 run 保持 gap `2/2`（sequence=`10330/10331`、4B→64B、1000 us）和全部既有压力/背压/回绕结果，背压累计 `stall_cycles=83079`。
+- 该证据关闭 ready 停止→恢复子片，但不关闭 B2-03/B2-05/B2-GATE；剩余为跨长度逐帧 TLAST 持久 ledger、可控错误注入和 packetizer/fence。
+
+## 2026-09-09 B2 ledger probe audit
+
+- 复核发现 `struct frame_ledger` 在 `boards/hellozynq/b2_sw/src/main.c` 中为 16 个 `u32`、每条 64 bytes，8 条边界记录占用 `0x01008080..0x0100827F`。
+- `probe_b2_state.tcl` 仍使用 `index * 24` 且只读取 6 个字段，不能证明持久逐帧 PL ledger，第二条记录起始地址已落入上一条记录内部。
+- 本轮修复范围限定为 probe 地址步长、完整字段读取、合同测试和 runner 的结构化 ledger 校验；不改变 DMA/RTL 数据路径。
+
+## 2026-09-09 B2 error injection design
+
+- 选择单一 missing-TLAST 模式作为最小 B2-07 切片：MM2S probe 在输出端抑制 TLAST，S2MM 侧应无法完成正常帧；软件允许观察 timeout 或 DMA error，但必须保存 DMA/PL 快照。
+- 错误注入后必须执行 DMA reset、两个 probe clear、关闭注入，再以 4-byte 合法帧恢复并逐字节校验；任何恢复失败都使该切片 fail-closed。
+- 不在本切片引入 packetizer、未知消息类型或四流 fence；这些仍由后续 B2-06～B2-08 处理。
+
+## 2026-09-09 B2 missing-TLAST 实板结果
+
+- 合同测试 `40/40` 通过；Vivado 2024.1 目标 `xc7z020clg484-2` 实现门禁通过，`WNS=+0.179 ns`、`WHS=+0.006 ns`、`TNS/THS=0`、route/DRC hard error=`0`。
+- run `20260909T133721Z` 在 COM10 上 UART/JTAG/XSCT 全 PASS。JTAG 错误账本为 `status=2`、`mode=1`、`observed=1`、`dma_error=1`、`reset=1`、`recovery=1`、`failed=0`；注入 sequence=`10332`，恢复 sequence=`10333`。
+- 注入帧 MM2S/S2MM 均为 `16 beats`，TLAST 均为 `0`；恢复后 4-byte 合法帧重新通过。该结果证明最小 missing-TLAST 错误可重复观测并可恢复，但不代表 B2-07 的完整错误矩阵已经完成。
+
+## 2026-09-09 B2 packet reference
+
+- 外层 DMA frame 已冻结为 32-byte little-endian header + payload + 4-byte CRC32，最大完整帧 4096 bytes；`COMMAND/RESPONSE` 只接受非零 16-byte word 倍数，`SAMPLE` 必须 32 bytes，`RESULT` 必须 40 bytes。
+- `b2_packet_protocol.py` 是当前唯一字节级参考，`test_b2_packet_protocol.py` 覆盖 round-trip、TLAST、CRC、长度、保留位、未知 type 和超限拒绝，`7/7` 通过。
+- 该参考不改变已批准的高位 4-bit NPU opcode 和核心 8/10 beat 合同；RTL packetizer/depacketizer 尚未实现，不能将参考测试当作 B2-06 实板门。
+
+## 2026-09-09 B2 RTL ingress packetizer
+
+- `b2_packet_ingress.sv` 在发布前缓存最多 4060-byte payload（1015 个 32-bit word），避免坏帧的半条命令或半个样本进入核心。
+- CRC 状态按标准 reflected Ethernet CRC32（多项式 `0xEDB88320`）逐个 little-endian byte 更新，CRC word 不参与自身计算；与 Python `zlib.crc32` 参考向量一致。
+- 独立仿真已证明合法 SAMPLE/COMMAND 映射、坏 CRC 拒绝和 CRC word 缺失 TLAST 拒绝；RTL ingress 不是完整 packetizer，反向 egress 和实板集成仍待完成。
+
+## 2026-09-10 B2 response epoch timing attempt
+
+- `70e8caf` 的响应 epoch 副本修复没有改善顶层时序：route/DRC 无硬错误，但 `clk_fpga_0` 200 MHz setup 为 `WNS=-1.595 ns`、`TNS=-1103.714 ns`、`3304` 个失败端点。最终最差路径是 `mac_accumulator_lo[3]_i_15_psdsp/C -> mac_accumulator_hi_reg[13]/D`，15 级逻辑、数据延迟 `6.530 ns`（logic `3.740 ns`、route `2.790 ns`）。当前瓶颈重新集中在 MAC 高位累加器链；失败证据已归档到 `artifacts/logs/b2_packet_npu_route_timing_fail_20260910_70e8caf/`，bit/XSA 禁止上板。
+
+## 2026-09-10 B2 MAC low-carry register
+
+- 新结构在 `GROUP_COMMIT` 锁存低 16 位加法结果、carry 和高 16 位 lane sum，在新增 `GROUP_ACCUM` 拍更新高 16 位累加器；外部 ready/valid、packet 合同和四个 DSP 乘法器不变。
+- 全开 mask 的计算周期从 `1902` 增至 `2494`，增加 `592` 拍；第二组测试向量为 `2488`，全关 mask 仍为 `718`。这说明周期代价只随实际启用 group 数增长，与动态剪枝方向一致，但 dense 基线吞吐下降约 31%。
+- B2 与单时钟相关定向回归 `104/104` 通过。物理价值仍未证明；必须用同源 Vivado route/timing 结果决定保留或回收。
+
+## 2026-09-10 B2 MAC low-carry register routed 结果
+
+- `0bacdea` 同源构建完成 route、bit/XSA、报告和 DRC；route errors=`0`，DRC hard errors=`0`。
+- 最终 `clk_fpga_0` 200 MHz setup 为 `WNS=-0.489 ns`、`TNS=-121.268 ns`、`885` 个失败端点；hold 为 `WHS=+0.013 ns`、`THS=0`。最差路径为 `mask_active_epoch_reg[1]_replica/C -> rsp_payload_reg[85]/R`，12 级逻辑，数据延迟 `4.922 ns`（logic `2.877 ns`、route `2.045 ns`）。
+- 该结果证明低段 carry→高段累加器路径已不再是首要瓶颈，但新的 mask/response 控制路径仍无法满足 5 ns 周期。由于 dense 周期从 `1902` 增至 `2494`，当前方案只保留作物理分析，不下载、不做实板 packet 验证。
+- 新一轮候选把 `mask_active_epoch + 1` 改为在 mask 激活边界更新的 `mask_next_epoch` 寄存器。该变更不改变 epoch 单调递增、发布后等待样本边界激活或错误响应格式，目标是去掉命令判定和寄存器使能上的 32 位组合进位链；物理收益仍需 routed timing 证明。
+
+## 2026-09-10 B2 egress BRAM read-enable timing
+
+- `2f2ce03` routed timing 将 setup 收敛到 `WNS=-0.279 ns`、`TNS=-8.283 ns`、`141` 个失败端点，说明 `mask_next_epoch` 有效；最差路径迁移到 egress `output_index_reg[3]/C -> response_mem ENARDEN`，数据延迟 `4.862 ns`，其中 route 占 `3.396 ns`。
+- response/result BRAM 读请求原由 `output_index`、frame 长度、CRC busy 和 payload 类型组合生成。CRC 每个输出 word 已占四拍，因此改为在 word fire 时发出单拍寄存预取请求，可利用 CRC 空档完成同步读，不增加 AXI 输出 word 数或 CRC 周期。
+- egress 字节级仿真 `B2_PACKET_EGRESS_PASS`，相关定向回归 `24/24` 通过；物理收益仍需新提交的顶层 routed timing 证明。
+
+## 2026-09-10 B2 egress BRAM 预取物理结果
+
+- 同源 HEAD `074ed56886f4aad36bb9ce3149dbc54926e959d8` 的 Vivado 2024.1 完整实现已完成；route errors=`0`、DRC hard errors=`0`，bit/XSA 生成成功。
+- 200 MHz `clk_fpga_0` setup 仍失败：`WNS=-0.052 ns`、`TNS=-0.134 ns`、6 个失败端点；hold 为 `WHS=+0.073 ns`、`THS=0`。
+- 最差路径为 `compute_unit_mask_latched_reg[3]/C -> compute_group_index_reg[1]/D`，数据延迟 `4.687 ns`，其中逻辑 `1.415 ns`、布线 `3.272 ns`；布线约占 69.8%。因此 egress 预取切片已消除上一轮 BRAM ENARDEN 主路径，但当前瓶颈迁移到 NPU mask/group 控制路径。
+- 证据完整归档于 `artifacts/logs/b2_packet_npu_route_timing_fail_20260910_074ed56/`，manifest 状态为 `analysis_only_no_download`；不得将该 bit/XSA 下载实板，也不能进入 ENeuron A/B。
+- Vivado 主机日志显示为 `2026-09-11 00:42–00:51`，比当前任务日期 `2026-09-10` 快一天；归档目录按任务日期命名，提交身份与哈希不受影响。
+
+## 2026-09-09 B2 RTL egress packetizer
+
+- `b2_packet_egress.sv` 采用 response 优先仲裁；response 通过 `rsp_last` 结束，result 固定 10 beat。输出顺序为 8-word header、payload words、1-word CRC。
+- response/result 都先缓存再发送，避免下游背压期间修改 header 或 payload；result 的 sideband 改变会产生错误脉冲且不生成 packet。
+- 独立 Icarus 测试 `B2_PACKET_EGRESS_PASS` 通过，并与 Python 参考向量逐 word 对比；当前尚未完成 wrapper/DMA 连接和实板验证。
+# 2026-09-11 mask-scan 修复
+
+- 当前工作树原先是不可编译的中间编辑：引用了不存在的 `GROUP_CHECK` 状态和 `compute_group_active`。
+- 已恢复为无额外周期的 mask scan：每个 `BIAS_LOAD` 锁存 `compute_group_mask_scan`，`GROUP_FETCH` 检查 bit0，跳过组或完成累加后右移一位。
+- 该方案移除了 `compute_unit_mask_latched[compute_group_index]` 动态位选，避免 mask 判定直接进入 group index 更新链；未新增状态和接口。
+- 定向回归 `pytest -q test_b2_npu_wrapper_timing_contract.py test_npu_single_clock_compute.py`：`16 passed`。
+- 物理时序尚未重建；此前 074ed56 证据仍为 `WNS=-0.052 ns`、`TNS=-0.134 ns`、6 个 setup 失败端点，禁止下载实板。
+
+## 2026-09-11 egress 元数据隔离物理结果
+
+- 提交 `e3db1a1` 的 Vivado 2024.1 完整实现结束，runner 因 timing gate 失败以退出码 `1` 收口；bit/XSA 生成不代表可下载。
+- 最终 summary 为 `WNS=-0.087 ns`、`TNS=-0.451 ns`、22 个 setup 失败端点、`WHS=+0.013 ns`、`THS=0`；route errors=`0`，DRC hard errors=`0`。
+- egress `output_index_reg -> mask_epoch/model/sample/sequence metadata CE` 已不在失败端点中，说明 `e3db1a1` 的局部修复有效。
+- 当前最差路径位于 AXI DMA S2MM scatter 内部：`sig_max_first_increment_reg[0] -> sig_btt_eq_0_reg`，slack=`-0.087 ns`。其余主要轻微违例来自 ingress `state_reg[0] -> payload_mem_* WE`，另有一条 wrapper/core reset 控制路径。
+- 下一轮应同时审查 Vivado implementation strategy 和 ingress 写使能译码；不能把 DMA IP 内部的最差路径误归因于 NPU 或 egress。
+- 本轮 `build_manifest.json` 未被 runner 更新，仍绑定旧提交 `b2332a0`；timing gate 失败时该文件必须视为无效证据。
+- 虽然新 `gen_run.xml` 列出 `post_route_phys_opt_design`，但 `vivado_run.log` 未见对应 `phys_opt_design` 命令，当前只能确认 post-place `AggressiveExplore` 已执行。
+
+## 2026-09-11 B2 packet-NPU 物理门通过
+
+- 在 ingress 写请求寄存、post-place/post-route `AggressiveExplore` 后，Vivado 2024.1 顶层 routed timing 全绿：`WNS=+0.012 ns`、`TNS=0`、`WHS=+0.036 ns`、`THS=0`。
+- setup/hold 失败端点为 0，route errors=`0`，DRC hard errors=`0`；日志确认实际执行 `phys_opt_design -directive AggressiveExplore`（post-route mode）。
+- bit/XSA 已成功生成；`build_manifest.json` 记录源码、报告、bit/XSA SHA-256。当前 manifest 的 `git_worktree_clean=false`，需在提交后 clean-worktree 重建以完成最终可复现性校验。
+- 物理门通过不等于 B2-GATE 通过；下一步是板级 packet path、错误恢复、fence/计数器和功耗证据，B3 与 ENeuron A/B 暂不开始。
+
+## 2026-09-11 B2 packet smoke 实板调试与通过
+
+- 首次直接复用裸 DMA ELF 会在 packet ingress 首帧超时；根因是裸 payload 没有 `ENB2` header/CRC，不是 TX/RX 方向或物理时序问题。
+- packet 软件初版暴露两处板级契约问题：`XAXIDMA_DMA_TO_DEVICE` 是方向值 `0`，不能参与 bit-mask 等待；`axis_stream_probe` 在每个 TLAST 后自动停用，必须每帧重新 clear/activate。修复后 634 个模型命令可连续发送。
+- fence response 按 RTL `{RSP_FENCE,0,OP_SAMPLE_FENCE,0,fence_id,active_epoch,48'd0}` 解码；little-endian DMA word 为 `0,0,0x0F000000,0xD0A00000`，软件检查已与该布局一致。
+- 实板 run `20260911T051400Z`（HEAD `8c8e44c`）在 COM15（CH340 `VID_1A86:PID_7523`）通过：`B2_PACKET_BEGIN`、634 model words、19 mask words、`B2_PACKET_FENCE_PASS`、`B2_PACKET_RESULT_PASS`、`B2_PACKET_PASS`；XSCT FPGA/ELF 下载也通过。证据目录：`boards/hellozynq/b2_sw/build/8c8e44c9c013fbb6a52431498bb00e03e29580c4/direct/runs/20260911T051400Z/`。
+- 该结果只关闭合法 packet ingress/egress 实板最小切片；多 outstanding packet、完整错误矩阵、四流计数、时间戳、功耗和 B2-GATE 仍未完成。
+
+## 2026-09-11 B2 第三种错误响应结构物理结果
+
+- 统一检查入口 `run_b2_checks.ps1` 实跑通过：B2 合同 `117 passed`、T1 两门 PASS、`git diff --check` 无错误；定向脚本/结构合同 `16 passed`。
+- 命令握手时统一锁存错误响应候选后，上一轮 `cmd_hold_data[1] -> rsp_payload_reg[*]/CE` 以及更早的 `cmd_hold_data[*] -> rsp_payload_reg[*]/R` 均未出现在最终 timing report，说明核心响应控制热路径已切断。
+- 最终 200 MHz 结果为 `WNS=-0.030 ns`、`TNS=-0.203 ns`、`WHS=+0.036 ns`、`THS=0`，route errors=`0`、DRC hard errors=`0`；`B2_SIGNOFF_PASS=0`。
+- 最差路径迁到 egress：`mask_epoch_reg[1]/C -> payload_word_count_reg[7]/R`，7 级逻辑、数据延迟 `4.409 ns`，其中 route `2.726 ns`；其他失败端点主要是 `output_frame_words[4] -> result_word_count[*]/R`，另有 AXI DMA S2MM 内部一条路径。
+- bit SHA-256=`6fbec1c21b20b2664d1e554145b8f80674b15f83737e0cf40c6c67fbe43e2b35`，XSA SHA-256=`cfcc667eae067f25a27772bf43ef926c668ac1eeac2a3eee905ac7b8c1d0cec6`；仅作失败分析，禁止下载。
+
+# 2026-09-12 B2 物理门恢复实验
+
+- 根因证据：上一版唯一 setup 失败来自 Xilinx AXI DMA S2MM 内部比较链，NPU/egress/probe 的对应路径均有正 slack；因此先不改业务 RTL，采用单变量实现策略实验。
+- `Performance_ExploreWithRemap` 被 Vivado 2024.1 接受并实际用于 `impl_1`。最终 routed timing 为 `WNS=+0.005 ns`、`TNS=0`、`WHS=+0.034 ns`、`THS=0`；route errors 与 DRC hard errors 均为 `0`。
+- 该结果相对 `Performance_Explore` 的 `WNS=-0.004 ns` 改善 `0.009 ns`，但仍需提交后 clean-worktree 重建以获得最终可复现身份；在此之前不得把当前 manifest 当作 clean release。
+- 当前结论：`FUNCTIONAL_PASS / PHYSICAL_PASS / BOARD_STATUS_PENDING`。物理门恢复不等同于 B2-GATE，也不提供动态剪枝加速或功耗收益证据。
+
+## 2026-09-12 B2 状态块实板证据
+
+- `probe_b2_state.tcl` 在新 bitstream 上成功执行（XSCT exit `0`）。`0x40430000` 返回 `STATUS=1`，说明 AXI-Lite 状态块处于可访问、非复位状态。
+- 计数器读数：`command 658/658`、`sample 8/8`、`response 1/1`、`result 10/1`；与 packet smoke 的 634 model words、19 mask words、fence 和 result 终端标记相互印证，但不代表多 packet 或异常路径已验证。
+- fence snapshot 有效，八槽原始值为 `0x00000292, 0x00000292, 0, 0, 1, 0, 0, 0`；按 `b2_npu_packet_adapter.sv` 的拼接顺序，这是 fence 接受时锁存的历史快照，不应与 probe 结束时实时计数混写。
+- `0x01008000` 旧软件状态区在 packet smoke 中未初始化，probe 返回的非零值属于未定义/残留内容；后续必须用专用软件或错误矩阵 runner 初始化并校验该区域，才能关闭 B2-08/B2-09。
+
+## 2026-09-12 文档一致性初始发现
+
+- 当前可靠基线是 HEAD `88bec9e9`、packet smoke `PASS`、`0x40430000` 状态读取部分通过；工作树仍有大量未提交的实现和文档改动，不能称为 clean release。
+- `WORKFLOW_STATE.md` 已更新为 `B2_08_BOARD_READ_PARTIAL`，但其他历史段落和 `task_plan.md` 仍保留旧的 pending/blocked 状态。这些历史记录可以保留，必须明确其时间和非当前属性。
+- 当前首次动态剪枝 A/B 的必要前置条件应收敛为：传统 NPU 基线可复现、固定向量结果一致、mask 控制有效、周期/活动/功耗可测。B2 全量异常矩阵和正式证据包属于发布门，不应继续阻塞首次 A/B 实验。
+- `WORKFLOW_STATE.md` 顶部 token 曾写成物理门和状态读取通过，但紧随其后的 2026-09-11 正文仍把 `WNS=-0.030 ns` 失败构建称为“最新完整重建”；本轮已在顶部加入 2026-09-12 当前基线，并明确该段为历史记录。
+- `docs/planning/TODO.md` 顶部状态仍停在 2026-09-11 和旧提交/旧 WNS；B2-GATE、B3-00 仍按“B2 完成后才能接 NPU”排序，而现实中 packet-NPU 已接入并通过实板合法路径。应把 B2 剩余项改为鲁棒性/发布门，把首次固定向量与剪枝 A/B 设为当前实验主线。
+- `README.md` 同时把 Pulse-Mini 列为活动代码，又声明 Pulse-Mini 已整体移入 `archive/legacy/`；实际根目录仍保留 Pulse-Mini RTL、runner 和测试。本轮已改成“候选/历史支线冻结”，并保留根目录文件以避免误删用户成果。
+- `task_plan.md`、`findings.md`、`progress.md` 合计已超过 700 KB，内容主要是按日期追加的历史日志。本轮保留它们作为审计记录，并新建短小的当前状态入口，避免继续从长日志推断现状。
+# 2026-09-12 B3-MVP 可观测差距
+
+- 现有 `b2_npu_status_probe.v` 已对外提供四流 accepted/completed、fence snapshot、累计 execute/skip；COM15 已有 `592/0` 和 `296/296` 实板读回。
+- core 已有 `active_mask_epoch` 和 `mask_staging_open`，但 wrapper/packet adapter/顶层/状态探针未完整导出。
+- 当前未见每样本 NPU 周期寄存器；`execute_group_count`/`skip_group_count` 是自复位以来的累加值，不能替代单样本周期。
+- 当前 `host_error` 是 sticky bit，不是 B3-03 需要的聚合错误数。
+- 当前没有明确的 dense/full-open/static/live 实验模式寄存器；需先核对 Host 现有模式选择方式，避免为了观测额外发明第二套控制协议。
+- 按新 TODO，B3-03 保留聚合错误计数；完整错误矩阵和首错 sample ID 延后到 B3-12。
+- Host 已通过 `application_mode` 和分立 ELF 区分 `b3_dense/b3_full_open/b3_bypass/b3_static_mixed`；当前 NPU 硬件中 dense/full-open 都表现为全开 mask，static/live 都表现为非全开 mask，无法仅从当前 mask 无歧义推断实验标签。
+- B3-MVP 不为模式标签新增公开控制协议：Host run manifest 记录实验模式，硬件状态块记录可验证的运行状态。B3-09 真实接入 ENeuron 后再由该路径驱动 live 状态，不允许 Host 固定 mask 冒充。
+- `pending_mask_epoch` 应直接反映已发布但未在下一样本边界激活的 epoch；当无 pending mask 时返回 0，另用 staging-open 状态保留“尚在装载”与“已提交待生效”的区别。
+- 每样本周期冻结为纯 NPU compute 窗口：第 8 个 sample beat 被 core 接受后启动，最后一个 logit 写回并使 result 输出可用时锁存。该值不包含 DMA、packet 封装、result backpressure 或 UART 时间。
+- core 锁存周期已与原 V2 testbench 外部计数逐场景一致：全开 `2494`、关闭两组 `2488`、全关 `718`、只关闭一组 `2491`。这些是计算周期，不是端到端延迟。

@@ -1,0 +1,23 @@
+﻿{
+    "schema_version":  1,
+    "generated_at":  "2026-09-12T13:13:15.8148991Z",
+    "status":  "PASS",
+    "application_mode":  "b3_live_eneuron",
+    "terminal_marker":  "B3_LIVE_ENEURON_PASS",
+    "git_head":  "fe25a7081f6a93e9d63c888ea581dc5595d84b4a",
+    "port":  "COM15",
+    "usb_vid":  "1A86",
+    "usb_pid":  "7523",
+    "baud":  115200,
+    "bitstream_sha256":  "5C6EBC07BEB4BAE83F5DDD1870AD2E4F53CCF56B244AE7577186C8398C910A88",
+    "xsa_sha256":  "862883742E77E48C566FC49CC14746BC70830E27C894BDF948085C534177A614",
+    "elf_sha256":  "7A1FFEB27F61089433E7989C0963BFCB4FFB41AF617146A02B79B11D472CA9A5",
+    "xsct_exit_code":  0,
+    "jtag_target_unavailable":  null,
+    "xsct_program_pass":  true,
+    "xsct_download_pass":  true,
+    "uart_pass":  true,
+    "uart_terminal_marker":  "PASS",
+    "uart_reconnects":  0,
+    "uart_log_sha256":  "2649338DA25A82C632EF49F6D71A13FAD630B45EA5A33164AAF2BF6345B151AA"
+}

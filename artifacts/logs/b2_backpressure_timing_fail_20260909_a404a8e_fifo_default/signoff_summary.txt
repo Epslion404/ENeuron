@@ -1,0 +1,10 @@
+B2_BUILD_HEAD=a404a8efe72babce623651dc7c6a04501e2713e6
+B2_PART=xc7z020clg484-2
+B2_TOP=design_1_wrapper
+B2_DMA_MODE=SIMPLE_POLLING
+B2_DMA_SG=0
+B2_DMA_STREAM_WIDTH=32
+B2_DMA_MEMORY_WIDTH=64
+B2_DMA_LOOPBACK=MM2S_TO_S2MM_DIRECT
+B2_BITSTREAM=D:/Documents/Code/ENeuron-board-b0/boards/hellozynq/b2_hw/build/hello_zynq_b2.bit
+B2_XSA=D:/Documents/Code/ENeuron-board-b0/boards/hellozynq/b2_hw/build/hello_zynq_b2.xsa

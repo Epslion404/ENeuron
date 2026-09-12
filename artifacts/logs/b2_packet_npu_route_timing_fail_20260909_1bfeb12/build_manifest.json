@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-09-09T23:20:01Z",
+  "git_head": "1bfeb1289bf251f2f4c7c20e4b6e0b225fcdc846",
+  "part": "xc7z020clg484-2",
+  "top": "design_1_wrapper",
+  "npu_clock_hz": 200000000,
+  "build_status": "ROUTE_BIT_XSA_PASS_TIMING_FAIL",
+  "timing": {
+    "wns_ns": -2.75,
+    "tns_ns": -8221.926,
+    "whs_ns": 0.053,
+    "ths_ns": 0.0,
+    "tns_failing_endpoints": 8788
+  },
+  "route_errors": 0,
+  "drc_hard_errors": 0,
+  "critical_path": "egress/response_mem BRAM output -> egress/crc_state",
+  "critical_path_data_delay_ns": 7.64,
+  "critical_path_logic_levels": 8,
+  "artifacts_sha256": {
+    "timing_impl.rpt": "7ed85fb78da8d6a0842824337875ce7a897a9fad4f3954345420fc4be186e4d7",
+    "route_status_impl.rpt": "66f81db21dd7aaf051f7db4ad6386a4ca8d6222addafe83654f92e2d64760f47",
+    "drc_impl.rpt": "f78719373aaf2c4a84e80544c78b158b597a0042fb19c5051842fed5cb6f8c6e",
+    "utilization_impl.rpt": "056a1dbb3b0c2d09ccad63903f59f41d6f94f3de4afeae0ab55e13a486805ae3",
+    "vivado_run.log": "4edee4a234e6d7a4f6818fb44477136ef388f757d0b20738df444ae538399d3d",
+    "signoff_summary.txt": "1c86c4d4fccd1b322288c469c72b7538347f3a8c4aa4e74e549fe83b3fd4e33b"
+  }
+}

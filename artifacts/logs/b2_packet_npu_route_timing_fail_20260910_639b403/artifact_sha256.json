@@ -1,0 +1,10 @@
+{
+  "hello_zynq_b2.bit": "5b1b0f39bba461a14ff2815adcecc55788265a4aefd85c42d250f7be18cb1f6c",
+  "hello_zynq_b2.xsa": "6adb88f530abbbeb4aff068355df10d20bde25f7d378a4fed148ecedde2ff89f",
+  "timing_impl.rpt": "82c22b35ef16f6651841bc3aafcc2413d6b2add32eefcb969586edfb0c0d7bf0",
+  "route_status_impl.rpt": "ab7f828788b3738c2ebe6f722e6410c4cdcdd9ae75642084c745294aa1c82e90",
+  "drc_impl.rpt": "9bed58c79aaaf3a38e54b8d40c263f18bb3fe720d78201b3102565dd3160c8ca",
+  "utilization_impl.rpt": "2a285ccf0c3a989ea31f42669728917e26a6b57344bce06f1e3e8a3d418a2433",
+  "vivado_run.log": "71acb1d8dca89ad42b62e904335008cdf77458de9c40bf43f6234124b9af7d39",
+  "signoff_summary.txt": "e9963347f0d5fc3326ceb03b59a3531d1cf0e4d0e13377abe70e959c6989d4ba"
+}

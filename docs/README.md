@@ -35,6 +35,7 @@
 
 - [HelloZynq B0 实板 smoke 报告](reports/HELLOZYNQ_B0_SMOKE_2026-09-07.md)
 - [HelloZynq B1B UART与低地址DDR实板报告](reports/HELLOZYNQ_B1B_UART_DDR_2026-09-08.md)
+- [HelloZynq B2 DMA 实板报告](reports/HELLOZYNQ_B2_DMA_2026-09-09.md)
 - [ENeuron 1.0 发布说明](reports/RELEASE_1.0.md)
 - [Vivado/XSim 局部剪枝仿真报告](reports/SIMULATION_REPORT.md)
 - [局部剪枝 NP4/NP5 RTL](reports/LOCAL_PRUNE_RTL_REPORT.md)

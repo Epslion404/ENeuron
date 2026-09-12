@@ -1,17 +1,52 @@
 # 核心领域概念
 
-当前主线（2026-09-08）：部署目标为 `xc7z020clg484-2`，聚焦 NPU + ENeuron 动态剪枝。`archive/legacy/` 不参与日常门；旧 `xc7z020clg400-1` 的 NP7/T3 物理证据仅作历史参考。B1 高地址 DDR、PHY、UDP 属于板卡资格支线，完整 `B1-GATE` 仍未关闭，但不阻塞低地址容量满足条件下的 NPU MVP。CH340 按 `VID_1A86:PID_7523` 识别，COM10 不是固定合同。当前活动分支为 `codex/b1b-high-ddr-board-repro`、校验基线 HEAD=`ef0495b`；COM6/COM7 蓝牙串口排除。
+> generated_by: nexus-mapper v2 / manual synthesis
+> verified_at: 2026-09-12
+> provenance: live tree=`D:/Documents/Code/ENeuron-board-b0`，分支 `codex/b1b-high-ddr-board-repro` / PR #88。bitstream RTL 身份 `be84596`。`D:/Documents/Code/ENeuron` 不是当前 live tree。证据 `artifacts/logs/b3_mvp_20260912_be84596/`。
 
-- `ACTIVE_CONTRACT_HIERARCHY`：当前阶段合同为 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`；`docs/planning/TODO.md` 的 P16 段、`docs/planning/NPU_PRUNING_TODO.md` 和 `docs/planning/NPU_PRUNING_NP7_TODO.md` 为关联合同。`workflow_resume` 统计为 `82/10/0=92`。
+## 当前权威概念边界（2026-09-12，B3-MVP-GATE 已关）
+
+器件 `xc7z020clg484-2`。live tree 是本工作树 / PR #88，不是 `D:/Documents/Code/ENeuron`。B3-MVP-GATE 已关：组级 `group_4way` live-ENeuron 正确，局部 NPU 周期 dense 2494 → gated 1606（差值 888 cycles）。pending epoch 来自 `mask_state==MASK_PUBLISHED`，不是 `mask_valid`。`B3-SPEED` 已关（墙钟分段，888 cycle 被系统路径掩盖）。下一日常门是 `B3-POWER`。严格连接级 `2:4` 是结构实验，不是加速硬门。不可声称网口加速、测得功耗、B2-GATE。
+
+- `B3_MVP_GATE_PASS`：同一份集中 Vivado 2024.1 bitstream（RTL `be84596`，200 MHz FCLK0）上关闭 B3-04/09/11/13/14。WNS=+0.045 ns，TNS=0，WHS=+0.036 ns，THS=0，route/DRC hard errors=0，DSP48E1=4。bit SHA-256=`0ecbe76274c39418f2a60a88358d3ff6f09f5a2ed73a44a3a419c34eb91d3a11`，XSA SHA-256=`135d979d61c629922ee5419e51dd97ef045d9bab79930432816d09f109291d1a`。只可声称 `group_4way` 动态剪枝正确性 + 局部 NPU 周期差值 888 cycles。
+- `B3_SPEED_PASS`：COM15 同源 bit 上 dense/full-open/static/live 已分开 NPU/PS/DMA/Host UART。888 cycle ≈ 4.4 µs，小于 DMA ~60 µs 和 UART 数十毫秒。`claim=local_npu_cycle_delta_only`。证据 `artifacts/logs/b3_speed_20260912_be84596/`。
+- `PENDING_EPOCH_FROM_MASK_PUBLISHED`：公开 `pending_mask_epoch` 必须来自 `mask_state==MASK_PUBLISHED`。`mask_valid` 只表示已在样本首 beat 激活；commit 后、下一样本前它仍可为 0。B3-11 hold：MASK_COMMIT 后 `active=0 pending=1`；样本后 `active=1 pending=0`。
+- `STATUS_BLOCK_0x40430000_FROZEN`：AXI-Lite 只读状态块基址 `0x40430000`。0x00-0x4C 不变；0x50 runtime_status；0x54/0x58 active/pending mask epoch；0x5C last NPU compute cycles；0x60 protocol errors。写请求完成握手并返回 `SLVERR`，不修改状态。
+- `B3_LIVE_ENEURON_HOST_GREEN / B3_09_BOARD_PASS`：Host 路径由 `fe25a70` 接通；板级 live 已在 `be84596` bitstream、COM15 上关闭。`eneuron_group4way_live.py` 用 ENeuron S2、gain=1，把每四个 NPU 组当 meta-neuron，量化 0..3 后保留 2 组。live logits=`165,-18,14,0,0,0,0,0,0,153`，execute/skip=`296/296`，`decision_source=live_eneuron_s2`。不是 B3-08b。
+- `LIVE_TREE_PR88`：当前权威工作树是 `D:/Documents/Code/ENeuron-board-b0` 上的 `codex/b1b-high-ddr-board-repro` / PR #88。不得把 `D:/Documents/Code/ENeuron` 写成 live tree。
+- `DIRTY_WORKTREE_NOT_CLEAN_RELEASE`：`be84596` hw_build_manifest 记录 `git_worktree_clean=false`。下载/签核物理身份是 `be84596`，不得把 dirty tree 回写成 clean release。
+
+B3-02 共享固定向量合同：`tools/repro/b3_fixed_vector_manifest.json` 是 Python loader 与 Host PowerShell/C 头文件生成的单一来源；合同测试共 `6 passed`，因此 B3-02 已关闭。当前冻结 634-word 模型、8-beat 输入、19-word `group_4way` mask 与期望输出，足以进入保存当次产物身份的 `B3-MVP-GATE`；B3-01 的全量发布身份冻结与严格连接级 `2:4` 属于 `B3-STRICT-GATE`。
+
+B3-08a 组级静态 mixed mask 实板子门（2026-09-12）：提交 `73b12c3` 的 `b3_static_mixed` 在同一物理通过 bit/XSA、COM15 上通过，run `20260912T102046Z`，manifest 为 `boards/hellozynq/b2_sw/build/73b12c30baf1507876c6bff01059a2c28c919a8d/direct/runs/20260912T102046Z/run_manifest.json`。结果 logits=`74,-18,14,0,0,0,0,0,0,114`，`fence_snapshot_valid=1`，592 个 `group_4way` 组中 execute/skip=`296/296`。该证据关闭 B3-08a；严格连接级 `2:4` 延后到 STRICT。B3-09 板级 live 已由 `be84596` 关闭。
+
+B3 门禁分层：`B3-MVP-GATE` 已关。`B3-STRICT-GATE` 再做严格连接级 `2:4`、10000 样本和完整恢复；`B4-RELEASE-GATE` 才覆盖网口端到端与外部功耗。B2-GATE 是发布门，仍未关闭。
+
+B3 execute/skip 计数器物理状态（2026-09-12）：第三次 `route_design -directive Explore` 加既有 post-route `AggressiveExplore` 的构建绑定 HEAD `c3a50eb`，在 `xc7z020clg484-2`、200 MHz 下通过物理硬门：`WNS/TNS=+0.008/0 ns`、`WHS/THS=+0.036/0 ns`、setup/hold 失败端点为 0、route errors=0、DRC hard errors=0、DSP48E1=4；bit/XSA SHA-256 分别为 `5c6ebc07…c910a88`/`86288374…177a614`。该 bit/XSA 具备下载资格，但尚未完成实板 execute/skip 读回，B3-06/B3-07 仍不关闭，dense 期望为 `592/0`。
+
+B2-08 状态块覆盖（2026-09-12）：已提交身份不是未提交工作树。packet smoke 与部分状态读回绑定历史 HEAD `88bec9e`；计数器物理/实板绑定 `c3a50eb` bit/XSA。当前仓库 HEAD=`fe25a70`。工作树仍含未提交 status probe / 计数器 RTL，不得写成已签核源码身份。COM15 实板读回 command/sample/response/result=`658/658`、`8/8`、`1/1`、`10 beats/1 packet`，fence snapshot valid。B3-00/06/07/08a 已关闭；B3-09 实板、完整 B2-08 ledger、B2-GATE 仍未完成。
+
+当前摘要校正（2026-09-12）：仓库已提交 HEAD=`fe25a70`，P16 当前活动未完成项以脚本实时输出为准。当前 packet-NPU 200 MHz routed 基线和合法 packet path 已通过；dense/full-open/bypass 与 B3-08a 组级 static mixed 已有实板证据。B3-09 Host 已接通，实板 ELF/JTAG 未关闭。完整 B2-06～B2-10、B2-GATE 和 live-ENeuron 实板 A/B 仍未完成。后文 `f070577`/`88bec9e` 只是历史证据身份。
+
+当前主线（2026-09-12）：部署目标为 `xc7z020clg484-2`，聚焦板上 packet-NPU + ENeuron 动态剪枝。`archive/legacy/` 不参与日常门；旧 `xc7z020clg400-1` 的 NP7/T3 物理证据仅作历史参考。B1 高地址 DDR、PHY、UDP 属于板卡资格支线，完整 `B1-GATE` 仍未关闭，但不阻塞低地址 MVP。当前主线是把 `b3_live_eneuron` ELF 送到现有通过物理门的 bit/XSA 上关闭 B3-09 实板，再补 epoch 与小集合 A/B；B2-06～B2-10/B2-GATE 发布证据并行补齐。未提交 status probe / 计数器 RTL 不是签核源码身份。
+
+状态更新（2026-09-12）：mask-scan 优化构建绑定 `0f71f49`，提交态 packet-NPU 物理基线绑定 `97398bf`/`88bec9e` 的 bit/XSA 身份；后续 packet board smoke 已完成。仓库提交 HEAD 现为 `fe25a70`。B2 packet-NPU 适配器、sample/result E2E、八计数器/fence 快照和 `0x40430000` 状态块已有功能/实板部分读回，但工作树中未提交的 status probe / 计数器 RTL 不得写成已签核源码身份。实板合法路径和部分读回不是完整 B2-GATE 或 live-ENeuron 板级通过。
+
+- `ACTIVE_CONTRACT_HIERARCHY`：当前阶段合同为 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`；`docs/planning/TODO.md` 的 P16 段、`docs/planning/NPU_PRUNING_TODO.md` 和 `docs/planning/NPU_PRUNING_NP7_TODO.md` 为关联合同。P16 当前活动未完成项为 `59`；当前主线先恢复 B2-08 状态块拓扑的 200 MHz setup 并完成板级读回，再推进 B2-06～B2-10 与 B2-GATE；B2-PHY 已通过。
 - `B1_06B6_UART_BASELINE_PENDING`：当前先按 VID/PID 恢复 CH340 UART 接收基准；此前诊断停在 READY 等待 GO，`command=0`、`completed_accesses=0`，尚未进行 DDR 访问。执行链固定为 B1-06B6 UART 基准 → B1-06B7 OCM 高地址最小复现；B1-06B7 高地址探针必须以后续 UART 基准通过为前提。
 - `B1_06B6_COM10_PASSIVE_LISTEN_NO_BYTES`：2026-09-08 按 `VID_1A86:PID_7523` 对 COM10 以 115200 8N1 监听 10 秒，读取 0 字节，未见 `ENEURON_B1B_BEGIN`、`ALIVE` 或 `PASS`；未下载 bitstream/ELF、未发送 GO，DDR access=0。该观察保持 `B1-06B6_UART_BASELINE_PENDING`，不是 DDR 失败证据。
 
 generated_by: nexus-mapper v2 / manual synthesis
-verified_at: 2026-09-08
-provenance: NP4B/NP6/NP7 TODO、工作流状态与 RTL 文件；集成边界来自审核材料包
+verified_at: 2026-09-12
+provenance: Git HEAD `fe25a70`、NP4B/NP6/NP7 TODO、工作流状态与已提交 Host/RTL 文件；未提交 RTL 排除在签核源码身份之外
 
 - `B1A_HW_DEFINITION_COMPLETE`：当前身份为`29edf6a...`，UART0使用Bank 33的V14 RX/V15 TX、LVCMOS33并已由最终I/O确认FIXED；bitstream/XSA为`1f98e949...bc5f6`/`ed4a2ff...d417b`。该状态本身不表示整个B1-GATE通过。
 - `B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DDR_PENDING`：`bare-metal + lwIP`路线已批准；固定SW/HW/bitstream/XSA/ELF在三次完整断电后通过外置CH340 UART协议和低地址1 MiB DDR九阶段。此前`0x10000000`异常未关闭，不得写成整片DDR、B1B或B1-GATE通过。
+- `B2_BACKPRESSURE_FAIL_CLOSED_PROVEN / HISTORICAL_B2_03_B2_05_PENDING`：提交 `e26c7c1` 的旧配置 `0x04000201` 含 period=0；`20260909T063702Z` 的 64/64 PASS 伴随 stall=0，不能作为背压证据。加入零 stall 拒绝后的 `20260909T065258Z` 返回总状态/背压状态 FAIL、`backpressure_failed=1`，证明 fail-closed 生效。该条目的 B2-03/B2-05 pending 是历史时点；当前 packet-NPU 已有合法路径 smoke，但 B2-GATE 与 ENeuron A/B 未关闭，仍不得报告剪枝加速或功耗收益。
+- `B2_AXI_VALID_HOLD_FIX_BUILD_BOARD_UART_JTAG_PASS`：当前工作树使用 `0x04030201`，在首个输入后启动 phase，并在已公开 VALID 等待 READY 时冻结 phase；六个 B2 合同测试文件 51/51 通过。最终 Vivado 构建 WNS/WHS=`+0.017/+0.014 ns`；正式 run `20260909T105109Z` 绑定 HEAD `f7f01b0` 与 ELF=`dfe8088a…9082d0`，UART/JTAG 均 PASS，受控背压 `64/64`、failed=0、stall_cycles=83082、S2MM STALL=3。连续回绕切片已另行 BOARD_PASS；B2-03/B2-04/B2-05/B2-GATE 仍待错误/复位恢复和更完整逐帧 PL 观测。
+
+- `B2_CONTINUOUS_WRAP_BOARD_PASS`：提交 `69ed289` 已加入 256 帧连续回绕切片；正式 run `20260909T105109Z`（HEAD `f7f01b0`）在目标板完成 `256/256` 帧、64 个 64-byte slot、`rollovers=3` 及首末地址核对，bit/XSA/ELF 身份已绑定。该切片通过不等于 B2-03/B2-04/B2-05/B2-GATE 整体关闭，错误/复位恢复和更完整逐帧 PL 观测仍待完成。
+- `B2_RECOVERY_BOARD_PASS`：recovery run `20260909T110436Z`（HEAD `f7f01b0`）在目标板完成 UART/JTAG/XSCT 恢复，`jtag_recovery_status=2`，timeout/reset/passed/failed=`1/1/1/0`，sequence=`10329`、CRC32=`0xD3E3C978`；manifest SHA-256=`46833A…0922C`，recovery ELF=`f2706099…e0363`，bit/XSA 身份与连续回绕 run 一致。该切片为 `BOARD_PASS`，但 B2-GATE 仍未关闭，间歇/ready 恢复、错误注入和更完整逐帧 PL 观测仍待完成。
 
 - `TICK`：推进一个样本或网络时刻。
 - `OBSERVE`/`evidence`：读取已提交学习证据，不读取 live 工作副本。
@@ -36,7 +71,8 @@ provenance: NP4B/NP6/NP7 TODO、工作流状态与 RTL 文件；集成边界来�
 - `B0_COMPLETE`：当前 bitstream 在同一 target/device 上完成两次program和两次 `PL_LED1/P20` 长窗口测量，中间由JTAG不可访问、可访问器件数0和Vivado `No devices detected`证明完整断电。两次10周期为 `13.42 s`、`13.4 s`，均通过冻结窗口；两次三项DONE均为1且错误位为0，因此B0-GATE通过。
 - `P16_B0_COMPLETE / FASTLANE_V1 / B1B_HIGH_DDR_PENDING`：B0已由PR #69进入main。B1拆为B1A/B1B/B1C小PR，按改动运行定向门并复用身份未变的Vivado证据；中间合并不等于B1-GATE通过。当前先关闭B1B高地址DDR边界，再进入B1C。
 - `HOST_STATIC_2OF4`：Host 重放冻结的合法 `2:4` mask，用于验证 NPU 门控执行器、mask 位序、epoch 和执行/跳过组计数；不是 ENeuron 自动决策。
-- `LIVE_ENEURON`：由实板 ENeuron 证据形成组内候选和严格 `2:4` mask，经 pending bank 与 fence 原子提交，并记录证据、gain、epoch 和生效样本。只有该路径通过才可声称神经元参与局部自动剪枝。
+- `LIVE_ENEURON`：由当前样本 ENeuron 证据形成组内候选 mask，经 pending bank 与 fence 原子提交，并记录证据、gain、epoch 和生效样本。MVP 使用 `group_4way`；STRICT 才扩展严格连接级 `2:4`。只有实板路径通过才可声称神经元参与局部自动剪枝。Host 合同通过不等于板级通过。
+- `LIVE_ENEURON_GROUP_4WAY_HOST`：提交 `fe25a70` 的 Python/C 现场决策；mask word1=`0x33393335`，logits 与 dense 相同。这是 Host 合同，不是 B3-09 实板关闭，也不是 B3-08b。
 - `T1_NEXT_MINIMAL_SET`：T1-02、T1-06 与 T1-12 已从执行集移出；剩余为 T1-09 的 TLAST 外层 shim/N-A 裁定。若增加外层 shim，需独立验证改变、提前或缺失 TLAST 不改变完整核心结果；若当前 DUT 明确不暴露 TLAST，则记录 N/A 裁定，不得伪造 T1 核心通过。
 - `RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN`：资源裁剪候选已完成风险审查，但第一次完整端到端运行成功前不得实施；当前优先以真实 AMD XPM/xsim 和 XC7Z020 OOC 完成 T3 证据，保持功能、CDC、原子性和诊断基线不变。
 - `B-V1+V2`：NP7 已批准的单槽弹性流水合同，允许零路径同拍完成及非零结果退出与下一事务接受重叠；其收益只由逐拍账本证明。
@@ -44,3 +80,4 @@ provenance: NP4B/NP6/NP7 TODO、工作流状态与 RTL 文件；集成边界来�
 - `PR Gate`：始终执行的汇总状态；只允许被选专项门 `success` 或 `skipped`，任何失败均拒绝合并。分支保护应只要求该状态。
 - `SINGLE_CLOCK_RTL_DECISION_V2`：OF6 后的单时钟 RTL 裁定修订稿。V1 审计暴露了统一命令流中的双 commit 假竞争、未定义 `model_epoch`、样本 framing/首拍 mask 回滚边界、idle 槽位遗漏及过弱随机门槛；V2 固定 8/10 beat 内部计数、删除 `model_epoch`、按单命令流串行化配置、补全 idle 槽位，并恢复 20 个固定 seed × 100 样本门槛。管理员已批准，状态为 `RTL_DESIGN_CONTRACT_V2_APPROVED`；“仅允许 RED/端口骨架，先过 Python/Icarus 逐拍验证，再申请 Vivado”是当时的历史准入规则，当前已推进到 OOC setup 失败与时序修复审核阶段。
 - `RTL_SKELETON_IN_PROGRESS`（历史实现阶段）：V2 协议的渐进 RTL 阶段。模型/流、mask epoch、控制三条切片已通过 Icarus；控制切片加入 abort、clear 和严格 idle freeze，冻结仍允许推理但拒绝配置/clear。该状态不代表真实 mask 已控制 MAC，也不包含完整随机逐拍或 Vivado 证据；当前已由 PR #54 的真实计算/随机门和 PR #55 归档的 `VIVADO_OOC_SETUP_FAIL` 证据覆盖。
+- `B2_MISSING_TLAST_PASS`：run `20260909T133721Z`（HEAD `b2332a0`）完成 missing-TLAST 错误注入与恢复，observed=`1`，dma_error/reset/recovered/failed=`1/1/1/0`，sequence=`10332/10333`，TLAST=`0/0`、beats=`16/16`；UART/JTAG/XSCT PASS，B2-06/B2-08/B2-GATE 仍未完成。

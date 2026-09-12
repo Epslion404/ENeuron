@@ -51,6 +51,9 @@ module tb_npu_eneuron_single_clock_compute;
     logic result_ready = 1'b1;
     wire runtime_idle, model_valid, mask_valid, infer_frozen;
     wire [31:0] state_clear_count;
+    wire [31:0] last_compute_cycles;
+    wire [31:0] active_mask_epoch;
+    wire [31:0] pending_mask_epoch;
 
     integer clock_count = 0;
 `ifdef TIMING_REPAIR_CONTRACT
@@ -102,7 +105,8 @@ module tb_npu_eneuron_single_clock_compute;
         .result_data(result_data), .result_sample_id(result_sample_id), .result_mask_epoch(result_mask_epoch),
         .result_valid(result_valid), .result_ready(result_ready), .runtime_idle(runtime_idle),
         .model_valid(model_valid), .mask_valid(mask_valid), .infer_frozen(infer_frozen),
-        .state_clear_count(state_clear_count)
+        .state_clear_count(state_clear_count), .last_compute_cycles(last_compute_cycles),
+        .active_mask_epoch(active_mask_epoch), .pending_mask_epoch(pending_mask_epoch)
     );
 
     function automatic logic [31:0] model_word(input integer index);
@@ -247,6 +251,9 @@ module tb_npu_eneuron_single_clock_compute;
             if (observed_compute_cycles != expected_compute_cycles)
                 $fatal(1, "compute cycle mismatch got=%0d expected=%0d",
                        observed_compute_cycles, expected_compute_cycles);
+            if (last_compute_cycles != expected_compute_cycles)
+                $fatal(1, "latched compute cycle mismatch got=%0d expected=%0d",
+                       last_compute_cycles, expected_compute_cycles);
         end
     endtask
 
@@ -317,7 +324,9 @@ module tb_npu_eneuron_single_clock_compute;
 
             if (monitor_initialized && dut.lane_sum_latched !== previous_lane_sum &&
                 previous_compute_state != COMPUTE_L0_GROUP_EXECUTE &&
-                previous_compute_state != COMPUTE_L1_GROUP_EXECUTE)
+                previous_compute_state != COMPUTE_L1_GROUP_EXECUTE &&
+                previous_compute_state != COMPUTE_L0_GROUP_COMMIT &&
+                previous_compute_state != COMPUTE_L1_GROUP_COMMIT)
                 $fatal(1, "lane_sum_latched changed outside EXECUTE previous_state=%0d",
                        previous_compute_state);
 
@@ -505,7 +514,7 @@ module tb_npu_eneuron_single_clock_compute;
         // hidden31 的最后一组为 60，output9 最后一组得到 60-1=59。
 `ifdef TIMING_REPAIR_CONTRACT
 `ifdef TIMING_REPAIR_V2_CONTRACT
-        start_contract(592, 512, 80, 1902);
+        start_contract(592, 512, 80, 2494);
 `else
         start_contract(592, 512, 80, 1860);
 `endif
@@ -515,11 +524,19 @@ module tb_npu_eneuron_single_clock_compute;
             $fatal(1, "ready/idle asserted while compute is active");
         // 当前样本计算期间并发发布下一 mask；它只能影响下一样本。
         publish_mask(32'd1, 1);
+        if (active_mask_epoch !== 32'd0 || pending_mask_epoch !== 32'd1)
+            $fatal(1, "published mask epoch state mismatch active=%0d pending=%0d mask_valid=%0d published=%0d",
+                   active_mask_epoch, pending_mask_epoch, mask_valid, dut.mask_published_epoch);
+        if (mask_valid !== 1'b0 || dut.mask_state !== 2'd3)
+            $fatal(1, "pending must come from MASK_PUBLISHED, not mask_valid; mask_valid=%0d mask_state=%0d",
+                   mask_valid, dut.mask_state);
+        $display("B3_11_PENDING_VISIBLE active=%0d pending=%0d mask_valid=%0d mask_state=%0d",
+                 active_mask_epoch, pending_mask_epoch, mask_valid, dut.mask_state);
         check_result(32'h101, 32'd0, 32'sd137, 32'sd59);
 `ifdef TIMING_REPAIR_CONTRACT
         check_contract();
 `ifdef TIMING_REPAIR_V2_CONTRACT
-        start_contract(590, 511, 79, 1898);
+        start_contract(590, 511, 79, 2488);
 `else
         start_contract(590, 511, 79, 1856);
 `endif
@@ -527,6 +544,10 @@ module tb_npu_eneuron_single_clock_compute;
 
         // 下一样本首 beat 激活新版本：logit0=-117，output9 只剩 bias=-1。
         send_sample(32'h102);
+        if (active_mask_epoch !== 32'd1 || pending_mask_epoch !== 32'd0)
+            $fatal(1, "published mask epoch did not activate atomically at sample boundary");
+        $display("B3_11_EPOCH_OVERLAP_PASS active=%0d pending=%0d",
+                 active_mask_epoch, pending_mask_epoch);
         check_result(32'h102, 32'd1, -32'sd117, -32'sd1);
 `ifdef TIMING_REPAIR_CONTRACT
         check_contract();
@@ -551,7 +572,7 @@ module tb_npu_eneuron_single_clock_compute;
         publish_mask(32'd3, 3);
 `ifdef TIMING_REPAIR_CONTRACT
 `ifdef TIMING_REPAIR_V2_CONTRACT
-        start_contract(591, 511, 80, 1900);
+        start_contract(591, 511, 80, 2491);
 `else
         start_contract(591, 511, 80, 1858);
 `endif
@@ -567,11 +588,7 @@ module tb_npu_eneuron_single_clock_compute;
     end
 
     initial begin
-`ifdef TIMING_REPAIR_V2_CONTRACT
-        repeat (9500) @(posedge clk);
-`else
-        repeat (9000) @(posedge clk);
-`endif
+        repeat (12000) @(posedge clk);
         $fatal(1, "watchdog: compute tracer did not finish");
     end
 endmodule

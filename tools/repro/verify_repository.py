@@ -50,16 +50,28 @@ def _run_t1() -> list[str]:
     if tools is None:
         return ["找不到 Icarus Verilog；Windows 约定路径为 C:/msys64/ucrt64/bin"]
     with tempfile.TemporaryDirectory(prefix="eneuron-repro-") as temp:
+        common_sources = ["xpm_fifo_async_sim.sv", "npu_eneuron_single_clock_skeleton.sv", "npu_zynq7020_t1_wrapper.sv"]
         cases = [
-            ("tb_npu_zynq7020_t1_wrapper", "tb_npu_zynq7020_t1_wrapper.sv", "T1_PROTOCOL_SKELETON_PASS"),
-            ("tb_npu_zynq7020_t1_fifo_boundary", "tb_npu_zynq7020_t1_fifo_boundary.sv", "T1_FIFO_BOUNDARY_PASS"),
-            ("tb_npu_zynq7020_t1_fence_accept", "tb_npu_zynq7020_t1_fence_accept.sv", "T1_FENCE_ACCEPT_PASS"),
+            ("tb_npu_zynq7020_t1_wrapper", "tb_npu_zynq7020_t1_wrapper.sv", "T1_PROTOCOL_SKELETON_PASS", common_sources),
+            ("tb_npu_zynq7020_t1_fifo_boundary", "tb_npu_zynq7020_t1_fifo_boundary.sv", "T1_FIFO_BOUNDARY_PASS", common_sources),
+            ("tb_npu_zynq7020_t1_fence_accept", "tb_npu_zynq7020_t1_fence_accept.sv", "T1_FENCE_ACCEPT_PASS", common_sources),
+            ("tb_b2_packet_ingress", "tb_b2_packet_ingress.sv", "B2_PACKET_INGRESS_PASS", ["b2_packet_ingress.sv"]),
+            ("tb_b2_packet_egress", "tb_b2_packet_egress.sv", "B2_PACKET_EGRESS_PASS", ["b2_packet_bram.sv", "b2_packet_egress.sv"]),
+            ("tb_b2_npu_packet_adapter", "tb_b2_npu_packet_adapter.sv", "B2_NPU_PACKET_ADAPTER_PASS", [
+                "xpm_fifo_async_sim.sv", "npu_eneuron_single_clock_skeleton.sv",
+                "npu_zynq7020_t1_wrapper.sv", "b2_packet_ingress.sv",
+                "b2_packet_bram.sv", "b2_packet_egress.sv", "b2_npu_packet_adapter.sv",
+            ]),
+            ("tb_b2_npu_packet_adapter_e2e", "tb_b2_npu_packet_adapter_e2e.sv", "B2_NPU_PACKET_ADAPTER_E2E_PASS", [
+                "xpm_fifo_async_sim.sv", "npu_eneuron_single_clock_skeleton.sv",
+                "npu_zynq7020_t1_wrapper.sv", "b2_packet_ingress.sv",
+                "b2_packet_bram.sv", "b2_packet_egress.sv", "b2_npu_packet_adapter.sv",
+            ]),
         ]
-        for top, testbench, marker in cases:
+        for top, testbench, marker, sources in cases:
             output = Path(temp) / f"{top}.vvp"
             compile_result = _run([tools[0], "-g2012", "-Wall", "-s", top, "-o", str(output),
-                                   "xpm_fifo_async_sim.sv", "npu_eneuron_single_clock_skeleton.sv",
-                                   "npu_zynq7020_t1_wrapper.sv", testbench])
+                                   *sources, testbench])
             if compile_result.returncode:
                 return [f"{top} 编译失败:\n" + compile_result.stderr[-4000:]]
             simulation = subprocess.run([tools[1], str(output)], cwd=ROOT, text=True,
