@@ -674,7 +674,7 @@ P15 硬门：双时钟逐 beat bit-exact；reset/ready-valid/FIFO 满空无丢�
 
 - [x] B3-00：以当前 `PHYSICAL_PASS` packet-NPU bitstream/ELF/协议版本作为实验基线，冻结其 manifest；B2-GATE 继续作为发布门，不阻塞首次固定向量 A/B。首个实验门已先证明 NPU 数值计算可用，再进入剪枝收益验证。
 - [ ] B3-01：保持当前 `64→32→10`、634个模型word、8-beat样本和10-beat结果不变；冻结模型word顺序、INT8/uint4解释、bias、隐藏层饱和、样本集合、期望10-logit、预测类别和所有文件 SHA-256。
-- [ ] B3-02：生成一份可由 Python参考模型和 Host工具共同读取的黄金 manifest；每个样本至少保存 sample ID、8个输入beat、dense logits、候选 mask epoch、gated logits和预期类别，禁止手工复制两套期望值。
+- [x] B3-02：已生成 `tools/repro/b3_fixed_vector_manifest.json`，Python 通过 `b3_fixed_vector_manifest.py` 重建模型、输入、mask 和 dense/static 输出，Host 通过 `run_b2_packet_sw_build.ps1` 校验同一 manifest 并生成板端 C 头文件；样本包含 sample ID、8 个输入 beat、dense/gated logits、mask epoch、mask 数据和预期类别，禁止手工维护两套期望值。合同测试见 `test_b3_fixed_vector_manifest_contract.py`、`test_b3_fixed_vector_manifest_loader.py`。
 - [ ] B3-03：把已签核 NPU wrapper、DMA适配、周期计数器和最小可观测寄存器接入同一顶层；可观测项至少包含当前模式、active/pending epoch、接受/完成样本数、执行/跳过组数、协议错误和首错 sample ID。不得为调试修改数值语义、mask原子性或四 DSP合同。
 - [ ] B3-04：完成完整 bitstream实现，检查 Host/NPU/AXI相关时钟域 setup/hold、CDC、route、DRC、恰好4个 DSP48E1以及核心、wrapper、FIFO、DMA、packetizer分层资源；任一物理硬门失败时该 bitstream不得下载作正式测试。
 - [ ] B3-05：上板后先读取版本/能力寄存器，核对协议版本、模型规模、构建 Git SHA、bitstream标识和四 DSP配置；身份不符时拒绝装载模型和样本。

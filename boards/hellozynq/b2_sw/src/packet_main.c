@@ -7,6 +7,7 @@
 #include "xparameters.h"
 #include "xstatus.h"
 #include "sleep.h"
+#include "b3_fixed_vector_generated.h"
 
 #define TX_BUFFER_BASE 0x01006000U
 #define RX_BUFFER_BASE 0x01007000U
@@ -18,8 +19,8 @@
 #define RESET_POLL_BUDGET 500U
 #define MAGIC 0x32424E45U
 #define HEADER_WORDS 8U
-#define MODEL_WORDS 634U
-#define MASK_WORDS 19U
+#define MODEL_WORDS B3_MODEL_WORD_COUNT
+#define MASK_WORDS B3_MASK_WORD_COUNT
 #define MODEL_ID 3U
 #define MASK_EPOCH 1U
 #define GROUP_MASK_GRANULARITY "group_4way"
@@ -51,22 +52,14 @@
 #if defined(B3_BYPASS) || defined(B3_FULL_OPEN) || defined(B3_DENSE) || defined(B3_STATIC_MIXED)
 #define B3_NUMERIC_CHECK 1
 #if defined(B3_STATIC_MIXED)
-static const s32 EXPECTED_STATIC_MIXED_LOGITS[10] = {
-    74, -18, 14, 0, 0, 0, 0, 0, 0, 114
-};
+static const s32 *const expected_logits = B3_STATIC_MIXED_LOGITS;
 #else
-static const s32 EXPECTED_DENSE_LOGITS[10] = {
-    165, -18, 14, 0, 0, 0, 0, 0, 0, 153
-};
+static const s32 *const expected_logits = B3_DENSE_LOGITS;
 #endif
 
 static s32 expected_logit(u32 index)
 {
-#if defined(B3_STATIC_MIXED)
-    return EXPECTED_STATIC_MIXED_LOGITS[index];
-#else
-    return EXPECTED_DENSE_LOGITS[index];
-#endif
+    return expected_logits[index];
 }
 #endif
 
@@ -186,29 +179,7 @@ static void set_command_fields(u32 words[4], u32 opcode, u32 epoch,
 static u32 model_word_for_index(u32 index)
 {
 #ifdef B3_NUMERIC_CHECK
-    // B3 固定向量：非零 INT8 权重覆盖低层多个输入组和输出层多个通道。
-    switch (index) {
-        case 0U: return 0x0103FE01U;
-        case 1U: return 0x02FF0102U;
-        case 16U: return 0xFE0201FFU;
-        case 17U: return 0x0102FF01U;
-        case 34U: return 0x03FF0102U;
-        case 51U: return 0x01010101U;
-        case 68U: return 0x0102FF03U;
-        case 512U: return 0x00000005U;
-        case 513U: return 0xFFFFFFFDU;
-        case 514U: return 0x00000004U;
-        case 516U: return 0x00000002U;
-        case 544U: return 0x0301FF02U;
-        case 552U: return 0x01FE02FFU;
-        case 561U: return 0x01010101U;
-        case 616U: return 0x02FF0003U;
-        case 624U: return 0x00000007U;
-        case 625U: return 0xFFFFFFFCU;
-        case 626U: return 0x00000001U;
-        case 633U: return 0xFFFFFFFEU;
-        default: return 0U;
-    }
+    return b3_model_word_for_index(index);
 #else
     // 其余 word 保持零，三个非零 bias 用于确认板上确实完成了模型装载。
     if (index == 624U) return 3U;
@@ -220,16 +191,8 @@ static u32 model_word_for_index(u32 index)
 
 static u32 static_mixed_mask_word(u32 index)
 {
-    /* STATIC_MIXED_MASK_WORD：每四个组位保留前两组，属于组级候选而非 lane 2:4。 */
-    u32 bit;
-    u32 word = 0U;
-    for (bit = 0U; bit < 32U; ++bit) {
-        u32 group = index * 32U + bit;
-        if (group < 592U && (group & 3U) < 2U) {
-            word |= 1U << bit;
-        }
-    }
-    return word;
+    /* 每 bit 控制一个四权重组；该组级候选由黄金 manifest 提供。 */
+    return B3_STATIC_MIXED_MASK_WORDS[index];
 }
 
 static int validate_static_mixed_mask(void)
@@ -295,7 +258,7 @@ static u32 build_sample_frame(volatile u32 *frame, u32 sample_id,
     frame[7] = 0U;
     for (index = 0U; index < 8U; ++index) {
 #ifdef B3_NUMERIC_CHECK
-        frame[8U + index] = 0x87654321U;
+        frame[8U + index] = B3_SAMPLE_INPUT_BEATS[index];
 #else
         frame[8U + index] = 0U;
 #endif
@@ -503,7 +466,7 @@ int main(void)
 #if defined(B3_STATIC_MIXED)
         mask_word = static_mixed_mask_word(index);
 #else
-        mask_word = index == 18U ? 0x0000FFFFU : 0xFFFFFFFFU;
+        mask_word = B3_FULL_OPEN_MASK_WORDS[index];
 #endif
         if (send_command(OP_MASK_DATA, MASK_EPOCH, mask_word) != XST_SUCCESS) return XST_FAILURE;
     }

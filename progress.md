@@ -2079,6 +2079,13 @@
 - 定向 NPU/状态回归为 `25 passed`，统一 `run_b2_checks.ps1` 为 `123 passed`、T1 两门 PASS、`B2_CHECKS_PASS`。
 - 同策略独立 Vivado 2024.1 重建目录为 `boards/hellozynq/b2_hw/build_retry_20260912_pemr2/`；route、bit/XSA 均生成，但最终 timing 仍为 `WNS=-0.010 ns`、`TNS=-0.010 ns`、`WHS=+0.031 ns`、`THS=0`，唯一 setup 失败仍在 AXI DMA S2MM `sig_max_first_increment_reg[2]_replica -> sig_btt_eq_0_reg`，按 fail-closed 规则禁止上板。
 - 结论：计数器宽度切片没有恢复物理门；下一步需要针对 DMA 内部路径或更强实现策略做一次不同假设的修复，不能继续重复同策略重建。
+## 2026-09-12 B3-01/B3-02 黄金 manifest 共享读取收口
+
+- 新增 `tools/repro/b3_fixed_vector_manifest.json` 的 Python 读取器 `b3_fixed_vector_manifest.py`，可展开 634-word 模型、8 个输入 beat、19-word mask，并核对 packed model SHA-256。
+- Host 构建脚本从同一 manifest 生成 `b3_fixed_vector_generated.h`，板端 `packet_main.c` 不再维护第二套模型、输入、mask 和期望 logits 常量。
+- Python 参考模型从 manifest 重建 dense 与组级 static mixed 输出，分别得到 `165,-18,14,0,0,0,0,0,0,153` 与 `74,-18,14,0,0,0,0,0,0,114`；合同回归 `19 passed`，PowerShell 解析与 `git diff --check` 通过。
+- B3-02 已关闭。B3-01 仍保持未完成：完整文件 SHA-256、最终 clean worktree 的 bit/XSA/ELF 身份和全量冻结证据尚未补齐。
+
 # 2026-09-12 B3-08a 组级静态 mixed mask 实板门
 
 - 修正 `b3_static_mixed` 构建 manifest，使 `expected_logits` 与静态结果一致：`74,-18,14,0,0,0,0,0,0,114`；同时修正 UART marker 的 `strict_2of4_candidate` 格式化，避免把字符串按 `%u` 打印成伪随机数。

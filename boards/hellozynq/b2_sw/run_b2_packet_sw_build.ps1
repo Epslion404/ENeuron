@@ -20,12 +20,24 @@ $appRoot = Join-Path $buildRoot 'app'
 $outRoot = Join-Path $buildRoot 'out'
 $bitstream = Join-Path $repoRoot 'boards\hellozynq\b2_hw\build\hello_zynq_b2.bit'
 $xsa = Join-Path $buildRoot 'hello_zynq_b2.xsa'
+$goldenManifestPath = Join-Path $repoRoot 'tools\repro\b3_fixed_vector_manifest.json'
 $makePath = 'G:\Xilinx\Vitis\2024.1\gnuwin\bin\make.exe'
 $toolBin = 'G:\Xilinx\Vitis\2024.1\gnu\aarch32\nt\gcc-arm-none-eabi\bin'
 $gccPath = Join-Path $toolBin 'arm-none-eabi-gcc.exe'
 
-foreach ($path in @($bitstream, $xsa, $makePath, $gccPath)) {
+foreach ($path in @($bitstream, $xsa, $goldenManifestPath, $makePath, $gccPath)) {
     if (-not (Test-Path -LiteralPath $path)) { throw "Required file not found: $path" }
+}
+$golden = Get-Content -LiteralPath $goldenManifestPath -Raw | ConvertFrom-Json
+if ($golden.schema -ne 'eneuron_b3_fixed_vector_v1' -or
+    $golden.target.part -ne 'xc7z020clg484-2' -or
+    $golden.target.protocol -ne 'ENB2_PACKET_NPU_V1' -or
+    $golden.model.word_count -ne 634) {
+    throw 'B3 golden manifest target/schema/model contract mismatch'
+}
+$goldenSample = @($golden.samples)[0]
+if ($null -eq $goldenSample -or @($goldenSample.input_beats).Count -ne 8) {
+    throw 'B3 golden manifest must contain one sample with eight input beats'
 }
 $xparameters = Get-ChildItem -LiteralPath $bspRoot -Filter 'xparameters.h' -Recurse -File | Select-Object -First 1
 $libxil = Get-ChildItem -LiteralPath $bspRoot -Filter 'libxil.a' -Recurse -File | Select-Object -First 1
@@ -41,16 +53,27 @@ $modeCount = @($B3Dense, $B3FullOpen, $B3Bypass, $B3StaticMixed | Where-Object {
 if ($modeCount -gt 1) { throw 'B3Dense, B3FullOpen, B3Bypass and B3StaticMixed are mutually exclusive' }
 $applicationMode = if ($B3Bypass) { 'b3_bypass' } elseif ($B3StaticMixed) { 'b3_static_mixed' } elseif ($B3FullOpen) { 'b3_full_open' } elseif ($B3Dense) { 'b3_dense' } else { 'b2_packet_smoke' }
 $elfStem = "b2_packet_$applicationMode"
-$expectedLogits = if ($applicationMode -eq 'b3_static_mixed') {
-    @(74, -18, 14, 0, 0, 0, 0, 0, 0, 114)
-} elseif ($applicationMode -like 'b3_*') {
-    @(165, -18, 14, 0, 0, 0, 0, 0, 0, 153)
+$modeSpec = $null
+if ($applicationMode -like 'b3_*') {
+    $modeSpec = $goldenSample.modes.PSObject.Properties[$applicationMode].Value
+    if ($null -eq $modeSpec) { throw "B3 golden manifest has no mode: $applicationMode" }
+    $expectedLogits = @($modeSpec.expected_logits)
+    $maskWords = [int]$modeSpec.mask_words
+    $inputPattern = [string]$goldenSample.input_pattern
+    if ([string]::IsNullOrWhiteSpace($inputPattern)) { throw 'B3 golden manifest sample input_pattern is missing' }
+    $maskPattern = if ($applicationMode -eq 'b3_bypass') {
+        'reset default full-open; no mask commands'
+    } elseif ($applicationMode -eq 'b3_static_mixed') {
+        '0x33333333 repeated; group_4way mixed mask, strict_2of4_candidate=false'
+    } else {
+        'full-open group_4way mask'
+    }
 } else {
-    @()
+    $expectedLogits = @()
+    $inputPattern = 'all-zero repeated 8 beats'
+    $maskPattern = 'full-open group_4way mask'
+    $maskWords = 19
 }
-$inputPattern = if ($applicationMode -like 'b3_*') { '0x87654321 repeated 8 beats' } else { 'all-zero repeated 8 beats' }
-$maskPattern = if ($applicationMode -eq 'b3_bypass') { 'reset default full-open; no mask commands' } elseif ($applicationMode -eq 'b3_static_mixed') { '0x33333333 repeated; group_4way mixed mask, strict_2of4_candidate=false' } else { 'full-open group_4way mask' }
-$maskWords = if ($applicationMode -eq 'b3_bypass') { 0 } else { 19 }
 $compileDefines = @()
 if ($B3Dense) { $compileDefines += '-DB3_DENSE' }
 if ($B3FullOpen) { $compileDefines += '-DB3_FULL_OPEN' }
@@ -58,12 +81,48 @@ if ($B3Bypass) { $compileDefines += '-DB3_BYPASS' }
 if ($B3StaticMixed) { $compileDefines += '-DB3_STATIC_MIXED' }
 $objectPath = Join-Path $outRoot "packet_main_$applicationMode.o"
 $elfPath = Join-Path $outRoot "$elfStem.elf"
+$generatedHeader = Join-Path $outRoot 'b3_fixed_vector_generated.h'
 $commonFlags = @('-mcpu=cortex-a9', '-mfpu=vfpv3', '-mfloat-abi=hard')
 $env:PATH = "$toolBin;$(Split-Path -Parent $makePath);$env:PATH"
 $env:RDI_PLATFORM = 'win64'
 
+# 从黄金 manifest 生成板端只读头文件，避免 C 源码维护第二套模型/样本/mask 常量。
+$headerLines = [System.Collections.Generic.List[string]]::new()
+$goldenManifestSha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $goldenManifestPath).Hash.ToLowerInvariant()
+$headerLines.Add('#ifndef B3_FIXED_VECTOR_GENERATED_H')
+$headerLines.Add('#define B3_FIXED_VECTOR_GENERATED_H')
+$headerLines.Add(('#define B3_MANIFEST_SCHEMA_SHA256 "{0}"' -f $goldenManifestSha256))
+$headerLines.Add("#define B3_MODEL_WORD_COUNT $([int]$golden.model.word_count)U")
+$headerLines.Add("#define B3_MASK_WORD_COUNT $([int]$goldenSample.modes.b3_dense.mask_words)U")
+$headerLines.Add('static inline u32 b3_model_word_for_index(u32 index) {')
+$headerLines.Add('    switch (index) {')
+foreach ($entry in $golden.model.nonzero_words.PSObject.Properties) {
+    $value = [Convert]::ToUInt64(([string]$entry.Value).Replace('0x', ''), 16)
+    $headerLines.Add(('        case {0}U: return 0x{1:X8}U;' -f [int]$entry.Name, $value))
+}
+$headerLines.Add('        default: return 0U;')
+$headerLines.Add('    }')
+$headerLines.Add('}')
+$headerLines.Add('static const u32 B3_SAMPLE_INPUT_BEATS[8] = {')
+$headerLines.Add(('    ' + (($goldenSample.input_beats | ForEach-Object { '{0}U' -f $_ }) -join ', ') + ','))
+$headerLines.Add('};')
+foreach ($modeName in @('b3_dense', 'b3_static_mixed', 'b3_bypass')) {
+    $mode = $goldenSample.modes.PSObject.Properties[$modeName].Value
+    $logitName = if ($modeName -eq 'b3_static_mixed') { 'B3_STATIC_MIXED_LOGITS' } else { 'B3_DENSE_LOGITS' }
+    if ($modeName -ne 'b3_bypass') {
+        $headerLines.Add(('static const s32 {0}[10] = {{ {1} }};' -f $logitName, (($mode.expected_logits | ForEach-Object { '{0}' -f $_ }) -join ', ')))
+    }
+}
+foreach ($modeName in @('b3_dense', 'b3_static_mixed')) {
+    $mode = $goldenSample.modes.PSObject.Properties[$modeName].Value
+    $arrayName = if ($modeName -eq 'b3_static_mixed') { 'B3_STATIC_MIXED_MASK_WORDS' } else { 'B3_FULL_OPEN_MASK_WORDS' }
+    $headerLines.Add(('static const u32 {0}[19] = {{ {1} }};' -f $arrayName, (($mode.mask_words_data | ForEach-Object { '{0}U' -f $_ }) -join ', ')))
+}
+$headerLines.Add('#endif')
+$headerLines | Set-Content -LiteralPath $generatedHeader -Encoding ascii
+
 & $gccPath @commonFlags @compileDefines '-O2' '-g' '-Wall' '-Wextra' '-fno-tree-loop-distribute-patterns' `
-    '-I' $includeDir '-c' (Join-Path $scriptRoot 'src\packet_main.c') '-o' $objectPath
+    '-I' $includeDir '-I' $outRoot '-c' (Join-Path $scriptRoot 'src\packet_main.c') '-o' $objectPath
 if ($LASTEXITCODE -ne 0) { throw "Packet application compile failed with exit code $LASTEXITCODE" }
 & $gccPath @commonFlags "-specs=$($xilinxSpec.FullName)" "-Wl,-T,$($linkerScript.FullName)" "-L$libDir" `
     '-o' $elfPath $objectPath '-Wl,--start-group' '-lxil' '-lgcc' '-lc' '-Wl,--end-group'
@@ -83,6 +142,7 @@ $manifest = [ordered]@{
     application = $elfStem
     application_mode = $applicationMode
     protocol = 'ENB2_PACKET_NPU_V1'
+    golden_manifest = $goldenManifestPath
     input_pattern = $inputPattern
     mask_pattern = $maskPattern
     mask_words = $maskWords

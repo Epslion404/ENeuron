@@ -41,8 +41,13 @@ class B2PacketBoardContractTests(unittest.TestCase):
         source = (ROOT / "boards/hellozynq/b2_sw/src/packet_main.c").read_text(encoding="utf-8")
         for token in (
             "B3_DENSE",
+            "B3_BYPASS",
+            "B3_FULL_OPEN",
+            "B3_NUMERIC_CHECK",
             "B3_DENSE_PASS",
-            "EXPECTED_DENSE_LOGITS",
+            "B3_BYPASS_PASS",
+            "B3_FULL_OPEN_PASS",
+            "B3_DENSE_LOGITS",
             "result_logits",
             "crc32_word",
             "rx[18]",
@@ -56,16 +61,55 @@ class B2PacketBoardContractTests(unittest.TestCase):
         source = (ROOT / "boards/hellozynq/b2_sw/run_b2_packet_sw_build.ps1").read_text(encoding="utf-8")
         for token in (
             "[switch]$B3Dense",
+            "[switch]$B3FullOpen",
+            "[switch]$B3Bypass",
+            "[switch]$B3StaticMixed",
             "-DB3_DENSE",
+            "-DB3_FULL_OPEN",
+            "-DB3_BYPASS",
+            "-DB3_STATIC_MIXED",
             "b3_dense",
+            "b3_full_open",
+            "b3_bypass",
+            "b3_static_mixed",
             "expected_logits",
             "input_pattern",
+            "mask_pattern",
         ):
             self.assertIn(token, source)
 
+    def test_packet_software_build_reads_single_b3_golden_manifest(self):
+        source = (ROOT / "boards/hellozynq/b2_sw/run_b2_packet_sw_build.ps1").read_text(encoding="utf-8")
+        self.assertIn("b3_fixed_vector_manifest.json", source)
+        self.assertIn("ConvertFrom-Json", source)
+        self.assertIn("goldenSample.modes", source)
+        self.assertIn("golden_manifest = $goldenManifestPath", source)
+
+    def test_packet_host_generates_c_header_from_manifest(self):
+        build = (ROOT / "boards/hellozynq/b2_sw/run_b2_packet_sw_build.ps1").read_text(encoding="utf-8")
+        source = (ROOT / "boards/hellozynq/b2_sw/src/packet_main.c").read_text(encoding="utf-8")
+        for token in ("b3_fixed_vector_generated.h", "B3_SAMPLE_INPUT_BEATS", "mask_words_data", "Set-Content"):
+            self.assertIn(token, build)
+        self.assertIn('#include "b3_fixed_vector_generated.h"', source)
+        self.assertNotIn("static const s32 EXPECTED_DENSE_LOGITS", source)
+        self.assertNotIn("case 633U: return 0xFFFFFFFEU", source)
+
+    def test_static_mixed_mode_declares_group_mask_not_strict_lane_2of4(self):
+        source = (ROOT / "boards/hellozynq/b2_sw/src/packet_main.c").read_text(encoding="utf-8")
+        for token in (
+            "B3_STATIC_MIXED",
+            "B3_STATIC_MIXED_PASS",
+            "STATIC_MIXED_MASK_WORD",
+            "GROUP_MASK_GRANULARITY",
+            "strict_2of4_candidate",
+        ):
+            self.assertIn(token, source)
+        self.assertIn("group_4way", source)
+        self.assertIn("false", source)
+
     def test_packet_board_runner_selects_terminal_marker_from_manifest(self):
         source = (ROOT / "boards/hellozynq/b2_sw/run_b2_packet_board.ps1").read_text(encoding="utf-8")
-        for token in ("application_mode", "B3_DENSE_PASS", "terminal_marker"):
+        for token in ("application_mode", "B3_DENSE_PASS", "B3_FULL_OPEN_PASS", "B3_BYPASS_PASS", "B3_STATIC_MIXED_PASS", "terminal_marker"):
             self.assertIn(token, source)
 
     def test_changes_use_b2_board_scope(self):
