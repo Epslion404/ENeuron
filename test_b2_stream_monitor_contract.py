@@ -39,7 +39,7 @@ class B2StreamMonitorContractTests(unittest.TestCase):
             "axis_stream_probe_mm2s",
             "axis_stream_probe_s2mm",
             "dma_control_smartconnect",
-            "CONFIG.NUM_MI {3}",
+            "CONFIG.NUM_MI {4}",
             "M_AXIS_MM2S",
             "S_AXIS_S2MM",
             "S_AXI",

@@ -26,7 +26,7 @@ class B2StreamProbeContractTests(unittest.TestCase):
             "S_AXIS_S2MM",
             "0x40410000",
             "0x40420000",
-            "CONFIG.NUM_MI {3}",
+            "CONFIG.NUM_MI {4}",
         ):
             self.assertIn(token, self.bd)
         self.assertNotIn("axi_stream_monitor", self.bd)
@@ -92,7 +92,8 @@ class B2StreamProbeContractTests(unittest.TestCase):
         self.assertIn("Performance_Explore", self.build)
         self.assertIn("'axis_stream_probe.v'", self.runner)
         for token in (
-            "Assert-B2TimingGreen",
+            "Get-B2SignoffMetrics",
+            "signoff_pass",
             "timing_impl.rpt",
             "B2_TIMING_PASS",
             "B2_ROUTE_ERRORS",
