@@ -1,6 +1,9 @@
 param(
     [string]$XsctPath = 'G:\Xilinx\Vitis\2024.1\bin\xsct.bat',
-    [switch]$B3Dense
+    [switch]$B3Dense,
+    [switch]$B3FullOpen,
+    [switch]$B3Bypass,
+    [switch]$B3StaticMixed
 )
 
 $ErrorActionPreference = 'Stop'
@@ -34,12 +37,25 @@ if (-not $xparameters -or -not $libxil -or -not $linkerScript -or -not $xilinxSp
 
 $includeDir = Split-Path -Parent $xparameters.FullName
 $libDir = Split-Path -Parent $libxil.FullName
-$applicationMode = if ($B3Dense) { 'b3_dense' } else { 'b2_packet_smoke' }
-$elfStem = if ($B3Dense) { 'b2_packet_b3_dense' } else { 'b2_packet_smoke' }
-$expectedLogits = if ($B3Dense) { @(165, -18, 14, 0, 0, 0, 0, 0, 0, 153) } else { @() }
-$inputPattern = if ($B3Dense) { '0x87654321 repeated 8 beats' } else { 'all-zero repeated 8 beats' }
+$modeCount = @($B3Dense, $B3FullOpen, $B3Bypass, $B3StaticMixed | Where-Object { $_ }).Count
+if ($modeCount -gt 1) { throw 'B3Dense, B3FullOpen, B3Bypass and B3StaticMixed are mutually exclusive' }
+$applicationMode = if ($B3Bypass) { 'b3_bypass' } elseif ($B3StaticMixed) { 'b3_static_mixed' } elseif ($B3FullOpen) { 'b3_full_open' } elseif ($B3Dense) { 'b3_dense' } else { 'b2_packet_smoke' }
+$elfStem = "b2_packet_$applicationMode"
+$expectedLogits = if ($applicationMode -eq 'b3_static_mixed') {
+    @(74, -18, 14, 0, 0, 0, 0, 0, 0, 114)
+} elseif ($applicationMode -like 'b3_*') {
+    @(165, -18, 14, 0, 0, 0, 0, 0, 0, 153)
+} else {
+    @()
+}
+$inputPattern = if ($applicationMode -like 'b3_*') { '0x87654321 repeated 8 beats' } else { 'all-zero repeated 8 beats' }
+$maskPattern = if ($applicationMode -eq 'b3_bypass') { 'reset default full-open; no mask commands' } elseif ($applicationMode -eq 'b3_static_mixed') { '0x33333333 repeated; group_4way mixed mask, strict_2of4_candidate=false' } else { 'full-open group_4way mask' }
+$maskWords = if ($applicationMode -eq 'b3_bypass') { 0 } else { 19 }
 $compileDefines = @()
 if ($B3Dense) { $compileDefines += '-DB3_DENSE' }
+if ($B3FullOpen) { $compileDefines += '-DB3_FULL_OPEN' }
+if ($B3Bypass) { $compileDefines += '-DB3_BYPASS' }
+if ($B3StaticMixed) { $compileDefines += '-DB3_STATIC_MIXED' }
 $objectPath = Join-Path $outRoot "packet_main_$applicationMode.o"
 $elfPath = Join-Path $outRoot "$elfStem.elf"
 $commonFlags = @('-mcpu=cortex-a9', '-mfpu=vfpv3', '-mfloat-abi=hard')
@@ -68,6 +84,8 @@ $manifest = [ordered]@{
     application_mode = $applicationMode
     protocol = 'ENB2_PACKET_NPU_V1'
     input_pattern = $inputPattern
+    mask_pattern = $maskPattern
+    mask_words = $maskWords
     expected_logits = $expectedLogits
 }
 $manifestPath = Join-Path $buildRoot 'packet_build_manifest.json'

@@ -44,8 +44,14 @@ if (-not (Test-Path -LiteralPath $manifestPath)) {
 $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
 $applicationMode = [string]$manifest.application_mode
 if ([string]::IsNullOrWhiteSpace($applicationMode)) { $applicationMode = 'b2_packet_smoke' }
-$terminalMarker = if ($applicationMode -eq 'b3_dense') { 'B3_DENSE_PASS' } else { 'B2_PACKET_PASS' }
-$resultMarker = if ($applicationMode -eq 'b3_dense') { 'B3_DENSE_PASS' } else { 'B2_PACKET_RESULT_PASS' }
+$markerByMode = @{
+    b3_dense = 'B3_DENSE_PASS'
+    b3_full_open = 'B3_FULL_OPEN_PASS'
+    b3_bypass = 'B3_BYPASS_PASS'
+    b3_static_mixed = 'B3_STATIC_MIXED_PASS'
+}
+$terminalMarker = if ($markerByMode.ContainsKey($applicationMode)) { $markerByMode[$applicationMode] } else { 'B2_PACKET_PASS' }
+$resultMarker = if ($markerByMode.ContainsKey($applicationMode)) { $markerByMode[$applicationMode] } else { 'B2_PACKET_RESULT_PASS' }
 $bitstream = [string]$manifest.bitstream
 if (-not $bitstream) { $bitstream = Join-Path $repoRoot 'boards\hellozynq\b2_hw\build\hello_zynq_b2.bit' }
 $xsa = [string]$manifest.xsa
@@ -129,7 +135,7 @@ try {
             $received.ToString() -like "*$resultMarker*") { break }
         if ($runStarted -and $packetStarted -and
             (($received.ToString() -like '*B2_PACKET_FAIL*') -or
-             ($received.ToString() -like '*B3_DENSE_LOGIT_FAIL*'))) { break }
+             ($received.ToString() -like '*B3_LOGIT_FAIL*'))) { break }
         if (-not $runStarted -and $process.HasExited) { break }
         if (-not $runStarted -and [DateTime]::UtcNow -ge $programDeadline) { break }
         if ($runStarted -and [DateTime]::UtcNow -ge $listenDeadline) { break }

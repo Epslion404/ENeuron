@@ -22,14 +22,52 @@
 #define MASK_WORDS 19U
 #define MODEL_ID 3U
 #define MASK_EPOCH 1U
+#define GROUP_MASK_GRANULARITY "group_4way"
+#define STRICT_2OF4_CANDIDATE 0U
+#define STRICT_2OF4_CANDIDATE_TEXT "false"
 
-#ifdef B3_DENSE
+#if defined(B3_BYPASS)
+#define APPLICATION_MODE "b3_bypass"
+#define SAMPLE_MASK_EPOCH 0U
+#define SEND_MASK_COMMANDS 0
+#elif defined(B3_STATIC_MIXED)
+#define APPLICATION_MODE "b3_static_mixed"
+#define SAMPLE_MASK_EPOCH MASK_EPOCH
+#define SEND_MASK_COMMANDS 1
+#elif defined(B3_FULL_OPEN)
+#define APPLICATION_MODE "b3_full_open"
+#define SAMPLE_MASK_EPOCH MASK_EPOCH
+#define SEND_MASK_COMMANDS 1
+#elif defined(B3_DENSE)
 #define APPLICATION_MODE "b3_dense"
+#define SAMPLE_MASK_EPOCH MASK_EPOCH
+#define SEND_MASK_COMMANDS 1
+#else
+#define APPLICATION_MODE "b2_packet_smoke"
+#define SAMPLE_MASK_EPOCH MASK_EPOCH
+#define SEND_MASK_COMMANDS 1
+#endif
+
+#if defined(B3_BYPASS) || defined(B3_FULL_OPEN) || defined(B3_DENSE) || defined(B3_STATIC_MIXED)
+#define B3_NUMERIC_CHECK 1
+#if defined(B3_STATIC_MIXED)
+static const s32 EXPECTED_STATIC_MIXED_LOGITS[10] = {
+    74, -18, 14, 0, 0, 0, 0, 0, 0, 114
+};
+#else
 static const s32 EXPECTED_DENSE_LOGITS[10] = {
     165, -18, 14, 0, 0, 0, 0, 0, 0, 153
 };
+#endif
+
+static s32 expected_logit(u32 index)
+{
+#if defined(B3_STATIC_MIXED)
+    return EXPECTED_STATIC_MIXED_LOGITS[index];
 #else
-#define APPLICATION_MODE "b2_packet_smoke"
+    return EXPECTED_DENSE_LOGITS[index];
+#endif
+}
 #endif
 
 #if defined(XPAR_AXIDMA_0_DEVICE_ID)
@@ -147,7 +185,7 @@ static void set_command_fields(u32 words[4], u32 opcode, u32 epoch,
 
 static u32 model_word_for_index(u32 index)
 {
-#ifdef B3_DENSE
+#ifdef B3_NUMERIC_CHECK
     // B3 固定向量：非零 INT8 权重覆盖低层多个输入组和输出层多个通道。
     switch (index) {
         case 0U: return 0x0103FE01U;
@@ -178,6 +216,38 @@ static u32 model_word_for_index(u32 index)
     if (index == 633U) return 0xFFFFFFFFU;
     return 0U;
 #endif
+}
+
+static u32 static_mixed_mask_word(u32 index)
+{
+    /* STATIC_MIXED_MASK_WORD：每四个组位保留前两组，属于组级候选而非 lane 2:4。 */
+    u32 bit;
+    u32 word = 0U;
+    for (bit = 0U; bit < 32U; ++bit) {
+        u32 group = index * 32U + bit;
+        if (group < 592U && (group & 3U) < 2U) {
+            word |= 1U << bit;
+        }
+    }
+    return word;
+}
+
+static int validate_static_mixed_mask(void)
+{
+    u32 group;
+    u32 ones = 0U;
+    for (group = 0U; group < 592U; ++group) {
+        if ((static_mixed_mask_word(group / 32U) >> (group & 31U)) & 1U) {
+            ++ones;
+        }
+        if ((group & 3U) == 3U) {
+            if (ones != 2U) {
+                return XST_FAILURE;
+            }
+            ones = 0U;
+        }
+    }
+    return ones == 0U ? XST_SUCCESS : XST_FAILURE;
 }
 
 static u32 finish_frame(volatile u32 *frame, u32 word_count)
@@ -224,7 +294,7 @@ static u32 build_sample_frame(volatile u32 *frame, u32 sample_id,
     frame[6] = epoch;
     frame[7] = 0U;
     for (index = 0U; index < 8U; ++index) {
-#ifdef B3_DENSE
+#ifdef B3_NUMERIC_CHECK
         frame[8U + index] = 0x87654321U;
 #else
         frame[8U + index] = 0U;
@@ -330,17 +400,17 @@ static int send_sample_and_check(void)
     u32 response_words = 0U;
     u32 request_sequence = sequence;
     u32 sample_id = 0x12345678U;
-    frame_bytes = build_sample_frame(tx, sample_id, MODEL_ID, MASK_EPOCH);
+    frame_bytes = build_sample_frame(tx, sample_id, MODEL_ID, SAMPLE_MASK_EPOCH);
     if (submit_frame(frame_bytes, MAX_FRAME_BYTES, 1U, &response_words) != XST_SUCCESS) {
         return fail("sample_dma");
     }
     Xil_DCacheInvalidateRange(RX_BUFFER_BASE, MAX_FRAME_BYTES);
     if (response_words != 19U || rx[1] != 0x08000401U || rx[2] != 40U ||
         rx[3] != request_sequence || rx[4] != sample_id ||
-        rx[5] != MODEL_ID || rx[6] != MASK_EPOCH) {
+        rx[5] != MODEL_ID || rx[6] != SAMPLE_MASK_EPOCH) {
         return fail("result_response");
     }
-#ifdef B3_DENSE
+#ifdef B3_NUMERIC_CHECK
     {
         u32 index;
         u32 crc = 0xFFFFFFFFU;
@@ -353,15 +423,27 @@ static int send_sample_and_check(void)
         }
         for (index = 0U; index < 10U; ++index) {
             result_logits[index] = (s32)rx[8U + index];
-            if (result_logits[index] != EXPECTED_DENSE_LOGITS[index]) {
-                xil_printf("B3_DENSE_LOGIT_FAIL index=%u expected=%d actual=%d\r\n",
-                           index, EXPECTED_DENSE_LOGITS[index],
+            if (result_logits[index] != expected_logit(index)) {
+                xil_printf("B3_LOGIT_FAIL index=%u expected=%d actual=%d\r\n",
+                           index, expected_logit(index),
                            result_logits[index]);
                 return fail("b3_logit_mismatch");
             }
         }
-        xil_printf("B3_DENSE_PASS sequence=%u sample_id=0x%08x response_words=%u logits=165,-18,14,0,0,0,0,0,0,153\r\n",
+        #if defined(B3_BYPASS)
+        xil_printf("B3_BYPASS_PASS sequence=%u sample_id=0x%08x response_words=%u mask_words=0 logits=165,-18,14,0,0,0,0,0,0,153\r\n",
                    request_sequence, sample_id, response_words);
+        #elif defined(B3_STATIC_MIXED)
+        xil_printf("B3_STATIC_MIXED_PASS sequence=%u sample_id=0x%08x response_words=%u mask_words=%u logits=74,-18,14,0,0,0,0,0,0,114 group_reads=296 group_skips=296 granularity=%s strict_2of4_candidate=%u\r\n",
+                   request_sequence, sample_id, response_words, MASK_WORDS,
+                   GROUP_MASK_GRANULARITY, STRICT_2OF4_CANDIDATE);
+        #elif defined(B3_FULL_OPEN)
+        xil_printf("B3_FULL_OPEN_PASS sequence=%u sample_id=0x%08x response_words=%u mask_words=%u logits=165,-18,14,0,0,0,0,0,0,153\r\n",
+                   request_sequence, sample_id, response_words, MASK_WORDS);
+        #else
+        xil_printf("B3_DENSE_PASS sequence=%u sample_id=0x%08x response_words=%u mask_words=%u logits=165,-18,14,0,0,0,0,0,0,153\r\n",
+                   request_sequence, sample_id, response_words, MASK_WORDS);
+        #endif
     }
 #else
     if (rx[8] != 3U || rx[9] != 0xFFFFFFFBU || rx[17] != 0xFFFFFFFFU) {
@@ -407,29 +489,61 @@ int main(void)
         }
     }
     if (send_command(OP_MODEL_COMMIT, 0U, 0U) != XST_SUCCESS) return XST_FAILURE;
+#if SEND_MASK_COMMANDS
+#if defined(B3_STATIC_MIXED)
+    if (validate_static_mixed_mask() != XST_SUCCESS) {
+        return fail("static_mask_legality");
+    }
+    xil_printf("B3_STATIC_MASK_VALID groups=592 active_groups=296 skipped_groups=296 granularity=%s strict_2of4_candidate=%s\r\n",
+               GROUP_MASK_GRANULARITY, STRICT_2OF4_CANDIDATE_TEXT);
+#endif
     if (send_command(OP_MASK_BEGIN, MASK_EPOCH, 0U) != XST_SUCCESS) return XST_FAILURE;
     for (index = 0U; index < MASK_WORDS; ++index) {
-        u32 mask_word = index == 18U ? 0x0000FFFFU : 0xFFFFFFFFU;
+        u32 mask_word;
+#if defined(B3_STATIC_MIXED)
+        mask_word = static_mixed_mask_word(index);
+#else
+        mask_word = index == 18U ? 0x0000FFFFU : 0xFFFFFFFFU;
+#endif
         if (send_command(OP_MASK_DATA, MASK_EPOCH, mask_word) != XST_SUCCESS) return XST_FAILURE;
     }
     if (send_command(OP_MASK_COMMIT, MASK_EPOCH, 0U) != XST_SUCCESS) return XST_FAILURE;
+#endif
     if (send_fence_and_check() != XST_SUCCESS) return XST_FAILURE;
     if (send_sample_and_check() != XST_SUCCESS) return XST_FAILURE;
 
-#ifdef B3_DENSE
+#ifdef B3_NUMERIC_CHECK
     xil_printf("B2_PACKET_PASS model_words=%u mask_words=%u\r\n",
-               MODEL_WORDS, MASK_WORDS);
-    xil_printf("B3_DENSE_PASS model_words=%u mask_words=%u\r\n",
-               MODEL_WORDS, MASK_WORDS);
+               MODEL_WORDS, SEND_MASK_COMMANDS ? MASK_WORDS : 0U);
+    #if defined(B3_BYPASS)
+    xil_printf("B3_BYPASS_PASS model_words=%u mask_words=0\r\n", MODEL_WORDS);
+    #elif defined(B3_STATIC_MIXED)
+    xil_printf("B3_STATIC_MIXED_PASS model_words=%u mask_words=%u group_reads=296 group_skips=296 granularity=%s strict_2of4_candidate=%u\r\n",
+               MODEL_WORDS, MASK_WORDS, GROUP_MASK_GRANULARITY,
+               STRICT_2OF4_CANDIDATE);
+    #elif defined(B3_FULL_OPEN)
+    xil_printf("B3_FULL_OPEN_PASS model_words=%u mask_words=%u\r\n", MODEL_WORDS, MASK_WORDS);
+    #else
+    xil_printf("B3_DENSE_PASS model_words=%u mask_words=%u\r\n", MODEL_WORDS, MASK_WORDS);
+    #endif
 #else
     xil_printf("B2_PACKET_PASS model_words=%u mask_words=%u\r\n",
                MODEL_WORDS, MASK_WORDS);
 #endif
     while (1) {
         sleep(1U);
-#ifdef B3_DENSE
-        xil_printf("B3_DENSE_PASS model_words=%u mask_words=%u\r\n",
-                   MODEL_WORDS, MASK_WORDS);
+#ifdef B3_NUMERIC_CHECK
+        #if defined(B3_BYPASS)
+        xil_printf("B3_BYPASS_PASS model_words=%u mask_words=0\r\n", MODEL_WORDS);
+        #elif defined(B3_STATIC_MIXED)
+        xil_printf("B3_STATIC_MIXED_PASS model_words=%u mask_words=%u group_reads=296 group_skips=296 granularity=%s strict_2of4_candidate=%u\r\n",
+                   MODEL_WORDS, MASK_WORDS, GROUP_MASK_GRANULARITY,
+                   STRICT_2OF4_CANDIDATE);
+        #elif defined(B3_FULL_OPEN)
+        xil_printf("B3_FULL_OPEN_PASS model_words=%u mask_words=%u\r\n", MODEL_WORDS, MASK_WORDS);
+        #else
+        xil_printf("B3_DENSE_PASS model_words=%u mask_words=%u\r\n", MODEL_WORDS, MASK_WORDS);
+        #endif
 #else
         xil_printf("B2_PACKET_PASS model_words=%u mask_words=%u\r\n",
                    MODEL_WORDS, MASK_WORDS);
