@@ -108,7 +108,7 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 
 ## 下一动作
 
-主线下一动作是 `B3-POWER`：冻结外部功耗仪器合同，在同一 `group_4way` bit 上测 dense vs static vs live。B3-SPEED 已关：888 cycle ≈ 4.4 µs，被 DMA/UART 掩盖。严格 2:4 仍是结构实验。B2-GATE 挡网口发布。
+主线下一动作仍是 `B3-POWER`：合同已冻结，但本机无外部功耗仪，状态 `POWER_NOT_MEASURED`，门保持打开。接上仪器后在同一 `group_4way` bit 上测 dense vs static vs live。不得把 Vivado 估算写成板上功耗。B3-GOAL-GATE 要等 POWER 关闭。严格 2:4 仍是结构实验。
 
 ## 2026-09-05 V2 OOC 签核结果
 

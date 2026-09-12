@@ -40,7 +40,7 @@
 - clean worktree 重建，确认最终可复现 manifest。
 - B2-06～B2-10 的多 packet、完整错误矩阵、复位账本、统一时间戳和正式机器证据包。
 - B2-GATE 发布门。
-- B3-MVP-GATE 已关。`B3-SPEED` 已关。日常未完成项是 `B3-POWER` / `B3-GOAL-GATE`。B3-01/05/08b/10/12/15/16 属于 `B3-STRICT` 结构实验。B2-GATE 挡网口发布。外部功耗未测（`POWER_NOT_MEASURED`）。
+- B3-MVP-GATE 已关。`B3-SPEED` 已关。`B3-POWER` 仪器合同已冻结但仍是 `POWER_NOT_MEASURED`（本机无功耗仪），checkbox 保持打开。`B3-GOAL-GATE` 因此保持打开。B2-GATE 挡网口发布。
 - 计数器对外仍保持 32 位 AXI-Lite 读口；核心内部加法收窄为 24 位，可覆盖 B3-13 的 10000 样本上限（`592 * 10000 = 5,920,000 < 2^24`）。
 - Pulse-Mini-L/L2 集成。它们是冻结的候选/历史支线，不是当前日常门。
 
@@ -48,9 +48,9 @@
 
 ## 下一步
 
-1. 主线：`B3-POWER` 外部功耗。B3-SPEED 已关：888 cycle ≈ 4.4 µs，被 DMA/UART 掩盖。证据 `artifacts/logs/b3_speed_20260912_be84596/`。
-2. B2-GATE 剩余项并行，挡网口发布，不挡板上功耗测量。
-3. B3-08b 严格 2:4 仍是结构实验。不把 888 cycle 写成端到端加速。
+1. 主线仍是 `B3-POWER`。仪器合同已冻结，本机无外部功耗仪，状态 `POWER_NOT_MEASURED`。证据 `artifacts/logs/b3_power_20260913_be84596/`。
+2. B2-GATE 剩余项并行，挡网口发布。
+3. 不把 888 cycle 写成端到端加速，不用 Vivado 估算冒充板上功耗。
 
 ## 文档口径
 

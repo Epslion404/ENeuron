@@ -42,6 +42,28 @@ SPEED_SEGMENT_FIELDS = (
 )
 NPU_CLOCK_HZ = 200_000_000
 
+# B3-POWER 仪器合同字段必须与 TODO 原文一致。
+POWER_CONTRACT_FIELDS = (
+    "仪器",
+    "测点",
+    "采样率",
+    "空闲基线",
+    "负载同步",
+    "积分窗口",
+)
+POWER_MODES = (
+    "b3_dense",
+    "b3_static_mixed",
+    "b3_live_eneuron",
+)
+FORBIDDEN_POWER_SOURCES = (
+    "vivado",
+    "vivado_estimate",
+    "vectorless",
+    "saif_estimate",
+)
+DEFAULT_POWER_CONTRACT = Path(__file__).resolve().parent / "tools/repro/b3_power_instrument_contract.json"
+
 
 def parse_probe_u32(text: str, key: str) -> int:
     """从 probe_b2_state.tcl 输出解析一个无符号计数。"""
@@ -151,6 +173,80 @@ def parse_speed_split_from_uart(text: str) -> dict[str, int]:
 def npu_cycles_to_us(cycles: int) -> float:
     """200 MHz FCLK0 下把 NPU 周期换成微秒，只用于对照，不是墙钟。"""
     return float(cycles) * 1e6 / float(NPU_CLOCK_HZ)
+
+
+def load_power_contract(path: Path) -> dict[str, object]:
+    """读取已冻结的 B3-POWER 仪器合同，不补默认测点。"""
+    contract = json.loads(Path(path).read_text(encoding="utf-8-sig"))
+    if contract.get("schema") != "eneuron_b3_power_instrument_contract_v1":
+        raise ValueError("power contract schema mismatch")
+    missing = [field for field in POWER_CONTRACT_FIELDS if field not in contract]
+    if missing:
+        raise ValueError(f"power contract missing {missing}")
+    return contract
+
+
+def forbid_vivado_as_board_power(report: Mapping[str, object]) -> None:
+    """禁止把 Vivado 功耗估算写成板上功耗。"""
+    source = str(report.get("power_source", "")).lower()
+    if source in FORBIDDEN_POWER_SOURCES or "vivado" in source:
+        raise ValueError("must not treat Vivado power estimate as board power")
+    for row in report.get("rows", ()):
+        row_source = str(row.get("power_source", "")).lower()
+        if row_source in FORBIDDEN_POWER_SOURCES or "vivado" in row_source:
+            raise ValueError("must not treat Vivado power estimate as board power")
+
+
+def build_power_report(
+    records: Mapping[str, Mapping[str, object]],
+    contract: Mapping[str, object],
+) -> dict[str, object]:
+    """B3-POWER：dense/static/live 分行；无外部 traces 只能是 POWER_NOT_MEASURED。"""
+    missing_fields = [field for field in POWER_CONTRACT_FIELDS if field not in contract]
+    if missing_fields:
+        raise ValueError(f"B3-POWER missing {missing_fields[0]}")
+    missing_modes = [mode for mode in POWER_MODES if mode not in records]
+    if missing_modes:
+        raise ValueError(f"B3-POWER comparison missing modes: {missing_modes}")
+    rows = []
+    for mode in POWER_MODES:
+        row = dict(records[mode])
+        if row.get("mode") != mode:
+            raise ValueError(f"record mode mismatch for {mode}")
+        rows.append(row)
+    live = records["b3_live_eneuron"]
+    static = records["b3_static_mixed"]
+    if live.get("decision_source") == static.get("decision_source"):
+        raise ValueError("live-ENeuron must not collapse into the static mixed row")
+    if live.get("decision_source") != "live_eneuron_s2":
+        raise ValueError("live-ENeuron decision_source must be live_eneuron_s2")
+    if static.get("decision_source") != "host_replay_static_mixed":
+        raise ValueError("static mixed decision_source must be host_replay_static_mixed")
+    report = {
+        "schema": "eneuron_b3_power_report_v1",
+        "modes": list(POWER_MODES),
+        "rows": rows,
+        "contract": {field: contract.get(field) for field in POWER_CONTRACT_FIELDS},
+    }
+    forbid_vivado_as_board_power(report)
+    status = contract.get("status")
+    if status == "POWER_NOT_MEASURED":
+        report["status"] = "POWER_NOT_MEASURED"
+        report["power_gate"] = "OPEN"
+        return report
+    if status == "MEASURED":
+        for row in rows:
+            if "external_power_w" not in row:
+                raise ValueError("MEASURED B3-POWER missing external_power_w")
+            if type(row["external_power_w"]) not in (int, float):
+                raise ValueError("external_power_w must be numeric")
+            row_source = str(row.get("power_source", "external"))
+            if row_source.lower() in FORBIDDEN_POWER_SOURCES or "vivado" in row_source.lower():
+                raise ValueError("must not treat Vivado power estimate as board power")
+        report["status"] = "MEASURED"
+        report["power_gate"] = "PASS"
+        return report
+    raise ValueError("B3-POWER status must be MEASURED or POWER_NOT_MEASURED")
 
 
 def forbid_end_to_end_from_npu_cycles(comparison: Mapping[str, object]) -> None:
