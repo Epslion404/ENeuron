@@ -1,6 +1,6 @@
 # 测试面与缺口
 
-当前摘要校正（2026-09-12）：HEAD=`f070577`，P16 当前活动未完成项为 `59`。既有 B2-PHY 基线在 200 MHz 为 WNS=`+0.005 ns`；B2-08 `0x40430000` 状态块已完成 COM15 实板部分读回。B3 dense 固定向量子门在 `20260912T050553Z` 通过，10 个 logits 与黄金值一致；当前测试缺口为 B3-05/06/07 的身份、bypass/执行组和 full-open 透明性完整证据，完整 B2-06～B2-10 错误/复位账本、B2-GATE 和 ENeuron A/B。
+当前摘要校正（2026-09-12）：HEAD=`f070577`，P16 当前活动未完成项为 `59`。既有 B2-PHY 基线在 200 MHz 为 WNS=`+0.005 ns`；B2-08 `0x40430000` 状态块已完成 COM15 实板部分读回。B3 dense/bypass/full-open 固定向量输出对照在 `20260912T050553Z`、`20260912T053341Z`、`20260912T053426Z` 均通过且逐项一致；当前测试缺口为执行/跳过组计数器物理核对、B3-06/B3-07 整项、静态 `2:4`、live-ENeuron 和恢复矩阵，另有完整 B2-06～B2-10 错误/复位账本与 B2-GATE。
 
 状态更正（2026-09-12）：当前物理和板级基线均绑定 `88bec9e9bdbec1de53ef45d2f22e4275308c0237`，工作树 HEAD 为 `88bec9e9bdbec1de53ef45d2f22e4275308c0237`。`20260912T040206Z` 在 COM15 完成 UART/JTAG/XSCT PASS，634 model words、19 mask words、fence、8-beat sample 和 10-beat result 均通过；状态块读回 command/sample/response/result=`658/658`、`8/8`、`1/1`、`10 beats/1 packet`，fence snapshot valid。该证据仍是合法 packet path 的部分覆盖，不代表数值等价或 B2-GATE。
 

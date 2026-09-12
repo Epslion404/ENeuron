@@ -1,5 +1,7 @@
 # Git 热点
 
+B3 固定向量证据（2026-09-12）：同一 `f070577` bit/XSA 的 dense `20260912T050553Z`、bypass `20260912T053341Z`、full-open `20260912T053426Z` 均在 COM15 通过，10 个 logits 逐项一致。尚未完成执行/跳过组计数器物理核对、B3-06/B3-07 整项、静态 `2:4`、live-ENeuron 和恢复矩阵。
+
 当前门禁边界（中等精简）：`xc7z020clg484-2` NPU + ENeuron 动态剪枝为活动主线；`archive/legacy/` 不触发日常 CI/PR 门。旧 `xc7z020clg400-1` 的 NP7/T3 物理材料仅作历史参考。B1 高地址 DDR、PHY、UDP 是板卡资格支线，仍阻塞板级 `B1-GATE`，但不阻塞低地址容量满足条件下的 NPU MVP；CH340 按 `VID_1A86:PID_7523` 查找而非固定 COM 号。
 
 当前合同层级为阶段合同 `NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`，中等精简后的 P16 TODO 当前活动计数为 `59`。当前 HEAD=`f070577`，工作树含 B2-08 计数/快照和 `0x40430000` 状态块。最新物理构建 WNS=`+0.005 ns/TNS=0/WHS=+0.034 ns/THS=0`，route/DRC hard errors=0，B2_SIGNOFF_PASS=1；COM15 合法 packet smoke 与部分状态读回已通过，`20260912T050553Z` 的 B3 dense 固定向量子门也已通过。B3-05/06/07 完整证据和 B2-GATE 仍未关闭。

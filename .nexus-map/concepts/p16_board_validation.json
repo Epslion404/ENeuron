@@ -501,6 +501,18 @@
     },
     "forbidden_claims": ["full B2-08 multi-packet/error/reset ledger validated on board", "B2-GATE passed", "ENeuron dynamic pruning integrated on board", "pruning speedup or power gain measured"]
   },
+  "b3_output_compare": {
+    "status": "PASS_SUBGATE_ONLY",
+    "source_commit": "f070577",
+    "port": "COM15",
+    "shared_bitstream_sha256": "782a977c8c14c0bea73a289a167eed048e7fa2da7e9b889c95ed815c34d93b6e",
+    "shared_xsa_sha256": "5e6a31bd4fc3fc8dead04c749bd4e4cb5faf0aeb7b5e6b8b2f6233be2f715ef7",
+    "runs": {"dense": "20260912T050553Z", "bypass": "20260912T053341Z", "full_open": "20260912T053426Z"},
+    "markers": {"dense": "B3_DENSE_PASS", "bypass": "B3_BYPASS_PASS", "full_open": "B3_FULL_OPEN_PASS"},
+    "golden_logits": [165, -18, 14, 0, 0, 0, 0, 0, 0, 153],
+    "comparison": "dense/bypass/full-open outputs match item-by-item",
+    "does_not_close": ["execution/skip group counter physical check", "B3-06 complete gate", "B3-07 complete gate", "static 2:4", "live-ENeuron", "recovery matrix"]
+  },
   "b3_dense_board_subgate": {
     "status": "PASS_SUBGATE_ONLY",
     "source_commit": "f070577",

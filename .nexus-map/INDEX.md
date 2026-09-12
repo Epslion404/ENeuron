@@ -8,7 +8,7 @@
 
 证据边界：当前部署和最终板级物理签核目标是 `xc7z020clg484-2`。`xc7z020clg400-1` 上的 T3/NP7 OOC、时序和资源报告只作为历史结构参考，不得写成 `clg484-2` 已签核；`archive/legacy/` 中的材料不进入日常 CI/PR 门。B1 高地址 DDR、PHY 和 UDP 属于板卡资格支线，仍阻塞完整 `B1-GATE`，但在已验证低地址窗口足以容纳模型与 DMA 缓冲区时，不阻塞 NPU MVP 的 RTL/软件推进。CH340 运行脚本按 `VID_1A86:PID_7523` 识别设备，`COM10` 只是现场枚举结果，不是固定合同。
 
-合同与恢复口径（2026-09-12）：`WORKFLOW_STATE.md` 指定 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md` 为当前阶段合同；中等精简后的主线 TODO 仅统计 `docs/planning/TODO.md` 的 P16，当前活动计数为 `59`。`P16-E` 公共证据合同与 `P16-S` 统一停止条件是持续适用的常驻合同，不计入一次性计数；`NP8` 为 `DEFERRED_OPTIONAL`，`NP9` 已并入 P16 的 B2/B3/B4。当前仓库 HEAD=`f070577`，B2 packet-NPU 物理/合法路径基线保持通过；当前状态为 `FUNCTIONAL_PASS / PHYSICAL_PASS / BOARD_STATUS_PARTIAL`。B3 dense 固定向量实板子门已通过，但 B3-05 身份核对、B3-06 bypass/执行组完整对照、B3-07 full-open 透明性仍未完成；B2-GATE、B2-06～B2-10 完整发布证据也仍未完成。
+合同与恢复口径（2026-09-12）：`WORKFLOW_STATE.md` 指定 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md` 为当前阶段合同；中等精简后的主线 TODO 仅统计 `docs/planning/TODO.md` 的 P16，当前活动计数为 `59`。`P16-E` 公共证据合同与 `P16-S` 统一停止条件是持续适用的常驻合同，不计入一次性计数；`NP8` 为 `DEFERRED_OPTIONAL`，`NP9` 已并入 P16 的 B2/B3/B4。当前仓库 HEAD=`f070577`，B2 packet-NPU 物理/合法路径基线保持通过；当前状态为 `FUNCTIONAL_PASS / PHYSICAL_PASS / BOARD_STATUS_PARTIAL`。B3 dense/bypass/full-open 固定向量输出对照子门已通过，但执行/跳过组计数器物理核对、B3-06/B3-07 整项、静态 `2:4`、live-ENeuron 和恢复矩阵仍未完成；B2-GATE、B2-06～B2-10 完整发布证据也仍未完成。
 
 状态更正（2026-09-10）：上方为当前权威状态；本文件后续 2026-09-09 历史段落中若仍写“B2-03/B2-04/B2-05 未关闭”，均由后续正式边界、压力、背压、回绕、恢复、间歇和 missing-TLAST 证据 supersede。当前待关闭项仅为 B2-06/B2-07/B2-08/B2-09/B2-10 与 B2-GATE；BRAM 探针已由 `f4827e2` 提交，命令 FIFO 保持槽时序切片已由 `195e6e7` 提交，但尚未以该 RTL 重跑完整 Vivado。
 
@@ -18,7 +18,7 @@ B2 packet-NPU 提交态物理基线（2026-09-11）：完整 Vivado 2024.1 构�
 
 B2-08 与 packet-NPU 当前实板状态（2026-09-12）：HEAD `88bec9e` 在 `xc7z020clg484-2`、200 MHz 通过 routed timing（`WNS=+0.005 ns`、`TNS=0`、`WHS=+0.034 ns`、`THS=0`，route/DRC hard errors=0），bit SHA-256=`782a977c…d93b6e`、XSA SHA-256=`5e6a31bd…15ef7`。`20260912T040206Z` 在 COM15 完成 FPGA/ELF/UART/JTAG/XSCT PASS，验证 634 model words、19 mask words、fence、8-beat sample 和 10-beat result；随后 `0x40430000` 读回 command/sample/response/result=`658/658`、`8/8`、`1/1`、`10 beats/1 packet`，fence snapshot valid。该结果是合法 packet path 和状态可见性的部分实板证据，不等价于数值 logit 正确、完整错误矩阵、B2-GATE 或剪枝收益。
 
-B3 入口（2026-09-12）：`f070577` 的 COM15 实板 run `20260912T050553Z` 已通过 dense 固定向量子门，10 个 signed INT32 logits 为 `165,-18,14,0,0,0,0,0,0,153`，B3 ELF SHA-256=`3dc79b7319eb7112131c7b9ff39011013640afc48a316f9745587570ea27368c`。这证明当前 dense 数值通路可用，但不关闭 B3-05/06/07；仍须完成身份/能力寄存器核对、bypass 逐样本与执行组对照，以及 full-open mask 逐 beat 透明性。packet smoke 不得替代这些 NPU 数值功能门。
+B3 入口（2026-09-12）：同一 `f070577` bit/XSA 在 COM15 完成三次固定向量运行：dense `20260912T050553Z`、bypass `20260912T053341Z`、full-open `20260912T053426Z` 均 PASS，10 个 signed INT32 logits 均为 `165,-18,14,0,0,0,0,0,0,153`，输出逐项一致。该结果关闭 dense/bypass/full-open 输出对照子门，但不关闭执行/跳过组计数器物理核对、B3-06/B3-07 整项、静态 `2:4`、live-ENeuron 或恢复矩阵；packet smoke 不得替代这些 NPU 数值功能门。
 
 B2-00 已完成（2026-09-08）：低地址 DDR 窗口 `[0x01000000,0x01100000)` 内冻结 9 个 4 KiB 区域，总保留 `36 KiB`，最大 DMA frame 为 `4096` bytes；机器 manifest `tools/repro/b2_dma_address_layout.json` 与 `verify_b2_dma_address_layout.py` 验证通过，状态为 `B2_00_LOW_ADDRESS_LAYOUT_FROZEN`。B2-D1 已完成并单独记录；所有 manifest 继续保留 `B1_HIGH_DDR_PENDING`，不把 B2-00 误写成完整 B1-GATE 或高地址 DDR 通过。
 

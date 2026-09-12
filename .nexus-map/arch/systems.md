@@ -2,7 +2,7 @@
 
 ## 当前边界校正（中等精简）
 
-当前摘要校正（2026-09-12）：HEAD=`f070577`；P16 当前活动未完成项为 `59`。packet-NPU 在 `xc7z020clg484-2`、200 MHz routed timing 通过（WNS=`+0.005 ns`、TNS=`0`、WHS=`+0.034 ns`、THS=`0`，route/DRC hard errors=0）。B2-08 四流计数与 fence snapshot 已接入 `0x40430000`，COM15 实板读回为 command/sample/response/result=`658/658`、`8/8`、`1/1`、`10 beats/1 packet`，fence snapshot valid。`20260912T050553Z` 的 B3 dense 固定向量子门通过，黄金 logits 为 `165,-18,14,0,0,0,0,0,0,153`。当前状态为 `FUNCTIONAL_PASS / PHYSICAL_PASS / BOARD_STATUS_PARTIAL`；B3-05/06/07 和 B2 发布证据仍待完成。
+当前摘要校正（2026-09-12）：HEAD=`f070577`；P16 当前活动未完成项为 `59`。packet-NPU 在 `xc7z020clg484-2`、200 MHz routed timing 通过（WNS=`+0.005 ns`、TNS=`0`、WHS=`+0.034 ns`、THS=`0`，route/DRC hard errors=0）。B2-08 四流计数与 fence snapshot 已接入 `0x40430000`，COM15 实板读回为 command/sample/response/result=`658/658`、`8/8`、`1/1`、`10 beats/1 packet`，fence snapshot valid。dense `20260912T050553Z`、bypass `20260912T053341Z`、full-open `20260912T053426Z` 输出均为 `165,-18,14,0,0,0,0,0,0,153` 并逐项一致。当前状态为 `FUNCTIONAL_PASS / PHYSICAL_PASS / BOARD_STATUS_PARTIAL`；执行/跳过组计数器物理核对、B3-06/B3-07 整项、静态 `2:4`、live-ENeuron 和恢复矩阵仍待完成。
 
 部署主线固定为 `xc7z020clg484-2` 的 NPU + ENeuron 动态剪枝。`xc7z020clg400-1` 上的 T3/NP7 OOC 与资源/时序报告仅作历史结构参考，不能替代 `clg484-2` 最终 routed 证据；`archive/legacy/` 内容不进入日常 CI/PR 门。B1 高地址 DDR、PHY 和 UDP 是板卡资格支线，仍决定完整 `B1-GATE`，但不阻塞低地址容量满足条件下的 NPU MVP。CH340 设备按 `VID_1A86:PID_7523` 识别，COM 编号仅作现场观测。
 
@@ -18,7 +18,7 @@ B2 观测器边界（2026-09-09）：双/单 `axi_stream_monitor:1.1` routed set
 
 P16最终硬门仍按B0→B1→B2→B3→B4串行，但代码按Fastlane V1小步合并。B1A/B1B/B1C中间切片可进入main但不改变阶段通过状态；B2–B4仍不得提前声明实现或签核。
 
-B3 数值功能入口：固定 `64→32→10` 模型与黄金 manifest；dense 固定向量子门已在 `f070577`/`20260912T050553Z` 通过，但 B3-05 身份核对、B3-06 dense/bypass 完整逐样本与执行组对照、B3-07 full-open mask 透明性仍需完成。完成前不得报告 ENeuron 剪枝收益。
+B3 数值功能入口：固定 `64→32→10` 模型与黄金 manifest；dense/bypass/full-open 三次固定向量输出对照已通过，但执行/跳过组计数器物理核对、B3-06/B3-07 整项、静态 `2:4`、live-ENeuron 和恢复矩阵仍需完成。完成前不得报告 ENeuron 剪枝收益。
 
 B3/B4 包含两条不同证据链：Host 静态 `2:4` mask 是由 Host 重放冻结 mask，只证明 NPU 门控执行、位序、epoch 和跳过计数；live-ENeuron 是由实板神经元证据生成严格 `2:4` 决策，经 pending bank 和 fence 原子生效。只有后者可证明神经元参与自动剪枝，两类数据不得混合。
 

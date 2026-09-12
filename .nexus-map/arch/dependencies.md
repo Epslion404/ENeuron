@@ -1,5 +1,7 @@
 # 依赖关系
 
+当前 B3 固定向量对照（2026-09-12）：同一 `f070577` bit/XSA 下，dense、bypass、full-open 三次 COM15 实板运行均 PASS 且 10-logit 逐项一致。下一依赖是执行/跳过组计数器物理核对；静态 `2:4`、live-ENeuron 与恢复矩阵仍未完成。
+
 当前依赖边界：`xc7z020clg484-2` NPU + ENeuron 动态剪枝是活动主线；`archive/legacy/` 不参与日常门。B1 高地址 DDR、PHY、UDP 继续阻塞完整网络化 `B1-GATE`、B1C 和依赖网络的 B4，但在低地址窗口足以容纳模型/DMA 缓冲区时，不阻塞当前低地址 B2-MVP 的构建与实板回环，也不阻塞后续 NPU MVP 的 RTL/软件推进。旧 `clg400-1` NP7/T3 物理结果仅作历史参考。
 
 当前阶段合同由 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md` 主导，P16 TODO 段、`NPU_PRUNING_TODO.md` 和 `NPU_PRUNING_NP7_TODO.md` 提供关联合同；当前 P16 活动未完成项为 `59`。当前活动分支为 `codex/b1b-high-ddr-board-repro`、仓库 HEAD=`88bec9e`。最新 packet-NPU 物理身份在 `xc7z020clg484-2`、200 MHz 为 `WNS=+0.005 ns/TNS=0/WHS=+0.034 ns/THS=0`，route/DRC hard errors=0；COM15 合法 packet smoke 与 `0x40430000` 部分状态读回已通过。依赖链现进入 B3-00/B3-06 dense/full-open 数值验证，同时补齐 B2-06～B2-10/B2-GATE 发布证据；旧 B1-06B6 → B1-06B7 资格支线不变。
