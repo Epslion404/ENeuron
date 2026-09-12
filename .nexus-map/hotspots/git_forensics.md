@@ -1,12 +1,24 @@
 # Git 热点
 
-B3 固定向量证据（2026-09-12）：同一 `f070577` bit/XSA 的 dense `20260912T050553Z`、bypass `20260912T053341Z`、full-open `20260912T053426Z` 均在 COM15 通过，10 个 logits 逐项一致。尚未完成执行/跳过组计数器物理核对、B3-06/B3-07 整项、静态 `2:4`、live-ENeuron 和恢复矩阵。
+> generated_by: nexus-mapper v2 / manual synthesis
+> verified_at: 2026-09-12
+> provenance: Git HEAD `fe25a70` 与 `git show --stat` 人工核对；raw `git_stats.json` 仍绑定历史 `c46320e`。未提交 status probe / 计数器 RTL 不是签核源码身份。旧 t0-state 工作区不是现状。
 
-B3 计数器构建取证（2026-09-12）：remap 构建生成 bit/XSA 但 signoff `WNS=-0.010 ns`，明确禁止上板；恢复基线策略的构建只有 route 中间 `WNS=-0.044 ns`，最终报告前 Vivado 进程消失且没有 signoff，不能推定通过。execute/skip 计数器物理证据仍为空。
+## 当前权威取证（2026-09-12）
 
-当前门禁边界（中等精简）：`xc7z020clg484-2` NPU + ENeuron 动态剪枝为活动主线；`archive/legacy/` 不触发日常 CI/PR 门。旧 `xc7z020clg400-1` 的 NP7/T3 物理材料仅作历史参考。B1 高地址 DDR、PHY、UDP 是板卡资格支线，仍阻塞板级 `B1-GATE`，但不阻塞低地址容量满足条件下的 NPU MVP；CH340 按 `VID_1A86:PID_7523` 查找而非固定 COM 号。
+已提交 HEAD=`fe25a7081f6a93e9d63c888ea581dc5595d84b4a`，主题 `feat(board): add live ENeuron group_4way host decision`。该提交只改 Host/manifest/文档：`eneuron_group4way_live.py`、`test_eneuron_group4way_live.py`、`boards/hellozynq/b2_sw/src/packet_main.c`、`tools/repro/b3_fixed_vector_manifest.json` 等 12 文件，**不含生产 RTL**。
 
-当前合同层级为阶段合同 `NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`，中等精简后的 P16 TODO 当前活动计数为 `59`。当前 HEAD=`f070577`，工作树含 B2-08 计数/快照和 `0x40430000` 状态块。最新物理构建 WNS=`+0.005 ns/TNS=0/WHS=+0.034 ns/THS=0`，route/DRC hard errors=0，B2_SIGNOFF_PASS=1；COM15 合法 packet smoke 与部分状态读回已通过，`20260912T050553Z` 的 B3 dense 固定向量子门也已通过。B3-05/06/07 完整证据和 B2-GATE 仍未关闭。
+工作树 DIRTY。未提交/未跟踪的 status probe 与计数器相关文件包括 `b2_npu_packet_adapter.sv`、`npu_eneuron_single_clock_skeleton.sv`、`npu_zynq7020_t1_wrapper.sv`、`boards/hellozynq/b2_hw/b2_npu_axis_top.v`、`boards/hellozynq/b2_hw/b2_npu_status_probe.v`、`tb_b2_npu_status_probe.sv`。这些不是已签核源码身份。
+
+已有实板证据：B0、B1A、低地址 B1B、B2 packet smoke、B3 dense/full-open/bypass、B3-08a 组级 static mixed。B3-09 Host 已接通，实板 ELF/JTAG 未关闭。Host 合同 ≠ 板级通过。严格连接级 `2:4` 仍是 B3-08b。后文 `f070577`/`88bec9e`/`c3a50eb` 只描述当时产物身份。
+
+B3 固定向量证据（2026-09-12）：同一 `f070577` bit/XSA 的 dense `20260912T050553Z`、bypass `20260912T053341Z`、full-open `20260912T053426Z` 均在 COM15 通过，10 个 logits 逐项一致。后续计数器 bitstream 已补 execute/skip 实板核对并关闭 B3-00/B3-06/B3-07。静态 `2:4`、live-ENeuron 实板和恢复矩阵仍未关闭。
+
+B3 计数器构建取证（2026-09-12）：remap 构建生成 bit/XSA 但 signoff `WNS=-0.010 ns`，明确禁止上板；恢复基线策略的构建只有 route 中间 `WNS=-0.044 ns`，最终报告前 Vivado 进程消失且没有 signoff，不能推定通过。第三次 `route_design -directive Explore` 绑定 HEAD `c3a50eb` 通过物理门，并已有 dense/full-open/bypass 与 B3-08a 实板计数读回。该物理身份不是当前提交 HEAD `fe25a70`，也不是未提交 RTL。
+
+当前门禁边界（中等精简）：`xc7z020clg484-2` 板上 packet-NPU + ENeuron 动态剪枝为活动主线；`archive/legacy/` 不触发日常 CI/PR 门。旧 `xc7z020clg400-1` 的 NP7/T3 物理材料仅作历史参考。B1 高地址 DDR、PHY、UDP 是板卡资格支线，仍阻塞板级 `B1-GATE`，但不阻塞低地址容量满足条件下的 NPU MVP；CH340 按 `VID_1A86:PID_7523` 查找而非固定 COM 号。
+
+当前合同层级为阶段合同 `NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`。当前已提交 HEAD=`fe25a70`。packet-NPU 物理/smoke 身份仍绑定历史 `88bec9e`/`97398bf`；计数器 bit/XSA 绑定 `c3a50eb`。B3-09 Host 合同已绿，实板未关闭。B2-GATE 仍未关闭。
 
 B2-00 已形成可复现的低地址布局合同：窗口 `[0x01000000,0x01100000)`，9 个 4 KiB 区域、总保留 `36 KiB`，最大 DMA frame `4096` bytes；`verify_b2_dma_address_layout.py` 输出 `B2_DMA_LAYOUT_PASS`。状态为 `B2_00_LOW_ADDRESS_LAYOUT_FROZEN`，已进入 B2-D1/loopback 软件执行链。`B1_HIGH_DDR_PENDING` 保持不变，B2-00 不等同于高地址 DDR 或完整 B1-GATE 通过。
 
@@ -31,11 +43,11 @@ T3 权威报告：`vivado_npu_zynq7020_t3_xsim/xsim_signoff_summary.txt` 为 `RE
 该审计快照中 PR #68 为 `OPEN / MERGEABLE / UNSTABLE`。Actions run `33976357259` 在 runner 启动前因账户付款/额度限制阻断，归类为 `NOT_RUN_BILLING_BLOCKED`，不能视为代码失败或通过；仓库外 webhook 已收到同一 SHA 的 `workflow_run completed/failure`，但签名未验证，GitHub Checks/API 为权威来源。2026-09-06 chmlfrp 恢复后，本地/公网 health 均为 200，GitHub 官方 ping delivery `ee543f6e-aa08-11f1-84fd-d4849c4dec76` 返回 200 并写入接收器。V2 OOC 仍绑定 `f744bff2bdde68e138a7b2b348ce103bec1ab469`，资源为 `2126 LUT / 1916 FF / 4 DSP48E1`，100 MHz setup/hold/route/DRC 全部通过；TR7-TR12 已批准。P15-T0 方案 A 和 A1-A7 已批准；T1 协议切片已进入仓库并可由本地 G0/G1 复现，但 T1 全量、T2/T3 仍待证据。当前 PR #68 head=`3006174` 对应 run `34051222089`，GitHub Checks 显示 `Classify changes=fail`、`PR Gate=fail`、`T1 reproducibility slice=skipped`；不得把本地协议切片 PASS 写成 GitHub CI PASS。资源裁剪候选不得在首次完整端到端跑通前实施。用户文件 `np75_tmp_sparse_protocol.ys` 继续排除在提交和 Nexus 文件树之外。
 
 generated_by: nexus-mapper v2 / manual synthesis
-verified_at: 2026-09-11
-provenance: `.nexus-map/raw/git_stats.json`（最后提交于 `c46320e`；仓库内未发现可复现生成脚本，后续基线由 Git 与 manifest 人工核对）
+verified_at: 2026-09-12
+provenance: `.nexus-map/raw/git_stats.json`（最后探针提交于 `c46320e`；仓库内未发现可复现生成脚本）。当前权威 HEAD=`fe25a70` 由 Git 人工核对；未提交 RTL 排除在签核源码身份之外。
 
 最近一次 raw 探针快照统计 263 次提交、5 位作者；该数字只代表 `c46320e` 时点。PR #62 已合并为 `main@e8dc947`（merge commit `e8dc9477dbfc7a9311dd00c514a986580ad2b84b`），最终 HEAD `a4832cc3bddd96ba2f94c295ae99c1d12713abf3` 的 Actions run `33915028445` 为 success；Webhook 收到同 SHA，但 `signature_verified=false`，只作到达通知。DSP V1 实现与 OOC report head 为 `5055073`：恰好 4 个 DSP48E1，功能、固定 `20×100` 随机、完整回归、hold/route/DRC 已通过，但 100 MHz setup `WNS=-0.673 ns / TNS=-6.462 ns / 22` 个端点失败。热点已从 V2 审核切换为 V2 实施；实施地图为 `docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V2_IMPLEMENTATION_MAP.md`，KISS 方案复用 signed 32-bit `mac_accumulator`，不新增 `writeback_value_latched`，仅预计新增四个 signed 8-bit 激活锁存器（约 32 FF）。TR7-TR12 已批准，当前计算 RTL 进入 V2 RED→RTL→回归流程。`np75_tmp_sparse_protocol.ys` 是用户未跟踪文件，不得纳入提交或 Nexus；物理结果不得外推为板级吞吐、功耗或网络性能。
 
-最新已提交 B2 取证（2026-09-11）：物理基线绑定 HEAD `97398bf641b49ef2f2ab6b16edd68b6327a14488`，目标 `xc7z020clg484-2`、200 MHz routed timing 全绿（WNS=`+0.012 ns`、TNS=`0`、WHS=`+0.036 ns`、THS=`0`），route/DRC hard error=0，且后续合法 packet smoke 已通过。当前工作树另有 B2-08 状态块 setup 失败覆盖，不能沿用基线下载资格。mask-scan 修复 `0f71f49` 及其回归记录保留为前置开发证据。
+最新已提交 B2 取证（2026-09-11，历史物理身份）：物理基线绑定 HEAD `97398bf641b49ef2f2ab6b16edd68b6327a14488`，目标 `xc7z020clg484-2`、200 MHz routed timing 全绿（WNS=`+0.012 ns`、TNS=`0`、WHS=`+0.036 ns`、THS=`0`），route/DRC hard error=0，且后续合法 packet smoke 已通过。mask-scan 修复 `0f71f49` 及其回归记录保留为前置开发证据。当前仓库 HEAD 已推进到 `fe25a70`，不得把未提交工作树写成该物理身份。
 
-B2-08 未提交切片取证（2026-09-11）：四流计数与 fence 快照已进入 `b2_npu_axis_top` 和 `0x40430000` 状态块；功能合同通过。命令握手时统一锁存错误响应候选后，`cmd_hold_data -> rsp_payload_reg/CE` 和 `/R` 失败族均已消除；完整 Vivado 重建仍为 `WNS=-0.030 ns/TNS=-0.203 ns/WHS=+0.036 ns/THS=0`，route/DRC hard errors=0，runner 持久化 `B2_SIGNOFF_PASS=0` 并返回非零，软件构建继续只接受 `B2_SIGNOFF_PASS=1`。下一物理切片处理 egress 计数器复位控制。
+B2-08 未提交切片取证（2026-09-12）：工作树仍有未提交 status probe / 计数器 RTL。这些文件不是 HEAD `fe25a70` 的签核源码身份，也不能单独宣称已签核。板级状态读回属于既有 bit/XSA 上的部分证据，不把 dirty RTL 回写成已通过源码。

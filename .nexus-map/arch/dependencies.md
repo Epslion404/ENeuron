@@ -1,10 +1,14 @@
 # 依赖关系
 
-当前 B3 固定向量对照（2026-09-12）：同一 `f070577` bit/XSA 下，dense、bypass、full-open 三次 COM15 实板运行均 PASS 且 10-logit 逐项一致。下一依赖是执行/跳过组计数器物理核对；静态 `2:4`、live-ENeuron 与恢复矩阵仍未完成。
+> generated_by: nexus-mapper v2 / manual synthesis
+> verified_at: 2026-09-12
+> provenance: Git HEAD `fe25a70` 与已提交 Host/manifest 人工核对；未提交 status probe / 计数器 RTL 不是签核源码身份。
 
-当前依赖边界：`xc7z020clg484-2` NPU + ENeuron 动态剪枝是活动主线；`archive/legacy/` 不参与日常门。B1 高地址 DDR、PHY、UDP 继续阻塞完整网络化 `B1-GATE`、B1C 和依赖网络的 B4，但在低地址窗口足以容纳模型/DMA 缓冲区时，不阻塞当前低地址 B2-MVP 的构建与实板回环，也不阻塞后续 NPU MVP 的 RTL/软件推进。旧 `clg400-1` NP7/T3 物理结果仅作历史参考。
+当前 B3 依赖（2026-09-12）：dense、bypass、full-open 与 Host static `group_4way` 已在 COM15 实板通过，B3-00/02/06/07/08a 已关闭。B3-09 Host 合同已接通（HEAD `fe25a70`），实板 ELF/JTAG 未关闭。下一依赖是现有 bit/XSA 上的 `b3_live_eneuron` 实板，然后 B3-03 最小观测与 B3-11 epoch 原子切换，随后用 B3-13/14 完成小集合周期 A/B。Host 合同 ≠ 板级通过。严格连接级 `2:4` 仍是 B3-08b。
 
-当前阶段合同由 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md` 主导，P16 TODO 段、`NPU_PRUNING_TODO.md` 和 `NPU_PRUNING_NP7_TODO.md` 提供关联合同；当前 P16 活动未完成项为 `59`。当前活动分支为 `codex/b1b-high-ddr-board-repro`、仓库 HEAD=`88bec9e`。最新 packet-NPU 物理身份在 `xc7z020clg484-2`、200 MHz 为 `WNS=+0.005 ns/TNS=0/WHS=+0.034 ns/THS=0`，route/DRC hard errors=0；COM15 合法 packet smoke 与 `0x40430000` 部分状态读回已通过。依赖链现进入 B3-00/B3-06 dense/full-open 数值验证，同时补齐 B2-06～B2-10/B2-GATE 发布证据；旧 B1-06B6 → B1-06B7 资格支线不变。
+当前依赖边界：`xc7z020clg484-2` NPU + ENeuron 动态剪枝是活动主线；`archive/legacy/` 不参与日常门。`B3-MVP-GATE` 使用现有 `group_4way`，不依赖完整 B2-GATE、严格连接级 `2:4`、10000 样本、完整恢复、网口或外部功耗。后两类工作分别进入 `B3-STRICT-GATE` 与 `B4-RELEASE-GATE`。
+
+当前阶段合同由 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md` 主导，P16 TODO 段提供当前执行层级。开发链先关闭 `B3-MVP-GATE`；B2-06～B2-10/B2-GATE 可并行补齐发布证据，不再串行阻塞 MVP。B3-STRICT 在 MVP 之后，B4-RELEASE 只在完整 B2 与严格门之后启动。
 
 B2-08 依赖更新（2026-09-12）：adapter 四流计数和 fence snapshot 已进入 `b2_npu_axis_top`，并由 `0x40430000` 只读 AXI-Lite 状态块供 JTAG/PS 读取；HEAD `88bec9e` 的 200 MHz routed build 已通过，COM15 读回 command/sample/response/result=`658/658`、`8/8`、`1/1`、`10 beats/1 packet`，fence snapshot valid。该部分证据解除“状态块不可读”阻塞，但不解除完整多 packet/error/reset ledger、B2-GATE 或 B3 数值等价门。
 
@@ -16,7 +20,7 @@ B1依赖（2026-09-09）：B0实板配置链 → B1A来源审计与可重建硬�
 
 generated_by: nexus-mapper v2 / manual synthesis
 verified_at: 2026-09-12
-provenance: `.nexus-map/raw/ast_nodes.json` hub analysis and Python imports；SystemVerilog依赖由文件树/手工检查推断
+provenance: Git HEAD `fe25a70`；`.nexus-map/raw/ast_nodes.json` hub analysis and Python imports；SystemVerilog依赖由文件树/手工检查推断。未提交 RTL 排除在签核源码身份之外。
 
 ```mermaid
 graph TD
@@ -38,10 +42,11 @@ graph TD
   b0 --> b1a[P16 B1A: reproducible PS7 and RGMII hardware]
   b1a --> b1[P16 B1B/B1C: UART DDR PHY UDP]
   b1 --> b2[P16 B2: AXI DMA and fixed frame protocol]
-  b2 --> b3[P16 B3: traditional NPU plus ENeuron]
-  b3 --> b4[P16 B4: Ethernet end-to-end A/B]
-  hostmask[Host static 2:4 mask] -. validates NPU gating only .-> b3
-  live[live-ENeuron evidence and decision] -. proves automatic pruning path .-> b3
+  b2 --> mvp[P16 B3-MVP: group_4way live ENeuron]
+  mvp --> strict[P16 B3-STRICT: strict 2:4 and long recovery]
+  strict --> release[P16 B4-RELEASE: Ethernet and external power]
+  hostmask[Host static group_4way mask] -. validates MVP gating only .-> mvp
+  live[live-ENeuron evidence and decision] -. proves automatic pruning path .-> mvp
   changes[changed paths] --> classify[tools/ci/classify_changes.py]
   classify --> fast[fast-check]
   classify --> specialized[conditional specialized gates]

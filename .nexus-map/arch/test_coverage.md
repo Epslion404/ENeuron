@@ -1,12 +1,24 @@
 # 测试面与缺口
 
-B3-08a 覆盖（2026-09-12）：run `20260912T102046Z`、manifest `boards/hellozynq/b2_sw/build/73b12c30baf1507876c6bff01059a2c28c919a8d/direct/runs/20260912T102046Z/run_manifest.json`，同一物理通过 bit/XSA、COM15、`b3_static_mixed` 实板 PASS；logits=`74,-18,14,0,0,0,0,0,0,114`，group_4way execute/skip=`296/296`，fence valid=`1`。缺口是严格连接级 `2:4`（B3-08b）、live-ENeuron、周期/功耗，不能把该组级结果外推为自动剪枝收益。
+> generated_by: nexus-mapper v2 / manual synthesis
+> verified_at: 2026-09-12
+> provenance: Git HEAD `fe25a70`、已提交测试/manifest 与既有实板 run 人工核对；未提交 status probe / 计数器 RTL 不进入签核源码身份。
 
-当前摘要校正（2026-09-12）：HEAD=`f070577`，P16 当前活动未完成项为 `59`。既有 B2-PHY 基线在 200 MHz 为 WNS=`+0.005 ns`；B2-08 `0x40430000` 状态块已完成 COM15 实板部分读回。B3 dense/bypass/full-open 固定向量输出对照在 `20260912T050553Z`、`20260912T053341Z`、`20260912T053426Z` 均通过且逐项一致；当前测试缺口为执行/跳过组计数器物理核对、B3-06/B3-07 整项、静态 `2:4`、live-ENeuron 和恢复矩阵，另有完整 B2-06～B2-10 错误/复位账本与 B2-GATE。
+## 当前权威覆盖（2026-09-12）
 
-计数器物理覆盖（2026-09-12）：第三次 `route_design -directive Explore` 加 post-route `AggressiveExplore` 构建绑定 HEAD `c3a50eb`，最终 signoff 为 `WNS=+0.008/TNS=0/WHS=+0.036/THS=0 ns`，setup/hold 失败端点=0、route/DRC hard errors=0、DSP48E1=4，bit/XSA 具备下载资格。尚未在实板读回 execute/skip 计数器；dense 期望 `592/0`，因此 B3-06/B3-07 仍未完成。
+器件 `xc7z020clg484-2`。已提交 HEAD=`fe25a70`。已有实板证据：B0、B1A、低地址 B1B、B2 packet smoke、B3 dense/full-open/bypass、B3-08a 组级 static mixed。B3-09 Host 合同已接通，实板 ELF/JTAG 未关闭。Host 合同 ≠ 板级通过。严格连接级 `2:4` 仍是 B3-08b。工作树 DIRTY 的 status probe / 计数器 RTL 不是已签核源码身份。
 
-状态更正（2026-09-12）：当前物理和板级基线均绑定 `88bec9e9bdbec1de53ef45d2f22e4275308c0237`，工作树 HEAD 为 `88bec9e9bdbec1de53ef45d2f22e4275308c0237`。`20260912T040206Z` 在 COM15 完成 UART/JTAG/XSCT PASS，634 model words、19 mask words、fence、8-beat sample 和 10-beat result 均通过；状态块读回 command/sample/response/result=`658/658`、`8/8`、`1/1`、`10 beats/1 packet`，fence snapshot valid。该证据仍是合法 packet path 的部分覆盖，不代表数值等价或 B2-GATE。
+B3-09 Host 覆盖（2026-09-12）：`test_eneuron_group4way_live.py` 6/6。覆盖每 meta 恰好保留 2 组、active/skip=`296/296`、粒度 `group_4way`、`strict_2of4_candidate=false`、S2 gain=1、live mask 不等于冻结 static mixed、同输入确定性、NPU 参考 logits 对齐、manifest `b3_live_eneuron` 与 oracle 一致、ledger 记录 evidence/gain/epoch/sample。`test_b2_packet_board_contract.py` 断言 `-DB3_LIVE_ENEURON`、`B3_LIVE_ENEURON_PASS`，且源码不含 `B3_LIVE_ENEURON_MASK_WORDS`。期望 logits=`165,-18,14,0,0,0,0,0,0,153`，mask word1=`0x33393335`。缺口：`b3_live_eneuron` ELF 尚未在 COM15 以 UART/JTAG 关闭本项。
+
+B3-02 共享固定向量 manifest（2026-09-12）：`test_b3_fixed_vector_manifest_contract.py` 与 `test_b3_fixed_vector_manifest_loader.py` 共 `6 passed`。覆盖目标/schema/634-word 模型、sample ID、8 个输入 beat、dense/full-open/bypass/static mixed 模式、19-word `group_4way` mask、Python 参考输出重建和静态 mixed 组计数；Host PowerShell 读取同一 manifest 并生成 `b3_fixed_vector_generated.h` 的合同也通过。B3-02 已关闭；B3-01 的完整发布身份冻结属于 STRICT，不阻塞保存当次身份的 MVP 实板实验。
+
+B3-08a 覆盖（2026-09-12）：run `20260912T102046Z`、manifest `boards/hellozynq/b2_sw/build/73b12c30baf1507876c6bff01059a2c28c919a8d/direct/runs/20260912T102046Z/run_manifest.json`，同一物理通过 bit/XSA、COM15、`b3_static_mixed` 实板 PASS；logits=`74,-18,14,0,0,0,0,0,0,114`，group_4way execute/skip=`296/296`，fence valid=`1`。MVP 缺口是 live-ENeuron 实板、epoch 与小集合周期证据，不是 Host 算法合同。严格连接级 `2:4`、10000 样本、完整恢复属于后续 STRICT，功耗属于 RELEASE。
+
+当前测试分层（2026-09-12）：`B3-MVP-GATE` 只要求 B3-03/04/09/11/13/14，使用现有 `group_4way` 在同一 bitstream 上完成 dense、full-open、static 与 live-ENeuron 小集合正确性和周期 A/B。B3-09 的 Host 切片已绿，板级切片仍 OPEN。`B3-STRICT-GATE` 再覆盖严格 `2:4`、10000 样本和完整恢复；`B4-RELEASE-GATE` 覆盖网口与外部功耗。B2-GATE 的完整错误/复位账本仍开放，但不作为 MVP 前置。
+
+计数器物理覆盖（2026-09-12）：第三次 `route_design -directive Explore` 加 post-route `AggressiveExplore` 构建绑定 HEAD `c3a50eb`，最终 signoff 为 `WNS=+0.008/TNS=0/WHS=+0.036/THS=0 ns`，setup/hold 失败端点=0、route/DRC hard errors=0、DSP48E1=4。后续 dense/full-open/bypass 实板已读回 execute/skip=`592/0`，B3-00/B3-06/B3-07 已关闭。该物理身份不是当前提交 HEAD `fe25a70`。
+
+状态更正（2026-09-12）：仓库已提交 HEAD=`fe25a70`。packet smoke 物理身份绑定历史 `88bec9e9bdbec1de53ef45d2f22e4275308c0237`，不是当前工作树签核身份。`20260912T040206Z` 在 COM15 完成 UART/JTAG/XSCT PASS，634 model words、19 mask words、fence、8-beat sample 和 10-beat result 均通过；状态块读回 command/sample/response/result=`658/658`、`8/8`、`1/1`、`10 beats/1 packet`，fence snapshot valid。该证据仍是合法 packet path 的部分覆盖，不代表 B2-GATE，也不把未提交 RTL 写成该身份。
 
 TODO 计数更正：`workflow_resume.ps1 -Mode Check` 于 2026-09-10 在 HEAD `bc9ed89` 上报告 `TODO.md:P16=59`；本文其余 `63` 计数均为历史快照。
 
@@ -32,7 +44,7 @@ B1A-HW覆盖（2026-09-08）：干净提交`29edf6a...`的Vivado 2024.1完整构
 
 generated_by: nexus-mapper v2 / manual synthesis
 verified_at: 2026-09-12
-provenance: repository test names, signoff summaries, workflow state, latest GitHub/Webhook evidence
+provenance: Git HEAD `fe25a70`、仓库测试名、signoff summaries、workflow state；未提交 RTL 不作为签核源码身份
 
 已覆盖：Python/RTL 协同仿真、有限形式安全与可达性、负向 mutation、Tile/System Vivado OOC、XPM 仿真、NP4B 三模型 60000 事务签核；CI-Fast V1 已完成 workflow 全量、文档轻量和 NPU-only 定向路径验证。CI Action 已升级到 `actions/checkout@v7` 与 `actions/setup-python@v7` 的 Node 24 基线，分类合同要求任何 workflow 变更运行全量门。NPU oracle 新增并通过 `test_zero_activity_with_closed_gate_emits_no_reads_or_macs`、`test_frequent_epoch_switches_never_mix_masks`、`test_pending_slot_backpressure_rejects_overwrite` 三项最坏情况测试。
 
