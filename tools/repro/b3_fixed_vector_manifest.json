@@ -85,6 +85,21 @@
           "strict_2of4_candidate": false,
           "expected_logits": [74, -18, 14, 0, 0, 0, 0, 0, 0, 114],
           "prediction_class": 9
+        },
+        "b3_live_eneuron": {
+          "mask_epoch": 1,
+          "mask_granularity": "group_4way",
+          "mask_words": 19,
+          "mask_words_data": ["0x33333333", "0x33393335", "0x33333333", "0x33333333", "0x33333333", "0x33333333", "0x33333333", "0x33333333", "0x33333333", "0x33333333", "0x33333333", "0x33333333", "0x33333333", "0x33333333", "0x33333333", "0x33333333", "0x33333333", "0x33333333", "0x00003333"],
+          "mask_pattern": "eneuron_s2_live_group4way",
+          "decision_source": "live_eneuron_s2",
+          "score_method": "S2",
+          "gain": 1,
+          "active_groups": 296,
+          "skipped_groups": 296,
+          "strict_2of4_candidate": false,
+          "expected_logits": [165, -18, 14, 0, 0, 0, 0, 0, 0, 153],
+          "prediction_class": 0
         }
       }
     }

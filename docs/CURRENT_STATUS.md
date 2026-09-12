@@ -4,16 +4,16 @@
 
 ## 结论
 
-当前项目状态为：`FUNCTIONAL_PASS / PHYSICAL_PASS / B3_FIXED_VECTOR_PASS / BOARD_STATUS_PARTIAL`。
+当前项目状态为：`FUNCTIONAL_PASS / PHYSICAL_PASS / B3_FIXED_VECTOR_PASS / B3_LIVE_ENEURON_HOST_GREEN / BOARD_STATUS_PARTIAL`。
 
-主线是 `xc7z020clg484-2` 上的 packet-NPU 与 ENeuron 动态剪枝 A/B。当前已经完成 NPU packet 基线、计数器物理门、dense/full-open/bypass 固定向量实板闭环，以及组级 `group_4way` 静态 mixed mask 实板闭环；还没有完成严格连接级 `2:4`、live-ENeuron 动态剪枝收益、功耗收益或 B2-GATE。
+主线是 `xc7z020clg484-2` 上的 packet-NPU 与 ENeuron 动态剪枝 A/B。当前已经完成 NPU packet 基线、计数器物理门、dense/full-open/bypass 固定向量实板闭环、组级 `group_4way` 静态 mixed mask 实板闭环，以及 Host 侧 live ENeuron S2 组级决策（Python/C，尚未用该 ELF 关闭实板门）。还没有完成 live-ENeuron 实板 A/B、严格连接级 `2:4`、功耗收益或 B2-GATE。
 
 ## 已确认事实
 
 - Vivado 2024.1，器件 `xc7z020clg484-2`，`clk_fpga_0=200 MHz`。
 - 已签核 packet 基线 routed timing：`WNS=+0.005 ns`、`TNS=0`、`WHS=+0.034 ns`、`THS=0`；route errors 和 DRC hard errors 均为 `0`。
 - 计数器版本第三次 routed build `build_route_explore_20260912` 通过 `xc7z020clg484-2`、200 MHz 物理门：`WNS=+0.008 ns`、`TNS=0`、`WHS=+0.036 ns`、`THS=0`，route errors/DRC hard errors 为 `0`，DSP48E1 为 `4`。bit SHA-256=`5c6ebc07beb4bae83f5ddd1870ad2e4f53ccf56b244ae7577186c8398c910a88`，XSA SHA-256=`862883742e77e48c566fc49cc14746bc70830e27c894bdf948085c534177a614`。
-- 当前文档 HEAD 为 `379c8d8`；物理产物 manifest 绑定源码构建身份 `c3a50eb`，Nexus 文档提交未改变 RTL/软件源文件，工作树仍非 clean，后续需在 clean worktree 重建正式 manifest。
+- 当前仓库提交 HEAD 为 `3d26340`；物理产物 manifest 仍绑定源码构建身份 `c3a50eb`，本次 `3d26340` 只收口 B3-02 共享 manifest/Host 生成头文件，未改变已签核 bit/XSA。工作树仍含其他未提交改动，后续需在 clean worktree 重建正式 manifest。
 - 新计数器版本在 COM15 完成三次同源实板运行：dense `20260912T093643Z`、full-open `20260912T094035Z`、bypass `20260912T094155Z`。三次均通过 XSCT/JTAG/UART、完整结果帧 CRC、sample/model/epoch 元数据和黄金 logits `165,-18,14,0,0,0,0,0,0,153`。
 - 三次运行后的 `probe_b2_state.tcl` 均读回 `sample=8/8`、`response=1/1`、`result=10/1`、`fence_snapshot_valid=1`，并且 `execute_group_count=592`、`skip_group_count=0`；command 计数为 dense/full-open `658/658`、bypass `637/637`。这关闭 B3-00、B3-06、B3-07，不代表静态 `2:4` 或 live-ENeuron 已完成。
 - 静态 mixed run `20260912T102046Z` 使用同一 bit/XSA、COM15 和 `b3_static_mixed` ELF 通过 UART；`B3_STATIC_MASK_VALID` 报告 `592` 组中 `296/296`，结果 logits 为 `74,-18,14,0,0,0,0,0,0,114`。随后 XSCT probe 读回 `sample=8/8`、`response=1/1`、`result=10/1`、`fence_snapshot_valid=1`、`execute_group_count=296`、`skip_group_count=296`。该证据只关闭组级 static mixed 子门，不关闭严格连接级 `2:4`。
@@ -44,10 +44,10 @@
 
 ## 下一步
 
-1. 在当前文档提交后的 clean worktree 上重建同源 bit/XSA/ELF，冻结正式 manifest 身份。
-2. 补齐 Host 严格连接级 `2:4` mask；组级 `group_4way` mixed mask 已完成，但不能替代该门。
-3. 接入 ENeuron 证据到动态 mask 的 pending/fence/epoch 路径，再做重复性、恢复和精度 A/B。
-4. 在统一时间戳和外部测量条件下补齐周期、吞吐和功耗/能耗证据，并继续收口 B2 发布门。
+1. 用现有通过物理门的 bit/XSA 构建 `b3_live_eneuron` ELF，在 COM15 上跑 live S2 决策：UART `B3_LIVE_ENEURON_PASS`、JTAG execute/skip=`296/296`、logits 与黄金 `165,-18,...,153` 一致。
+2. 该实板切片关闭 B3-09 的组级 live 路径，不关闭严格 `2:4`。
+3. 再补 B3-11 epoch 重叠、B3-13/B3-14 小集合 A/B；严格连接级 `2:4` 仍走 B3-08b。
+4. clean worktree 重建正式物理身份，以及 B2-GATE / 功耗，继续不阻塞首次 live A/B。
 
 ## 文档口径
 

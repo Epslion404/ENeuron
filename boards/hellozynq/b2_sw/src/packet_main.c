@@ -35,6 +35,10 @@
 #define APPLICATION_MODE "b3_static_mixed"
 #define SAMPLE_MASK_EPOCH MASK_EPOCH
 #define SEND_MASK_COMMANDS 1
+#elif defined(B3_LIVE_ENEURON)
+#define APPLICATION_MODE "b3_live_eneuron"
+#define SAMPLE_MASK_EPOCH MASK_EPOCH
+#define SEND_MASK_COMMANDS 1
 #elif defined(B3_FULL_OPEN)
 #define APPLICATION_MODE "b3_full_open"
 #define SAMPLE_MASK_EPOCH MASK_EPOCH
@@ -49,10 +53,12 @@
 #define SEND_MASK_COMMANDS 1
 #endif
 
-#if defined(B3_BYPASS) || defined(B3_FULL_OPEN) || defined(B3_DENSE) || defined(B3_STATIC_MIXED)
+#if defined(B3_BYPASS) || defined(B3_FULL_OPEN) || defined(B3_DENSE) || defined(B3_STATIC_MIXED) || defined(B3_LIVE_ENEURON)
 #define B3_NUMERIC_CHECK 1
 #if defined(B3_STATIC_MIXED)
 static const s32 *const expected_logits = B3_STATIC_MIXED_LOGITS;
+#elif defined(B3_LIVE_ENEURON)
+static const s32 *const expected_logits = B3_LIVE_ENEURON_LOGITS;
 #else
 static const s32 *const expected_logits = B3_DENSE_LOGITS;
 #endif
@@ -194,6 +200,143 @@ static u32 static_mixed_mask_word(u32 index)
     /* 每 bit 控制一个四权重组；该组级候选由黄金 manifest 提供。 */
     return B3_STATIC_MIXED_MASK_WORDS[index];
 }
+
+#if defined(B3_LIVE_ENEURON)
+static u32 live_mask_words[19];
+static u32 live_mask_ready;
+
+static s8 decode_int8_byte(u32 word, u32 byte_index)
+{
+    return (s8)((word >> (8U * byte_index)) & 0xFFU);
+}
+
+static u32 quantize_live_evidence(s32 contribution)
+{
+    u32 magnitude = (contribution < 0) ? (u32)(-contribution) : (u32)contribution;
+    u32 level = (magnitude + 15U) / 16U;
+    return (level > 3U) ? 3U : level;
+}
+
+static u32 live_top2_mask(const u32 evidence[4])
+{
+    u32 order[4] = {0U, 1U, 2U, 3U};
+    u32 first;
+    u32 second;
+    u32 tmp;
+    for (first = 0U; first < 3U; ++first) {
+        for (second = first + 1U; second < 4U; ++second) {
+            u32 left = evidence[order[first]];
+            u32 right = evidence[order[second]];
+            if (right > left || (right == left && order[second] < order[first])) {
+                tmp = order[first];
+                order[first] = order[second];
+                order[second] = tmp;
+            }
+        }
+    }
+    return (1U << order[0]) | (1U << order[1]);
+}
+
+static s32 group_mac(u32 word, const s32 *activations, u32 start)
+{
+    s32 acc = 0;
+    u32 lane;
+    for (lane = 0U; lane < 4U; ++lane) {
+        acc += (s32)decode_int8_byte(word, lane) * activations[start + lane];
+    }
+    return acc;
+}
+
+static void apply_live_meta_mask(u32 *bits, u32 group_base, u32 mask)
+{
+    u32 local;
+    for (local = 0U; local < 4U; ++local) {
+        if ((mask >> local) & 1U) {
+            bits[group_base + local] = 1U;
+        }
+    }
+}
+
+static void compute_live_group4way_mask(void)
+{
+    s32 pixels[64];
+    s32 hidden[32];
+    u32 bits[592];
+    u32 beat;
+    u32 nibble;
+    u32 hidden_index;
+    u32 output_index;
+    u32 meta;
+    u32 group;
+    u32 word_index;
+    u32 bit_index;
+
+    for (beat = 0U; beat < 8U; ++beat) {
+        for (nibble = 0U; nibble < 8U; ++nibble) {
+            pixels[beat * 8U + nibble] = (s32)((B3_SAMPLE_INPUT_BEATS[beat] >> (4U * nibble)) & 0xFU);
+        }
+    }
+    for (bit_index = 0U; bit_index < 592U; ++bit_index) {
+        bits[bit_index] = 0U;
+    }
+
+    for (hidden_index = 0U; hidden_index < 32U; ++hidden_index) {
+        s32 acc = (s32)model_word_for_index(512U + hidden_index);
+        u32 evidence[4];
+        for (group = 0U; group < 16U; ++group) {
+            acc += group_mac(model_word_for_index(16U * hidden_index + group), pixels, group * 4U);
+        }
+        if (acc < 0) {
+            hidden[hidden_index] = 0;
+        } else if (acc > 127) {
+            hidden[hidden_index] = 127;
+        } else {
+            hidden[hidden_index] = acc;
+        }
+        for (meta = 0U; meta < 4U; ++meta) {
+            for (group = 0U; group < 4U; ++group) {
+                u32 group_index = meta * 4U + group;
+                s32 contribution = group_mac(
+                    model_word_for_index(16U * hidden_index + group_index),
+                    pixels,
+                    group_index * 4U);
+                evidence[group] = quantize_live_evidence(contribution);
+            }
+            apply_live_meta_mask(bits, hidden_index * 16U + meta * 4U, live_top2_mask(evidence));
+        }
+    }
+
+    for (output_index = 0U; output_index < 10U; ++output_index) {
+        u32 evidence[4];
+        for (meta = 0U; meta < 2U; ++meta) {
+            for (group = 0U; group < 4U; ++group) {
+                u32 group_index = meta * 4U + group;
+                s32 contribution = group_mac(
+                    model_word_for_index(544U + 8U * output_index + group_index),
+                    hidden,
+                    group_index * 4U);
+                evidence[group] = quantize_live_evidence(contribution);
+            }
+            apply_live_meta_mask(bits, 512U + output_index * 8U + meta * 4U, live_top2_mask(evidence));
+        }
+    }
+
+    for (word_index = 0U; word_index < 19U; ++word_index) {
+        live_mask_words[word_index] = 0U;
+    }
+    for (bit_index = 0U; bit_index < 592U; ++bit_index) {
+        if (bits[bit_index] != 0U) {
+            live_mask_words[bit_index / 32U] |= 1U << (bit_index & 31U);
+        }
+    }
+    live_mask_ready = 1U;
+}
+
+static u32 live_mask_word(u32 index)
+{
+    return live_mask_words[index];
+}
+#endif
 
 static int validate_static_mixed_mask(void)
 {
@@ -400,6 +543,10 @@ static int send_sample_and_check(void)
         xil_printf("B3_STATIC_MIXED_PASS sequence=%u sample_id=0x%08x response_words=%u mask_words=%u logits=74,-18,14,0,0,0,0,0,0,114 group_reads=296 group_skips=296 granularity=%s strict_2of4_candidate=%u\r\n",
                    request_sequence, sample_id, response_words, MASK_WORDS,
                    GROUP_MASK_GRANULARITY, STRICT_2OF4_CANDIDATE);
+        #elif defined(B3_LIVE_ENEURON)
+        xil_printf("B3_LIVE_ENEURON_PASS sequence=%u sample_id=0x%08x response_words=%u mask_words=%u logits=165,-18,14,0,0,0,0,0,0,153 group_reads=296 group_skips=296 granularity=%s strict_2of4_candidate=%u decision_source=live_eneuron_s2\r\n",
+                   request_sequence, sample_id, response_words, MASK_WORDS,
+                   GROUP_MASK_GRANULARITY, STRICT_2OF4_CANDIDATE);
         #elif defined(B3_FULL_OPEN)
         xil_printf("B3_FULL_OPEN_PASS sequence=%u sample_id=0x%08x response_words=%u mask_words=%u logits=165,-18,14,0,0,0,0,0,0,153\r\n",
                    request_sequence, sample_id, response_words, MASK_WORDS);
@@ -460,11 +607,21 @@ int main(void)
     xil_printf("B3_STATIC_MASK_VALID groups=592 active_groups=296 skipped_groups=296 granularity=%s strict_2of4_candidate=%s\r\n",
                GROUP_MASK_GRANULARITY, STRICT_2OF4_CANDIDATE_TEXT);
 #endif
+#if defined(B3_LIVE_ENEURON)
+    compute_live_group4way_mask();
+    if (live_mask_ready == 0U) {
+        return fail("live_mask_compute");
+    }
+    xil_printf("B3_LIVE_MASK_VALID groups=592 active_groups=296 skipped_groups=296 granularity=%s strict_2of4_candidate=%s decision_source=live_eneuron_s2 gain=1 score=S2\r\n",
+               GROUP_MASK_GRANULARITY, STRICT_2OF4_CANDIDATE_TEXT);
+#endif
     if (send_command(OP_MASK_BEGIN, MASK_EPOCH, 0U) != XST_SUCCESS) return XST_FAILURE;
     for (index = 0U; index < MASK_WORDS; ++index) {
         u32 mask_word;
 #if defined(B3_STATIC_MIXED)
         mask_word = static_mixed_mask_word(index);
+#elif defined(B3_LIVE_ENEURON)
+        mask_word = live_mask_word(index);
 #else
         mask_word = B3_FULL_OPEN_MASK_WORDS[index];
 #endif
@@ -484,6 +641,10 @@ int main(void)
     xil_printf("B3_STATIC_MIXED_PASS model_words=%u mask_words=%u group_reads=296 group_skips=296 granularity=%s strict_2of4_candidate=%u\r\n",
                MODEL_WORDS, MASK_WORDS, GROUP_MASK_GRANULARITY,
                STRICT_2OF4_CANDIDATE);
+    #elif defined(B3_LIVE_ENEURON)
+    xil_printf("B3_LIVE_ENEURON_PASS model_words=%u mask_words=%u group_reads=296 group_skips=296 granularity=%s strict_2of4_candidate=%u decision_source=live_eneuron_s2\r\n",
+               MODEL_WORDS, MASK_WORDS, GROUP_MASK_GRANULARITY,
+               STRICT_2OF4_CANDIDATE);
     #elif defined(B3_FULL_OPEN)
     xil_printf("B3_FULL_OPEN_PASS model_words=%u mask_words=%u\r\n", MODEL_WORDS, MASK_WORDS);
     #else
@@ -500,6 +661,10 @@ int main(void)
         xil_printf("B3_BYPASS_PASS model_words=%u mask_words=0\r\n", MODEL_WORDS);
         #elif defined(B3_STATIC_MIXED)
         xil_printf("B3_STATIC_MIXED_PASS model_words=%u mask_words=%u group_reads=296 group_skips=296 granularity=%s strict_2of4_candidate=%u\r\n",
+                   MODEL_WORDS, MASK_WORDS, GROUP_MASK_GRANULARITY,
+                   STRICT_2OF4_CANDIDATE);
+        #elif defined(B3_LIVE_ENEURON)
+        xil_printf("B3_LIVE_ENEURON_PASS model_words=%u mask_words=%u group_reads=296 group_skips=296 granularity=%s strict_2of4_candidate=%u decision_source=live_eneuron_s2\r\n",
                    MODEL_WORDS, MASK_WORDS, GROUP_MASK_GRANULARITY,
                    STRICT_2OF4_CANDIDATE);
         #elif defined(B3_FULL_OPEN)

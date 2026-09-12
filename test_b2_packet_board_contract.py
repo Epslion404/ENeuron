@@ -64,14 +64,17 @@ class B2PacketBoardContractTests(unittest.TestCase):
             "[switch]$B3FullOpen",
             "[switch]$B3Bypass",
             "[switch]$B3StaticMixed",
+            "[switch]$B3LiveEneuron",
             "-DB3_DENSE",
             "-DB3_FULL_OPEN",
             "-DB3_BYPASS",
             "-DB3_STATIC_MIXED",
+            "-DB3_LIVE_ENEURON",
             "b3_dense",
             "b3_full_open",
             "b3_bypass",
             "b3_static_mixed",
+            "b3_live_eneuron",
             "expected_logits",
             "input_pattern",
             "mask_pattern",
@@ -107,9 +110,21 @@ class B2PacketBoardContractTests(unittest.TestCase):
         self.assertIn("group_4way", source)
         self.assertIn("false", source)
 
+    def test_live_eneuron_mode_computes_mask_on_host(self):
+        source = (ROOT / "boards/hellozynq/b2_sw/src/packet_main.c").read_text(encoding="utf-8")
+        for token in (
+            "B3_LIVE_ENEURON",
+            "B3_LIVE_ENEURON_PASS",
+            "compute_live_group4way_mask",
+            "live_eneuron_s2",
+            "B3_LIVE_MASK_VALID",
+        ):
+            self.assertIn(token, source)
+        self.assertNotIn("B3_LIVE_ENEURON_MASK_WORDS", source)
+
     def test_packet_board_runner_selects_terminal_marker_from_manifest(self):
         source = (ROOT / "boards/hellozynq/b2_sw/run_b2_packet_board.ps1").read_text(encoding="utf-8")
-        for token in ("application_mode", "B3_DENSE_PASS", "B3_FULL_OPEN_PASS", "B3_BYPASS_PASS", "B3_STATIC_MIXED_PASS", "terminal_marker"):
+        for token in ("application_mode", "B3_DENSE_PASS", "B3_FULL_OPEN_PASS", "B3_BYPASS_PASS", "B3_STATIC_MIXED_PASS", "B3_LIVE_ENEURON_PASS", "terminal_marker"):
             self.assertIn(token, source)
 
     def test_changes_use_b2_board_scope(self):

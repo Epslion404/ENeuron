@@ -49,6 +49,7 @@ $markerByMode = @{
     b3_full_open = 'B3_FULL_OPEN_PASS'
     b3_bypass = 'B3_BYPASS_PASS'
     b3_static_mixed = 'B3_STATIC_MIXED_PASS'
+    b3_live_eneuron = 'B3_LIVE_ENEURON_PASS'
 }
 $terminalMarker = if ($markerByMode.ContainsKey($applicationMode)) { $markerByMode[$applicationMode] } else { 'B2_PACKET_PASS' }
 $resultMarker = if ($markerByMode.ContainsKey($applicationMode)) { $markerByMode[$applicationMode] } else { 'B2_PACKET_RESULT_PASS' }

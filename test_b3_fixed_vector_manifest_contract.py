@@ -28,7 +28,7 @@ class B3FixedVectorManifestTests(unittest.TestCase):
         self.assertEqual(sample["sample_id"], "0x12345678")
         self.assertEqual(len(sample["input_beats"]), 8)
         self.assertEqual(set(sample["modes"]), {
-            "b3_dense", "b3_full_open", "b3_bypass", "b3_static_mixed"
+            "b3_dense", "b3_full_open", "b3_bypass", "b3_static_mixed", "b3_live_eneuron"
         })
         for mode in sample["modes"].values():
             self.assertEqual(len(mode["expected_logits"]), 10)
@@ -36,7 +36,7 @@ class B3FixedVectorManifestTests(unittest.TestCase):
 
     def test_gated_modes_include_replayable_mask_words(self) -> None:
         modes = self.manifest["samples"][0]["modes"]
-        for name in ("b3_dense", "b3_full_open", "b3_static_mixed"):
+        for name in ("b3_dense", "b3_full_open", "b3_static_mixed", "b3_live_eneuron"):
             self.assertEqual(len(modes[name]["mask_words_data"]), 19)
         self.assertNotIn("mask_words_data", modes["b3_bypass"])
 

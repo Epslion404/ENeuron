@@ -1,5 +1,12 @@
 # 进度记录
 
+## 2026-09-12 B3-09 Host live 路径
+
+- 新增 `eneuron_group4way_live.py` 与 `test_eneuron_group4way_live.py`：6/6 通过。
+- 定向合同 `test_b3_fixed_vector_manifest_contract`、`test_b2_packet_board_contract` 与 live 测试合计 22/22。
+- `packet_main.c` 增加 `B3_LIVE_ENEURON`：模型装载后用 S2 现场生成 19-word mask，再走既有 MASK/fence/sample。
+- 下一步：`run_b2_packet_sw_build.ps1 -B3LiveEneuron` 后在现有 bit/XSA、COM15 上板。
+
 ## 2026-09-12 严格 2:4 Host 合同基础
 
 - 修正严格 `2:4` 合同测试中的边界数据：`0b0011` 是合法 mask，不再作为非法值；`pytest -q test_strict_2of4_mask.py` 当前为 `3 passed`。
@@ -2092,3 +2099,11 @@
 - 同一通过物理门的 bit/XSA、COM15 和 `b2_packet_b3_static_mixed.elf` 完成实板运行：`B3_STATIC_MASK_VALID groups=592 active_groups=296 skipped_groups=296`，`B3_STATIC_MIXED_PASS` 逐 beat 结果通过，fence sequence=`658`，sample sequence=`659`。
 - 独立 `probe_b2_state.tcl` 读回 `B2_NPU_SAMPLE_ACCEPT=8`、`SAMPLE_COMPLETE=8`、`RESPONSE_ACCEPT/COMPLETE=1/1`、`RESULT_ACCEPT/COMPLETE=10/1`、`FENCE_SNAPSHOT_VALID=1`、`EXECUTE_GROUP_COUNT=296`、`SKIP_GROUP_COUNT=296`；RX logits 为 `0x4A,-18,14,...,114`。
 - 证据边界：当前 mask 每一位控制四权重组，粒度是 `group_4way`；B3-08a 关闭，严格连接级 `2:4` 保留为 B3-08b，不能把该结果称为 ENeuron 自动决策或功耗收益。
+# 2026-09-12 B3-MVP 快速路径与 B3-03 启动
+
+- 已将主线 TODO 拆为 `B3-MVP-GATE -> B3-STRICT-GATE -> B4-RELEASE-GATE`；B2-GATE、严格 `2:4`、10000 样本、网口和外部功耗不再阻塞首次组级 live-ENeuron 周期 A/B。
+- `workflow_resume.ps1 -Mode Check` 通过，`git diff --check -- docs/planning/TODO.md` 通过。
+- 当前开始 B3-03 最小可观测切片；已确认四流、fence、execute/skip 已接入状态块，缺口为模式、active/pending epoch、每样本周期和聚合协议错误数。
+- 已委托子代理独立同步 `.nexus-map` 的新门分层；实现主线不等待知识库更新。
+- 错误记录：一次定向 `rg` 引用了不存在的旧文件名 `tb_npu_single_clock_compute.sv`；实际 testbench 为 `tb_npu_eneuron_single_clock_compute.sv`，后续改用实际路径，不重复原搜索。
+- B3-03 第一个 TDD 纵向切片完成：测试先因 core 缺少 `last_compute_cycles` 端口 RED，随后实现第 8 个 sample beat 后计数、最后 L1 writeback 锁存。V2 时序合同验证全开、部分剪枝、全关和单组关闭的锁存周期与原外部观测一致，定向测试 `1 passed`。

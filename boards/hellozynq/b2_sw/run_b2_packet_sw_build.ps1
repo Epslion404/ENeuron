@@ -3,7 +3,8 @@ param(
     [switch]$B3Dense,
     [switch]$B3FullOpen,
     [switch]$B3Bypass,
-    [switch]$B3StaticMixed
+    [switch]$B3StaticMixed,
+    [switch]$B3LiveEneuron
 )
 
 $ErrorActionPreference = 'Stop'
@@ -49,9 +50,9 @@ if (-not $xparameters -or -not $libxil -or -not $linkerScript -or -not $xilinxSp
 
 $includeDir = Split-Path -Parent $xparameters.FullName
 $libDir = Split-Path -Parent $libxil.FullName
-$modeCount = @($B3Dense, $B3FullOpen, $B3Bypass, $B3StaticMixed | Where-Object { $_ }).Count
-if ($modeCount -gt 1) { throw 'B3Dense, B3FullOpen, B3Bypass and B3StaticMixed are mutually exclusive' }
-$applicationMode = if ($B3Bypass) { 'b3_bypass' } elseif ($B3StaticMixed) { 'b3_static_mixed' } elseif ($B3FullOpen) { 'b3_full_open' } elseif ($B3Dense) { 'b3_dense' } else { 'b2_packet_smoke' }
+$modeCount = @($B3Dense, $B3FullOpen, $B3Bypass, $B3StaticMixed, $B3LiveEneuron | Where-Object { $_ }).Count
+if ($modeCount -gt 1) { throw 'B3Dense, B3FullOpen, B3Bypass, B3StaticMixed and B3LiveEneuron are mutually exclusive' }
+$applicationMode = if ($B3Bypass) { 'b3_bypass' } elseif ($B3StaticMixed) { 'b3_static_mixed' } elseif ($B3LiveEneuron) { 'b3_live_eneuron' } elseif ($B3FullOpen) { 'b3_full_open' } elseif ($B3Dense) { 'b3_dense' } else { 'b2_packet_smoke' }
 $elfStem = "b2_packet_$applicationMode"
 $modeSpec = $null
 if ($applicationMode -like 'b3_*') {
@@ -65,6 +66,8 @@ if ($applicationMode -like 'b3_*') {
         'reset default full-open; no mask commands'
     } elseif ($applicationMode -eq 'b3_static_mixed') {
         '0x33333333 repeated; group_4way mixed mask, strict_2of4_candidate=false'
+    } elseif ($applicationMode -eq 'b3_live_eneuron') {
+        'Host live ENeuron S2 group_4way; computed on PS, not frozen mixed replay'
     } else {
         'full-open group_4way mask'
     }
@@ -79,6 +82,7 @@ if ($B3Dense) { $compileDefines += '-DB3_DENSE' }
 if ($B3FullOpen) { $compileDefines += '-DB3_FULL_OPEN' }
 if ($B3Bypass) { $compileDefines += '-DB3_BYPASS' }
 if ($B3StaticMixed) { $compileDefines += '-DB3_STATIC_MIXED' }
+if ($B3LiveEneuron) { $compileDefines += '-DB3_LIVE_ENEURON' }
 $objectPath = Join-Path $outRoot "packet_main_$applicationMode.o"
 $elfPath = Join-Path $outRoot "$elfStem.elf"
 $generatedHeader = Join-Path $outRoot 'b3_fixed_vector_generated.h'
@@ -106,9 +110,9 @@ $headerLines.Add('}')
 $headerLines.Add('static const u32 B3_SAMPLE_INPUT_BEATS[8] = {')
 $headerLines.Add(('    ' + (($goldenSample.input_beats | ForEach-Object { '{0}U' -f $_ }) -join ', ') + ','))
 $headerLines.Add('};')
-foreach ($modeName in @('b3_dense', 'b3_static_mixed', 'b3_bypass')) {
+foreach ($modeName in @('b3_dense', 'b3_static_mixed', 'b3_live_eneuron', 'b3_bypass')) {
     $mode = $goldenSample.modes.PSObject.Properties[$modeName].Value
-    $logitName = if ($modeName -eq 'b3_static_mixed') { 'B3_STATIC_MIXED_LOGITS' } else { 'B3_DENSE_LOGITS' }
+    $logitName = if ($modeName -eq 'b3_static_mixed') { 'B3_STATIC_MIXED_LOGITS' } elseif ($modeName -eq 'b3_live_eneuron') { 'B3_LIVE_ENEURON_LOGITS' } else { 'B3_DENSE_LOGITS' }
     if ($modeName -ne 'b3_bypass') {
         $headerLines.Add(('static const s32 {0}[10] = {{ {1} }};' -f $logitName, (($mode.expected_logits | ForEach-Object { '{0}' -f $_ }) -join ', ')))
     }
