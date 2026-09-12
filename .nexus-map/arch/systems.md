@@ -1,20 +1,20 @@
 # 系统边界
 
 > generated_by: nexus-mapper v2 / manual synthesis
-> verified_at: 2026-09-12
-> provenance: live tree=`D:/Documents/Code/ENeuron-board-b0`，分支 `codex/b1b-high-ddr-board-repro` / PR #88。bitstream RTL 身份 `be84596`。`D:/Documents/Code/ENeuron` 不是当前 live tree。证据 `artifacts/logs/b3_mvp_20260912_be84596/`。
+> verified_at: 2026-09-13
+> provenance: live tree=`D:/Documents/Code/ENeuron-board-b0`，分支 `codex/b1b-high-ddr-board-repro` / PR #88。bitstream RTL 身份 `be84596`。`D:/Documents/Code/ENeuron` 不是当前 live tree。SPEED 证据 `artifacts/logs/b3_speed_20260912_be84596/b3_speed_comparison.json`。
 
-## 当前权威快照（2026-09-12，B3-MVP-GATE 已关）
+## 当前权威快照（2026-09-13，日常主线 B3-POWER）
 
-器件 `xc7z020clg484-2`。主线是板上 packet-NPU + ENeuron 组级动态剪枝。live tree 是本工作树 / PR #88，不是 `D:/Documents/Code/ENeuron`。
+器件 `xc7z020clg484-2`。日常主线是 `B3-POWER`（外部功耗），不是 B3-08b。主线仍是板上 packet-NPU + ENeuron 组级动态剪枝。live tree 是本工作树 / PR #88，不是 `D:/Documents/Code/ENeuron`。
 
 B3-MVP-GATE 已关。同一份集中 Vivado 2024.1 bitstream：RTL 身份 `be84596`，200 MHz FCLK0，WNS=+0.045 ns，TNS=0，WHS=+0.036 ns，THS=0，route/DRC hard errors=0，DSP48E1=4。bit SHA-256=`0ecbe76274c39418f2a60a88358d3ff6f09f5a2ed73a44a3a419c34eb91d3a11`，XSA SHA-256=`135d979d61c629922ee5419e51dd97ef045d9bab79930432816d09f109291d1a`。
 
 冻结 AXI-Lite 状态块 `0x40430000`（`b2_npu_status_probe.v`）：0x00-0x4C 不变；0x50 runtime_status；0x54/0x58 active/pending mask epoch；0x5C last NPU compute cycles；0x60 protocol errors。pending epoch 来自 core `mask_state==MASK_PUBLISHED`，不是 `mask_valid`。COM15 CH340 `VID_1A86:PID_7523`。B3-11 hold：MASK_COMMIT 后、下一样本前 `active=0 pending=1`；样本后 `active=1 pending=0`。
 
-四模式 A/B 两轮一致：dense/full-open 592/0 组、2494 cycles、logits 165,-18,14,0,0,0,0,0,0,153；static mixed 296/296、1606 cycles、logits 74,-18,...,114、`decision_source=host_replay_static_mixed`；live-ENeuron 296/296、1606 cycles、dense logits、`decision_source=live_eneuron_s2`。只可声称 `group_4way` 动态剪枝正确性 + 局部 NPU 周期差值 888 cycles。不可声称网口加速、测得功耗、严格 `2:4`、B2-GATE。
+四模式 A/B 两轮一致：dense/full-open 592/0 组、2494 cycles、logits 165,-18,14,0,0,0,0,0,0,153；static mixed 296/296、1606 cycles、logits 74,-18,...,114、`decision_source=host_replay_static_mixed`；live-ENeuron 296/296、1606 cycles、dense logits、`decision_source=live_eneuron_s2`。同源 bit `be84596` / SHA `0ecbe762…3a11`、COM15 系统路径：dense/full-open PS 7 µs、DMA ~60 µs、UART ~66–77 ms；static DMA 56 µs、UART 63 ms；live PS 996 µs、DMA 56 µs。只可声称 `group_4way` 动态剪枝正确性 + 局部 NPU 周期差值 888 cycles。禁止：888 当端到端加速、Vivado 功耗当板上功耗、19-word 当连接级 `2:4`。
 
-当前门：`B3-POWER`（外部功耗）。`B3-SPEED` 已关（888 cycle 被 DMA/UART 掩盖）。`B3-STRICT-GATE`（lane 2:4、10k 样本）→ B2-GATE 剩余 → B4 网口/功耗。后文旧 HEAD（`fe25a70`/`88bec9e`/`c3a50eb`/`f070577`）只描述当时证据身份。
+`B3-SPEED` 已关。`claim=local_npu_cycle_delta_only`，`end_to_end_accelerated=false`。888 cycle ≈ 4.4 µs 被系统路径掩盖。证据：`artifacts/logs/b3_speed_20260912_be84596/b3_speed_comparison.json`。当前门：`B3-POWER`（外部功耗）。`B3-STRICT-GATE`（lane 2:4、10k 样本）是结构实验，不是加速硬门。后文旧 HEAD（`fe25a70`/`88bec9e`/`c3a50eb`/`f070577`）只描述当时证据身份。
 
 ## 当前边界校正（中等精简）
 
