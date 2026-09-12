@@ -51,6 +51,9 @@ module tb_npu_eneuron_single_clock_compute;
     logic result_ready = 1'b1;
     wire runtime_idle, model_valid, mask_valid, infer_frozen;
     wire [31:0] state_clear_count;
+    wire [31:0] last_compute_cycles;
+    wire [31:0] active_mask_epoch;
+    wire [31:0] pending_mask_epoch;
 
     integer clock_count = 0;
 `ifdef TIMING_REPAIR_CONTRACT
@@ -102,7 +105,8 @@ module tb_npu_eneuron_single_clock_compute;
         .result_data(result_data), .result_sample_id(result_sample_id), .result_mask_epoch(result_mask_epoch),
         .result_valid(result_valid), .result_ready(result_ready), .runtime_idle(runtime_idle),
         .model_valid(model_valid), .mask_valid(mask_valid), .infer_frozen(infer_frozen),
-        .state_clear_count(state_clear_count)
+        .state_clear_count(state_clear_count), .last_compute_cycles(last_compute_cycles),
+        .active_mask_epoch(active_mask_epoch), .pending_mask_epoch(pending_mask_epoch)
     );
 
     function automatic logic [31:0] model_word(input integer index);
@@ -247,6 +251,9 @@ module tb_npu_eneuron_single_clock_compute;
             if (observed_compute_cycles != expected_compute_cycles)
                 $fatal(1, "compute cycle mismatch got=%0d expected=%0d",
                        observed_compute_cycles, expected_compute_cycles);
+            if (last_compute_cycles != expected_compute_cycles)
+                $fatal(1, "latched compute cycle mismatch got=%0d expected=%0d",
+                       last_compute_cycles, expected_compute_cycles);
         end
     endtask
 
@@ -517,6 +524,9 @@ module tb_npu_eneuron_single_clock_compute;
             $fatal(1, "ready/idle asserted while compute is active");
         // 当前样本计算期间并发发布下一 mask；它只能影响下一样本。
         publish_mask(32'd1, 1);
+        if (active_mask_epoch !== 32'd0 || pending_mask_epoch !== 32'd1)
+            $fatal(1, "published mask epoch state mismatch active=%0d pending=%0d mask_valid=%0d published=%0d",
+                   active_mask_epoch, pending_mask_epoch, mask_valid, dut.mask_published_epoch);
         check_result(32'h101, 32'd0, 32'sd137, 32'sd59);
 `ifdef TIMING_REPAIR_CONTRACT
         check_contract();
@@ -529,6 +539,8 @@ module tb_npu_eneuron_single_clock_compute;
 
         // 下一样本首 beat 激活新版本：logit0=-117，output9 只剩 bias=-1。
         send_sample(32'h102);
+        if (active_mask_epoch !== 32'd1 || pending_mask_epoch !== 32'd0)
+            $fatal(1, "published mask epoch did not activate atomically at sample boundary");
         check_result(32'h102, 32'd1, -32'sd117, -32'sd1);
 `ifdef TIMING_REPAIR_CONTRACT
         check_contract();

@@ -45,10 +45,10 @@
 
 ## 下一步
 
-1. B3-11：样本计算中发布下一 mask epoch，证明结果绑定旧 epoch。
-2. B3-13/B3-14：同一 bitstream 上 dense / full-open / static-group_4way / live-ENeuron 小集合周期 A/B。
-3. B3-08b 严格连接级 `2:4` 仍需协议/RTL 扩展，不阻塞 B3-MVP-GATE。
-4. clean worktree 重建正式物理身份；B2-GATE 与功耗不阻塞当前 MVP。
+1. B3-11：样本计算中发布下一 mask epoch（RTL 与 B3-03 一起稳定后，才进入 B3-04 集中 bitstream）。
+2. B3-04：B3-03/09/11 RTL 稳定后一次 Vivado 实现；文档/纯 Host 改动不重建 PL。
+3. B3-13/B3-14：同一 bitstream 上 dense / full-open / static / live 小集合周期 A/B。
+4. 严格 `2:4`、10000 样本、网口、功耗不在 B3-MVP 内。
 
 ## 文档口径
 

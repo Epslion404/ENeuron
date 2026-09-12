@@ -75,10 +75,11 @@ set_property -dict [list \
 ] $dma
 
 set control_sc [create_bd_cell -type ip -vlnv xilinx.com:ip:smartconnect:1.0 dma_control_smartconnect]
-set_property -dict [list CONFIG.NUM_SI {1} CONFIG.NUM_MI {3}] $control_sc
+set_property -dict [list CONFIG.NUM_SI {1} CONFIG.NUM_MI {4}] $control_sc
 set probe_mm2s [create_bd_cell -type module -reference axis_stream_probe axis_stream_probe_mm2s]
 set probe_s2mm [create_bd_cell -type module -reference axis_stream_probe axis_stream_probe_s2mm]
 set packet_npu [create_bd_cell -type module -reference b2_npu_axis_top b2_npu_axis_top_0]
+set npu_status [create_bd_cell -type module -reference b2_npu_status_probe b2_npu_status_probe_0]
 
 set mem_sc [create_bd_cell -type ip -vlnv xilinx.com:ip:smartconnect:1.0 dma_mem_smartconnect]
 set_property -dict [list CONFIG.NUM_SI {2} CONFIG.NUM_MI {1}] $mem_sc
@@ -97,6 +98,7 @@ connect_bd_intf_net [get_bd_intf_pins axi_protocol_converter_0/M_AXI] [get_bd_in
 connect_bd_intf_net [get_bd_intf_pins dma_control_smartconnect/M00_AXI] [get_bd_intf_pins axi_dma_0/S_AXI_LITE]
 connect_bd_intf_net [get_bd_intf_pins dma_control_smartconnect/M01_AXI] [get_bd_intf_pins axis_stream_probe_mm2s/S_AXI]
 connect_bd_intf_net [get_bd_intf_pins dma_control_smartconnect/M02_AXI] [get_bd_intf_pins axis_stream_probe_s2mm/S_AXI]
+connect_bd_intf_net [get_bd_intf_pins dma_control_smartconnect/M03_AXI] [get_bd_intf_pins b2_npu_status_probe_0/S_AXI]
 connect_bd_intf_net [get_bd_intf_pins axi_dma_0/M_AXI_MM2S] [get_bd_intf_pins dma_mem_smartconnect/S00_AXI]
 connect_bd_intf_net [get_bd_intf_pins axi_dma_0/M_AXI_S2MM] [get_bd_intf_pins dma_mem_smartconnect/S01_AXI]
 connect_bd_intf_net [get_bd_intf_pins dma_mem_smartconnect/M00_AXI] [get_bd_intf_pins processing_system7_0/S_AXI_HP0]
@@ -110,6 +112,17 @@ connect_bd_intf_net [get_bd_intf_pins b2_npu_axis_top_0/M_AXIS] \
     [get_bd_intf_pins axis_stream_probe_s2mm/S_AXIS]
 connect_bd_intf_net [get_bd_intf_pins axis_stream_probe_s2mm/M_AXIS] \
     [get_bd_intf_pins axi_dma_0/S_AXIS_S2MM]
+
+foreach pin {
+    command_accept_count command_complete_count sample_accept_count sample_complete_count
+    response_accept_count response_complete_count result_accept_count result_complete_count
+    execute_group_count skip_group_count
+    runtime_status active_mask_epoch pending_mask_epoch
+    last_compute_cycles protocol_error_count
+    fence_snapshot_valid fence_snapshot_counts
+} {
+    connect_bd_net [get_bd_pins b2_npu_axis_top_0/$pin] [get_bd_pins b2_npu_status_probe_0/$pin]
+}
 
 connect_bd_net [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins gmii_to_rgmii_0/clkin]
 connect_bd_net [get_bd_pins processing_system7_0/FCLK_RESET0_N] [get_bd_pins util_vector_logic_0/Op1]
@@ -132,10 +145,12 @@ connect_bd_net [get_bd_pins proc_sys_reset_0/peripheral_aresetn] \
     [get_bd_pins dma_mem_smartconnect/aresetn] \
     [get_bd_pins axis_stream_probe_mm2s/s_axi_aresetn] \
     [get_bd_pins axis_stream_probe_s2mm/s_axi_aresetn] \
+    [get_bd_pins b2_npu_status_probe_0/s_axi_aresetn] \
     [get_bd_pins b2_npu_axis_top_0/axis_aresetn]
 connect_bd_net [get_bd_pins processing_system7_0/FCLK_CLK0] \
     [get_bd_pins axis_stream_probe_mm2s/s_axi_aclk] \
     [get_bd_pins axis_stream_probe_s2mm/s_axi_aclk] \
+    [get_bd_pins b2_npu_status_probe_0/s_axi_aclk] \
     [get_bd_pins b2_npu_axis_top_0/axis_aclk]
 
 assign_bd_address
@@ -143,5 +158,6 @@ set ps_data [get_bd_addr_spaces processing_system7_0/Data]
 assign_bd_address -target_address_space $ps_data -offset 0x40400000 -range 0x00010000 [get_bd_addr_segs axi_dma_0/S_AXI_LITE/Reg]
 assign_bd_address -target_address_space $ps_data -offset 0x40410000 -range 0x00001000 [get_bd_addr_segs axis_stream_probe_mm2s/S_AXI/reg0]
 assign_bd_address -target_address_space $ps_data -offset 0x40420000 -range 0x00001000 [get_bd_addr_segs axis_stream_probe_s2mm/S_AXI/reg0]
+assign_bd_address -target_address_space $ps_data -offset 0x40430000 -range 0x00001000 [get_bd_addr_segs b2_npu_status_probe_0/S_AXI/reg0]
 validate_bd_design
 save_bd_design

@@ -157,5 +157,28 @@ if {[catch {
     puts "B2_PROBE_READ=UNAVAILABLE"
     puts "B2_PROBE_ERROR=$probe_error"
 }
+set npu_status_base 0x40430000
+puts "B2_NPU_STATUS_BASE=[format 0x%08X $npu_status_base]"
+puts "B2_NPU_STATUS=[mrd -force -value [expr {$npu_status_base + 0x00}]]"
+puts "B2_NPU_COMMAND_ACCEPT=[mrd -force -value [expr {$npu_status_base + 0x04}]]"
+puts "B2_NPU_COMMAND_COMPLETE=[mrd -force -value [expr {$npu_status_base + 0x08}]]"
+puts "B2_NPU_SAMPLE_ACCEPT=[mrd -force -value [expr {$npu_status_base + 0x0C}]]"
+puts "B2_NPU_SAMPLE_COMPLETE=[mrd -force -value [expr {$npu_status_base + 0x10}]]"
+puts "B2_NPU_RESPONSE_ACCEPT=[mrd -force -value [expr {$npu_status_base + 0x14}]]"
+puts "B2_NPU_RESPONSE_COMPLETE=[mrd -force -value [expr {$npu_status_base + 0x18}]]"
+puts "B2_NPU_RESULT_ACCEPT=[mrd -force -value [expr {$npu_status_base + 0x1C}]]"
+puts "B2_NPU_RESULT_COMPLETE=[mrd -force -value [expr {$npu_status_base + 0x20}]]"
+puts "B2_NPU_EXECUTE_GROUP_COUNT=[mrd -force -value [expr {$npu_status_base + 0x48}]]"
+puts "B2_NPU_SKIP_GROUP_COUNT=[mrd -force -value [expr {$npu_status_base + 0x4C}]]"
+puts "B2_NPU_RUNTIME_STATUS=[mrd -force -value [expr {$npu_status_base + 0x50}]]"
+puts "B2_NPU_ACTIVE_MASK_EPOCH=[mrd -force -value [expr {$npu_status_base + 0x54}]]"
+puts "B2_NPU_PENDING_MASK_EPOCH=[mrd -force -value [expr {$npu_status_base + 0x58}]]"
+puts "B2_NPU_LAST_COMPUTE_CYCLES=[mrd -force -value [expr {$npu_status_base + 0x5C}]]"
+puts "B2_NPU_PROTOCOL_ERROR_COUNT=[mrd -force -value [expr {$npu_status_base + 0x60}]]"
+puts "B2_NPU_FENCE_SNAPSHOT_VALID=[mrd -force -value [expr {$npu_status_base + 0x24}]]"
+for {set index 0} {$index < 8} {incr index} {
+    set address [expr {$npu_status_base + 0x28 + ($index * 4)}]
+    puts [format "B2_NPU_FENCE_SNAPSHOT_%02d=0x%08X" $index [mrd -force -value $address]]
+}
 con
 disconnect

@@ -1,5 +1,12 @@
 # 进度记录
 
+## 2026-09-12 加速 TODO 对齐后推进 B3-03
+
+- 最新 TODO 把日常门收成 B3-MVP 六项：03/04/09/11/13/14。B3-09 已关。
+- B3-03 合同先 RED：探针寄存器已在，axis_top/BD/wrapper 未导出 epoch/周期/错误。
+- 已把这些字段从 core 经 wrapper CDC、adapter、axis_top、BD 接到 `0x40430000`；`test_b2_npu_status_probe_contract` 6/6，wrapper timing 14/14。
+- 按加速规则不跑 Vivado；B3-04 等 B3-11 RTL 稳定后集中构建。
+
 ## 2026-09-12 B3-09 Host live 路径
 
 - 新增 `eneuron_group4way_live.py` 与 `test_eneuron_group4way_live.py`：6/6 通过。

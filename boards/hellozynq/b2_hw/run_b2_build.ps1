@@ -14,7 +14,7 @@ $bitstreamPath = Join-Path $outDir 'hello_zynq_b2.bit'
 $xsaPath = Join-Path $outDir 'hello_zynq_b2.xsa'
 $manifestPath = Join-Path $outDir 'build_manifest.json'
 
-function Assert-B2TimingGreen {
+function Get-B2SignoffMetrics {
     param(
         [Parameter(Mandatory = $true)][string]$TimingReportPath,
         [Parameter(Mandatory = $true)][string]$RouteReportPath,
@@ -37,22 +37,20 @@ function Assert-B2TimingGreen {
     $tns = [double]::Parse($timingRow.Groups[2].Value, $culture)
     $whs = [double]::Parse($timingRow.Groups[3].Value, $culture)
     $ths = [double]::Parse($timingRow.Groups[4].Value, $culture)
-    if (($wns -lt 0) -or ($tns -ne 0) -or ($whs -lt 0) -or ($ths -ne 0)) {
-        throw ("B2 timing gate failed: WNS={0} TNS={1} WHS={2} THS={3}" -f $wns, $tns, $whs, $ths)
-    }
+    $timingPass = ($wns -ge 0) -and ($tns -eq 0) -and ($whs -ge 0) -and ($ths -eq 0)
 
     $routeText = Get-Content -LiteralPath $RouteReportPath -Raw
     $routeMatch = [regex]::Match($routeText, '(?m)# of nets with routing errors.*?:\s*(\d+)')
     if (-not $routeMatch.Success) { throw 'Unable to parse routing error count from route_status_impl.rpt' }
     $routeErrors = [int]$routeMatch.Groups[1].Value
-    if ($routeErrors -ne 0) { throw "B2 route gate failed: routing errors=$routeErrors" }
+    $routePass = $routeErrors -eq 0
 
     $drcText = Get-Content -LiteralPath $DrcReportPath -Raw
     $drcHardErrors = 0
     foreach ($match in [regex]::Matches($drcText, '(?im)^\|[^|\r\n]*\|\s*(Error|Critical Warning)\s*\|[^|\r\n]*\|\s*(\d+)\s*\|')) {
         $drcHardErrors += [int]$match.Groups[2].Value
     }
-    if ($drcHardErrors -ne 0) { throw "B2 DRC gate failed: error/critical-warning violations=$drcHardErrors" }
+    $drcPass = $drcHardErrors -eq 0
 
     return [ordered]@{
         WNS = $wns
@@ -61,6 +59,10 @@ function Assert-B2TimingGreen {
         THS = $ths
         route_errors = $routeErrors
         drc_hard_errors = $drcHardErrors
+        timing_pass = $timingPass
+        route_pass = $routePass
+        drc_pass = $drcPass
+        signoff_pass = $timingPass -and $routePass -and $drcPass
     }
 }
 
@@ -78,12 +80,12 @@ if (-not (Select-String -LiteralPath $logPath -SimpleMatch 'B2_BUILD_PASS' -Quie
 $timingPath = Join-Path $outDir 'timing_impl.rpt'
 $routePath = Join-Path $outDir 'route_status_impl.rpt'
 $drcPath = Join-Path $outDir 'drc_impl.rpt'
-$signoffChecks = Assert-B2TimingGreen -TimingReportPath $timingPath -RouteReportPath $routePath -DrcReportPath $drcPath
-Write-Host ("B2_TIMING_PASS WNS={0} TNS={1} WHS={2} THS={3} ROUTE_ERRORS={4} DRC_HARD_ERRORS={5}" -f $signoffChecks.WNS, $signoffChecks.TNS, $signoffChecks.WHS, $signoffChecks.THS, $signoffChecks.route_errors, $signoffChecks.drc_hard_errors)
+$signoffChecks = Get-B2SignoffMetrics -TimingReportPath $timingPath -RouteReportPath $routePath -DrcReportPath $drcPath
 
 $probeSourceName = 'axis_stream_probe.v'
 $sourceFiles = @(
     "boards/hellozynq/b2_hw/$probeSourceName",
+    'boards/hellozynq/b2_hw/b2_npu_status_probe.v',
     'boards/hellozynq/b2_hw/b2_npu_axis_top.v',
     'boards/hellozynq/b2_hw/create_b2_bd.tcl',
     'boards/hellozynq/b2_hw/build_b2.tcl',
@@ -104,7 +106,10 @@ foreach ($line in Get-Content -LiteralPath $summaryPath) {
     $parts = $line -split '=', 2
     if ($parts.Count -eq 2) { $summary[$parts[0]] = $parts[1] }
 }
-$summary['B2_TIMING_PASS'] = '1'
+$summary['B2_TIMING_PASS'] = if ($signoffChecks.timing_pass) { '1' } else { '0' }
+$summary['B2_ROUTE_PASS'] = if ($signoffChecks.route_pass) { '1' } else { '0' }
+$summary['B2_DRC_PASS'] = if ($signoffChecks.drc_pass) { '1' } else { '0' }
+$summary['B2_SIGNOFF_PASS'] = if ($signoffChecks.signoff_pass) { '1' } else { '0' }
 $invariantCulture = [Globalization.CultureInfo]::InvariantCulture
 $summary['B2_WNS_NS'] = $signoffChecks.WNS.ToString($invariantCulture)
 $summary['B2_TNS_NS'] = $signoffChecks.TNS.ToString($invariantCulture)
@@ -112,6 +117,8 @@ $summary['B2_WHS_NS'] = $signoffChecks.WHS.ToString($invariantCulture)
 $summary['B2_THS_NS'] = $signoffChecks.THS.ToString($invariantCulture)
 $summary['B2_ROUTE_ERRORS'] = $signoffChecks.route_errors
 $summary['B2_DRC_HARD_ERRORS'] = $signoffChecks.drc_hard_errors
+$summary.GetEnumerator() | ForEach-Object { "{0}={1}" -f $_.Key, $_.Value } |
+    Set-Content -LiteralPath $summaryPath -Encoding UTF8
 $manifest = [ordered]@{
     schema_version = 1
     generated_at = (Get-Date).ToUniversalTime().ToString('o')
@@ -132,7 +139,11 @@ $manifest = [ordered]@{
     signoff = $summary
 }
 $manifest | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $manifestPath -Encoding UTF8
-Write-Host "B2_BUILD_DONE summary=$summaryPath"
 Write-Host "B2_BUILD_MANIFEST=$manifestPath"
 Write-Host "B2_BITSTREAM_SHA256=$($manifest.bitstream_sha256)"
 Write-Host "B2_XSA_SHA256=$($manifest.xsa_sha256)"
+if (-not $signoffChecks.signoff_pass) {
+    throw ("B2 signoff gate failed: WNS={0} TNS={1} WHS={2} THS={3} route_errors={4} drc_hard_errors={5}" -f $signoffChecks.WNS, $signoffChecks.TNS, $signoffChecks.WHS, $signoffChecks.THS, $signoffChecks.route_errors, $signoffChecks.drc_hard_errors)
+}
+Write-Host ("B2_TIMING_PASS WNS={0} TNS={1} WHS={2} THS={3} ROUTE_ERRORS={4} DRC_HARD_ERRORS={5}" -f $signoffChecks.WNS, $signoffChecks.TNS, $signoffChecks.WHS, $signoffChecks.THS, $signoffChecks.route_errors, $signoffChecks.drc_hard_errors)
+Write-Host "B2_BUILD_DONE summary=$summaryPath"

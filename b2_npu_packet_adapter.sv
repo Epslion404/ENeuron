@@ -28,7 +28,24 @@ module b2_npu_packet_adapter #(
     output logic host_model_valid,
     output logic host_mask_valid,
     output logic host_infer_frozen,
-    output logic host_status_irq
+    output logic host_status_irq,
+    output logic [31:0] command_accept_count,
+    output logic [31:0] command_complete_count,
+    output logic [31:0] sample_accept_count,
+    output logic [31:0] sample_complete_count,
+    output logic [31:0] response_accept_count,
+    output logic [31:0] response_complete_count,
+    output logic [31:0] result_accept_count,
+    output logic [31:0] result_complete_count,
+    output logic [31:0] execute_group_count,
+    output logic [31:0] skip_group_count,
+    output logic [31:0] runtime_status,
+    output logic [31:0] active_mask_epoch,
+    output logic [31:0] pending_mask_epoch,
+    output logic [31:0] last_compute_cycles,
+    output logic [31:0] protocol_error_count,
+    output logic        fence_snapshot_valid,
+    output logic [255:0] fence_snapshot_counts
 );
     logic ingress_cmd_valid;
     logic ingress_cmd_ready;
@@ -78,6 +95,20 @@ module b2_npu_packet_adapter #(
     logic [31:0] cmd_mask_epoch_reg;
     logic [31:0] sample_sequence_reg;
     logic [31:0] sample_model_id_reg;
+    localparam logic [1:0] FRAME_NONE = 2'd0;
+    localparam logic [1:0] FRAME_RESPONSE = 2'd1;
+    localparam logic [1:0] FRAME_RESULT = 2'd2;
+    logic [1:0] output_frame_kind;
+
+    wire command_accept_fire = ingress_cmd_valid && ingress_cmd_ready;
+    wire command_complete_fire = wrapper_cmd_valid && wrapper_cmd_ready;
+    wire sample_accept_fire = ingress_sample_valid && ingress_sample_ready;
+    wire sample_complete_fire = wrapper_sample_valid && wrapper_sample_ready;
+    wire response_accept_fire = egress_rsp_valid && egress_rsp_ready;
+    wire result_accept_fire = egress_result_valid && egress_result_ready;
+    wire output_complete_fire = m_valid && m_ready && m_last;
+    wire fence_response_accept_fire = response_accept_fire &&
+        (wrapper_rsp_data[127:124] == 4'hd);
 
     b2_packet_ingress ingress (
         .clk(host_clk), .rst(bridge_rst),
@@ -109,11 +140,18 @@ module b2_npu_packet_adapter #(
         .host_sample_data(ingress_sample_data), .host_sample_id(ingress_sample_id),
         .host_result_valid(wrapper_result_valid), .host_result_ready(wrapper_result_ready),
         .host_result_data(wrapper_result_data),
-        .host_result_sample_id(wrapper_result_sample_id),
-        .host_result_mask_epoch(wrapper_result_mask_epoch),
-        .host_status_irq(wrapper_status_irq), .host_model_valid(wrapper_model_valid),
-        .host_mask_valid(wrapper_mask_valid), .host_infer_frozen(wrapper_infer_frozen),
-        .host_error(wrapper_error)
+         .host_result_sample_id(wrapper_result_sample_id),
+         .host_result_mask_epoch(wrapper_result_mask_epoch),
+         .host_status_irq(wrapper_status_irq), .host_model_valid(wrapper_model_valid),
+         .host_mask_valid(wrapper_mask_valid), .host_infer_frozen(wrapper_infer_frozen),
+         .host_error(wrapper_error),
+         .host_execute_group_count(execute_group_count),
+         .host_skip_group_count(skip_group_count),
+         .host_runtime_status(runtime_status),
+         .host_active_mask_epoch(active_mask_epoch),
+         .host_pending_mask_epoch(pending_mask_epoch),
+         .host_last_compute_cycles(last_compute_cycles),
+         .host_protocol_error_count(protocol_error_count)
     );
 
     // wrapper 的公开 response 没有 last；每个 response word 独立成为一帧，
@@ -154,6 +192,63 @@ module b2_npu_packet_adapter #(
             if (ingress_sample_valid && ingress_sample_ready) begin
                 sample_sequence_reg <= ingress_sample_sequence;
                 sample_model_id_reg <= ingress_sample_model_id;
+            end
+        end
+    end
+
+    // 计数器只观察适配器边界的实际握手；fence 快照把当前事件的增量一并纳入。
+    always_ff @(posedge host_clk) begin
+        if (bridge_rst) begin
+            command_accept_count <= '0;
+            command_complete_count <= '0;
+            sample_accept_count <= '0;
+            sample_complete_count <= '0;
+            response_accept_count <= '0;
+            response_complete_count <= '0;
+            result_accept_count <= '0;
+            result_complete_count <= '0;
+            fence_snapshot_valid <= 1'b0;
+            fence_snapshot_counts <= '0;
+            output_frame_kind <= FRAME_NONE;
+        end else begin
+            if (command_accept_fire)
+                command_accept_count <= command_accept_count + 1'b1;
+            if (command_complete_fire)
+                command_complete_count <= command_complete_count + 1'b1;
+            if (sample_accept_fire)
+                sample_accept_count <= sample_accept_count + 1'b1;
+            if (sample_complete_fire)
+                sample_complete_count <= sample_complete_count + 1'b1;
+            if (response_accept_fire)
+                response_accept_count <= response_accept_count + 1'b1;
+            if (result_accept_fire)
+                result_accept_count <= result_accept_count + 1'b1;
+
+            if (response_accept_fire && output_frame_kind == FRAME_NONE)
+                output_frame_kind <= FRAME_RESPONSE;
+            else if (result_accept_fire && output_frame_kind == FRAME_NONE)
+                output_frame_kind <= FRAME_RESULT;
+
+            if (output_complete_fire) begin
+                if (output_frame_kind == FRAME_RESPONSE)
+                    response_complete_count <= response_complete_count + 1'b1;
+                else if (output_frame_kind == FRAME_RESULT)
+                    result_complete_count <= result_complete_count + 1'b1;
+                output_frame_kind <= FRAME_NONE;
+            end
+
+            if (fence_response_accept_fire) begin
+                fence_snapshot_valid <= 1'b1;
+                fence_snapshot_counts <= {
+                    result_complete_count,
+                    result_accept_count,
+                    response_complete_count,
+                    response_accept_count + 1'b1,
+                    sample_complete_count,
+                    sample_accept_count,
+                    command_complete_count,
+                    command_accept_count
+                };
             end
         end
     end

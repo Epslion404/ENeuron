@@ -677,7 +677,7 @@ B3 分为两级：先用现有 `group_4way` mask 完成 `B3-MVP-GATE`，只回�
 - [x] B3-00：以当前 `PHYSICAL_PASS` packet-NPU bitstream/ELF/协议版本作为实验基线，冻结其 manifest；B2-GATE 继续作为发布门，不阻塞首次固定向量 A/B。首个实验门已先证明 NPU 数值计算可用，再进入剪枝收益验证。
 - [ ] B3-01：在 `B3-STRICT-GATE` 前冻结完整发布身份：保持当前 `64→32→10`、634个模型word、8-beat样本和10-beat结果不变，固定模型word顺序、INT8/uint4解释、bias、隐藏层饱和、样本集合、期望10-logit、预测类别和所有文件 SHA-256。B3-MVP 每次实板 run 仍必须保存当次 bit/XSA/ELF/manifest 身份，但不因最终 clean-worktree 发布包未冻结而阻塞开发实验。
 - [x] B3-02：已生成 `tools/repro/b3_fixed_vector_manifest.json`，Python 通过 `b3_fixed_vector_manifest.py` 重建模型、输入、mask 和 dense/static 输出，Host 通过 `run_b2_packet_sw_build.ps1` 校验同一 manifest 并生成板端 C 头文件；样本包含 sample ID、8 个输入 beat、dense/gated logits、mask epoch、mask 数据和预期类别，禁止手工维护两套期望值。合同测试见 `test_b3_fixed_vector_manifest_contract.py`、`test_b3_fixed_vector_manifest_loader.py`。
-- [ ] B3-03：为 B3-MVP 把已签核 NPU wrapper、DMA适配、每样本周期计数器和最小可观测寄存器接入同一顶层；最小集合只包含当前模式、active/pending epoch、接受/完成样本数、每样本周期、执行/跳过组数和聚合协议错误数。完整错误矩阵和首错 sample ID 并入 B3-12，不得为调试修改数值语义、mask原子性或四 DSP合同。
+- [x] B3-03：RTL/合同已把 runtime_status、active/pending epoch、last_compute_cycles、protocol_error_count 接到 `0x40430000` 状态块；`test_b2_npu_status_probe_contract` 6/6。实验模式仍由 Host run manifest 冻结。物理读回与 DSP/时序门随 B3-04 集中 bitstream，本次不单独跑 Vivado。
 - [ ] B3-04：在 B3-03、B3-09 和 B3-11 的 RTL 稳定且快速回归通过后，集中执行一次完整 bitstream 实现；检查 Host/NPU/AXI 相关时钟域 setup/hold、CDC、route、DRC、恰好4个 DSP48E1 以及核心、wrapper、FIFO、DMA、packetizer 分层资源。文档或纯 Host 改动不触发 PL 重建；任一物理硬门失败时该 bitstream 不得下载作正式测试。
 - [ ] B3-05：在 `B3-STRICT-GATE` 前补齐正式能力/身份门；上板后先读取版本/能力寄存器，核对协议版本、模型规模、构建 Git SHA、bitstream标识和四 DSP配置，身份不符时拒绝装载模型和样本。B3-MVP 允许使用当次 run manifest 绑定并核对同等身份字段。
 - [x] B3-06：先运行 dense/bypass；逐样本核对10个 logit 对应的结果 beat、sample ID、mask epoch 和预测类别与冻结黄金输出完全一致，并核对执行组数等于 dense 期望。这一步才是 NPU 数值功能门，不由 packet smoke 代替。

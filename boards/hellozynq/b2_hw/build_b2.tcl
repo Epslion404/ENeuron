@@ -13,6 +13,7 @@ set repo_root [file normalize [file join $script_dir .. .. ..]]
 create_project -force $project_name $project_dir -part $part
 add_files -norecurse [list \
     [file join $script_dir axis_stream_probe.v] \
+    [file join $script_dir b2_npu_status_probe.v] \
     [file join $script_dir b2_npu_axis_top.v] \
     [file join $repo_root b2_npu_packet_adapter.sv] \
     [file join $repo_root b2_packet_ingress.sv] \
@@ -35,8 +36,9 @@ validate_bd_design
 generate_target all [get_files */design_1.bd]
 export_ip_user_files -of_objects [get_files */design_1.bd] -no_script -sync -force -quiet
 
-set_property strategy Performance_Explore [get_runs impl_1]
+set_property strategy Performance_ExploreWithRemap [get_runs impl_1]
 set_property STEPS.PHYS_OPT_DESIGN.ARGS.DIRECTIVE AggressiveExplore [get_runs impl_1]
+set_property STEPS.ROUTE_DESIGN.ARGS.DIRECTIVE Explore [get_runs impl_1]
 set_property STEPS.POST_ROUTE_PHYS_OPT_DESIGN.IS_ENABLED true [get_runs impl_1]
 set_property STEPS.POST_ROUTE_PHYS_OPT_DESIGN.ARGS.DIRECTIVE AggressiveExplore [get_runs impl_1]
 launch_runs impl_1 -to_step write_bitstream -jobs 8
