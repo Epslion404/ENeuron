@@ -22,6 +22,16 @@ class B2NpuStatusProbeContractTests(unittest.TestCase):
         self.runner = (HW / "run_b2_build.ps1").read_text(encoding="utf-8")
         self.probe_tcl = (SW / "probe_b2_state.tcl").read_text(encoding="utf-8")
 
+    def test_b2_build_fail_closed_requires_four_dsp48e1(self):
+        tcl = (HW / "build_b2.tcl").read_text(encoding="utf-8")
+        runner = (HW / "run_b2_build.ps1").read_text(encoding="utf-8")
+        self.assertIn("B2_NPU_DSP_EXPECTED=4", tcl)
+        self.assertIn("REF_NAME == DSP48E1", tcl)
+        self.assertIn("B2_NPU_DSP48E1_COUNT=", tcl)
+        self.assertIn("xc7z020clg484-2", tcl)
+        self.assertNotIn("xc7z020clg400-1", tcl)
+        self.assertIn("DSP48E1_COUNT=$dspCountText expected=4", runner)
+
     def test_legacy_counter_addresses_stay_in_0x00_0x4c(self):
         """0x00–0x4C 的既有实板读口不得被 0x50–0x60 扩展挤走。"""
         self.assertIn("STATUS_ADDR = 12'h000", self.probe)
