@@ -72,10 +72,21 @@ def _power_rows() -> dict[str, dict[str, object]]:
 
 
 class B3PowerReportContractTests(unittest.TestCase):
+    def test_current_docs_separate_power_measurement_from_goal_gate(self) -> None:
+        root = Path(__file__).resolve().parent
+        todo = (root / "docs/planning/TODO.md").read_text(encoding="utf-8")
+        current = (root / "docs/CURRENT_STATUS.md").read_text(encoding="utf-8")
+        self.assertIn("- [ ] B3-POWER-MEASURED", todo)
+        self.assertIn("- [ ] B3-POWER-GATE", todo)
+        self.assertIn("B3-POWER-MEASURED", current)
+        self.assertIn("B3-POWER-GATE", current)
+        self.assertNotIn("B3_POWER_PASS", current)
+
     def test_committed_power_report_stays_not_measured(self) -> None:
         path = Path(__file__).resolve().parent / "artifacts/logs/b3_power_20260913_be84596/b3_power_report.json"
         data = json.loads(path.read_text(encoding="utf-8"))
         self.assertEqual(data["status"], "POWER_NOT_MEASURED")
+        self.assertEqual(data["power_goal_status"], "NOT_PROVEN")
         self.assertEqual(data["power_gate"], "OPEN")
         self.assertEqual(data["modes"], list(POWER_MODES))
         forbid_vivado_as_board_power(data)
@@ -112,6 +123,7 @@ class B3PowerReportContractTests(unittest.TestCase):
             rows["b3_static_mixed"]["decision_source"],
         )
         self.assertEqual(report["status"], "POWER_NOT_MEASURED")
+        self.assertEqual(report["power_goal_status"], "NOT_PROVEN")
         self.assertEqual(report["power_gate"], "OPEN")
 
     def test_live_must_not_collapse_into_static(self) -> None:
@@ -157,6 +169,66 @@ class B3PowerReportContractTests(unittest.TestCase):
         with self.assertRaises(ValueError) as missing:
             build_power_report(_power_rows(), measured)
         self.assertIn("external_power_w", str(missing.exception))
+
+    def test_measured_requires_populated_instrument_contract(self) -> None:
+        measured = _open_contract()
+        measured["status"] = "MEASURED"
+        rows = _power_rows()
+        for row in rows.values():
+            row["external_power_w"] = 1.0
+            row["power_source"] = "external_meter"
+            row["external_trace"] = "trace.csv"
+        with self.assertRaises(ValueError) as ctx:
+            build_power_report(rows, measured)
+        self.assertIn("仪器", str(ctx.exception))
+
+    def test_measured_requires_external_source_and_trace_for_every_mode(self) -> None:
+        measured = _open_contract()
+        measured.update({
+            "status": "MEASURED",
+            "仪器": "meter",
+            "测点": "board input",
+            "采样率": "1 kS/s",
+            "空闲基线": "10 s idle",
+            "负载同步": "GPIO marker",
+            "积分窗口": "100 samples",
+        })
+        rows = _power_rows()
+        for row in rows.values():
+            row["external_power_w"] = 1.0
+            row["power_source"] = "external_meter"
+            row["external_trace"] = "trace.csv"
+        del rows["b3_live_eneuron"]["external_trace"]
+        with self.assertRaises(ValueError) as ctx:
+            build_power_report(rows, measured)
+        self.assertIn("external_trace", str(ctx.exception))
+
+    def test_measured_data_does_not_by_itself_close_power_goal(self) -> None:
+        measured = _open_contract()
+        measured.update({
+            "status": "MEASURED",
+            "仪器": "meter",
+            "测点": "board input",
+            "采样率": "1 kS/s",
+            "空闲基线": "10 s idle",
+            "负载同步": "GPIO marker",
+            "积分窗口": "100 samples",
+        })
+        rows = _power_rows()
+        for mode, power_w in (
+            ("b3_dense", 1.0),
+            ("b3_static_mixed", 0.9),
+            ("b3_live_eneuron", 1.1),
+        ):
+            rows[mode]["external_power_w"] = power_w
+            rows[mode]["power_source"] = "external_meter"
+            rows[mode]["external_trace"] = f"{mode}.csv"
+
+        report = build_power_report(rows, measured)
+
+        self.assertEqual(report["status"], "MEASURED")
+        self.assertEqual(report["power_goal_status"], "NOT_PROVEN")
+        self.assertEqual(report["power_gate"], "OPEN")
 
 
 if __name__ == "__main__":

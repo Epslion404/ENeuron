@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import json
+import math
 from pathlib import Path
 from typing import Mapping
 
@@ -232,19 +233,34 @@ def build_power_report(
     status = contract.get("status")
     if status == "POWER_NOT_MEASURED":
         report["status"] = "POWER_NOT_MEASURED"
+        report["power_goal_status"] = "NOT_PROVEN"
         report["power_gate"] = "OPEN"
         return report
     if status == "MEASURED":
+        empty_contract_fields = [
+            field for field in POWER_CONTRACT_FIELDS
+            if contract.get(field) is None or not str(contract.get(field)).strip()
+        ]
+        if empty_contract_fields:
+            raise ValueError(f"MEASURED B3-POWER missing {empty_contract_fields[0]}")
         for row in rows:
             if "external_power_w" not in row:
                 raise ValueError("MEASURED B3-POWER missing external_power_w")
             if type(row["external_power_w"]) not in (int, float):
                 raise ValueError("external_power_w must be numeric")
-            row_source = str(row.get("power_source", "external"))
+            if not math.isfinite(float(row["external_power_w"])) or float(row["external_power_w"]) <= 0.0:
+                raise ValueError("external_power_w must be finite and positive")
+            row_source = str(row.get("power_source", "")).strip()
+            if not row_source:
+                raise ValueError("MEASURED B3-POWER missing power_source")
             if row_source.lower() in FORBIDDEN_POWER_SOURCES or "vivado" in row_source.lower():
                 raise ValueError("must not treat Vivado power estimate as board power")
+            if not str(row.get("external_trace", "")).strip():
+                raise ValueError("MEASURED B3-POWER missing external_trace")
         report["status"] = "MEASURED"
-        report["power_gate"] = "PASS"
+        # 完成测量不等于证明功耗下降；在冻结比较量、重复次数和判据前保持目标门打开。
+        report["power_goal_status"] = "NOT_PROVEN"
+        report["power_gate"] = "OPEN"
         return report
     raise ValueError("B3-POWER status must be MEASURED or POWER_NOT_MEASURED")
 
@@ -252,11 +268,16 @@ def build_power_report(
 def forbid_end_to_end_from_npu_cycles(comparison: Mapping[str, object]) -> None:
     """禁止把局部 NPU 周期差写成端到端加速。"""
     claim = comparison.get("claim")
-    if comparison.get("end_to_end_accelerated") is True or claim in {
+    if (
+        comparison.get("end_to_end_accelerated") is True
+        or comparison.get("speed_gate") == "PASS"
+        or comparison.get("end_to_end_acceleration_status") == "PASS"
+        or claim in {
         "end_to_end_acceleration",
         "e2e_from_888",
         "end_to_end_accelerated_from_npu_cycles",
-    }:
+        }
+    ):
         raise ValueError("must not treat NPU cycle delta as end-to-end acceleration")
 
 
@@ -274,11 +295,18 @@ def build_speed_comparison(records: Mapping[str, Mapping[str, object]]) -> dict[
         if row["host_uart_us"] == int(npu_us) and row["dma_roundtrip_us"] == int(npu_us):
             raise ValueError("wall-clock segments must not be copies of NPU cycle time")
     dense_cycles = int(records["b3_dense"]["last_compute_cycles"])
-    gated_cycles = int(records["b3_static_mixed"]["last_compute_cycles"])
+    static_cycles = int(records["b3_static_mixed"]["last_compute_cycles"])
+    live_cycles = int(records["b3_live_eneuron"]["last_compute_cycles"])
     comparison["schema"] = "eneuron_b3_speed_comparison_v1"
     comparison["claim"] = "local_npu_cycle_delta_only"
-    comparison["end_to_end_accelerated"] = False
-    comparison["npu_cycle_delta"] = dense_cycles - gated_cycles
+    # 这些字段来自每模式单样本诊断，且 DMA 包含 NPU、UART 又包住整个流程，
+    # 不能相加，也不能据此关闭端到端速度门。
+    comparison["measurement_status"] = "SINGLE_SAMPLE_DIAGNOSTIC"
+    comparison["timing_relationship"] = "nested_not_additive"
+    comparison["end_to_end_acceleration_status"] = "NOT_PROVEN"
+    comparison["speed_gate"] = "OPEN"
+    comparison["npu_cycle_delta"] = dense_cycles - live_cycles
+    comparison["static_npu_cycle_delta"] = dense_cycles - static_cycles
     comparison["npu_clock_hz"] = NPU_CLOCK_HZ
     forbid_end_to_end_from_npu_cycles(comparison)
     return comparison

@@ -133,7 +133,11 @@
     }
   ],
   "claim": "local_npu_cycle_delta_only",
-  "end_to_end_accelerated": false,
+  "measurement_status": "SINGLE_SAMPLE_DIAGNOSTIC",
+  "timing_relationship": "nested_not_additive",
+  "end_to_end_acceleration_status": "NOT_PROVEN",
+  "speed_gate": "OPEN",
   "npu_cycle_delta": 888,
+  "static_npu_cycle_delta": 888,
   "npu_clock_hz": 200000000
 }
