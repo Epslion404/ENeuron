@@ -1,5 +1,11 @@
 # 进度记录
 
+## 2026-09-12 严格 2:4 Host 合同基础
+
+- 修正严格 `2:4` 合同测试中的边界数据：`0b0011` 是合法 mask，不再作为非法值；`pytest -q test_strict_2of4_mask.py` 当前为 `3 passed`。
+- 新增 `docs/verification/NPU_STRICT_2OF4_HOST_CONTRACT_V1.md`，冻结 592 组、每组 4-bit、74 个 32-bit word、LSB-first 打包和六种合法 mask。
+- 明确当前板端仍是 19 个 `group_4way` mask word；Host 合同不改变 RTL/协议，也不关闭 B3-08b。
+
 ## 2026-09-12 B3 计数器物理门与同源实板闭环
 
 - 第三次改变实现假设的 Vivado 2024.1 routed build `boards/hellozynq/b2_hw/build_route_explore_20260912/` 完成并通过物理硬门：目标 `xc7z020clg484-2`、200 MHz，`WNS=+0.008 ns`、`TNS=0`、`WHS=+0.036 ns`、`THS=0`、setup/hold 失败端点为 0、route errors=0、DRC hard errors=0、DSP48E1=4。
