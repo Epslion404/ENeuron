@@ -2,20 +2,25 @@
 
 > generated_by: nexus-mapper v2 / manual synthesis
 > verified_at: 2026-09-12
-> provenance: 实板证据 `artifacts/logs/b3_mvp_20260912_be84596/`；RTL 身份 `be84596`。旧 t0-state 工作区不是现状。
+> provenance: live tree=`D:/Documents/Code/ENeuron-board-b0`，分支 `codex/b1b-high-ddr-board-repro` / PR #88。bitstream RTL 身份 `be84596`。`D:/Documents/Code/ENeuron` 不是当前 live tree。证据 `artifacts/logs/b3_mvp_20260912_be84596/`。
 
-## 当前权威概念边界（2026-09-12）
+## 当前权威概念边界（2026-09-12，B3-MVP-GATE 已关）
 
-器件 `xc7z020clg484-2`。`B3-MVP-GATE` 已关：组级 `group_4way` live-ENeuron 正确，局部 NPU 周期 dense 2494 → gated 1606。pending epoch=`MASK_PUBLISHED`，不是 `mask_valid`。严格连接级 `2:4` 仍是 B3-08b / `B3-STRICT-GATE`。功耗未测。
+器件 `xc7z020clg484-2`。live tree 是本工作树 / PR #88，不是 `D:/Documents/Code/ENeuron`。B3-MVP-GATE 已关：组级 `group_4way` live-ENeuron 正确，局部 NPU 周期 dense 2494 → gated 1606（差值 888 cycles）。pending epoch 来自 `mask_state==MASK_PUBLISHED`，不是 `mask_valid`。`B3-SPEED` 已关（墙钟分段，888 cycle 被系统路径掩盖）。下一日常门是 `B3-POWER`。严格连接级 `2:4` 是结构实验，不是加速硬门。不可声称网口加速、测得功耗、B2-GATE。
 
-- `B3_LIVE_ENEURON_HOST_GREEN / B3_09_BOARD_PENDING`：提交 `fe25a70` 接通 Host 侧 live 路径。`eneuron_group4way_live.py` 用 ENeuron S2、gain=1，把每四个 NPU 组当 meta-neuron，由当前样本组 MAC 贡献量化 0..3 后原子保留 2 组，打包 19-word `group_4way` mask。`packet_main.c` 的 `B3_LIVE_ENEURON` 在 PS 装载模型后现场计算同一 mask，禁止 `B3_LIVE_ENEURON_MASK_WORDS` 冻结表。期望 logits=`165,-18,14,0,0,0,0,0,0,153`，active/skip=`296/296`，mask word1=`0x33393335`，不等于 static mixed。Python 合同 6/6。该状态不是实板通过，也不关闭 B3-08b。
-- `DIRTY_WORKTREE_NOT_SIGNOFF`：当前工作树含未提交 status probe / 计数器 RTL；它们不是已签核源码身份，不能替代 HEAD `fe25a70`。
+- `B3_MVP_GATE_PASS`：同一份集中 Vivado 2024.1 bitstream（RTL `be84596`，200 MHz FCLK0）上关闭 B3-04/09/11/13/14。WNS=+0.045 ns，TNS=0，WHS=+0.036 ns，THS=0，route/DRC hard errors=0，DSP48E1=4。bit SHA-256=`0ecbe76274c39418f2a60a88358d3ff6f09f5a2ed73a44a3a419c34eb91d3a11`，XSA SHA-256=`135d979d61c629922ee5419e51dd97ef045d9bab79930432816d09f109291d1a`。只可声称 `group_4way` 动态剪枝正确性 + 局部 NPU 周期差值 888 cycles。
+- `B3_SPEED_PASS`：COM15 同源 bit 上 dense/full-open/static/live 已分开 NPU/PS/DMA/Host UART。888 cycle ≈ 4.4 µs，小于 DMA ~60 µs 和 UART 数十毫秒。`claim=local_npu_cycle_delta_only`。证据 `artifacts/logs/b3_speed_20260912_be84596/`。
+- `PENDING_EPOCH_FROM_MASK_PUBLISHED`：公开 `pending_mask_epoch` 必须来自 `mask_state==MASK_PUBLISHED`。`mask_valid` 只表示已在样本首 beat 激活；commit 后、下一样本前它仍可为 0。B3-11 hold：MASK_COMMIT 后 `active=0 pending=1`；样本后 `active=1 pending=0`。
+- `STATUS_BLOCK_0x40430000_FROZEN`：AXI-Lite 只读状态块基址 `0x40430000`。0x00-0x4C 不变；0x50 runtime_status；0x54/0x58 active/pending mask epoch；0x5C last NPU compute cycles；0x60 protocol errors。写请求完成握手并返回 `SLVERR`，不修改状态。
+- `B3_LIVE_ENEURON_HOST_GREEN / B3_09_BOARD_PASS`：Host 路径由 `fe25a70` 接通；板级 live 已在 `be84596` bitstream、COM15 上关闭。`eneuron_group4way_live.py` 用 ENeuron S2、gain=1，把每四个 NPU 组当 meta-neuron，量化 0..3 后保留 2 组。live logits=`165,-18,14,0,0,0,0,0,0,153`，execute/skip=`296/296`，`decision_source=live_eneuron_s2`。不是 B3-08b。
+- `LIVE_TREE_PR88`：当前权威工作树是 `D:/Documents/Code/ENeuron-board-b0` 上的 `codex/b1b-high-ddr-board-repro` / PR #88。不得把 `D:/Documents/Code/ENeuron` 写成 live tree。
+- `DIRTY_WORKTREE_NOT_CLEAN_RELEASE`：`be84596` hw_build_manifest 记录 `git_worktree_clean=false`。下载/签核物理身份是 `be84596`，不得把 dirty tree 回写成 clean release。
 
 B3-02 共享固定向量合同：`tools/repro/b3_fixed_vector_manifest.json` 是 Python loader 与 Host PowerShell/C 头文件生成的单一来源；合同测试共 `6 passed`，因此 B3-02 已关闭。当前冻结 634-word 模型、8-beat 输入、19-word `group_4way` mask 与期望输出，足以进入保存当次产物身份的 `B3-MVP-GATE`；B3-01 的全量发布身份冻结与严格连接级 `2:4` 属于 `B3-STRICT-GATE`。
 
-B3-08a 组级静态 mixed mask 实板子门（2026-09-12）：提交 `73b12c3` 的 `b3_static_mixed` 在同一物理通过 bit/XSA、COM15 上通过，run `20260912T102046Z`，manifest 为 `boards/hellozynq/b2_sw/build/73b12c30baf1507876c6bff01059a2c28c919a8d/direct/runs/20260912T102046Z/run_manifest.json`。结果 logits=`74,-18,14,0,0,0,0,0,0,114`，`fence_snapshot_valid=1`，592 个 `group_4way` 组中 execute/skip=`296/296`。该证据关闭 B3-08a；严格连接级 `2:4` 延后到 STRICT。B3-09 Host 已接通，实板仍 OPEN。
+B3-08a 组级静态 mixed mask 实板子门（2026-09-12）：提交 `73b12c3` 的 `b3_static_mixed` 在同一物理通过 bit/XSA、COM15 上通过，run `20260912T102046Z`，manifest 为 `boards/hellozynq/b2_sw/build/73b12c30baf1507876c6bff01059a2c28c919a8d/direct/runs/20260912T102046Z/run_manifest.json`。结果 logits=`74,-18,14,0,0,0,0,0,0,114`，`fence_snapshot_valid=1`，592 个 `group_4way` 组中 execute/skip=`296/296`。该证据关闭 B3-08a；严格连接级 `2:4` 延后到 STRICT。B3-09 板级 live 已由 `be84596` 关闭。
 
-B3 门禁分层：`B3-MVP-GATE` 先用现有 `group_4way` 完成 live-ENeuron 正确性、epoch 原子性和局部周期 A/B；`B3-STRICT-GATE` 再做严格连接级 `2:4`、10000 样本和完整恢复；`B4-RELEASE-GATE` 才覆盖网口端到端与外部功耗。B2-GATE 是发布门，不阻塞首次 live-ENeuron MVP。
+B3 门禁分层：`B3-MVP-GATE` 已关。`B3-STRICT-GATE` 再做严格连接级 `2:4`、10000 样本和完整恢复；`B4-RELEASE-GATE` 才覆盖网口端到端与外部功耗。B2-GATE 是发布门，仍未关闭。
 
 B3 execute/skip 计数器物理状态（2026-09-12）：第三次 `route_design -directive Explore` 加既有 post-route `AggressiveExplore` 的构建绑定 HEAD `c3a50eb`，在 `xc7z020clg484-2`、200 MHz 下通过物理硬门：`WNS/TNS=+0.008/0 ns`、`WHS/THS=+0.036/0 ns`、setup/hold 失败端点为 0、route errors=0、DRC hard errors=0、DSP48E1=4；bit/XSA SHA-256 分别为 `5c6ebc07…c910a88`/`86288374…177a614`。该 bit/XSA 具备下载资格，但尚未完成实板 execute/skip 读回，B3-06/B3-07 仍不关闭，dense 期望为 `592/0`。
 

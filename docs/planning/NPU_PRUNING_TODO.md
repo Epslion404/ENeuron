@@ -8,7 +8,7 @@
 
 当前物理边界：现有单时钟和 T3 OOC 证据绑定 `xc7z020clg400-1`，只能作为结构/协议参考；目标 `xc7z020clg484-2` 的最终 routed 证据已在 2026-09-12 完成。
 
-当前集成边界：最新计数器物理修复采用 `Performance_ExploreWithRemap`、post-route `AggressiveExplore` 和 route `Explore`；B2/NPU 合同回归已通过。`xc7z020clg484-2` 顶层 Vivado 2024.1 routed timing 全绿（`WNS=+0.008 ns`、`TNS=0`、`WHS=+0.036 ns`、`THS=0`、setup/hold 失败端点为 0、route/DRC hard error 为 0、DSP48E1=4），bit/XSA 已生成；合法 packet path、`0x40430000` 状态块和 execute/skip=`592/0` 均已有同源实板证据。B2-GATE 仍是发布门；B3 dense/full-open/bypass 固定向量已完成，静态 `2:4` 和 ENeuron A/B 尚未完成。
+当前集成边界：HEAD=`13abdb7`，`B3-MVP-GATE` 与 `B3-SPEED` 已关（RTL `be84596`）。墙钟分段证明 888 cycle ≈ 4.4 µs 被 DMA/UART 掩盖。日常下一门是 `B3-POWER`。严格连接级 `2:4` 是结构实验。B2-GATE 仍是网口发布门。
 
 ## 1. 目标
 

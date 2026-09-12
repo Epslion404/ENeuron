@@ -22,6 +22,10 @@ class B2PacketBoardContractTests(unittest.TestCase):
             "ENB2",
             "OP_MODEL_BEGIN",
             "OP_MASK_BEGIN",
+            "B3_SPEED_SPLIT",
+            "xtime_l.h",
+            "speed_ps_us",
+            "speed_dma_us",
         ):
             self.assertIn(token, source)
 
@@ -30,6 +34,9 @@ class B2PacketBoardContractTests(unittest.TestCase):
         self.assertIn("B2_PACKET_PASS", source)
         self.assertIn("VID_1A86", source)
         self.assertIn("hello_zynq_b2.bit", source)
+        self.assertIn("host_uart_us", source)
+        self.assertIn("B3_SPEED_SPLIT", source)
+        self.assertIn("Stopwatch", source)
 
     def test_packet_board_runner_rejects_missing_jtag_target(self):
         source = (ROOT / "boards/hellozynq/b2_sw/run_b2_packet_board.ps1").read_text(encoding="utf-8")

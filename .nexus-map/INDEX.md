@@ -20,11 +20,11 @@ B3-MVP-GATE 已在同一份集中 Vivado 2024.1 bitstream 上关闭：RTL 身份
 
 只可声称：`group_4way` 动态剪枝正确性 + 局部 NPU 周期差值 888 cycles。不可声称：网口加速、测得功耗、严格连接级 `2:4`、B2-GATE。证据：`artifacts/logs/b3_mvp_20260912_be84596/`。
 
-下一门：`B3-STRICT-GATE`（lane 2:4、10k 样本）→ B2-GATE 剩余 → B4 网口/功耗。`archive/legacy/` 与旧 `xc7z020clg400-1` OOC 不进入日常门。后文若仍写 B3-MVP 未关或 B3-09 实板 pending，以本条为准。
+下一门：`B3-POWER`（外部功耗）。`B3-SPEED` 已关：888 cycle ≈ 4.4 µs，被 DMA/UART 掩盖，证据 `artifacts/logs/b3_speed_20260912_be84596/`。严格 2:4 是结构实验，不是加速硬门。`archive/legacy/` 与旧 `xc7z020clg400-1` OOC 不进入日常门。后文若仍写下一门是 B3-08b 或 B3-STRICT，以本条为准。
 
 ## 当前活动范围
 
-主线固定 `xc7z020clg484-2`：NPU 单时钟、ENeuron 组级动态剪枝、NP7 共享 lane，以及 B1/B2/B3/B4 集成。活动入口：`npu_eneuron_*`、`npu_zynq7020_t1_wrapper.sv`、`local_prune_*`、`eneuron_group4way_live.py`、`np7_*`、`b2_npu_status_probe.v`。CH340 按 VID/PID 识别；双设备时必须显式 COM15。合同：`docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`。状态串：`FUNCTIONAL_PASS / PHYSICAL_PASS / B3_MVP_GATE_PASS / B3_STRICT_PENDING / B2_GATE_PENDING`。
+主线固定 `xc7z020clg484-2`：NPU 单时钟、ENeuron 组级动态剪枝、NP7 共享 lane，以及 B1/B2/B3/B4 集成。活动入口：`npu_eneuron_*`、`npu_zynq7020_t1_wrapper.sv`、`local_prune_*`、`eneuron_group4way_live.py`、`np7_*`、`b2_npu_status_probe.v`。CH340 按 VID/PID 识别；双设备时必须显式 COM15。合同：`docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`。状态串：`FUNCTIONAL_PASS / PHYSICAL_PASS / B3_MVP_GATE_PASS / B3_SPEED_PASS / B3_POWER_PENDING / B3_STRICT_DEFERRED_STRUCTURAL / B2_GATE_PENDING`。
 
 ## 主要系统
 

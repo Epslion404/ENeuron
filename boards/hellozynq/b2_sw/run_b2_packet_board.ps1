@@ -151,6 +151,7 @@ $programDeadline = [DateTime]::UtcNow.AddSeconds(60)
 $listenDeadline = $null
 $runStarted = $false
 $packetStarted = $false
+$uartWatch = $null
 $pendingHoldProbed = $false
 $holdProbeOut = Join-Path $runRoot 'pending_hold_probe.log'
 $holdProbeErr = Join-Path $runRoot 'pending_hold_probe.err'
@@ -164,7 +165,10 @@ try {
             $runStarted = $true
             $listenDeadline = [DateTime]::UtcNow.AddSeconds($ListenSeconds)
         }
-        if ($runStarted -and $received.ToString() -like '*B2_PACKET_BEGIN*') { $packetStarted = $true }
+        if ($runStarted -and $received.ToString() -like '*B2_PACKET_BEGIN*') {
+            $packetStarted = $true
+            if ($null -eq $uartWatch) { $uartWatch = [Diagnostics.Stopwatch]::StartNew() }
+        }
         if ($runStarted -and -not $pendingHoldProbed -and $received.ToString() -like '*B3_11_PENDING_HOLD*') {
             $pendingHoldProbed = $true
             if ($null -ne $listenDeadline) { $listenDeadline = $listenDeadline.AddSeconds(30) }
@@ -172,7 +176,10 @@ try {
         }
         if ($runStarted -and $packetStarted -and $received.ToString() -like "*$terminalMarker*" -and
             $received.ToString() -like '*B2_PACKET_FENCE_PASS*' -and
-            $received.ToString() -like "*$resultMarker*") { break }
+            $received.ToString() -like "*$resultMarker*" -and
+            $received.ToString() -like '*B3_SPEED_SPLIT*') {
+            break
+        }
         if ($runStarted -and $packetStarted -and
             (($received.ToString() -like '*B2_PACKET_FAIL*') -or
              ($received.ToString() -like '*B3_LOGIT_FAIL*'))) { break }
@@ -247,6 +254,10 @@ if ($applicationMode -eq 'b3_epoch_overlap') {
         }
     }
 }
+$hostUartUs = $null
+if ($null -ne $uartWatch) {
+    $hostUartUs = [Math]::Max(1, [int]($uartWatch.Elapsed.TotalMilliseconds * 1000))
+}
 $postProbeExit = $null
 if ($uartPass -and -not $jtagTargetUnavailable) {
     $postProbeExit = Invoke-B2StateProbe -OutPath $postProbeOut -ErrPath $postProbeErr
@@ -283,6 +294,7 @@ $runManifest = [ordered]@{
     epoch_hold_active = $epochHoldActive
     epoch_hold_pending = $epochHoldPending
     post_probe_exit_code = $postProbeExit
+    host_uart_us = $hostUartUs
 }
 $runManifestPath = Join-Path $runRoot 'run_manifest.json'
 $runManifest | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $runManifestPath -Encoding utf8

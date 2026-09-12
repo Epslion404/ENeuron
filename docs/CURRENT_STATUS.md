@@ -1,12 +1,12 @@
 # 当前状态
 
-更新时间：2026-09-12
+更新时间：2026-09-13
 
 ## 结论
 
-当前项目状态为：`FUNCTIONAL_PASS / PHYSICAL_PASS / B3_MVP_GATE_PASS / B3_STRICT_PENDING / B2_GATE_PENDING`。
+当前项目状态为：`FUNCTIONAL_PASS / PHYSICAL_PASS / B3_MVP_GATE_PASS / B3_SPEED_PASS / B3_POWER_PENDING / B3_STRICT_DEFERRED_STRUCTURAL / B2_GATE_PENDING`。
 
-主线是 `xc7z020clg484-2` 上的 packet-NPU 与 ENeuron 组级动态剪枝。B3-MVP-GATE 已关：同一 200 MHz bitstream 上 dense/full-open/static/live 小集合 A/B、epoch 读回和局部周期差值可回放。严格连接级 `2:4`、B2-GATE、网口和功耗仍未完成。
+主线是 `xc7z020clg484-2` 上部署 NPU，并用 ENeuron 组级动态剪枝证明推理加速与功耗下降。B3-MVP-GATE 已关：同一 200 MHz bitstream 上 dense/full-open/static/live 小集合 A/B、epoch 读回和局部周期差值可回放。墙钟加速、外部功耗未测。严格连接级 `2:4` 是结构实验，不是当前加速硬门。
 
 ## 已确认事实
 
@@ -16,7 +16,7 @@
 - Vivado 2024.1，器件 `xc7z020clg484-2`，`clk_fpga_0=200 MHz`。
 - 已签核 packet 基线 routed timing：`WNS=+0.005 ns`、`TNS=0`、`WHS=+0.034 ns`、`THS=0`；route errors 和 DRC hard errors 均为 `0`。
 - 计数器版本第三次 routed build `build_route_explore_20260912` 通过 `xc7z020clg484-2`、200 MHz 物理门：`WNS=+0.008 ns`、`TNS=0`、`WHS=+0.036 ns`、`THS=0`，route errors/DRC hard errors 为 `0`，DSP48E1 为 `4`。bit SHA-256=`5c6ebc07beb4bae83f5ddd1870ad2e4f53ccf56b244ae7577186c8398c910a88`，XSA SHA-256=`862883742e77e48c566fc49cc14746bc70830e27c894bdf948085c534177a614`。
-- 当前仓库提交 HEAD 为 `3d26340`；物理产物 manifest 仍绑定源码构建身份 `c3a50eb`，本次 `3d26340` 只收口 B3-02 共享 manifest/Host 生成头文件，未改变已签核 bit/XSA。工作树仍含其他未提交改动，后续需在 clean worktree 重建正式 manifest。
+- 当前仓库提交 HEAD 为 `13abdb7`（`feat(board): close B3-MVP-GATE with epoch status and cycle A/B`）。下载/签核物理身份仍是 RTL `be84596`，bit SHA-256=`0ecbe762…3a11`。历史 HEAD `3d26340`/`c3a50eb`/`88bec9e` 只描述当时产物，不得覆盖本条。工作树可能含未提交文档/脚本，clean worktree 发布身份仍属 B3-01。
 - 新计数器版本在 COM15 完成三次同源实板运行：dense `20260912T093643Z`、full-open `20260912T094035Z`、bypass `20260912T094155Z`。三次均通过 XSCT/JTAG/UART、完整结果帧 CRC、sample/model/epoch 元数据和黄金 logits `165,-18,14,0,0,0,0,0,0,153`。
 - 三次运行后的 `probe_b2_state.tcl` 均读回 `sample=8/8`、`response=1/1`、`result=10/1`、`fence_snapshot_valid=1`，并且 `execute_group_count=592`、`skip_group_count=0`；command 计数为 dense/full-open `658/658`、bypass `637/637`。这关闭 B3-00、B3-06、B3-07，不代表静态 `2:4` 或 live-ENeuron 已完成。
 - 静态 mixed run `20260912T102046Z` 使用同一 bit/XSA、COM15 和 `b3_static_mixed` ELF 通过 UART；`B3_STATIC_MASK_VALID` 报告 `592` 组中 `296/296`，结果 logits 为 `74,-18,14,0,0,0,0,0,0,114`。随后 XSCT probe 读回 `sample=8/8`、`response=1/1`、`result=10/1`、`fence_snapshot_valid=1`、`execute_group_count=296`、`skip_group_count=296`。该证据只关闭组级 static mixed 子门，不关闭严格连接级 `2:4`。
@@ -40,7 +40,7 @@
 - clean worktree 重建，确认最终可复现 manifest。
 - B2-06～B2-10 的多 packet、完整错误矩阵、复位账本、统一时间戳和正式机器证据包。
 - B2-GATE 发布门。
-- B3-MVP-GATE 已关。B3-01/05/08b/10/12/15/16 与严格 `2:4` 仍待 `B3-STRICT-GATE`。B2-GATE、网口和外部功耗未测（`POWER_NOT_MEASURED`）。
+- B3-MVP-GATE 已关。`B3-SPEED` 已关。日常未完成项是 `B3-POWER` / `B3-GOAL-GATE`。B3-01/05/08b/10/12/15/16 属于 `B3-STRICT` 结构实验。B2-GATE 挡网口发布。外部功耗未测（`POWER_NOT_MEASURED`）。
 - 计数器对外仍保持 32 位 AXI-Lite 读口；核心内部加法收窄为 24 位，可覆盖 B3-13 的 10000 样本上限（`592 * 10000 = 5,920,000 < 2^24`）。
 - Pulse-Mini-L/L2 集成。它们是冻结的候选/历史支线，不是当前日常门。
 
@@ -48,9 +48,9 @@
 
 ## 下一步
 
-1. `B3-STRICT-GATE`：严格连接级 `2:4`、10000 样本、恢复矩阵。
-2. B2-GATE 剩余项（多 packet 错误矩阵、统一时间戳、正式证据包）。
-3. B4 网口与外部功耗。不把 888 cycle 局部差值写成端到端加速或功耗收益。
+1. 主线：`B3-POWER` 外部功耗。B3-SPEED 已关：888 cycle ≈ 4.4 µs，被 DMA/UART 掩盖。证据 `artifacts/logs/b3_speed_20260912_be84596/`。
+2. B2-GATE 剩余项并行，挡网口发布，不挡板上功耗测量。
+3. B3-08b 严格 2:4 仍是结构实验。不把 888 cycle 写成端到端加速。
 
 ## 文档口径
 

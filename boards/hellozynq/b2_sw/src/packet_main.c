@@ -7,6 +7,7 @@
 #include "xparameters.h"
 #include "xstatus.h"
 #include "sleep.h"
+#include "xtime_l.h"
 #include "b3_fixed_vector_generated.h"
 
 #define TX_BUFFER_BASE 0x01006000U
@@ -26,6 +27,18 @@
 #define GROUP_MASK_GRANULARITY "group_4way"
 #define STRICT_2OF4_CANDIDATE 0U
 #define STRICT_2OF4_CANDIDATE_TEXT "false"
+
+static u32 speed_ps_us;
+static u32 speed_dma_us;
+
+static u32 xtime_delta_us(XTime start, XTime stop)
+{
+    XTime counts_per_us = COUNTS_PER_SECOND / 1000000U;
+    if (counts_per_us == 0U) {
+        counts_per_us = 1U;
+    }
+    return (u32)((stop - start) / counts_per_us);
+}
 
 #if defined(B3_BYPASS)
 #define APPLICATION_MODE "b3_bypass"
@@ -510,10 +523,19 @@ static int send_sample_and_check(void)
     u32 response_words = 0U;
     u32 request_sequence = sequence;
     u32 sample_id = 0x12345678U;
+    XTime t_ps0;
+    XTime t_dma0;
+    XTime t_dma1;
+    XTime_GetTime(&t_ps0);
     frame_bytes = build_sample_frame(tx, sample_id, MODEL_ID, SAMPLE_MASK_EPOCH);
+    XTime_GetTime(&t_dma0);
+    speed_ps_us += xtime_delta_us(t_ps0, t_dma0);
     if (submit_frame(frame_bytes, MAX_FRAME_BYTES, 1U, &response_words) != XST_SUCCESS) {
         return fail("sample_dma");
     }
+    XTime_GetTime(&t_dma1);
+    speed_dma_us = xtime_delta_us(t_dma0, t_dma1);
+    xil_printf("B3_SPEED_SPLIT ps_us=%u dma_us=%u\r\n", speed_ps_us, speed_dma_us);
     Xil_DCacheInvalidateRange(RX_BUFFER_BASE, MAX_FRAME_BYTES);
     if (response_words != 19U || rx[1] != 0x08000401U || rx[2] != 40U ||
         rx[3] != request_sequence || rx[4] != sample_id ||
@@ -615,7 +637,14 @@ int main(void)
                GROUP_MASK_GRANULARITY, STRICT_2OF4_CANDIDATE_TEXT);
 #endif
 #if defined(B3_LIVE_ENEURON)
-    compute_live_group4way_mask();
+    {
+        XTime t0;
+        XTime t1;
+        XTime_GetTime(&t0);
+        compute_live_group4way_mask();
+        XTime_GetTime(&t1);
+        speed_ps_us += xtime_delta_us(t0, t1);
+    }
     if (live_mask_ready == 0U) {
         return fail("live_mask_compute");
     }

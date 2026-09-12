@@ -1,12 +1,14 @@
 # P16 板级 NPU 与 ENeuron 规划
 
-## 当前主线校正（2026-09-12）
+## 当前主线校正（2026-09-13）
 
-本文件前半部分保留 Pulse-Mini P0-P13 的历史研发合同；当前日常主线是 P16 的 `xc7z020clg484-2` 板级集成、传统 NPU + ENeuron 动态剪枝和 NP7 共享 lane。当前精确 HEAD、工作树状态和活动 TODO 计数以 `workflow_resume.ps1 -Mode Check` 与 Git 为准；历史审计基线为 `d7e1035`。B1-06B7 使用的已生成 OCM 诊断产物仍绑定构建身份 `dae5473ba72d6cfaee12ed8e103c0efad190ed4a`。工作树可能包含与本轮无关的未提交修改，文档/知识库收口不得覆盖或混入这些改动。该基线收口 TODO/Nexus、串口端口选择入口和历史资料，不改变已签核的 B1B 诊断 ELF 或硬件身份。Pulse-Mini-L/L2 不参与当前 NPU 日常门，但其已完成证据仍保留供追溯。
+本文件前半部分保留 Pulse-Mini P0-P13 的历史研发合同；当前日常主线是 P16：在 `xc7z020clg484-2` 上部署传统 NPU，并用 ENeuron 动态剪枝证明推理加速与功耗下降。当前精确 HEAD、工作树状态和活动 TODO 计数以 `workflow_resume.ps1 -Mode Check` 与 Git 为准；历史审计基线为 `d7e1035`。Pulse-Mini-L/L2 与 NP7 共享 lane 是冻结支线，不作为当前日常门。
 
-当前板级状态：低地址 `0x01000000–0x010FFFFF` 的 1 MiB DDR 已完成三次冷启动；高地址诊断尚未真正访问 DDR。CH340 以 `VID_1A86:PID_7523` 识别，COM 号不固定；2026-09-08 环境探测为 COM10，2026-09-12 packet smoke 使用 COM15。B1C PHY/UDP 继续后置；B2 可先按低地址容量满足模型/DMA 缓冲区的条件启动 MVP，完整 `B1-GATE` 仍是进入网络化 B1C/B4 的门槛。
+当前板级状态：低地址 `0x01000000–0x010FFFFF` 的 1 MiB DDR 已完成三次冷启动；高地址诊断尚未真正访问 DDR。CH340 以 `VID_1A86:PID_7523` 识别，COM 号不固定；packet 实板使用 COM15。B1C PHY/UDP 继续后置。完整 `B1-GATE` 和 `B2-GATE` 仍是网口发布门槛，不阻塞板上 NPU 墙钟/功耗测量。
 
-当前 NPU 集成状态（2026-09-12）：物理基线仍为 HEAD `88bec9e9bdbec1de53ef45d2f22e4275308c0237` 对应的 Vivado 2024.1 `xc7z020clg484-2` routed timing；200 MHz `WNS=+0.005 ns`、`TNS=0`、`WHS=+0.034 ns`、`THS=0`、setup/hold 失败端点为 0、route/DRC hard error 为 0，bit/XSA 与 packet manifest 已绑定。仓库当前提交为 `3d26340`，新增内容仅收口 B3-02 共享 manifest，不改变该物理身份。`20260912T040206Z` 实板 smoke 在 COM15 通过，验证 634 model words、19 mask words、fence、8-beat sample 和 10-beat result；随后 `0x40430000` 状态块读取成功。B2-GATE、B2-07 完整错误矩阵、B2-09 时间戳和 B2-10 正式证据包仍未完成；B3 固定向量和 ENeuron 动态剪枝 A/B 是当前实验主线。
+当前 NPU 集成状态（2026-09-13）：仓库 HEAD=`13abdb7`，`B3-MVP-GATE` 已关。下载/签核物理身份是 RTL `be84596`（200 MHz `WNS=+0.045 ns`、DSP48E1=4，bit SHA-256=`0ecbe762…3a11`）。已证明组级 `group_4way` 动态剪枝通路和局部 NPU 周期差（dense 2494 → gated 1606，约 888 cycle / 4.4 µs @ 200 MHz）。未证明墙钟加速和外部功耗（`POWER_NOT_MEASURED`）。
+
+当前日常主线是 `B3-POWER` / `B3-GOAL-GATE`。`B3-SPEED` 已关：同源 `be84596` 上 888 cycle ≈ 4.4 µs，被 DMA（~60 µs）和 Host UART（数十毫秒）掩盖。严格连接级 `2:4`（B3-08b）是结构/精度实验，不是加速硬门。禁止把 888 cycle 写成端到端加速，禁止用 Vivado 估算冒充板上功耗，禁止用 19-word 冒充连接级 2:4。
 
 ## 2026-09-07 资源裁剪审查门
 
@@ -594,7 +596,7 @@ P15 硬门：双时钟逐 beat bit-exact；reset/ready-valid/FIFO 满空无丢�
 - [ ] B1B：PS7、正式UART路径和低地址1 MiB DDR已完成三次冷启动；PR #75已合并OCM驻留高地址诊断。当前先用 `VID_1A86:PID_7523` 恢复串口接收基准，再执行`0x10000000`最小复现并关闭高地址异常。
 - [ ] B1C：在B1B主线基线上完成PHY、MDIO和最小UDP实板门，形成B1-GATE最终摘要。
 
-当前主线执行链：`B2 packet-NPU 已验证基线 -> B3-MVP 组级 live-ENeuron 周期 A/B -> B3-STRICT 严格 2:4 与长稳定性 -> B4-RELEASE 网口与功耗`。B2-GATE 仍是完整 packet 发布门，但不阻塞 B3-MVP；严格连接级 `2:4`、10000 样本、完整恢复矩阵、网口和外部功耗测量不作为首次 live-ENeuron 实验的前置。B1-06B6～B1-06F 高地址 DDR 诊断和 B1C PHY/UDP 保留为板卡资格支线。
+当前主线执行链：`B2 packet-NPU 已验证基线 -> B3-MVP 组级 live-ENeuron 局部周期 A/B -> B3-SPEED/B3-POWER 墙钟与功耗 -> B4 网口发布`。`B3-STRICT` 严格 2:4 是并行结构实验，不挡墙钟/功耗，也不再作为进入 B4 功耗测量的硬前置。B2-GATE 仍是完整 packet/网口发布门，但不阻塞 B3-GOAL。B1-06B6～B1-06F 高地址 DDR 诊断和 B1C PHY/UDP 保留为板卡资格支线。
 
 #### P16-B0：PL 配置、50 MHz 时钟和 LED
 
@@ -672,7 +674,13 @@ P15 硬门：双时钟逐 beat bit-exact；reset/ready-valid/FIFO 满空无丢�
 
 #### P16-B3：传统 NPU + ENeuron 动态剪枝
 
-B3 分为两级：先用现有 `group_4way` mask 完成 `B3-MVP-GATE`，只回答“ENeuron 动态决策能否正确生效并减少 NPU 计算周期”；再用严格连接级 `2:4`、长稳定性和完整恢复矩阵关闭 `B3-STRICT-GATE`。`B3-STRICT-GATE` 取代原 `B3-GATE` 名称；历史文档中的 `B3-GATE` 指本严格门。两级均不允许将未测的板级功耗或网口收益写成已证明。
+B3 现在分三条线，互不顶替：
+
+1. `B3-MVP-GATE`（已关）：现有 `group_4way` mask 上证明 ENeuron 动态决策能生效，并减少局部 NPU 计算周期。
+2. `B3-GOAL-GATE`（日常主线）：在同一组级粒度上证明或证伪墙钟加速与外部功耗下降。不要求严格 2:4。
+3. `B3-STRICT-GATE`（结构实验）：严格连接级 `2:4`、长稳定性和完整恢复矩阵。现行四 DSP 同拍核上，合法 2:4 不能称为加速，除非微结构改为真正少读权重或少开 DSP。
+
+`B3-STRICT-GATE` 取代原 `B3-GATE` 名称；历史文档中的 `B3-GATE` 指该严格门。三条线均不允许将未测的板级功耗或网口收益写成已证明。888 cycle 只允许写成局部 NPU 周期差。
 
 - [x] B3-00：以当前 `PHYSICAL_PASS` packet-NPU bitstream/ELF/协议版本作为实验基线，冻结其 manifest；B2-GATE 继续作为发布门，不阻塞首次固定向量 A/B。首个实验门已先证明 NPU 数值计算可用，再进入剪枝收益验证。
 - [ ] B3-01：在 `B3-STRICT-GATE` 前冻结完整发布身份：保持当前 `64→32→10`、634个模型word、8-beat样本和10-beat结果不变，固定模型word顺序、INT8/uint4解释、bias、隐藏层饱和、样本集合、期望10-logit、预测类别和所有文件 SHA-256。B3-MVP 每次实板 run 仍必须保存当次 bit/XSA/ELF/manifest 身份，但不因最终 clean-worktree 发布包未冻结而阻塞开发实验。
@@ -683,7 +691,7 @@ B3 分为两级：先用现有 `group_4way` mask 完成 `B3-MVP-GATE`，只回�
 - [x] B3-06：先运行 dense/bypass；逐样本核对10个 logit 对应的结果 beat、sample ID、mask epoch 和预测类别与冻结黄金输出完全一致，并核对执行组数等于 dense 期望。这一步才是 NPU 数值功能门，不由 packet smoke 代替。
 - [x] B3-07：运行 gate 启用但全开 mask，10 个 logit 必须与 dense/bypass 逐 beat bit-exact 一致；执行组数不得减少。这一步只证明门控通路透明，不证明剪枝有效。
 - [x] B3-08a：由 Host 重放冻结的组级 mixed mask；在同一通过物理门的 bit/XSA 和 COM15 上完成静态 mask 合法性、输出、执行/跳过组和 fence 证据。结果为 `296/296` 组、logits `74,-18,14,0,0,0,0,0,0,114`，粒度明确为 `group_4way`，不是严格连接级 `2:4`，也不是 ENeuron 自动决策。
-- [ ] B3-08b：补齐严格连接级 `2:4` 候选的 Host 重放与逐样本周期/输出证据；当前 RTL 的 592-bit mask 仍是一位控制四权重组，不能用 B3-08a 关闭本项。Host 编码基础合同已记录于 `docs/verification/NPU_STRICT_2OF4_HOST_CONTRACT_V1.md`，但尚未扩展板端协议/RTL。
+- [ ] B3-08b：补齐严格连接级 `2:4` 候选的 Host 重放与逐样本周期/输出证据；当前 RTL 的 592-bit mask 仍是一位控制四权重组，不能用 B3-08a 关闭本项。本项是结构/精度实验，不是日常加速主线，也不挡 `B3-SPEED`/`B3-POWER`。在现有四 DSP 同拍微结构上，周期下降不是本项硬门。Host 编码基础合同见 `docs/verification/NPU_STRICT_2OF4_HOST_CONTRACT_V1.md`；实施裁定见 `docs/planning/NPU_STRICT_2OF4_B3_08B_DECISION_SHEET_V1.md`。
 - [x] B3-09：Host 在 PS 上用 ENeuron S2（gain=1）从当前样本现场计算 `group_4way` mask，不重放冻结 mixed 表。COM15 实板 run `20260912T131302Z` UART `B3_LIVE_ENEURON_PASS` logits=`165,-18,14,0,0,0,0,0,0,153`；JTAG execute/skip=`296/296`、fence valid。证据 `artifacts/logs/b3_live_eneuron_pass_20260912_fe25a70/`。只关闭组级 live 路径，不是严格 `2:4`。
 - [ ] B3-10：在 `B3-STRICT-GATE` 前将 ENeuron 输出扩展为严格连接级 `2:4` mask，并逐组检查合法性；非法 mask 必须在配置/提交阶段明确拒绝，不能静默钳位或把全关模式计作有效剪枝。全关只作协议负向或负载下界。
 - [x] B3-11：RTL/仿真已证明计算中 MASK_COMMIT 后 `active=旧 epoch`、`pending=新 epoch`（`mask_state==MASK_PUBLISHED`，不是 `mask_valid`）。COM15 实板 hold 窗口两次读回 `0x54=0` / `0x58=1`，样本后 `active=1 pending=0`。计算中 overlap 因 ~12 µs 窗口无法由 PS DMA 命中，保持 Icarus 证明。
@@ -693,20 +701,23 @@ B3 分为两级：先用现有 `group_4way` mask 完成 `B3-MVP-GATE`，只回�
 - [ ] B3-15：在 `B3-STRICT-GATE` 前为 dense、full-open、static-2:4 和 live-ENeuron-2:4 每种正式模式至少连续运行10000样本；所有模式首错即停并保存完整上下文。
 - [ ] B3-16：为 `B3-STRICT-GATE` 报告每个正式模式的样本正确数、logit完全一致数、类别一致数、每样本硬件周期、执行/跳过组、协议错误、恢复次数和资源；静态 mask 与 ENeuron 动态 mask 分开统计。
 - [ ] B3-RECOVERY：若 dense错误先停在模型装载/量化/计算；full-open错误停在门控透明路径；static mask错误停在mask位序/epoch/NPU跳过；只有前三者全过后才诊断 ENeuron决策，不允许用调整训练参数掩盖基础执行错误。
-- [x] B3-MVP-GATE：B3-00/02/03/04/06/07/08a/09/11/13/14 已在同一通过物理门的 bitstream 上关闭。只允许声称组级 `group_4way` 动态剪枝正确性与局部 NPU 周期差值（dense 2494 → gated 1606）。不代表严格 `2:4`、完整 B2 发布、网口加速或功耗收益。
-- [ ] B3-STRICT-GATE：先通过 B3-MVP-GATE，再完成 B3-01、B3-05、B3-08b、B3-10、B3-12、B3-15、B3-16 和 B3-RECOVERY；dense、全开、Host 静态严格 `2:4` 和 live-ENeuron 严格 `2:4` 的长稳定性、协议、epoch 原子性与复位恢复全部通过后，才能进入 B4 发布验证。
+- [x] B3-MVP-GATE：B3-00/02/03/04/06/07/08a/09/11/13/14 已在同一通过物理门的 bitstream 上关闭。只允许声称组级 `group_4way` 动态剪枝正确性与局部 NPU 周期差值（dense 2494 → gated 1606）。不代表严格 `2:4`、完整 B2 发布、墙钟加速或功耗收益。
+- [x] B3-SPEED：COM15 同源 `be84596` bit 上 dense/full-open/static/live 已分段。NPU 2494/2494/1606/1606 cycles；PS 7/7/7/996 µs；DMA 62/59/56/56 µs；Host UART 65962/76935/63070/1307241 µs。888 cycle ≈ 4.4 µs，被 DMA 与 UART 掩盖。证据 `artifacts/logs/b3_speed_20260912_be84596/`。不得写成端到端加速。
+- [ ] B3-POWER：冻结外部功耗仪器、测点、采样率、空闲基线、负载同步和积分窗口后，在同一 `group_4way` bit 上测 dense vs static vs live。无仪器则保持 `POWER_NOT_MEASURED` 且本项不关闭。禁止 Vivado 功耗估算。不要求 2:4，不要求网口。
+- [ ] B3-GOAL-GATE：`B3-SPEED` 已关，且 `B3-POWER` 已关。这是对准“加速推理、降低功耗”的日常门。不要求 `B3-STRICT-GATE`。关闭本门也不等于网口发布或 2:4 完成。
+- [ ] B3-STRICT-GATE：先通过 B3-MVP-GATE，再完成 B3-01、B3-05、B3-08b、B3-10、B3-12、B3-15、B3-16 和 B3-RECOVERY。本门只证明连接级 `2:4` 的正确性与长稳定性，不挡 `B3-SPEED`/`B3-POWER`/`B3-GOAL-GATE`，也不再作为进入 B4 功耗测量的硬前置。在微结构未改为真正少读/少开 DSP 前，不得把本门写成加速或降功耗证明。
 
 历史记录（2026-09-12、旧计数器 bitstream）：`20260912T050553Z` dense、`20260912T053341Z` bypass、`20260912T053426Z` full-open 均通过输出校验，但当时没有同源 execute/skip 物理读回，因此不能单独关闭 B3-06/B3-07。
 
 历史记录（2026-09-12、计数器第一次重建）：为保持 AXI-Lite 32 位寄存器契约，核心只将 execute/skip 累加器内部加法收窄为 24 位；该宽度覆盖 B3-15 的 10000 样本上限（`592 * 10000 = 5,920,000`）。定向回归 `25 passed`，统一 B2 检查 `123 passed`；同策略重建为 `WNS=-0.010 ns`，产物禁止上板。
 
-2026-09-12 当前计数器物理与实板门：第三次改变实现假设的 routed build `build_route_explore_20260912` 在 `xc7z020clg484-2`、200 MHz 通过物理门：`WNS=+0.008 ns`、`TNS=0`、`WHS=+0.036 ns`、`THS=0`、setup/hold 失败端点为 0、route errors=0、DRC hard errors=0、DSP48E1=4。bit SHA-256=`5c6ebc07beb4bae83f5ddd1870ad2e4f53ccf56b244ae7577186c8398c910a88`，XSA SHA-256=`862883742e77e48c566fc49cc14746bc70830e27c894bdf948085c534177a614`。在同一 bit/XSA、COM15 和 packet 协议上，dense run `20260912T093643Z`、full-open run `20260912T094035Z`、bypass run `20260912T094155Z` 均通过黄金 logits `165,-18,14,0,0,0,0,0,0,153`、CRC、sample/model/epoch 元数据和结果帧校验；JTAG probe 分别读回 `execute=592`、`skip=0`，`fence_snapshot_valid=1`。因此 B3-00、B3-06、B3-07 已关闭；静态 `2:4`、live-ENeuron、epoch/恢复矩阵、周期和功耗仍待完成。
+2026-09-12 计数器物理与实板门（历史）：第三次 routed build `build_route_explore_20260912` 在 `xc7z020clg484-2`、200 MHz 通过物理门：`WNS=+0.008 ns`、DSP48E1=4。dense/full-open/bypass 三次固定向量当时关闭 B3-00/06/07。组级 static mixed 与 live-ENeuron 已由后续 `be84596` 证据关闭。仍待完成的是墙钟分段、外部功耗，以及作为结构实验的严格连接级 `2:4`；不得把本段读成“组级 live 仍未完成”。
 
 #### P16-B4：网口端到端 dense/gated 发布 A/B
 
-`B4-RELEASE-GATE` 取代原 `B4-GATE` 名称；历史文档中的 `B4-GATE` 指本发布门。
+`B4-RELEASE-GATE` 取代原 `B4-GATE` 名称；历史文档中的 `B4-GATE` 指本发布门。板上 NPU 墙钟/功耗走 `B3-SPEED`/`B3-POWER`，不走本段入口。
 
-- [ ] B4-00：入口只接受 `B2-GATE=PASS` 且 `B3-STRICT-GATE=PASS` 的同一套硬件、软件、模型和黄金数据；先保存无网络的 B3 吞吐与周期基线，用于判断网口接入后的固定开销。B3-MVP 不启动本阶段。
+- [ ] B4-00：拆成两条入口，不得再用 `B3-STRICT` 挡住功耗测量。packet 路径墙钟/功耗：接受 `B3-MVP-GATE=PASS` 的同源 bit/XSA/ELF/manifest，先保存无网络基线（由 B3-SPEED/B3-POWER 完成即可）。网口发布路径：仍要求 `B2-GATE=PASS`。`B3-STRICT-GATE` 不是本项硬前置。B3-MVP 可以启动墙钟/功耗测量，但不能启动网口发布。
 - [ ] B4-01：冻结应用层协议版本和逐字节布局，至少携带 magic/version、message type、payload length、sequence、sample ID、model ID、mask epoch、状态/错误码和完整性校验；所有多字节字段固定字节序，未知版本必须拒绝。
 - [ ] B4-02：定义请求/响应配对、超时和重试语义。重试必须复用还是生成新 sequence需固定；板端不得因重复 UDP包重复提交模型/mask或把一个样本计算两次而不留痕。
 - [ ] B4-03：实现可复现 Host工具，负责模型/掩码装载、样本发送、结果接收、超时重试、逐包账本、黄金输出比较和 JSON/CSV摘要；命令行保存完整参数，原始收发包可回放，退出码反映硬门结果。
@@ -718,11 +729,11 @@ B3 分为两级：先用现有 `group_4way` mask 完成 `B3-MVP-GATE`，只回�
 - [ ] B4-09：加入持续流、固定突发和受控小间隔三档负载；每档先找到无错误稳定点，再逐步提高发送率。发生拥塞时必须通过可观测队列、背压、超时或明确错误暴露，不允许静默丢包、重复结果或错配 sample ID。
 - [ ] B4-10：正确性硬门优先：dense和 full-open必须逐 beat bit-exact；static-gated和 live-ENeuron必须分别符合冻结 mask/决策和精度合同。任何结果错配都使该轮性能数据无效，并保存首错前后的原始包和板端计数器。
 - [ ] B4-11：性能结论只报告同条件实测差值，不预设必须提升。若 gated无加速，按网口、软件、DMA、排队、固定协议开销和 NPU计算六段定位；若计算变快但端到端不变，应明确结论是“局部计算节省被系统瓶颈掩盖”。
-- [ ] B4-12：只有外部功耗仪器、供电测点、采样率、空闲基线、负载同步和积分窗口冻结后才测功耗/能耗；否则明确写 `POWER_NOT_MEASURED`，不得用 Vivado估算冒充板上实测。
+- [ ] B4-12：网口负载下的功耗/能耗测量。仪器合同可与 `B3-POWER` 共用；若 `B3-POWER` 已在无网口条件下测过，本项只补网口负载差，不重开 2:4 前置。无仪器则写 `POWER_NOT_MEASURED`，不得用 Vivado 估算冒充板上实测。
 - [ ] B4-13：证据包保存协议说明、Host命令行、环境清单、原始包、逐样本账本、UART/板端日志、bitstream/ELF/模型/数据哈希、每轮 JSON/CSV和汇总报告；单靠截图不能关闭阶段门。
 - [ ] B4-14：完成首次完整 A/B 后，重新打开 C1～C9资源裁剪评审；每项裁剪单独建立前后 bitstream并重跑 B3正确性和 B4同条件 A/B，收益不足或破坏可复现性时回退该项。
 - [ ] B4-RECOVERY：发生首错后立即停止该轮性能统计，保存 Host包、UART、DMA/NPU计数器和 active/pending epoch；按网络→软件→DMA→协议→NPU→ENeuron顺序定位，修复后从预热开始重跑完整一轮。
-- [ ] B4-RELEASE-GATE：同一完整证据包证明网口输入→PS/DDR→DMA→传统 NPU+ENeuron→网口输出闭环，正确性硬门通过并完成可重复 A/B和外部功耗/能耗测量后，阶段 2 才可标记完成。若外部功耗条件未具备，本门保持未完成并明确记录 `POWER_NOT_MEASURED`。
+- [ ] B4-RELEASE-GATE：同一完整证据包证明网口输入→PS/DDR→DMA→传统 NPU+ENeuron→网口输出闭环，正确性硬门通过并完成可重复 A/B。功耗以 `B3-POWER`/`B4-12` 的外部实测为准；未测则本门保持未完成并记录 `POWER_NOT_MEASURED`。本门仍要求 `B2-GATE`，不要求 `B3-STRICT-GATE`。
 
 #### P16-S：统一停止条件
 
