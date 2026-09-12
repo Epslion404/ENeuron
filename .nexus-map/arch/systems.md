@@ -2,11 +2,11 @@
 
 ## 当前边界校正（中等精简）
 
-当前摘要校正（2026-09-11）：HEAD=`97398bf641b49ef2f2ab6b16edd68b6327a14488`；P16 当前活动未完成项为 `59`。`xc7z020clg484-2` packet-NPU 在 200 MHz routed timing gate 已通过：WNS=`+0.012 ns`、TNS=`0`、WHS=`+0.036 ns`、THS=`0`，route/DRC hard error=0。下一步为 B2-06～B2-10 packet path 与 B2-GATE；旧摘要中的 `e3db1a1` 和时序修复 pending 状态仅作历史快照。
+当前摘要校正（2026-09-12）：HEAD=`f070577`；P16 当前活动未完成项为 `59`。packet-NPU 在 `xc7z020clg484-2`、200 MHz routed timing 通过（WNS=`+0.005 ns`、TNS=`0`、WHS=`+0.034 ns`、THS=`0`，route/DRC hard errors=0）。B2-08 四流计数与 fence snapshot 已接入 `0x40430000`，COM15 实板读回为 command/sample/response/result=`658/658`、`8/8`、`1/1`、`10 beats/1 packet`，fence snapshot valid。`20260912T050553Z` 的 B3 dense 固定向量子门通过，黄金 logits 为 `165,-18,14,0,0,0,0,0,0,153`。当前状态为 `FUNCTIONAL_PASS / PHYSICAL_PASS / BOARD_STATUS_PARTIAL`；B3-05/06/07 和 B2 发布证据仍待完成。
 
 部署主线固定为 `xc7z020clg484-2` 的 NPU + ENeuron 动态剪枝。`xc7z020clg400-1` 上的 T3/NP7 OOC 与资源/时序报告仅作历史结构参考，不能替代 `clg484-2` 最终 routed 证据；`archive/legacy/` 内容不进入日常 CI/PR 门。B1 高地址 DDR、PHY 和 UDP 是板卡资格支线，仍决定完整 `B1-GATE`，但不阻塞低地址容量满足条件下的 NPU MVP。CH340 设备按 `VID_1A86:PID_7523` 识别，COM 编号仅作现场观测。
 
-合同层级（2026-09-11）：当前阶段合同为 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`；P16 TODO 段、`NPU_PRUNING_TODO.md` 和 `NPU_PRUNING_NP7_TODO.md` 是关联合同。P16 当前活动未完成项以 `workflow_resume.ps1 -Mode Check` 为准。当前活动分支为 `codex/b1b-high-ddr-board-repro`，仓库 HEAD=`97398bf641b49ef2f2ab6b16edd68b6327a14488`；B2-03/B2-04/B2-05 与 B2-PHY 已收口，当前主线为 B2-06～B2-10 packet path。B2/NPU 合同回归 `106 passed`；同源 `xc7z020clg484-2` routed timing 已通过（WNS=`+0.012 ns`、TNS=`0`、WHS=`+0.036 ns`、THS=`0`），route/DRC hard error=0，bit/XSA 已按 manifest 绑定，B2-GATE 仍未完成。
+合同层级（2026-09-12）：当前阶段合同为 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`；P16 TODO 段、`NPU_PRUNING_TODO.md` 和 `NPU_PRUNING_NP7_TODO.md` 是关联合同。P16 当前活动未完成项为 `59`。当前活动分支为 `codex/b1b-high-ddr-board-repro`，仓库 HEAD=`88bec9e`；B2/NPU 合同与状态 probe 均通过。B2-GATE 仍未关闭，但不阻塞首次 B3 dense/full-open 固定向量验证。
 
 B1B状态（2026-09-08）：当前B1A硬件身份为`29edf6a...`，B1B软件身份为`97ddd1a...`，bitstream/XSA/ELF为`1f98e949...bc5f6`、`ed4a2ff...d417b`、`4992d26c...128560`。正式UART为Bank 33的V14 RX/V15 TX，外置CH340按 VID/PID 自动发现（现场枚举 COM10）并在三次完整断电冷启动后收到完整协议；低地址1 MiB DDR九阶段与OCM记录也三次通过。`0x10000000`异常未关闭且高地址尚未访问，B1B与`B1-GATE`仍未完成。`hsi::open_hw_design`只能对临时XSA副本运行，正式build目录保持只读。
 
@@ -17,6 +17,8 @@ B1A-HW状态（2026-09-08）：`boards/hellozynq/b1a_hw/`已在干净提交`29ed
 B2 观测器边界（2026-09-09）：双/单 `axi_stream_monitor:1.1` routed setup 均为历史失败（`WNS=-0.325/-0.284 ns`），不计入物理通过。当前轻量 probe 修复将软件配置设为 `0x04030201`、零 stall 直接失败，RTL 从首个输入启动 phase，并在已公开 VALID 等待 READY 时冻结 phase；六个 B2 合同文件 `51/51` 通过。正式 run `20260909T105109Z`（HEAD `f7f01b0`）已证明 UART/JTAG PASS、受控背压 `64/64`、连续回绕 `256/256` 帧、`rollovers=3`；首末地址为 TX `0x01006000→0x01006FC0`、RX `0x01007000→0x01007FC0`。连续回绕切片为 BOARD_PASS，但多长度逐帧 PL、错误/复位恢复及 B2-03/B2-04/B2-05/B2-GATE 整体关闭仍未完成。
 
 P16最终硬门仍按B0→B1→B2→B3→B4串行，但代码按Fastlane V1小步合并。B1A/B1B/B1C中间切片可进入main但不改变阶段通过状态；B2–B4仍不得提前声明实现或签核。
+
+B3 数值功能入口：固定 `64→32→10` 模型与黄金 manifest；dense 固定向量子门已在 `f070577`/`20260912T050553Z` 通过，但 B3-05 身份核对、B3-06 dense/bypass 完整逐样本与执行组对照、B3-07 full-open mask 透明性仍需完成。完成前不得报告 ENeuron 剪枝收益。
 
 B3/B4 包含两条不同证据链：Host 静态 `2:4` mask 是由 Host 重放冻结 mask，只证明 NPU 门控执行、位序、epoch 和跳过计数；live-ENeuron 是由实板神经元证据生成严格 `2:4` 决策，经 pending bank 和 fence 原子生效。只有后者可证明神经元参与自动剪枝，两类数据不得混合。
 
@@ -46,6 +48,8 @@ NP6 物理评估正式状态为 `NP6_PHYSICAL_COST_PARTIAL`；NP7 已签核。�
 
 B2 物理状态最新校正（2026-09-10）：提交 `074ed56` 的 egress BRAM 预取构建已完成 route、bit/XSA 和 DRC，但 200 MHz setup 仍未达标（`WNS=-0.052 ns`、`TNS=-0.134 ns`、6 个失败端点，`WHS=+0.073 ns`、`THS=0`）；最差路径迁移到 `compute_unit_mask_latched_reg[3] -> compute_group_index_reg[1]`。bit/XSA 仅分析用途，B2-06 仍停在时序修复，B2-GATE 与 ENeuron A/B 均未开始。
 
-B2 物理状态当前值（2026-09-11）：上述条目为历史失败记录。最新 `97398bf` 构建在 `xc7z020clg484-2`、200 MHz 下通过 routed timing gate：`WNS=+0.012 ns`、`TNS=0`、`WHS=+0.036 ns`、`THS=0`，setup/hold 失败端点为 0，route/DRC hard error=0；post-route phys-opt 已执行，bit/XSA 可按 manifest 身份进入板级 packet path 验证。
+B2 提交态物理基线（2026-09-11）：上述条目为历史失败记录。`97398bf` 构建在 `xc7z020clg484-2`、200 MHz 下通过 routed timing gate：`WNS=+0.012 ns`、`TNS=0`、`WHS=+0.036 ns`、`THS=0`，setup/hold 失败端点为 0，route/DRC hard error=0；post-route phys-opt 已执行，并已完成合法 packet smoke。当前工作树下载资格由下方 B2-08 状态块结果覆盖。
+
+B2-08 状态块当前值（2026-09-11）：工作树 `88bec9e` 的 adapter 计数器、E2E testbench和 `b2_npu_status_probe.v` 已通过功能合同；状态块位于 `0x40430000`。错误响应候选统一锁存已移除 `cmd_hold_data -> rsp_payload_reg/CE` 和 `/R` 失败族；当前最差路径为 egress `mask_epoch_reg[1] -> payload_word_count_reg[7]/R`，另有 result 计数和 AXI DMA 内部轻微违例。200 MHz setup 仍未通过，尚未进入板级 runner；B2-GATE、B3、ENeuron A/B 保持未完成。
 
 状态覆盖：OF4a 至 OF6 属于已签核 Python oracle 历史阶段；当前以 `TR1_TR6_APPROVED / TR7_TR12_APPROVED / TIMING_REPAIR_V2_FUNCTIONAL_GREEN / VIVADO_OOC_100MHZ_PASS / P15_T0_APPROVED / T1_RTL_AUTHORIZED / T1_PROTOCOL_SLICE_PROVEN / T1_FULL_PENDING / T2_VARIABLE_CLOCK_SLICE_GREEN / T2_CONCURRENT_EPOCH_SLICE_GREEN / T2_EXTENDED_CLOCK_SLICE_GREEN / T2_FIFO_MATRIX_SLICE_GREEN / T2_INTERLEAVE_RESET_SLICE_GREEN / T2_FINITE_CLOCK_MATRIX_GREEN / T2_RANDOM_CLOCK_MATRIX_GREEN / T2_FULL_MATRIX_PENDING / T3_XPM_XSIM_PASS / T3_XC7Z020_OOC_PASS / T3_SIGNOFF_PASS / RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN` 为准。P15-T0 方案 A 及 A1-A7 已获批准；T1-02 主要路径、T1-06 fence 独立切片与 T1-12 四 FIFO 边界已在本机 `e4d48dd` 通过，T1-09 已记录为当前 wrapper 的 `NA_FOR_T1_WRAPPER / OUTER_SHIM_PENDING`，T2 六组可变时钟、FIFO、交错/复位、16 组有限矩阵和 24 组固定种子随机矩阵已提交并通过；T1 全量、T2 更广泛并发交错、外层 shim、首次端到端运行仍待独立验收。T3 真实 AMD XPM/xsim 与 XC7Z020 OOC 已通过，详见上方报告路径。资源裁剪审查已完成，但所有裁剪实施推迟到第一次完整端到端运行成功之后。旧 Host Bridge OOC 的 `xc7a35tcpg236-1` 不得替代 P15 目标 `xc7z020clg400-1`。V2 已复用 signed 32-bit `mac_accumulator` 作为最终写回值，不新增 `writeback_value_latched`，并完成激活锁存、WRITEBACK、功能和 OOC 证明。

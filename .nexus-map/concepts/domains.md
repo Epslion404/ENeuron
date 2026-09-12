@@ -1,12 +1,14 @@
 # 核心领域概念
 
-当前摘要校正（2026-09-11）：HEAD=`97398bf641b49ef2f2ab6b16edd68b6327a14488`，P16 当前活动未完成项为 `59`。`xc7z020clg484-2` packet-NPU 已通过 200 MHz routed timing gate（WNS=`+0.012 ns`、TNS=`0`、WHS=`+0.036 ns`、THS=`0`，route/DRC hard error=0）；下一步为 B2-06～B2-10 packet path 与 B2-GATE，B2-PHY 不再是待办门。
+B2-08 当前工作树覆盖（2026-09-12）：HEAD=`f070577` 的四流计数、fence 快照和 `0x40430000` 只读 AXI-Lite 状态块已通过功能合同；状态 probe 合同通过；200 MHz routed build 为 `WNS=+0.005 ns/TNS=0/WHS=+0.034 ns/THS=0`、route/DRC hard errors=0。COM15 实板读回 command/sample/response/result=`658/658`、`8/8`、`1/1`、`10 beats/1 packet`，fence snapshot valid；B3 dense 固定向量子门在 `20260912T050553Z` 通过，但 B3-05/06/07、完整 B2-08 ledger、B2-GATE 和 ENeuron A/B 仍未完成。
 
-当前主线（2026-09-11）：部署目标为 `xc7z020clg484-2`，聚焦 NPU + ENeuron 动态剪枝。`archive/legacy/` 不参与日常门；旧 `xc7z020clg400-1` 的 NP7/T3 物理证据仅作历史参考。B1 高地址 DDR、PHY、UDP 属于板卡资格支线，完整 `B1-GATE` 仍未关闭，但不阻塞低地址 B2-MVP。当前 HEAD 为 `97398bf641b49ef2f2ab6b16edd68b6327a14488`；packet-NPU 顶层已通过 200 MHz routed timing（WNS=`+0.012 ns`、TNS=`0`、WHS=`+0.036 ns`、THS=`0`，route/DRC hard error=0），下一步是 B2 packet path 和 B2-GATE，ENeuron A/B 继续保持未完成。
+当前摘要校正（2026-09-12）：仓库 HEAD=`f070577`，P16 当前活动未完成项为 `59`。当前 packet-NPU 200 MHz routed 基线和合法 packet path 已通过；`20260912T040206Z` 完成 `0x40430000` 状态读回，`20260912T050553Z` 完成 B3 dense 固定向量子门。B3-05/06/07、完整 B2-06～B2-10、B2-GATE 和 ENeuron A/B 仍未完成。
 
-状态更新（2026-09-11）：mask-scan 优化构建绑定 `0f71f49`，当前工作树为 packet-NPU 物理通过后的 B2 packet-path 验证基线 `97398bf`。B2 packet-NPU 适配器合同与 sample/result E2E 切片分别为 `B2_NPU_PACKET_ADAPTER_PASS`、`B2_NPU_PACKET_ADAPTER_E2E_PASS`；`b2_npu_axis_top.v` 已作为 B2 BD Verilog reference 接入源码。`xc7z020clg484-2` routed build 的 200 MHz timing 已通过（WNS=`+0.012 ns`、TNS=`0`、WHS=`+0.036 ns`、THS=`0`，route/DRC hard error=0），状态转为物理通过，尚未完成板级 packet path。
+当前主线（2026-09-12）：部署目标为 `xc7z020clg484-2`，聚焦 NPU + ENeuron 动态剪枝。`archive/legacy/` 不参与日常门；旧 `xc7z020clg400-1` 的 NP7/T3 物理证据仅作历史参考。B1 高地址 DDR、PHY、UDP 属于板卡资格支线，完整 `B1-GATE` 仍未关闭，但不阻塞低地址 B2-MVP。packet-NPU 合法路径已有实板 smoke，B3 dense 固定向量子门已通过；当前主线是先完成 B3-05 身份核对、B3-06 bypass 对照和 B3-07 full-open 透明性，再接入 Host 静态 mask 与 live-ENeuron A/B，B2-06～B2-10/B2-GATE 发布证据并行补齐。
 
-- `ACTIVE_CONTRACT_HIERARCHY`：当前阶段合同为 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`；`docs/planning/TODO.md` 的 P16 段、`docs/planning/NPU_PRUNING_TODO.md` 和 `docs/planning/NPU_PRUNING_NP7_TODO.md` 为关联合同。P16 当前活动未完成项为 `59`；当前主线为 B2-06～B2-10 packet path 与 B2-GATE，B2-PHY 已通过。
+状态更新（2026-09-12）：mask-scan 优化构建绑定 `0f71f49`，提交态 packet-NPU 物理基线绑定 `97398bf`；后续 packet board smoke 已完成。当前工作树 HEAD=`88bec9e`，B2 packet-NPU 适配器、sample/result E2E、八计数器/fence 快照和 `0x40430000` 状态块功能合同均通过，B2 packet-NPU 合同、状态 probe 和当前物理构建均通过；实板合法路径和 `0x40430000` 部分读回已完成，不是数值 NPU 等价或完整 B2-GATE 证据。
+
+- `ACTIVE_CONTRACT_HIERARCHY`：当前阶段合同为 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`；`docs/planning/TODO.md` 的 P16 段、`docs/planning/NPU_PRUNING_TODO.md` 和 `docs/planning/NPU_PRUNING_NP7_TODO.md` 为关联合同。P16 当前活动未完成项为 `59`；当前主线先恢复 B2-08 状态块拓扑的 200 MHz setup 并完成板级读回，再推进 B2-06～B2-10 与 B2-GATE；B2-PHY 已通过。
 - `B1_06B6_UART_BASELINE_PENDING`：当前先按 VID/PID 恢复 CH340 UART 接收基准；此前诊断停在 READY 等待 GO，`command=0`、`completed_accesses=0`，尚未进行 DDR 访问。执行链固定为 B1-06B6 UART 基准 → B1-06B7 OCM 高地址最小复现；B1-06B7 高地址探针必须以后续 UART 基准通过为前提。
 - `B1_06B6_COM10_PASSIVE_LISTEN_NO_BYTES`：2026-09-08 按 `VID_1A86:PID_7523` 对 COM10 以 115200 8N1 监听 10 秒，读取 0 字节，未见 `ENEURON_B1B_BEGIN`、`ALIVE` 或 `PASS`；未下载 bitstream/ELF、未发送 GO，DDR access=0。该观察保持 `B1-06B6_UART_BASELINE_PENDING`，不是 DDR 失败证据。
 
@@ -16,7 +18,7 @@ provenance: NP4B/NP6/NP7 TODO、工作流状态与 RTL 文件；集成边界来�
 
 - `B1A_HW_DEFINITION_COMPLETE`：当前身份为`29edf6a...`，UART0使用Bank 33的V14 RX/V15 TX、LVCMOS33并已由最终I/O确认FIXED；bitstream/XSA为`1f98e949...bc5f6`/`ed4a2ff...d417b`。该状态本身不表示整个B1-GATE通过。
 - `B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DDR_PENDING`：`bare-metal + lwIP`路线已批准；固定SW/HW/bitstream/XSA/ELF在三次完整断电后通过外置CH340 UART协议和低地址1 MiB DDR九阶段。此前`0x10000000`异常未关闭，不得写成整片DDR、B1B或B1-GATE通过。
-- `B2_BACKPRESSURE_FAIL_CLOSED_PROVEN / B2_03_B2_05_PENDING`：提交 `e26c7c1` 的旧配置 `0x04000201` 含 period=0；`20260909T063702Z` 的 64/64 PASS 伴随 stall=0，不能作为背压证据。加入零 stall 拒绝后的 `20260909T065258Z` 返回总状态/背压状态 FAIL、`backpressure_failed=1`，证明 fail-closed 生效。B2-03/B2-05/B2-GATE 通过前不得接入 NPU 或报告剪枝加速、功耗收益。
+- `B2_BACKPRESSURE_FAIL_CLOSED_PROVEN / HISTORICAL_B2_03_B2_05_PENDING`：提交 `e26c7c1` 的旧配置 `0x04000201` 含 period=0；`20260909T063702Z` 的 64/64 PASS 伴随 stall=0，不能作为背压证据。加入零 stall 拒绝后的 `20260909T065258Z` 返回总状态/背压状态 FAIL、`backpressure_failed=1`，证明 fail-closed 生效。该条目的 B2-03/B2-05 pending 是历史时点；当前 packet-NPU 已有合法路径 smoke，但 B2-GATE 与 ENeuron A/B 未关闭，仍不得报告剪枝加速或功耗收益。
 - `B2_AXI_VALID_HOLD_FIX_BUILD_BOARD_UART_JTAG_PASS`：当前工作树使用 `0x04030201`，在首个输入后启动 phase，并在已公开 VALID 等待 READY 时冻结 phase；六个 B2 合同测试文件 51/51 通过。最终 Vivado 构建 WNS/WHS=`+0.017/+0.014 ns`；正式 run `20260909T105109Z` 绑定 HEAD `f7f01b0` 与 ELF=`dfe8088a…9082d0`，UART/JTAG 均 PASS，受控背压 `64/64`、failed=0、stall_cycles=83082、S2MM STALL=3。连续回绕切片已另行 BOARD_PASS；B2-03/B2-04/B2-05/B2-GATE 仍待错误/复位恢复和更完整逐帧 PL 观测。
 
 - `B2_CONTINUOUS_WRAP_BOARD_PASS`：提交 `69ed289` 已加入 256 帧连续回绕切片；正式 run `20260909T105109Z`（HEAD `f7f01b0`）在目标板完成 `256/256` 帧、64 个 64-byte slot、`rollovers=3` 及首末地址核对，bit/XSA/ELF 身份已绑定。该切片通过不等于 B2-03/B2-04/B2-05/B2-GATE 整体关闭，错误/复位恢复和更完整逐帧 PL 观测仍待完成。

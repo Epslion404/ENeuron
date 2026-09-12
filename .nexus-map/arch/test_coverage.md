@@ -1,14 +1,14 @@
 # 测试面与缺口
 
-当前摘要校正（2026-09-11）：HEAD=`97398bf641b49ef2f2ab6b16edd68b6327a14488`，P16 当前活动未完成项为 `59`。B2-PHY 已通过：`xc7z020clg484-2`、200 MHz routed timing 为 WNS=`+0.012 ns`、TNS=`0`、WHS=`+0.036 ns`、THS=`0`，setup/hold 失败端点为 0，route/DRC hard error=0。当前测试缺口为 B2-06～B2-10 packet path 与 B2-GATE；旧 timing fail/analysis_only_no_download 摘要均为历史记录。
+当前摘要校正（2026-09-12）：HEAD=`f070577`，P16 当前活动未完成项为 `59`。既有 B2-PHY 基线在 200 MHz 为 WNS=`+0.005 ns`；B2-08 `0x40430000` 状态块已完成 COM15 实板部分读回。B3 dense 固定向量子门在 `20260912T050553Z` 通过，10 个 logits 与黄金值一致；当前测试缺口为 B3-05/06/07 的身份、bypass/执行组和 full-open 透明性完整证据，完整 B2-06～B2-10 错误/复位账本、B2-GATE 和 ENeuron A/B。
 
-状态更正（2026-09-11）：当前工作树 HEAD 为 `97398bf641b49ef2f2ab6b16edd68b6327a14488`，最新 packet-NPU 物理修复已完成。此前 2026-09-09/10 条目保留为历史切片说明；B2-03/B2-04/B2-05 与 B2-PHY 已收口。当前测试缺口以 `docs/planning/TODO.md` P16-B2 为准：B2-06/B2-07/B2-08/B2-09/B2-10 与 B2-GATE 尚未完成。B2/NPU 合同回归为 `106 passed`，packet-NPU routed timing 为 `WNS=+0.012 ns`、`TNS=0`、`WHS=+0.036 ns`、`THS=0`，route/DRC hard error=0。
+状态更正（2026-09-12）：当前物理和板级基线均绑定 `88bec9e9bdbec1de53ef45d2f22e4275308c0237`，工作树 HEAD 为 `88bec9e9bdbec1de53ef45d2f22e4275308c0237`。`20260912T040206Z` 在 COM15 完成 UART/JTAG/XSCT PASS，634 model words、19 mask words、fence、8-beat sample 和 10-beat result 均通过；状态块读回 command/sample/response/result=`658/658`、`8/8`、`1/1`、`10 beats/1 packet`，fence snapshot valid。该证据仍是合法 packet path 的部分覆盖，不代表数值等价或 B2-GATE。
 
 TODO 计数更正：`workflow_resume.ps1 -Mode Check` 于 2026-09-10 在 HEAD `bc9ed89` 上报告 `TODO.md:P16=59`；本文其余 `63` 计数均为历史快照。
 
 当前覆盖边界：活动部署目标为 `xc7z020clg484-2`，NPU + ENeuron 动态剪枝证据优先。`archive/legacy/` 材料不参与日常门；旧 `xc7z020clg400-1` NP7/T3 物理结果只作历史参考。B1 高地址 DDR/PHY/UDP 属于板卡资格支线，完整 `B1-GATE` 仍待关闭；低地址窗口满足模型/DMA 容量后可继续 NPU MVP。CH340 以 `VID_1A86:PID_7523` 识别，COM10 仅为现场枚举记录。
 
-合同/统计边界（2026-09-11）：当前阶段合同为 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`；P16 TODO、`NPU_PRUNING_TODO.md` 和 `NPU_PRUNING_NP7_TODO.md` 为关联合同。当前活动分支为 `codex/b1b-high-ddr-board-repro`。最终 VALID 保持修复的物理门禁已通过（`WNS/WHS=+0.017/+0.014 ns`）；后续正式实板切片已补齐 B2-03/B2-04/B2-05 所需边界、压力、背压、回绕、恢复、间歇和 missing-TLAST 证据。B2-PHY 已关闭，当前缺口为 B2-06/B2-07/B2-08/B2-09/B2-10 与 B2-GATE，B1 高地址 DDR 访问仍为 0。最新 packet-NPU 构建证据绑定 `97398bf`，200 MHz routed timing `WNS=+0.012 ns`、`TNS=0`、`WHS=+0.036 ns`、`THS=0`，route/DRC hard error=0。
+合同/统计边界（2026-09-12）：当前阶段合同为 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`；P16 TODO、`NPU_PRUNING_TODO.md` 和 `NPU_PRUNING_NP7_TODO.md` 为关联合同。当前活动分支为 `codex/b1b-high-ddr-board-repro`。最终 VALID 保持修复的物理门禁已通过（`WNS/WHS=+0.017/+0.014 ns`）；后续正式实板切片已补齐 B2-03/B2-04/B2-05 所需边界、压力、背压、回绕、恢复、间歇和 missing-TLAST 证据。B2-PHY 已关闭，当前缺口为 B2-06/B2-07/B2-08/B2-09/B2-10 与 B2-GATE，B1 高地址 DDR 访问仍为 0。最新 packet-NPU 构建证据绑定 `97398bf`，200 MHz routed timing `WNS=+0.012 ns`、`TNS=0`、`WHS=+0.036 ns`、`THS=0`，route/DRC hard error=0。
 
 B2 观测器覆盖（2026-09-09）：官方双/单 monitor 的 routed setup 失败分别为 `WNS/TNS=-0.325/-11.113 ns`（127 个端点）和 `-0.284/-22.272 ns`（256 个端点），均不计入正式物理通过。当前工作树覆盖配置 period 非零、zero-stall fail-closed、首个 `input_fire` 启动 phase，以及 `TVALID=1/TREADY=0` 时冻结 phase 保持 VALID/payload；六个 B2 合同测试文件 `51/51` 通过。正式实板 run `20260909T105109Z`（HEAD `f7f01b0`）及 recovery run `20260909T110436Z` 已验证 UART/JTAG/XSCT、受控 S2MM `STALL>0`，并完成连续回绕 `256/256` 帧、`64/64` slot、`rollovers=3`，recovery timeout/reset/passed/failed=`1/1/1/0`、sequence=`10329`、CRC32=`0xD3E3C978`；该切片为 BOARD_PASS，但错误注入、间歇/ready 恢复、更完整逐帧 PL 观测和 B2-03/B2-04/B2-05/B2-GATE 整体关闭仍待完成。
 
@@ -27,7 +27,7 @@ B1A-HW覆盖（2026-09-08）：干净提交`29edf6a...`的Vivado 2024.1完整构
 当前 T2 随机矩阵增量（2026-09-07）：统一复现入口 `--t2-random-matrix` 使用固定种子 `20260907` 生成 24 个唯一半周期/相位组合，按 `2000 + 400 × NPU_HALF` 个 Host 周期设置每组观察预算，完整运行后返回 `REPRO_G2_T2_RANDOM_MATRIX_PASS`。该证据记为 `T2_RANDOM_CLOCK_MATRIX_GREEN`，属于可复现的有限随机压力集，不是频率/相位数学穷举。
 
 generated_by: nexus-mapper v2 / manual synthesis
-verified_at: 2026-09-11
+verified_at: 2026-09-12
 provenance: repository test names, signoff summaries, workflow state, latest GitHub/Webhook evidence
 
 已覆盖：Python/RTL 协同仿真、有限形式安全与可达性、负向 mutation、Tile/System Vivado OOC、XPM 仿真、NP4B 三模型 60000 事务签核；CI-Fast V1 已完成 workflow 全量、文档轻量和 NPU-only 定向路径验证。CI Action 已升级到 `actions/checkout@v7` 与 `actions/setup-python@v7` 的 Node 24 基线，分类合同要求任何 workflow 变更运行全量门。NPU oracle 新增并通过 `test_zero_activity_with_closed_gate_emits_no_reads_or_macs`、`test_frequent_epoch_switches_never_mix_masks`、`test_pending_slot_backpressure_rejects_overwrite` 三项最坏情况测试。
@@ -62,7 +62,9 @@ T3 已完成并通过。真实 AMD XPM/xsim 报告 `vivado_npu_zynq7020_t3_xsim/
 OF4g 修正 `committed` 模型冻结边界，OF5 验证模型/mask/runtime hard reset 丢弃 staging、结果和冻结状态并恢复 `epoch=0`、全开 mask、`model_valid=0`；OF6 对 OF1-OF5 做最终汇总，`test_npu_eneuron_reference.py` 为 48/48、CI-Fast 为 8/8，曾合并至 `main@0982ac5`。该段保留作为协议签核历史；当前权威状态以上方“当前签核门”和 DSP V1 manifest 为准。
 B2 missing-TLAST 覆盖（2026-09-09）：正式 run `20260909T133721Z`（HEAD `b2332a0`）在 COM10 实板通过 UART/JTAG/XSCT；missing_tlast observed=1，DMA error/reset/recovered/failed=1/1/1/0，注入/恢复 sequence=10332/10333，MM2S/S2MM TLAST=0/0、beats=16/16，recovery sequence=10329 保持不变。该切片为 `B2_MISSING_TLAST_PASS`，但 B2-06/B2-08/B2-GATE 仍未完成。
 
-B2 packet-NPU 适配器切片（2026-09-09）：提交 `cb9eb66` 的 `b2_npu_packet_adapter.sv` 完成 ingress→T1 wrapper→egress 的 response 基础路径，提交 `62f2d8b` 新增合法 `mask/fence/sample/result` 端到端切片；本机合同测试分别为 4/4、3/3，状态为 `B2_NPU_PACKET_ADAPTER_PASS` 与 `B2_NPU_PACKET_ADAPTER_E2E_PASS`。覆盖仍限于 RTL/Icarus 合同，不是板级证据；B2-07 完整错误矩阵、B2-08 计数账本和 packet path 实板验证仍待完成。
+B2 packet-NPU 适配器切片（2026-09-09）：提交 `cb9eb66` 的 `b2_npu_packet_adapter.sv` 完成 ingress→T1 wrapper→egress 的 response 基础路径，提交 `62f2d8b` 新增合法 `mask/fence/sample/result` 端到端切片；本机合同测试分别为 4/4、3/3，状态为 `B2_NPU_PACKET_ADAPTER_PASS` 与 `B2_NPU_PACKET_ADAPTER_E2E_PASS`。覆盖仍限于 RTL/Icarus 合同，不是板级证据；B2-07 完整错误矩阵和 packet path 实板验证仍待完成。
+
+B2-08 四流计数器/快照子门（2026-09-11，工作树 `88bec9e`）：adapter 计数、fence 快照及 `0x40430000` 只读 AXI-Lite 状态块仿真通过；统一检查全部 B2 合同 `117 passed`、T1 两门 PASS。错误响应候选统一锁存后的完整 Vivado 重建消除了 `cmd_hold_data -> rsp_payload_reg/CE` 和 `/R` 失败族；最终 `WNS=-0.030 ns/TNS=-0.203 ns/WHS=+0.036 ns/THS=0`，route/DRC hard errors=0、`B2_SIGNOFF_PASS=0`，因此板级读回仍 pending。当前最差路径为 egress `mask_epoch -> payload_word_count/R`。
 
 B2 packet 顶层与物理构建边界（2026-09-09）：提交 `ea35d74` 将 `b2_npu_axis_top` 接入 B2 BD，提交 `1d0e3ba` 将源文件固定为 `boards/hellozynq/b2_hw/b2_npu_axis_top.v` 并采用 Verilog BD reference；`test_b2_npu_axis_top_contract.py` 为 3/3。本地 `boards/hellozynq/b2_hw/build/` 现有 bit/XSA/报告仍绑定旧 HEAD `b2332a0`，不是 `1d0e3ba` 后的重建结果；因此只能记录为 `STALE_PRE_PACKET_TOP_BUILD`，不能宣称新 packet-NPU 顶层已通过 `xc7z020clg484-2` 物理门。
 

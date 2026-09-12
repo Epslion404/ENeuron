@@ -1,35 +1,44 @@
 {
   "$schema": "nexus-mapper/plan/v1",
   "plan_id": "p16-board-validation-phase2",
-  "verified_at": "2026-09-11",
+  "verified_at": "2026-09-12",
   "target": {
     "board": "HelloZynq",
     "part": "xc7z020clg484-2"
   },
   "workflow_context": {
     "active_branch": "codex/b1b-high-ddr-board-repro",
-    "current_head": "97398bf641b49ef2f2ab6b16edd68b6327a14488",
+    "current_head": "88bec9e9bdbec1de53ef45d2f22e4275308c0237",
     "worktree_status": "DIRTY",
     "worktree_entries": [
-      ".nexus-map/arch/test_coverage.md",
-      "artifacts/README.md",
+      "WORKFLOW_STATE.md",
+      "b2_npu_packet_adapter.sv",
+      "boards/hellozynq/b2_hw/b2_npu_axis_top.v",
+      "boards/hellozynq/b2_hw/b2_npu_status_probe.v",
+      "boards/hellozynq/b2_hw/create_b2_bd.tcl",
+      "boards/hellozynq/b2_hw/run_b2_build.ps1",
+      "boards/hellozynq/b2_sw/run_b2_sw_build.ps1",
+      "tb_b2_npu_packet_adapter_e2e.sv",
+      "tb_b2_npu_status_probe.sv",
+      "test_b2_npu_status_probe_contract.py",
+      "docs/planning/TODO.md",
       "findings.md",
       "progress.md",
-      "task_plan.md",
-      "artifacts/logs/b2_packet_npu_route_timing_fail_20260910_074ed56/"
+      "task_plan.md"
     ],
     "parent_audit_baseline": "d7e1035",
-    "execution_chain": ["B2-03_BOARD_MINIMAL_LOOPBACK", "B2-04_BOUNDARY_FRAMES", "B2-05_BACKPRESSURE_AND_PRESSURE"],
+    "execution_chain": ["B2-08_STATUS_SETUP_RECOVERY", "B2-08_BOARD_COUNTER_READ", "B2-06_B2-10_PACKET_GATES", "B2-GATE"],
     "qualification_execution_chain": ["B1-06B6_UART_BASELINE", "B1-06B7_OCM_HIGH_DDR_MINIMAL_REPRODUCTION"],
     "ddr_accesses_so_far": 0
   },
-  "status": "P16_B0_COMPLETE / FASTLANE_V1 / B1A_HW_DEFINITION_COMPLETE / B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DDR_PENDING / B2_00_LOW_ADDRESS_LAYOUT_FROZEN / B2_D1_DMA_CONTRACT_FROZEN / B2_01_BUFFER_OWNERSHIP_FROZEN / B2_STREAM_PROBE_BOARD_PASS / B2_BACKPRESSURE_UART_JTAG_PASS / B2_AXI_VALID_HOLD_FIX_BUILD_PASS / B2_CONTINUOUS_WRAP_BOARD_PASS / B2_RECOVERY_BOARD_PASS / B2_GAP_PASS / B2_MISSING_TLAST_BOARD_PASS / B2_PACKET_NPU_PHYSICAL_GATE_PASS / B2_06_B2_10_PENDING / B2_GATE_PENDING",
+  "status": "P16_B0_COMPLETE / FASTLANE_V1 / B1A_HW_DEFINITION_COMPLETE / B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DDR_PENDING / B2_PACKET_NPU_PHYSICAL_GATE_PASS / B2_PACKET_PATH_SMOKE_PASS / B2_08_COUNTER_RTL_SLICE_GREEN / B2_08_BOARD_STATUS_INTEGRATED_TIMING_PASS / B2_08_BOARD_READ_PARTIAL / B2_06_B2_10_PENDING / B2_GATE_PENDING / B3_NUMERICAL_FUNCTION_PENDING",
+  "current_b2_status": "FUNCTIONAL_PASS / PHYSICAL_PASS / BOARD_STATUS_PARTIAL",
   "stage2_complete": false,
-  "current_gate": "B2-06-PACKET-NPU-INTEGRATION",
+  "current_gate": "B3-00-NPU-NUMERICAL-FUNCTION",
   "active_stage_contract": "docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md",
   "related_contracts": ["docs/planning/TODO.md#P16", "docs/planning/NPU_PRUNING_TODO.md", "docs/planning/NPU_PRUNING_NP7_TODO.md"],
   "workflow_resume_counts": "P16=59",
-  "current_execution_point": "B2-06_PACKET_PATH_BOARD_VALIDATION",
+  "current_execution_point": "B3-05_IDENTITY_THEN_B3-06_BYPASS_AND_B3-07_FULL_OPEN_COMPARE",
   "ddr_accesses_so_far": 0,
   "b0": {
     "source_commit": "f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06",
@@ -411,7 +420,50 @@
       "elf_sha256": "7fbcc85aa964a02e30d61f2e47e53e3f70e0e8421275852ba2e36963831d9f3e",
       "bitstream_sha256": "ef9740002e9b5e54ef0479e647b07bf3fc3577d8b552fdb6ed35d3f14fc5175a",
       "xsa_sha256": "8419e00eff65f4a3cd70ee397cab3bdb0e3351496dfe9b8cdcbe337ae8ab4185",
-      "evidence_boundary": "提交 5ff9088 修复 persistent DMA frame ledger；其前一实现 HEAD 76e06b6 的正式 run 20260909T125200Z 在 xc7z020clg484-2、COM10 实板完成 UART/JTAG/XSCT PASS。8/8 边界记录完整按 64-byte stride 读取，pressure=10000/10000，backpressure=64/64、stall_cycles=83082，wrap=256/256，recovery ready=1->0->1，gap=2/2。该子门不关闭 B2-03/B2-05/B2-GATE；error injection、packetizer/fence 仍待完成，不得宣称 NPU 已接入或剪枝收益。"
+      "evidence_boundary": "提交 5ff9088 修复 persistent DMA frame ledger；其前一实现 HEAD 76e06b6 的正式 run 20260909T125200Z 在 xc7z020clg484-2、COM10 实板完成 UART/JTAG/XSCT PASS。8/8 边界记录完整按 64-byte stride 读取，pressure=10000/10000，backpressure=64/64、stall_cycles=83082，wrap=256/256，recovery ready=1->0->1，gap=2/2。该历史子门当时未覆盖 packetizer/fence；后续 packet-NPU smoke 与 B2-08 状态块功能集成已完成，但状态块 setup、板级读回、B2-GATE 和 ENeuron A/B 仍未完成。"
+    },
+    "b2_08_counter_rtl_slice": {
+      "status": "FUNCTIONAL_PASS / PHYSICAL_PASS / BOARD_STATUS_PARTIAL",
+      "source_head": "88bec9e9bdbec1de53ef45d2f22e4275308c0237",
+      "rtl": "b2_npu_packet_adapter.sv",
+      "testbench": "tb_b2_npu_packet_adapter_e2e.sv",
+      "contract_test": "test_b2_npu_packet_adapter_e2e_contract.py",
+      "result": "3 passed",
+      "accepted_completed": {
+        "command": "658/658",
+        "sample": "8/8",
+        "response": "1/1",
+        "result": "10 beats/1 packet"
+      },
+      "fence_snapshot": "256-bit eight-counter snapshot latched on accepted fence response",
+      "reset": "all eight counters and fence_snapshot_valid clear on bridge_rst",
+      "status_probe": "boards/hellozynq/b2_hw/b2_npu_status_probe.v at 0x40430000",
+      "functional_result": "status-probe contract 5 passed; packet-NPU E2E/reset contracts pass; board status read succeeded",
+      "physical_result": "Vivado 2024.1 xc7z020clg484-2 200 MHz routed build: WNS=+0.005 ns/TNS=0; WHS=+0.034 ns/THS=0; route/DRC hard errors=0; B2_SIGNOFF_PASS=1",
+      "resolved_path": "current build and board-run manifests are bound to source HEAD 88bec9e",
+      "current_worst_path": null,
+      "other_failing_family": null,
+      "next_timing_structure": null,
+      "scope_limit": "status block read is partial evidence for the legal packet path; it does not close the full multi-packet/error/reset ledger",
+      "does_not_close": ["B2-08 total gate", "B2-GATE", "B3 numerical equivalence", "ENeuron A/B"]
+    },
+    "packet_npu_board_smoke": {
+      "status": "BOARD_PASS_PARTIAL_SCOPE",
+      "source_head": "88bec9e9bdbec1de53ef45d2f22e4275308c0237",
+      "run_id": "20260912T040206Z",
+      "port": "COM15",
+      "usb_vid_pid": "VID_1A86:PID_7523",
+      "run_manifest": "boards/hellozynq/b2_sw/build/88bec9e9bdbec1de53ef45d2f22e4275308c0237/direct/runs/20260912T040206Z/run_manifest.json",
+      "status_probe_log": "boards/hellozynq/b2_sw/build/88bec9e9bdbec1de53ef45d2f22e4275308c0237/direct/runs/20260912T040206Z/status_probe_20260912T120539Z/probe_stdout.log",
+      "bitstream_sha256": "782a977c8c14c0bea73a289a167eed048e7fa2da7e9b889c95ed815c34d93b6e",
+      "xsa_sha256": "5e6a31bd4fc3fc8dead04c749bd4e4cb5faf0aeb7b5e6b8b2f6233be2f715ef7",
+      "uart_jtag_xsct": "PASS",
+      "model_words": 634,
+      "mask_words": 19,
+      "status_base": "0x40430000",
+      "accepted_completed": {"command":"658/658", "sample":"8/8", "response":"1/1", "result":"10 beats/1 packet"},
+      "fence_snapshot_valid": true,
+      "scope_limit": "proves legal packet path, fence/sample/result framing and counter visibility only; no dense numerical equivalence or pruning benefit"
     },
     "monitor_experiment": {
       "observed_at": "2026-09-09",
@@ -445,9 +497,20 @@
         "busy/stall 在背压或 TLAST 场景不能单独作为严格证据",
         "真实 TKEEP 与 TLAST beat 位置仍需独立采样或明确推导"
       ],
-      "next_action": "完成 B2-06～B2-10 packet path 及 B2-GATE 板级证据；B2-PHY 已通过"
+      "next_action": "保留历史 monitor 失败实验；使用当前通过身份进入 B3-00/B3-06 dense 黄金向量验证，并并行补齐 B2-06～B2-10/B2-GATE 发布证据"
     },
-    "forbidden_claims": ["B2-03 fully closed", "B2-05 fully closed", "B2-GATE passed", "NPU integrated", "pruning speedup or power gain measured"]
+    "forbidden_claims": ["full B2-08 multi-packet/error/reset ledger validated on board", "B2-GATE passed", "ENeuron dynamic pruning integrated on board", "pruning speedup or power gain measured"]
+  },
+  "b3_dense_board_subgate": {
+    "status": "PASS_SUBGATE_ONLY",
+    "source_commit": "f070577",
+    "run_id": "20260912T050553Z",
+    "port": "COM15",
+    "application_mode": "b3_dense",
+    "elf_sha256": "3dc79b7319eb7112131c7b9ff39011013640afc48a316f9745587570ea27368c",
+    "golden_logits": [165, -18, 14, 0, 0, 0, 0, 0, 0, 153],
+    "checks": ["10 signed INT32 logits", "result CRC", "sample/model/mask epoch metadata", "19-word result frame"],
+    "does_not_close": ["B3-05 identity/capability check", "B3-06 bypass and execution-group complete comparison", "B3-07 full-open transparency", "B3-GATE"]
   },
   "qualification_next_action": {
     "action": "B1-06B6_UART_BASELINE",
@@ -564,8 +627,8 @@
   },
   "stages": [
     {"id":"B1","requires":"B0-GATE=PASS on main","scope":"PS7, DDR, UART, PHY, minimal UDP","status":"IN_PROGRESS_B1A_COMPLETE_B1B_UART_LOW_DDR_PASS_HIGH_DDR_PENDING"},
-    {"id":"B2","requires":"B2-00/B2-D1 for low-address MVP; B1-GATE=PASS for full networked B2","scope":"AXI DMA, DDR ownership/cache contract, PL loopback, fixed frame adapter","status":"IN_PROGRESS_LOW_ADDRESS_MVP_B2_01_COMPLETE_B2_03_BOUNDARY_AND_PRESSURE_UART_JTAG_PASS_B1_GATE_PENDING"},
-    {"id":"B3","requires":"B2-GATE=PASS","scope":"64x32x10 traditional NPU plus ENeuron fixed-vector board validation","status":"BLOCKED_BY_PREDECESSOR_GATE"},
+    {"id":"B2","requires":"B2-00/B2-D1 for low-address MVP; B1-GATE=PASS for full networked B2","scope":"AXI DMA, DDR ownership/cache contract, PL loopback, fixed frame adapter","status":"IN_PROGRESS_LOW_ADDRESS_MVP_PACKET_NPU_PHYSICAL_PASS_BOARD_STATUS_PARTIAL_B2_GATE_PENDING_B1_GATE_PENDING"},
+    {"id":"B3","requires":"B2 packet-NPU physical pass and legal-path smoke; B2-GATE remains the release gate","scope":"64x32x10 traditional NPU plus ENeuron fixed-vector board validation","status":"READY_FOR_B3_00_NUMERICAL_FUNCTION_CHECK"},
     {"id":"B4","requires":"B3-GATE=PASS","scope":"Ethernet end-to-end dense/gated reproducible A/B","status":"BLOCKED_BY_PREDECESSOR_GATE"}
   ],
   "mask_mode_boundary": {

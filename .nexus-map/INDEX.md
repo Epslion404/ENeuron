@@ -8,13 +8,17 @@
 
 证据边界：当前部署和最终板级物理签核目标是 `xc7z020clg484-2`。`xc7z020clg400-1` 上的 T3/NP7 OOC、时序和资源报告只作为历史结构参考，不得写成 `clg484-2` 已签核；`archive/legacy/` 中的材料不进入日常 CI/PR 门。B1 高地址 DDR、PHY 和 UDP 属于板卡资格支线，仍阻塞完整 `B1-GATE`，但在已验证低地址窗口足以容纳模型与 DMA 缓冲区时，不阻塞 NPU MVP 的 RTL/软件推进。CH340 运行脚本按 `VID_1A86:PID_7523` 识别设备，`COM10` 只是现场枚举结果，不是固定合同。
 
-合同与恢复口径（2026-09-11）：`WORKFLOW_STATE.md` 指定 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md` 为当前阶段合同；中等精简后的主线 TODO 仅统计 `docs/planning/TODO.md` 的 P16，当前活动计数为 `59`。`P16-E` 公共证据合同与 `P16-S` 统一停止条件是持续适用的常驻合同，不计入一次性计数；`NP8` 为 `DEFERRED_OPTIONAL`，`NP9` 已并入 P16 的 B2/B3/B4，不再维护第二套板级任务。当前仓库 HEAD=`cbfd2b4`（packet UART 原始/清理后日志已归档）；B2-03/B2-04/B2-05 与 B2-PHY 已收口，当前待关闭项为 B2-06/B2-07/B2-08/B2-09/B2-10 与 B2-GATE。B1 高地址 DDR/PHY/UDP 仅为板卡资格支线。唯一合同设备为 `VID_1A86:PID_7523` 的外置 CH340，现场枚举为 COM15（COM 号不是固定合同）；COM6/COM7 为蓝牙串口并排除。
+合同与恢复口径（2026-09-12）：`WORKFLOW_STATE.md` 指定 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md` 为当前阶段合同；中等精简后的主线 TODO 仅统计 `docs/planning/TODO.md` 的 P16，当前活动计数为 `59`。`P16-E` 公共证据合同与 `P16-S` 统一停止条件是持续适用的常驻合同，不计入一次性计数；`NP8` 为 `DEFERRED_OPTIONAL`，`NP9` 已并入 P16 的 B2/B3/B4。当前仓库 HEAD=`f070577`，B2 packet-NPU 物理/合法路径基线保持通过；当前状态为 `FUNCTIONAL_PASS / PHYSICAL_PASS / BOARD_STATUS_PARTIAL`。B3 dense 固定向量实板子门已通过，但 B3-05 身份核对、B3-06 bypass/执行组完整对照、B3-07 full-open 透明性仍未完成；B2-GATE、B2-06～B2-10 完整发布证据也仍未完成。
 
 状态更正（2026-09-10）：上方为当前权威状态；本文件后续 2026-09-09 历史段落中若仍写“B2-03/B2-04/B2-05 未关闭”，均由后续正式边界、压力、背压、回绕、恢复、间歇和 missing-TLAST 证据 supersede。当前待关闭项仅为 B2-06/B2-07/B2-08/B2-09/B2-10 与 B2-GATE；BRAM 探针已由 `f4827e2` 提交，命令 FIFO 保持槽时序切片已由 `195e6e7` 提交，但尚未以该 RTL 重跑完整 Vivado。
 
 TODO 计数更正：`workflow_resume.ps1 -Mode Check` 于 2026-09-11 在 HEAD `97398bf` 上报告 `TODO.md:P16=59`；本文其余 `63` 计数均为历史快照。
 
-B2 packet-NPU 当前物理边界（2026-09-11）：最新完整 Vivado 2024.1 构建绑定源 HEAD=`97398bf`，目标器件为 `xc7z020clg484-2`；200 MHz routed timing 全绿（`WNS=+0.012 ns`、`TNS=0`、`WHS=+0.036 ns`、`THS=0`），setup/hold 失败端点为 0，route errors=`0`、DRC hard errors=`0`。post-route `phys_opt_design -directive AggressiveExplore` 已在日志确认执行；bit/XSA 和 manifest 已生成。B2-PHY 已通过，下一步为 B2-06～B2-10 packet path 与 B2-GATE。
+B2 packet-NPU 提交态物理基线（2026-09-11）：完整 Vivado 2024.1 构建绑定源 HEAD=`97398bf`，目标器件为 `xc7z020clg484-2`；200 MHz routed timing 全绿（`WNS=+0.012 ns`、`TNS=0`、`WHS=+0.036 ns`、`THS=0`），setup/hold 失败端点为 0，route errors=`0`、DRC hard errors=`0`。post-route `phys_opt_design -directive AggressiveExplore` 已在日志确认执行；该身份已完成合法 packet smoke。当前下载资格由下方 B2-08 工作树覆盖决定。
+
+B2-08 与 packet-NPU 当前实板状态（2026-09-12）：HEAD `88bec9e` 在 `xc7z020clg484-2`、200 MHz 通过 routed timing（`WNS=+0.005 ns`、`TNS=0`、`WHS=+0.034 ns`、`THS=0`，route/DRC hard errors=0），bit SHA-256=`782a977c…d93b6e`、XSA SHA-256=`5e6a31bd…15ef7`。`20260912T040206Z` 在 COM15 完成 FPGA/ELF/UART/JTAG/XSCT PASS，验证 634 model words、19 mask words、fence、8-beat sample 和 10-beat result；随后 `0x40430000` 读回 command/sample/response/result=`658/658`、`8/8`、`1/1`、`10 beats/1 packet`，fence snapshot valid。该结果是合法 packet path 和状态可见性的部分实板证据，不等价于数值 logit 正确、完整错误矩阵、B2-GATE 或剪枝收益。
+
+B3 入口（2026-09-12）：`f070577` 的 COM15 实板 run `20260912T050553Z` 已通过 dense 固定向量子门，10 个 signed INT32 logits 为 `165,-18,14,0,0,0,0,0,0,153`，B3 ELF SHA-256=`3dc79b7319eb7112131c7b9ff39011013640afc48a316f9745587570ea27368c`。这证明当前 dense 数值通路可用，但不关闭 B3-05/06/07；仍须完成身份/能力寄存器核对、bypass 逐样本与执行组对照，以及 full-open mask 逐 beat 透明性。packet smoke 不得替代这些 NPU 数值功能门。
 
 B2-00 已完成（2026-09-08）：低地址 DDR 窗口 `[0x01000000,0x01100000)` 内冻结 9 个 4 KiB 区域，总保留 `36 KiB`，最大 DMA frame 为 `4096` bytes；机器 manifest `tools/repro/b2_dma_address_layout.json` 与 `verify_b2_dma_address_layout.py` 验证通过，状态为 `B2_00_LOW_ADDRESS_LAYOUT_FROZEN`。B2-D1 已完成并单独记录；所有 manifest 继续保留 `B1_HIGH_DDR_PENDING`，不把 B2-00 误写成完整 B1-GATE 或高地址 DDR 通过。
 
@@ -27,7 +31,7 @@ B2 连续回绕切片（2026-09-09）：提交 `69ed289` 的软件/runner/probe 
 B2 recovery 切片（2026-09-09）：recovery run `20260909T111310Z`（HEAD `875dd1e`）在 `xc7z020clg484-2` 实板验证为 `BOARD_PASS / PASS_UART_JTAG_XSCT`，`jtag_recovery_status=2`，timeout/reset/passed/failed=`1/1/1/0`，sequence=`10329`、CRC32=`0xD3E3C978`；压力=`10000/10000`、受控背压=`64/64`、stall=`83082`、连续回绕=`256/256`、mask lo/hi 均为 `0xFFFFFFFF`、rollovers=`3`。manifest SHA-256=`044E22…A3226`，recovery ELF SHA-256=`37722f3c…39056`，bit/XSA SHA-256=`ef974000…5175a`/`8419e00e…4185`。该切片通过不等于 B2-03/B2-04/B2-05/B2-GATE 整体关闭；剩余缺口为更完整逐帧 PL 观测、间歇/ready 恢复覆盖和错误注入。
 B2 inter-frame gap 切片（2026-09-09）：run `20260909T115218Z`（HEAD `da9147a`，COM10）在 `xc7z020clg484-2` 实板验证为 `B2_GAP_PASS / PASS_UART_JTAG_XSCT`；新增 gap ledger `0x01008340..0x0100836C`，软件 `usleep(1000)`，4B→64B 两帧 `gap=2/2` 通过，sequence=`10330/10331`、CRC XOR=`0x8B08CC4D`，runner/JTAG fail-closed；recovery sequence=`10329` 保持不变。manifest SHA-256=`ACD260…CF211`，ELF SHA-256=`41c6ab2d…63ca7`，bit/XSA SHA-256=`ef974000…5175a`/`8419e00e…4185`。该切片通过不等于 B2-03/B2-04/B2-05/B2-GATE 整体关闭。
 
-B2 persistent DMA frame ledger 子门（2026-09-09）：提交 `5ff9088` 修复持久 ledger；前一实现 HEAD `76e06b6` 的正式 run `20260909T125200Z`（`xc7z020clg484-2`、COM10）取得 UART/JTAG/XSCT PASS，`ledger_pass=true`，8/8 边界记录完整并按 `64-byte` stride 读取。同期 pressure=`10000/10000`、backpressure=`64/64`、`stall_cycles=83082`、wrap=`256/256`、recovery ready=`1→0→1`、gap=`2/2`；新 ELF SHA-256=`7fbcc85aa964a02e30d61f2e47e53e3f70e0e8421275852ba2e36963831d9f3e`，bit/XSA 沿用既有有效身份。该子门不关闭 B2-03/B2-05/B2-GATE；剩余 `error injection`、`packetizer/fence` 仍待完成，不得宣称 NPU/ENeuron 已接入或剪枝收益。
+B2 persistent DMA frame ledger 子门（2026-09-09）：提交 `5ff9088` 修复持久 ledger；前一实现 HEAD `76e06b6` 的正式 run `20260909T125200Z`（`xc7z020clg484-2`、COM10）取得 UART/JTAG/XSCT PASS，`ledger_pass=true`，8/8 边界记录完整并按 `64-byte` stride 读取。同期 pressure=`10000/10000`、backpressure=`64/64`、`stall_cycles=83082`、wrap=`256/256`、recovery ready=`1→0→1`、gap=`2/2`；新 ELF SHA-256=`7fbcc85aa964a02e30d61f2e47e53e3f70e0e8421275852ba2e36963831d9f3e`，bit/XSA 沿用既有有效身份。该历史子门当时未覆盖 `packetizer/fence`；后续 packet-NPU smoke 与 B2-08 状态块功能集成已完成，但状态块 setup、板级读回、B2-GATE 和 ENeuron A/B 仍未完成。
 
 当前执行点（2026-09-08）：活动链为 `B1-06B6` UART 基准复测 → `B1-06B7` OCM 高地址最小复现。先按 VID/PID 找到 CH340 并确认既有低地址应用的 banner/alive marker；通过后才进入 `B1-06B7`。此前两次诊断均停在 READY 等待 GO，`command=0`、`completed_accesses=0`，尚未进行任何 DDR 访问；不得把高地址探针写成已执行或把 UART 阻塞写成 DDR 失败。
 
@@ -50,7 +54,7 @@ P16 阶段 2 总路线见 `.nexus-map/arch/p16_board_validation.md` 和 `.nexus-
 当前校正（2026-09-07）：T3 证据已用提交 `c2bc03f` 重跑并绑定；顶层资源为 `2467 LUT / 2301 FF / 6 RAMB36 / 1 RAMB18 / 4 DSP48E1`。下方旧快照中的 `822cf93` 仅保留历史来源，不覆盖本条。
 
 generated_by: nexus-mapper v2 / manual synthesis from raw probe
-verified_at: 2026-09-11
+verified_at: 2026-09-12
 provenance: `.nexus-map/raw/ast_nodes.json`, `git_stats.json`, `file_tree.txt`（最后提交于 `c46320e`，文件树按版本化基线排除工作区未跟踪文件）；其后的单时钟 RTL、测试与 OOC 证据由版本化文件、manifest 和文档人工核对
 
 T3 最新机器可读签核覆盖见 `.nexus-map/concepts/t3_signoff.json`，人类摘要见 `.nexus-map/arch/t3_signoff.md`；它们优先于早期生成快照中的 `T3_XPM_XSIM_OOC_PENDING` 字样。

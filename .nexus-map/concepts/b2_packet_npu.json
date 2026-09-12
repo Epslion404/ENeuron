@@ -1,19 +1,26 @@
 {
   "$schema": "nexus-mapper/concept-model/v1",
-  "verified_at": "2026-09-11",
+  "verified_at": "2026-09-12",
   "label": "B2 packet-NPU integration",
   "deployment_target_part": "xc7z020clg484-2",
-  "repository_head": "97398bf641b49ef2f2ab6b16edd68b6327a14488",
-  "repository_worktree": "DIRTY",
+  "repository_head": "88bec9e9bdbec1de53ef45d2f22e4275308c0237",
+  "repository_worktree": "DIRTY_B2_PACKET_NPU_BOARD_EVIDENCE_PRESENT",
+  "current_status": "FUNCTIONAL_PASS / PHYSICAL_PASS / BOARD_STATUS_PARTIAL",
   "worktree_entries": [
-    ".nexus-map/arch/test_coverage.md",
-    "artifacts/README.md",
+    "b2_npu_packet_adapter.sv",
+    "boards/hellozynq/b2_hw/b2_npu_axis_top.v",
+    "boards/hellozynq/b2_hw/b2_npu_status_probe.v",
+    "boards/hellozynq/b2_hw/create_b2_bd.tcl",
+    "boards/hellozynq/b2_hw/run_b2_build.ps1",
+    "boards/hellozynq/b2_sw/run_b2_sw_build.ps1",
+    "tb_b2_npu_packet_adapter_e2e.sv",
+    "tb_b2_npu_status_probe.sv",
+    "test_b2_npu_status_probe_contract.py",
     "findings.md",
     "progress.md",
-    "task_plan.md",
-    "artifacts/logs/b2_packet_npu_route_timing_fail_20260910_074ed56/"
+    "task_plan.md"
   ],
-  "source_head": "97398bf641b49ef2f2ab6b16edd68b6327a14488",
+  "source_head": "88bec9e9bdbec1de53ef45d2f22e4275308c0237",
   "commits": {
     "adapter": "cb9eb66",
     "adapter_e2e": "62f2d8b",
@@ -31,6 +38,8 @@
   "rtl": {
     "adapter": "b2_npu_packet_adapter.sv",
     "axis_top": "boards/hellozynq/b2_hw/b2_npu_axis_top.v",
+    "status_probe": "boards/hellozynq/b2_hw/b2_npu_status_probe.v",
+    "status_base": "0x40430000",
     "bd_scripts": [
       "boards/hellozynq/b2_hw/create_b2_bd.tcl",
       "boards/hellozynq/b2_hw/build_b2.tcl",
@@ -71,6 +80,22 @@
       "test": "test_b2_packet_memory_inference_contract.py",
       "result": "1/1 PASS",
       "scope": "static XPM BRAM wrapper and ingress bank structure contract; OOC mapping is recorded separately"
+    },
+    "B2_08_BOARD_STATUS_FUNCTIONAL_PASS": {
+      "source": "b2_npu_packet_adapter.sv",
+      "testbench": "tb_b2_npu_packet_adapter_e2e.sv",
+      "test": "test_b2_npu_packet_adapter_e2e_contract.py",
+      "result": "adapter E2E/reset and AXI-Lite status-probe simulation PASS; all B2 contracts PASS",
+      "counters": "command/sample/response/result accepted and completed counts",
+      "fence_snapshot": "256-bit snapshot latched on accepted fence response",
+      "completion_boundary": "response/result completion increments on m_valid && m_ready && m_last",
+      "reset_contract": "all eight counters and fence_snapshot_valid clear on bridge_rst",
+      "status_block": "read-only AXI-Lite at 0x40430000; writes return SLVERR without state change",
+      "register_map": {
+        "live_fields_10": "+0x00 status; +0x04..+0x20 command/sample/response/result accepted/completed; +0x24 fence snapshot valid",
+        "fence_snapshot_words_8": "+0x28..+0x44 in 4-byte increments"
+      },
+      "scope_limit": "functional integration pass; board read is partial and does not close the complete B2 ledger/error matrix"
     }
   },
   "memory_probe": {
@@ -101,22 +126,77 @@
   "physical_build": {
     "status": "B2_PACKET_NPU_PHYSICAL_GATE_PASS",
     "artifact_dir": "boards/hellozynq/b2_hw/build/",
-    "artifact_git_head": "97398bf641b49ef2f2ab6b16edd68b6327a14488",
+    "artifact_git_head": "88bec9e9bdbec1de53ef45d2f22e4275308c0237",
     "artifact_part": "xc7z020clg484-2",
-    "bitstream_sha256": "6b06e1626dd072ea3b7eea2035dc74a6e6c9b7253c3bea358dbed04c0b805f32",
-    "xsa_sha256": "3999daa8fb16b0f35ecc925c9c75389b3ca236506bfb258d9b653165e20837ad",
-    "timing_gate": "PASS_WNS_+0.012_TNS_0_WHS_+0.036_THS_0_SETUP_HOLD_FAILING_ENDPOINTS_0",
+    "bitstream_sha256": "782a977c8c14c0bea73a289a167eed048e7fa2da7e9b889c95ed815c34d93b6e",
+    "xsa_sha256": "5e6a31bd4fc3fc8dead04c749bd4e4cb5faf0aeb7b5e6b8b2f6233be2f715ef7",
+    "timing_gate": "PASS_WNS_+0.005_TNS_0_WHS_+0.034_THS_0_SETUP_HOLD_FAILING_ENDPOINTS_0",
     "route_errors": 0,
     "drc_hard_errors": 0,
     "worst_path": "",
-    "boundary": "200 MHz routed timing, route, DRC, bitstream and XSA gates passed on xc7z020clg484-2; bit/XSA may proceed to board packet-path validation under manifest identity.",
+    "boundary": "2026-09-12 clean-source identity on xc7z020clg484-2 passed 200 MHz routed timing, route, DRC, bitstream and XSA gates; the same identity completed legal packet-NPU board smoke and partial status readback.",
     "evidence_dir": "boards/hellozynq/b2_hw/build/",
     "download_policy": "board_validation_allowed"
   },
-  "next_gate": "Complete B2-06 through B2-10 packet-path evidence and close B2-GATE on the target board.",
+  "current_worktree_physical_build": {
+    "status": "FUNCTIONAL_PASS / PHYSICAL_PASS / BOARD_STATUS_PARTIAL",
+    "source_head": "88bec9e9bdbec1de53ef45d2f22e4275308c0237",
+    "part": "xc7z020clg484-2",
+    "clock_hz": 200000000,
+    "wns_ns": 0.005,
+    "tns_ns": 0,
+    "whs_ns": 0.034,
+    "ths_ns": 0,
+    "route_errors": 0,
+    "drc_hard_errors": 0,
+    "vivado_option": "Performance_ExploreWithRemap plus post-route AggressiveExplore",
+    "resolved_paths": [
+      "cmd_hold_data[65] -> mask_staging[*][*]/CE removed by registered field validation",
+      "cmd_hold_data[90] -> rsp_payload[*]/R failure family removed by extract_reset=no",
+      "cmd_hold_data[*] -> rsp_payload_reg[*]/CE and /R families removed by unconditional error-response candidate latch"
+    ],
+    "current_worst_path": null,
+    "other_failing_family": null,
+    "bitstream_sha256": "782a977c8c14c0bea73a289a167eed048e7fa2da7e9b889c95ed815c34d93b6e",
+    "xsa_sha256": "5e6a31bd4fc3fc8dead04c749bd4e4cb5faf0aeb7b5e6b8b2f6233be2f715ef7",
+    "download_policy": "board_validation_allowed"
+  },
+  "uniform_check": {
+    "script": "run_b2_checks.ps1",
+    "contract_tests": "B2 contract suite PASS; status-probe contract 5 passed",
+    "repro": ["REPRO_G0_MANIFEST_PASS", "REPRO_G1_T1_PROTOCOL_SLICE_PASS"],
+    "diff_check": "PASS",
+    "result": "B2_CHECKS_PASS"
+  },
+  "build_gate_policy": {
+    "hardware_runner": "persists current signoff summary and manifest on both pass and fail",
+    "software_runner": "requires manifest signoff.B2_SIGNOFF_PASS == 1 before Vitis build",
+    "current_signoff": "B2_SIGNOFF_PASS=1"
+  },
+  "completed_timing_structure": {
+    "name": "unconditional_error_response_candidate_latch",
+    "result": "functional pass; cmd_hold_data to rsp_payload_reg CE/R failure families removed",
+    "invariants": ["packet protocol unchanged", "response cycle unchanged"]
+  },
+  "board_smoke": {
+    "run_manifest": "boards/hellozynq/b2_sw/build/88bec9e9bdbec1de53ef45d2f22e4275308c0237/direct/runs/20260912T040206Z/run_manifest.json",
+    "status_probe_log": "boards/hellozynq/b2_sw/build/88bec9e9bdbec1de53ef45d2f22e4275308c0237/direct/runs/20260912T040206Z/status_probe_20260912T120539Z/probe_stdout.log",
+    "port": "COM15",
+    "usb_vid_pid": "VID_1A86:PID_7523",
+    "uart_jtag_xsct": "PASS",
+    "model_words": 634,
+    "mask_words": 19,
+    "status_base": "0x40430000",
+    "accepted_completed": {"command":"658/658","sample":"8/8","response":"1/1","result":"10 beats/1 packet"},
+    "fence_snapshot_valid": true,
+    "scope_limit": "legal packet path and status visibility only; no numerical logit equivalence, full error matrix, dynamic pruning speedup, or power result"
+  },
+  "b3_dense_board_subgate": {"status":"PASS_SUBGATE_ONLY","commit":"f070577","run_id":"20260912T050553Z","port":"COM15","application_mode":"b3_dense","elf_sha256":"3dc79b7319eb7112131c7b9ff39011013640afc48a316f9745587570ea27368c","golden_logits":[165,-18,14,0,0,0,0,0,0,153],"checks":["10 signed INT32 logits","result CRC","sample/model/mask epoch metadata","19-word result frame"],"does_not_close":["B3-05 identity/capability register check","B3-06 bypass and execution-group complete comparison","B3-07 full-open transparency","B3-GATE"]},
+  "next_gate": "Run B3 bypass and full-open bit-exact board comparisons after the dense subgate; finish B2-06 through B2-10 and B2-GATE in parallel as release evidence.",
   "forbidden_claims": [
-    "packet-NPU top physically signed off",
-    "packet path validated on board",
+    "full packet-path/error matrix validated on board",
+    "full B2-08 ledger/error matrix validated on board",
+    "B2-GATE passed",
     "ENeuron pruning speedup or power gain measured"
   ]
 }
