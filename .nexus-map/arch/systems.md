@@ -20,7 +20,7 @@ P16最终硬门仍按B0→B1→B2→B3→B4串行，但代码按Fastlane V1小�
 
 B3 数值功能入口：固定 `64→32→10` 模型与黄金 manifest；dense/bypass/full-open 三次固定向量输出对照已通过，但执行/跳过组计数器物理核对、B3-06/B3-07 整项、静态 `2:4`、live-ENeuron 和恢复矩阵仍需完成。完成前不得报告 ENeuron 剪枝收益。
 
-B3 计数器物理边界（2026-09-12）：第一次 remap 构建生成 bit/XSA 但 signoff setup `WNS/TNS=-0.010/-0.010 ns`，禁止上板；第二次基线策略 route 中间值 `WNS/TNS=-0.044/-0.044 ns`，最终报告前进程消失且无 signoff，视为未完成。execute/skip 计数器物理证据缺失，B3-06/B3-07 不关闭。
+B3 计数器物理边界（2026-09-12）：第三次 `route_design -directive Explore` 加 post-route `AggressiveExplore` 已在 HEAD `c3a50eb`、`xc7z020clg484-2`、200 MHz 上通过物理硬门（`WNS/TNS=+0.008/0 ns`、`WHS/THS=+0.036/0 ns`、route/DRC hard errors=0、DSP48E1=4），bit/XSA 可下载。实板 execute/skip 读回尚未完成，dense 期望 `592/0`，B3-06/B3-07 不关闭。
 
 B3/B4 包含两条不同证据链：Host 静态 `2:4` mask 是由 Host 重放冻结 mask，只证明 NPU 门控执行、位序、epoch 和跳过计数；live-ENeuron 是由实板神经元证据生成严格 `2:4` 决策，经 pending bank 和 fence 原子生效。只有后者可证明神经元参与自动剪枝，两类数据不得混合。
 

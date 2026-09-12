@@ -8,7 +8,7 @@
   },
   "workflow_context": {
     "active_branch": "codex/b1b-high-ddr-board-repro",
-    "current_head": "88bec9e9bdbec1de53ef45d2f22e4275308c0237",
+    "current_head": "c3a50ebd83bf1e93bd155c502e5abdb810cec431",
     "worktree_status": "DIRTY",
     "worktree_entries": [
       "WORKFLOW_STATE.md",
@@ -38,7 +38,7 @@
   "active_stage_contract": "docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md",
   "related_contracts": ["docs/planning/TODO.md#P16", "docs/planning/NPU_PRUNING_TODO.md", "docs/planning/NPU_PRUNING_NP7_TODO.md"],
   "workflow_resume_counts": "P16=59",
-  "current_execution_point": "B3-05_IDENTITY_THEN_B3-06_BYPASS_AND_B3-07_FULL_OPEN_COMPARE",
+  "current_execution_point": "B3_COUNTER_BITSTREAM_BOARD_DENSE_FULL_OPEN_592_0",
   "ddr_accesses_so_far": 0,
   "b0": {
     "source_commit": "f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06",
@@ -502,11 +502,13 @@
     "forbidden_claims": ["full B2-08 multi-packet/error/reset ledger validated on board", "B2-GATE passed", "ENeuron dynamic pruning integrated on board", "pruning speedup or power gain measured"]
   },
   "b3_counter_physical_rebuild": {
-    "status": "PHYSICAL_EVIDENCE_MISSING",
+    "status": "PHYSICAL_PASS_BOARD_PENDING",
     "first_attempt": {"strategy": "Performance_ExploreWithRemap", "result": "TIMING_FAIL_NO_BOARD_DOWNLOAD", "bit_xsa_generated": true, "wns_ns": -0.010, "tns_ns": -0.010, "whs_ns": 0.031, "ths_ns": 0.0, "route_errors": 0, "drc_hard_errors": 0},
     "second_attempt": {"strategy": "Performance_Explore", "result": "INCOMPLETE_NO_SIGNOFF", "route_intermediate": {"wns_ns": -0.044, "tns_ns": -0.044, "whs_ns": 0.036, "ths_ns": 0.0}, "failure_boundary": "Vivado process disappeared before final timing report; no new signoff"},
-    "board_download_allowed": false,
-    "does_not_close": ["execute/skip counter physical evidence", "B3-06", "B3-07"]
+    "third_attempt": {"strategy": "Performance_Explore plus route_design Explore and post-route AggressiveExplore", "result": "PHYSICAL_SIGNOFF_PASS", "build_head": "c3a50eb", "build_dir": "boards/hellozynq/b2_hw/build_route_explore_20260912", "wns_ns": 0.008, "tns_ns": 0.0, "whs_ns": 0.036, "ths_ns": 0.0, "setup_failing_endpoints": 0, "hold_failing_endpoints": 0, "route_errors": 0, "drc_hard_errors": 0, "dsp48e1": 4, "bitstream_sha256": "5c6ebc07beb4bae83f5ddd1870ad2e4f53ccf56b244ae7577186c8398c910a88", "xsa_sha256": "862883742e77e48c566fc49cc14746bc70830e27c894bdf948085c534177a614", "evidence": ["timing_impl.rpt", "route_status_impl.rpt", "drc_impl.rpt", "utilization_impl.rpt", "signoff_summary.txt"]},
+    "board_download_allowed": true,
+    "board_validation_pending": "run dense/full-open on this counter bitstream and read execute/skip registers; expected dense 592/0",
+    "does_not_close": ["execute/skip counter board evidence", "B3-06", "B3-07"]
   },
   "b3_output_compare": {
     "status": "PASS_SUBGATE_ONLY",

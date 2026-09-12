@@ -2,7 +2,7 @@
 
 B3 固定向量对照（2026-09-12）：`20260912T050553Z` dense、`20260912T053341Z` bypass、`20260912T053426Z` full-open 在同一 `f070577` bit/XSA、COM15 上均 PASS，输出均为 `165,-18,14,0,0,0,0,0,0,153`。该子门不包含执行/跳过组计数器物理核对，也不关闭 B3-06/B3-07 整项、静态 `2:4`、live-ENeuron、恢复矩阵或功耗/周期证据。
 
-B3 execute/skip 计数器物理状态（2026-09-12）：remap 构建完成 bit/XSA 但 setup `WNS/TNS=-0.010/-0.010 ns`，禁止上板；基线策略重建只有 route 中间 `WNS/TNS=-0.044/-0.044 ns`，最终 timing report 前进程消失且无新 signoff。当前状态为 `PHYSICAL_EVIDENCE_MISSING`，B3-06/B3-07 不关闭。
+B3 execute/skip 计数器物理状态（2026-09-12）：第三次 `route_design -directive Explore` 加既有 post-route `AggressiveExplore` 的构建绑定 HEAD `c3a50eb`，在 `xc7z020clg484-2`、200 MHz 下通过物理硬门：`WNS/TNS=+0.008/0 ns`、`WHS/THS=+0.036/0 ns`、setup/hold 失败端点为 0、route errors=0、DRC hard errors=0、DSP48E1=4；bit/XSA SHA-256 分别为 `5c6ebc07…c910a88`/`86288374…177a614`。该 bit/XSA 具备下载资格，但尚未完成实板 execute/skip 读回，B3-06/B3-07 仍不关闭，dense 期望为 `592/0`。
 
 B2-08 当前工作树覆盖（2026-09-12）：HEAD=`f070577` 的四流计数、fence 快照和 `0x40430000` 只读 AXI-Lite 状态块已通过功能合同；状态 probe 合同通过；200 MHz routed build 为 `WNS=+0.005 ns/TNS=0/WHS=+0.034 ns/THS=0`、route/DRC hard errors=0。COM15 实板读回 command/sample/response/result=`658/658`、`8/8`、`1/1`、`10 beats/1 packet`，fence snapshot valid；B3 dense 固定向量子门在 `20260912T050553Z` 通过，但 B3-05/06/07、完整 B2-08 ledger、B2-GATE 和 ENeuron A/B 仍未完成。
 

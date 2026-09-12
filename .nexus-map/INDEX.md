@@ -20,7 +20,7 @@ B2-08 与 packet-NPU 当前实板状态（2026-09-12）：HEAD `88bec9e` 在 `xc
 
 B3 入口（2026-09-12）：同一 `f070577` bit/XSA 在 COM15 完成三次固定向量运行：dense `20260912T050553Z`、bypass `20260912T053341Z`、full-open `20260912T053426Z` 均 PASS，10 个 signed INT32 logits 均为 `165,-18,14,0,0,0,0,0,0,153`，输出逐项一致。该结果关闭 dense/bypass/full-open 输出对照子门，但不关闭执行/跳过组计数器物理核对、B3-06/B3-07 整项、静态 `2:4`、live-ENeuron 或恢复矩阵；packet smoke 不得替代这些 NPU 数值功能门。
 
-B3 execute/skip 计数器物理重建（2026-09-12）：第一次 `Performance_ExploreWithRemap` 完成 bit/XSA，但 signoff 为 `WNS=-0.010 ns/TNS=-0.010 ns/WHS=+0.031 ns/THS=0`，route/DRC hard errors=0，因 setup 失败禁止上板。第二次恢复 `Performance_Explore` 的 route 中间值为 `WNS=-0.044 ns/TNS=-0.044 ns/WHS=+0.036 ns/THS=0`，但最终 timing report 前 Vivado 进程消失且没有新 signoff，按未完成构建处理。当前没有 execute/skip 计数器物理证据，B3-06/B3-07 不关闭。
+B3 execute/skip 计数器物理重建（2026-09-12）：第三次使用 `route_design -directive Explore` 加既有 post-route `AggressiveExplore`，绑定 HEAD `c3a50eb`，在 `xc7z020clg484-2`、200 MHz 下物理硬门通过：`WNS/TNS=+0.008/0 ns`、`WHS/THS=+0.036/0 ns`、setup/hold 失败端点=0、route/DRC hard errors=0、DSP48E1=4；bit/XSA 已生成且允许下载。尚缺实板 execute/skip 读回（dense 期望 `592/0`），因此 B3-06/B3-07 仍不关闭。
 
 B2-00 已完成（2026-09-08）：低地址 DDR 窗口 `[0x01000000,0x01100000)` 内冻结 9 个 4 KiB 区域，总保留 `36 KiB`，最大 DMA frame 为 `4096` bytes；机器 manifest `tools/repro/b2_dma_address_layout.json` 与 `verify_b2_dma_address_layout.py` 验证通过，状态为 `B2_00_LOW_ADDRESS_LAYOUT_FROZEN`。B2-D1 已完成并单独记录；所有 manifest 继续保留 `B1_HIGH_DDR_PENDING`，不把 B2-00 误写成完整 B1-GATE 或高地址 DDR 通过。
 
