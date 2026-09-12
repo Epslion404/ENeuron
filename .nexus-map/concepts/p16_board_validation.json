@@ -501,6 +501,13 @@
     },
     "forbidden_claims": ["full B2-08 multi-packet/error/reset ledger validated on board", "B2-GATE passed", "ENeuron dynamic pruning integrated on board", "pruning speedup or power gain measured"]
   },
+  "b3_counter_physical_rebuild": {
+    "status": "PHYSICAL_EVIDENCE_MISSING",
+    "first_attempt": {"strategy": "Performance_ExploreWithRemap", "result": "TIMING_FAIL_NO_BOARD_DOWNLOAD", "bit_xsa_generated": true, "wns_ns": -0.010, "tns_ns": -0.010, "whs_ns": 0.031, "ths_ns": 0.0, "route_errors": 0, "drc_hard_errors": 0},
+    "second_attempt": {"strategy": "Performance_Explore", "result": "INCOMPLETE_NO_SIGNOFF", "route_intermediate": {"wns_ns": -0.044, "tns_ns": -0.044, "whs_ns": 0.036, "ths_ns": 0.0}, "failure_boundary": "Vivado process disappeared before final timing report; no new signoff"},
+    "board_download_allowed": false,
+    "does_not_close": ["execute/skip counter physical evidence", "B3-06", "B3-07"]
+  },
   "b3_output_compare": {
     "status": "PASS_SUBGATE_ONLY",
     "source_commit": "f070577",

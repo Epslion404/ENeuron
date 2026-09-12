@@ -9,6 +9,8 @@ authoritative_sources: `docs/planning/TODO.md`、`task_plan.md`、`findings.md`�
 
 当前工作流上下文（2026-09-12）：活动分支为 `codex/b1b-high-ddr-board-repro`，当前仓库 HEAD=`f070577`。packet-NPU 在 `xc7z020clg484-2`、200 MHz routed timing 通过（`WNS=+0.005 ns/TNS=0/WHS=+0.034 ns/THS=0`，route/DRC hard errors=0、`B2_SIGNOFF_PASS=1`）。实板 run `20260912T040206Z`（COM15）完成合法 packet smoke，随后 `0x40430000` 状态块读回 command/sample/response/result=`658/658`、`8/8`、`1/1`、`10 beats/1 packet`，fence snapshot valid；dense `20260912T050553Z`、bypass `20260912T053341Z`、full-open `20260912T053426Z` 三次固定向量输出均一致。B2 状态为 `BOARD_STATUS_PARTIAL`；执行/跳过组计数器物理核对、B3-06/B3-07 整项、静态 `2:4`、live-ENeuron、恢复矩阵及 B2-06～B2-10/B2-GATE 仍未完成。
 
+计数器物理重建状态（2026-09-12）：`Performance_ExploreWithRemap` 构建虽生成 bit/XSA，但最终 setup 为 `WNS=-0.010 ns/TNS=-0.010 ns`，hold 为 `WHS=+0.031 ns/THS=0`，route/DRC hard errors=0，因此禁止上板。恢复 `Performance_Explore` 后 route 中间值为 `WNS=-0.044 ns/TNS=-0.044 ns/WHS=+0.036 ns/THS=0`，Vivado 在最终 timing report 前消失，没有新 signoff，按未完成构建处理。execute/skip 计数器仍无物理或实板证据，B3-06/B3-07 保持未完成。
+
 监听观察：2026-09-08 按 VID/PID 监听 COM10 10 秒（115200 8N1）读取 0 字节，未见 `ENEURON_B1B_BEGIN`/`ALIVE`/`PASS`；未下载 bitstream/ELF、未发送 GO，DDR access=0。该观察不改变 `B1-06B6_UART_BASELINE_PENDING`，也不是 DDR 失败证据。
 
 B1-06B6 实板复测（2026-09-08）：运行目录为 `artifacts/logs/hellozynq_b1b/20260908T202605Z_df56180_b1-06b6_uart_no_marker`，构建 HEAD=`df561803fd44f791a38bda3be3422fe1f6411b77`。COM10（`VID_1A86:PID_7523`）监听 20 秒期间 FPGA program、ELF download、CPU run 均 PASS，但 UART terminal marker=`NO_TERMINAL_MARKER`，DDR accesses=0；状态仍为 `B1-06B6_UART_BASELINE_PENDING`，不构成 DDR 失败证据。两个 runner 的 PowerShell `$PID` 参数冲突已修复为 `$ProductId`：`boards/hellozynq/b1b_sw/run_b1b_board.ps1`、`boards/hellozynq/b1b_sw/run_b1b_high_diag_board.ps1`。

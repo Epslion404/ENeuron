@@ -2,6 +2,8 @@
 
 B3 固定向量对照（2026-09-12）：`20260912T050553Z` dense、`20260912T053341Z` bypass、`20260912T053426Z` full-open 在同一 `f070577` bit/XSA、COM15 上均 PASS，输出均为 `165,-18,14,0,0,0,0,0,0,153`。该子门不包含执行/跳过组计数器物理核对，也不关闭 B3-06/B3-07 整项、静态 `2:4`、live-ENeuron、恢复矩阵或功耗/周期证据。
 
+B3 execute/skip 计数器物理状态（2026-09-12）：remap 构建完成 bit/XSA 但 setup `WNS/TNS=-0.010/-0.010 ns`，禁止上板；基线策略重建只有 route 中间 `WNS/TNS=-0.044/-0.044 ns`，最终 timing report 前进程消失且无新 signoff。当前状态为 `PHYSICAL_EVIDENCE_MISSING`，B3-06/B3-07 不关闭。
+
 B2-08 当前工作树覆盖（2026-09-12）：HEAD=`f070577` 的四流计数、fence 快照和 `0x40430000` 只读 AXI-Lite 状态块已通过功能合同；状态 probe 合同通过；200 MHz routed build 为 `WNS=+0.005 ns/TNS=0/WHS=+0.034 ns/THS=0`、route/DRC hard errors=0。COM15 实板读回 command/sample/response/result=`658/658`、`8/8`、`1/1`、`10 beats/1 packet`，fence snapshot valid；B3 dense 固定向量子门在 `20260912T050553Z` 通过，但 B3-05/06/07、完整 B2-08 ledger、B2-GATE 和 ENeuron A/B 仍未完成。
 
 当前摘要校正（2026-09-12）：仓库 HEAD=`f070577`，P16 当前活动未完成项为 `59`。当前 packet-NPU 200 MHz routed 基线和合法 packet path 已通过；`20260912T040206Z` 完成 `0x40430000` 状态读回，`20260912T050553Z` 完成 B3 dense 固定向量子门。B3-05/06/07、完整 B2-06～B2-10、B2-GATE 和 ENeuron A/B 仍未完成。
