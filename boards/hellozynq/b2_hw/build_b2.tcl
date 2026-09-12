@@ -74,6 +74,9 @@ puts $summary "B2_DMA_MEMORY_WIDTH=64"
 puts $summary "B2_DMA_LOOPBACK=MM2S_PACKET_NPU_S2MM"
 puts $summary "B2_NPU_CLOCK_HZ=200000000"
 puts $summary "B2_NPU_DSP_EXPECTED=4"
+set dsp48_cells [get_cells -hierarchical -filter {REF_NAME == DSP48E1}]
+set dsp48_count [llength $dsp48_cells]
+puts $summary "B2_NPU_DSP48E1_COUNT=$dsp48_count"
 puts $summary "B2_BITSTREAM=$bitstream_path"
 puts $summary "B2_XSA=$xsa_path"
 close $summary

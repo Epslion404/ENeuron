@@ -142,6 +142,11 @@ $manifest | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $manifestPath -En
 Write-Host "B2_BUILD_MANIFEST=$manifestPath"
 Write-Host "B2_BITSTREAM_SHA256=$($manifest.bitstream_sha256)"
 Write-Host "B2_XSA_SHA256=$($manifest.xsa_sha256)"
+$dspCountText = [string]$summary['B2_NPU_DSP48E1_COUNT']
+$dspExpectedText = [string]$summary['B2_NPU_DSP_EXPECTED']
+if ($dspCountText -ne '4' -or $dspExpectedText -ne '4') {
+    throw "B2 DSP gate failed: DSP48E1_COUNT=$dspCountText expected=4"
+}
 if (-not $signoffChecks.signoff_pass) {
     throw ("B2 signoff gate failed: WNS={0} TNS={1} WHS={2} THS={3} route_errors={4} drc_hard_errors={5}" -f $signoffChecks.WNS, $signoffChecks.TNS, $signoffChecks.WHS, $signoffChecks.THS, $signoffChecks.route_errors, $signoffChecks.drc_hard_errors)
 }
