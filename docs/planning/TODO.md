@@ -6,7 +6,7 @@
 
 当前板级状态：低地址 `0x01000000–0x010FFFFF` 的 1 MiB DDR 已完成三次冷启动；高地址诊断尚未真正访问 DDR。CH340 以 `VID_1A86:PID_7523` 识别，COM 号不固定；packet 实板使用 COM15。B1C PHY/UDP 继续后置。完整 `B1-GATE` 和 `B2-GATE` 仍是网口发布门槛，不阻塞板上 NPU 墙钟/功耗测量。
 
-当前 NPU 集成状态（2026-09-13）：仓库 HEAD=`13abdb7`，`B3-MVP-GATE` 已关。下载/签核物理身份是 RTL `be84596`（200 MHz `WNS=+0.045 ns`、DSP48E1=4，bit SHA-256=`0ecbe762…3a11`）。已证明组级 `group_4way` 动态剪枝通路和局部 NPU 周期差（dense 2494 → gated 1606，约 888 cycle / 4.4 µs @ 200 MHz）。未证明墙钟加速和外部功耗（`POWER_NOT_MEASURED`）。
+当前 NPU 集成状态（2026-09-13）：仓库 HEAD=`6f3c959`，`B3-MVP-GATE` 与 `B3-SPEED` 已关。下载/签核物理身份是 RTL `be84596`（200 MHz `WNS=+0.045 ns`、DSP48E1=4，bit SHA-256=`0ecbe762…3a11`）。外部功耗仍是 `POWER_NOT_MEASURED`。
 
 当前日常主线是 `B3-POWER` / `B3-GOAL-GATE`。`B3-SPEED` 已关：同源 `be84596` 上 888 cycle ≈ 4.4 µs，被 DMA（~60 µs）和 Host UART（数十毫秒）掩盖。严格连接级 `2:4`（B3-08b）是结构/精度实验，不是加速硬门。禁止把 888 cycle 写成端到端加速，禁止用 Vivado 估算冒充板上功耗，禁止用 19-word 冒充连接级 2:4。
 
@@ -703,7 +703,7 @@ B3 现在分三条线，互不顶替：
 - [ ] B3-RECOVERY：若 dense错误先停在模型装载/量化/计算；full-open错误停在门控透明路径；static mask错误停在mask位序/epoch/NPU跳过；只有前三者全过后才诊断 ENeuron决策，不允许用调整训练参数掩盖基础执行错误。
 - [x] B3-MVP-GATE：B3-00/02/03/04/06/07/08a/09/11/13/14 已在同一通过物理门的 bitstream 上关闭。只允许声称组级 `group_4way` 动态剪枝正确性与局部 NPU 周期差值（dense 2494 → gated 1606）。不代表严格 `2:4`、完整 B2 发布、墙钟加速或功耗收益。
 - [x] B3-SPEED：COM15 同源 `be84596` bit 上 dense/full-open/static/live 已分段。NPU 2494/2494/1606/1606 cycles；PS 7/7/7/996 µs；DMA 62/59/56/56 µs；Host UART 65962/76935/63070/1307241 µs。888 cycle ≈ 4.4 µs，被 DMA 与 UART 掩盖。证据 `artifacts/logs/b3_speed_20260912_be84596/`。不得写成端到端加速。
-- [ ] B3-POWER：冻结外部功耗仪器、测点、采样率、空闲基线、负载同步和积分窗口后，在同一 `group_4way` bit 上测 dense vs static vs live。无仪器则保持 `POWER_NOT_MEASURED` 且本项不关闭。禁止 Vivado 功耗估算。不要求 2:4，不要求网口。
+- [ ] B3-POWER：仪器合同已冻结（`docs/planning/NPU_B3_POWER_INSTRUMENT_CONTRACT_V1.md`，字段 仪器/测点/采样率/空闲基线/负载同步/积分窗口）。本机发现无外部功耗仪，状态 `POWER_NOT_MEASURED`，本项不关闭。证据 `artifacts/logs/b3_power_20260913_be84596/`。禁止 Vivado 功耗估算。不要求 2:4，不要求网口。
 - [ ] B3-GOAL-GATE：`B3-SPEED` 已关，且 `B3-POWER` 已关。这是对准“加速推理、降低功耗”的日常门。不要求 `B3-STRICT-GATE`。关闭本门也不等于网口发布或 2:4 完成。
 - [ ] B3-STRICT-GATE：先通过 B3-MVP-GATE，再完成 B3-01、B3-05、B3-08b、B3-10、B3-12、B3-15、B3-16 和 B3-RECOVERY。本门只证明连接级 `2:4` 的正确性与长稳定性，不挡 `B3-SPEED`/`B3-POWER`/`B3-GOAL-GATE`，也不再作为进入 B4 功耗测量的硬前置。在微结构未改为真正少读/少开 DSP 前，不得把本门写成加速或降功耗证明。
 

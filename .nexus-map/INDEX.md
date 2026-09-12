@@ -22,7 +22,7 @@ B3-MVP-GATE 已在同一份集中 Vivado 2024.1 bitstream 上关闭：RTL 身份
 
 只可声称：`group_4way` 动态剪枝正确性 + 局部 NPU 周期差值 888 cycles。禁止：把 888 当端到端加速、把 Vivado 功耗当板上功耗、把 19-word 当连接级 `2:4`。不可声称网口加速、测得功耗、B2-GATE。MVP 证据：`artifacts/logs/b3_mvp_20260912_be84596/`。
 
-当前门：`B3-POWER`（外部功耗）。严格 2:4 是结构实验，不是加速硬门，延后到 `B3-STRICT`。`archive/legacy/` 与旧 `xc7z020clg400-1` OOC 不进入日常门。后文若仍写下一门是 B3-08b 或 B3-STRICT，以本条为准。
+当前门：`B3-POWER` 仍打开，状态 `POWER_NOT_MEASURED`（本机无外部功耗仪；合同 `tools/repro/b3_power_instrument_contract.json`）。严格 2:4 是结构实验。后文若仍写下一门是 B3-08b，以本条为准。
 
 ## 当前活动范围
 

@@ -6,7 +6,7 @@
 
 ## 当前权威概念边界（2026-09-12，B3-MVP-GATE 已关）
 
-器件 `xc7z020clg484-2`。live tree 是本工作树 / PR #88，不是 `D:/Documents/Code/ENeuron`。B3-MVP-GATE 已关：组级 `group_4way` live-ENeuron 正确，局部 NPU 周期 dense 2494 → gated 1606（差值 888 cycles）。pending epoch 来自 `mask_state==MASK_PUBLISHED`，不是 `mask_valid`。`B3-SPEED` 已关（墙钟分段，888 cycle 被系统路径掩盖）。下一日常门是 `B3-POWER`。严格连接级 `2:4` 是结构实验，不是加速硬门。不可声称网口加速、测得功耗、B2-GATE。
+器件 `xc7z020clg484-2`。live tree 是本工作树 / PR #88，不是 `D:/Documents/Code/ENeuron`。B3-MVP-GATE 已关：组级 `group_4way` live-ENeuron 正确，局部 NPU 周期 dense 2494 → gated 1606（差值 888 cycles）。pending epoch 来自 `mask_state==MASK_PUBLISHED`，不是 `mask_valid`。`B3-SPEED` 已关。`B3-POWER` 合同已冻结但 `POWER_NOT_MEASURED`（无外部仪器）。严格连接级 `2:4` 是结构实验。不可声称网口加速、测得功耗、B2-GATE。
 
 - `B3_MVP_GATE_PASS`：同一份集中 Vivado 2024.1 bitstream（RTL `be84596`，200 MHz FCLK0）上关闭 B3-04/09/11/13/14。WNS=+0.045 ns，TNS=0，WHS=+0.036 ns，THS=0，route/DRC hard errors=0，DSP48E1=4。bit SHA-256=`0ecbe76274c39418f2a60a88358d3ff6f09f5a2ed73a44a3a419c34eb91d3a11`，XSA SHA-256=`135d979d61c629922ee5419e51dd97ef045d9bab79930432816d09f109291d1a`。只可声称 `group_4way` 动态剪枝正确性 + 局部 NPU 周期差值 888 cycles。
 - `B3_SPEED_PASS`：COM15 同源 bit 上 dense/full-open/static/live 已分开 NPU/PS/DMA/Host UART。888 cycle ≈ 4.4 µs，小于 DMA ~60 µs 和 UART 数十毫秒。`claim=local_npu_cycle_delta_only`。证据 `artifacts/logs/b3_speed_20260912_be84596/`。

@@ -1,0 +1,13 @@
+{
+  "schema": "eneuron_b3_power_instrument_contract_v1",
+  "status": "POWER_NOT_MEASURED",
+  "仪器": null,
+  "测点": null,
+  "采样率": null,
+  "空闲基线": null,
+  "负载同步": null,
+  "积分窗口": null,
+  "discovery": "host has no USBTMC/VISA/pyvisa and no named power meter; COM15/COM35 are CH340 UART, COM32/FTDI 6014 are JTAG, not a wattmeter",
+  "bitstream_rtl": "be84596",
+  "part": "xc7z020clg484-2"
+}

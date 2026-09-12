@@ -8,7 +8,7 @@
 
 当前物理边界：现有单时钟和 T3 OOC 证据绑定 `xc7z020clg400-1`，只能作为结构/协议参考；目标 `xc7z020clg484-2` 的最终 routed 证据已在 2026-09-12 完成。
 
-当前集成边界：HEAD=`13abdb7`，`B3-MVP-GATE` 与 `B3-SPEED` 已关（RTL `be84596`）。墙钟分段证明 888 cycle ≈ 4.4 µs 被 DMA/UART 掩盖。日常下一门是 `B3-POWER`。严格连接级 `2:4` 是结构实验。B2-GATE 仍是网口发布门。
+当前集成边界：HEAD=`6f3c959`，`B3-MVP-GATE` 与 `B3-SPEED` 已关（RTL `be84596`）。`B3-POWER` 仪器合同已冻结，本机无功耗仪，`POWER_NOT_MEASURED`，门未关。严格连接级 `2:4` 是结构实验。
 
 ## 1. 目标
 

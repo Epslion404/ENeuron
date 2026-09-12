@@ -14,7 +14,7 @@ B3-MVP-GATE 已关。同一份集中 Vivado 2024.1 bitstream：RTL 身份 `be845
 
 四模式 A/B 两轮一致：dense/full-open 592/0 组、2494 cycles、logits 165,-18,14,0,0,0,0,0,0,153；static mixed 296/296、1606 cycles、logits 74,-18,...,114、`decision_source=host_replay_static_mixed`；live-ENeuron 296/296、1606 cycles、dense logits、`decision_source=live_eneuron_s2`。同源 bit `be84596` / SHA `0ecbe762…3a11`、COM15 系统路径：dense/full-open PS 7 µs、DMA ~60 µs、UART ~66–77 ms；static DMA 56 µs、UART 63 ms；live PS 996 µs、DMA 56 µs。只可声称 `group_4way` 动态剪枝正确性 + 局部 NPU 周期差值 888 cycles。禁止：888 当端到端加速、Vivado 功耗当板上功耗、19-word 当连接级 `2:4`。
 
-`B3-SPEED` 已关。`claim=local_npu_cycle_delta_only`，`end_to_end_accelerated=false`。888 cycle ≈ 4.4 µs 被系统路径掩盖。证据：`artifacts/logs/b3_speed_20260912_be84596/b3_speed_comparison.json`。当前门：`B3-POWER`（外部功耗）。`B3-STRICT-GATE`（lane 2:4、10k 样本）是结构实验，不是加速硬门。后文旧 HEAD（`fe25a70`/`88bec9e`/`c3a50eb`/`f070577`）只描述当时证据身份。
+`B3-SPEED` 已关。`B3-POWER` 仪器合同已冻结，本机无功耗仪，`POWER_NOT_MEASURED`，门保持打开。证据 `artifacts/logs/b3_power_20260913_be84596/`。`B3-STRICT-GATE` 是结构实验。后文旧 HEAD 只描述当时证据身份。
 
 ## 当前边界校正（中等精简）
 
