@@ -1,5 +1,7 @@
 # 测试面与缺口
 
+B3-08a 覆盖（2026-09-12）：run `20260912T102046Z`、manifest `boards/hellozynq/b2_sw/build/73b12c30baf1507876c6bff01059a2c28c919a8d/direct/runs/20260912T102046Z/run_manifest.json`，同一物理通过 bit/XSA、COM15、`b3_static_mixed` 实板 PASS；logits=`74,-18,14,0,0,0,0,0,0,114`，group_4way execute/skip=`296/296`，fence valid=`1`。缺口是严格连接级 `2:4`（B3-08b）、live-ENeuron、周期/功耗，不能把该组级结果外推为自动剪枝收益。
+
 当前摘要校正（2026-09-12）：HEAD=`f070577`，P16 当前活动未完成项为 `59`。既有 B2-PHY 基线在 200 MHz 为 WNS=`+0.005 ns`；B2-08 `0x40430000` 状态块已完成 COM15 实板部分读回。B3 dense/bypass/full-open 固定向量输出对照在 `20260912T050553Z`、`20260912T053341Z`、`20260912T053426Z` 均通过且逐项一致；当前测试缺口为执行/跳过组计数器物理核对、B3-06/B3-07 整项、静态 `2:4`、live-ENeuron 和恢复矩阵，另有完整 B2-06～B2-10 错误/复位账本与 B2-GATE。
 
 计数器物理覆盖（2026-09-12）：第三次 `route_design -directive Explore` 加 post-route `AggressiveExplore` 构建绑定 HEAD `c3a50eb`，最终 signoff 为 `WNS=+0.008/TNS=0/WHS=+0.036/THS=0 ns`，setup/hold 失败端点=0、route/DRC hard errors=0、DSP48E1=4，bit/XSA 具备下载资格。尚未在实板读回 execute/skip 计数器；dense 期望 `592/0`，因此 B3-06/B3-07 仍未完成。

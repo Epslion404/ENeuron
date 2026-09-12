@@ -24,6 +24,8 @@ B3 计数器物理边界（2026-09-12）：第三次 `route_design -directive Ex
 
 B3/B4 包含两条不同证据链：Host 静态 `2:4` mask 是由 Host 重放冻结 mask，只证明 NPU 门控执行、位序、epoch 和跳过计数；live-ENeuron 是由实板神经元证据生成严格 `2:4` 决策，经 pending bank 和 fence 原子生效。只有后者可证明神经元参与自动剪枝，两类数据不得混合。
 
+B3-08a 组级静态 mixed mask 已在 COM15 实板通过：`b3_static_mixed`、同一物理通过 bit/XSA、logits=`74,-18,14,0,0,0,0,0,0,114`、execute/skip=`296/296`、fence valid=`1`。其 `group_4way` 粒度不构成严格连接级 `2:4` 或 ENeuron 自动决策；当前下一门为 B3-08b。
+
 当前校正（2026-09-07）：T3 真实 XPM/xsim 与 XC7Z020 OOC 证据绑定 `c2bc03f`；顶层 `2467 LUT / 2301 FF / 6 RAMB36 / 1 RAMB18 / 4 DSP48E1`，host/npu WNS/WHS 为 `+3.639/+0.105 ns`、`+0.214/+0.042 ns`。下方 `822cf93` 为历史快照。
 
 历史基线（2026-09-05）：PR #64 已合并为 `main@a53a040`；PR #65 已合并为 `main@618c1e4`；PR #66 已合并为 `main@a1457bb`。V2 OOC 100 MHz 通过，资源为 `2126 LUT / 1916 FF / 4 DSP48E1`。首段旧快照中的 V1 失败数据仅作历史记录。

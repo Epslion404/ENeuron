@@ -533,6 +533,24 @@
     "checks": ["10 signed INT32 logits", "result CRC", "sample/model/mask epoch metadata", "19-word result frame"],
     "does_not_close": ["B3-05 identity/capability check", "B3-06 bypass and execution-group complete comparison", "B3-07 full-open transparency", "B3-GATE"]
   },
+  "b3_static_mixed_group_subgate": {
+    "status": "PASS_SUBGATE_ONLY",
+    "source_commit": "73b12c30baf1507876c6bff01059a2c28c919a8d",
+    "run_id": "20260912T102046Z",
+    "manifest": "boards/hellozynq/b2_sw/build/73b12c30baf1507876c6bff01059a2c28c919a8d/direct/runs/20260912T102046Z/run_manifest.json",
+    "port": "COM15",
+    "application_mode": "b3_static_mixed",
+    "terminal_marker": "B3_STATIC_MIXED_PASS",
+    "bitstream_sha256": "5c6ebc07beb4bae83f5ddd1870ad2e4f53ccf56b244ae7577186c8398c910a88",
+    "xsa_sha256": "862883742e77e48c566fc49cc14746bc70830e27c894bdf948085c534177a614",
+    "elf_sha256": "12fcd96c3699ffc514968cc121a7c9ec5031723f14813900aef094256e301bd3",
+    "golden_logits": [74, -18, 14, 0, 0, 0, 0, 0, 0, 114],
+    "mask_granularity": "group_4way",
+    "groups": {"total": 592, "execute": 296, "skip": 296},
+    "fence_snapshot_valid": 1,
+    "strict_2of4_candidate": false,
+    "does_not_close": ["B3-08b strict connection-level 2:4", "live-ENeuron automatic decision", "cycle/power benefit", "B3-GATE"]
+  },
   "qualification_next_action": {
     "action": "B1-06B6_UART_BASELINE",
     "execution_chain": ["B1-06B6_UART_BASELINE", "B1-06B7_OCM_HIGH_DDR_MINIMAL_REPRODUCTION"],

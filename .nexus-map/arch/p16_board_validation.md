@@ -21,6 +21,8 @@ P16 的目标是在 HelloZynq `xc7z020clg484-2` 上依次打通 PL、PS/DDR/网�
 
 当前 B3 入口：使用已通过物理门的 packet-NPU 身份冻结 Python/Host 共用黄金 manifest，先做 dense/bypass 逐样本 10-logit bit-exact 对比，再做 full-open mask 透明性对比；只有这两个基础门通过后，才进入静态 2:4 与 live-ENeuron 动态 mask A/B。packet smoke 只证明协议与状态路径，不证明 NPU 数值正确。
 
+B3-08a 已完成（2026-09-12）：同一物理通过 bit/XSA、COM15、`b3_static_mixed` 实板 run `20260912T102046Z` 通过，logits=`74,-18,14,0,0,0,0,0,0,114`，fence valid=`1`，execute/skip=`296/296`。mask 粒度是 `group_4way`；严格连接级 `2:4` 与 ENeuron 自动决策仍未验证。下一步 B3-08b。
+
 P16-B0 已完成。当前源码 `f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06`、bitstream `df16ed6ccd9124f2dc4391d96e868ebd7846aebf3df335099b742cc7cd318971` 在同一target/device上完成两次正式program和现场观察；10个完整周期分别实测 `13.42 s`、`13.4 s`，均通过理论 `13.4217728 s` 与冻结窗口 `12.6–14.2 s`。
 
 用户随后确认板卡完全断电。`2026-09-07T15:02:49Z` 的正式只读探针精确匹配 target `localhost:3121/xilinx_tcf/Digilent/210251A08870` 1 个，但 `target_opened=0`、`accessible_device_count=0`，Vivado transcript 明确报告 `No devices detected`。证据位于 `artifacts/logs/hellozynq_b0/20260907T150221Z_df16ed6c_power_off/`，结果 SHA-256 为 `fe594c87...3776e`，transcript SHA-256 为 `3a953999...1f634`，完整断电确认 PASS。

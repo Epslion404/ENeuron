@@ -1,5 +1,7 @@
 # 核心领域概念
 
+B3-08a 组级静态 mixed mask 实板子门（2026-09-12）：提交 `73b12c3` 的 `b3_static_mixed` 在同一物理通过 bit/XSA、COM15 上通过，run `20260912T102046Z`，manifest 为 `boards/hellozynq/b2_sw/build/73b12c30baf1507876c6bff01059a2c28c919a8d/direct/runs/20260912T102046Z/run_manifest.json`。结果 logits=`74,-18,14,0,0,0,0,0,0,114`，`fence_snapshot_valid=1`，592 个 `group_4way` 组中 execute/skip=`296/296`。该证据只关闭 B3-08a；不是严格连接级 `2:4`，也不是 ENeuron 自动决策，下一步为 B3-08b。
+
 B3 固定向量对照（2026-09-12）：`20260912T050553Z` dense、`20260912T053341Z` bypass、`20260912T053426Z` full-open 在同一 `f070577` bit/XSA、COM15 上均 PASS，输出均为 `165,-18,14,0,0,0,0,0,0,153`。该子门不包含执行/跳过组计数器物理核对，也不关闭 B3-06/B3-07 整项、静态 `2:4`、live-ENeuron、恢复矩阵或功耗/周期证据。
 
 B3 execute/skip 计数器物理状态（2026-09-12）：第三次 `route_design -directive Explore` 加既有 post-route `AggressiveExplore` 的构建绑定 HEAD `c3a50eb`，在 `xc7z020clg484-2`、200 MHz 下通过物理硬门：`WNS/TNS=+0.008/0 ns`、`WHS/THS=+0.036/0 ns`、setup/hold 失败端点为 0、route errors=0、DRC hard errors=0、DSP48E1=4；bit/XSA SHA-256 分别为 `5c6ebc07…c910a88`/`86288374…177a614`。该 bit/XSA 具备下载资格，但尚未完成实板 execute/skip 读回，B3-06/B3-07 仍不关闭，dense 期望为 `592/0`。
