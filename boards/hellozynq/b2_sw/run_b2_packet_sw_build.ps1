@@ -144,7 +144,7 @@ if ($LASTEXITCODE -ne 0) { throw "Packet application compile failed with exit co
 if ($LASTEXITCODE -ne 0) { throw "Packet application link failed with exit code $LASTEXITCODE" }
 
 $manifest = [ordered]@{
-    schema_version = 1
+    schema_version = 2
     generated_at = [DateTime]::UtcNow.ToString('o')
     git_head = $gitHead
     git_tracked_worktree_clean = $gitTrackedWorktreeClean

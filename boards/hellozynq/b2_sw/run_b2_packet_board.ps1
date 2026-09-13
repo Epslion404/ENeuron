@@ -70,6 +70,9 @@ if (-not (Test-Path -LiteralPath $manifestPath)) {
     throw "Run run_b2_packet_sw_build.ps1 first: $manifestPath"
 }
 $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
+if ([int]$manifest.schema_version -ne 2) {
+    throw "Unsupported packet build manifest schema: $($manifest.schema_version)"
+}
 if (-not [bool]$manifest.git_tracked_worktree_clean) {
     throw 'Packet build manifest was produced from a dirty tracked worktree'
 }

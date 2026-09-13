@@ -5,8 +5,10 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import subprocess
 import tempfile
 import unittest
+from datetime import datetime, timedelta
 from pathlib import Path
 
 from b3_mvp_report import (
@@ -73,6 +75,10 @@ class B3SpeedReportContractTests(unittest.TestCase):
         root = Path(__file__).resolve().parent
         artifact = root / "artifacts/logs/b3_live_l0_cache_20260913_82b079e"
         data = json.loads((artifact / "b3_live_l0_cache_comparison.json").read_text(encoding="utf-8"))
+        self.assertEqual(data["schema"], "eneuron_b3_live_l0_cache_comparison_v2")
+        self.assertEqual(data["packet_source_identity_scope"], "git_blob_at_git_head")
+        self.assertEqual(data["source_packet_build_manifest_schema_version"], 1)
+        self.assertEqual(data["source_packet_build_manifest_clean_field"], "git_worktree_clean")
         self.assertEqual(data["status"], "BOARD_DIAGNOSTIC_PASS_SPEED_GATE_OPEN")
         self.assertEqual(data["candidate_ps_us"], [827, 829, 828])
         self.assertEqual(data["candidate_ps_us_median"], 828)
@@ -80,6 +86,21 @@ class B3SpeedReportContractTests(unittest.TestCase):
         self.assertEqual(data["execute_groups"], [296, 296, 296])
         self.assertEqual(data["skip_groups"], [296, 296, 296])
         self.assertEqual(data["protocol_errors"], [0, 0, 0])
+        packet_manifest_path = artifact / "packet_build_manifest.json"
+        packet_manifest_canonical = packet_manifest_path.read_text(encoding="utf-8").replace(
+            "\r\n", "\n"
+        )
+        self.assertEqual(
+            hashlib.sha256(packet_manifest_canonical.encode("utf-8")).hexdigest(),
+            data["packet_build_manifest_canonical_lf_sha256"],
+        )
+        packet_manifest = json.loads(packet_manifest_canonical)
+        self.assertEqual(packet_manifest["schema_version"], 1)
+        self.assertTrue(packet_manifest["git_worktree_clean"])
+        self.assertTrue(data["git_tracked_worktree_clean"])
+        readme = (artifact / "README.md").read_text(encoding="utf-8")
+        self.assertIn("历史字段", readme)
+        self.assertIn("仅检查已跟踪文件", readme)
         observed_ps: list[int] = []
         observed_dma: list[int] = []
         observed_cycles: list[int] = []
@@ -132,9 +153,17 @@ class B3SpeedReportContractTests(unittest.TestCase):
 
         self.assertEqual(len(data["run_files"]), 3)
         self.assertEqual(len(list(artifact.glob("run-*"))), 3)
-        packet_source = (
-            root / "boards/hellozynq/b2_sw/src/packet_main.c"
-        ).read_bytes()
+        packet_source = subprocess.run(
+            [
+                "git",
+                "-C",
+                str(root),
+                "show",
+                f"{data['git_head']}:boards/hellozynq/b2_sw/src/packet_main.c",
+            ],
+            check=True,
+            stdout=subprocess.PIPE,
+        ).stdout
         self.assertEqual(
             hashlib.sha256(packet_source).hexdigest(),
             data["packet_source_sha256"],
@@ -161,13 +190,23 @@ class B3SpeedReportContractTests(unittest.TestCase):
 
         self.assertEqual(b2["source_identity_rule"], "QUERY_CURRENT_CHECKOUT_AT_RUNTIME")
         self.assertIn("B3_09_BOARD_PASS", b2["current_status"])
+        self.assertIn("B3_POWER_GATE_OPEN", b2["current_status"])
         self.assertIn("B3_GOAL_GATE_OPEN", b2["current_status"])
         self.assertTrue(b2["next_gate"].startswith("B3-SPEED-GATE"))
         self.assertIn("B3-GOAL-GATE", p16["current_gates"])
+        self.assertIn("B3_L0_CACHE_BOARD_DIAGNOSTIC_PASS", p16["status"])
+        self.assertNotIn("workflow_resume_counts", p16)
+        self.assertEqual(p16["workflow_resume_count_rule"], "QUERY_WORKFLOW_RESUME_AT_RUNTIME")
+        self.assertEqual(
+            p16["current_execution_point"],
+            "FREEZE_REPEATABLE_END_TO_END_SPEED_WINDOW_AND_MEASURE_EXTERNAL_POWER_WHEN_AVAILABLE",
+        )
         self.assertEqual(state["b3_goal_gate"], "OPEN")
         self.assertIn("82b079e", p16_node["evidence_gap"])
         self.assertNotIn("setup_fail", board_b2["implementation_status"])
-        self.assertTrue(str(concept["generated_at"]).startswith("2026-09-13"))
+        generated_at = datetime.fromisoformat(concept["generated_at"])
+        self.assertEqual(generated_at.date().isoformat(), "2026-09-13")
+        self.assertEqual(generated_at.utcoffset(), timedelta(hours=8))
 
         workflow = (root / "WORKFLOW_STATE.md").read_text(encoding="utf-8")
         next_action = workflow.split("## 下一动作", 1)[1].split("## ", 1)[0]
