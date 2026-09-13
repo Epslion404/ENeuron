@@ -4,9 +4,9 @@
 > verified_at: 2026-09-13
 > provenance: live tree=`D:/Documents/Code/ENeuron-board-b0`；当前 Git 身份=`codex/b3-goal-review@3740d98`（`8a690e0` 冻结 pytest 主线边界，`3740d98` 修正 B3 目标门）；历史远端/PR #88 名称仅作来源。bitstream RTL 身份 `be84596`。`D:/Documents/Code/ENeuron` 不是当前 live tree。raw 探针仍绑定历史 `c46320e`。SPEED 证据 `artifacts/logs/b3_speed_20260912_be84596/b3_speed_comparison.json`。
 
-## 当前权威快照（2026-09-13，日常主线 B3-SPEED-GATE / B3-POWER-GATE）
+## 当前权威快照（2026-09-13，执行顺序 B3-SPEED-GATE → B3-POWER-GATE）
 
-器件 `xc7z020clg484-2`。日常主线是 `B3-SPEED-GATE`（端到端速度）与 `B3-POWER-GATE`（外部功耗目标），不是 B3-08b，也不是 `B3-STRICT`。主线仍是板上 packet-NPU + ENeuron 组级动态剪枝。live tree 是本工作树，不是 `D:/Documents/Code/ENeuron`。
+器件 `xc7z020clg484-2`。当前先完成 `B3-SPEED-GATE`（端到端速度），再进行 `B3-POWER-GATE`（外部功耗目标），最后汇总到 `B3-GOAL-GATE`；功耗任务后置且不阻塞速度测量。主线仍是板上 packet-NPU + ENeuron 组级动态剪枝，不是 B3-08b，也不是 `B3-STRICT`。live tree 是本工作树，不是 `D:/Documents/Code/ENeuron`。
 
 B3-MVP-GATE 已在同一份集中 Vivado 2024.1 bitstream 上关闭：RTL 身份 `be84596`，200 MHz FCLK0。WNS=+0.045 ns，TNS=0，WHS=+0.036 ns，THS=0，route/DRC hard errors=0，DSP48E1=4。
 - bit SHA-256=`0ecbe76274c39418f2a60a88358d3ff6f09f5a2ed73a44a3a419c34eb91d3a11`
@@ -24,7 +24,7 @@ B3-MVP-GATE 已在同一份集中 Vivado 2024.1 bitstream 上关闭：RTL 身份
 
 当前门：`B3-SPEED-GATE=OPEN`、`B3-POWER-MEASURED=OPEN`、`B3-POWER-GATE=OPEN`、`B3-GOAL-GATE=OPEN`。Host live 决策当前通过 dense L0 扫描并重复组贡献计算生成 mask，约 996 µs，远大于 PL 内节省约 4.4 µs；必须先消除该结构性开销。POWER 已有 Type-C 整板人工工程观察，但未满足正式五轮、照片和完整身份合同，状态为 `POWER_ENGINEERING_OBSERVATIONS_INCOMPLETE_CONTRACT`；完成测量也不能在未冻结并满足改善门限时自动关闭目标门。严格 2:4 是结构实验。后文若仍写下一门是 B3-08b，以本条为准。
 
-B3-17～B3-22 优化/归因线（2026-09-13）：六项均为 TODO 未勾选，不新增门槛，也不改变 `B3-SPEED-GATE`、`B3-POWER-GATE`、`B3-GOAL-GATE` 的 OPEN 语义。B3-17 建立低固定开销 benchmark；B3-18 改用 active-group 索引表；B3-19 抑制 skip 路径 BRAM/DSP 活动并使用 CE；B3-20 比较 live mask 更新摊销；B3-21 做 idle/dense/static/live 整板增量功耗归因；B3-22 建立同身份、先正确性后收益的优化接受门。当前功耗报告仍为 `POWER_NOT_MEASURED / NOT_PROVEN`，不得把工程观察、Vivado 估算或整板增量功耗写成纯 NPU 功耗或降功耗通过。
+B3-17～B3-22 优化/归因线（2026-09-13）：六项均为 TODO 未勾选，不新增门槛，也不改变三个目标门的 OPEN 语义。速度优先执行 B3-17（低固定开销 benchmark）→ B3-18（active-group 索引表）→ B3-20（live mask 更新摊销）→ B3-22（同身份优化接受门），B3-19 在速度基线稳定后实施；随后执行 B3-21（整板增量功耗归因）和正式功耗测量。功耗任务后置且不阻塞 `B3-SPEED-GATE`。当前功耗报告仍为 `POWER_NOT_MEASURED / NOT_PROVEN`，不得把工程观察、Vivado 估算或整板增量功耗写成纯 NPU 功耗或降功耗通过。
 
 ## 当前活动范围
 
@@ -70,7 +70,7 @@ pytest 日常主线收集边界由根目录 `pytest.ini` 冻结：递归排除 `
 
 主线固定为 `xc7z020clg484-2`：NPU 单时钟计算、ENeuron 动态剪枝、NP7 共享 lane，以及 B1/B2/B3/B4 集成。活动入口见 `npu_eneuron_*`、`npu_zynq7020_t1_wrapper.sv`、`local_prune_*`、`eneuron_local_prune_wrapper.sv`、`digital_lif_engine.sv`、`eneuron_group4way_live.py` 和 `np7_*`。绑定旧 `xc7z020clg400-1` 的 OOC 只能作结构参考，不能替代目标器件最终 routed 证据。
 
-`archive/legacy/` 下的 Pulse-Mini、digit8x8、G4、旧 Tile/Host Bridge、NP6/NP7 旧物理报告和普通历史结果不参与当前日常门。高地址 DDR 与 B1C UDP 保留为板卡资格支线；低地址窗口满足模型/DMA 容量后即可推进 NPU MVP。MVP 已关闭；当前并行推进 `B3-SPEED-GATE` 与 `B3-POWER-MEASURED/B3-POWER-GATE`，两者都通过后才关闭 `B3-GOAL-GATE`。严格连接级 `2:4`、10000 样本和完整恢复属于独立的 STRUCTURAL/STRICT 实验；网口发布属于 B4，不前置到 B3 速度/功耗目标门。
+`archive/legacy/` 下的 Pulse-Mini、digit8x8、G4、旧 Tile/Host Bridge、NP6/NP7 旧物理报告和普通历史结果不参与当前日常门。高地址 DDR 与 B1C UDP 保留为板卡资格支线；低地址窗口满足模型/DMA 容量后即可推进 NPU MVP。MVP 已关闭；当前按 `B3-SPEED-GATE` → `B3-POWER-MEASURED/B3-POWER-GATE` 顺序推进，两者都通过后才关闭 `B3-GOAL-GATE`。严格连接级 `2:4`、10000 样本和完整恢复属于独立的 STRUCTURAL/STRICT 实验；网口发布属于 B4，不前置到 B3 速度/功耗目标门。
 
 证据边界：当前部署和最终板级物理签核目标是 `xc7z020clg484-2`。`xc7z020clg400-1` 上的 T3/NP7 OOC、时序和资源报告只作为历史结构参考，不得写成 `clg484-2` 已签核；`archive/legacy/` 中的材料不进入日常 CI/PR 门。B1 高地址 DDR、PHY 和 UDP 属于板卡资格支线，仍阻塞完整 `B1-GATE`，但在已验证低地址窗口足以容纳模型与 DMA 缓冲区时，不阻塞 NPU MVP 的 RTL/软件推进。CH340 运行脚本按 `VID_1A86:PID_7523` 识别设备，COM 号只是现场枚举结果，不是固定合同。
 

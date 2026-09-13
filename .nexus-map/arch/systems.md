@@ -6,7 +6,7 @@
 
 ## 当前权威快照（2026-09-13，日常主线 B3-SPEED-GATE / B3-POWER-GATE）
 
-器件 `xc7z020clg484-2`。日常主线是 `B3-SPEED-GATE`（端到端速度）与 `B3-POWER-GATE`（外部功耗目标），不是 B3-08b。主线仍是板上 packet-NPU + ENeuron 组级动态剪枝。live tree 是本工作树；PR #88 仅作历史来源，不是当前分支身份。
+器件 `xc7z020clg484-2`。当前先完成 `B3-SPEED-GATE`（端到端速度），再进行 `B3-POWER-GATE`（外部功耗目标），不是 B3-08b。主线仍是板上 packet-NPU + ENeuron 组级动态剪枝；功耗任务后置且不阻塞速度测量。live tree 是本工作树；PR #88 仅作历史来源，不是当前分支身份。
 
 B3-MVP-GATE 已关。同一份集中 Vivado 2024.1 bitstream：RTL 身份 `be84596`，200 MHz FCLK0，WNS=+0.045 ns，TNS=0，WHS=+0.036 ns，THS=0，route/DRC hard errors=0，DSP48E1=4。bit SHA-256=`0ecbe76274c39418f2a60a88358d3ff6f09f5a2ed73a44a3a419c34eb91d3a11`，XSA SHA-256=`135d979d61c629922ee5419e51dd97ef045d9bab79930432816d09f109291d1a`。
 

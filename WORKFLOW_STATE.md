@@ -108,7 +108,7 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 
 ## 下一动作
 
-主线下一动作并列为 `B3-SPEED-GATE` 与 `B3-POWER-GATE`。现有 SPEED 数据只是单样本嵌套计时：DMA 包含 NPU，Host UART 包住整个流程，不能相加，也没有证明端到端加速；Host live 决策还会扫描 dense L0 并重复计算组贡献，约 996 µs。需先消除该结构性开销，再冻结无 UART 文本传输的请求→结果窗口并重复 A/B。POWER 已取得 idle、两轮 dense、static mixed 和 live ENeuron 的 Type-C 整板人工工程观察，但未满足正式五轮、照片和完整身份合同，状态为 `POWER_ENGINEERING_OBSERVATIONS_INCOMPLETE_CONTRACT`；即使完成测量也只能关闭 `B3-POWER-MEASURED`，不能在未冻结重复性、功率/每推理能耗和仪器不确定度门限时关闭目标门。`B3-GOAL-GATE` 仅在速度与功耗目标都实际通过后关闭。严格 2:4 仍是结构实验。
+当前按顺序推进：`B3-SPEED-GATE` → `B3-POWER-GATE` → `B3-GOAL-GATE`。先执行 B3-17、B3-18、B3-20、B3-22，消除 Host live 决策约 996 µs 的结构性开销，冻结不含 UART 文本传输的请求→结果窗口，并完成同身份、先正确性后收益的端到端 A/B；B3-19 在速度基线稳定后实施。现有 SPEED 数据只是单样本嵌套计时：DMA 包含 NPU，Host UART 包住整个流程，不能相加，也没有证明端到端加速。POWER 的工程观察和 B3-21/正式测量保留为后置任务，不阻塞速度测量；即使完成测量也只能关闭 `B3-POWER-MEASURED`，不能在未冻结重复性、功率/每推理能耗和仪器不确定度门限时关闭目标门。`B3-GOAL-GATE` 仅在速度与功耗目标都实际通过后关闭。严格 2:4 仍是结构实验。
 
 ## 2026-09-05 V2 OOC 签核结果
 
