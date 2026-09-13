@@ -692,6 +692,8 @@ static int power_send_fence(void)
     u32 response_words = 0U;
     u32 request_sequence = sequence;
     u32 frame_bytes = build_command_frame(tx, OP_SAMPLE_FENCE, 0U, 0x00000F00U, MODEL_ID);
+    /* 样本窗口关闭信号需跨两级 CDC；避免紧邻上一帧提交下一次 fence。 */
+    usleep(100U);
     if (submit_frame(frame_bytes, MAX_FRAME_BYTES, 1U, &response_words) != XST_SUCCESS) {
         return XST_FAILURE;
     }
