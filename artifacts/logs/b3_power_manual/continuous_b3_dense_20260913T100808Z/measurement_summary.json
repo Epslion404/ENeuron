@@ -1,0 +1,80 @@
+{
+  "schema": "eneuron_b3_manual_power_observation_v1",
+  "status": "EARLY_TERMINATED_DENSE_OBSERVATION",
+  "mode": "b3_dense",
+  "round": null,
+  "run_type": "continuous_observation_not_completed_3600s_window",
+  "build_identity": {
+    "git_head": "85267aefabdcb598ad893184613ab8ac3c720b6a",
+    "part": "xc7z020clg484-2"
+  },
+  "started_by_runner_utc": "2026-09-13T10:08:08.8062135Z",
+  "observation_start_local": "2026-09-13T18:11:51+08:00",
+  "observation_end_local": "2026-09-13T18:39:34+08:00",
+  "observation_duration_seconds": 1663,
+  "meter": {
+    "model": "B10高精度Type-c多功能无线充测试USB电压电流表PD3.2充电检测仪",
+    "manufacturer_accuracy": "<0.2%",
+    "display_resolution": {
+      "voltage_v": 0.00001,
+      "current_a": 0.00001,
+      "power_w": 0.00001,
+      "mah": 1,
+      "mwh": 1
+    },
+    "power_source": "Type-C inline 5V supply to development board",
+    "measurement_point": "between Type-C supply and development board"
+  },
+  "jtag_state": {
+    "physically_connected": true,
+    "xsct_active_during_observation": false,
+    "hw_server_active_during_observation": false,
+    "scan_active_during_observation": false
+  },
+  "board_result_before_stop": {
+    "status": 3,
+    "mode": 1,
+    "warmup_completed": 1000,
+    "valid_inferences": 8499751,
+    "failed_inferences": 0,
+    "protocol_error_count": 0,
+    "elapsed_seconds": 0,
+    "error_code": 0,
+    "execute_group_count": 0,
+    "skip_group_count": 0,
+    "source_log": "final_probe.stdout.log"
+  },
+  "stop_action": {
+    "requested": true,
+    "source_log": "stop_probe.stdout.log",
+    "message": "B3_POWER_CPU_STOP_REQUESTED",
+    "post_stop_probe": "unavailable_no_targets_found",
+    "post_stop_probe_log": "final_probe_after_stop.stdout.log"
+  },
+  "aggregate": {
+    "start_mah": 1745,
+    "end_mah": 1896,
+    "delta_mah": 151,
+    "start_mwh": 17899,
+    "end_mwh": 18629,
+    "delta_mwh": 730,
+    "average_power_w_from_cumulative_mwh": 1.5802766085,
+    "average_current_a_from_cumulative_mah": 0.3268791341,
+    "displayed_power_values_consistent": false,
+    "consistency_note": "原始 V/A/W 保留；仪表显示值不做修正。"
+  },
+  "evidence": {
+    "meter_trace_csv": "meter_trace.csv",
+    "start_photo": null,
+    "end_photo": null,
+    "start_log": "start.stdout.log",
+    "result_log": "final_probe.stdout.log",
+    "stop_log": "stop_probe.stdout.log",
+    "post_stop_probe_log": "final_probe_after_stop.stdout.log"
+  },
+  "gate_interpretation": {
+    "b3_power_measured": "OPEN",
+    "b3_power_gate": "OPEN",
+    "reason": "本轮 dense 仅人工连续观察 1663 s，未完成配置的 3600 s 窗口；无起止照片，停止后复探针不可用，不能作为完整合同窗口或五轮数据。"
+  }
+}

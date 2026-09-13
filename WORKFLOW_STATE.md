@@ -108,7 +108,7 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 
 ## 下一动作
 
-主线下一动作并列为 `B3-SPEED-GATE` 与 `B3-POWER-GATE`。速度线证据继续绑定缓存提交 `82b079e`，仍需冻结无 UART 文本传输的可重复请求→结果 A/B。功耗线的人工 V2 协议已冻结：串联 Type-C 整板测点、统一 ELF 四模式、JTAG 物理连接一致且窗口静默、五轮正反顺序、每窗口 `300 s / 10000 correct / 200 mWh`、每分钟 V/A/W 与起止照片/累计量；runner 和报告工具已就绪。dense 工程基线已完成，static mixed 工程观察已完成，下一阶段为 `b3_live_eneuron`；正式功耗门仍未关闭，报告也不会自动关闭目标门。`B3-GOAL-GATE` 仅在速度与功耗目标都实际通过后关闭。
+主线下一动作并列为 `B3-SPEED-GATE` 与 `B3-POWER-GATE`。速度线证据继续绑定缓存提交 `82b079e`，仍需冻结无 UART 文本传输的可重复请求→结果 A/B。功耗线的人工 V2 协议已冻结：串联 Type-C 整板测点、统一 ELF 四模式、JTAG 物理连接一致且窗口静默、五轮正反顺序、每窗口 `300 s / 10000 correct / 200 mWh`、每分钟 V/A/W 与起止照片/累计量；runner 和报告工具已就绪。dense、static mixed 和 live 均已有提前终止工程观察，正式功耗门仍未关闭，报告也不会自动关闭目标门。`B3-GOAL-GATE` 仅在速度与功耗目标都实际通过后关闭。
 
 2026-09-13：用户结束一次连续 `b3_idle` 观察。JTAG 启动、FPGA program、ELF download、READY/GO 均通过；观察时间 `16:29:57–17:03:50`（2033 s），累计 `184 mAh / 890 mWh`，由累计量计算平均输入功率约 `1.57600 W`。仪表为 B10 高精度 Type-C 多功能测试表，标称精度 `<0.2%`。CPU 随后由 JTAG 停止。原始读数、板端停止前结果和限制见 `artifacts/logs/b3_power_manual/continuous_b3_idle_20260913T082500Z/`。该单轮 idle 结果不关闭 `B3-POWER-MEASURED`、`B3-POWER-GATE`。
 
@@ -117,6 +117,8 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 2026-09-13：随后重启配置为 `3600 s` 的 `b3_dense` 窗口，用户于 `19:44:17–20:12:21`（1684 s）提前结束。累计 `151 mAh / 734 mWh`，由累计量折算平均输入功率约 `1.56912114 W`；停止后 probe 可见，板端有效推理 `8412993`、失败/协议错误为 `0`，但状态仍为 `RUNNING` 快照、窗口未自然完成。原始读数、停止日志和限制见 `artifacts/logs/b3_power_manual/continuous_b3_dense_20260913T114249Z/`。该提前终止 dense 记录不关闭任何功耗门。
 
 2026-09-13：完成一次 `b3_static_mixed` 连续观察，用户于 `20:58:53` 提前结束。观察时间 `20:32:37–20:58:53`（1576 s），累计 `142 mAh / 686 mWh`，由累计量折算平均输入功率约 `1.56700508 W`；停止后 probe 可见，板端有效推理 `8093983`、失败/协议错误为 `0`，但状态仍为 `RUNNING` 快照、窗口未自然完成。原始读数、停止日志和限制见 `artifacts/logs/b3_power_manual/continuous_b3_static_mixed_20260913T123121Z/`。该提前终止 static mixed 记录不关闭任何功耗门。
+
+2026-09-13：完成一次 `b3_live_eneuron` 连续观察，用户于 `22:05:30` 提前结束。观察时间 `21:37:19–22:05:30`（1691 s），累计 `152 mAh / 735 mWh`，由累计量折算平均输入功率约 `1.56475458 W`；停止后 probe 读回 `valid_inferences=9094863`、失败/协议错误为 `0`，状态为 `RUNNING` 快照。原始读数、停止/probe 日志和限制见 `artifacts/logs/b3_power_manual/continuous_b3_live_eneuron_20260913T133323Z/`。该提前终止 live 记录不关闭任何功耗门。
 
 ## 2026-09-05 V2 OOC 签核结果
 

@@ -2200,3 +2200,10 @@
 - static mixed 初步显示整板平均功率下降约 `0.00765880 W`，相对 `0.4864%`；该差值接近仪表 `<0.2%` 标称准确度与运行波动，不能视为已证明的降功耗收益。
 - 按板端有效推理计，dense 合并约 `0.311623 mJ/次`，static mixed 约 `0.305116 mJ/次`，表观下降约 `2.0882%`；有效推理吞吐约从 `5053.1 次/s` 到 `5135.8 次/s`，表观提升约 `1.63%`。
 - 以上只用于工程趋势判断；未完成 live-ENeuron 对照、正式五轮、完整窗口和照片证据，`B3-POWER-GATE` 保持打开。
+
+## 2026-09-13 live ENeuron 工程观察
+
+- 用户结束 `b3_live_eneuron` 连续观察，原始读数和板端日志已写入 `artifacts/logs/b3_power_manual/continuous_b3_live_eneuron_20260913T133323Z/`。
+- 读数跨度 `21:37:19–22:05:30`（1691 s），累计 `152 mAh / 735 mWh`，折算平均输入功率约 `1.56475458 W`。
+- 停止后 probe 读回 `valid_inferences=9094863`、`failed_inferences=0`、`protocol_error_count=0`；状态为停止前的 RUNNING 快照，未自然完成 3600 s 窗口。
+- 该记录未提供起止照片，标记为 `EARLY_TERMINATED_LIVE_ENEURON_OBSERVATION`，不计入正式五轮四模式功耗合同；`B3-POWER-MEASURED`、`B3-POWER-GATE` 和 `B3-GOAL-GATE` 保持未关闭。
