@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-09-13T03:12:33.7810508Z",
+  "git_head": "82b079e49f46bd20c6ea0893f61f58967553b45b",
+  "git_worktree_clean": true,
+  "packet_source_sha256": "e5fca8f5a5070490838c9e05215f4afb0bb75b440d90f3263f023c81cf03493b",
+  "tool": "XSCT/Vitis 2024.1",
+  "bitstream": "D:\\Documents\\Code\\ENeuron-board-b0-pr-review\\boards\\hellozynq\\b2_hw\\build\\hello_zynq_b2.bit",
+  "xsa": "D:\\Documents\\Code\\ENeuron-board-b0-pr-review\\boards\\hellozynq\\b2_sw\\build\\82b079e49f46bd20c6ea0893f61f58967553b45b\\direct\\hello_zynq_b2.xsa",
+  "bitstream_sha256": "0ecbe76274c39418f2a60a88358d3ff6f09f5a2ed73a44a3a419c34eb91d3a11",
+  "xsa_sha256": "135d979d61c629922ee5419e51dd97ef045d9bab79930432816d09f109291d1a",
+  "elf": "D:\\Documents\\Code\\ENeuron-board-b0-pr-review\\boards\\hellozynq\\b2_sw\\build\\82b079e49f46bd20c6ea0893f61f58967553b45b\\direct\\out\\b2_packet_b3_live_eneuron.elf",
+  "elf_sha256": "cc3744e6447320bf5e948235be1154a0b70bb4e730b67a86b95740505cc7aa40",
+  "application": "b2_packet_b3_live_eneuron",
+  "application_mode": "b3_live_eneuron",
+  "protocol": "ENB2_PACKET_NPU_V1",
+  "golden_manifest": "D:\\Documents\\Code\\ENeuron-board-b0-pr-review\\tools\\repro\\b3_fixed_vector_manifest.json",
+  "input_pattern": "0x87654321 repeated 8 beats",
+  "mask_pattern": "Host live ENeuron S2 group_4way; computed on PS, not frozen mixed replay",
+  "mask_words": 19,
+  "expected_logits": [
+    165,
+    -18,
+    14,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    153
+  ]
+}

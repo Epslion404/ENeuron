@@ -536,7 +536,7 @@
     "does_not_close": ["B3-MVP-GATE", "live-ENeuron automatic decision", "cycle A/B", "B3-STRICT-GATE"]
   },
   "b3_live_eneuron_host_subgate": {
-    "status": "BOARD_PASS_CACHE_CANDIDATE_PENDING_RETEST",
+    "status": "BOARD_CACHE_DIAGNOSTIC_PASS_SPEED_GATE_OPEN",
     "source_commit": "fe25a7081f6a93e9d63c888ea581dc5595d84b4a",
     "source_subject": "feat(board): add live ENeuron group_4way host decision",
     "application_mode": "b3_live_eneuron",
@@ -546,7 +546,7 @@
     "python_result": "6 passed",
     "host_c": "boards/hellozynq/b2_sw/src/packet_main.c",
     "host_macro": "B3_LIVE_ENEURON",
-    "mask_computation": "PS computes 19-word group_4way mask after model load; L0 contribution cache candidate removes 512 repeated group_mac calls; no B3_LIVE_ENEURON_MASK_WORDS frozen table",
+    "mask_computation": "PS computes 19-word group_4way mask after model load; commit 82b079e removes 512 repeated L0 group_mac calls with a 16-item per-hidden cache; no B3_LIVE_ENEURON_MASK_WORDS frozen table",
     "algorithm": "ENeuron S2 gain=1; every four NPU groups are one meta-neuron; group MAC contribution quantized 0..3; keep 2 of 4 groups",
     "mask_granularity": "group_4way",
     "strict_2of4_candidate": false,
@@ -556,7 +556,11 @@
     "mask_word1": "0x33393335",
     "static_mixed_word1": "0x33333333",
     "mask_equals_static_mixed": false,
-    "board_elf_jtag": "HISTORICAL_BOARD_PASS",
+    "board_elf_jtag": "CURRENT_CACHE_ELF_THREE_RUNS_PASS",
+    "cache_commit": "82b079e49f46bd20c6ea0893f61f58967553b45b",
+    "cache_elf_sha256": "cc3744e6447320bf5e948235be1154a0b70bb4e730b67a86b95740505cc7aa40",
+    "cache_board_ps_us": [827, 829, 828],
+    "cache_evidence": "artifacts/logs/b3_live_l0_cache_20260913_82b079e/",
     "terminal_marker": "B3_LIVE_ENEURON_PASS",
     "does_not_close": ["B3-SPEED-GATE", "B3-POWER-MEASURED", "B3-POWER-GATE", "B3-08b strict connection-level 2:4", "B3-STRICT-GATE"]
   },

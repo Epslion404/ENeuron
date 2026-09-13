@@ -2167,3 +2167,4 @@
 - 构建/runner clean-source 身份合同先 RED 后 GREEN；PowerShell 两脚本解析通过，`git diff --check` 无错误。当前 dirty 候选 manifest 按新规则不能上板，符合 fail-closed 预期。
 - 统一 `run_b2_checks.ps1 -Full` 通过：当前主线全仓 `392 passed, 1 skipped, 134 subtests passed`，T1 两门与差异检查通过，输出 `B2_CHECKS_PASS`。
 - 补充 B4/STRICT 依赖一致性 RED→GREEN：P16 JSON 与架构文档不再把严格 2:4 当作网口发布前置；Nexus 两份 JSON 解析和定向合同通过。
+- 在干净提交 `82b079e` 上重建 live ELF 并用 COM15 连续完成三次实板 PASS；新 `ps_us` 为 827/829/828，所有数值、计数、周期和协议错误判据通过。三组 UART/XSCT/probe/run manifest 与机器摘要归档到 `artifacts/logs/b3_live_l0_cache_20260913_82b079e/`。

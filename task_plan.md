@@ -2019,8 +2019,8 @@ RED 记录：新增“完成外部测量不能自动关闭降功耗目标”合�
 - [x] RED：新增合同，要求 L0 dense 累加与 evidence 共享同一份 16-group contribution 缓存，并冻结输出等价性。
 - [x] GREEN：最小修改 `packet_main.c`，不改 L1、协议、RTL、bit/XSA 或门控语义。
 - [x] 定向验证：B3 live oracle、packet board 合同、构建脚本合同与差异检查通过。
-- [ ] 用现有签核 bit/XSA 重建 live ELF；记录 ELF/hash/编译身份。
-- [ ] 若当前 JTAG/UART 可用，在实板重复运行并保存 mask/logits/execute/skip、`ps_us`、DMA 与 Host 窗口；否则保存环境探针事实并保持 SPEED-GATE 打开。
+- [x] 用现有签核 bit/XSA 重建 live ELF；记录 ELF/hash/编译身份。
+- [x] 当前 JTAG/UART 可用；在 COM15 三次运行并保存 logits、execute/skip、`ps_us`、DMA、Host 窗口及原始日志。精确 19-word mask 未由状态块导出，等价性由 C/Python 合同、active/skip 和 logits 共同覆盖。
 - [ ] 更新 TODO/Nexus、提交、PR，并在条件合适时合并。
 
 成功标准：C 路径只计算 512 次 L0 group contribution 而非 1024 次，所有可见数值/协议行为不变；实板前不得把静态合同或 ELF 构建外推成端到端加速。
@@ -2030,6 +2030,8 @@ RED/GREEN 记录：新合同首先以缺少 `l0_contributions[16]` 失败；实�
 身份管理 RED/GREEN：dirty 源码构建出的 manifest 仍只写 committed HEAD，新增合同首先失败；修正后 manifest 记录 `git_worktree_clean` 与 `packet_source_sha256`，实板 runner 在 program/JTAG 前拒绝 dirty 构建或源码哈希漂移。
 
 回归记录：定向管理/速度/功耗/packet 合同 `43 passed`；统一 `run_b2_checks.ps1 -Full` 为 `392 passed, 1 skipped, 134 subtests passed`，T1 两门与 `git diff --check` 通过，终态 `B2_CHECKS_PASS`。Vitis 候选 ELF 构建成功，但因构建时工作树未提交，按新身份门仅用于编译/对象比较，不用于实板。
+
+干净构建/实板结果：提交 `82b079e`、`git_worktree_clean=true`、packet 源码 SHA-256=`e5fca8f5…3493b`、ELF=`cc3744e6…aa40`。COM15 三次均 PASS，`ps_us=827/829/828`、DMA=`56/56/56 us`、NPU=`1606` cycles、execute/skip=`296/296`、protocol errors=`0`、logits 与 dense 黄金一致。历史单次 `996 us` 到本轮中位数 `828 us` 的诊断差值约 `-16.9%`；没有冻结端到端统计门，B3-SPEED-GATE 保持打开。
 
 管理复核记录：交付分支位于基于最新 `main@af455a1` 的独立工作树 `ENeuron-board-b0-pr-review`；原 `ENeuron-board-b0` 工作树仍停在历史分支并含未提交实验、构建失败证据和 Nexus 草稿，本轮只读保留，不作为提交来源。后续状态、测试和 PR 只从交付工作树产生。
 
@@ -2046,6 +2048,10 @@ RED/GREEN 记录：新合同首先以缺少 `l0_contributions[16]` 失败；实�
 错误记录：一次身份合同定位又引用了不存在的 `test_b2_packet_runner_contract.py`；真实合同都在 `test_b2_packet_board_contract.py`，后续改为读取该文件的明确行段。
 
 门依赖 RED/GREEN：新增合同首先发现 `p16_board_validation.json` 仍让 B4 依赖 B3-STRICT，随后统一为 `B4 requires B2-GATE`、B3-STRICT 独立、板级功耗目标属于 B3-POWER；相关 Markdown 与 JSON 同步，合同通过。
+
+错误记录：首次手工录入缓存证据摘要时，run-1 probe SHA-256 漏写中间 16 个十六进制字符；自校验合同立即失败并定位，已按原文件重新计算的完整哈希修正。其余两组哈希由同一合同逐文件验证。
+
+跨平台修正：Git 将证据文本规范化为 LF；原始 Windows CRLF 字节哈希在 Linux checkout 会变化。机器摘要和合同改为明确的 `canonical_lf_sha256`，仍保留各 run manifest 内现场生成的原始 UART 哈希。
 
 错误记录：查询 packet runner 合同时引用了不存在的 `test_b2_packet_runner_contract.py`；实际 runner 合同位于 `test_b2_packet_board_contract.py`。后续仅使用已由 `rg --files` 确认的文件。
 

@@ -46,7 +46,7 @@ B3-08a 组级静态 mixed mask 已在 COM15 实板通过：`b3_static_mixed`、�
 
 B3-09 Host/板级边界（2026-09-12）：提交 `fe25a70` 增加 `eneuron_group4way_live.py` 与 `packet_main.c` 的 `B3_LIVE_ENEURON`。S2 gain=1，148 次 meta 提交各保留 2/4 组，打包 19-word mask。板级 live 已在 `be84596` bitstream、COM15 上关闭：logits=`165,-18,14,0,0,0,0,0,0,153`，execute/skip=`296/296`，`decision_source=live_eneuron_s2`。mask word1=`0x33393335`，不等于 static mixed 全 `0x33333333`。禁止生成 `B3_LIVE_ENEURON_MASK_WORDS` 常量。不是严格 `2:4`。
 
-Host 缓存候选（2026-09-13）：每个 hidden 首遍保存 16 个有符号 L0 contribution，dense activation 与 evidence 复用，理论调用数从 L0 1024 降为 512，额外栈空间 64 bytes。该候选不改 RTL、bit/XSA、mask/协议语义；新 ELF 的实板 `ps_us`、mask、logits 与 execute/skip 尚待复测，不能单独关闭 B3-SPEED-GATE。
+Host 缓存复测（2026-09-13）：提交 `82b079e` 对每个 hidden 首遍保存 16 个有符号 L0 contribution，dense activation 与 evidence 复用，L0 调用数从 1024 降为 512，额外栈空间 64 bytes。同源 bit/XSA、新 ELF 在 COM15 三次 PASS：`ps_us=827/829/828`，logits、execute/skip=`296/296`、1606 cycles、protocol errors=0；历史单次为 996 µs。该小样本诊断不能单独关闭 B3-SPEED-GATE，证据 `artifacts/logs/b3_live_l0_cache_20260913_82b079e/`。
 
 当前校正（2026-09-07）：T3 真实 XPM/xsim 与 XC7Z020 OOC 证据绑定 `c2bc03f`；顶层 `2467 LUT / 2301 FF / 6 RAMB36 / 1 RAMB18 / 4 DSP48E1`，host/npu WNS/WHS 为 `+3.639/+0.105 ns`、`+0.214/+0.042 ns`。下方 `822cf93` 为历史快照。
 

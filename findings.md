@@ -1999,4 +1999,6 @@
 - Vitis 2024.1 live ELF 构建成功，签核 bit/XSA 哈希保持 `0ecbe762…3a11` / `135d979d…1d1a`，候选 ELF SHA-256=`d0fc56ce…d041f`。ARM `-O2` 对象中 `compute_live_group4way_mask` 从旧 `0x620` bytes 降到 `0x510` bytes，证明旧编译器没有自动完全消除重复 L0 计算；整个对象 text 从 6300 降到 6256 bytes。
 - 新发现交付身份漏洞：`run_b2_packet_sw_build.ps1` 的 manifest 只记录 `git_head`，当前 dirty 源码编译出的 ELF 仍标成 `af455a1`，且 runner 没有核对 `packet_main.c` 源码哈希/clean 状态。应在 manifest 加入 `git_worktree_clean` 与 packet 源码 SHA-256，并让实板 runner fail-closed。
 - Nexus 还有一处旧门依赖：结构化 P16 stages 与两处架构说明仍要求 `B3-STRICT → B4`，与当前 TODO 的“STRICT 独立、B4 只由 B2-GATE 前置”冲突；现已统一。B3-POWER 负责无网口板级速度/功耗目标，B4 只补网口闭环和网络负载差异。
+- 干净身份实板三次通过：`82b079e` / ELF `cc3744e6…aa40` / COM15，`ps_us=827/829/828`，DMA 均 56 us，NPU 均 1606 cycles，execute/skip 均 296/296，protocol errors 均 0，logits 均为 `165,-18,14,0,0,0,0,0,0,153`。相对历史单次 996 us 的中位数诊断改善约 16.9%，但统计设计不对称且仍有 dense L0 扫描，不能关闭速度门。
+- 新证据目录受 `.gitattributes` 的 `text=auto/eol=lf` 约束；摘要使用 canonical-LF SHA-256 自校验，避免 Windows CRLF 与 Linux checkout 之间的假失败。现场原始 UART 字节哈希仍保留在各 run manifest。
 - 构建/runner 身份硬门已实现：dirty 候选仍允许编译用于开发检查，但 `run_b2_packet_board.ps1` 会拒绝其 manifest；提交后重建才能上板。这样不会把未提交缓存代码错误绑定到旧 HEAD。
