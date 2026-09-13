@@ -70,8 +70,8 @@ if (-not (Test-Path -LiteralPath $manifestPath)) {
     throw "Run run_b2_packet_sw_build.ps1 first: $manifestPath"
 }
 $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
-if (-not [bool]$manifest.git_worktree_clean) {
-    throw 'Packet build manifest was produced from a dirty worktree'
+if (-not [bool]$manifest.git_tracked_worktree_clean) {
+    throw 'Packet build manifest was produced from a dirty tracked worktree'
 }
 $packetSourcePath = Join-Path $scriptRoot 'src\packet_main.c'
 $packetSourceSha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $packetSourcePath).Hash.ToLowerInvariant()

@@ -4,7 +4,7 @@
 
 最后更新：2026-09-13
 
-状态：`ACTIVE / PHASE2_FASTLANE_V1 / B0_COMPLETE_MAIN_102DEE2 / B1A_HW_DEFINITION_COMPLETE / B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DIAG_READY_NO_GO / B1B_HIGH_DDR_PENDING / B2_00_LOW_ADDRESS_LAYOUT_FROZEN / B2_D1_DMA_CONTRACT_FROZEN / B2_01_BUFFER_OWNERSHIP_FROZEN / B2_DMA_SW_BUILD_READY / B2_BOUNDARY_PRESSURE_BACKPRESSURE_UART_JTAG_PASS / B2_NPU_PHYSICAL_GATE_PASS / B2_PACKET_PATH_SMOKE_PASS / B2_08_COUNTER_RTL_SLICE_GREEN / B2_08_BOARD_STATUS_INTEGRATED_TIMING_PASS / B2_08_BOARD_READ_PARTIAL / B3_MVP_GATE_PASS / B3_FIXED_VECTOR_PASS / B3_COUNTER_BOARD_592_0_PASS / B3_SPEED_MEASURED / B3_SPEED_GATE_OPEN / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_PENDING / B3_STRICT_DEFERRED_STRUCTURAL / B1_GATE_FALSE / XC7Z020CLG484_2_CONFIRMED / T3_XPM_XSIM_PASS / T3_XC7Z020_OOC_PASS / RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN / GITHUB_ACTIONS_DISABLED`
+状态：`ACTIVE / PHASE2_FASTLANE_V1 / B0_COMPLETE_MAIN_102DEE2 / B1A_HW_DEFINITION_COMPLETE / B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DIAG_READY_NO_GO / B1B_HIGH_DDR_PENDING / B2_00_LOW_ADDRESS_LAYOUT_FROZEN / B2_D1_DMA_CONTRACT_FROZEN / B2_01_BUFFER_OWNERSHIP_FROZEN / B2_DMA_SW_BUILD_READY / B2_BOUNDARY_PRESSURE_BACKPRESSURE_UART_JTAG_PASS / B2_NPU_PHYSICAL_GATE_PASS / B2_PACKET_PATH_SMOKE_PASS / B2_08_COUNTER_RTL_SLICE_GREEN / B2_08_BOARD_STATUS_INTEGRATED_TIMING_PASS / B2_08_BOARD_READ_PARTIAL / B3_MVP_GATE_PASS / B3_FIXED_VECTOR_PASS / B3_COUNTER_BOARD_592_0_PASS / B3_L0_CACHE_BOARD_DIAGNOSTIC_PASS / B3_SPEED_MEASURED / B3_SPEED_GATE_OPEN / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B3_STRICT_DEFERRED_STRUCTURAL / B1_GATE_FALSE / XC7Z020CLG484_2_CONFIRMED / T3_XPM_XSIM_PASS / T3_XC7Z020_OOC_PASS / RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN / GITHUB_ACTIONS_DISABLED`
 
 ## 当前活动目标
 
@@ -16,9 +16,9 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 
 2026-09-12：新 bit/XSA 在 `COM15` 上完成 `probe_b2_state.tcl`，`0x40430000` 状态块读取成功（status=`1`）；command/sample/response/result 实时 accepted/completed=`658/658`、`8/8`、`1/1`、`10/1`，fence snapshot valid。旧 `0x01008000` 软件状态区未由 packet smoke 初始化，仍不可作为账本证据；B2-06～B2-10、B2-GATE 继续未完成。
 
-2026-09-12：第三次改变实现假设的计数器 routed build `build_route_explore_20260912` 在 `xc7z020clg484-2`、200 MHz 通过物理门（WNS=`+0.008 ns`、TNS=`0`、WHS=`+0.036 ns`、THS=`0`、route/DRC hard errors=`0`、DSP48E1=`4`）。同一 bit/XSA 在 COM15 完成 dense `20260912T093643Z`、full-open `20260912T094035Z`、bypass `20260912T094155Z` 三次固定向量运行；黄金 logits、CRC、元数据和结果帧均通过，JTAG 读回 execute/skip=`592/0`、fence snapshot valid。B3-00、B3-06、B3-07 已完成；静态 `2:4`、live-ENeuron、周期/功耗和 B2 发布门仍未完成。
+历史前置记录（2026-09-12、B3-MVP前）：第三次改变实现假设的计数器 routed build `build_route_explore_20260912` 在 `xc7z020clg484-2`、200 MHz 通过物理门（WNS=`+0.008 ns`、TNS=`0`、WHS=`+0.036 ns`、THS=`0`、route/DRC hard errors=`0`、DSP48E1=`4`）。同一 bit/XSA 在 COM15 完成 dense `20260912T093643Z`、full-open `20260912T094035Z`、bypass `20260912T094155Z` 三次固定向量运行；黄金 logits、CRC、元数据和结果帧均通过，JTAG 读回 execute/skip=`592/0`、fence snapshot valid。B3-00、B3-06、B3-07 已完成；当时静态 `2:4`、live-ENeuron、周期/功耗和 B2 发布门仍未完成，后续组级 B3-MVP 已关闭。
 
-2026-09-12 当前基线：HEAD `88bec9e9bdbec1de53ef45d2f22e4275308c0237` 对应的 packet-NPU 在 `xc7z020clg484-2`、200 MHz 通过 routed timing：`WNS=+0.005 ns`、`TNS=0`、`WHS=+0.034 ns`、`THS=0`，route/DRC hard errors 均为 0。`20260912T040206Z` 实板 packet smoke 在 COM15 通过；随后 `0x40430000` 状态块读取成功，command/sample/response/result 为 `658/658`、`8/8`、`1/1`、`10/1`，fence snapshot valid。当前状态是 `B2_08_BOARD_READ_PARTIAL`；B2-GATE、完整错误矩阵、统一时间戳、正式证据包和 ENeuron 动态剪枝 A/B 仍未完成。
+历史 packet-NPU 基线（2026-09-12、B3-MVP前）：HEAD `88bec9e9bdbec1de53ef45d2f22e4275308c0237` 对应的 packet-NPU 在 `xc7z020clg484-2`、200 MHz 通过 routed timing：`WNS=+0.005 ns`、`TNS=0`、`WHS=+0.034 ns`、`THS=0`，route/DRC hard errors 均为 0。`20260912T040206Z` 实板 packet smoke 在 COM15 通过；随后 `0x40430000` 状态块读取成功，command/sample/response/result 为 `658/658`、`8/8`、`1/1`、`10/1`，fence snapshot valid。当时状态是 `B2_08_BOARD_READ_PARTIAL`；B2-GATE、完整错误矩阵、统一时间戳、正式证据包和 ENeuron 动态剪枝 A/B 仍未完成，后续组级 B3-MVP 已关闭。
 
 历史记录（2026-09-12 计数器第一次重建）：核心保留 32 位 AXI-Lite execute/skip 读口，仅将内部累加限制为 24 位（满足 B3-13 的 10000 样本上限）。定向回归 `25 passed`、统一 B2 检查 `123 passed`；该次 Vivado 重建为 `WNS/TNS=-0.010/-0.010 ns`、`WHS=+0.031 ns`，唯一 setup 失败在 AXI DMA S2MM 内部路径，因此该失败 bit/XSA 不得上板。后续第三次重建已通过，见上方当前事实。
 
@@ -108,7 +108,7 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 
 ## 下一动作
 
-主线下一动作并列为 `B3-SPEED-GATE` 与 `B3-POWER-GATE`。现有 SPEED 数据只是单样本嵌套计时：DMA 包含 NPU，Host UART 包住整个流程，不能相加，也没有证明端到端加速；Host live 决策还会扫描 dense L0 并重复计算组贡献，约 996 µs。需先消除该结构性开销，再冻结无 UART 文本传输的请求→结果窗口并重复 A/B。POWER 仪器合同已冻结，但本机无外部功耗仪，状态 `POWER_NOT_MEASURED`；即使完成测量也只能关闭 `B3-POWER-MEASURED`，不能在未冻结重复性、功率/每推理能耗和仪器不确定度门限时关闭目标门。`B3-GOAL-GATE` 仅在速度与功耗目标都实际通过后关闭。严格 2:4 仍是结构实验。
+主线下一动作并列为 `B3-SPEED-GATE` 与 `B3-POWER-GATE`。提交 `82b079e` 已消除 512 次重复 L0 `group_mac`；同源 bit/XSA、新 ELF 三次实板保持 logits、`296/296`、1606 cycles 和 protocol errors=0，`ps_us=827/829/828`，低于历史单次 996 µs。该结果只关闭 `B3_L0_CACHE_BOARD_DIAGNOSTIC`：dense L0 扫描仍存在，且尚未冻结无 UART 文本传输的可重复请求→结果 A/B，因此端到端加速未证明。POWER 仪器合同已冻结，但本机无外部功耗仪，状态 `POWER_NOT_MEASURED`；即使完成测量也只关闭 `B3-POWER-MEASURED`，不能在未冻结重复性、功率/每推理能耗和仪器不确定度门限时关闭目标门。`B3-GOAL-GATE` 仅在速度与功耗目标都实际通过后关闭。严格 2:4 仍是独立结构实验。
 
 ## 2026-09-05 V2 OOC 签核结果
 

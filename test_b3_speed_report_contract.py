@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import tempfile
 import unittest
 from pathlib import Path
@@ -53,6 +54,21 @@ def _speed_record(mode: str, *, cycles: int, execute: int, skip: int, logits: tu
 
 
 class B3SpeedReportContractTests(unittest.TestCase):
+    @staticmethod
+    def _last_packet_transaction(uart: str) -> str:
+        if "B2_PACKET_BEGIN" not in uart:
+            raise AssertionError("UART missing B2_PACKET_BEGIN")
+        packet = uart.rsplit("B2_PACKET_BEGIN", 1)[-1]
+        if not packet.strip():
+            raise AssertionError("last packet transaction is empty")
+        return packet
+
+    def test_uart_without_begin_marker_is_rejected(self) -> None:
+        with self.assertRaises(AssertionError):
+            B3SpeedReportContractTests._last_packet_transaction(
+                "B3_SPEED_SPLIT ps_us=1 dma_us=2\nB3_LIVE_ENEURON_PASS logits=1\n"
+            )
+
     def test_live_l0_cache_board_artifact_is_self_consistent(self) -> None:
         root = Path(__file__).resolve().parent
         artifact = root / "artifacts/logs/b3_live_l0_cache_20260913_82b079e"
@@ -64,6 +80,12 @@ class B3SpeedReportContractTests(unittest.TestCase):
         self.assertEqual(data["execute_groups"], [296, 296, 296])
         self.assertEqual(data["skip_groups"], [296, 296, 296])
         self.assertEqual(data["protocol_errors"], [0, 0, 0])
+        observed_ps: list[int] = []
+        observed_dma: list[int] = []
+        observed_cycles: list[int] = []
+        observed_execute: list[int] = []
+        observed_skip: list[int] = []
+        observed_errors: list[int] = []
         for run in data["run_files"]:
             run_dir = artifact / f"run-{run['run']}"
             for name, field in (
@@ -74,6 +96,89 @@ class B3SpeedReportContractTests(unittest.TestCase):
                 canonical = (run_dir / name).read_text(encoding="utf-8").replace("\r\n", "\n")
                 digest = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
                 self.assertEqual(digest, run[field])
+
+            manifest = json.loads((run_dir / "run_manifest.json").read_text(encoding="utf-8"))
+            self.assertEqual(manifest["status"], "PASS")
+            self.assertEqual(manifest["git_head"], data["git_head"])
+            self.assertEqual(manifest["elf_sha256"].lower(), data["elf_sha256"])
+            self.assertEqual(manifest["bitstream_sha256"].lower(), data["bitstream_sha256"])
+            self.assertEqual(manifest["xsa_sha256"].lower(), data["xsa_sha256"])
+            uart = (run_dir / "uart.log").read_text(encoding="utf-8")
+            packet = self._last_packet_transaction(uart)
+            speed = re.search(r"(?m)^B3_SPEED_SPLIT ps_us=(\d+) dma_us=(\d+)\r?$", packet)
+            result = re.search(
+                r"(?m)^B3_LIVE_ENEURON_PASS sequence=\d+ .*?logits=([-\d,]+) "
+                r"group_reads=(\d+) group_skips=(\d+) .*?$",
+                packet,
+            )
+            self.assertIsNotNone(speed)
+            self.assertIsNotNone(result)
+            assert speed is not None and result is not None
+            observed_ps.append(int(speed.group(1)))
+            observed_dma.append(int(speed.group(2)))
+            self.assertEqual([int(value) for value in result.group(1).split(",")], data["logits"])
+            observed_execute.append(int(result.group(2)))
+            observed_skip.append(int(result.group(3)))
+
+            probe = (run_dir / "post_pass_probe.log").read_text(encoding="utf-8")
+            probe_values = {
+                key: int(value, 0)
+                for key, value in re.findall(r"(?m)^B2_NPU_([A-Z_]+)=(0x[0-9A-Fa-f]+|\d+)\r?$", probe)
+            }
+            observed_cycles.append(probe_values["LAST_COMPUTE_CYCLES"])
+            observed_errors.append(probe_values["PROTOCOL_ERROR_COUNT"])
+            self.assertEqual(probe_values["EXECUTE_GROUP_COUNT"], observed_execute[-1])
+            self.assertEqual(probe_values["SKIP_GROUP_COUNT"], observed_skip[-1])
+
+        self.assertEqual(len(data["run_files"]), 3)
+        self.assertEqual(len(list(artifact.glob("run-*"))), 3)
+        packet_source = (
+            root / "boards/hellozynq/b2_sw/src/packet_main.c"
+        ).read_bytes()
+        self.assertEqual(
+            hashlib.sha256(packet_source).hexdigest(),
+            data["packet_source_sha256"],
+        )
+        self.assertEqual(observed_ps, data["candidate_ps_us"])
+        self.assertEqual(observed_dma, data["dma_us"])
+        self.assertEqual(observed_cycles, data["npu_cycles"])
+        self.assertEqual(observed_execute, data["execute_groups"])
+        self.assertEqual(observed_skip, data["skip_groups"])
+        self.assertEqual(observed_errors, data["protocol_errors"])
+
+    def test_current_management_entries_follow_post_cache_state(self) -> None:
+        root = Path(__file__).resolve().parent
+        b2 = json.loads((root / ".nexus-map/concepts/b2_packet_npu.json").read_text(encoding="utf-8"))
+        p16 = json.loads(
+            (root / ".nexus-map/concepts/p16_board_validation.json").read_text(encoding="utf-8")
+        )
+        concept = json.loads(
+            (root / ".nexus-map/concepts/concept_model.json").read_text(encoding="utf-8")
+        )
+        state = concept["current_repository_state"]
+        p16_node = next(node for node in concept["nodes"] if node["id"] == "p16-board-validation")
+        board_b2 = next(node for node in concept["nodes"] if node["id"] == "board-phase2-b2")
+
+        self.assertEqual(b2["source_identity_rule"], "QUERY_CURRENT_CHECKOUT_AT_RUNTIME")
+        self.assertIn("B3_09_BOARD_PASS", b2["current_status"])
+        self.assertIn("B3_GOAL_GATE_OPEN", b2["current_status"])
+        self.assertTrue(b2["next_gate"].startswith("B3-SPEED-GATE"))
+        self.assertIn("B3-GOAL-GATE", p16["current_gates"])
+        self.assertEqual(state["b3_goal_gate"], "OPEN")
+        self.assertIn("82b079e", p16_node["evidence_gap"])
+        self.assertNotIn("setup_fail", board_b2["implementation_status"])
+        self.assertTrue(str(concept["generated_at"]).startswith("2026-09-13"))
+
+        workflow = (root / "WORKFLOW_STATE.md").read_text(encoding="utf-8")
+        next_action = workflow.split("## 下一动作", 1)[1].split("## ", 1)[0]
+        self.assertIn("82b079e", next_action)
+        git_forensics = (root / ".nexus-map/hotspots/git_forensics.md").read_text(encoding="utf-8")
+        self.assertIn("artifacts/logs/b3_live_l0_cache_20260913_82b079e", git_forensics)
+        self.assertIn("PR #93", git_forensics)
+        self.assertIn("be84596", git_forensics)
+        current = (root / "docs/CURRENT_STATUS.md").read_text(encoding="utf-8")
+        self.assertNotIn("B3_SPEED_PASS", current)
+        self.assertIn("B3_GOAL_GATE_OPEN", current)
 
     def test_current_docs_separate_measurement_from_speed_gate(self) -> None:
         root = Path(__file__).resolve().parent

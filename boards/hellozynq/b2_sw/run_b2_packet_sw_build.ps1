@@ -17,7 +17,7 @@ $repoRoot = (Resolve-Path (Join-Path $scriptRoot '..\..\..')).Path
 
 $gitHead = (& git -C $repoRoot rev-parse HEAD).Trim()
 $gitStatus = @(& git -C $repoRoot status --porcelain --untracked-files=no)
-$gitWorktreeClean = $gitStatus.Count -eq 0
+$gitTrackedWorktreeClean = $gitStatus.Count -eq 0
 $buildRoot = Join-Path $scriptRoot (Join-Path 'build' (Join-Path $gitHead 'direct'))
 $bspRoot = Join-Path $buildRoot 'bsp'
 $appRoot = Join-Path $buildRoot 'app'
@@ -147,7 +147,7 @@ $manifest = [ordered]@{
     schema_version = 1
     generated_at = [DateTime]::UtcNow.ToString('o')
     git_head = $gitHead
-    git_worktree_clean = $gitWorktreeClean
+    git_tracked_worktree_clean = $gitTrackedWorktreeClean
     packet_source_sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $packetSourcePath).Hash.ToLowerInvariant()
     tool = 'XSCT/Vitis 2024.1'
     bitstream = $bitstream
