@@ -101,6 +101,7 @@ class B2PacketBoardContractTests(unittest.TestCase):
         build = (ROOT / "boards/hellozynq/b2_sw/run_b2_packet_sw_build.ps1").read_text(encoding="utf-8")
         runner = (ROOT / "boards/hellozynq/b2_sw/run_b2_packet_board.ps1").read_text(encoding="utf-8")
         for token in (
+            "schema_version = 2",
             "$gitTrackedWorktreeClean",
             "git_tracked_worktree_clean = $gitTrackedWorktreeClean",
             "packet_source_sha256",
@@ -109,6 +110,8 @@ class B2PacketBoardContractTests(unittest.TestCase):
         ):
             self.assertIn(token, build)
         for token in (
+            "if ([int]$manifest.schema_version -ne 2)",
+            "Unsupported packet build manifest schema",
             "if (-not [bool]$manifest.git_tracked_worktree_clean)",
             "Packet build manifest was produced from a dirty tracked worktree",
             "packet_source_sha256",

@@ -6,7 +6,7 @@
 - XSA SHA-256：`135d979d61c629922ee5419e51dd97ef045d9bab79930432816d09f109291d1a`
 - ELF SHA-256：`cc3744e6447320bf5e948235be1154a0b70bb4e730b67a86b95740505cc7aa40`
 - `packet_main.c` SHA-256：`e5fca8f5a5070490838c9e05215f4afb0bb75b440d90f3263f023c81cf03493b`
-- 构建 manifest：`git_worktree_clean=true`
+- 构建 manifest：`git_worktree_clean=true` 是历史字段，仅检查已跟踪文件；v2 摘要将其明确解释为 `git_tracked_worktree_clean=true`
 
 三次运行均为 `PASS`：logits=`165,-18,14,0,0,0,0,0,0,153`，execute/skip=`296/296`，NPU=`1606 cycles`，protocol errors=`0`，DMA=`56 us`。Host `ps_us` 为 `827/829/828`，中位数 `828 us`；历史单次基线为 `996 us`，诊断差值 `-168 us`（约 `-16.9%`）。
 
