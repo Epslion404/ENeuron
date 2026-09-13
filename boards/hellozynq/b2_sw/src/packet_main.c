@@ -685,7 +685,7 @@ static int power_send_command(u32 opcode, u32 epoch, u32 low_word)
     return XST_SUCCESS;
 }
 
-static int power_send_fence(void)
+static int power_send_fence(u32 expected_epoch)
 {
     volatile u32 *const tx = (volatile u32 *)TX_BUFFER_BASE;
     volatile u32 *const rx = (volatile u32 *)RX_BUFFER_BASE;
@@ -698,7 +698,8 @@ static int power_send_fence(void)
     Xil_DCacheInvalidateRange(RX_BUFFER_BASE, MAX_FRAME_BYTES);
     if (response_words != 13U || rx[1] != 0x08000301U || rx[2] != 16U ||
         rx[3] != request_sequence || rx[5] != MODEL_ID || rx[6] != 0U ||
-        rx[8] != 0U || rx[9] != 0U || rx[10] != 0x0F000000U ||
+        rx[8] != 0U || (rx[9] >> 16U) != (expected_epoch & 0xFFFFU) ||
+        rx[10] != (0x0F000000U | ((expected_epoch >> 16U) & 0xFFFFU)) ||
         rx[11] != 0xD0A00000U) {
         return XST_FAILURE;
     }
@@ -780,8 +781,8 @@ static int power_run_inference(u32 mode, u32 *epoch, u32 sample_id)
         }
     }
     /* T1 合同规定每次 fence 只开放一个 8-beat 样本窗口。 */
-    if (power_send_fence() != XST_SUCCESS) {
-        return XST_FAILURE;
+        if (power_send_fence(*epoch) != XST_SUCCESS) {
+            return XST_FAILURE;
     }
     /* Host 域消费 fence 响应后才打开样本窗口，留出 CDC/状态更新时间。 */
     usleep(100U);
