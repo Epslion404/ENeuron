@@ -773,18 +773,9 @@ static int power_configure_mask(u32 mode, u32 epoch)
 
 static int power_run_inference(u32 mode, u32 *epoch, u32 sample_id)
 {
-    if (mode == POWER_MODE_LIVE_ENEURON) {
-        ++(*epoch);
-        if (*epoch == 0U) {
-            *epoch = 1U;
-        }
-        if (power_configure_mask(mode, *epoch) != XST_SUCCESS) {
-            return XST_FAILURE;
-        }
-    }
     /* T1 合同规定每次 fence 只开放一个 8-beat 样本窗口。 */
-        if (power_send_fence(*epoch) != XST_SUCCESS) {
-            return XST_FAILURE;
+    if (power_send_fence(*epoch) != XST_SUCCESS) {
+        return XST_FAILURE;
     }
     /* Host 域消费 fence 响应后才打开样本窗口，留出 CDC/状态更新时间。 */
     usleep(100U);
@@ -793,9 +784,6 @@ static int power_run_inference(u32 mode, u32 *epoch, u32 sample_id)
 
 static int power_activate_initial_mask(u32 mode, u32 epoch)
 {
-    if (mode == POWER_MODE_LIVE_ENEURON) {
-        return XST_SUCCESS;
-    }
     if (power_configure_mask(mode, epoch) != XST_SUCCESS) {
         return XST_FAILURE;
     }
