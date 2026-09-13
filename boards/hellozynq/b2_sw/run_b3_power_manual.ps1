@@ -177,6 +177,7 @@ function Invoke-Xsct(
         $process.Kill()
         throw "XSCT timed out: $TclPath"
     }
+    $process.Refresh()
     if ($process.ExitCode -ne 0) {
         $stderr = if (Test-Path -LiteralPath $StderrPath) { Get-Content -LiteralPath $StderrPath -Raw } else { '' }
         throw "XSCT failed, exit=$($process.ExitCode): $stderr"
