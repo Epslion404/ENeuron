@@ -90,6 +90,51 @@ class B2PacketBoardContractTests(unittest.TestCase):
         ):
             self.assertIn(token, source)
 
+    def test_packet_software_build_exposes_single_elf_power_benchmark(self):
+        source = (ROOT / "boards/hellozynq/b2_sw/run_b2_packet_sw_build.ps1").read_text(encoding="utf-8")
+        for token in (
+            "[switch]$B3PowerBench",
+            "-DB3_POWER_BENCH",
+            "b3_power_bench",
+            "runtime modes: b3_idle, b3_dense, b3_static_mixed, b3_live_eneuron",
+            "benchmark_modes",
+        ):
+            self.assertIn(token, source)
+
+    def test_power_benchmark_uses_runtime_control_and_silent_measurement_window(self):
+        source = (ROOT / "boards/hellozynq/b2_sw/src/packet_main.c").read_text(encoding="utf-8")
+        for token in (
+            "B3_POWER_BENCH",
+            "POWER_CONTROL_BASE 0x01008500U",
+            "POWER_RESULT_BASE 0x01008600U",
+            "POWER_MODE_IDLE",
+            "POWER_MODE_DENSE",
+            "POWER_MODE_STATIC_GATED",
+            "POWER_MODE_LIVE_ENEURON",
+            "POWER_STATUS_READY",
+            "POWER_STATUS_RUNNING",
+            "POWER_STATUS_PASS",
+            "run_power_measurement_window",
+            "minimum_valid_inferences",
+            "NPU_PROTOCOL_ERROR_OFFSET",
+        ):
+            self.assertIn(token, source)
+        window = source.split("static int run_power_measurement_window", 1)[1]
+        window = window.split("static int run_power_benchmark", 1)[0]
+        self.assertNotIn("xil_printf", window)
+
+    def test_power_benchmark_keeps_dense_and_static_at_full_sample_load(self):
+        source = (ROOT / "boards/hellozynq/b2_sw/src/packet_main.c").read_text(encoding="utf-8")
+        inference = source.split("static int power_run_inference", 1)[1]
+        inference = inference.split("static int power_activate_initial_mask", 1)[0]
+        live_branch = inference.split("if (mode == POWER_MODE_LIVE_ENEURON)", 1)[1]
+        self.assertEqual(inference.count("power_send_fence()"), 1)
+        self.assertIn("power_send_fence()", live_branch)
+
+        benchmark = source.split("static int run_power_benchmark", 1)[1]
+        benchmark = benchmark.split("int main(void)", 1)[0]
+        self.assertIn("power_activate_initial_mask(power_mode, epoch)", benchmark)
+
     def test_packet_software_build_reads_single_b3_golden_manifest(self):
         source = (ROOT / "boards/hellozynq/b2_sw/run_b2_packet_sw_build.ps1").read_text(encoding="utf-8")
         self.assertIn("b3_fixed_vector_manifest.json", source)

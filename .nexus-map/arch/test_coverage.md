@@ -10,7 +10,7 @@
 
 B3-11 COM15 hold：MASK_COMMIT 后、下一样本前 `0x54 active=0` / `0x58 pending=1`；样本后 `active=1 pending=0`。pending 必须来自 `mask_state==MASK_PUBLISHED`，不是 `mask_valid`。状态块 `0x40430000`：0x00-0x4C 不变；0x50 runtime_status；0x54/0x58 epoch；0x5C last NPU compute cycles；0x60 protocol errors。
 
-B3-13/14 两轮一致：dense/full-open 592/0 组、2494 cycles、logits 165,-18,14,0,0,0,0,0,0,153；static mixed 296/296、1606 cycles、logits 74,-18,...,114、`decision_source=host_replay_static_mixed`；live-ENeuron 296/296、1606 cycles、dense logits、`decision_source=live_eneuron_s2`。`test_b3_mvp_report_contract.py` 读取 comparison JSON，禁止把 live 与 static 合成一行。只可声称 `group_4way` 动态剪枝正确性 + 局部 NPU 周期差值 888 cycles。`B3-SPEED-MEASURED` 已完成单样本诊断，但 Host live 决策约 996 µs，端到端加速未证明，`B3-SPEED-GATE=OPEN`。B3-POWER 合同测试覆盖六字段、禁止 Vivado 冒充板上功耗、禁止无 traces 关闭测量事项；本机无仪器，`B3-POWER-MEASURED=OPEN / POWER_NOT_MEASURED`，目标门也保持打开。缺口：可重复端到端速度、外部功耗 traces 与目标判据、严格 `2:4`、B2-GATE、网口。
+B3-13/14 两轮一致：dense/full-open 592/0 组、2494 cycles、logits 165,-18,14,0,0,0,0,0,0,153；static mixed 296/296、1606 cycles、logits 74,-18,...,114、`decision_source=host_replay_static_mixed`；live-ENeuron 296/296、1606 cycles、dense logits、`decision_source=live_eneuron_s2`。`B3-SPEED-MEASURED` 已完成单样本诊断，但端到端加速未证明。B3-POWER V2 合同测试现覆盖五轮奇偶反序、`300 s / 10000 correct / 200 mWh`、每分钟 V/A/W、起止照片/累计量、板端 manifest 与哈希、窗口内 JTAG 服务静默，并禁止 Vivado 冒充板上功耗。runner/报告工具已就绪但尚无真实 trace，`B3-POWER-MEASURED=OPEN / POWER_NOT_MEASURED`。
 
 B3-09 Host/板级覆盖：`test_eneuron_group4way_live.py` 覆盖每 meta 保留 2/4、粒度、S2 gain 与 live/static 分离；`test_b2_packet_board_contract.py` 冻结 live 标记、禁止静态 mask 表，并检查 L0 dense/evidence 共享 16 项缓存。历史基线已在 `be84596` 关闭；提交 `82b079e` 的缓存 ELF 又在同源 bit/XSA、COM15 三次 PASS，`ps_us=827/829/828`，logits、`296/296`、1606 cycles 和 protocol errors=0。机器摘要及三组日志哈希由 `test_b3_speed_report_contract.py` 自校验；速度门仍开。
 
@@ -18,7 +18,7 @@ B3-02 共享固定向量 manifest（2026-09-12）：`test_b3_fixed_vector_manife
 
 B3-08a 覆盖（2026-09-12）：run `20260912T102046Z`、manifest `boards/hellozynq/b2_sw/build/73b12c30baf1507876c6bff01059a2c28c919a8d/direct/runs/20260912T102046Z/run_manifest.json`，同一物理通过 bit/XSA、COM15、`b3_static_mixed` 实板 PASS；logits=`74,-18,14,0,0,0,0,0,0,114`，group_4way execute/skip=`296/296`，fence valid=`1`。该粒度不是严格连接级 `2:4`。严格连接级 `2:4`、10000 样本、完整恢复属于 STRICT；板级功耗目标属于 B3-POWER，网口发布属于 B4。
 
-当前测试分层（2026-09-13）：`B3-MVP-GATE` 已关；`B3-SPEED-GATE` 与 `B3-POWER-MEASURED/B3-POWER-GATE` 仍开，二者共同决定 `B3-GOAL-GATE`。`B3-STRICT-GATE` 覆盖严格 `2:4`、10000 样本和完整恢复；`B4-RELEASE-GATE` 覆盖网口发布。B2-GATE 的完整错误/复位账本仍开放。
+当前测试分层（2026-09-13）：`B3-MVP-GATE` 已关；`B3-SPEED-GATE=OPEN` 与 `B3-POWER-MEASURED/B3-POWER-GATE` 仍开，二者共同决定 `B3-GOAL-GATE`。`B3-STRICT-GATE` 覆盖严格 `2:4`、10000 样本和完整恢复；`B4-RELEASE-GATE` 覆盖网口发布。B2-GATE 的完整错误/复位账本仍开放。
 
 计数器物理覆盖（2026-09-12）：当前下载身份是 `be84596`（WNS=+0.045 ns）。历史 `c3a50eb`（WNS=+0.008 ns）与 `88bec9e` packet smoke 只作前置证据，不覆盖本条。dense/full-open/bypass 实板已读回 execute/skip=`592/0`，B3-00/B3-06/B3-07 已关闭。
 

@@ -15,7 +15,7 @@
     "qualification_execution_chain": ["B1-06B6_UART_BASELINE", "B1-06B7_OCM_HIGH_DDR_MINIMAL_REPRODUCTION"],
     "ddr_accesses_so_far": 0
   },
-  "status": "P16_B0_COMPLETE / FASTLANE_V1 / B2_PACKET_NPU_PHYSICAL_PASS / B2_GATE_RELEASE_PENDING / B3_MVP_GATE_PASS / B3_L0_CACHE_BOARD_DIAGNOSTIC_PASS / B3_SPEED_MEASURED / B3_SPEED_GATE_OPEN / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B3_STRICT_PENDING / B4_RELEASE_PENDING",
+  "status": "P16_B0_COMPLETE / FASTLANE_V1 / B2_PACKET_NPU_PHYSICAL_PASS / B2_GATE_RELEASE_PENDING / B3_MVP_GATE_PASS / B3_L0_CACHE_BOARD_DIAGNOSTIC_PASS / B3_SPEED_MEASURED / B3_SPEED_GATE_OPEN / B3_POWER_PROTOCOL_V2_FROZEN / B3_POWER_RUNNER_READY / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B3_STRICT_PENDING / B4_RELEASE_PENDING",
   "current_b2_status": "FUNCTIONAL_PASS / PHYSICAL_PASS / BOARD_STATUS_PARTIAL",
   "stage2_complete": false,
   "current_gates": ["B3-SPEED-GATE", "B3-POWER-MEASURED", "B3-POWER-GATE", "B3-GOAL-GATE"],
@@ -591,6 +591,7 @@
     "current_gates": ["B3-SPEED-GATE", "B3-POWER-MEASURED", "B3-POWER-GATE", "B3-GOAL-GATE"],
     "parallel_goal_gates": ["B3-SPEED-GATE", "B3-POWER-GATE"],
     "mvp_status": "PASS",
+    "power_measurement_protocol": "V2 frozen; manual Type-C inline meter; five alternating four-mode rounds; no real readings yet",
     "mvp_requires": ["B3-03", "B3-04", "B3-09", "B3-11", "B3-13", "B3-14"],
     "mvp_scope": "same-bitstream small-set dense/full-open/static-group_4way/live-ENeuron-group_4way correctness, decision, epoch, and local NPU cycle A/B",
     "goal_requires": ["B3-SPEED-GATE", "B3-POWER-GATE"],

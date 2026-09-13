@@ -14,7 +14,7 @@ B3-MVP-GATE 已关。同一份集中 Vivado 2024.1 bitstream：RTL 身份 `be845
 
 四模式 A/B 两轮一致：dense/full-open 592/0 组、2494 cycles、logits 165,-18,14,0,0,0,0,0,0,153；static mixed 296/296、1606 cycles、logits 74,-18,...,114、`decision_source=host_replay_static_mixed`；live-ENeuron 296/296、1606 cycles、dense logits、`decision_source=live_eneuron_s2`。同源 bit `be84596` / SHA `0ecbe762…3a11`、COM15 系统路径：dense/full-open PS 7 µs、DMA ~60 µs、UART ~66–77 ms；static DMA 56 µs、UART 63 ms；live PS 996 µs、DMA 56 µs。只可声称 `group_4way` 动态剪枝正确性 + 局部 NPU 周期差值 888 cycles。禁止：888 当端到端加速、Vivado 功耗当板上功耗、19-word 当连接级 `2:4`。
 
-`B3-SPEED-MEASURED` 已完成单样本诊断，但 `B3-SPEED-GATE` 因端到端加速未证明而保持打开。功耗仪器合同已冻结，本机无功耗仪，`POWER_NOT_MEASURED`；`B3-POWER-MEASURED` 与 `B3-POWER-GATE` 均保持打开，且完成测量不自动代表降功耗。`B3-GOAL-GATE` 只有速度与功耗目标均通过才能关闭。证据 `artifacts/logs/b3_power_20260913_be84596/`。`B3-STRICT-GATE` 是独立结构实验。后文旧 HEAD 只描述当时证据身份。
+`B3-SPEED-MEASURED` 已完成单样本诊断，但 `B3-SPEED-GATE` 因端到端加速未证明而保持打开。B3 人工功耗协议 V2、统一 benchmark、JTAG 静默 runner 和报告工具已就绪；串联 Type-C 功率计可人工读取，但尚未采集正式五轮数据，因此仍为 `POWER_NOT_MEASURED`。`B3-POWER-MEASURED` 与 `B3-POWER-GATE` 均保持打开，报告不会自动关闭目标门。
 
 pytest 日常主线收集边界由根目录 `pytest.ini` 冻结：递归排除 `archive/`、`.planning/`、Git/Xilinx/pytest 缓存目录，并忽略仍依赖归档前相对路径的根级 legacy 测试；历史文件保留，但不参与当前 ZYNQ7020 日常门。边界合同由 `test_pytest_scope_contract.py` 检查；完整 B2 编排入口为 `run_b2_checks.ps1 -Full`。
 

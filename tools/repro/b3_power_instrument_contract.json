@@ -1,13 +1,72 @@
 {
-  "schema": "eneuron_b3_power_instrument_contract_v1",
+  "schema": "eneuron_b3_power_instrument_contract_v2",
   "status": "POWER_NOT_MEASURED",
-  "仪器": null,
-  "测点": null,
-  "采样率": null,
-  "空闲基线": null,
-  "负载同步": null,
-  "积分窗口": null,
-  "discovery": "host has no USBTMC/VISA/pyvisa and no named power meter; COM15/COM35 are CH340 UART, COM32/FTDI 6014 are JTAG, not a wattmeter",
+  "仪器": "串联型目视 Type-C 功率计；具体型号与标称准确度待每次测量记录",
+  "测点": "固定 5 V 电源与开发板 Type-C 供电输入之间，测量整板输入功耗",
+  "采样率": "累计 mWh/mAh 在窗口起止人工读取；V/A/W 每分钟人工记录一次",
+  "空闲基线": "同一 bitstream 和统一 benchmark，模型已加载且不发送推理请求",
+  "负载同步": "统一 benchmark 定时窗口；JTAG 物理连接不变，窗口内 XSCT 与 hw_server 均停止",
+  "积分窗口": "至少 300 秒、至少 10000 个正确样本且累计电量差至少 200 mWh",
+  "measurement_method": "manual_cumulative_meter",
+  "power_input": "type_c_inline_whole_board",
+  "display_resolution": {
+    "voltage_v": 0.00001,
+    "current_a": 0.00001,
+    "power_w": 0.00001,
+    "mah": 1,
+    "mwh": 1
+  },
+  "instrument_accuracy": null,
+  "runner": "boards/hellozynq/b2_sw/run_b3_power_manual.ps1",
+  "report_builder": "build_b3_manual_power_report.py",
+  "minimum_delta_mwh": 200,
+  "minimum_duration_seconds": 300,
+  "minimum_valid_inferences": 10000,
+  "minimum_rounds": 5,
+  "round_order": {
+    "odd": [
+      "b3_idle",
+      "b3_dense",
+      "b3_static_mixed",
+      "b3_live_eneuron"
+    ],
+    "even": [
+      "b3_live_eneuron",
+      "b3_static_mixed",
+      "b3_dense",
+      "b3_idle"
+    ]
+  },
+  "warmup_inferences": 1000,
+  "jtag_window_state": {
+    "physically_connected": true,
+    "xsct_active": false,
+    "hw_server_active": false,
+    "scan_active": false
+  },
+  "evidence": {
+    "manual_observation_csv": true,
+    "start_photo": true,
+    "end_photo": true,
+    "board_result_manifest": true
+  },
+  "modes": [
+    "b3_idle",
+    "b3_dense",
+    "b3_static_mixed",
+    "b3_live_eneuron"
+  ],
+  "primary_metric": "energy_per_correct_inference_mj",
+  "secondary_metrics": [
+    "whole_board_average_power_w",
+    "idle_subtracted_dynamic_power_w"
+  ],
+  "power_gate_rule": {
+    "comparison": "b3_live_eneuron_vs_b3_dense",
+    "statistic": "median_energy_per_correct_inference_mj",
+    "requirement": "live must be lower than dense by more than the conservative bound derived from the recorded instrument accuracy",
+    "automatic_close": false
+  },
   "bitstream_rtl": "be84596",
   "part": "xc7z020clg484-2"
 }

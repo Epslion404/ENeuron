@@ -42,7 +42,7 @@
 - clean worktree 重建，确认最终可复现 manifest。
 - B2-06～B2-10 的多 packet、完整错误矩阵、复位账本、统一时间戳和正式机器证据包。
 - B2-GATE 发布门。
-- B3-MVP-GATE 已关。`B3-SPEED-MEASURED` 已完成，但它只是单样本嵌套计时诊断；`B3-SPEED-GATE` 因端到端加速未证明而保持打开。功耗仪器合同已冻结但仍是 `POWER_NOT_MEASURED`；`B3-POWER-MEASURED` 与 `B3-POWER-GATE` 都未关闭，完成测量也不能自动代表降功耗。`B3-GOAL-GATE` 因此保持打开。B2-GATE 挡网口发布。
+- B3-MVP-GATE 已关。`B3-SPEED-MEASURED` 已完成，但它只是单样本嵌套计时诊断；`B3-SPEED-GATE` 因端到端加速未证明而保持打开。B3 人工功耗协议 V2、统一 benchmark、JTAG 静默 runner 和报告工具已就绪，但没有真实读数，仍是 `POWER_NOT_MEASURED`；`B3-POWER-MEASURED` 与 `B3-POWER-GATE` 都未关闭。
 - 计数器对外仍保持 32 位 AXI-Lite 读口；核心内部加法收窄为 24 位，可覆盖 B3-13 的 10000 样本上限（`592 * 10000 = 5,920,000 < 2^24`）。
 - Pulse-Mini-L/L2 集成。它们是冻结的候选/历史支线，不是当前日常门。
 
@@ -50,7 +50,7 @@
 
 ## 下一步
 
-1. 主线并列为 `B3-SPEED-GATE` 与 `B3-POWER-GATE`：提交 `82b079e` 已消除 512 次重复 L0 `group_mac`，三次实板保持数值/计数正确且 `ps_us=827/829/828`，低于历史单次 996；但 dense L0 扫描仍存在，也尚未冻结不含 UART 的重复端到端 A/B。功耗线仍需要外部仪器和明确统计门限。当前分别为 `END_TO_END_ACCELERATION_NOT_PROVEN` 与 `POWER_NOT_MEASURED`。
+1. 主线并列为 `B3-SPEED-GATE` 与 `B3-POWER-GATE`：速度线仍需冻结不含 UART 的重复端到端 A/B；功耗线的测量协议已冻结，下一步是在 clean 提交身份上重建统一 ELF，并用串联 Type-C 功率计采集五轮四模式真实数据。当前分别为 `END_TO_END_ACCELERATION_NOT_PROVEN` 与 `POWER_NOT_MEASURED`。
 2. B2-GATE 剩余项并行，挡网口发布。
 3. 不把 888 cycle 写成端到端加速，不用 Vivado 估算冒充板上功耗。
 

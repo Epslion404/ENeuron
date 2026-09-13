@@ -4,7 +4,7 @@
   "label": "B2 packet-NPU integration",
   "deployment_target_part": "xc7z020clg484-2",
   "source_identity_rule": "QUERY_CURRENT_CHECKOUT_AT_RUNTIME",
-  "current_status": "FUNCTIONAL_PASS / PHYSICAL_PASS / BOARD_STATUS_PARTIAL / B3_MVP_GATE_PASS / B3_09_BOARD_PASS / B3_L0_CACHE_BOARD_DIAGNOSTIC_PASS / B3_SPEED_GATE_OPEN / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B2_GATE_PENDING",
+  "current_status": "FUNCTIONAL_PASS / PHYSICAL_PASS / BOARD_STATUS_PARTIAL / B3_MVP_GATE_PASS / B3_09_BOARD_PASS / B3_L0_CACHE_BOARD_DIAGNOSTIC_PASS / B3_SPEED_GATE_OPEN / B3_POWER_PROTOCOL_V2_FROZEN / B3_POWER_RUNNER_READY / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B2_GATE_PENDING",
   "physical_evidence_head": "88bec9e9bdbec1de53ef45d2f22e4275308c0237",
   "live_eneuron_host_source_head": "fe25a7081f6a93e9d63c888ea581dc5595d84b4a",
   "commits": {
@@ -189,7 +189,7 @@
     "release": "B4-RELEASE-GATE; Ethernet end-to-end A/B and network-load deltas; board power target belongs to B3-POWER",
     "non_blocking_for_mvp": ["B2-GATE", "strict connection-level 2:4", "10000 samples", "full recovery matrix", "Ethernet", "external power measurement"]
   },
-  "next_gate": "B3-SPEED-GATE: freeze an end-to-end request-to-result window without UART text, then run symmetric repeated dense/live A/B; B3-POWER-MEASURED proceeds when an external meter is available.",
+  "next_gate": "B3-SPEED-GATE still needs a frozen repeatable request-to-result window; B3-POWER-MEASURED now needs a clean benchmark build followed by five alternating manual meter rounds.",
   "forbidden_claims": [
     "full packet-path/error matrix validated on board",
     "full B2-08 ledger/error matrix validated on board",

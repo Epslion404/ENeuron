@@ -4,7 +4,7 @@
 > verified_at: 2026-09-13
 > provenance: Git checkout 身份以命令实时输出为准；板级签核仍绑定 RTL `be84596` 与对应 bit/XSA/ELF/manifest。
 
-当前 B3 依赖（2026-09-13）：B3-MVP-GATE 已在 COM15 与 RTL `be84596` 的同源 bitstream 上关闭；dense/full-open/static/live 数值、epoch、execute/skip 与局部周期已有证据。当前并行依赖是 `B3-SPEED-GATE` 和 `B3-POWER-MEASURED/B3-POWER-GATE`，二者都通过后才关闭 `B3-GOAL-GATE`。严格连接级 `2:4` 仍是独立 B3-08b/STRICT 实验。
+当前 B3 依赖（2026-09-13）：B3-MVP-GATE 已关闭。当前并行依赖是 `B3-SPEED-GATE` 和 `B3-POWER-MEASURED/B3-POWER-GATE`；功耗 V2 测量协议与 runner 已冻结，但必须先在 clean 提交身份上重建统一 ELF，再采集五轮四模式人工数据。二者都通过后才关闭 `B3-GOAL-GATE`。
 
 当前依赖边界：`xc7z020clg484-2` NPU + ENeuron 动态剪枝是活动主线；`archive/legacy/` 不参与日常门。B3 速度/功耗目标不依赖完整 B2-GATE、严格连接级 `2:4`、10000 样本、完整恢复或网口。严格结构与长稳工作进入 `B3-STRICT-GATE`；外部板级功耗属于 B3-POWER，B4 只补网口发布及其负载差异。
 

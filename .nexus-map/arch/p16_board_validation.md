@@ -8,7 +8,7 @@
 
 authoritative_sources: `docs/planning/TODO.md`、`task_plan.md`、`findings.md`、`progress.md`
 
-当前工作流上下文（2026-09-13）：packet-NPU 在 `xc7z020clg484-2`、200 MHz 通过 routed timing 与实板数值检查，B3-MVP-GATE 已关闭。提交 `82b079e` 的 Host 缓存候选消除 512 次重复 L0 `group_mac`，新 ELF 三次实板保持正确并得到 `ps_us=827/829/828`；历史单次为 996。端到端加速仍未证明，外部功耗尚未测量；严格 `2:4` 继续作为独立结构实验。
+当前工作流上下文（2026-09-13）：packet-NPU 在 `xc7z020clg484-2`、200 MHz 通过 routed timing 与实板数值检查，B3-MVP-GATE 已关闭。端到端加速仍未证明。人工功耗协议 V2、统一 benchmark 与 JTAG 静默 runner 已冻结，下一步在 clean 身份上重建 ELF 后采集五轮四模式数据；尚无真实读数，仍为 `POWER_NOT_MEASURED`。严格 `2:4` 继续作为独立结构实验。
 
 计数器物理与实板状态（2026-09-12）：构建绑定 HEAD `c3a50eb`，最终 `WNS/TNS=+0.008/0 ns`、`WHS/THS=+0.036/0 ns`，route/DRC hard errors=0、DSP48E1=4；bit/XSA SHA-256 为 `5c6ebc07…c910a88`/`86288374…177a614`。后续 dense/full-open/bypass 实板均读回 execute/skip=`592/0`，static mixed 为 `296/296`，因此基础数值与组级静态门已关闭。
 
@@ -20,7 +20,7 @@ B1-06B6 实板复测（2026-09-08）：运行目录为 `artifacts/logs/hellozynq
 
 P16 的目标是在 HelloZynq `xc7z020clg484-2` 上依次打通 PL、PS/DDR/网口、DMA、`64→32→10` 传统 NPU、ENeuron 局部门控和网口端到端 A/B。阶段门只由同一身份链上的实板证据关闭；仿真和 OOC 可用于定位，但不能代替 bitstream、JTAG、UART、Host/网口日志与现场观察。
 
-当前 B3 入口：基础 dense/bypass、full-open、Host 静态 `group_4way` 和 B3-09 live-ENeuron 实板均已关闭，B3-MVP-GATE 已通过。Host live L0 contribution 缓存候选也已完成三次同源实板诊断；下一步是冻结不含 UART 的重复端到端速度窗口，而不是继续把单样本 `ps_us` 外推为目标通过。严格连接级 `2:4` 仍是 B3-08b。
+当前 B3 入口：基础 dense/bypass、full-open、Host 静态 `group_4way` 和 B3-09 live-ENeuron 实板均已关闭，B3-MVP-GATE 已通过。下一步并列为冻结不含 UART 的重复端到端速度窗口，以及执行已冻结的 V2 人工功耗五轮测量；严格连接级 `2:4` 仍是 B3-08b。
 
 B3-08a 已完成（2026-09-12）：同一物理通过 bit/XSA、COM15、`b3_static_mixed` 实板 run `20260912T102046Z` 通过，logits=`74,-18,14,0,0,0,0,0,0,114`，fence valid=`1`，execute/skip=`296/296`。mask 粒度是 `group_4way`；B3-08b 属于后续 STRICT。
 

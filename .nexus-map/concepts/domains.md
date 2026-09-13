@@ -6,7 +6,7 @@
 
 ## 当前权威概念边界（2026-09-13，B3-MVP-GATE 已关）
 
-器件 `xc7z020clg484-2`，checkout 身份以 Git 实时输出为准。B3-MVP-GATE 已关：组级 `group_4way` live-ENeuron 正确，局部 NPU 周期 dense 2494 → gated 1606（差值 888 cycles）。pending epoch 来自 `mask_state==MASK_PUBLISHED`，不是 `mask_valid`。`B3-SPEED-MEASURED` 已完成单样本诊断，但 `B3-SPEED-GATE=OPEN`；功耗合同已冻结但 `B3-POWER-MEASURED=OPEN / POWER_NOT_MEASURED`，`B3-POWER-GATE=OPEN`。严格连接级 `2:4` 是结构实验。不可声称端到端或网口加速、测得功耗、B2-GATE。
+器件 `xc7z020clg484-2`，checkout 身份以 Git 实时输出为准。B3-MVP-GATE 已关：组级 `group_4way` live-ENeuron 正确，局部 NPU 周期 dense 2494 → gated 1606（差值 888 cycles）。`B3-SPEED-GATE=OPEN`。B3 人工功耗协议 V2 与 runner 已冻结，仪表可人工读取，但尚无正式五轮数据，故 `B3-POWER-MEASURED=OPEN / POWER_NOT_MEASURED / B3-POWER-GATE=OPEN`。严格连接级 `2:4` 是结构实验。
 
 - `B3_MVP_GATE_PASS`：同一份集中 Vivado 2024.1 bitstream（RTL `be84596`，200 MHz FCLK0）上关闭 B3-04/09/11/13/14。WNS=+0.045 ns，TNS=0，WHS=+0.036 ns，THS=0，route/DRC hard errors=0，DSP48E1=4。bit SHA-256=`0ecbe76274c39418f2a60a88358d3ff6f09f5a2ed73a44a3a419c34eb91d3a11`，XSA SHA-256=`135d979d61c629922ee5419e51dd97ef045d9bab79930432816d09f109291d1a`。只可声称 `group_4way` 动态剪枝正确性 + 局部 NPU 周期差值 888 cycles。
 - `B3_SPEED_MEASURED / B3_SPEED_GATE_OPEN`：COM15 同源 bit 上 dense/full-open/static/live 已分开 NPU/PS/DMA/Host UART。888 cycle ≈ 4.4 µs，小于 Host live 决策约 996 µs；DMA 包含 NPU、UART 又包含整个流程，字段不可相加。`claim=local_npu_cycle_delta_only`。证据 `artifacts/logs/b3_speed_20260912_be84596/`。
