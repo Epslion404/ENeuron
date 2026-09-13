@@ -2207,3 +2207,9 @@
 - 读数跨度 `21:37:19–22:05:30`（1691 s），累计 `152 mAh / 735 mWh`，折算平均输入功率约 `1.56475458 W`。
 - 停止后 probe 读回 `valid_inferences=9094863`、`failed_inferences=0`、`protocol_error_count=0`；状态为停止前的 RUNNING 快照，未自然完成 3600 s 窗口。
 - 该记录未提供起止照片，标记为 `EARLY_TERMINATED_LIVE_ENEURON_OBSERVATION`，不计入正式五轮四模式功耗合同；`B3-POWER-MEASURED`、`B3-POWER-GATE` 和 `B3-GOAL-GATE` 保持未关闭。
+
+## 2026-09-13 TODO 状态校正
+
+- 用户提供的 idle、两轮 dense、static mixed、live ENeuron 读数已核对并进入 `artifacts/logs/b3_power_manual/`；TODO 与 Nexus 不再写成“没有真实读数”。
+- 正式门仍保持未关闭：这些窗口均为人工提前结束或缺少起止照片，未形成五轮四模式完整配对；状态统一为 `POWER_ENGINEERING_OBSERVATIONS_INCOMPLETE_CONTRACT`。
+- B3-17～B3-22 保持开放；B3-21 明确已有工程观察但仍缺同身份完整 A/B，B3-POWER-GATE 仍要求五轮每次正确推理能耗中位数及超过仪表不确定度的改善。

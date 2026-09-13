@@ -8,7 +8,7 @@
 
 authoritative_sources: `docs/planning/TODO.md`、`task_plan.md`、`findings.md`、`progress.md`
 
-当前工作流上下文（2026-09-13）：packet-NPU 在 `xc7z020clg484-2`、200 MHz 通过 routed timing 与实板数值检查，B3-MVP-GATE 已关闭。端到端加速仍未证明。人工功耗协议 V2、统一 benchmark 与 JTAG 静默 runner 已冻结，下一步在 clean 身份上重建 ELF 后采集五轮四模式数据；尚无真实读数，仍为 `POWER_NOT_MEASURED`。严格 `2:4` 继续作为独立结构实验。
+当前工作流上下文（2026-09-13）：packet-NPU 在 `xc7z020clg484-2`、200 MHz 通过 routed timing 与实板数值检查，B3-MVP-GATE 已关闭。端到端加速仍未证明。人工功耗协议 V2、统一 benchmark 与 JTAG 静默 runner 已冻结，已有 idle、dense、static mixed、live ENeuron 的串联 Type-C 整板工程观察；由于窗口/照片/五轮配对合同未完成，状态为 `POWER_ENGINEERING_OBSERVATIONS_INCOMPLETE_CONTRACT`，下一步仍是在 clean 身份上采集正式五轮四模式数据。严格 `2:4` 继续作为独立结构实验。
 
 计数器物理与实板状态（2026-09-12）：构建绑定 HEAD `c3a50eb`，最终 `WNS/TNS=+0.008/0 ns`、`WHS/THS=+0.036/0 ns`，route/DRC hard errors=0、DSP48E1=4；bit/XSA SHA-256 为 `5c6ebc07…c910a88`/`86288374…177a614`。后续 dense/full-open/bypass 实板均读回 execute/skip=`592/0`，static mixed 为 `296/296`，因此基础数值与组级静态门已关闭。
 

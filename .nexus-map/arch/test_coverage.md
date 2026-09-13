@@ -10,7 +10,9 @@
 
 B3-11 COM15 hold：MASK_COMMIT 后、下一样本前 `0x54 active=0` / `0x58 pending=1`；样本后 `active=1 pending=0`。pending 必须来自 `mask_state==MASK_PUBLISHED`，不是 `mask_valid`。状态块 `0x40430000`：0x00-0x4C 不变；0x50 runtime_status；0x54/0x58 epoch；0x5C last NPU compute cycles；0x60 protocol errors。
 
-B3-13/14 两轮一致：dense/full-open 592/0 组、2494 cycles、logits 165,-18,14,0,0,0,0,0,0,153；static mixed 296/296、1606 cycles、logits 74,-18,...,114、`decision_source=host_replay_static_mixed`；live-ENeuron 296/296、1606 cycles、dense logits、`decision_source=live_eneuron_s2`。`B3-SPEED-MEASURED` 已完成单样本诊断，但端到端加速未证明。B3-POWER V2 合同测试现覆盖五轮奇偶反序、`300 s / 10000 correct / 200 mWh`、每分钟 V/A/W、起止照片/累计量、板端 manifest 与哈希、窗口内 JTAG 服务静默，并禁止 Vivado 冒充板上功耗。runner/报告工具已就绪但尚无真实 trace，`B3-POWER-MEASURED=OPEN / POWER_NOT_MEASURED`。
+B3-13/14 两轮一致：dense/full-open 592/0 组、2494 cycles、logits 165,-18,14,0,0,0,0,0,0,153；static mixed 296/296、1606 cycles、logits 74,-18,...,114、`decision_source=host_replay_static_mixed`；live-ENeuron 296/296、1606 cycles、dense logits、`decision_source=live_eneuron_s2`。`B3-SPEED-MEASURED` 已完成单样本诊断，但端到端加速未证明。B3-POWER V2 合同测试现覆盖五轮奇偶反序、`300 s / 10000 correct / 200 mWh`、每分钟 V/A/W、起止照片/累计量、板端 manifest 与哈希、窗口内 JTAG 服务静默，并禁止 Vivado 冒充板上功耗。runner/报告工具已就绪；已有真实人工读数但尚未形成正式完整 trace/五轮证据，`B3-POWER-MEASURED=OPEN / POWER_ENGINEERING_OBSERVATIONS_INCOMPLETE_CONTRACT`。
+
+功耗工程观察已覆盖 idle、两轮 dense、static mixed、live ENeuron；平均输入功率约为 `1.57600 / 1.58028 / 1.56912 / 1.56701 / 1.56475 W`（按各窗口累计 mWh 折算）。测量点是整板 Type-C 输入，窗口提前结束且无起止照片，不能作为正式合同门或纯 NPU 功耗证据。
 
 B3-09 Host/板级覆盖：`test_eneuron_group4way_live.py` 覆盖每 meta 保留 2/4、粒度、S2 gain 与 live/static 分离；`test_b2_packet_board_contract.py` 冻结 live 标记、禁止静态 mask 表，并检查 L0 dense/evidence 共享 16 项缓存。历史基线已在 `be84596` 关闭；提交 `82b079e` 的缓存 ELF 又在同源 bit/XSA、COM15 三次 PASS，`ps_us=827/829/828`，logits、`296/296`、1606 cycles 和 protocol errors=0。机器摘要及三组日志哈希由 `test_b3_speed_report_contract.py` 自校验；速度门仍开。
 

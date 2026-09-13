@@ -6,7 +6,9 @@
 
 当前板级状态：低地址 `0x01000000–0x010FFFFF` 的 1 MiB DDR 已完成三次冷启动；高地址诊断尚未真正访问 DDR。CH340 以 `VID_1A86:PID_7523` 识别，COM 号不固定；packet 实板使用 COM15。B1C PHY/UDP 继续后置。完整 `B1-GATE` 和 `B2-GATE` 仍是网口发布门槛，不阻塞板上 NPU 墙钟/功耗测量。
 
-当前 NPU 集成状态（2026-09-13）：B3 目标门管理修正已由 PR #91 合并，L0 contribution 缓存与三次实板诊断已由 PR #93 合并；`B3-MVP-GATE` 已关，`B3-SPEED-MEASURED` 已完成单样本诊断，但 `B3-SPEED-GATE` 仍开。下载/签核物理身份是 RTL `be84596`（200 MHz `WNS=+0.045 ns`、DSP48E1=4，bit SHA-256=`0ecbe762…3a11`）；缓存实现提交为 `82b079e`。B3 人工功耗协议 V2 与统一 benchmark/runner 已冻结，2026-09-13 已有一轮 `b3_idle` 基线和一轮提前终止的 `b3_dense` 观察，均不满足完整合同，当前 checkout 身份以 Git 实时输出为准。
+当前 NPU 集成状态（2026-09-13）：B3 目标门管理修正已由 PR #91 合并，L0 contribution 缓存与三次实板诊断已由 PR #93 合并；`B3-MVP-GATE` 已关，`B3-SPEED-MEASURED` 已完成单样本诊断，但 `B3-SPEED-GATE` 仍开。下载/签核物理身份是 RTL `be84596`（200 MHz `WNS=+0.045 ns`、DSP48E1=4，bit SHA-256=`0ecbe762…3a11`）；缓存实现提交为 `82b079e`。B3 人工功耗协议 V2 与统一 benchmark/runner 已冻结，已取得 `b3_idle`、两轮 `b3_dense`、`b3_static_mixed` 和 `b3_live_eneuron` 的串联 Type-C 人工读数；这些都是提前结束或缺少照片/正式轮次的工程观察，不满足完整合同，当前 checkout 身份以 Git 实时输出为准。
+
+功耗工程观察快照（不关闭任何功耗门）：idle `2033 s / 890 mWh / 1.57600 W`；dense 两轮分别为 `1663 s / 730 mWh / 1.58028 W`、`1684 s / 734 mWh / 1.56912 W`；static mixed `1576 s / 686 mWh / 1.56701 W`；live ENeuron `1691 s / 735 mWh / 1.56475 W`。测点是 Type-C 整板输入，JTAG 物理连接保持，窗口内未运行 XSCT/hw_server；由于窗口未按正式合同完成、未提供起止照片且未形成五轮四模式配对，统一标记为 `POWER_ENGINEERING_OBSERVATIONS_INCOMPLETE_CONTRACT`，不能据此声称纯 NPU 功耗或功耗门通过。
 
 当前日常主线是 `B3-SPEED-GATE` / `B3-POWER-GATE` / `B3-GOAL-GATE`。单样本诊断在同源 `be84596` 上看到 888 cycle ≈ 4.4 µs 的局部差值，但 DMA 包含 NPU、Host UART 又包住整个流程，三个量不能相加；当前状态是 `END_TO_END_ACCELERATION_NOT_PROVEN`。严格连接级 `2:4`（B3-08b）是结构/精度实验，不是加速硬门。禁止把 888 cycle 写成端到端加速，禁止把完成外部测量写成降功耗通过，禁止用 Vivado 估算冒充板上功耗，禁止用 19-word 冒充连接级 2:4。
 
@@ -708,9 +710,9 @@ B3 现在分三条线，互不顶替：
 - [ ] B3-18：将 group mask 从逐组扫描改为 active-group 索引表。mask commit 时生成紧凑 active list 和权重地址，推理时只遍历 active group；必须保持 dense/full-open 逐 beat 一致，并对 static/live 分别核对 execute/skip、周期和首错上下文。
 - [ ] B3-19：补齐 skip 路径的硬件活动抑制。对 skip group 禁止模型 BRAM 读取、DSP 输入寄存器更新和无效乘法器翻转；对等待 DMA、结果输出和计算空闲状态加入寄存器/DSP/BRAM clock-enable。优先使用 CE，不直接用组合逻辑门控时钟；重跑时序、资源、仿真和实板正确性。
 - [ ] B3-20：冻结 live ENeuron mask 更新粒度并测量摊销。比较每样本、每 `K` 样本（`K=16/32/64`）和每 batch 更新；记录 mask 计算、提交和激活耗时，确认动态决策收益没有被 PS 开销抵消。当前 live 测量只在窗口开始计算一次 mask，不能误写成每样本动态决策。
-- [ ] B3-21：建立功耗归因 A/B。使用同一 bitstream、ELF、JTAG 状态、温度和完整窗口配对测量 `b3_idle`、`b3_dense`、`b3_static_mixed`、`b3_live_eneuron`，计算 `P_incremental = P_mode - P_idle`；该差值只称为整板推理增量功耗，不称为纯 NPU 功耗。主指标仍为每次正确推理总能耗；若要声称纯 NPU，必须另测 FPGA/NPU 电源轨或使用 NPU 关闭对照 bitstream。
+- [ ] B3-21：建立功耗归因 A/B。使用同一 bitstream、ELF、JTAG 状态、温度和完整窗口配对测量 `b3_idle`、`b3_dense`、`b3_static_mixed`、`b3_live_eneuron`，计算 `P_incremental = P_mode - P_idle`；该差值只称为整板推理增量功耗，不称为纯 NPU 功耗。当前已有上述四模式的提前结束工程观察，但身份、窗口照片和五轮配对证据仍不完整，不能关闭本项。主指标仍为每次正确推理总能耗；若要声称纯 NPU，必须另测 FPGA/NPU 电源轨或使用 NPU 关闭对照 bitstream。
 - [ ] B3-22：建立优化接受门。每项 RTL/软件优化都必须绑定同一输入、模型、bit/XSA/ELF 身份，先通过数值/协议回归，再比较 NPU 周期、端到端吞吐、整板平均功率和每次正确推理能耗；收益小于仪器不确定度或破坏可复现性时回退该项，不修改既有历史证据。
-- [ ] B3-POWER-MEASURED：按冻结合同 `docs/planning/NPU_B3_POWER_INSTRUMENT_CONTRACT_V2.md`，使用统一 `b3_power_bench` ELF 与 `run_b3_power_manual.ps1` 完成至少五轮四模式人工测量。奇偶轮正反顺序交替；每窗口至少 300 秒、负载模式至少 10000 个正确推理、累计差至少 200 mWh；窗口内 XSCT/hw_server/扫描静默，保存每分钟 V/A/W、起止累计量、照片、板端 manifest 和哈希。dense、static mixed 和 live 已有提前终止工程观察（live：1691 s、735 mWh、9094863 次有效推理），但完整窗口、照片、正式重复轮次和完整合同证据仍未齐全，状态为 `POWER_ENGINEERING_OBSERVATIONS_INCOMPLETE_CONTRACT`。
+- [ ] B3-POWER-MEASURED：按冻结合同 `docs/planning/NPU_B3_POWER_INSTRUMENT_CONTRACT_V2.md`，使用统一 `b3_power_bench` ELF 与 `run_b3_power_manual.ps1` 完成至少五轮四模式人工测量。奇偶轮正反顺序交替；每窗口至少 300 秒、负载模式至少 10000 个正确推理、累计差至少 200 mWh；窗口内 XSCT/hw_server/扫描静默，保存每分钟 V/A/W、起止累计量、照片、板端 manifest 和哈希。当前已有 idle、两轮 dense、static mixed 和 live 的提前终止工程观察（live：1691 s、735 mWh、9094863 次有效推理），但部分观察身份不完整，且缺少起止照片、正式五轮配对和完整合同证据，状态为 `POWER_ENGINEERING_OBSERVATIONS_INCOMPLETE_CONTRACT`，不是“无读数”。
 - [ ] B3-POWER-GATE：测量协议已经冻结，主指标为五轮“每次正确推理总能耗”中位数。只有 live 相对 dense 更低、正确性保持，且差值严格超过按本次仪表标称准确度计算的保守不确定度界限，才能经人工审核关闭；报告工具固定保持 `NOT_PROVEN/OPEN`。禁止用单轮结果、负结果或 Vivado 估算关闭本门；不要求 2:4 或网口。
 - [ ] B3-GOAL-GATE：只有 `B3-SPEED-GATE` 与 `B3-POWER-GATE` 都实际通过才可关闭。这是对准“加速推理、降低功耗”的日常门，不要求 `B3-STRICT-GATE`；完成诊断、完成测量或得到负结果不能替代目标通过。关闭本门也不等于网口发布或 2:4 完成。
 - [ ] B3-STRICT-GATE：先通过 B3-MVP-GATE，再完成 B3-01、B3-05、B3-08b、B3-10、B3-12、B3-15、B3-16 和 B3-RECOVERY。本门只证明连接级 `2:4` 的正确性与长稳定性，不挡 `B3-SPEED-GATE`/`B3-POWER-GATE`/`B3-GOAL-GATE`，也不作为 B4 网口发布的硬前置。在微结构未改为真正少读/少开 DSP 前，不得把本门写成加速或降功耗证明。
