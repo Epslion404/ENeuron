@@ -1,0 +1,13 @@
+{
+  "mode": "b3_live_eneuron",
+  "warmup_samples": 1000,
+  "window_seconds": 3600,
+  "start_delay_seconds": 30,
+  "minimum_valid_inferences": 10000,
+  "git_head": "c7ce8fda7582c09c1edd2a50b421e62137875050",
+  "bitstream": "D:\\Documents\\Code\\ENeuron-board-b0-pr-review\\boards\\hellozynq\\b2_hw\\build\\hello_zynq_b2.bit",
+  "ps7_init": "D:\\Documents\\Code\\ENeuron-board-b0-pr-review\\boards\\hellozynq\\b2_sw\\build\\c7ce8fda7582c09c1edd2a50b421e62137875050\\direct\\ps7_init.tcl",
+  "elf": "D:\\Documents\\Code\\ENeuron-board-b0-pr-review\\boards\\hellozynq\\b2_sw\\build\\c7ce8fda7582c09c1edd2a50b421e62137875050\\direct\\out\\b2_packet_b3_power_bench.elf",
+  "elf_sha256": "6003e766b83cda9af2255dd735f58e631b98adf2412f012f4f32a92ec8b4605c",
+  "started_utc": "2026-09-13T13:23:40.2382696Z"
+}

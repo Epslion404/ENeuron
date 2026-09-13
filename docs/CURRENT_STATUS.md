@@ -4,9 +4,9 @@
 
 ## 结论
 
-当前项目状态为：`FUNCTIONAL_PASS / PHYSICAL_PASS / B3_MVP_GATE_PASS / B3_L0_CACHE_BOARD_DIAGNOSTIC_PASS / B3_SPEED_MEASURED / B3_SPEED_GATE_OPEN / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B3_STRICT_DEFERRED_STRUCTURAL / B2_GATE_PENDING`。
+当前项目状态为：`FUNCTIONAL_PASS / PHYSICAL_PASS / B3_MVP_GATE_PASS / B3_L0_CACHE_BOARD_DIAGNOSTIC_PASS / B3_SPEED_MEASURED / B3_SPEED_GATE_OPEN / B3_POWER_SINGLE_ROUND_IDLE_MEASURED / B3_POWER_DENSE_BASELINE_COMPLETE / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B3_STRICT_DEFERRED_STRUCTURAL / B2_GATE_PENDING`。
 
-主线是 `xc7z020clg484-2` 上部署 NPU，并用 ENeuron 组级动态剪枝证明推理加速与功耗下降。B3-MVP-GATE 已关：同一 200 MHz bitstream 上 dense/full-open/static/live 小集合 A/B、epoch 读回和局部周期差值可回放。单样本速度诊断已完成，但端到端加速未证明；外部功耗未测。严格连接级 `2:4` 是结构实验，不是当前加速硬门。
+主线是 `xc7z020clg484-2` 上部署 NPU，并用 ENeuron 组级动态剪枝证明推理加速与功耗下降。B3-MVP-GATE 已关：同一 200 MHz bitstream 上 dense/full-open/static/live 小集合 A/B、epoch 读回和局部周期差值可回放。单样本速度诊断已完成，但端到端加速未证明；完整合同功耗尚未完成，已有 idle、dense、static mixed 和 live 的提前终止工程观察。严格连接级 `2:4` 是结构实验，不是当前加速硬门。
 
 ## 已确认事实
 
@@ -22,6 +22,11 @@
 - 静态 mixed run `20260912T102046Z` 使用同一 bit/XSA、COM15 和 `b3_static_mixed` ELF 通过 UART；`B3_STATIC_MASK_VALID` 报告 `592` 组中 `296/296`，结果 logits 为 `74,-18,14,0,0,0,0,0,0,114`。随后 XSCT probe 读回 `sample=8/8`、`response=1/1`、`result=10/1`、`fence_snapshot_valid=1`、`execute_group_count=296`、`skip_group_count=296`。该证据只关闭组级 static mixed 子门，不关闭严格连接级 `2:4`。
 - live ENeuron run `20260912T131302Z`（HEAD `fe25a70`、COM15、同一 bit/XSA）UART `B3_LIVE_ENEURON_PASS`，logits=`165,-18,14,0,0,0,0,0,0,153`，`decision_source=live_eneuron_s2`。JTAG `execute/skip=296/296`、`fence_snapshot_valid=1`。证据 `artifacts/logs/b3_live_eneuron_pass_20260912_fe25a70/`。关闭 B3-09 组级 live 路径，不是严格 `2:4`。
 - PR #93 已合并到 `main@1c64245`。提交 `82b079e` 复用 L0 contribution，同源 bit/XSA、新 ELF 三次实板为 `ps_us=827/829/828`，logits、`296/296`、1606 cycles 与 protocol errors=0 均保持。证据 `artifacts/logs/b3_live_l0_cache_20260913_82b079e/`；这是缓存诊断通过，不是速度门通过。
+- 2026-09-13 完成一次 `b3_dense` 提前终止人工观察：`18:11:51–18:39:34`（1663 s），累计 `151 mAh / 730 mWh`，由累计量折算平均输入功率约 `1.58027661 W`。停止前板端为 `RUNNING`、`8499751` 次有效推理、失败/协议错误均为 `0`；停止请求成功，但停止后复探针无可用目标。证据 `artifacts/logs/b3_power_manual/continuous_b3_dense_20260913T100808Z/`，该记录不属于完整合同窗口。
+- 同日再次启动配置为 `3600 s` 的 `b3_dense` 窗口，用户于 `19:44:17–20:12:21`（1684 s）提前结束；累计 `151 mAh / 734 mWh`，由累计量折算平均输入功率约 `1.56912114 W`。停止后 probe 可见，板端有效推理 `8412993`、失败/协议错误均为 `0`，但状态仍为 `RUNNING` 快照且窗口未自然完成。证据 `artifacts/logs/b3_power_manual/continuous_b3_dense_20260913T114249Z/`，同样不属于完整合同窗口。
+- 随后完成一次 `b3_static_mixed` 提前终止人工观察：`20:32:37–20:58:53`（1576 s），累计 `142 mAh / 686 mWh`，由累计量折算平均输入功率约 `1.56700508 W`。停止后 probe 可见，板端有效推理 `8093983`、失败/协议错误均为 `0`，状态仍为 `RUNNING` 快照。证据 `artifacts/logs/b3_power_manual/continuous_b3_static_mixed_20260913T123121Z/`，该记录不属于完整合同窗口。
+- 用户确认当前 dense 阶段以工程基线测量完成处理：两次 dense 观察均超过 300 s、累计电量差超过 200 mWh，且有效推理与错误计数稳定；该结论仅用于推进下一阶段，不改变正式功耗合同和功耗目标门状态。
+- `b3_live_eneuron` 工程观察：`21:37:19–22:05:30`（1691 s），累计 `152 mAh / 735 mWh`，折算平均输入功率约 `1.56475458 W`；板端有效推理 `9094863`、失败/协议错误均为 `0`。配置窗口为 `3600 s`，用户提前结束且未提供起止照片，证据 `artifacts/logs/b3_power_manual/continuous_b3_live_eneuron_20260913T133323Z/`，不属于完整合同窗口。
 
 证据入口：
 
@@ -42,7 +47,7 @@
 - clean worktree 重建，确认最终可复现 manifest。
 - B2-06～B2-10 的多 packet、完整错误矩阵、复位账本、统一时间戳和正式机器证据包。
 - B2-GATE 发布门。
-- B3-MVP-GATE 已关。`B3-SPEED-MEASURED` 已完成，但它只是单样本嵌套计时诊断；`B3-SPEED-GATE` 因端到端加速未证明而保持打开。功耗仪器合同已冻结但仍是 `POWER_NOT_MEASURED`；`B3-POWER-MEASURED` 与 `B3-POWER-GATE` 都未关闭，完成测量也不能自动代表降功耗。`B3-GOAL-GATE` 因此保持打开。B2-GATE 挡网口发布。
+- B3-MVP-GATE 已关。`B3-SPEED-MEASURED` 已完成，但它只是单样本嵌套计时诊断；`B3-SPEED-GATE` 因端到端加速未证明而保持打开。2026-09-13 已有一轮 `b3_idle` 基线、两轮 `b3_dense`、一轮 `b3_static_mixed` 和一轮 `b3_live_eneuron` 提前终止观察；它们都不是完整五轮合同证据，因此 `B3-POWER-MEASURED` 与 `B3-POWER-GATE` 仍未关闭。
 - 计数器对外仍保持 32 位 AXI-Lite 读口；核心内部加法收窄为 24 位，可覆盖 B3-13 的 10000 样本上限（`592 * 10000 = 5,920,000 < 2^24`）。
 - Pulse-Mini-L/L2 集成。它们是冻结的候选/历史支线，不是当前日常门。
 
@@ -50,7 +55,7 @@
 
 ## 下一步
 
-1. 主线并列为 `B3-SPEED-GATE` 与 `B3-POWER-GATE`：提交 `82b079e` 已消除 512 次重复 L0 `group_mac`，三次实板保持数值/计数正确且 `ps_us=827/829/828`，低于历史单次 996；但 dense L0 扫描仍存在，也尚未冻结不含 UART 的重复端到端 A/B。功耗线仍需要外部仪器和明确统计门限。当前分别为 `END_TO_END_ACCELERATION_NOT_PROVEN` 与 `POWER_NOT_MEASURED`。
+1. 主线并列为 `B3-SPEED-GATE` 与 `B3-POWER-GATE`：速度线仍需冻结不含 UART 的重复端到端 A/B；功耗线已有四种模式的提前终止工程观察，仍需按合同完成完整窗口、照片、五轮四模式和重复性统计。当前分别为 `END_TO_END_ACCELERATION_NOT_PROVEN` 与 `POWER_ENGINEERING_OBSERVATIONS_INCOMPLETE_CONTRACT`。
 2. B2-GATE 剩余项并行，挡网口发布。
 3. 不把 888 cycle 写成端到端加速，不用 Vivado 估算冒充板上功耗。
 

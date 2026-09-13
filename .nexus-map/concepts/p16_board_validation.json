@@ -15,7 +15,7 @@
     "qualification_execution_chain": ["B1-06B6_UART_BASELINE", "B1-06B7_OCM_HIGH_DDR_MINIMAL_REPRODUCTION"],
     "ddr_accesses_so_far": 0
   },
-  "status": "P16_B0_COMPLETE / FASTLANE_V1 / B2_PACKET_NPU_PHYSICAL_PASS / B2_GATE_RELEASE_PENDING / B3_MVP_GATE_PASS / B3_L0_CACHE_BOARD_DIAGNOSTIC_PASS / B3_SPEED_MEASURED / B3_SPEED_GATE_OPEN / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B3_STRICT_PENDING / B4_RELEASE_PENDING",
+  "status": "P16_B0_COMPLETE / FASTLANE_V1 / B2_PACKET_NPU_PHYSICAL_PASS / B2_GATE_RELEASE_PENDING / B3_MVP_GATE_PASS / B3_L0_CACHE_BOARD_DIAGNOSTIC_PASS / B3_SPEED_MEASURED / B3_SPEED_GATE_OPEN / B3_POWER_PROTOCOL_V2_FROZEN / B3_POWER_RUNNER_READY / B3_POWER_ENGINEERING_OBSERVATIONS_INCOMPLETE_CONTRACT / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B3_STRICT_PENDING / B4_RELEASE_PENDING",
   "current_b2_status": "FUNCTIONAL_PASS / PHYSICAL_PASS / BOARD_STATUS_PARTIAL",
   "stage2_complete": false,
   "current_gates": ["B3-SPEED-GATE", "B3-POWER-MEASURED", "B3-POWER-GATE", "B3-GOAL-GATE"],
@@ -591,6 +591,8 @@
     "current_gates": ["B3-SPEED-GATE", "B3-POWER-MEASURED", "B3-POWER-GATE", "B3-GOAL-GATE"],
     "parallel_goal_gates": ["B3-SPEED-GATE", "B3-POWER-GATE"],
     "mvp_status": "PASS",
+    "power_measurement_protocol": "V2 frozen; manual Type-C inline meter; five alternating four-mode rounds; engineering observations exist but formal contract is incomplete",
+    "power_observation": {"status":"POWER_ENGINEERING_OBSERVATIONS_INCOMPLETE_CONTRACT","scope":"whole-board Type-C input","observed_windows":{"b3_idle":"2033 s / 890 mWh / 1.57600 W","b3_dense":["1663 s / 730 mWh / 1.58028 W","1684 s / 734 mWh / 1.56912 W"],"b3_static_mixed":"1576 s / 686 mWh / 1.56701 W","b3_live_eneuron":"1691 s / 735 mWh / 1.56475 W"},"limitations":["manual windows ended early","start/end photos absent","not five complete paired rounds","cannot infer pure NPU power or close B3-POWER-GATE"]},
     "mvp_requires": ["B3-03", "B3-04", "B3-09", "B3-11", "B3-13", "B3-14"],
     "mvp_scope": "same-bitstream small-set dense/full-open/static-group_4way/live-ENeuron-group_4way correctness, decision, epoch, and local NPU cycle A/B",
     "goal_requires": ["B3-SPEED-GATE", "B3-POWER-GATE"],

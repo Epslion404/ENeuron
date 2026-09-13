@@ -8,8 +8,9 @@ from __future__ import annotations
 
 import json
 import math
+import statistics
 from pathlib import Path
-from typing import Mapping
+from typing import Mapping, Sequence
 
 
 REQUIRED_MODES = (
@@ -57,6 +58,12 @@ POWER_MODES = (
     "b3_static_mixed",
     "b3_live_eneuron",
 )
+MANUAL_POWER_MODES = (
+    "b3_idle",
+    "b3_dense",
+    "b3_static_mixed",
+    "b3_live_eneuron",
+)
 FORBIDDEN_POWER_SOURCES = (
     "vivado",
     "vivado_estimate",
@@ -64,6 +71,8 @@ FORBIDDEN_POWER_SOURCES = (
     "saif_estimate",
 )
 DEFAULT_POWER_CONTRACT = Path(__file__).resolve().parent / "tools/repro/b3_power_instrument_contract.json"
+MANUAL_POWER_MIN_DELTA_MWH = 200
+MANUAL_POWER_MIN_DURATION_SECONDS = 300
 
 
 def parse_probe_u32(text: str, key: str) -> int:
@@ -179,12 +188,137 @@ def npu_cycles_to_us(cycles: int) -> float:
 def load_power_contract(path: Path) -> dict[str, object]:
     """读取已冻结的 B3-POWER 仪器合同，不补默认测点。"""
     contract = json.loads(Path(path).read_text(encoding="utf-8-sig"))
-    if contract.get("schema") != "eneuron_b3_power_instrument_contract_v1":
+    if contract.get("schema") != "eneuron_b3_power_instrument_contract_v2":
         raise ValueError("power contract schema mismatch")
     missing = [field for field in POWER_CONTRACT_FIELDS if field not in contract]
     if missing:
         raise ValueError(f"power contract missing {missing}")
     return contract
+
+
+def calculate_manual_power_window(window: Mapping[str, object]) -> dict[str, object]:
+    """把目视累计电量窗口换算为整板平均功率和单次正确推理能耗。"""
+    mode = str(window["mode"])
+    if mode not in MANUAL_POWER_MODES:
+        raise ValueError(f"unsupported manual power mode {mode}")
+    duration_seconds = int(window["duration_seconds"])
+    if duration_seconds < MANUAL_POWER_MIN_DURATION_SECONDS:
+        raise ValueError(f"manual power window must be at least {MANUAL_POWER_MIN_DURATION_SECONDS} seconds")
+    start_mwh = int(window["start_mwh"])
+    end_mwh = int(window["end_mwh"])
+    delta_mwh = end_mwh - start_mwh
+    if delta_mwh < MANUAL_POWER_MIN_DELTA_MWH:
+        raise ValueError(f"manual power window must accumulate at least {MANUAL_POWER_MIN_DELTA_MWH} mWh")
+    valid_inferences = int(window["valid_inferences"])
+    if mode == "b3_idle" and valid_inferences != 0:
+        raise ValueError("idle manual power window requires valid_inferences == 0")
+    if mode != "b3_idle" and valid_inferences <= 0:
+        raise ValueError("loaded manual power window requires valid_inferences > 0")
+    if int(window["protocol_error_count"]) != 0:
+        raise ValueError("manual power window protocol_error_count must be zero")
+    if window.get("jtag_physically_connected") is not True:
+        raise ValueError("manual power window requires the same physical JTAG connection")
+    if window.get("xsct_active_during_window") is not False:
+        raise ValueError("XSCT must be inactive during the manual power window")
+    if window.get("hw_server_active_during_window") is not False:
+        raise ValueError("hw_server must be inactive during the manual power window")
+    for field in ("start_photo", "end_photo", "manual_observation_csv"):
+        if not str(window.get(field, "")).strip():
+            raise ValueError(f"manual power window missing {field}")
+
+    result = dict(window)
+    result["delta_mwh"] = delta_mwh
+    result["delta_mah"] = int(window["end_mah"]) - int(window["start_mah"])
+    result["average_power_w"] = delta_mwh * 3.6 / duration_seconds
+    result["energy_per_inference_mj"] = (
+        None if mode == "b3_idle" else delta_mwh * 3600.0 / valid_inferences
+    )
+    result["power_source"] = "manual_cumulative_meter"
+    return result
+
+
+def build_manual_power_report(
+    windows: Sequence[Mapping[str, object]],
+    contract: Mapping[str, object],
+) -> dict[str, object]:
+    """汇总五轮以上四模式人工累计电量窗口；测量完成不自动关闭目标门。"""
+    if contract.get("schema") != "eneuron_b3_power_instrument_contract_v2":
+        raise ValueError("power contract schema mismatch")
+    if contract.get("status") != "MEASURED":
+        raise ValueError("manual power report requires contract status MEASURED")
+    minimum_rounds = int(contract.get("minimum_rounds", 5))
+    minimum_inferences = int(contract.get("minimum_valid_inferences", 10000))
+    calculated = [calculate_manual_power_window(window) for window in windows]
+    round_indices = sorted({int(row["round"]) for row in calculated})
+    if round_indices != list(range(1, len(round_indices) + 1)):
+        raise ValueError("manual power rounds must be consecutive from 1")
+    expected_pairs = []
+    round_order = contract.get("round_order", {})
+    for round_index in round_indices:
+        order_key = "odd" if round_index % 2 else "even"
+        expected_order = tuple(round_order.get(order_key, ()))
+        if set(expected_order) != set(MANUAL_POWER_MODES):
+            raise ValueError("power contract round_order mismatch")
+        expected_pairs.extend((round_index, mode) for mode in expected_order)
+    observed_pairs = [(int(row["round"]), str(row["mode"])) for row in calculated]
+    if observed_pairs != expected_pairs:
+        raise ValueError("manual power rounds must use alternating mode order")
+    by_round: dict[int, dict[str, dict[str, object]]] = {}
+    for row in calculated:
+        round_index = int(row["round"])
+        mode = str(row["mode"])
+        round_rows = by_round.setdefault(round_index, {})
+        if mode in round_rows:
+            raise ValueError(f"duplicate manual power window round={round_index} mode={mode}")
+        round_rows[mode] = row
+    if len(by_round) < minimum_rounds:
+        raise ValueError(f"manual power report requires at least {minimum_rounds} complete rounds")
+    expected_modes = set(MANUAL_POWER_MODES)
+    for round_index, round_rows in by_round.items():
+        if set(round_rows) != expected_modes:
+            raise ValueError(f"manual power round {round_index} must contain all four modes")
+        idle_power_w = float(round_rows["b3_idle"]["average_power_w"])
+        for mode in MANUAL_POWER_MODES[1:]:
+            row = round_rows[mode]
+            if int(row["valid_inferences"]) < minimum_inferences:
+                raise ValueError(f"{mode} requires at least {minimum_inferences} valid inferences")
+            dynamic_power_w = float(row["average_power_w"]) - idle_power_w
+            row["idle_subtracted_dynamic_power_w"] = dynamic_power_w
+            row["idle_subtracted_energy_per_inference_mj"] = (
+                dynamic_power_w * int(row["duration_seconds"]) * 1000.0
+                / int(row["valid_inferences"])
+            )
+
+    summaries: dict[str, dict[str, object]] = {}
+    for mode in MANUAL_POWER_MODES:
+        mode_rows = [by_round[index][mode] for index in sorted(by_round)]
+        summary: dict[str, object] = {
+            "median_average_power_w": statistics.median(
+                float(row["average_power_w"]) for row in mode_rows
+            ),
+        }
+        if mode != "b3_idle":
+            summary["median_energy_per_inference_mj"] = statistics.median(
+                float(row["energy_per_inference_mj"]) for row in mode_rows
+            )
+            summary["median_idle_subtracted_dynamic_power_w"] = statistics.median(
+                float(row["idle_subtracted_dynamic_power_w"]) for row in mode_rows
+            )
+        summaries[mode] = summary
+
+    report = {
+        "schema": "eneuron_b3_manual_power_report_v2",
+        "measurement_method": "manual_cumulative_meter",
+        "modes": list(MANUAL_POWER_MODES),
+        "round_count": len(by_round),
+        "windows": calculated,
+        "summaries": summaries,
+        "status": "MEASURED",
+        "power_goal_status": "NOT_PROVEN",
+        "power_gate": "OPEN",
+    }
+    forbid_vivado_as_board_power(report)
+    return report
 
 
 def forbid_vivado_as_board_power(report: Mapping[str, object]) -> None:

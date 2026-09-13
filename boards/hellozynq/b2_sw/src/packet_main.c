@@ -14,6 +14,11 @@
 #define RX_BUFFER_BASE 0x01007000U
 #define MONITOR_MM2S_BASE 0x40410000U
 #define MONITOR_S2MM_BASE 0x40420000U
+#define NPU_STATUS_BASE 0x40430000U
+#define NPU_EXECUTE_GROUP_OFFSET 0x48U
+#define NPU_SKIP_GROUP_OFFSET 0x4CU
+#define NPU_LAST_COMPUTE_OFFSET 0x5CU
+#define NPU_PROTOCOL_ERROR_OFFSET 0x60U
 #define MAX_FRAME_BYTES 4096U
 #define POLL_INTERVAL_US 1U
 #define TRANSFER_TIMEOUT_US 1000000U
@@ -28,6 +33,65 @@
 #define STRICT_2OF4_CANDIDATE 0U
 #define STRICT_2OF4_CANDIDATE_TEXT "false"
 
+#ifdef B3_POWER_BENCH
+#define POWER_CONTROL_BASE 0x01008500U
+#define POWER_RESULT_BASE 0x01008600U
+#define POWER_CONTROL_MAGIC 0x33525750U
+#define POWER_RESULT_MAGIC 0x33534552U
+#define POWER_SCHEMA_VERSION 1U
+#define POWER_COMMAND_GO 1U
+
+enum {
+    POWER_MODE_IDLE = 0U,
+    POWER_MODE_DENSE = 1U,
+    POWER_MODE_STATIC_GATED = 2U,
+    POWER_MODE_LIVE_ENEURON = 3U,
+    POWER_STATUS_BOOTING = 1U,
+    POWER_STATUS_READY = 2U,
+    POWER_STATUS_RUNNING = 3U,
+    POWER_STATUS_PASS = 4U,
+    POWER_STATUS_FAIL = 5U
+};
+
+struct power_control {
+    u32 magic;
+    u32 schema_version;
+    u32 mode;
+    u32 warmup_samples;
+    u32 window_seconds;
+    u32 start_delay_seconds;
+    u32 minimum_valid_inferences;
+    u32 command;
+};
+
+struct power_result {
+    u32 magic;
+    u32 schema_version;
+    u32 status;
+    u32 mode;
+    u32 warmup_requested;
+    u32 warmup_completed;
+    u32 window_seconds;
+    u32 start_delay_seconds;
+    u32 minimum_valid_inferences;
+    u32 valid_inferences;
+    u32 failed_inferences;
+    u32 protocol_error_count;
+    u32 elapsed_seconds;
+    u32 last_compute_cycles;
+    u32 execute_group_count;
+    u32 skip_group_count;
+    u32 last_sequence;
+    u32 error_code;
+};
+
+static volatile struct power_control *const power_control =
+    (volatile struct power_control *)POWER_CONTROL_BASE;
+static volatile struct power_result *const power_result =
+    (volatile struct power_result *)POWER_RESULT_BASE;
+static u32 power_mode;
+#endif
+
 static u32 speed_ps_us;
 static u32 speed_dma_us;
 
@@ -40,7 +104,11 @@ static u32 xtime_delta_us(XTime start, XTime stop)
     return (u32)((stop - start) / counts_per_us);
 }
 
-#if defined(B3_BYPASS)
+#if defined(B3_POWER_BENCH)
+#define APPLICATION_MODE "b3_power_bench"
+#define SAMPLE_MASK_EPOCH MASK_EPOCH
+#define SEND_MASK_COMMANDS 1
+#elif defined(B3_BYPASS)
 #define APPLICATION_MODE "b3_bypass"
 #define SAMPLE_MASK_EPOCH 0U
 #define SEND_MASK_COMMANDS 0
@@ -70,9 +138,16 @@ static u32 xtime_delta_us(XTime start, XTime stop)
 #define SEND_MASK_COMMANDS 1
 #endif
 
-#if defined(B3_BYPASS) || defined(B3_FULL_OPEN) || defined(B3_DENSE) || defined(B3_STATIC_MIXED) || defined(B3_LIVE_ENEURON) || defined(B3_EPOCH_OVERLAP)
+#if defined(B3_POWER_BENCH) || defined(B3_BYPASS) || defined(B3_FULL_OPEN) || defined(B3_DENSE) || defined(B3_STATIC_MIXED) || defined(B3_LIVE_ENEURON) || defined(B3_EPOCH_OVERLAP)
 #define B3_NUMERIC_CHECK 1
-#if defined(B3_STATIC_MIXED)
+#if defined(B3_POWER_BENCH)
+static s32 expected_logit(u32 index)
+{
+    const s32 *values = (power_mode == POWER_MODE_STATIC_GATED) ?
+        B3_STATIC_MIXED_LOGITS : B3_DENSE_LOGITS;
+    return values[index];
+}
+#elif defined(B3_STATIC_MIXED)
 static const s32 *const expected_logits = B3_STATIC_MIXED_LOGITS;
 #elif defined(B3_LIVE_ENEURON)
 static const s32 *const expected_logits = B3_LIVE_ENEURON_LOGITS;
@@ -80,10 +155,12 @@ static const s32 *const expected_logits = B3_LIVE_ENEURON_LOGITS;
 static const s32 *const expected_logits = B3_DENSE_LOGITS;
 #endif
 
+#if !defined(B3_POWER_BENCH)
 static s32 expected_logit(u32 index)
 {
     return expected_logits[index];
 }
+#endif
 #endif
 
 #if defined(XPAR_AXIDMA_0_DEVICE_ID)
@@ -218,7 +295,7 @@ static u32 static_mixed_mask_word(u32 index)
     return B3_STATIC_MIXED_MASK_WORDS[index];
 }
 
-#if defined(B3_LIVE_ENEURON)
+#if defined(B3_LIVE_ENEURON) || defined(B3_POWER_BENCH)
 static u32 live_mask_words[19];
 static u32 live_mask_ready;
 
@@ -596,6 +673,243 @@ static int send_sample_and_check(void)
     return XST_SUCCESS;
 }
 
+#ifdef B3_POWER_BENCH
+static int power_send_command(u32 opcode, u32 epoch, u32 low_word)
+{
+    volatile u32 *const tx = (volatile u32 *)TX_BUFFER_BASE;
+    u32 frame_bytes = build_command_frame(tx, opcode, epoch, low_word, MODEL_ID);
+    if (submit_frame(frame_bytes, 0U, 0U, 0) != XST_SUCCESS) {
+        return XST_FAILURE;
+    }
+    ++sequence;
+    return XST_SUCCESS;
+}
+
+static int power_send_fence(u32 expected_epoch)
+{
+    volatile u32 *const tx = (volatile u32 *)TX_BUFFER_BASE;
+    volatile u32 *const rx = (volatile u32 *)RX_BUFFER_BASE;
+    u32 response_words = 0U;
+    u32 request_sequence = sequence;
+    u32 active_epoch;
+    u32 frame_bytes = build_command_frame(tx, OP_SAMPLE_FENCE, 0U, 0x00000F00U, MODEL_ID);
+    if (submit_frame(frame_bytes, MAX_FRAME_BYTES, 1U, &response_words) != XST_SUCCESS) {
+        return XST_FAILURE;
+    }
+    Xil_DCacheInvalidateRange(RX_BUFFER_BASE, MAX_FRAME_BYTES);
+    active_epoch = (rx[9] >> 16U) | ((rx[10] & 0x0000FFFFU) << 16U);
+    if (response_words != 13U || rx[1] != 0x08000301U || rx[2] != 16U ||
+        rx[3] != request_sequence || rx[5] != MODEL_ID || rx[6] != 0U ||
+        rx[8] != 0U || active_epoch > expected_epoch ||
+        (rx[10] & 0xFFFF0000U) != 0x0F000000U ||
+        rx[11] != 0xD0A00000U) {
+        return XST_FAILURE;
+    }
+    ++sequence;
+    return XST_SUCCESS;
+}
+
+static int power_send_sample(u32 epoch, u32 sample_id)
+{
+    volatile u32 *const tx = (volatile u32 *)TX_BUFFER_BASE;
+    volatile u32 *const rx = (volatile u32 *)RX_BUFFER_BASE;
+    u32 response_words = 0U;
+    u32 request_sequence = sequence;
+    u32 frame_bytes = build_sample_frame(tx, sample_id, MODEL_ID, epoch);
+    u32 index;
+    u32 crc = 0xFFFFFFFFU;
+    if (submit_frame(frame_bytes, MAX_FRAME_BYTES, 1U, &response_words) != XST_SUCCESS) {
+        return XST_FAILURE;
+    }
+    Xil_DCacheInvalidateRange(RX_BUFFER_BASE, MAX_FRAME_BYTES);
+    if (response_words != 19U || rx[1] != 0x08000401U || rx[2] != 40U ||
+        rx[3] != request_sequence || rx[4] != sample_id ||
+        rx[5] != MODEL_ID || rx[6] != epoch) {
+        return XST_FAILURE;
+    }
+    for (index = 0U; index < 18U; ++index) {
+        crc = crc32_word(crc, rx[index]);
+    }
+    if (rx[18] != ~crc) {
+        return XST_FAILURE;
+    }
+    for (index = 0U; index < 10U; ++index) {
+        if ((s32)rx[8U + index] != expected_logit(index)) {
+            return XST_FAILURE;
+        }
+    }
+    ++sequence;
+    return XST_SUCCESS;
+}
+
+static int power_configure_mask(u32 mode, u32 epoch)
+{
+    u32 index;
+    if (mode == POWER_MODE_STATIC_GATED && validate_static_mixed_mask() != XST_SUCCESS) {
+        return XST_FAILURE;
+    }
+    if (mode == POWER_MODE_LIVE_ENEURON) {
+        compute_live_group4way_mask();
+        if (live_mask_ready == 0U) {
+            return XST_FAILURE;
+        }
+    }
+    if (power_send_command(OP_MASK_BEGIN, epoch, 0U) != XST_SUCCESS) {
+        return XST_FAILURE;
+    }
+    for (index = 0U; index < MASK_WORDS; ++index) {
+        u32 mask_word = B3_FULL_OPEN_MASK_WORDS[index];
+        if (mode == POWER_MODE_STATIC_GATED) {
+            mask_word = static_mixed_mask_word(index);
+        } else if (mode == POWER_MODE_LIVE_ENEURON) {
+            mask_word = live_mask_word(index);
+        }
+        if (power_send_command(OP_MASK_DATA, epoch, mask_word) != XST_SUCCESS) {
+            return XST_FAILURE;
+        }
+    }
+    return power_send_command(OP_MASK_COMMIT, epoch, 0U);
+}
+
+static int power_run_inference(u32 *epoch, u32 sample_id)
+{
+    /* T1 合同规定每次 fence 只开放一个 8-beat 样本窗口。 */
+    if (power_send_fence(*epoch) != XST_SUCCESS) {
+        return XST_FAILURE;
+    }
+    /* Host 域消费 fence 响应后才打开样本窗口，留出 CDC/状态更新时间。 */
+    usleep(100U);
+    return power_send_sample(*epoch, sample_id);
+}
+
+static int power_activate_initial_mask(u32 mode, u32 epoch)
+{
+    if (power_configure_mask(mode, epoch) != XST_SUCCESS) {
+        return XST_FAILURE;
+    }
+    return XST_SUCCESS;
+}
+
+static int run_power_measurement_window(u32 mode, u32 *epoch)
+{
+    XTime start;
+    XTime now;
+    u64 target_counts = (u64)power_control->window_seconds * (u64)COUNTS_PER_SECOND;
+    power_result->status = POWER_STATUS_RUNNING;
+    memory_barrier();
+    XTime_GetTime(&start);
+    do {
+        if (mode == POWER_MODE_IDLE) {
+            usleep(1000U);
+        } else {
+            u32 sample_id = 0x50000000U + power_result->valid_inferences;
+            if (power_run_inference(epoch, sample_id) != XST_SUCCESS) {
+                ++power_result->failed_inferences;
+                power_result->error_code = 4U;
+                return XST_FAILURE;
+            }
+            ++power_result->valid_inferences;
+        }
+        XTime_GetTime(&now);
+    } while ((u64)(now - start) < target_counts);
+
+    power_result->elapsed_seconds = (u32)((u64)(now - start) / (u64)COUNTS_PER_SECOND);
+    power_result->protocol_error_count = Xil_In32(NPU_STATUS_BASE + NPU_PROTOCOL_ERROR_OFFSET);
+    power_result->last_compute_cycles = Xil_In32(NPU_STATUS_BASE + NPU_LAST_COMPUTE_OFFSET);
+    power_result->execute_group_count = Xil_In32(NPU_STATUS_BASE + NPU_EXECUTE_GROUP_OFFSET);
+    power_result->skip_group_count = Xil_In32(NPU_STATUS_BASE + NPU_SKIP_GROUP_OFFSET);
+    power_result->last_sequence = sequence;
+    if (power_result->protocol_error_count != 0U) {
+        power_result->error_code = 5U;
+        return XST_FAILURE;
+    }
+    if (mode != POWER_MODE_IDLE &&
+        power_result->valid_inferences < power_control->minimum_valid_inferences) {
+        power_result->error_code = 6U;
+        return XST_FAILURE;
+    }
+    return XST_SUCCESS;
+}
+
+static int run_power_benchmark(void)
+{
+    u32 index;
+    u32 epoch = MASK_EPOCH;
+    power_result->magic = POWER_RESULT_MAGIC;
+    power_result->schema_version = POWER_SCHEMA_VERSION;
+    power_result->status = POWER_STATUS_BOOTING;
+    power_result->mode = power_control->mode;
+    power_result->warmup_requested = power_control->warmup_samples;
+    power_result->warmup_completed = 0U;
+    power_result->window_seconds = power_control->window_seconds;
+    power_result->start_delay_seconds = power_control->start_delay_seconds;
+    power_result->minimum_valid_inferences = power_control->minimum_valid_inferences;
+    power_result->valid_inferences = 0U;
+    power_result->failed_inferences = 0U;
+    power_result->protocol_error_count = 0U;
+    power_result->elapsed_seconds = 0U;
+    power_result->error_code = 0U;
+    memory_barrier();
+
+    if (power_control->magic != POWER_CONTROL_MAGIC ||
+        power_control->schema_version != POWER_SCHEMA_VERSION ||
+        power_control->mode > POWER_MODE_LIVE_ENEURON ||
+        power_control->window_seconds < 300U ||
+        power_control->start_delay_seconds < 5U ||
+        (power_control->mode != POWER_MODE_IDLE &&
+         (power_control->warmup_samples < 1000U ||
+          power_control->minimum_valid_inferences < 10000U))) {
+        power_result->error_code = 1U;
+        power_result->status = POWER_STATUS_FAIL;
+        memory_barrier();
+        while (1) sleep(1U);
+    }
+
+    power_mode = power_control->mode;
+    if (power_mode == POWER_MODE_LIVE_ENEURON) {
+        compute_live_group4way_mask();
+        if (live_mask_ready == 0U) {
+            power_result->error_code = 2U;
+            power_result->status = POWER_STATUS_FAIL;
+            memory_barrier();
+            while (1) sleep(1U);
+        }
+    }
+    if (power_activate_initial_mask(power_mode, epoch) != XST_SUCCESS) {
+        power_result->error_code = 2U;
+        power_result->status = POWER_STATUS_FAIL;
+        memory_barrier();
+        while (1) sleep(1U);
+    }
+    if (power_mode != POWER_MODE_IDLE) {
+        for (index = 0U; index < power_control->warmup_samples; ++index) {
+            if (power_run_inference(&epoch, 0x40000000U + index) != XST_SUCCESS) {
+                power_result->error_code = 3U;
+                power_result->status = POWER_STATUS_FAIL;
+                memory_barrier();
+                while (1) sleep(1U);
+            }
+            power_result->warmup_completed = index + 1U;
+        }
+    }
+
+    power_result->status = POWER_STATUS_READY;
+    memory_barrier();
+    while (power_control->command != POWER_COMMAND_GO) {
+        usleep(1000U);
+    }
+    sleep(power_control->start_delay_seconds);
+    if (run_power_measurement_window(power_mode, &epoch) == XST_SUCCESS) {
+        power_result->status = POWER_STATUS_PASS;
+    } else {
+        power_result->status = POWER_STATUS_FAIL;
+    }
+    memory_barrier();
+    while (1) sleep(1U);
+    return XST_SUCCESS;
+}
+#endif
+
 int main(void)
 {
     XAxiDma_Config *config;
@@ -629,6 +943,9 @@ int main(void)
         }
     }
     if (send_command(OP_MODEL_COMMIT, 0U, 0U) != XST_SUCCESS) return XST_FAILURE;
+#ifdef B3_POWER_BENCH
+    return run_power_benchmark();
+#endif
 #if SEND_MASK_COMMANDS
 #if defined(B3_STATIC_MIXED)
     if (validate_static_mixed_mask() != XST_SUCCESS) {

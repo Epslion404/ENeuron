@@ -1,0 +1,74 @@
+{
+  "schema": "eneuron_b3_manual_power_observation_v1",
+  "status": "SINGLE_ROUND_IDLE_MEASURED",
+  "mode": "b3_idle",
+  "round": 1,
+  "run_type": "continuous_observation_not_frozen_300s_window",
+  "build_identity": {
+    "git_head": "2ce31e2bc9139a04006231fd2fd9780f5a2a81de",
+    "part": "xc7z020clg484-2",
+    "bitstream_sha256": "0ecbe76274c39418f2a60a88358d3ff6f09f5a2ed73a44a3a419c34eb91d3a11",
+    "xsa_sha256": "135d979d61c629922ee5419e51dd97ef045d9bab79930432816d09f109291d1a",
+    "elf_sha256": "27630b3e82785fe5c603643612da64f49d964438f83d2ff26eb96b6326bcec05",
+    "packet_source_sha256": "d7fba1c5f6a63670b81e3b9401d0b308fabb731e7a45400192741401ce981eef"
+  },
+  "started_by_runner_utc": "2026-09-13T08:22:35Z",
+  "go_epoch_seconds": 1789287755,
+  "observation_start_local": "2026-09-13T16:29:57+08:00",
+  "observation_end_local": "2026-09-13T17:03:50+08:00",
+  "observation_duration_seconds": 2033,
+  "meter": {
+    "model": "B10高精度Type-c多功能无线充测试USB电压电流表PD3.2充电检测仪",
+    "manufacturer_accuracy": "<0.2%",
+    "display_resolution": {
+      "voltage_v": 0.00001,
+      "current_a": 0.00001,
+      "power_w": 0.00001,
+      "mah": 1,
+      "mwh": 1
+    },
+    "power_source": "Type-C inline 5V supply to development board",
+    "measurement_point": "between Type-C supply and development board"
+  },
+  "jtag_state": {
+    "physically_connected": true,
+    "xsct_active_during_observation": false,
+    "hw_server_active_during_observation": false,
+    "scan_active_during_observation": false
+  },
+  "board_result_at_stop": {
+    "status": 3,
+    "mode": 0,
+    "valid_inferences": 0,
+    "failed_inferences": 0,
+    "protocol_error_count": 0,
+    "error_code": 0,
+    "window_seconds_configured": 86400,
+    "stop_action": "CPU stopped by JTAG after final reading"
+  },
+  "aggregate": {
+    "start_mah": 1203,
+    "end_mah": 1387,
+    "delta_mah": 184,
+    "start_mwh": 15273,
+    "end_mwh": 16163,
+    "delta_mwh": 890,
+    "average_power_w_from_cumulative_mwh": 1.5759960649,
+    "average_current_a_from_cumulative_mah": 0.3258239056,
+    "displayed_power_values_consistent": false,
+    "consistency_note": "末次显示电流 0.31868 A 与末次显示功率 1.57225 W 在 4.84999 V 下不完全相乘；原始读数保留，不做修正。"
+  },
+  "evidence": {
+    "meter_trace_csv": "meter_trace.csv",
+    "start_photo": null,
+    "end_photo": null,
+    "start_log": "start_xsct_stdout.log",
+    "result_log": "result_xsct_stdout.log",
+    "stop_script": "../../../../boards/hellozynq/b2_sw/stop_b3_power_benchmark.tcl"
+  },
+  "gate_interpretation": {
+    "b3_power_measured": "OPEN",
+    "b3_power_gate": "OPEN",
+    "reason": "仅有单轮 idle 观察；缺少 dense/static/live、五轮重复、照片和仪表标称准确度，不能关闭合同门。"
+  }
+}
