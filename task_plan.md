@@ -1998,12 +1998,14 @@ RED 记录：新增“完成外部测量不能自动关闭降功耗目标”合�
 
 收集边界迭代 1：加入 legacy 排除后，默认 pytest 在收集期暴露 `test_compare_simulation.py` 与 `test_run_local_prune_b2.py` 仍导入已归档的 Pulse 模块，终态为 2 collection errors。两者同属归档前多模型支线，已加入显式历史测试清单；下一次用更新后的边界重跑，不重复原配置。
 
-最终验证：`run_b2_checks.ps1 -Full` 通过；B2 合同 `124 passed`，T1 两门 PASS，当前主线全量 `391 passed, 1 skipped, 134 subtests passed`，`git diff --check` 无错误。未运行 Vivado 重建、未重新烧写板卡、未进行外部功耗测量。
+最终验证：`run_b2_checks.ps1 -Full` 通过；B2 合同 `124 passed`，T1 两门 PASS，干净 PR 基线全量 `388 passed, 1 skipped, 134 subtests passed`，`git diff --check` 无错误。原工作树额外的 3 项来自未提交 lane-mask oracle。未运行 Vivado 重建、未重新烧写板卡、未进行外部功耗测量。
 
 提交边界：管理/测试入口与 B3 目标门修复可进入当前 B3 分支；`npu_eneuron_reference.py` 与 `test_npu_eneuron_reference.py` 的 lane-mask oracle 保持独立未提交切片，三个大体积 Vivado/失败证据目录和 `.planning/` 不暂存、不删除。
 
-管理收口：两笔评审提交已重放到最新 `origin/main` 的独立干净工作树；补齐 Nexus 七处当前入口/结构化状态，去除临时分支身份与 `B3_SPEED_PASS` 旧语义。待提交、推送、创建 PR 并核对合并状态。
+管理收口：三笔评审提交已通过 PR #91 合并为 `main@30e3b38`；Nexus 七处当前入口/结构化状态已补齐，临时分支身份与 `B3_SPEED_PASS` 旧语义已移除。严格 lane-mask oracle 和三个失败构建证据目录保持在原工作树外，不进入本轮管理 PR。
 
 错误记录：首次批量 Nexus 补丁含一处错误上下文，`apply_patch` 原子拒绝且未产生部分修改；随后拆成精确小补丁。一次 PowerShell `rg` 正则因 shell 引号截断而失败，后续改用多项 `-F -e` 固定字符串查询并得到 `NEXUS_STALE_GATE_TEXT_NONE`。
 
 错误记录：一次定向测试调用误填了不存在的工作目录，进程未启动；随后改用已核实的 `D:/Documents/Code/ENeuron-board-b0-pr-review`，workflow Check、22 项定向测试、JSON 解析和差异检查均通过。
+
+错误记录：首次查询 PR 合并终态时请求了 `gh pr view` 不支持的 `head` 字段，命令返回字段清单；随后直接以 `origin/main@30e3b38` 和 PR #91 页面核实合并结果，没有重复该字段组合。
