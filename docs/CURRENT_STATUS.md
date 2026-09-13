@@ -42,7 +42,7 @@
 - clean worktree 重建，确认最终可复现 manifest。
 - B2-06～B2-10 的多 packet、完整错误矩阵、复位账本、统一时间戳和正式机器证据包。
 - B2-GATE 发布门。
-- B3-MVP-GATE 已关。`B3-SPEED-MEASURED` 已完成，但它只是单样本嵌套计时诊断；`B3-SPEED-GATE` 因端到端加速未证明而保持打开。2026-09-13 已完成一轮 `b3_idle` 连续人工观察：2033 s、累计 890 mWh，证据见 `artifacts/logs/b3_power_manual/continuous_b3_idle_20260913T082500Z/`。该结果仅是单轮 idle 基线；`B3-POWER-MEASURED` 与 `B3-POWER-GATE` 仍未关闭，仪表型号/标称准确度和照片证据缺失。
+- B3-MVP-GATE 已关。`B3-SPEED-MEASURED` 已完成，但它只是单样本嵌套计时诊断；`B3-SPEED-GATE` 因端到端加速未证明而保持打开。2026-09-13 已完成一轮 `b3_idle` 连续人工观察：2033 s、累计 890 mWh，证据见 `artifacts/logs/b3_power_manual/continuous_b3_idle_20260913T082500Z/`。该结果仅是单轮 idle 基线；`B3-POWER-MEASURED` 与 `B3-POWER-GATE` 仍未关闭，照片证据缺失。
 - 计数器对外仍保持 32 位 AXI-Lite 读口；核心内部加法收窄为 24 位，可覆盖 B3-13 的 10000 样本上限（`592 * 10000 = 5,920,000 < 2^24`）。
 - Pulse-Mini-L/L2 集成。它们是冻结的候选/历史支线，不是当前日常门。
 

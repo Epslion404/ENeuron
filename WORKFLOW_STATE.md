@@ -110,7 +110,7 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 
 主线下一动作并列为 `B3-SPEED-GATE` 与 `B3-POWER-GATE`。速度线证据继续绑定缓存提交 `82b079e`，仍需冻结无 UART 文本传输的可重复请求→结果 A/B。功耗线的人工 V2 协议已冻结：串联 Type-C 整板测点、统一 ELF 四模式、JTAG 物理连接一致且窗口静默、五轮正反顺序、每窗口 `300 s / 10000 correct / 200 mWh`、每分钟 V/A/W 与起止照片/累计量；runner 和报告工具已就绪。现有一轮 `b3_idle` 连续人工读数，仍不足以关闭 `B3-POWER-MEASURED` 或 `B3-POWER-GATE`，报告也不会自动关闭目标门。`B3-GOAL-GATE` 仅在速度与功耗目标都实际通过后关闭。
 
-2026-09-13：用户结束一次连续 `b3_idle` 观察。JTAG 启动、FPGA program、ELF download、READY/GO 均通过；观察时间 `16:29:57–17:03:50`（2033 s），累计 `184 mAh / 890 mWh`，由累计量计算平均输入功率约 `1.57600 W`。CPU 随后由 JTAG 停止。原始读数、板端停止前结果和限制见 `artifacts/logs/b3_power_manual/continuous_b3_idle_20260913T082500Z/`。该单轮 idle 结果不关闭 `B3-POWER-MEASURED`、`B3-POWER-GATE`。
+2026-09-13：用户结束一次连续 `b3_idle` 观察。JTAG 启动、FPGA program、ELF download、READY/GO 均通过；观察时间 `16:29:57–17:03:50`（2033 s），累计 `184 mAh / 890 mWh`，由累计量计算平均输入功率约 `1.57600 W`。仪表为 B10 高精度 Type-C 多功能测试表，标称精度 `<0.2%`。CPU 随后由 JTAG 停止。原始读数、板端停止前结果和限制见 `artifacts/logs/b3_power_manual/continuous_b3_idle_20260913T082500Z/`。该单轮 idle 结果不关闭 `B3-POWER-MEASURED`、`B3-POWER-GATE`。
 
 ## 2026-09-05 V2 OOC 签核结果
 

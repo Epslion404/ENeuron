@@ -18,8 +18,8 @@
   "observation_end_local": "2026-09-13T17:03:50+08:00",
   "observation_duration_seconds": 2033,
   "meter": {
-    "model": "unknown",
-    "manufacturer_accuracy": "unknown",
+    "model": "B10高精度Type-c多功能无线充测试USB电压电流表PD3.2充电检测仪",
+    "manufacturer_accuracy": "<0.2%",
     "display_resolution": {
       "voltage_v": 0.00001,
       "current_a": 0.00001,
