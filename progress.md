@@ -2136,3 +2136,23 @@
 - 已委托子代理独立同步 `.nexus-map` 的新门分层；实现主线不等待知识库更新。
 - 错误记录：一次定向 `rg` 引用了不存在的旧文件名 `tb_npu_single_clock_compute.sv`；实际 testbench 为 `tb_npu_eneuron_single_clock_compute.sv`，后续改用实际路径，不重复原搜索。
 - B3-03 第一个 TDD 纵向切片完成：测试先因 core 缺少 `last_compute_cycles` 端口 RED，随后实现第 8 个 sample beat 后计数、最后 L1 writeback 锁存。V2 时序合同验证全开、部分剪枝、全关和单组关闭的锁存周期与原外部观测一致，定向测试 `1 passed`。
+## 2026-09-13 新模型进展复核启动
+
+- 已确认 HEAD `7c4dba9` 与远端同步；新增提交冻结 B3-POWER 合同但未关闭功耗门。
+- 已确认 B3-MVP 局部周期证据有效；B3-SPEED 当前结果是“测量完成、端到端未加速”，不是性能目标 PASS。
+- 下一步先修门状态与分支管理，再评审 speed/power/lane-mask 实现并跑定向回归。
+- RED 验证：新增门语义和功耗 fail-closed 测试后为 `5 failed, 11 passed`；失败准确暴露旧实现缺少 speed gate 状态、允许空仪器合同和缺少外部 trace 的测量通过。
+- 修复后 speed/power 定向测试 `16 passed`；功耗 `MEASURED` 现在要求六字段非空、每模式外部来源与 trace、有限正功率。
+- 当前入口已拆成 `B3-SPEED-MEASURED`（完成）与 `B3-SPEED-GATE`（打开），并明确 DMA/NPU/UART 是嵌套窗口、不可相加。
+- 本地分支已从过时的 `codex/b1b-high-ddr-board-repro` 改为 `codex/b3-goal-review` 并解除旧 upstream；远端未删除、未改写。
+- lane-mask 评审修正误导性 2:4 测试名，并增加严格合法 mask 的 `592 group reads / 1184 MAC` 检查；定向结果 `71 passed, 115 subtests passed`。
+- SPEED 主指标 RED：当 static 与 live 周期不同，旧报告错误地用 static 计算动态剪枝的 `npu_cycle_delta`；定向测试按预期 `1 failed`。
+- 统一 `run_b2_checks.ps1` 首次复核失败：`3 failed, 121 passed`。失败均为状态块接入后未更新的旧测试 token（`NUM_MI=3`、`Assert-B2TimingGreen`），不是 RTL/BD 实现错误；下一步更新合同为当前四从口和 `Get-B2SignoffMetrics`。
+- 已同步两份旧 B2 stream 合同到当前四 MI 状态块接口和结构化 signoff API；定向回归 `15 passed`。
+- 统一 `run_b2_checks.ps1` 复核通过：B2 合同 `124 passed`、T1 两门 PASS、`git diff --check` 无空白错误，最终 `B2_CHECKS_PASS`；该入口不含 Vivado 重建或板卡操作。
+- 功耗审查补出第二个管理漏洞并完成 RED→GREEN：旧实现把 `MEASURED` 无条件升级为 `power_gate=PASS`；新合同先以 `1 failed, 9 passed` 复现，修复后 speed/power 合同 `20 passed`。现在 `B3-POWER-MEASURED` 与 `B3-POWER-GATE` 分离，未冻结并满足降功耗判据前报告固定为 `power_goal_status=NOT_PROVEN / power_gate=OPEN`。
+- 首次全仓 `pytest -q` 终态为 `42 failed, 624 passed, 1 skipped, 12 errors, 327 subtests passed`（376.51 s）。失败集中在已归档 legacy 子树及仍留根目录的旧 ENeuron/Pulse/digit8x8 测试，它们继续按归档前相对路径寻找源码；B2/B3 当前定向入口此前均通过。下一步修正默认收集边界，不修改归档业务实现。
+- 新增 `pytest.ini` 显式排除 `archive/legacy` 与仍依赖归档前相对路径的根级历史测试，并增加收集边界合同；B0 runner hash 改为 canonical-LF 校验，内容自证据提交后无 Git 差异。收集为 392 项，当前主线全量结果 `391 passed, 1 skipped, 134 subtests passed`（117.95 s）。
+- 统一入口 `run_b2_checks.ps1 -Full` 最终通过：B2 `124 passed`、T1 两门 PASS、当前主线全量 `391 passed, 1 skipped, 134 subtests passed`、`git diff --check` PASS，输出 `B2_CHECKS_PASS`。本轮未运行 Vivado、未操作板卡或功耗仪。
+- 在基于最新 `origin/main` 的干净工作树复核统一入口：`B2_CHECKS_PASS`，其中当前 PR 基线为 `388 passed, 1 skipped, 134 subtests passed`；与原工作树 `391` 的差额来自未提交 lane-mask oracle 的 3 个测试。
+- 完成 Nexus 管理补丁：七个入口/结构化文件统一当前 B3 gate 层级，去掉临时 checkout 身份和 `B3_SPEED_PASS`；新增合同测试防止 domains/test coverage 再次把测量完成写成速度门通过。定向验证 `22 passed`、JSON 解析 PASS、过时门文本扫描为空、`git diff --check` PASS。

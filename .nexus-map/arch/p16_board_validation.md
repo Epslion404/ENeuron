@@ -1,14 +1,14 @@
 # P16 项目阶段 2：实板验证路线
 
 > generated_by: nexus-mapper v2 / manual synthesis
-> verified_at: 2026-09-12
-> provenance: Git HEAD `fe25a70` 与已提交 Host/manifest 人工核对；未提交 status probe / 计数器 RTL 不是签核源码身份。旧 t0-state 工作区不是现状。
+> verified_at: 2026-09-13
+> provenance: Git checkout 身份以命令实时输出为准；板级签核仍绑定 RTL `be84596` 与对应 bit/XSA/ELF/manifest。旧 t0-state 工作区不是现状。
 
-当前边界（中等精简）：实板部署目标为 `xc7z020clg484-2`，主线是板上 packet-NPU + ENeuron 动态剪枝。执行链为 `B3-MVP-GATE → B3-STRICT-GATE → B4-RELEASE-GATE`。高地址 DDR、PHY、UDP 与完整 B2-GATE 保留为发布依赖，但不阻塞低地址 packet-NPU 基线上的首次 `group_4way` live-ENeuron 实验。严格连接级 `2:4` 仍是 B3-08b。
+当前边界（中等精简）：实板部署目标为 `xc7z020clg484-2`，主线是板上 packet-NPU + ENeuron 动态剪枝。B3-MVP-GATE 已关闭；当前按 `B3-SPEED-GATE + B3-POWER-GATE → B3-GOAL-GATE` 收口。高地址 DDR、PHY、UDP 与完整 B2-GATE 保留为网口发布依赖；严格连接级 `2:4` 仍是独立 B3-08b/STRICT 实验，不前置到速度或功耗目标。
 
 authoritative_sources: `docs/planning/TODO.md`、`task_plan.md`、`findings.md`、`progress.md`
 
-当前工作流上下文（2026-09-12）：已提交 HEAD=`fe25a70`（`feat(board): add live ENeuron group_4way host decision`）。packet-NPU 在 `xc7z020clg484-2`、200 MHz 通过 routed timing 与合法 packet smoke；dense、bypass、full-open 和 `group_4way` static mixed 已完成 COM15 实板数值及 execute/skip 核对。B3-00、B3-02、B3-06、B3-07、B3-08a 已关闭。B3-09 组级 live 实板已关闭（COM15 `20260912T131302Z`，execute/skip=`296/296`）。当前执行点是 B3-11 epoch 与 B3-13/B3-14 小集合周期 A/B。工作树 DIRTY 的 status probe / 计数器 RTL 不是已签核源码身份。
+当前工作流上下文（2026-09-13）：packet-NPU 在 `xc7z020clg484-2`、200 MHz 通过 routed timing 与实板数值检查，B3-MVP-GATE 已关闭。`B3-SPEED-MEASURED` 只完成单样本诊断；Host live 决策约 996 µs，端到端加速未证明。外部功耗尚未测量。当前执行点是减少 Host live 决策开销、冻结可重复端到端速度判据并准备外部功耗测量合同；严格 `2:4` 继续作为独立结构实验。
 
 计数器物理与实板状态（2026-09-12）：构建绑定 HEAD `c3a50eb`，最终 `WNS/TNS=+0.008/0 ns`、`WHS/THS=+0.036/0 ns`，route/DRC hard errors=0、DSP48E1=4；bit/XSA SHA-256 为 `5c6ebc07…c910a88`/`86288374…177a614`。后续 dense/full-open/bypass 实板均读回 execute/skip=`592/0`，static mixed 为 `296/296`，因此基础数值与组级静态门已关闭。
 

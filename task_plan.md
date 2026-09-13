@@ -1851,7 +1851,7 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 停止条件：若 missing-TLAST 未形成可重复 timeout/error，保留证据并不把 B2-07 写成完成；不得接入 NPU/ENeuron。
 # 2026-09-10 最新状态收口
 
-状态：`IN_PROGRESS`
+状态：`COMPLETE`
 
 - [x] 轮询并完成 `639b403` 的 Vivado 2024.1 构建。
 - [x] 归档 `bit/XSA/report/log` 与 SHA-256 manifest 到 `artifacts/logs/b2_packet_npu_route_timing_fail_20260910_639b403/`。
@@ -1972,3 +1972,38 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 - [x] 在同一 bit/XSA、COM15 上完成 dense、full-open、bypass 三次实板运行，黄金 logits、CRC、sample/model/epoch 元数据和结果帧均通过。
 - [x] 通过 `probe_b2_state.tcl` 读回三种模式的 execute/skip=`592/0`，fence snapshot valid；关闭 B3-00、B3-06、B3-07。
 - [ ] 在 clean worktree 重建并冻结正式 manifest；继续执行 Host 静态 `2:4`、live-ENeuron、epoch/恢复、周期/吞吐和功耗 A/B。
+## 2026-09-13 新模型进展复核、管理修正与实现评审
+
+状态：`COMPLETE`
+
+目标：以 Git、测试和实板证据为准复核 `7c4dba9` 及当前未提交改动；把“完成测量”与“达到加速/功耗目标”分开；修正误导性的本地分支身份；评审 B3-SPEED、B3-POWER 和严格 `2:4` 参考实现。
+
+- [x] 核对最新提交、远端同步、工作树和 B3 实板证据。
+- [x] 修正 TODO/CURRENT_STATUS/WORKFLOW_STATE/Nexus 的 speed/power measured 与目标 gate 语义。
+- [x] 将本地分支改为 B3 语义并解除旧 B1B upstream；不删除或改写远端分支。
+- [x] 评审并验证 B3-SPEED、B3-POWER、lane-mask 参考模型；发现问题时做局部修复。
+- [x] 运行定向回归、状态合同、当前主线全量和 `git diff --check`，记录剩余硬件/仪器限制。
+
+成功标准：任何已勾选事项都不能被理解为端到端加速或功耗下降已证明；当前分支不再冒充 B1B 工作；评审结论能由代码、测试和原始证据复核。
+
+错误记录：首次将两份测试和 `findings.md` 合并为单个补丁时，因 `findings.md` 标题上下文与实际文件不一致而被原子拒绝，未产生部分修改；随后先定位实际段落，再用精确上下文重试。
+
+RED 记录：新增“完成外部测量不能自动关闭降功耗目标”合同后，旧实现为 `1 failed, 9 passed`，缺少 `power_goal_status` 且无条件返回 `power_gate=PASS`；按 fail-closed 语义修复为 `NOT_PROVEN/OPEN`。
+
+错误记录：一次 Windows `rg` 将 `test_*.py` 作为路径参数，返回文件名语法错误；算法源码查询仍成功。后续改用 `-g 'test_*.py'` 过滤，不重复原命令。
+
+全量回归错误记录：根目录直接执行 `pytest -q` 得到 `42 failed, 624 passed, 1 skipped, 12 errors, 327 subtests passed`。主要失败族是中等精简后已归档的 ENeuron 1.0/Pulse-Mini/digit8x8 源文件仍被 `archive/legacy` 和根级旧测试自动收集，报缺失旧相对路径；这与本轮 B3 报告改动无关，但说明默认测试入口管理尚未随归档边界收口。不得原样重跑；下一步先审计 pytest 配置与失败文件归属，再建立当前主线默认收集边界。
+
+错误记录：首次读取 B0 证据详情时假定摘要位于 `artifacts/logs/hellozynq_b0/b0_evidence_summary.json`，实际文件名/位置不同，导致后续目录变量为空并列出仓库根；未修改文件。下一次先从测试 `setUpClass` 读取真实路径，不重复猜测。
+
+收集边界迭代 1：加入 legacy 排除后，默认 pytest 在收集期暴露 `test_compare_simulation.py` 与 `test_run_local_prune_b2.py` 仍导入已归档的 Pulse 模块，终态为 2 collection errors。两者同属归档前多模型支线，已加入显式历史测试清单；下一次用更新后的边界重跑，不重复原配置。
+
+最终验证：`run_b2_checks.ps1 -Full` 通过；B2 合同 `124 passed`，T1 两门 PASS，当前主线全量 `391 passed, 1 skipped, 134 subtests passed`，`git diff --check` 无错误。未运行 Vivado 重建、未重新烧写板卡、未进行外部功耗测量。
+
+提交边界：管理/测试入口与 B3 目标门修复可进入当前 B3 分支；`npu_eneuron_reference.py` 与 `test_npu_eneuron_reference.py` 的 lane-mask oracle 保持独立未提交切片，三个大体积 Vivado/失败证据目录和 `.planning/` 不暂存、不删除。
+
+管理收口：两笔评审提交已重放到最新 `origin/main` 的独立干净工作树；补齐 Nexus 七处当前入口/结构化状态，去除临时分支身份与 `B3_SPEED_PASS` 旧语义。待提交、推送、创建 PR 并核对合并状态。
+
+错误记录：首次批量 Nexus 补丁含一处错误上下文，`apply_patch` 原子拒绝且未产生部分修改；随后拆成精确小补丁。一次 PowerShell `rg` 正则因 shell 引号截断而失败，后续改用多项 `-F -e` 固定字符串查询并得到 `NEXUS_STALE_GATE_TEXT_NONE`。
+
+错误记录：一次定向测试调用误填了不存在的工作目录，进程未启动；随后改用已核实的 `D:/Documents/Code/ENeuron-board-b0-pr-review`，workflow Check、22 项定向测试、JSON 解析和差异检查均通过。

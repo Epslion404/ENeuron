@@ -52,6 +52,32 @@ def _speed_record(mode: str, *, cycles: int, execute: int, skip: int, logits: tu
 
 
 class B3SpeedReportContractTests(unittest.TestCase):
+    def test_current_docs_separate_measurement_from_speed_gate(self) -> None:
+        root = Path(__file__).resolve().parent
+        todo = (root / "docs/planning/TODO.md").read_text(encoding="utf-8")
+        current = (root / "docs/CURRENT_STATUS.md").read_text(encoding="utf-8")
+        workflow = (root / "WORKFLOW_STATE.md").read_text(encoding="utf-8")
+        self.assertIn("- [x] B3-SPEED-MEASURED", todo)
+        self.assertIn("- [ ] B3-SPEED-GATE", todo)
+        self.assertIn("B3_SPEED_GATE_OPEN", current)
+        self.assertIn("B3-SPEED-GATE", workflow)
+        self.assertNotIn("B3_SPEED_PASS", current)
+
+    def test_nexus_keeps_speed_measurement_separate_from_goal_gate(self) -> None:
+        root = Path(__file__).resolve().parent
+        domains = (root / ".nexus-map/concepts/domains.md").read_text(encoding="utf-8")
+        coverage = (root / ".nexus-map/arch/test_coverage.md").read_text(encoding="utf-8")
+        hierarchy = json.loads(
+            (root / ".nexus-map/concepts/p16_board_validation.json").read_text(encoding="utf-8")
+        )["b3_gate_hierarchy"]
+        self.assertIn("B3_SPEED_MEASURED / B3_SPEED_GATE_OPEN", domains)
+        self.assertNotIn("`B3_SPEED_PASS`", domains)
+        self.assertIn("B3-SPEED-GATE=OPEN", coverage)
+        self.assertEqual(
+            hierarchy["parallel_goal_gates"], ["B3-SPEED-GATE", "B3-POWER-GATE"]
+        )
+        self.assertIn("B3-POWER-MEASURED", hierarchy["current_gates"])
+
     def test_committed_board_artifact_keeps_four_segments_and_forbids_e2e_claim(self) -> None:
         path = Path(__file__).resolve().parent / "artifacts/logs/b3_speed_20260912_be84596/b3_speed_comparison.json"
         data = json.loads(path.read_text(encoding="utf-8"))
@@ -59,7 +85,10 @@ class B3SpeedReportContractTests(unittest.TestCase):
         forbid_end_to_end_from_npu_cycles(data)
         self.assertEqual(data["schema"], "eneuron_b3_speed_comparison_v1")
         self.assertEqual(data["claim"], "local_npu_cycle_delta_only")
-        self.assertIs(data["end_to_end_accelerated"], False)
+        self.assertEqual(data["measurement_status"], "SINGLE_SAMPLE_DIAGNOSTIC")
+        self.assertEqual(data["speed_gate"], "OPEN")
+        self.assertEqual(data["end_to_end_acceleration_status"], "NOT_PROVEN")
+        self.assertEqual(data["timing_relationship"], "nested_not_additive")
         rows = {row["mode"]: row for row in data["rows"]}
         self.assertEqual(set(rows), set(REQUIRED_MODES))
         for row in rows.values():
@@ -113,7 +142,10 @@ class B3SpeedReportContractTests(unittest.TestCase):
                 self.assertIsInstance(row[field], int)
                 self.assertGreaterEqual(row[field], 0)
         self.assertEqual(comparison["claim"], "local_npu_cycle_delta_only")
-        self.assertIs(comparison["end_to_end_accelerated"], False)
+        self.assertEqual(comparison["measurement_status"], "SINGLE_SAMPLE_DIAGNOSTIC")
+        self.assertEqual(comparison["speed_gate"], "OPEN")
+        self.assertEqual(comparison["end_to_end_acceleration_status"], "NOT_PROVEN")
+        self.assertEqual(comparison["timing_relationship"], "nested_not_additive")
 
     def test_live_must_not_collapse_into_static(self) -> None:
         records = {
@@ -197,7 +229,8 @@ class B3SpeedReportContractTests(unittest.TestCase):
         }
         comparison = build_speed_comparison(records)
         self.assertEqual(comparison["npu_cycle_delta"], 888)
-        self.assertIs(comparison["end_to_end_accelerated"], False)
+        self.assertEqual(comparison["speed_gate"], "OPEN")
+        self.assertEqual(comparison["end_to_end_acceleration_status"], "NOT_PROVEN")
         poisoned = dict(comparison)
         poisoned["end_to_end_accelerated"] = True
         poisoned["claim"] = "end_to_end_acceleration"
@@ -205,6 +238,33 @@ class B3SpeedReportContractTests(unittest.TestCase):
         with self.assertRaises(ValueError) as claim_ctx:
             forbid_end_to_end_from_npu_cycles(poisoned)
         self.assertIn("end-to-end", str(claim_ctx.exception).lower())
+
+    def test_primary_npu_cycle_delta_uses_live_not_static_mode(self) -> None:
+        records = {
+            "b3_dense": _speed_record(
+                "b3_dense", cycles=2494, execute=592, skip=0,
+                logits=(165, -18, 14, 0, 0, 0, 0, 0, 0, 153),
+                source="none_full_open_or_dense", ps_us=10, dma_us=20, uart_us=30000,
+            ),
+            "b3_full_open": _speed_record(
+                "b3_full_open", cycles=2494, execute=592, skip=0,
+                logits=(165, -18, 14, 0, 0, 0, 0, 0, 0, 153),
+                source="host_full_open_mask", ps_us=10, dma_us=20, uart_us=30000,
+            ),
+            "b3_static_mixed": _speed_record(
+                "b3_static_mixed", cycles=1400, execute=250, skip=342,
+                logits=(74, -18, 14, 0, 0, 0, 0, 0, 0, 114),
+                source="host_replay_static_mixed", ps_us=10, dma_us=20, uart_us=30000,
+            ),
+            "b3_live_eneuron": _speed_record(
+                "b3_live_eneuron", cycles=1700, execute=350, skip=242,
+                logits=(165, -18, 14, 0, 0, 0, 0, 0, 0, 153),
+                source="live_eneuron_s2", ps_us=10, dma_us=20, uart_us=30000,
+            ),
+        }
+        comparison = build_speed_comparison(records)
+        self.assertEqual(comparison["npu_cycle_delta"], 794)
+        self.assertEqual(comparison["static_npu_cycle_delta"], 1094)
 
     def test_parse_speed_split_from_shipped_uart_line(self) -> None:
         text = "B3_SPEED_SPLIT ps_us=120 dma_us=800\nB3_DENSE_PASS logits=1,2,3,4,5,6,7,8,9,10\n"

@@ -2,11 +2,11 @@
 
 > generated_by: nexus-mapper v2 / manual synthesis
 > verified_at: 2026-09-13
-> provenance: live tree=`D:/Documents/Code/ENeuron-board-b0`，分支 `codex/b1b-high-ddr-board-repro` / PR #88。bitstream RTL 身份 `be84596`。`D:/Documents/Code/ENeuron` 不是当前 live tree。SPEED 证据 `artifacts/logs/b3_speed_20260912_be84596/b3_speed_comparison.json`。
+> provenance: live tree=`D:/Documents/Code/ENeuron-board-b0`；Git checkout 身份以 `git branch --show-current` 与 `git rev-parse HEAD` 的实时输出为准，历史分支/PR 名称仅作来源。bitstream RTL 身份 `be84596`。`D:/Documents/Code/ENeuron` 不是当前 live tree。SPEED 证据 `artifacts/logs/b3_speed_20260912_be84596/b3_speed_comparison.json`。
 
-## 当前权威快照（2026-09-13，日常主线 B3-POWER）
+## 当前权威快照（2026-09-13，日常主线 B3-SPEED-GATE / B3-POWER-GATE）
 
-器件 `xc7z020clg484-2`。日常主线是 `B3-POWER`（外部功耗），不是 B3-08b。主线仍是板上 packet-NPU + ENeuron 组级动态剪枝。live tree 是本工作树 / PR #88，不是 `D:/Documents/Code/ENeuron`。
+器件 `xc7z020clg484-2`。日常主线是 `B3-SPEED-GATE`（端到端速度）与 `B3-POWER-GATE`（外部功耗目标），不是 B3-08b。主线仍是板上 packet-NPU + ENeuron 组级动态剪枝。live tree 是本工作树；PR #88 仅作历史来源，不是当前分支身份。
 
 B3-MVP-GATE 已关。同一份集中 Vivado 2024.1 bitstream：RTL 身份 `be84596`，200 MHz FCLK0，WNS=+0.045 ns，TNS=0，WHS=+0.036 ns，THS=0，route/DRC hard errors=0，DSP48E1=4。bit SHA-256=`0ecbe76274c39418f2a60a88358d3ff6f09f5a2ed73a44a3a419c34eb91d3a11`，XSA SHA-256=`135d979d61c629922ee5419e51dd97ef045d9bab79930432816d09f109291d1a`。
 
@@ -14,7 +14,9 @@ B3-MVP-GATE 已关。同一份集中 Vivado 2024.1 bitstream：RTL 身份 `be845
 
 四模式 A/B 两轮一致：dense/full-open 592/0 组、2494 cycles、logits 165,-18,14,0,0,0,0,0,0,153；static mixed 296/296、1606 cycles、logits 74,-18,...,114、`decision_source=host_replay_static_mixed`；live-ENeuron 296/296、1606 cycles、dense logits、`decision_source=live_eneuron_s2`。同源 bit `be84596` / SHA `0ecbe762…3a11`、COM15 系统路径：dense/full-open PS 7 µs、DMA ~60 µs、UART ~66–77 ms；static DMA 56 µs、UART 63 ms；live PS 996 µs、DMA 56 µs。只可声称 `group_4way` 动态剪枝正确性 + 局部 NPU 周期差值 888 cycles。禁止：888 当端到端加速、Vivado 功耗当板上功耗、19-word 当连接级 `2:4`。
 
-`B3-SPEED` 已关。`B3-POWER` 仪器合同已冻结，本机无功耗仪，`POWER_NOT_MEASURED`，门保持打开。证据 `artifacts/logs/b3_power_20260913_be84596/`。`B3-STRICT-GATE` 是结构实验。后文旧 HEAD 只描述当时证据身份。
+`B3-SPEED-MEASURED` 已完成单样本诊断，但 `B3-SPEED-GATE` 因端到端加速未证明而保持打开。功耗仪器合同已冻结，本机无功耗仪，`POWER_NOT_MEASURED`；`B3-POWER-MEASURED` 与 `B3-POWER-GATE` 均保持打开，且完成测量不自动代表降功耗。`B3-GOAL-GATE` 只有速度与功耗目标均通过才能关闭。证据 `artifacts/logs/b3_power_20260913_be84596/`。`B3-STRICT-GATE` 是独立结构实验。后文旧 HEAD 只描述当时证据身份。
+
+pytest 日常主线收集边界由根目录 `pytest.ini` 冻结：递归排除 `archive/`、`.planning/`、Git/Xilinx/pytest 缓存目录，并忽略仍依赖归档前相对路径的根级 legacy 测试；历史文件保留，但不参与当前 ZYNQ7020 日常门。边界合同由 `test_pytest_scope_contract.py` 检查；完整 B2 编排入口为 `run_b2_checks.ps1 -Full`。
 
 ## 当前边界校正（中等精简）
 
@@ -22,7 +24,7 @@ B3-MVP-GATE 已关。同一份集中 Vivado 2024.1 bitstream：RTL 身份 `be845
 
 部署主线固定为 `xc7z020clg484-2` 的 NPU + ENeuron 组级动态剪枝。`xc7z020clg400-1` 上的 T3/NP7 OOC 与资源/时序报告仅作历史结构参考，不能替代 `clg484-2` 最终 routed 证据；`archive/legacy/` 内容不进入日常 CI/PR 门。B1 高地址 DDR、PHY 和 UDP 是板卡资格支线，仍决定完整 `B1-GATE`，但不回写已关闭的 B3-MVP。CH340 设备按 `VID_1A86:PID_7523` 识别，COM 编号仅作现场观测；双设备时必须显式 COM15。
 
-合同层级（2026-09-12）：当前阶段合同为 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`；P16 TODO 段、`NPU_PRUNING_TODO.md` 和 `NPU_PRUNING_NP7_TODO.md` 是关联合同。当前执行链为 `B3-STRICT-GATE → B4-RELEASE-GATE`。B2-GATE 仍是完整 packet 发布门，未关闭。严格 `2:4`、10000 样本、完整恢复属于 STRICT；网口和外部功耗属于 B4。
+合同层级（2026-09-13）：当前阶段合同为 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`；P16 TODO 段、`NPU_PRUNING_TODO.md` 和 `NPU_PRUNING_NP7_TODO.md` 是关联合同。当前执行链为 `B3-SPEED-GATE + B3-POWER-MEASURED/B3-POWER-GATE → B3-GOAL-GATE`。B2-GATE 仍是完整 packet/网口发布门，未关闭。严格 `2:4`、10000 样本和完整恢复属于独立 STRICT 实验；外部功耗测量属于 B3-POWER，网口负载差异再由 B4 补充。
 
 B1B状态（2026-09-08）：当前B1A硬件身份为`29edf6a...`，B1B软件身份为`97ddd1a...`，bitstream/XSA/ELF为`1f98e949...bc5f6`、`ed4a2ff...d417b`、`4992d26c...128560`。正式UART为Bank 33的V14 RX/V15 TX，外置CH340按 VID/PID 自动发现（现场枚举 COM10）并在三次完整断电冷启动后收到完整协议；低地址1 MiB DDR九阶段与OCM记录也三次通过。`0x10000000`异常未关闭且高地址尚未访问，B1B与`B1-GATE`仍未完成。`hsi::open_hw_design`只能对临时XSA副本运行，正式build目录保持只读。
 

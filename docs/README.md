@@ -4,6 +4,8 @@
 
 项目根目录只保留项目入口、持久工作流和规划记忆文件。历史研究线和旧器件物理材料统一放在 [`archive/legacy/`](../archive/legacy/README.md)，不再出现在活动门中。
 
+根目录 `pytest.ini` 固定当前主线的默认测试收集边界：`python -m pytest -q` 不递归历史归档，也不运行仍依赖归档前相对路径的旧根级测试。B2 的快速日常入口仍是 `run_b2_checks.ps1`；历史测试文件保留用于追溯，不以修补冻结代码来维持当前门。
+
 ## 设计与合同
 
 - [动态恢复型局部剪枝门控提案](design/DESIGN_PROPOSAL_DYNAMIC_PRUNE_RECOVERY.md)
