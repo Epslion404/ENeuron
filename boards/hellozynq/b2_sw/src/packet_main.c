@@ -771,7 +771,7 @@ static int power_configure_mask(u32 mode, u32 epoch)
     return power_send_command(OP_MASK_COMMIT, epoch, 0U);
 }
 
-static int power_run_inference(u32 mode, u32 *epoch, u32 sample_id)
+static int power_run_inference(u32 *epoch, u32 sample_id)
 {
     /* T1 合同规定每次 fence 只开放一个 8-beat 样本窗口。 */
     if (power_send_fence(*epoch) != XST_SUCCESS) {
@@ -803,7 +803,7 @@ static int run_power_measurement_window(u32 mode, u32 *epoch)
             usleep(1000U);
         } else {
             u32 sample_id = 0x50000000U + power_result->valid_inferences;
-            if (power_run_inference(mode, epoch, sample_id) != XST_SUCCESS) {
+            if (power_run_inference(epoch, sample_id) != XST_SUCCESS) {
                 ++power_result->failed_inferences;
                 power_result->error_code = 4U;
                 return XST_FAILURE;
@@ -883,7 +883,7 @@ static int run_power_benchmark(void)
     }
     if (power_mode != POWER_MODE_IDLE) {
         for (index = 0U; index < power_control->warmup_samples; ++index) {
-            if (power_run_inference(power_mode, &epoch, 0x40000000U + index) != XST_SUCCESS) {
+            if (power_run_inference(&epoch, 0x40000000U + index) != XST_SUCCESS) {
                 power_result->error_code = 3U;
                 power_result->status = POWER_STATUS_FAIL;
                 memory_barrier();
