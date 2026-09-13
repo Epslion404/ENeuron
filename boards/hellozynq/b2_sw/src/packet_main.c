@@ -778,9 +778,10 @@ static int power_run_inference(u32 mode, u32 *epoch, u32 sample_id)
         if (power_configure_mask(mode, *epoch) != XST_SUCCESS) {
             return XST_FAILURE;
         }
-        if (power_send_fence() != XST_SUCCESS) {
-            return XST_FAILURE;
-        }
+    }
+    /* T1 合同规定每次 fence 只开放一个 8-beat 样本窗口。 */
+    if (power_send_fence() != XST_SUCCESS) {
+        return XST_FAILURE;
     }
     return power_send_sample(*epoch, sample_id);
 }
@@ -793,7 +794,7 @@ static int power_activate_initial_mask(u32 mode, u32 epoch)
     if (power_configure_mask(mode, epoch) != XST_SUCCESS) {
         return XST_FAILURE;
     }
-    return power_send_fence();
+    return XST_SUCCESS;
 }
 
 static int run_power_measurement_window(u32 mode, u32 *epoch)
