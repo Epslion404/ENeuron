@@ -4,7 +4,7 @@
 
 ## 结论
 
-当前项目状态为：`FUNCTIONAL_PASS / PHYSICAL_PASS / B3_MVP_GATE_PASS / B3_L0_CACHE_BOARD_DIAGNOSTIC_PASS / B3_SPEED_MEASURED / B3_SPEED_GATE_OPEN / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B3_STRICT_DEFERRED_STRUCTURAL / B2_GATE_PENDING`。
+当前项目状态为：`FUNCTIONAL_PASS / PHYSICAL_PASS / B3_MVP_GATE_PASS / B3_L0_CACHE_BOARD_DIAGNOSTIC_PASS / B3_SPEED_MEASURED / B3_SPEED_GATE_OPEN / B3_POWER_SINGLE_ROUND_IDLE_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B3_STRICT_DEFERRED_STRUCTURAL / B2_GATE_PENDING`。
 
 主线是 `xc7z020clg484-2` 上部署 NPU，并用 ENeuron 组级动态剪枝证明推理加速与功耗下降。B3-MVP-GATE 已关：同一 200 MHz bitstream 上 dense/full-open/static/live 小集合 A/B、epoch 读回和局部周期差值可回放。单样本速度诊断已完成，但端到端加速未证明；外部功耗未测。严格连接级 `2:4` 是结构实验，不是当前加速硬门。
 
@@ -42,7 +42,7 @@
 - clean worktree 重建，确认最终可复现 manifest。
 - B2-06～B2-10 的多 packet、完整错误矩阵、复位账本、统一时间戳和正式机器证据包。
 - B2-GATE 发布门。
-- B3-MVP-GATE 已关。`B3-SPEED-MEASURED` 已完成，但它只是单样本嵌套计时诊断；`B3-SPEED-GATE` 因端到端加速未证明而保持打开。B3 人工功耗协议 V2、统一 benchmark、JTAG 静默 runner 和报告工具已就绪，但没有真实读数，仍是 `POWER_NOT_MEASURED`；`B3-POWER-MEASURED` 与 `B3-POWER-GATE` 都未关闭。
+- B3-MVP-GATE 已关。`B3-SPEED-MEASURED` 已完成，但它只是单样本嵌套计时诊断；`B3-SPEED-GATE` 因端到端加速未证明而保持打开。2026-09-13 已完成一轮 `b3_idle` 连续人工观察：2033 s、累计 890 mWh，证据见 `artifacts/logs/b3_power_manual/continuous_b3_idle_20260913T082500Z/`。该结果仅是单轮 idle 基线；`B3-POWER-MEASURED` 与 `B3-POWER-GATE` 仍未关闭，仪表型号/标称准确度和照片证据缺失。
 - 计数器对外仍保持 32 位 AXI-Lite 读口；核心内部加法收窄为 24 位，可覆盖 B3-13 的 10000 样本上限（`592 * 10000 = 5,920,000 < 2^24`）。
 - Pulse-Mini-L/L2 集成。它们是冻结的候选/历史支线，不是当前日常门。
 
@@ -50,7 +50,7 @@
 
 ## 下一步
 
-1. 主线并列为 `B3-SPEED-GATE` 与 `B3-POWER-GATE`：速度线仍需冻结不含 UART 的重复端到端 A/B；功耗线的测量协议已冻结，下一步是在 clean 提交身份上重建统一 ELF，并用串联 Type-C 功率计采集五轮四模式真实数据。当前分别为 `END_TO_END_ACCELERATION_NOT_PROVEN` 与 `POWER_NOT_MEASURED`。
+1. 主线并列为 `B3-SPEED-GATE` 与 `B3-POWER-GATE`：速度线仍需冻结不含 UART 的重复端到端 A/B；功耗线已有单轮 idle 基线，仍需按合同采集 dense/static/live 并完成五轮四模式真实数据。当前分别为 `END_TO_END_ACCELERATION_NOT_PROVEN` 与 `POWER_SINGLE_ROUND_IDLE_MEASURED`。
 2. B2-GATE 剩余项并行，挡网口发布。
 3. 不把 888 cycle 写成端到端加速，不用 Vivado 估算冒充板上功耗。
 
