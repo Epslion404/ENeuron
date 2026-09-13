@@ -69,6 +69,8 @@ class B3ManualPowerRunnerContractTests(unittest.TestCase):
         ):
             self.assertIn(token, source)
         self.assertNotIn("uart", source.lower())
+        self.assertIn("Get-Content -LiteralPath $contractPath -Raw -Encoding UTF8", source)
+        self.assertIn("Get-Content -LiteralPath $manifestPath -Raw -Encoding UTF8", source)
         self.assertIn("@('b3_idle', 'b3_dense', 'b3_static_mixed', 'b3_live_eneuron')", source)
         self.assertIn("@('b3_live_eneuron', 'b3_static_mixed', 'b3_dense', 'b3_idle')", source)
 

@@ -203,7 +203,7 @@ if ($Round -ne $expectedRound -or $Mode -ne $expectedOrder[$expectedIndex]) {
 }
 
 $contractPath = Join-Path $repoRoot 'tools\repro\b3_power_instrument_contract.json'
-$contract = Get-Content -LiteralPath $contractPath -Raw | ConvertFrom-Json
+$contract = Get-Content -LiteralPath $contractPath -Raw -Encoding UTF8 | ConvertFrom-Json
 if ($contract.schema -ne 'eneuron_b3_power_instrument_contract_v2' -or
     [int]$contract.minimum_duration_seconds -ne 300 -or
     [int]$contract.minimum_valid_inferences -ne 10000 -or
@@ -219,7 +219,7 @@ $manifestPath = Join-Path $buildRoot 'packet_build_manifest.json'
 if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf)) {
     throw "Run run_b2_packet_sw_build.ps1 -B3PowerBench first: $manifestPath"
 }
-$buildManifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
+$buildManifest = Get-Content -LiteralPath $manifestPath -Raw -Encoding UTF8 | ConvertFrom-Json
 if ($buildManifest.application_mode -ne 'b3_power_bench' -or -not [bool]$buildManifest.git_tracked_worktree_clean) {
     throw 'Power benchmark manifest is not a clean b3_power_bench build'
 }
