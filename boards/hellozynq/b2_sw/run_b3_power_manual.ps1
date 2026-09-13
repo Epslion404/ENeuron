@@ -113,7 +113,14 @@ function Start-OwnedHwServer {
     if (-not (Test-Path -LiteralPath $HwServerPath -PathType Leaf)) {
         throw "hw_server not found: $HwServerPath"
     }
-    $ownedHwServer = Start-Process -FilePath $HwServerPath -ArgumentList '-s', 'tcp::3121' -WindowStyle Hidden -PassThru
+    $startInfo = [Diagnostics.ProcessStartInfo]::new()
+    $startInfo.FileName = $HwServerPath
+    $startInfo.Arguments = '-s tcp::3121'
+    $startInfo.UseShellExecute = $false
+    $startInfo.CreateNoWindow = $true
+    $startInfo.EnvironmentVariables['HW_SERVER_FTDIMGR_DISABLE'] = '0'
+    $startInfo.EnvironmentVariables['HW_SERVER_DJTG_DISABLE'] = '0'
+    $ownedHwServer = [Diagnostics.Process]::Start($startInfo)
     try {
         $deadline = [DateTime]::UtcNow.AddSeconds(10)
         while ([DateTime]::UtcNow -lt $deadline) {
