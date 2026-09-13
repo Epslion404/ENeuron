@@ -691,15 +691,17 @@ static int power_send_fence(u32 expected_epoch)
     volatile u32 *const rx = (volatile u32 *)RX_BUFFER_BASE;
     u32 response_words = 0U;
     u32 request_sequence = sequence;
+    u32 active_epoch;
     u32 frame_bytes = build_command_frame(tx, OP_SAMPLE_FENCE, 0U, 0x00000F00U, MODEL_ID);
     if (submit_frame(frame_bytes, MAX_FRAME_BYTES, 1U, &response_words) != XST_SUCCESS) {
         return XST_FAILURE;
     }
     Xil_DCacheInvalidateRange(RX_BUFFER_BASE, MAX_FRAME_BYTES);
+    active_epoch = (rx[9] >> 16U) | ((rx[10] & 0x0000FFFFU) << 16U);
     if (response_words != 13U || rx[1] != 0x08000301U || rx[2] != 16U ||
         rx[3] != request_sequence || rx[5] != MODEL_ID || rx[6] != 0U ||
-        rx[8] != 0U || (rx[9] >> 16U) != (expected_epoch & 0xFFFFU) ||
-        rx[10] != (0x0F000000U | ((expected_epoch >> 16U) & 0xFFFFU)) ||
+        rx[8] != 0U || active_epoch > expected_epoch ||
+        (rx[10] & 0xFFFF0000U) != 0x0F000000U ||
         rx[11] != 0xD0A00000U) {
         return XST_FAILURE;
     }
