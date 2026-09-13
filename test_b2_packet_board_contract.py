@@ -128,12 +128,23 @@ class B2PacketBoardContractTests(unittest.TestCase):
         inference = source.split("static int power_run_inference", 1)[1]
         inference = inference.split("static int power_activate_initial_mask", 1)[0]
         live_branch = inference.split("if (mode == POWER_MODE_LIVE_ENEURON)", 1)[1]
-        self.assertEqual(inference.count("power_send_fence()"), 1)
-        self.assertIn("power_send_fence()", live_branch)
+        self.assertEqual(inference.count("power_send_fence("), 1)
+        self.assertIn("power_send_fence(", live_branch)
 
         benchmark = source.split("static int run_power_benchmark", 1)[1]
         benchmark = benchmark.split("int main(void)", 1)[0]
         self.assertIn("power_activate_initial_mask(power_mode, epoch)", benchmark)
+
+    def test_power_benchmark_precomputes_live_mask_before_warmup(self):
+        source = (ROOT / "boards/hellozynq/b2_sw/src/packet_main.c").read_text(encoding="utf-8")
+        benchmark = source.split("static int run_power_benchmark", 1)[1]
+        benchmark = benchmark.split("int main(void)", 1)[0]
+        self.assertIn("compute_live_group4way_mask();", benchmark)
+        self.assertIn("if (live_mask_ready == 0U)", benchmark)
+        self.assertLess(
+            benchmark.index("compute_live_group4way_mask();"),
+            benchmark.index("for (index = 0U; index < power_control->warmup_samples; ++index)"),
+        )
 
     def test_packet_software_build_reads_single_b3_golden_manifest(self):
         source = (ROOT / "boards/hellozynq/b2_sw/run_b2_packet_sw_build.ps1").read_text(encoding="utf-8")

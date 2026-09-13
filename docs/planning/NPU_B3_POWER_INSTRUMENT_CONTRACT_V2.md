@@ -28,6 +28,6 @@
 
 ## 门限边界
 
-完成五轮四模式、全部窗口门限、正确性门和证据哈希后，只能把 `B3-POWER-MEASURED` 改为完成。当前没有真实读数，因此仍为 `POWER_NOT_MEASURED`。禁止用 Vivado 功耗估算替代板上读数。
+完成五轮四模式、全部窗口门限、正确性门和证据哈希后，只能把 `B3-POWER-MEASURED` 改为完成。当前已有 idle 基线和 dense 部分观察，但尚未形成完整合同窗口，因此仍不能关闭 `B3-POWER-MEASURED`。禁止用 Vivado 功耗估算替代板上读数。
 
 `B3-POWER-GATE` 比较 live 与 dense 的五轮“每次正确推理总能耗”中位数；只有 live 更低，且差值严格超过按本次仪表标称准确度计算的保守不确定度界限，才能另行人工审核关闭。报告生成器固定输出 `power_goal_status=NOT_PROVEN / power_gate=OPEN`，不会自动越权。`B3-GOAL-GATE` 仍要求速度门与功耗门都实际通过。

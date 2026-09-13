@@ -2168,3 +2168,35 @@
 - 统一 `run_b2_checks.ps1 -Full` 通过：当前主线全仓 `392 passed, 1 skipped, 134 subtests passed`，T1 两门与差异检查通过，输出 `B2_CHECKS_PASS`。
 - 补充 B4/STRICT 依赖一致性 RED→GREEN：P16 JSON 与架构文档不再把严格 2:4 当作网口发布前置；Nexus 两份 JSON 解析和定向合同通过。
 - 在干净提交 `82b079e` 上重建 live ELF 并用 COM15 连续完成三次实板 PASS；新 `ps_us` 为 827/829/828，所有数值、计数、周期和协议错误判据通过。三组 UART/XSCT/probe/run manifest 与机器摘要归档到 `artifacts/logs/b3_live_l0_cache_20260913_82b079e/`。
+
+## 2026-09-13 dense 人工功耗提前终止记录
+
+- 用户结束 `b3_dense` 连续观察，原始读数已写入 `artifacts/logs/b3_power_manual/continuous_b3_dense_20260913T100808Z/`。
+- 观察时间 `18:11:51–18:39:34`（1663 s），累计 `151 mAh / 730 mWh`，由累计量折算平均输入功率约 `1.58027661 W`；仪表为 B10 高精度 Type-C 多功能测试表，标称精度 `<0.2%`。
+- 停止前板端 `status=3 (RUNNING)`、有效推理 `8499751`、失败/协议错误均为 `0`；停止 Tcl 返回 `B3_POWER_CPU_STOP_REQUESTED`，停止后复探针因 `no targets found` 不可用。
+- 本轮标记为 `EARLY_TERMINATED_DENSE_OBSERVATION`，未完成 `3600 s` 合同窗口、未提供照片，不能计入五轮四模式正式功耗门；`B3-POWER-MEASURED`、`B3-POWER-GATE`、`B3-GOAL-GATE` 保持未关闭。
+
+## 2026-09-13 dense 一小时窗口提前终止记录
+
+- 用户要求将 dense 窗口延长至一小时；旧 `900 s` 窗口先停止，随后以同一 bitstream/ELF 启动配置为 `3600 s` 的新窗口。
+- 用户于 `19:44:17–20:12:21`（1684 s）结束本轮，原始读数已写入 `artifacts/logs/b3_power_manual/continuous_b3_dense_20260913T114249Z/`。
+- 累计 `151 mAh / 734 mWh`，由累计量折算平均输入功率约 `1.56912114 W`；停止后 probe 可见，`valid_inferences=8412993`、失败/协议错误均为 `0`，但状态仍为 `RUNNING` 快照。
+- 本轮标记为 `EARLY_TERMINATED_DENSE_OBSERVATION`，未完成 `3600 s` 合同窗口、未提供照片，不能计入五轮四模式正式功耗门；功耗和目标门保持未关闭。
+
+## 2026-09-13 dense 阶段收口
+
+- 用户确认 dense 阶段以工程基线测量完成处理：两次观察均满足最短时间和累计电量差，且有效推理/错误计数稳定。
+- 该收口只改变工作阶段标记，不关闭 `B3-POWER-MEASURED`、`B3-POWER-GATE` 或 `B3-GOAL-GATE`；下一阶段进入 `b3_static_mixed`。
+
+## 2026-09-13 static mixed 阶段收口
+
+- 用户结束 `b3_static_mixed` 连续观察，原始读数已写入 `artifacts/logs/b3_power_manual/continuous_b3_static_mixed_20260913T123121Z/`。
+- 观察时间 `20:32:37–20:58:53`（1576 s），累计 `142 mAh / 686 mWh`，由累计量折算平均输入功率约 `1.56700508 W`；停止后 probe 可见，`valid_inferences=8093983`、失败/协议错误均为 `0`。
+- 本轮标记为 `EARLY_TERMINATED_STATIC_MIXED_OBSERVATION`，未完成 `3600 s` 合同窗口、未提供照片，不能计入五轮四模式正式功耗门；下一阶段进入 `b3_live_eneuron`。
+
+## 2026-09-13 dense/static 工程收益初算
+
+- 以两次 dense 观察合并基线（`1464 mWh / 3347 s`，约 `1.57466388 W`）对比一次 static mixed 观察（`686 mWh / 1576 s`，约 `1.56700508 W`）。
+- static mixed 初步显示整板平均功率下降约 `0.00765880 W`，相对 `0.4864%`；该差值接近仪表 `<0.2%` 标称准确度与运行波动，不能视为已证明的降功耗收益。
+- 按板端有效推理计，dense 合并约 `0.311623 mJ/次`，static mixed 约 `0.305116 mJ/次`，表观下降约 `2.0882%`；有效推理吞吐约从 `5053.1 次/s` 到 `5135.8 次/s`，表观提升约 `1.63%`。
+- 以上只用于工程趋势判断；未完成 live-ENeuron 对照、正式五轮、完整窗口和照片证据，`B3-POWER-GATE` 保持打开。

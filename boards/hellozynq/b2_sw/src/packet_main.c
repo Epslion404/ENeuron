@@ -878,6 +878,15 @@ static int run_power_benchmark(void)
     }
 
     power_mode = power_control->mode;
+    if (power_mode == POWER_MODE_LIVE_ENEURON) {
+        compute_live_group4way_mask();
+        if (live_mask_ready == 0U) {
+            power_result->error_code = 2U;
+            power_result->status = POWER_STATUS_FAIL;
+            memory_barrier();
+            while (1) sleep(1U);
+        }
+    }
     if (power_activate_initial_mask(power_mode, epoch) != XST_SUCCESS) {
         power_result->error_code = 2U;
         power_result->status = POWER_STATUS_FAIL;
