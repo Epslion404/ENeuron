@@ -4,7 +4,7 @@
 
 ## 结论
 
-当前项目状态为：`FUNCTIONAL_PASS / PHYSICAL_PASS / B3_MVP_GATE_PASS / B3_SPEED_MEASURED / B3_SPEED_GATE_OPEN / B3_POWER_GATE_OPEN / B3_STRICT_DEFERRED_STRUCTURAL / B2_GATE_PENDING`。
+当前项目状态为：`FUNCTIONAL_PASS / PHYSICAL_PASS / B3_MVP_GATE_PASS / B3_L0_CACHE_BOARD_DIAGNOSTIC_PASS / B3_SPEED_MEASURED / B3_SPEED_GATE_OPEN / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B3_STRICT_DEFERRED_STRUCTURAL / B2_GATE_PENDING`。
 
 主线是 `xc7z020clg484-2` 上部署 NPU，并用 ENeuron 组级动态剪枝证明推理加速与功耗下降。B3-MVP-GATE 已关：同一 200 MHz bitstream 上 dense/full-open/static/live 小集合 A/B、epoch 读回和局部周期差值可回放。单样本速度诊断已完成，但端到端加速未证明；外部功耗未测。严格连接级 `2:4` 是结构实验，不是当前加速硬门。
 
@@ -21,6 +21,7 @@
 - 三次运行后的 `probe_b2_state.tcl` 均读回 `sample=8/8`、`response=1/1`、`result=10/1`、`fence_snapshot_valid=1`，并且 `execute_group_count=592`、`skip_group_count=0`；command 计数为 dense/full-open `658/658`、bypass `637/637`。这关闭 B3-00、B3-06、B3-07，不代表静态 `2:4` 或 live-ENeuron 已完成。
 - 静态 mixed run `20260912T102046Z` 使用同一 bit/XSA、COM15 和 `b3_static_mixed` ELF 通过 UART；`B3_STATIC_MASK_VALID` 报告 `592` 组中 `296/296`，结果 logits 为 `74,-18,14,0,0,0,0,0,0,114`。随后 XSCT probe 读回 `sample=8/8`、`response=1/1`、`result=10/1`、`fence_snapshot_valid=1`、`execute_group_count=296`、`skip_group_count=296`。该证据只关闭组级 static mixed 子门，不关闭严格连接级 `2:4`。
 - live ENeuron run `20260912T131302Z`（HEAD `fe25a70`、COM15、同一 bit/XSA）UART `B3_LIVE_ENEURON_PASS`，logits=`165,-18,14,0,0,0,0,0,0,153`，`decision_source=live_eneuron_s2`。JTAG `execute/skip=296/296`、`fence_snapshot_valid=1`。证据 `artifacts/logs/b3_live_eneuron_pass_20260912_fe25a70/`。关闭 B3-09 组级 live 路径，不是严格 `2:4`。
+- PR #93 已合并到 `main@1c64245`。提交 `82b079e` 复用 L0 contribution，同源 bit/XSA、新 ELF 三次实板为 `ps_us=827/829/828`，logits、`296/296`、1606 cycles 与 protocol errors=0 均保持。证据 `artifacts/logs/b3_live_l0_cache_20260913_82b079e/`；这是缓存诊断通过，不是速度门通过。
 
 证据入口：
 
@@ -34,6 +35,7 @@
 - [full-open 计数器 probe](../boards/hellozynq/b2_sw/build/379c8d84859b8430c4ccde0b4e22ad5ce74781c9/direct/runs/20260912T094035Z/counter_probe_20260912T094200Z/probe_stdout.log)
 - [bypass 计数器 probe](../boards/hellozynq/b2_sw/build/379c8d84859b8430c4ccde0b4e22ad5ce74781c9/direct/runs/20260912T094155Z/counter_probe_20260912T094300Z/probe_stdout.log)
 - [计数器版本硬件 manifest](../boards/hellozynq/b2_hw/build/build_manifest.json)
+- [live L0 缓存三次实板证据](../artifacts/logs/b3_live_l0_cache_20260913_82b079e/README.md)
 
 ## 尚未完成
 

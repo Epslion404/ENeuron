@@ -2,7 +2,7 @@
 
 > generated_by: nexus-mapper v2 / manual synthesis
 > verified_at: 2026-09-13
-> provenance: live tree=`D:/Documents/Code/ENeuron-board-b0`；Git checkout 身份以 `git branch --show-current` 与 `git rev-parse HEAD` 的实时输出为准，历史分支/PR 名称仅作来源。bitstream RTL 身份 `be84596`。`D:/Documents/Code/ENeuron` 不是当前 live tree。SPEED 证据 `artifacts/logs/b3_speed_20260912_be84596/b3_speed_comparison.json`。
+> provenance: 当前 checkout 路径、分支与提交以 Git 命令实时查询；历史路径、分支和 PR 名称仅作来源。bitstream RTL 身份 `be84596`。SPEED 证据 `artifacts/logs/b3_speed_20260912_be84596/b3_speed_comparison.json`。
 
 ## 当前权威快照（2026-09-13，日常主线 B3-SPEED-GATE / B3-POWER-GATE）
 
@@ -38,7 +38,7 @@ P16 最终网口发布仍要求 B1/B2 完整门与 `B4-RELEASE-GATE`；`B3-STRIC
 
 B3 数值功能入口：固定 `64→32→10` 模型与共享黄金 manifest。B3-02 已由 Python loader 与 Host PowerShell 生成 C 头文件合同测试关闭。B3-01 的完整 clean-worktree 发布身份冻结属于 `B3-STRICT-GATE`；B3-MVP 每次实板 run 绑定当次 bit/XSA/ELF/manifest 即可。当前 19 个 mask word 表达 592 个 `group_4way` 门，先用于 live-ENeuron MVP，不得称为严格连接级 `2:4`。
 
-B3 计数器物理边界（2026-09-12）：第三次 `route_design -directive Explore` 加 post-route `AggressiveExplore` 已在 HEAD `c3a50eb`、`xc7z020clg484-2`、200 MHz 上通过物理硬门（`WNS/TNS=+0.008/0 ns`、`WHS/THS=+0.036/0 ns`、route/DRC hard errors=0、DSP48E1=4）。后续 dense/full-open/bypass 实板已读回 execute/skip=`592/0`，B3-00/B3-06/B3-07 已关闭。该物理身份不是当前提交 HEAD `fe25a70`，未提交 RTL 也不是该身份。
+B3 计数器物理边界（2026-09-12）：第三次 `route_design -directive Explore` 加 post-route `AggressiveExplore` 已在 HEAD `c3a50eb`、`xc7z020clg484-2`、200 MHz 上通过物理硬门（`WNS/TNS=+0.008/0 ns`、`WHS/THS=+0.036/0 ns`、route/DRC hard errors=0、DSP48E1=4）。后续 dense/full-open/bypass 实板已读回 execute/skip=`592/0`，B3-00/B3-06/B3-07 已关闭。该物理身份是历史构建身份，不等于当前 checkout。
 
 B3 包含两条必须分开的证据链：Host 静态 mask 只证明 NPU 门控执行、位序、epoch 和跳过计数；live-ENeuron 由当前样本证据生成 mask，经 pending bank 和 fence 原子生效。MVP 两者均使用现有 `group_4way` 粒度，且均已在 `be84596` bitstream 上关闭；STRICT 再分别扩展为严格连接级 `2:4`，两级数据不得混合或互相代证。
 
@@ -66,7 +66,7 @@ T2 wrapper 固定种子随机矩阵状态为 `T2_RANDOM_CLOCK_MATRIX_GREEN`：`-
 
 generated_by: nexus-mapper v2 / manual synthesis
 verified_at: 2026-09-12
-provenance: Git HEAD `fe25a70`、已提交 Host/manifest 与文件树人工核对；未提交 status probe / 计数器 RTL 排除在签核源码身份之外
+provenance: 2026-09-12 的 Host/manifest 与文件树历史核对；当前 checkout 身份必须由 Git 命令实时查询，未提交源码不进入签核身份
 
 仓库分为八个边界：神经元 RTL 与 Python 参考模型、Tile/Host 网络、局部剪枝控制器、NP7 共享 BRAM/lane 执行器、传统 NPU + ENeuron 集成参考模型、XC7Z020 顶层适配、HelloZynq 阶段 2 实板验证、验证与签核工具。CI-Fast V1 是验证编排边界，不改变业务硬件合同。跨边界的主要合同是逐周期/逐位比较、原子提交、INFER 状态冻结和 fail-closed SHA-256 摘要。
 
@@ -74,8 +74,8 @@ NP6 物理评估正式状态为 `NP6_PHYSICAL_COST_PARTIAL`；NP7 已签核。�
 
 B2 物理状态最新校正（2026-09-10）：提交 `074ed56` 的 egress BRAM 预取构建已完成 route、bit/XSA 和 DRC，但 200 MHz setup 仍未达标（`WNS=-0.052 ns`、`TNS=-0.134 ns`、6 个失败端点，`WHS=+0.073 ns`、`THS=0`）；最差路径迁移到 `compute_unit_mask_latched_reg[3] -> compute_group_index_reg[1]`。bit/XSA 仅分析用途，B2-06 仍停在时序修复，B2-GATE 与 ENeuron A/B 均未开始。
 
-B2 提交态物理基线（2026-09-11）：上述条目为历史失败记录。`97398bf` 构建在 `xc7z020clg484-2`、200 MHz 下通过 routed timing gate：`WNS=+0.012 ns`、`TNS=0`、`WHS=+0.036 ns`、`THS=0`，setup/hold 失败端点为 0，route/DRC hard error=0；post-route phys-opt 已执行，并已完成合法 packet smoke。当前工作树下载资格由下方 B2-08 状态块结果覆盖。
+B2 提交态物理基线（2026-09-11）：上述条目为历史失败记录。`97398bf` 构建在 `xc7z020clg484-2`、200 MHz 下通过 routed timing gate：`WNS=+0.012 ns`、`TNS=0`、`WHS=+0.036 ns`、`THS=0`，setup/hold 失败端点为 0，route/DRC hard error=0；post-route phys-opt 已执行，并已完成合法 packet smoke。后续物理与实板结果以本文件顶部 2026-09-13 权威快照为准。
 
-B2-08 状态块当前值（2026-09-11）：工作树 `88bec9e` 的 adapter 计数器、E2E testbench和 `b2_npu_status_probe.v` 已通过功能合同；状态块位于 `0x40430000`。错误响应候选统一锁存已移除 `cmd_hold_data -> rsp_payload_reg/CE` 和 `/R` 失败族；当前最差路径为 egress `mask_epoch_reg[1] -> payload_word_count_reg[7]/R`，另有 result 计数和 AXI DMA 内部轻微违例。200 MHz setup 仍未通过，尚未进入板级 runner；B2-GATE、B3、ENeuron A/B 保持未完成。
+历史 B2-08 状态块修复中状态（2026-09-11）：工作树 `88bec9e` 的 adapter 计数器、E2E testbench和 `b2_npu_status_probe.v` 已通过功能合同；状态块位于 `0x40430000`。错误响应候选统一锁存已移除 `cmd_hold_data -> rsp_payload_reg/CE` 和 `/R` 失败族；当时最差路径为 egress `mask_epoch_reg[1] -> payload_word_count_reg[7]/R`，200 MHz setup 尚未通过。后续已完成物理门、板级 runner 和 B3-MVP；B2-GATE 仍未关闭。
 
 状态覆盖：OF4a 至 OF6 属于已签核 Python oracle 历史阶段；当前以 `TR1_TR6_APPROVED / TR7_TR12_APPROVED / TIMING_REPAIR_V2_FUNCTIONAL_GREEN / VIVADO_OOC_100MHZ_PASS / P15_T0_APPROVED / T1_RTL_AUTHORIZED / T1_PROTOCOL_SLICE_PROVEN / T1_FULL_PENDING / T2_VARIABLE_CLOCK_SLICE_GREEN / T2_CONCURRENT_EPOCH_SLICE_GREEN / T2_EXTENDED_CLOCK_SLICE_GREEN / T2_FIFO_MATRIX_SLICE_GREEN / T2_INTERLEAVE_RESET_SLICE_GREEN / T2_FINITE_CLOCK_MATRIX_GREEN / T2_RANDOM_CLOCK_MATRIX_GREEN / T2_FULL_MATRIX_PENDING / T3_XPM_XSIM_PASS / T3_XC7Z020_OOC_PASS / T3_SIGNOFF_PASS / RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN` 为准。P15-T0 方案 A 及 A1-A7 已获批准；T1-02 主要路径、T1-06 fence 独立切片与 T1-12 四 FIFO 边界已在本机 `e4d48dd` 通过，T1-09 已记录为当前 wrapper 的 `NA_FOR_T1_WRAPPER / OUTER_SHIM_PENDING`，T2 六组可变时钟、FIFO、交错/复位、16 组有限矩阵和 24 组固定种子随机矩阵已提交并通过；T1 全量、T2 更广泛并发交错、外层 shim、首次端到端运行仍待独立验收。T3 真实 AMD XPM/xsim 与 XC7Z020 OOC 已通过，详见上方报告路径。资源裁剪审查已完成，但所有裁剪实施推迟到第一次完整端到端运行成功之后。旧 Host Bridge OOC 的 `xc7a35tcpg236-1` 不得替代 P15 目标 `xc7z020clg400-1`。V2 已复用 signed 32-bit `mac_accumulator` 作为最终写回值，不新增 `writeback_value_latched`，并完成激活锁存、WRITEBACK、功能和 OOC 证明。

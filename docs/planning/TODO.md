@@ -6,7 +6,7 @@
 
 当前板级状态：低地址 `0x01000000–0x010FFFFF` 的 1 MiB DDR 已完成三次冷启动；高地址诊断尚未真正访问 DDR。CH340 以 `VID_1A86:PID_7523` 识别，COM 号不固定；packet 实板使用 COM15。B1C PHY/UDP 继续后置。完整 `B1-GATE` 和 `B2-GATE` 仍是网口发布门槛，不阻塞板上 NPU 墙钟/功耗测量。
 
-当前 NPU 集成状态（2026-09-13）：B3 目标门管理修正已由 PR #91 合并到 `main@30e3b38`；`B3-MVP-GATE` 已关，`B3-SPEED-MEASURED` 已完成单样本诊断，但 `B3-SPEED-GATE` 仍开。下载/签核物理身份是 RTL `be84596`（200 MHz `WNS=+0.045 ns`、DSP48E1=4，bit SHA-256=`0ecbe762…3a11`）。外部功耗仍是 `POWER_NOT_MEASURED`；后续 checkout 身份以 Git 实时输出为准。
+当前 NPU 集成状态（2026-09-13）：B3 目标门管理修正已由 PR #91 合并，L0 contribution 缓存与三次实板诊断已由 PR #93 合并；`B3-MVP-GATE` 已关，`B3-SPEED-MEASURED` 已完成单样本诊断，但 `B3-SPEED-GATE` 仍开。下载/签核物理身份是 RTL `be84596`（200 MHz `WNS=+0.045 ns`、DSP48E1=4，bit SHA-256=`0ecbe762…3a11`）；缓存实现提交为 `82b079e`。外部功耗仍是 `POWER_NOT_MEASURED`；当前 checkout 身份以 Git 实时输出为准，不在文档中维护易过时的主线 HEAD。
 
 当前日常主线是 `B3-SPEED-GATE` / `B3-POWER-GATE` / `B3-GOAL-GATE`。单样本诊断在同源 `be84596` 上看到 888 cycle ≈ 4.4 µs 的局部差值，但 DMA 包含 NPU、Host UART 又包住整个流程，三个量不能相加；当前状态是 `END_TO_END_ACCELERATION_NOT_PROVEN`。严格连接级 `2:4`（B3-08b）是结构/精度实验，不是加速硬门。禁止把 888 cycle 写成端到端加速，禁止把完成外部测量写成降功耗通过，禁止用 Vivado 估算冒充板上功耗，禁止用 19-word 冒充连接级 2:4。
 
@@ -571,7 +571,7 @@ P15 硬门：双时钟逐 beat bit-exact；reset/ready-valid/FIFO 满空无丢�
 
 - [x] 固定板卡与参考源：HelloZynq、`xc7z020clg484-2`、板厂 `master@73d529d8f159ca372b7d9855eddc80880ecd9d05`、Digilent JTAG `210251A08870`。
 - [x] 固定软件/硬件基线：PR #68 已在精确 HEAD 完成本地 G0/T1/T2 复现并合并为 `main@7857d32561cbd5f86d02b1a21ee0edfb3ae895f1`。
-- [x] 使用隔离工作树 `D:\Documents\Code\ENeuron-board-b0`；当前活动分支为 `codex/b1b-high-ddr-board-repro`，不携带主工作树未提交修改。
+- [x] 2026-09-08 当时使用隔离工作树 `D:\Documents\Code\ENeuron-board-b0` 和历史分支 `codex/b1b-high-ddr-board-repro`，不携带主工作树未提交修改。当前 checkout 身份必须由 `git rev-parse --show-toplevel`、`git branch --show-current` 和 `git rev-parse HEAD` 实时查询。
 以下条目是所有阶段持续适用的证据合同，不计入一次性 TODO 数量：
 
 - **P16-E01**：每个阶段开始前写清入口条件、当前 Git HEAD、未跟踪保护文件和允许修改的目录；入口条件不满足时不得用后续阶段结果反向补齐前序门。

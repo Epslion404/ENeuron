@@ -101,15 +101,16 @@ class B2PacketBoardContractTests(unittest.TestCase):
         build = (ROOT / "boards/hellozynq/b2_sw/run_b2_packet_sw_build.ps1").read_text(encoding="utf-8")
         runner = (ROOT / "boards/hellozynq/b2_sw/run_b2_packet_board.ps1").read_text(encoding="utf-8")
         for token in (
-            "$gitWorktreeClean",
-            "git_worktree_clean = $gitWorktreeClean",
+            "$gitTrackedWorktreeClean",
+            "git_tracked_worktree_clean = $gitTrackedWorktreeClean",
             "packet_source_sha256",
             "Get-FileHash -Algorithm SHA256 -LiteralPath $packetSourcePath",
+            "--untracked-files=no",
         ):
             self.assertIn(token, build)
         for token in (
-            "if (-not [bool]$manifest.git_worktree_clean)",
-            "Packet build manifest was produced from a dirty worktree",
+            "if (-not [bool]$manifest.git_tracked_worktree_clean)",
+            "Packet build manifest was produced from a dirty tracked worktree",
             "packet_source_sha256",
             "Packet source hash mismatch",
         ):

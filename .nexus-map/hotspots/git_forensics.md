@@ -1,12 +1,12 @@
 # Git 热点
 
 > generated_by: nexus-mapper v2 / manual synthesis
-> verified_at: 2026-09-12
-> provenance: live tree=`D:/Documents/Code/ENeuron-board-b0`，分支 `codex/b1b-high-ddr-board-repro` / PR #88。bitstream RTL 身份 `be84596`。raw `git_stats.json` 仍绑定历史 `c46320e`。`D:/Documents/Code/ENeuron` 不是当前 live tree。
+> verified_at: 2026-09-13
+> provenance: 当前 checkout 路径、分支与提交必须由 Git 命令实时查询；历史路径、分支和 PR 名称只作来源。bitstream RTL 身份 `be84596`，raw `git_stats.json` 绑定历史 `c46320e`。
 
-## 当前权威取证（2026-09-12，B3-MVP-GATE 已关）
+## 当前权威取证（2026-09-13）
 
-live tree 是本工作树，分支 `codex/b1b-high-ddr-board-repro` / PR #88，不是 `D:/Documents/Code/ENeuron`。bitstream RTL 身份 `be845965d7df8b4018e6b32b8b5b4e350fb0488a`（`feat(board): fail-closed B3-04 DSP48E1 count of 4`）。仓库 HEAD 可能继续前移（例如比较器提交 `43cfe9d`）；下载/签核物理身份仍是 `be84596`。
+当前 checkout 身份以 `git rev-parse --show-toplevel`、`git branch --show-current` 和 `git rev-parse HEAD` 的实时输出为准；PR #88 只是历史来源。下载/签核物理身份仍是 `be845965d7df8b4018e6b32b8b5b4e350fb0488a`（`feat(board): fail-closed B3-04 DSP48E1 count of 4`），不随仓库 HEAD 前移。PR #93 合入 L0 contribution 缓存 Host 诊断（三次同 bit 板级 `ps_us=827/829/828`），证据 `artifacts/logs/b3_live_l0_cache_20260913_82b079e/`。只证明冻结样本 Host 决策成本下降，不关闭 B3-SPEED-GATE / B3-POWER / B3-GOAL。
 
 同一份集中 Vivado 2024.1 bitstream：`xc7z020clg484-2`、200 MHz FCLK0，WNS=+0.045 ns，TNS=0，WHS=+0.036 ns，THS=0，route/DRC hard errors=0，DSP48E1=4。bit SHA-256=`0ecbe76274c39418f2a60a88358d3ff6f09f5a2ed73a44a3a419c34eb91d3a11`，XSA SHA-256=`135d979d61c629922ee5419e51dd97ef045d9bab79930432816d09f109291d1a`。hw_build_manifest 记录 `git_worktree_clean=false`，不得把 dirty tree 回写成 clean release。证据 `artifacts/logs/b3_mvp_20260912_be84596/`。
 
@@ -42,10 +42,10 @@ T3 权威报告：`vivado_npu_zynq7020_t3_xsim/xsim_signoff_summary.txt` 为 `RE
 
 generated_by: nexus-mapper v2 / manual synthesis
 verified_at: 2026-09-12
-provenance: `.nexus-map/raw/git_stats.json`（最后探针提交于 `c46320e`；仓库内未发现可复现生成脚本）。当前权威 HEAD=`fe25a70` 由 Git 人工核对；未提交 RTL 排除在签核源码身份之外。
+provenance: `.nexus-map/raw/git_stats.json` 是最后探针提交于 `c46320e` 的历史快照，仓库内未发现可复现生成脚本。当前 checkout 身份必须由 Git 命令实时查询；未提交源码不进入签核身份。
 
 最近一次 raw 探针快照统计 263 次提交、5 位作者；该数字只代表 `c46320e` 时点。PR #62 已合并为 `main@e8dc947`（merge commit `e8dc9477dbfc7a9311dd00c514a986580ad2b84b`），最终 HEAD `a4832cc3bddd96ba2f94c295ae99c1d12713abf3` 的 Actions run `33915028445` 为 success；Webhook 收到同 SHA，但 `signature_verified=false`，只作到达通知。DSP V1 实现与 OOC report head 为 `5055073`：恰好 4 个 DSP48E1，功能、固定 `20×100` 随机、完整回归、hold/route/DRC 已通过，但 100 MHz setup `WNS=-0.673 ns / TNS=-6.462 ns / 22` 个端点失败。热点已从 V2 审核切换为 V2 实施；实施地图为 `docs/planning/NPU_SINGLE_CLOCK_TIMING_REPAIR_V2_IMPLEMENTATION_MAP.md`，KISS 方案复用 signed 32-bit `mac_accumulator`，不新增 `writeback_value_latched`，仅预计新增四个 signed 8-bit 激活锁存器（约 32 FF）。TR7-TR12 已批准，当前计算 RTL 进入 V2 RED→RTL→回归流程。`np75_tmp_sparse_protocol.ys` 是用户未跟踪文件，不得纳入提交或 Nexus；物理结果不得外推为板级吞吐、功耗或网络性能。
 
-最新已提交 B2 取证（2026-09-11，历史物理身份）：物理基线绑定 HEAD `97398bf641b49ef2f2ab6b16edd68b6327a14488`，目标 `xc7z020clg484-2`、200 MHz routed timing 全绿（WNS=`+0.012 ns`、TNS=`0`、WHS=`+0.036 ns`、THS=`0`），route/DRC hard error=0，且后续合法 packet smoke 已通过。mask-scan 修复 `0f71f49` 及其回归记录保留为前置开发证据。当前仓库 HEAD 已推进到 `fe25a70`，不得把未提交工作树写成该物理身份。
+已提交 B2 取证（2026-09-11，历史物理身份）：物理基线绑定 HEAD `97398bf641b49ef2f2ab6b16edd68b6327a14488`，目标 `xc7z020clg484-2`、200 MHz routed timing 全绿（WNS=`+0.012 ns`、TNS=`0`、WHS=`+0.036 ns`、THS=`0`），route/DRC hard error=0，且后续合法 packet smoke 已通过。mask-scan 修复 `0f71f49` 及其回归记录保留为前置开发证据；不得把未提交工作树写成该物理身份。
 
-B2-08 未提交切片取证（2026-09-12）：工作树仍有未提交 status probe / 计数器 RTL。这些文件不是 HEAD `fe25a70` 的签核源码身份，也不能单独宣称已签核。板级状态读回属于既有 bit/XSA 上的部分证据，不把 dirty RTL 回写成已通过源码。
+历史 B2-08 未提交切片取证（2026-09-12、B3-MVP 前）：当时工作树有未提交 status probe / 计数器 RTL，它们不是 HEAD `fe25a70` 的签核源码身份。后续已在提交态物理身份和同源 bit/XSA 上完成计数器与 B3-MVP 实板闭环；本段只保留当时的身份隔离规则。

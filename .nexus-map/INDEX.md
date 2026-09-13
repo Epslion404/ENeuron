@@ -2,7 +2,7 @@
 
 > generated_by: nexus-mapper v2 / manual synthesis
 > verified_at: 2026-09-13
-> provenance: live tree=`D:/Documents/Code/ENeuron-board-b0`；Git checkout 身份以 `git branch --show-current` 与 `git rev-parse HEAD` 的实时输出为准，历史分支/PR 名称仅作来源。bitstream RTL 身份 `be84596`。`D:/Documents/Code/ENeuron` 不是当前 live tree。raw 探针仍绑定历史 `c46320e`。SPEED 证据 `artifacts/logs/b3_speed_20260912_be84596/b3_speed_comparison.json`。
+> provenance: 当前 checkout 路径、分支与提交分别以 `git rev-parse --show-toplevel`、`git branch --show-current` 和 `git rev-parse HEAD` 的实时输出为准；历史路径、分支和 PR 名称仅作来源。bitstream RTL 身份 `be84596`，raw 探针绑定历史 `c46320e`。SPEED 证据 `artifacts/logs/b3_speed_20260912_be84596/b3_speed_comparison.json`。
 
 ## 当前权威快照（2026-09-13，日常主线 B3-SPEED-GATE / B3-POWER-GATE）
 
@@ -82,7 +82,7 @@ B2 packet-NPU 提交态物理基线（2026-09-11）：完整 Vivado 2024.1 构�
 
 B2-08 与 packet-NPU 当前实板状态（2026-09-12）：HEAD `88bec9e` 在 `xc7z020clg484-2`、200 MHz 通过 routed timing（`WNS=+0.005 ns`、`TNS=0`、`WHS=+0.034 ns`、`THS=0`，route/DRC hard errors=0），bit SHA-256=`782a977c…d93b6e`、XSA SHA-256=`5e6a31bd…15ef7`。`20260912T040206Z` 在 COM15 完成 FPGA/ELF/UART/JTAG/XSCT PASS，验证 634 model words、19 mask words、fence、8-beat sample 和 10-beat result；随后 `0x40430000` 读回 command/sample/response/result=`658/658`、`8/8`、`1/1`、`10 beats/1 packet`，fence snapshot valid。该结果是合法 packet path 和状态可见性的部分实板证据，不等价于数值 logit 正确、完整错误矩阵、B2-GATE 或剪枝收益。
 
-B3 入口（2026-09-12）：dense/bypass/full-open 与 execute/skip 实板核对已经关闭 B3-00、B3-06、B3-07；Host 重放 `group_4way` mixed mask 已关闭 B3-08a。B3-09 Host 已接通 `ENeuron evidence → 592-bit group_4way mask → pending bank → fence`，但实板 ELF/JTAG 尚未关闭。下一步是用现有 bit/XSA 上板 live ELF，再补 B3-03/B3-11 与同一 bitstream 上的 dense、full-open、static-group_4way、live-ENeuron-group_4way 小集合周期 A/B。不得把 Host 合同写成板级通过。
+历史 B3 入口（2026-09-12、B3-09 上板前）：dense/bypass/full-open 与 execute/skip 实板核对已关闭 B3-00、B3-06、B3-07，Host 重放 `group_4way` mixed mask 已关闭 B3-08a；当时 B3-09 仅接通 Host。该 pending 已由后续同源 B3-MVP 实板证据关闭，不是当前状态。
 
 B3-08a（2026-09-12）：提交 `73b12c3` 的 `b3_static_mixed` 在同一物理通过 bit/XSA、COM15 实板通过，run `20260912T102046Z`，manifest 位于 `boards/hellozynq/b2_sw/build/73b12c30baf1507876c6bff01059a2c28c919a8d/direct/runs/20260912T102046Z/run_manifest.json`；logits=`74,-18,14,0,0,0,0,0,0,114`，`fence_snapshot_valid=1`，execute/skip=`296/296`。粒度为 `group_4way`，不是严格连接级 `2:4`，也不是 ENeuron 自动决策；B3-08b 延后到 `B3-STRICT-GATE`。
 
@@ -90,7 +90,7 @@ B3-09 实板（2026-09-12）：提交 `fe25a70`/`ab163fe`。COM15 UART `B3_LIVE_
 
 B3-02 共享固定向量 manifest（2026-09-12）：`tools/repro/b3_fixed_vector_manifest.json` 作为 Python 参考模型与 Host PowerShell 构建的唯一输入；`b3_fixed_vector_manifest.py` 可重建 634 个模型 word、8 个输入 beat、19 个 group-level mask word，并校验 packed model SHA-256；`run_b2_packet_sw_build.ps1` 从同一 manifest 生成 `b3_fixed_vector_generated.h`。`test_b3_fixed_vector_manifest_contract.py` 与 `test_b3_fixed_vector_manifest_loader.py` 共 `6 passed`，Host 生成 C 头文件的合同也通过。B3-02 已关闭；B3-01 的完整发布身份冻结仍开放，但每次 MVP run 保存当次身份即可继续开发实验。该 manifest 不扩展严格连接级 `2:4`，也不构成 live-ENeuron 证据。
 
-B3 execute/skip 计数器物理重建（2026-09-12）：第三次使用 `route_design -directive Explore` 加既有 post-route `AggressiveExplore`，绑定 HEAD `c3a50eb`，在 `xc7z020clg484-2`、200 MHz 下物理硬门通过：`WNS/TNS=+0.008/0 ns`、`WHS/THS=+0.036/0 ns`、setup/hold 失败端点=0、route/DRC hard errors=0、DSP48E1=4。后续 dense/full-open/bypass 实板已读回 execute/skip=`592/0`，B3-00/B3-06/B3-07 已关闭。该物理身份不是当前提交 HEAD `fe25a70`，也不是未提交 RTL。
+B3 execute/skip 计数器物理重建（2026-09-12）：第三次使用 `route_design -directive Explore` 加既有 post-route `AggressiveExplore`，绑定 HEAD `c3a50eb`，在 `xc7z020clg484-2`、200 MHz 下物理硬门通过：`WNS/TNS=+0.008/0 ns`、`WHS/THS=+0.036/0 ns`、setup/hold 失败端点=0、route/DRC hard errors=0、DSP48E1=4。后续 dense/full-open/bypass 实板已读回 execute/skip=`592/0`，B3-00/B3-06/B3-07 已关闭。该物理身份是历史构建身份，不等于当前 checkout，也不包含未提交 RTL。
 
 B2-00 已完成（2026-09-08）：低地址 DDR 窗口 `[0x01000000,0x01100000)` 内冻结 9 个 4 KiB 区域，总保留 `36 KiB`，最大 DMA frame 为 `4096` bytes；机器 manifest `tools/repro/b2_dma_address_layout.json` 与 `verify_b2_dma_address_layout.py` 验证通过，状态为 `B2_00_LOW_ADDRESS_LAYOUT_FROZEN`。B2-D1 已完成并单独记录；所有 manifest 继续保留 `B1_HIGH_DDR_PENDING`，不把 B2-00 误写成完整 B1-GATE 或高地址 DDR 通过。
 
@@ -127,7 +127,7 @@ P16 阶段 2 总路线见 `.nexus-map/arch/p16_board_validation.md` 和 `.nexus-
 
 generated_by: nexus-mapper v2 / manual synthesis from raw probe
 verified_at: 2026-09-12
-provenance: `.nexus-map/raw/ast_nodes.json`, `git_stats.json`, `file_tree.txt`（最后探针提交于 `c46320e`）；当前权威 HEAD=`fe25a70` 由 Git 与已提交 Host/manifest 人工核对。未提交 status probe / 计数器 RTL 排除在签核源码身份之外。
+provenance: `.nexus-map/raw/ast_nodes.json`, `git_stats.json`, `file_tree.txt` 是最后探针提交于 `c46320e` 的历史快照；当前 checkout 必须运行 Git 命令查询。未提交源码不进入签核身份。
 
 T3 最新机器可读签核覆盖见 `.nexus-map/concepts/t3_signoff.json`，人类摘要见 `.nexus-map/arch/t3_signoff.md`；它们优先于早期生成快照中的 `T3_XPM_XSIM_OOC_PENDING` 字样。
 
