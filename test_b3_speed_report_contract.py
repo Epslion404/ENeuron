@@ -63,6 +63,21 @@ class B3SpeedReportContractTests(unittest.TestCase):
         self.assertIn("B3-SPEED-GATE", workflow)
         self.assertNotIn("B3_SPEED_PASS", current)
 
+    def test_nexus_keeps_speed_measurement_separate_from_goal_gate(self) -> None:
+        root = Path(__file__).resolve().parent
+        domains = (root / ".nexus-map/concepts/domains.md").read_text(encoding="utf-8")
+        coverage = (root / ".nexus-map/arch/test_coverage.md").read_text(encoding="utf-8")
+        hierarchy = json.loads(
+            (root / ".nexus-map/concepts/p16_board_validation.json").read_text(encoding="utf-8")
+        )["b3_gate_hierarchy"]
+        self.assertIn("B3_SPEED_MEASURED / B3_SPEED_GATE_OPEN", domains)
+        self.assertNotIn("`B3_SPEED_PASS`", domains)
+        self.assertIn("B3-SPEED-GATE=OPEN", coverage)
+        self.assertEqual(
+            hierarchy["parallel_goal_gates"], ["B3-SPEED-GATE", "B3-POWER-GATE"]
+        )
+        self.assertIn("B3-POWER-MEASURED", hierarchy["current_gates"])
+
     def test_committed_board_artifact_keeps_four_segments_and_forbids_e2e_claim(self) -> None:
         path = Path(__file__).resolve().parent / "artifacts/logs/b3_speed_20260912_be84596/b3_speed_comparison.json"
         data = json.loads(path.read_text(encoding="utf-8"))

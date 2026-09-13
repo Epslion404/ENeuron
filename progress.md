@@ -2154,3 +2154,5 @@
 - 首次全仓 `pytest -q` 终态为 `42 failed, 624 passed, 1 skipped, 12 errors, 327 subtests passed`（376.51 s）。失败集中在已归档 legacy 子树及仍留根目录的旧 ENeuron/Pulse/digit8x8 测试，它们继续按归档前相对路径寻找源码；B2/B3 当前定向入口此前均通过。下一步修正默认收集边界，不修改归档业务实现。
 - 新增 `pytest.ini` 显式排除 `archive/legacy` 与仍依赖归档前相对路径的根级历史测试，并增加收集边界合同；B0 runner hash 改为 canonical-LF 校验，内容自证据提交后无 Git 差异。收集为 392 项，当前主线全量结果 `391 passed, 1 skipped, 134 subtests passed`（117.95 s）。
 - 统一入口 `run_b2_checks.ps1 -Full` 最终通过：B2 `124 passed`、T1 两门 PASS、当前主线全量 `391 passed, 1 skipped, 134 subtests passed`、`git diff --check` PASS，输出 `B2_CHECKS_PASS`。本轮未运行 Vivado、未操作板卡或功耗仪。
+- 在基于最新 `origin/main` 的干净工作树复核统一入口：`B2_CHECKS_PASS`，其中当前 PR 基线为 `388 passed, 1 skipped, 134 subtests passed`；与原工作树 `391` 的差额来自未提交 lane-mask oracle 的 3 个测试。
+- 完成 Nexus 管理补丁：七个入口/结构化文件统一当前 B3 gate 层级，去掉临时 checkout 身份和 `B3_SPEED_PASS`；新增合同测试防止 domains/test coverage 再次把测量完成写成速度门通过。定向验证 `22 passed`、JSON 解析 PASS、过时门文本扫描为空、`git diff --check` PASS。

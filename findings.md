@@ -1987,3 +1987,5 @@
 - `archive/legacy/README.md` 明确这些内容“不再参与当前日常开发门”，因此默认主线验证应排除该子树。另有一个非 legacy 的 B0 历史证据测试单独失败：manifest 中 runner SHA 与当前 `run_b0_power_off_probe.ps1` 不同；这不是本轮 B3 回归，需保留为历史证据新鲜度问题，不能通过改写旧 manifest 掩盖。
 - B0 hash 差异进一步定位：`git diff 5affe99..HEAD -- run_b0_power_off_probe.ps1` 为空，文件内容自证据提交后未改；失败来自测试对 PowerShell 文件做 raw SHA，而 checkout 会受 CRLF/LF 影响。证据文本已普遍使用 canonical-LF 哈希，这个 runner 校验也应改为 canonical-LF，并验证其确实匹配 manifest 后再修测试。
 - 修正后默认收集为 392 项，完整当前主线回归 `391 passed, 1 skipped, 134 subtests passed`；B0 证据定向 `8 passed, 3 subtests passed`。这不是删除历史测试：文件仍保留，只是落实 `archive/legacy/README.md` 已声明的“历史不参与日常门”。
+- 干净 PR 工作树未包含独立 lane-mask oracle，所以统一入口复核为 `388 passed, 1 skipped, 134 subtests passed`；原工作树多出的 3 项正好来自未提交 oracle 测试，不是收集边界漂移。
+- Nexus 初次同步不完整：`concepts/domains.md`、`arch/test_coverage.md`、`arch/dependencies.md`、`arch/p16_board_validation.md` 和结构化 `p16_board_validation.json` 仍保留旧 MVP/STRICT/RELEASE 执行链或 `B3_SPEED_PASS`。现已统一为 `B3-SPEED-GATE + B3-POWER-GATE → B3-GOAL-GATE`，外部功耗归 B3-POWER、B4 只承担网口发布，并把 checkout 身份改为运行时查询。
