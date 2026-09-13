@@ -692,8 +692,6 @@ static int power_send_fence(void)
     u32 response_words = 0U;
     u32 request_sequence = sequence;
     u32 frame_bytes = build_command_frame(tx, OP_SAMPLE_FENCE, 0U, 0x00000F00U, MODEL_ID);
-    /* 样本窗口关闭信号需跨两级 CDC；避免紧邻上一帧提交下一次 fence。 */
-    usleep(100U);
     if (submit_frame(frame_bytes, MAX_FRAME_BYTES, 1U, &response_words) != XST_SUCCESS) {
         return XST_FAILURE;
     }
@@ -785,6 +783,8 @@ static int power_run_inference(u32 mode, u32 *epoch, u32 sample_id)
     if (power_send_fence() != XST_SUCCESS) {
         return XST_FAILURE;
     }
+    /* Host 域消费 fence 响应后才打开样本窗口，留出 CDC/状态更新时间。 */
+    usleep(100U);
     return power_send_sample(*epoch, sample_id);
 }
 
