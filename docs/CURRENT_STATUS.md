@@ -4,7 +4,7 @@
 
 ## 结论
 
-当前项目状态为：`FUNCTIONAL_PASS / PHYSICAL_PASS / B3_MVP_GATE_PASS / B3_SPEED_MEASURED / B3_SPEED_GATE_OPEN / B3_POWER_GATE_OPEN / B3_STRICT_DEFERRED_STRUCTURAL / B2_GATE_PENDING`。
+当前项目状态为：`FUNCTIONAL_PASS / PHYSICAL_PASS / B3_MVP_GATE_PASS / B3_SPEED_MEASURED / B3_SPEED_GATE_OPEN / B3_POWER_ENGINEERING_OBSERVATIONS_INCOMPLETE_CONTRACT / B3_POWER_GATE_OPEN / B3_STRICT_DEFERRED_STRUCTURAL / B2_GATE_PENDING`。
 
 主线是 `xc7z020clg484-2` 上部署 NPU，并用 ENeuron 组级动态剪枝证明推理加速与功耗下降。B3-MVP-GATE 已关：同一 200 MHz bitstream 上 dense/full-open/static/live 小集合 A/B、epoch 读回和局部周期差值可回放。单样本速度诊断已完成，但端到端加速未证明；外部功耗未测。严格连接级 `2:4` 是结构实验，不是当前加速硬门。
 
@@ -40,7 +40,7 @@
 - clean worktree 重建，确认最终可复现 manifest。
 - B2-06～B2-10 的多 packet、完整错误矩阵、复位账本、统一时间戳和正式机器证据包。
 - B2-GATE 发布门。
-- B3-MVP-GATE 已关。`B3-SPEED-MEASURED` 已完成，但它只是单样本嵌套计时诊断；`B3-SPEED-GATE` 因端到端加速未证明而保持打开。功耗仪器合同已冻结但仍是 `POWER_NOT_MEASURED`；`B3-POWER-MEASURED` 与 `B3-POWER-GATE` 都未关闭，完成测量也不能自动代表降功耗。`B3-GOAL-GATE` 因此保持打开。B2-GATE 挡网口发布。
+- B3-MVP-GATE 已关。`B3-SPEED-MEASURED` 已完成，但它只是单样本嵌套计时诊断；`B3-SPEED-GATE` 因端到端加速未证明而保持打开。功耗已有 Type-C 整板人工工程观察，但未满足正式五轮、照片和完整身份合同，状态为 `POWER_ENGINEERING_OBSERVATIONS_INCOMPLETE_CONTRACT`；`B3-POWER-MEASURED` 与 `B3-POWER-GATE` 都未关闭，完成测量也不能自动代表降功耗。`B3-GOAL-GATE` 因此保持打开。B2-GATE 挡网口发布。
 - 计数器对外仍保持 32 位 AXI-Lite 读口；核心内部加法收窄为 24 位，可覆盖 B3-13 的 10000 样本上限（`592 * 10000 = 5,920,000 < 2^24`）。
 - Pulse-Mini-L/L2 集成。它们是冻结的候选/历史支线，不是当前日常门。
 
@@ -48,7 +48,7 @@
 
 ## 下一步
 
-1. 主线并列为 `B3-SPEED-GATE` 与 `B3-POWER-GATE`：前者需要去除 UART 文本开销后的可重复端到端 A/B；当前 Host live 决策会扫描 dense L0 并重复计算组贡献，约 996 µs，必须先消除这项结构性开销。后者先需要外部功耗仪，再补冻重复性、功率/每推理能耗和仪器不确定度门限。当前分别为 `END_TO_END_ACCELERATION_NOT_PROVEN` 与 `POWER_NOT_MEASURED`。
+1. 主线并列为 `B3-SPEED-GATE` 与 `B3-POWER-GATE`：前者需要去除 UART 文本开销后的可重复端到端 A/B；当前 Host live 决策会扫描 dense L0 并重复计算组贡献，约 996 µs，必须先消除这项结构性开销。后者已有整板人工观察，但仍需正式五轮配对、照片和完整身份链，并补冻功率/每推理能耗统计与仪器不确定度门限。当前分别为 `END_TO_END_ACCELERATION_NOT_PROVEN` 与 `POWER_ENGINEERING_OBSERVATIONS_INCOMPLETE_CONTRACT`。
 2. B2-GATE 剩余项并行，挡网口发布。
 3. 不把 888 cycle 写成端到端加速，不用 Vivado 估算冒充板上功耗。
 

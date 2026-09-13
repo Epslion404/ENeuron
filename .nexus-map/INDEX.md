@@ -20,15 +20,15 @@ B3-MVP-GATE 已在同一份集中 Vivado 2024.1 bitstream 上关闭：RTL 身份
 
 `B3-SPEED-MEASURED` 已完成单样本诊断。同源 bit `be84596` / SHA `0ecbe762…3a11`、COM15：dense/full-open 2494 cycles、PS 7 µs、DMA ~60 µs、UART ~66–77 ms；static 1606 cycles、DMA 56 µs、UART 63 ms；live 1606 cycles、PS 996 µs、DMA 56 µs。DMA 包含 NPU，UART 又包住整个流程，字段不可相加；当前为 `B3-SPEED-GATE=OPEN / END_TO_END_ACCELERATION_NOT_PROVEN`。证据：`artifacts/logs/b3_speed_20260912_be84596/b3_speed_comparison.json`。
 
-只可声称：`group_4way` 动态剪枝正确性 + 局部 NPU 周期差值 888 cycles。禁止：把 888 当端到端加速、把 Vivado 功耗当板上功耗、把 19-word 当连接级 `2:4`。不可声称网口加速、测得功耗、B2-GATE。MVP 证据：`artifacts/logs/b3_mvp_20260912_be84596/`。
+只可声称：`group_4way` 动态剪枝正确性 + 局部 NPU 周期差值 888 cycles，以及已记录但未满足正式合同的整板功耗工程观察。禁止：把 888 当端到端加速、把 Vivado 功耗当板上功耗、把 19-word 当连接级 `2:4`，或把工程观察当正式功耗门通过。不可声称网口加速、B2-GATE。MVP 证据：`artifacts/logs/b3_mvp_20260912_be84596/`；人工读数摘要：`artifacts/logs/b3_power_20260913_be84596/manual_meter_observations_20260913.json`。
 
-当前门：`B3-SPEED-GATE=OPEN`、`B3-POWER-MEASURED=OPEN`、`B3-POWER-GATE=OPEN`、`B3-GOAL-GATE=OPEN`。Host live 决策当前通过 dense L0 扫描并重复组贡献计算生成 mask，约 996 µs，远大于 PL 内节省约 4.4 µs；必须先消除该结构性开销。POWER 为 `POWER_NOT_MEASURED`（本机无外部功耗仪；合同 `tools/repro/b3_power_instrument_contract.json`）；完成测量也不能在未冻结并满足改善门限时自动关闭目标门。严格 2:4 是结构实验。后文若仍写下一门是 B3-08b，以本条为准。
+当前门：`B3-SPEED-GATE=OPEN`、`B3-POWER-MEASURED=OPEN`、`B3-POWER-GATE=OPEN`、`B3-GOAL-GATE=OPEN`。Host live 决策当前通过 dense L0 扫描并重复组贡献计算生成 mask，约 996 µs，远大于 PL 内节省约 4.4 µs；必须先消除该结构性开销。POWER 已有 Type-C 整板人工工程观察，但未满足正式五轮、照片和完整身份合同，状态为 `POWER_ENGINEERING_OBSERVATIONS_INCOMPLETE_CONTRACT`；完成测量也不能在未冻结并满足改善门限时自动关闭目标门。严格 2:4 是结构实验。后文若仍写下一门是 B3-08b，以本条为准。
 
 B3-17～B3-22 优化/归因线（2026-09-13）：六项均为 TODO 未勾选，不新增门槛，也不改变 `B3-SPEED-GATE`、`B3-POWER-GATE`、`B3-GOAL-GATE` 的 OPEN 语义。B3-17 建立低固定开销 benchmark；B3-18 改用 active-group 索引表；B3-19 抑制 skip 路径 BRAM/DSP 活动并使用 CE；B3-20 比较 live mask 更新摊销；B3-21 做 idle/dense/static/live 整板增量功耗归因；B3-22 建立同身份、先正确性后收益的优化接受门。当前功耗报告仍为 `POWER_NOT_MEASURED / NOT_PROVEN`，不得把工程观察、Vivado 估算或整板增量功耗写成纯 NPU 功耗或降功耗通过。
 
 ## 当前活动范围
 
-主线固定 `xc7z020clg484-2`：NPU 单时钟、ENeuron 组级动态剪枝、NP7 共享 lane，以及 B1/B2/B3/B4 集成。活动入口：`npu_eneuron_*`、`npu_zynq7020_t1_wrapper.sv`、`local_prune_*`、`eneuron_group4way_live.py`、`np7_*`、`b2_npu_status_probe.v`。CH340 按 VID/PID 识别；双设备时必须显式 COM15。合同：`docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`。状态串：`FUNCTIONAL_PASS / PHYSICAL_PASS / B3_MVP_GATE_PASS / B3_SPEED_MEASURED / B3_SPEED_GATE_OPEN / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B3_STRICT_DEFERRED_STRUCTURAL / B2_GATE_PENDING`。
+主线固定 `xc7z020clg484-2`：NPU 单时钟、ENeuron 组级动态剪枝、NP7 共享 lane，以及 B1/B2/B3/B4 集成。活动入口：`npu_eneuron_*`、`npu_zynq7020_t1_wrapper.sv`、`local_prune_*`、`eneuron_group4way_live.py`、`np7_*`、`b2_npu_status_probe.v`。CH340 按 VID/PID 识别；双设备时必须显式 COM15。合同：`docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`。状态串：`FUNCTIONAL_PASS / PHYSICAL_PASS / B3_MVP_GATE_PASS / B3_SPEED_MEASURED / B3_SPEED_GATE_OPEN / B3_POWER_ENGINEERING_OBSERVATIONS_INCOMPLETE_CONTRACT / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B3_STRICT_DEFERRED_STRUCTURAL / B2_GATE_PENDING`。
 
 pytest 日常主线收集边界由根目录 `pytest.ini` 冻结：递归排除 `archive/`、`.planning/`、Git/Xilinx/pytest 缓存目录，并忽略仍依赖归档前相对路径的根级 legacy 测试；历史文件保留，但不参与当前 ZYNQ7020 日常门。边界合同由 `test_pytest_scope_contract.py` 检查；完整 B2 编排入口仍为 `run_b2_checks.ps1 -Full`。
 
