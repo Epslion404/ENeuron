@@ -16,7 +16,7 @@ B3-MVP-GATE 已关。COM15 CH340 `VID_1A86:PID_7523`。B3-11 hold：MASK_COMMIT 
 
 当前门禁边界（中等精简）：`xc7z020clg484-2` 板上 packet-NPU + ENeuron 组级动态剪枝为活动主线；`archive/legacy/` 不触发日常 CI/PR 门。旧 `xc7z020clg400-1` 的 NP7/T3 物理材料仅作历史参考。B1 高地址 DDR、PHY、UDP 仍阻塞完整 `B1-GATE`。CH340 按 `VID_1A86:PID_7523` 查找；双设备时必须显式 COM15。
 
-当前合同层级为阶段合同 `NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`。下一门：`B3-STRICT-GATE`（lane 2:4、10k 样本）、B2-GATE 剩余、B4 网口/功耗。
+当前合同层级为阶段合同 `NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`。日常主线是 `B3-SPEED-GATE` 与 `B3-POWER-GATE`，共同汇入 B3-GOAL；B3-STRICT（lane 2:4、10k 样本）独立，B2-GATE 挡 B4 网口发布。
 
 B2-00 已形成可复现的低地址布局合同：窗口 `[0x01000000,0x01100000)`，9 个 4 KiB 区域、总保留 `36 KiB`，最大 DMA frame `4096` bytes；`verify_b2_dma_address_layout.py` 输出 `B2_DMA_LAYOUT_PASS`。状态为 `B2_00_LOW_ADDRESS_LAYOUT_FROZEN`，已进入 B2-D1/loopback 软件执行链。`B1_HIGH_DDR_PENDING` 保持不变，B2-00 不等同于高地址 DDR 或完整 B1-GATE 通过。
 

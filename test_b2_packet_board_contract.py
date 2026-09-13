@@ -97,6 +97,24 @@ class B2PacketBoardContractTests(unittest.TestCase):
         self.assertIn("goldenSample.modes", source)
         self.assertIn("golden_manifest = $goldenManifestPath", source)
 
+    def test_packet_build_and_board_runner_bind_clean_source_identity(self):
+        build = (ROOT / "boards/hellozynq/b2_sw/run_b2_packet_sw_build.ps1").read_text(encoding="utf-8")
+        runner = (ROOT / "boards/hellozynq/b2_sw/run_b2_packet_board.ps1").read_text(encoding="utf-8")
+        for token in (
+            "$gitWorktreeClean",
+            "git_worktree_clean = $gitWorktreeClean",
+            "packet_source_sha256",
+            "Get-FileHash -Algorithm SHA256 -LiteralPath $packetSourcePath",
+        ):
+            self.assertIn(token, build)
+        for token in (
+            "if (-not [bool]$manifest.git_worktree_clean)",
+            "Packet build manifest was produced from a dirty worktree",
+            "packet_source_sha256",
+            "Packet source hash mismatch",
+        ):
+            self.assertIn(token, runner)
+
     def test_packet_host_generates_c_header_from_manifest(self):
         build = (ROOT / "boards/hellozynq/b2_sw/run_b2_packet_sw_build.ps1").read_text(encoding="utf-8")
         source = (ROOT / "boards/hellozynq/b2_sw/src/packet_main.c").read_text(encoding="utf-8")
@@ -130,6 +148,19 @@ class B2PacketBoardContractTests(unittest.TestCase):
         ):
             self.assertIn(token, source)
         self.assertNotIn("B3_LIVE_ENEURON_MASK_WORDS", source)
+
+    def test_live_eneuron_reuses_l0_contributions_for_hidden_and_evidence(self):
+        source = (ROOT / "boards/hellozynq/b2_sw/src/packet_main.c").read_text(encoding="utf-8")
+        function = source.split("static void compute_live_group4way_mask(void)", 1)[1]
+        function = function.split("static u32 live_mask_word", 1)[0]
+        for token in (
+            "s32 l0_contributions[16]",
+            "l0_contributions[group] = group_mac(",
+            "acc += l0_contributions[group]",
+            "quantize_live_evidence(l0_contributions[group_index])",
+        ):
+            self.assertIn(token, function)
+        self.assertEqual(function.count("group_mac("), 2)
 
     def test_packet_board_runner_selects_terminal_marker_from_manifest(self):
         source = (ROOT / "boards/hellozynq/b2_sw/run_b2_packet_board.ps1").read_text(encoding="utf-8")

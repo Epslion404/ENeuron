@@ -78,6 +78,33 @@ class B3SpeedReportContractTests(unittest.TestCase):
         )
         self.assertIn("B3-POWER-MEASURED", hierarchy["current_gates"])
 
+    def test_nexus_live_board_state_has_no_pending_contradiction(self) -> None:
+        root = Path(__file__).resolve().parent
+        p16 = json.loads(
+            (root / ".nexus-map/concepts/p16_board_validation.json").read_text(encoding="utf-8")
+        )
+        live = p16["b3_live_eneuron_host_subgate"]
+        board_arch = (root / ".nexus-map/arch/p16_board_validation.md").read_text(
+            encoding="utf-8"
+        )
+        concept = json.loads(
+            (root / ".nexus-map/concepts/concept_model.json").read_text(encoding="utf-8")
+        )
+        authoritative = concept["current_repository_state"]
+
+        self.assertEqual(live["status"], "BOARD_PASS_CACHE_CANDIDATE_PENDING_RETEST")
+        self.assertEqual(live["board_elf_jtag"], "HISTORICAL_BOARD_PASS")
+        self.assertNotIn("B3-09 board ELF/JTAG", live["does_not_close"])
+        self.assertIn("B3-09 实板已关闭", board_arch)
+        self.assertNotIn("实板 ELF/JTAG 未关闭", board_arch)
+        self.assertEqual(authoritative["source_identity_rule"], "QUERY_CURRENT_CHECKOUT_AT_RUNTIME")
+        self.assertEqual(authoritative["b3_mvp_gate"], "PASS")
+        self.assertEqual(authoritative["b3_speed_gate"], "OPEN")
+        self.assertEqual(authoritative["b3_power_gate"], "OPEN")
+        release = next(stage for stage in p16["stages"] if stage["id"] == "B4-RELEASE")
+        self.assertNotIn("B3-STRICT-GATE", release["requires"])
+        self.assertNotIn("完整 B2-GATE 与 B3-STRICT-GATE", board_arch)
+
     def test_committed_board_artifact_keeps_four_segments_and_forbids_e2e_claim(self) -> None:
         path = Path(__file__).resolve().parent / "artifacts/logs/b3_speed_20260912_be84596/b3_speed_comparison.json"
         data = json.loads(path.read_text(encoding="utf-8"))

@@ -536,7 +536,7 @@
     "does_not_close": ["B3-MVP-GATE", "live-ENeuron automatic decision", "cycle A/B", "B3-STRICT-GATE"]
   },
   "b3_live_eneuron_host_subgate": {
-    "status": "HOST_GREEN_BOARD_PENDING",
+    "status": "BOARD_PASS_CACHE_CANDIDATE_PENDING_RETEST",
     "source_commit": "fe25a7081f6a93e9d63c888ea581dc5595d84b4a",
     "source_subject": "feat(board): add live ENeuron group_4way host decision",
     "application_mode": "b3_live_eneuron",
@@ -546,7 +546,7 @@
     "python_result": "6 passed",
     "host_c": "boards/hellozynq/b2_sw/src/packet_main.c",
     "host_macro": "B3_LIVE_ENEURON",
-    "mask_computation": "PS computes 19-word group_4way mask after model load; no B3_LIVE_ENEURON_MASK_WORDS frozen table",
+    "mask_computation": "PS computes 19-word group_4way mask after model load; L0 contribution cache candidate removes 512 repeated group_mac calls; no B3_LIVE_ENEURON_MASK_WORDS frozen table",
     "algorithm": "ENeuron S2 gain=1; every four NPU groups are one meta-neuron; group MAC contribution quantized 0..3; keep 2 of 4 groups",
     "mask_granularity": "group_4way",
     "strict_2of4_candidate": false,
@@ -556,9 +556,9 @@
     "mask_word1": "0x33393335",
     "static_mixed_word1": "0x33333333",
     "mask_equals_static_mixed": false,
-    "board_elf_jtag": "NOT_CLOSED",
+    "board_elf_jtag": "HISTORICAL_BOARD_PASS",
     "terminal_marker": "B3_LIVE_ENEURON_PASS",
-    "does_not_close": ["B3-09 board ELF/JTAG", "B3-MVP-GATE", "B3-08b strict connection-level 2:4", "B3-STRICT-GATE", "cycle A/B"]
+    "does_not_close": ["B3-SPEED-GATE", "B3-POWER-MEASURED", "B3-POWER-GATE", "B3-08b strict connection-level 2:4", "B3-STRICT-GATE"]
   },
   "b3_fixed_vector_manifest": {
     "status": "B3-02_SHARED_MANIFEST_GREEN_B3-01_SHA_FREEZE_PENDING",
@@ -714,9 +714,9 @@
   "stages": [
     {"id":"B1","requires":"B0-GATE=PASS on main","scope":"PS7, DDR, UART, PHY, minimal UDP","status":"IN_PROGRESS_B1A_COMPLETE_B1B_UART_LOW_DDR_PASS_HIGH_DDR_PENDING"},
     {"id":"B2","requires":"B2-00/B2-D1 for low-address MVP; B1-GATE=PASS for full networked B2","scope":"AXI DMA, DDR ownership/cache contract, PL loopback, fixed frame adapter","status":"IN_PROGRESS_LOW_ADDRESS_MVP_PACKET_NPU_PHYSICAL_PASS_BOARD_STATUS_PARTIAL_B2_GATE_PENDING_B1_GATE_PENDING"},
-    {"id":"B3-MVP","requires":"B2 packet-NPU physical pass and legal-path smoke; B2-GATE is not an MVP prerequisite","scope":"existing group_4way live-ENeuron correctness, epoch, and small-set local NPU cycle A/B","status":"IN_PROGRESS_B3_09_HOST_GREEN_BOARD_PENDING_B3_03_B3_11_OPEN"},
+    {"id":"B3-MVP","requires":"B2 packet-NPU physical pass and legal-path smoke; B2-GATE is not an MVP prerequisite","scope":"existing group_4way live-ENeuron correctness, epoch, and small-set local NPU cycle A/B","status":"PASS"},
     {"id":"B3-STRICT","requires":"B3-MVP-GATE=PASS","scope":"strict connection-level 2:4, 10000 samples, full protocol and reset recovery","status":"PENDING_AFTER_MVP"},
-    {"id":"B4-RELEASE","requires":"B2-GATE=PASS and B3-STRICT-GATE=PASS","scope":"Ethernet end-to-end reproducible A/B and external power/energy measurement","status":"PENDING_AFTER_STRICT"}
+    {"id":"B4-RELEASE","requires":"B2-GATE=PASS","scope":"Ethernet end-to-end reproducible A/B and network-load deltas; B3-STRICT is independent and board power target belongs to B3-POWER","status":"PENDING_B2_GATE"}
   ],
   "mask_mode_boundary": {
     "host_static": "Host replays a frozen mask to validate the NPU gating executor; MVP uses group_4way and STRICT uses strict connection-level 2:4. This is not ENeuron automatic decision evidence.",

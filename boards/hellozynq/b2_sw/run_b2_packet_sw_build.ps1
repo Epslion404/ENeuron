@@ -16,6 +16,8 @@ $repoRoot = (Resolve-Path (Join-Path $scriptRoot '..\..\..')).Path
 & (Join-Path $scriptRoot 'run_b2_sw_build.ps1') -XsctPath $XsctPath
 
 $gitHead = (& git -C $repoRoot rev-parse HEAD).Trim()
+$gitStatus = @(& git -C $repoRoot status --porcelain --untracked-files=no)
+$gitWorktreeClean = $gitStatus.Count -eq 0
 $buildRoot = Join-Path $scriptRoot (Join-Path 'build' (Join-Path $gitHead 'direct'))
 $bspRoot = Join-Path $buildRoot 'bsp'
 $appRoot = Join-Path $buildRoot 'app'
@@ -23,6 +25,7 @@ $outRoot = Join-Path $buildRoot 'out'
 $bitstream = Join-Path $repoRoot 'boards\hellozynq\b2_hw\build\hello_zynq_b2.bit'
 $xsa = Join-Path $buildRoot 'hello_zynq_b2.xsa'
 $goldenManifestPath = Join-Path $repoRoot 'tools\repro\b3_fixed_vector_manifest.json'
+$packetSourcePath = Join-Path $scriptRoot 'src\packet_main.c'
 $makePath = 'G:\Xilinx\Vitis\2024.1\gnuwin\bin\make.exe'
 $toolBin = 'G:\Xilinx\Vitis\2024.1\gnu\aarch32\nt\gcc-arm-none-eabi\bin'
 $gccPath = Join-Path $toolBin 'arm-none-eabi-gcc.exe'
@@ -134,7 +137,7 @@ $headerLines += '#endif'
 $headerLines | Set-Content -LiteralPath $generatedHeader -Encoding ascii
 
 & $gccPath @commonFlags @compileDefines '-O2' '-g' '-Wall' '-Wextra' '-fno-tree-loop-distribute-patterns' `
-    '-I' $includeDir '-I' $outRoot '-c' (Join-Path $scriptRoot 'src\packet_main.c') '-o' $objectPath
+    '-I' $includeDir '-I' $outRoot '-c' $packetSourcePath '-o' $objectPath
 if ($LASTEXITCODE -ne 0) { throw "Packet application compile failed with exit code $LASTEXITCODE" }
 & $gccPath @commonFlags "-specs=$($xilinxSpec.FullName)" "-Wl,-T,$($linkerScript.FullName)" "-L$libDir" `
     '-o' $elfPath $objectPath '-Wl,--start-group' '-lxil' '-lgcc' '-lc' '-Wl,--end-group'
@@ -144,6 +147,8 @@ $manifest = [ordered]@{
     schema_version = 1
     generated_at = [DateTime]::UtcNow.ToString('o')
     git_head = $gitHead
+    git_worktree_clean = $gitWorktreeClean
+    packet_source_sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $packetSourcePath).Hash.ToLowerInvariant()
     tool = 'XSCT/Vitis 2024.1'
     bitstream = $bitstream
     xsa = $xsa

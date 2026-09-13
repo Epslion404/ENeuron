@@ -596,7 +596,7 @@ P15 硬门：双时钟逐 beat bit-exact；reset/ready-valid/FIFO 满空无丢�
 - [ ] B1B：PS7、正式UART路径和低地址1 MiB DDR已完成三次冷启动；PR #75已合并OCM驻留高地址诊断。当前先用 `VID_1A86:PID_7523` 恢复串口接收基准，再执行`0x10000000`最小复现并关闭高地址异常。
 - [ ] B1C：在B1B主线基线上完成PHY、MDIO和最小UDP实板门，形成B1-GATE最终摘要。
 
-当前主线执行链：`B2 packet-NPU 已验证基线 -> B3-MVP 组级 live-ENeuron 局部周期 A/B -> B3-SPEED-GATE/B3-POWER-GATE 端到端速度与功耗 -> B4 网口发布`。`B3-STRICT` 严格 2:4 是并行结构实验，不挡速度/功耗，也不再作为进入 B4 功耗测量的硬前置。B2-GATE 仍是完整 packet/网口发布门，但不阻塞 B3-GOAL。B1-06B6～B1-06F 高地址 DDR 诊断和 B1C PHY/UDP 保留为板卡资格支线。
+当前主线执行链：`B2 packet-NPU 已验证基线 -> B3-MVP 组级 live-ENeuron 局部周期 A/B -> B3-SPEED-GATE/B3-POWER-GATE 端到端速度与功耗 -> B4 网口发布`。`B3-STRICT` 严格 2:4 是并行结构实验，不挡速度/功耗，也不作为 B4 网口发布前置。B2-GATE 仍是完整 packet/网口发布门，但不阻塞 B3-GOAL。B1-06B6～B1-06F 高地址 DDR 诊断和 B1C PHY/UDP 保留为板卡资格支线。
 
 #### P16-B0：PL 配置、50 MHz 时钟和 LED
 
@@ -703,11 +703,11 @@ B3 现在分三条线，互不顶替：
 - [ ] B3-RECOVERY：若 dense错误先停在模型装载/量化/计算；full-open错误停在门控透明路径；static mask错误停在mask位序/epoch/NPU跳过；只有前三者全过后才诊断 ENeuron决策，不允许用调整训练参数掩盖基础执行错误。
 - [x] B3-MVP-GATE：B3-00/02/03/04/06/07/08a/09/11/13/14 已在同一通过物理门的 bitstream 上关闭。只允许声称组级 `group_4way` 动态剪枝正确性与局部 NPU 周期差值（dense 2494 → gated 1606）。不代表严格 `2:4`、完整 B2 发布、墙钟加速或功耗收益。
 - [x] B3-SPEED-MEASURED：COM15 同源 `be84596` bit 上完成一次 dense/full-open/static/live 单样本诊断。NPU 2494/2494/1606/1606 cycles；PS 7/7/7/996 µs；DMA 62/59/56/56 µs；Host UART 65962/76935/63070/1307241 µs。DMA 已包含 NPU，Host UART 又包含整个流程，字段不可相加；结果仅为 `END_TO_END_ACCELERATION_NOT_PROVEN`。证据 `artifacts/logs/b3_speed_20260912_be84596/`。
-- [ ] B3-SPEED-GATE：冻结不含 UART 文本传输的端到端请求→结果窗口，固定 bit/XSA、每模式 ELF 身份（或统一 ELF 的模式参数）、样本顺序和预热条件后重复测量 dense 与 live-ENeuron；只有正确性保持且 live 的中位数或预先冻结统计量严格优于 dense，才能关闭。当前 PS live 决策为生成 mask 先扫描全部 dense L0 group，并再次计算各组贡献，约 996 µs，远大于局部节省约 4.4 µs；在移入 PL、复用前一/批次证据或消除 dense 预扫描前，本门保持打开。
+- [ ] B3-SPEED-GATE：冻结不含 UART 文本传输的端到端请求→结果窗口，固定 bit/XSA、每模式 ELF 身份（或统一 ELF 的模式参数）、样本顺序和预热条件后重复测量 dense 与 live-ENeuron；只有正确性保持且 live 的中位数或预先冻结统计量严格优于 dense，才能关闭。历史 PS live 决策约 996 µs；当前候选已用每 hidden 16 项局部缓存消除 512 次重复 L0 `group_mac`，但仍保留生成 mask 所需的 dense L0 扫描。先用新 ELF 实板复核 mask/logits、`296/296` 和 `ps_us`；未形成可重复端到端优势前本门保持打开。
 - [ ] B3-POWER-MEASURED：按冻结仪器合同（`docs/planning/NPU_B3_POWER_INSTRUMENT_CONTRACT_V1.md`）完成 dense/static/live 外部 trace 和功率数据采集。当前本机无外部功耗仪，状态 `POWER_NOT_MEASURED`。完成本项只表示测量可信，不代表功耗下降。
 - [ ] B3-POWER-GATE：测量前补冻重复次数、目标量（板级平均功率并同时报告每次正确推理能耗）、统计量和超过仪器不确定度的最小改善门限；只有 live 相对 dense 达到该门限且正确性保持才可关闭。禁止用单个正数、负结果或 Vivado 估算关闭本门；不要求 2:4 或网口。
 - [ ] B3-GOAL-GATE：只有 `B3-SPEED-GATE` 与 `B3-POWER-GATE` 都实际通过才可关闭。这是对准“加速推理、降低功耗”的日常门，不要求 `B3-STRICT-GATE`；完成诊断、完成测量或得到负结果不能替代目标通过。关闭本门也不等于网口发布或 2:4 完成。
-- [ ] B3-STRICT-GATE：先通过 B3-MVP-GATE，再完成 B3-01、B3-05、B3-08b、B3-10、B3-12、B3-15、B3-16 和 B3-RECOVERY。本门只证明连接级 `2:4` 的正确性与长稳定性，不挡 `B3-SPEED-GATE`/`B3-POWER-GATE`/`B3-GOAL-GATE`，也不再作为进入 B4 功耗测量的硬前置。在微结构未改为真正少读/少开 DSP 前，不得把本门写成加速或降功耗证明。
+- [ ] B3-STRICT-GATE：先通过 B3-MVP-GATE，再完成 B3-01、B3-05、B3-08b、B3-10、B3-12、B3-15、B3-16 和 B3-RECOVERY。本门只证明连接级 `2:4` 的正确性与长稳定性，不挡 `B3-SPEED-GATE`/`B3-POWER-GATE`/`B3-GOAL-GATE`，也不作为 B4 网口发布的硬前置。在微结构未改为真正少读/少开 DSP 前，不得把本门写成加速或降功耗证明。
 
 历史记录（2026-09-12、旧计数器 bitstream）：`20260912T050553Z` dense、`20260912T053341Z` bypass、`20260912T053426Z` full-open 均通过输出校验，但当时没有同源 execute/skip 物理读回，因此不能单独关闭 B3-06/B3-07。
 
