@@ -48,7 +48,7 @@
 
 ## 下一步
 
-1. 主线并列为 `B3-SPEED-GATE` 与 `B3-POWER-GATE`：前者需要去除 UART 文本开销后的可重复端到端 A/B；当前 Host live 决策会扫描 dense L0 并重复计算组贡献，约 996 µs，必须先消除这项结构性开销。后者先需要外部功耗仪，再补冻重复性、功率/每推理能耗和仪器不确定度门限。当前分别为 `END_TO_END_ACCELERATION_NOT_PROVEN` 与 `POWER_NOT_MEASURED`。
+1. 主线并列为 `B3-SPEED-GATE` 与 `B3-POWER-GATE`：提交 `82b079e` 已消除 512 次重复 L0 `group_mac`，三次实板保持数值/计数正确且 `ps_us=827/829/828`，低于历史单次 996；但 dense L0 扫描仍存在，也尚未冻结不含 UART 的重复端到端 A/B。功耗线仍需要外部仪器和明确统计门限。当前分别为 `END_TO_END_ACCELERATION_NOT_PROVEN` 与 `POWER_NOT_MEASURED`。
 2. B2-GATE 剩余项并行，挡网口发布。
 3. 不把 888 cycle 写成端到端加速，不用 Vivado 估算冒充板上功耗。
 

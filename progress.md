@@ -2157,3 +2157,14 @@
 - 在基于最新 `origin/main` 的干净工作树复核统一入口：`B2_CHECKS_PASS`，其中当前 PR 基线为 `388 passed, 1 skipped, 134 subtests passed`；与原工作树 `391` 的差额来自未提交 lane-mask oracle 的 3 个测试。
 - 完成 Nexus 管理补丁：七个入口/结构化文件统一当前 B3 gate 层级，去掉临时 checkout 身份和 `B3_SPEED_PASS`；新增合同测试防止 domains/test coverage 再次把测量完成写成速度门通过。定向验证 `22 passed`、JSON 解析 PASS、过时门文本扫描为空、`git diff --check` PASS。
 - PR #91 已合并为 `main@30e3b38`，包含 `820542a`、`aa198ca`、`ca1384e` 三笔提交。合并前 PR 为 `CLEAN / MERGEABLE`；Actions 关闭、远端 checks 为空，本地统一入口与定向合同作为验收证据。
+- 从 `main@af455a1` 创建 `codex/b3-live-l0-cache`。源码确认 live C 路径的 L0 contribution 被计算两次；开始以 RED→GREEN 方式实现 16-group 局部缓存，明确不改 RTL/bitstream/协议和 ENeuron 决策语义。
+- RED 合同按预期失败于缺少 L0 缓存；GREEN 修改只在每个 hidden 的首遍计算并保存 16 个 contribution，dense 累加与四个 meta evidence 复用。相关 `8 passed`，差异检查通过。
+- 独立管理复核确认交付分支基于最新 `main@af455a1`，原实验工作树仍保留未提交实验与失败构建证据；本轮不从原实验树搬运或提交任何文件。
+- 核对原实验树 bit/XSA 哈希，确认与 B3-MVP 签核值一致；本机 Vitis 2024.1 工具可用。交付树尚无被忽略的硬件/软件 build 目录，需显式准备后再构建。
+- 设备 PnP 已恢复 CH340 COM15/COM35 与 Digilent FTDI；发现 Nexus 结构化模型及一处架构 Markdown 仍残留 B3-09 pending，与已合并的 B3-MVP 事实冲突，纳入本轮管理修复。
+- 进一步确认 `p16_board_validation.json` 顶层门状态正确、嵌套 live 子门过时；本轮将增加一致性合同后修正，防止只更新 Markdown 或只更新顶层 JSON。
+- 完成 Nexus RED→GREEN 一致性合同；Vitis live ELF 构建通过。对象级对比确认目标函数缩小 272 bytes。构建 manifest 暴露 dirty 源码身份未记录的问题，下一步先补构建/runner 身份硬门，再做正式干净构建与实板复测。
+- 构建/runner clean-source 身份合同先 RED 后 GREEN；PowerShell 两脚本解析通过，`git diff --check` 无错误。当前 dirty 候选 manifest 按新规则不能上板，符合 fail-closed 预期。
+- 统一 `run_b2_checks.ps1 -Full` 通过：当前主线全仓 `392 passed, 1 skipped, 134 subtests passed`，T1 两门与差异检查通过，输出 `B2_CHECKS_PASS`。
+- 补充 B4/STRICT 依赖一致性 RED→GREEN：P16 JSON 与架构文档不再把严格 2:4 当作网口发布前置；Nexus 两份 JSON 解析和定向合同通过。
+- 在干净提交 `82b079e` 上重建 live ELF 并用 COM15 连续完成三次实板 PASS；新 `ps_us` 为 827/829/828，所有数值、计数、周期和协议错误判据通过。三组 UART/XSCT/probe/run manifest 与机器摘要归档到 `artifacts/logs/b3_live_l0_cache_20260913_82b079e/`。

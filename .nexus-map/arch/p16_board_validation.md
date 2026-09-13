@@ -8,7 +8,7 @@
 
 authoritative_sources: `docs/planning/TODO.md`、`task_plan.md`、`findings.md`、`progress.md`
 
-当前工作流上下文（2026-09-13）：packet-NPU 在 `xc7z020clg484-2`、200 MHz 通过 routed timing 与实板数值检查，B3-MVP-GATE 已关闭。`B3-SPEED-MEASURED` 只完成单样本诊断；Host live 决策约 996 µs，端到端加速未证明。外部功耗尚未测量。当前执行点是减少 Host live 决策开销、冻结可重复端到端速度判据并准备外部功耗测量合同；严格 `2:4` 继续作为独立结构实验。
+当前工作流上下文（2026-09-13）：packet-NPU 在 `xc7z020clg484-2`、200 MHz 通过 routed timing 与实板数值检查，B3-MVP-GATE 已关闭。提交 `82b079e` 的 Host 缓存候选消除 512 次重复 L0 `group_mac`，新 ELF 三次实板保持正确并得到 `ps_us=827/829/828`；历史单次为 996。端到端加速仍未证明，外部功耗尚未测量；严格 `2:4` 继续作为独立结构实验。
 
 计数器物理与实板状态（2026-09-12）：构建绑定 HEAD `c3a50eb`，最终 `WNS/TNS=+0.008/0 ns`、`WHS/THS=+0.036/0 ns`，route/DRC hard errors=0、DSP48E1=4；bit/XSA SHA-256 为 `5c6ebc07…c910a88`/`86288374…177a614`。后续 dense/full-open/bypass 实板均读回 execute/skip=`592/0`，static mixed 为 `296/296`，因此基础数值与组级静态门已关闭。
 
@@ -20,7 +20,7 @@ B1-06B6 实板复测（2026-09-08）：运行目录为 `artifacts/logs/hellozynq
 
 P16 的目标是在 HelloZynq `xc7z020clg484-2` 上依次打通 PL、PS/DDR/网口、DMA、`64→32→10` 传统 NPU、ENeuron 局部门控和网口端到端 A/B。阶段门只由同一身份链上的实板证据关闭；仿真和 OOC 可用于定位，但不能代替 bitstream、JTAG、UART、Host/网口日志与现场观察。
 
-当前 B3 入口：基础 dense/bypass、full-open 和 Host 静态 `group_4way` 已通过。B3-09 Host 已接通 `ENeuron evidence → 592-bit group_4way mask → pending bank → fence`，但实板 ELF/JTAG 未关闭。下一步是上板 live ELF，再补最小状态、epoch 与小集合周期 A/B；严格连接级 `2:4` 不前置到本轮实验，仍是 B3-08b。
+当前 B3 入口：基础 dense/bypass、full-open、Host 静态 `group_4way` 和 B3-09 live-ENeuron 实板均已关闭，B3-MVP-GATE 已通过。Host live L0 contribution 缓存候选也已完成三次同源实板诊断；下一步是冻结不含 UART 的重复端到端速度窗口，而不是继续把单样本 `ps_us` 外推为目标通过。严格连接级 `2:4` 仍是 B3-08b。
 
 B3-08a 已完成（2026-09-12）：同一物理通过 bit/XSA、COM15、`b3_static_mixed` 实板 run `20260912T102046Z` 通过，logits=`74,-18,14,0,0,0,0,0,0,114`，fence valid=`1`，execute/skip=`296/296`。mask 粒度是 `group_4way`；B3-08b 属于后续 STRICT。
 
@@ -44,7 +44,7 @@ run-2归档位于 `artifacts/logs/hellozynq_b0/20260907T152656Z_df16ed6c_run2_ma
 
 ## MVP、严格门与发布门
 
-最终发布仍需完整 B1/B2、B3-STRICT 与 B4-RELEASE，但首次动态剪枝实验由 `B3-MVP-GATE` 独立收口。相同 RTL/XDC/BD/Tcl/IP 身份不重复跑 Vivado；B3-03、B3-09、B3-11 快速回归稳定后集中做一次实现，文档和纯 Host 改动不重建 PL。
+最终网口发布仍需完整 B1/B2 与 B4-RELEASE；B3-STRICT 是独立结构/长稳实验，不作为发布前置。相同 RTL/XDC/BD/Tcl/IP 身份不重复跑 Vivado；文档和纯 Host 改动不重建 PL。
 
 - **B1：PS7、DDR、UART、PHY、最小 UDP。** 入口只接受主线上的 `B0-GATE=PASS`。先冻结 PS7/DDR/引脚和启动合同，再以 UART 冷启动、DDR 零错误、PHY/千兆链路、三档 UDP 和拔插恢复关闭本门；B1 不表示 NPU 已接入。
   - **B2：AXI DMA 与固定帧协议。** 低地址 packet-NPU 物理通过与合法路径 smoke 已足以支撑 B3-MVP。B2-GATE 继续覆盖完整错误、复位与发布账本，但不阻塞组级 live-ENeuron 开发实验，也不能用 MVP 结果反向宣称 B2-GATE 已通过。
@@ -55,7 +55,7 @@ run-2归档位于 `artifacts/logs/hellozynq_b0/20260907T152656Z_df16ed6c_run2_ma
   - **B2 persistent DMA frame ledger 子门（2026-09-09）。** 提交 `5ff9088` 修复持久 ledger；实现前一 HEAD `76e06b6` 的正式 run `20260909T125200Z` 在 `xc7z020clg484-2`、COM10 实板取得 UART/JTAG/XSCT PASS，`ledger_pass=true`，8/8 边界记录完整并按 `64-byte` stride 读取。pressure=`10000/10000`、backpressure=`64/64`、stall=`83082`、wrap=`256/256`、recovery ready=`1→0→1`、gap=`2/2`；新 ELF SHA-256=`7fbcc85aa964a02e30d61f2e47e53e3f70e0e8421275852ba2e36963831d9f3e`，bit/XSA 沿用当时有效身份。该历史子门当时未覆盖 `packetizer/fence`；后续 packet-NPU smoke 与 B2-08 状态块功能集成已完成，但状态块 setup、板级读回、B2-GATE 和 ENeuron A/B 仍未完成。
 - **B3-MVP-GATE：** 在现有 `group_4way` 上完成 live-ENeuron 决策、pending/fence epoch 原子性、最小状态和 dense/full-open/static/live 小集合周期 A/B。通过只允许声称组级动态剪枝正确性与局部周期差值。
 - **B3-STRICT-GATE：** MVP 通过后，再补正式身份、严格连接级 `2:4`、非法 mask、完整错误/复位恢复和每模式至少 10000 样本。历史 `B3-GATE` 名称均指此严格门。
-- **B4-RELEASE-GATE：** 仅在完整 B2-GATE 与 B3-STRICT-GATE 通过后，执行网口端到端重复 A/B 和外部功耗/能耗测量。历史 `B4-GATE` 名称均指此发布门。
+- **B4-RELEASE-GATE：** 完整 B2-GATE 通过后执行网口端到端重复 A/B，并补充网络负载差异；B3-STRICT 不前置。板级速度/功耗目标由 B3-SPEED/B3-POWER 关闭，B4 只在需要时复用仪器合同补测网口负载。历史 `B4-GATE` 名称均指此发布门。
 
 只有 B4 的同一完整证据包证明“网口输入 → PS/DDR → DMA → 传统 NPU + ENeuron → 网口输出”并完成正确性和可重复 A/B，阶段 2 才能标记完成。
 

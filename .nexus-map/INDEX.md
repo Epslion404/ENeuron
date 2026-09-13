@@ -22,7 +22,7 @@ B3-MVP-GATE 已在同一份集中 Vivado 2024.1 bitstream 上关闭：RTL 身份
 
 只可声称：`group_4way` 动态剪枝正确性 + 局部 NPU 周期差值 888 cycles。禁止：把 888 当端到端加速、把 Vivado 功耗当板上功耗、把 19-word 当连接级 `2:4`。不可声称网口加速、测得功耗、B2-GATE。MVP 证据：`artifacts/logs/b3_mvp_20260912_be84596/`。
 
-当前门：`B3-SPEED-GATE=OPEN`、`B3-POWER-MEASURED=OPEN`、`B3-POWER-GATE=OPEN`、`B3-GOAL-GATE=OPEN`。Host live 决策当前通过 dense L0 扫描并重复组贡献计算生成 mask，约 996 µs，远大于 PL 内节省约 4.4 µs；必须先消除该结构性开销。POWER 为 `POWER_NOT_MEASURED`（本机无外部功耗仪；合同 `tools/repro/b3_power_instrument_contract.json`）；完成测量也不能在未冻结并满足改善门限时自动关闭目标门。严格 2:4 是结构实验。后文若仍写下一门是 B3-08b，以本条为准。
+当前门：`B3-SPEED-GATE=OPEN`、`B3-POWER-MEASURED=OPEN`、`B3-POWER-GATE=OPEN`、`B3-GOAL-GATE=OPEN`。提交 `82b079e` 以 16 项局部缓存消除 512 次重复 L0 `group_mac`；同源 bit/XSA、新 ELF 三次实板 `ps_us=827/829/828`，且 logits、`296/296`、1606 cycles、protocol errors=0。相比历史单次 996 µs 有诊断改善，但仍保留 dense L0 扫描，不能据此关闭端到端速度门。证据 `artifacts/logs/b3_live_l0_cache_20260913_82b079e/`。POWER 仍为 `POWER_NOT_MEASURED`；严格 2:4 是结构实验。
 
 ## 当前活动范围
 

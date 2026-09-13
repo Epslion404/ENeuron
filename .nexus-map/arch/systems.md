@@ -34,7 +34,7 @@ B1A-HW状态（2026-09-08）：`boards/hellozynq/b1a_hw/`已在干净提交`29ed
 
 B2 观测器边界（2026-09-09）：双/单 `axi_stream_monitor:1.1` routed setup 均为历史失败（`WNS=-0.325/-0.284 ns`），不计入物理通过。当前轻量 probe 修复将软件配置设为 `0x04030201`、零 stall 直接失败，RTL 从首个输入启动 phase，并在已公开 VALID 等待 READY 时冻结 phase；六个 B2 合同文件 `51/51` 通过。正式 run `20260909T105109Z`（HEAD `f7f01b0`）已证明 UART/JTAG PASS、受控背压 `64/64`、连续回绕 `256/256` 帧、`rollovers=3`；首末地址为 TX `0x01006000→0x01006FC0`、RX `0x01007000→0x01007FC0`。连续回绕切片为 BOARD_PASS，但多长度逐帧 PL、错误/复位恢复及 B2-03/B2-04/B2-05/B2-GATE 整体关闭仍未完成。
 
-P16 最终发布仍要求 B1/B2 完整门、`B3-STRICT-GATE` 与 `B4-RELEASE-GATE`，但开发实验按 Fastlane V1 小步合并。`B3-MVP-GATE` 已关；不因发布链未全部关闭而回写 MVP。
+P16 最终网口发布仍要求 B1/B2 完整门与 `B4-RELEASE-GATE`；`B3-STRICT-GATE` 是独立结构/长稳实验，不作为发布前置。`B3-MVP-GATE` 已关；不因发布链未全部关闭而回写 MVP。
 
 B3 数值功能入口：固定 `64→32→10` 模型与共享黄金 manifest。B3-02 已由 Python loader 与 Host PowerShell 生成 C 头文件合同测试关闭。B3-01 的完整 clean-worktree 发布身份冻结属于 `B3-STRICT-GATE`；B3-MVP 每次实板 run 绑定当次 bit/XSA/ELF/manifest 即可。当前 19 个 mask word 表达 592 个 `group_4way` 门，先用于 live-ENeuron MVP，不得称为严格连接级 `2:4`。
 
@@ -45,6 +45,8 @@ B3 包含两条必须分开的证据链：Host 静态 mask 只证明 NPU 门控�
 B3-08a 组级静态 mixed mask 已在 COM15 实板通过：`b3_static_mixed`、同一物理通过 bit/XSA、logits=`74,-18,14,0,0,0,0,0,0,114`、execute/skip=`296/296`、fence valid=`1`。其 `group_4way` 粒度不构成严格连接级 `2:4` 或 ENeuron 自动决策；B3-08b 延后到 STRICT。
 
 B3-09 Host/板级边界（2026-09-12）：提交 `fe25a70` 增加 `eneuron_group4way_live.py` 与 `packet_main.c` 的 `B3_LIVE_ENEURON`。S2 gain=1，148 次 meta 提交各保留 2/4 组，打包 19-word mask。板级 live 已在 `be84596` bitstream、COM15 上关闭：logits=`165,-18,14,0,0,0,0,0,0,153`，execute/skip=`296/296`，`decision_source=live_eneuron_s2`。mask word1=`0x33393335`，不等于 static mixed 全 `0x33333333`。禁止生成 `B3_LIVE_ENEURON_MASK_WORDS` 常量。不是严格 `2:4`。
+
+Host 缓存复测（2026-09-13）：提交 `82b079e` 对每个 hidden 首遍保存 16 个有符号 L0 contribution，dense activation 与 evidence 复用，L0 调用数从 1024 降为 512，额外栈空间 64 bytes。同源 bit/XSA、新 ELF 在 COM15 三次 PASS：`ps_us=827/829/828`，logits、execute/skip=`296/296`、1606 cycles、protocol errors=0；历史单次为 996 µs。该小样本诊断不能单独关闭 B3-SPEED-GATE，证据 `artifacts/logs/b3_live_l0_cache_20260913_82b079e/`。
 
 当前校正（2026-09-07）：T3 真实 XPM/xsim 与 XC7Z020 OOC 证据绑定 `c2bc03f`；顶层 `2467 LUT / 2301 FF / 6 RAMB36 / 1 RAMB18 / 4 DSP48E1`，host/npu WNS/WHS 为 `+3.639/+0.105 ns`、`+0.214/+0.042 ns`。下方 `822cf93` 为历史快照。
 
