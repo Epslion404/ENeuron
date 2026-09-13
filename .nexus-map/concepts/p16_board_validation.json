@@ -1,7 +1,7 @@
 {
   "$schema": "nexus-mapper/plan/v1",
   "plan_id": "p16-board-validation-phase2",
-  "verified_at": "2026-09-12",
+  "verified_at": "2026-09-13",
   "target": {
     "board": "HelloZynq",
     "part": "xc7z020clg484-2"
@@ -44,14 +44,14 @@
     "qualification_execution_chain": ["B1-06B6_UART_BASELINE", "B1-06B7_OCM_HIGH_DDR_MINIMAL_REPRODUCTION"],
     "ddr_accesses_so_far": 0
   },
-  "status": "P16_B0_COMPLETE / FASTLANE_V1 / B2_PACKET_NPU_PHYSICAL_PASS / B2_GATE_RELEASE_PENDING / B3_00_B3_02_B3_06_B3_07_B3_08A_GREEN / B3_LIVE_ENEURON_HOST_GREEN / B3_09_BOARD_PENDING / B3_MVP_IN_PROGRESS / B3_STRICT_PENDING / B4_RELEASE_PENDING",
+  "status": "P16_B0_COMPLETE / FASTLANE_V1 / B2_PACKET_NPU_PHYSICAL_PASS / B2_GATE_RELEASE_PENDING / B3_MVP_GATE_PASS / B3_SPEED_MEASURED / B3_SPEED_GATE_OPEN / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B3_17_22_OPTIMIZATION_PENDING / B3_STRICT_PENDING / B4_RELEASE_PENDING",
   "current_b2_status": "FUNCTIONAL_PASS / PHYSICAL_PASS / BOARD_STATUS_PARTIAL",
   "stage2_complete": false,
-  "current_gate": "B3-MVP-GATE",
+  "current_gate": "B3-SPEED-GATE + B3-POWER-GATE",
   "active_stage_contract": "docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md",
   "related_contracts": ["docs/planning/TODO.md#P16", "docs/planning/NPU_PRUNING_TODO.md", "docs/planning/NPU_PRUNING_NP7_TODO.md"],
   "workflow_resume_counts": "P16=59",
-  "current_execution_point": "B3-09_HOST_GREEN_BOARD_ELF_JTAG_PENDING",
+  "current_execution_point": "B3-17_22_OPTIMIZATION_AND_POWER_ATTRIBUTION",
   "ddr_accesses_so_far": 0,
   "b0": {
     "source_commit": "f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06",
@@ -610,6 +610,29 @@
     "b3_01": "OPEN",
     "b3_01_gap": "complete file SHA-256 set and final clean-worktree bit/XSA/ELF identity freeze are not yet closed",
     "does_not_close": ["B3-MVP-GATE", "live-ENeuron group_4way", "B3-STRICT-GATE"]
+  },
+  "b3_goal_optimization_line": {
+    "verified_at": "2026-09-13",
+    "status": "B3_17_22_OPEN_B3_POWER_NOT_MEASURED_B3_SPEED_GATE_OPEN_B3_GOAL_GATE_OPEN",
+    "source_contract": "docs/planning/TODO.md#P16-B3",
+    "power_contract": "docs/planning/NPU_B3_POWER_INSTRUMENT_CONTRACT_V1.md",
+    "power_observation": {
+      "report": "artifacts/logs/b3_power_20260913_be84596/b3_power_report.json",
+      "status": "POWER_NOT_MEASURED",
+      "power_goal_status": "NOT_PROVEN",
+      "power_gate": "OPEN",
+      "scope": "engineering observation and report contract only; no external trace, instrument fields, or accepted power/energy result",
+      "forbidden_inference": ["Vivado estimate as board power", "single positive measurement as power gate", "incremental board power as pure NPU power"]
+    },
+    "optimizations": {
+      "B3-17": {"status":"OPEN","scope":"low-fixed-overhead benchmark: batch fence, DMA descriptor reuse, preformatted frames, fewer per-sample cache operations; report PS/DMA/NPU/result-check time separately","boundary":"benchmark optimization must not rewrite single-sample fence correctness"},
+      "B3-18": {"status":"OPEN","scope":"active-group index table generated at mask commit; preserve dense/full-open bit-exactness and separate static/live execute-skip, cycles, first-error context"},
+      "B3-19": {"status":"OPEN","scope":"suppress skip-group BRAM/DSP activity and add CE for DMA/result/idle paths; prefer clock-enable, then rerun timing/resource/sim/board correctness"},
+      "B3-20": {"status":"OPEN","scope":"compare live mask update per sample, K=16/32/64, and batch; measure mask compute/commit/activation amortization","current_boundary":"current live measurement computes one mask at window start; not per-sample dynamic evidence"},
+      "B3-21": {"status":"OPEN","scope":"paired b3_idle/dense/static/live measurement with same identity, JTAG state, temperature and complete window; report P_incremental=P_mode-P_idle as board-level incremental inference power","pure_npu_rule":"pure NPU claim requires separate FPGA/NPU rail or NPU-off control bitstream"},
+      "B3-22": {"status":"OPEN","scope":"accept optimization only after same-input/model/bit/XSA/ELF binding, numeric/protocol regression, and comparison of NPU cycles, end-to-end throughput, board average power, and energy per correct inference","reject_when":["benefit below instrument uncertainty","reproducibility broken","historical evidence would need rewriting"]}
+    },
+    "does_not_close": ["B3-SPEED-GATE", "B3-POWER-MEASURED", "B3-POWER-GATE", "B3-GOAL-GATE", "B3-STRICT-GATE", "B2-GATE"]
   },
   "b3_gate_hierarchy": {
     "execution_order": ["B3-MVP-GATE", "B3-STRICT-GATE", "B4-RELEASE-GATE"],

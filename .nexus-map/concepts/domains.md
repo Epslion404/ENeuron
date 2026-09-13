@@ -1,5 +1,7 @@
 # 核心领域概念
 
+B3-17～B3-22 优化线（2026-09-13）：当前目标是降低固定软件/协议开销、减少无效硬件活动、冻结 live mask 更新摊销并建立整板功耗归因与统一接受门；六项均未勾选，不新增发布门槛。功耗证据仍为 `POWER_NOT_MEASURED / NOT_PROVEN`，整板 `P_incremental` 也不能解释为纯 NPU 功耗；只有在同一输入、模型、bit/XSA/ELF 身份下先通过正确性回归，再以超过仪器不确定度的可重复周期/吞吐/能耗收益接受优化。
+
 > generated_by: nexus-mapper v2 / manual synthesis
 > verified_at: 2026-09-12
 > provenance: live tree=`D:/Documents/Code/ENeuron-board-b0`，分支 `codex/b1b-high-ddr-board-repro` / PR #88。bitstream RTL 身份 `be84596`。`D:/Documents/Code/ENeuron` 不是当前 live tree。证据 `artifacts/logs/b3_mvp_20260912_be84596/`。
