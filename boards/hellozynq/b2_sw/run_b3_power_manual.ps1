@@ -28,6 +28,9 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+# Vivado 2024.1 默认禁用 FTDI/Digilent 后端；显式启用，避免依赖外部 shell 环境。
+$env:HW_SERVER_FTDIMGR_DISABLE = '0'
+$env:HW_SERVER_DJTG_DISABLE = '0'
 $scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $repoRoot = (Resolve-Path (Join-Path $scriptRoot '..\..\..')).Path
 if ([string]::IsNullOrWhiteSpace($EvidenceRoot)) {

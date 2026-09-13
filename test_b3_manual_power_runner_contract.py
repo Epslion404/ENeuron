@@ -73,6 +73,8 @@ class B3ManualPowerRunnerContractTests(unittest.TestCase):
         self.assertIn("Get-Content -LiteralPath $manifestPath -Raw -Encoding UTF8", source)
         self.assertIn("@('b3_idle', 'b3_dense', 'b3_static_mixed', 'b3_live_eneuron')", source)
         self.assertIn("@('b3_live_eneuron', 'b3_static_mixed', 'b3_dense', 'b3_idle')", source)
+        self.assertIn("$env:HW_SERVER_FTDIMGR_DISABLE = '0'", source)
+        self.assertIn("$env:HW_SERVER_DJTG_DISABLE = '0'", source)
 
     def test_manual_runner_is_valid_powershell(self) -> None:
         script = SW_ROOT / "run_b3_power_manual.ps1"
