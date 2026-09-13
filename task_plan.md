@@ -1974,7 +1974,7 @@ Vivado 证据绑定：现有 runner 自动写入 `git HEAD`。为避免新报告
 - [ ] 在 clean worktree 重建并冻结正式 manifest；继续执行 Host 静态 `2:4`、live-ENeuron、epoch/恢复、周期/吞吐和功耗 A/B。
 ## 2026-09-13 新模型进展复核、管理修正与实现评审
 
-状态：`IN_PROGRESS`
+状态：`COMPLETE`
 
 目标：以 Git、测试和实板证据为准复核 `7c4dba9` 及当前未提交改动；把“完成测量”与“达到加速/功耗目标”分开；修正误导性的本地分支身份；评审 B3-SPEED、B3-POWER 和严格 `2:4` 参考实现。
 
@@ -1998,6 +1998,61 @@ RED 记录：新增“完成外部测量不能自动关闭降功耗目标”合�
 
 收集边界迭代 1：加入 legacy 排除后，默认 pytest 在收集期暴露 `test_compare_simulation.py` 与 `test_run_local_prune_b2.py` 仍导入已归档的 Pulse 模块，终态为 2 collection errors。两者同属归档前多模型支线，已加入显式历史测试清单；下一次用更新后的边界重跑，不重复原配置。
 
-最终验证：`run_b2_checks.ps1 -Full` 通过；B2 合同 `124 passed`，T1 两门 PASS，当前主线全量 `391 passed, 1 skipped, 134 subtests passed`，`git diff --check` 无错误。未运行 Vivado 重建、未重新烧写板卡、未进行外部功耗测量。
+最终验证：`run_b2_checks.ps1 -Full` 通过；B2 合同 `124 passed`，T1 两门 PASS，干净 PR 基线全量 `388 passed, 1 skipped, 134 subtests passed`，`git diff --check` 无错误。原工作树额外的 3 项来自未提交 lane-mask oracle。未运行 Vivado 重建、未重新烧写板卡、未进行外部功耗测量。
 
 提交边界：管理/测试入口与 B3 目标门修复可进入当前 B3 分支；`npu_eneuron_reference.py` 与 `test_npu_eneuron_reference.py` 的 lane-mask oracle 保持独立未提交切片，三个大体积 Vivado/失败证据目录和 `.planning/` 不暂存、不删除。
+
+管理收口：三笔评审提交已通过 PR #91 合并为 `main@30e3b38`；Nexus 七处当前入口/结构化状态已补齐，临时分支身份与 `B3_SPEED_PASS` 旧语义已移除。严格 lane-mask oracle 和三个失败构建证据目录保持在原工作树外，不进入本轮管理 PR。
+
+错误记录：首次批量 Nexus 补丁含一处错误上下文，`apply_patch` 原子拒绝且未产生部分修改；随后拆成精确小补丁。一次 PowerShell `rg` 正则因 shell 引号截断而失败，后续改用多项 `-F -e` 固定字符串查询并得到 `NEXUS_STALE_GATE_TEXT_NONE`。
+
+错误记录：一次定向测试调用误填了不存在的工作目录，进程未启动；随后改用已核实的 `D:/Documents/Code/ENeuron-board-b0-pr-review`，workflow Check、22 项定向测试、JSON 解析和差异检查均通过。
+
+错误记录：首次查询 PR 合并终态时请求了 `gh pr view` 不支持的 `head` 字段，命令返回字段清单；随后直接以 `origin/main@30e3b38` 和 PR #91 页面核实合并结果，没有重复该字段组合。
+
+## 2026-09-13 B3 live L0 contribution 缓存
+
+状态：`IN_PROGRESS`
+
+目标：保持 ENeuron `group_4way` mask、logits、位序、epoch 和 bitstream 不变，在板端首次 L0 dense 扫描中缓存每个 hidden 的 16 个 group contribution，供同一轮 evidence 生成直接复用，消除 512 次重复 L0 `group_mac`。
+
+- [x] RED：新增合同，要求 L0 dense 累加与 evidence 共享同一份 16-group contribution 缓存，并冻结输出等价性。
+- [x] GREEN：最小修改 `packet_main.c`，不改 L1、协议、RTL、bit/XSA 或门控语义。
+- [x] 定向验证：B3 live oracle、packet board 合同、构建脚本合同与差异检查通过。
+- [x] 用现有签核 bit/XSA 重建 live ELF；记录 ELF/hash/编译身份。
+- [x] 当前 JTAG/UART 可用；在 COM15 三次运行并保存 logits、execute/skip、`ps_us`、DMA、Host 窗口及原始日志。精确 19-word mask 未由状态块导出，等价性由 C/Python 合同、active/skip 和 logits 共同覆盖。
+- [ ] 更新 TODO/Nexus、提交、PR，并在条件合适时合并。
+
+成功标准：C 路径只计算 512 次 L0 group contribution 而非 1024 次，所有可见数值/协议行为不变；实板前不得把静态合同或 ELF 构建外推成端到端加速。
+
+RED/GREEN 记录：新合同首先以缺少 `l0_contributions[16]` 失败；实现后目标合同、既有 Host live 合同和 6 项 Python live oracle 共 `8 passed`。当前函数内 `group_mac` 调用点从 3 个降为 2 个，分别对应缓存后的 L0 首遍与 L1。
+
+身份管理 RED/GREEN：dirty 源码构建出的 manifest 仍只写 committed HEAD，新增合同首先失败；修正后 manifest 记录 `git_worktree_clean` 与 `packet_source_sha256`，实板 runner 在 program/JTAG 前拒绝 dirty 构建或源码哈希漂移。
+
+回归记录：定向管理/速度/功耗/packet 合同 `43 passed`；统一 `run_b2_checks.ps1 -Full` 为 `392 passed, 1 skipped, 134 subtests passed`，T1 两门与 `git diff --check` 通过，终态 `B2_CHECKS_PASS`。Vitis 候选 ELF 构建成功，但因构建时工作树未提交，按新身份门仅用于编译/对象比较，不用于实板。
+
+干净构建/实板结果：提交 `82b079e`、`git_worktree_clean=true`、packet 源码 SHA-256=`e5fca8f5…3493b`、ELF=`cc3744e6…aa40`。COM15 三次均 PASS，`ps_us=827/829/828`、DMA=`56/56/56 us`、NPU=`1606` cycles、execute/skip=`296/296`、protocol errors=`0`、logits 与 dense 黄金一致。历史单次 `996 us` 到本轮中位数 `828 us` 的诊断差值约 `-16.9%`；没有冻结端到端统计门，B3-SPEED-GATE 保持打开。
+
+管理复核记录：交付分支位于基于最新 `main@af455a1` 的独立工作树 `ENeuron-board-b0-pr-review`；原 `ENeuron-board-b0` 工作树仍停在历史分支并含未提交实验、构建失败证据和 Nexus 草稿，本轮只读保留，不作为提交来源。后续状态、测试和 PR 只从交付工作树产生。
+
+错误记录：前序 Windows `rg` 查询同时传入不存在的 README 与未由 PowerShell 展开的通配路径，导致查询失败；后续先用 `rg --files` 确认真实路径，再传入明确文件列表。
+
+错误记录：交付工作树没有既有 `boards/hellozynq/b2_sw/build/`，不能把旧 ELF 当作当前分支产物；后续从签核 bit/XSA 和本机 Vitis 重新构建 live ELF。
+
+错误记录：两次用于批量检查的 JavaScript 编排草稿含无效占位符，均在解析阶段失败且未执行任何命令；后续改用完整参数对象，一次执行成功。
+
+错误记录：Nexus 扫描误写 `.nexus-map/concept_model.json`；真实路径为 `.nexus-map/concepts/concept_model.json`。后续先以 `rg --files .nexus-map` 定位，不重复错误路径。
+
+错误记录：一次 Nexus 合同搜索在 Windows 上把 `test_*.py` 当作字面路径并同时引用不存在的 `tests/` 目录，`rg` 返回路径错误；后续改用 `rg -g 'test_*.py' .` 成功，不重复原命令。
+
+错误记录：一次身份合同定位又引用了不存在的 `test_b2_packet_runner_contract.py`；真实合同都在 `test_b2_packet_board_contract.py`，后续改为读取该文件的明确行段。
+
+门依赖 RED/GREEN：新增合同首先发现 `p16_board_validation.json` 仍让 B4 依赖 B3-STRICT，随后统一为 `B4 requires B2-GATE`、B3-STRICT 独立、板级功耗目标属于 B3-POWER；相关 Markdown 与 JSON 同步，合同通过。
+
+错误记录：首次手工录入缓存证据摘要时，run-1 probe SHA-256 漏写中间 16 个十六进制字符；自校验合同立即失败并定位，已按原文件重新计算的完整哈希修正。其余两组哈希由同一合同逐文件验证。
+
+跨平台修正：Git 将证据文本规范化为 LF；原始 Windows CRLF 字节哈希在 Linux checkout 会变化。机器摘要和合同改为明确的 `canonical_lf_sha256`，仍保留各 run manifest 内现场生成的原始 UART 哈希。
+
+错误记录：查询 packet runner 合同时引用了不存在的 `test_b2_packet_runner_contract.py`；实际 runner 合同位于 `test_b2_packet_board_contract.py`。后续仅使用已由 `rg --files` 确认的文件。
+
+管理 RED/GREEN：新增合同首先因 build/runner 不记录 dirty 源码身份而失败；现已让 packet build manifest 写入 `git_worktree_clean` 与 `packet_source_sha256`，实板 runner 对 dirty manifest 和源码哈希漂移 fail-closed。正式实板证据必须在提交后的 clean worktree 重建。

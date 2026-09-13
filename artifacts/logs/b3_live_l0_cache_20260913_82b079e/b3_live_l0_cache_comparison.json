@@ -1,0 +1,48 @@
+{
+  "schema": "eneuron_b3_live_l0_cache_comparison_v2",
+  "git_head": "82b079e49f46bd20c6ea0893f61f58967553b45b",
+  "rtl_identity": "be845965d7df8b4018e6b32b8b5b4e350fb0488a",
+  "bitstream_sha256": "0ecbe76274c39418f2a60a88358d3ff6f09f5a2ed73a44a3a419c34eb91d3a11",
+  "xsa_sha256": "135d979d61c629922ee5419e51dd97ef045d9bab79930432816d09f109291d1a",
+  "elf_sha256": "cc3744e6447320bf5e948235be1154a0b70bb4e730b67a86b95740505cc7aa40",
+  "packet_source_sha256": "e5fca8f5a5070490838c9e05215f4afb0bb75b440d90f3263f023c81cf03493b",
+  "packet_source_identity_scope": "git_blob_at_git_head",
+  "packet_build_manifest_canonical_lf_sha256": "69a7652a8c1aefefea9228963ef186c05bdf2e6f8385e69738172b7c9e4fd7d4",
+  "source_packet_build_manifest_schema_version": 1,
+  "source_packet_build_manifest_clean_field": "git_worktree_clean",
+  "git_tracked_worktree_clean": true,
+  "port": "COM15",
+  "historical_ps_us_single_sample": 996,
+  "candidate_ps_us": [827, 829, 828],
+  "candidate_ps_us_median": 828,
+  "diagnostic_delta_us": -168,
+  "diagnostic_delta_percent": -16.8674698795,
+  "dma_us": [56, 56, 56],
+  "npu_cycles": [1606, 1606, 1606],
+  "execute_groups": [296, 296, 296],
+  "skip_groups": [296, 296, 296],
+  "protocol_errors": [0, 0, 0],
+  "logits": [165, -18, 14, 0, 0, 0, 0, 0, 0, 153],
+  "status": "BOARD_DIAGNOSTIC_PASS_SPEED_GATE_OPEN",
+  "claim": "host_live_decision_cache_candidate_reduces_ps_us_on_frozen_sample",
+  "run_files": [
+    {
+      "run": 1,
+      "manifest_canonical_lf_sha256": "00c54a9b512130fdf692c95157b7aa771d8125f14f6049147f2f4a0e823b6411",
+      "uart_canonical_lf_sha256": "5915ab9258a65afced9cf24244142f3a10b89d0785a08ad061927ee5fa1ec691",
+      "probe_canonical_lf_sha256": "1b868738bdf292ba8d17f0376e4c15a72fbd02f22d824ea0691ef029b2ac2b26"
+    },
+    {
+      "run": 2,
+      "manifest_canonical_lf_sha256": "32f271d451e126f520058b728cdd61fcb6ecd50c84003f088a49d9fac22c931d",
+      "uart_canonical_lf_sha256": "2aafc3df6313a1343125fe3e10f49583a175a7b9a155870a8b481bd03754dd17",
+      "probe_canonical_lf_sha256": "e1eff48295f8966691fa938da91cf3c6a6e57d78de488bf210ed257bf3a92771"
+    },
+    {
+      "run": 3,
+      "manifest_canonical_lf_sha256": "a49848f2047d208fbde76f7a01469784e01583ba65061c819b94571c3b76ed73",
+      "uart_canonical_lf_sha256": "7027ede0d36de44c96a1c16448d63bf2d657916627fc2a76553637aa88fd1051",
+      "probe_canonical_lf_sha256": "ea5bf1b0e622c9d0e8eea8a47e5656472d40925b3ace107d88e8bd8195aa7f5a"
+    }
+  ]
+}

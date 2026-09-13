@@ -2,9 +2,13 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
+import re
+import subprocess
 import tempfile
 import unittest
+from datetime import datetime, timedelta
 from pathlib import Path
 
 from b3_mvp_report import (
@@ -52,6 +56,169 @@ def _speed_record(mode: str, *, cycles: int, execute: int, skip: int, logits: tu
 
 
 class B3SpeedReportContractTests(unittest.TestCase):
+    @staticmethod
+    def _last_packet_transaction(uart: str) -> str:
+        if "B2_PACKET_BEGIN" not in uart:
+            raise AssertionError("UART missing B2_PACKET_BEGIN")
+        packet = uart.rsplit("B2_PACKET_BEGIN", 1)[-1]
+        if not packet.strip():
+            raise AssertionError("last packet transaction is empty")
+        return packet
+
+    def test_uart_without_begin_marker_is_rejected(self) -> None:
+        with self.assertRaises(AssertionError):
+            B3SpeedReportContractTests._last_packet_transaction(
+                "B3_SPEED_SPLIT ps_us=1 dma_us=2\nB3_LIVE_ENEURON_PASS logits=1\n"
+            )
+
+    def test_live_l0_cache_board_artifact_is_self_consistent(self) -> None:
+        root = Path(__file__).resolve().parent
+        artifact = root / "artifacts/logs/b3_live_l0_cache_20260913_82b079e"
+        data = json.loads((artifact / "b3_live_l0_cache_comparison.json").read_text(encoding="utf-8"))
+        self.assertEqual(data["schema"], "eneuron_b3_live_l0_cache_comparison_v2")
+        self.assertEqual(data["packet_source_identity_scope"], "git_blob_at_git_head")
+        self.assertEqual(data["source_packet_build_manifest_schema_version"], 1)
+        self.assertEqual(data["source_packet_build_manifest_clean_field"], "git_worktree_clean")
+        self.assertEqual(data["status"], "BOARD_DIAGNOSTIC_PASS_SPEED_GATE_OPEN")
+        self.assertEqual(data["candidate_ps_us"], [827, 829, 828])
+        self.assertEqual(data["candidate_ps_us_median"], 828)
+        self.assertEqual(data["npu_cycles"], [1606, 1606, 1606])
+        self.assertEqual(data["execute_groups"], [296, 296, 296])
+        self.assertEqual(data["skip_groups"], [296, 296, 296])
+        self.assertEqual(data["protocol_errors"], [0, 0, 0])
+        packet_manifest_path = artifact / "packet_build_manifest.json"
+        packet_manifest_canonical = packet_manifest_path.read_text(encoding="utf-8").replace(
+            "\r\n", "\n"
+        )
+        self.assertEqual(
+            hashlib.sha256(packet_manifest_canonical.encode("utf-8")).hexdigest(),
+            data["packet_build_manifest_canonical_lf_sha256"],
+        )
+        packet_manifest = json.loads(packet_manifest_canonical)
+        self.assertEqual(packet_manifest["schema_version"], 1)
+        self.assertTrue(packet_manifest["git_worktree_clean"])
+        self.assertTrue(data["git_tracked_worktree_clean"])
+        readme = (artifact / "README.md").read_text(encoding="utf-8")
+        self.assertIn("历史字段", readme)
+        self.assertIn("仅检查已跟踪文件", readme)
+        observed_ps: list[int] = []
+        observed_dma: list[int] = []
+        observed_cycles: list[int] = []
+        observed_execute: list[int] = []
+        observed_skip: list[int] = []
+        observed_errors: list[int] = []
+        for run in data["run_files"]:
+            run_dir = artifact / f"run-{run['run']}"
+            for name, field in (
+                ("run_manifest.json", "manifest_canonical_lf_sha256"),
+                ("uart.log", "uart_canonical_lf_sha256"),
+                ("post_pass_probe.log", "probe_canonical_lf_sha256"),
+            ):
+                canonical = (run_dir / name).read_text(encoding="utf-8").replace("\r\n", "\n")
+                digest = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+                self.assertEqual(digest, run[field])
+
+            manifest = json.loads((run_dir / "run_manifest.json").read_text(encoding="utf-8"))
+            self.assertEqual(manifest["status"], "PASS")
+            self.assertEqual(manifest["git_head"], data["git_head"])
+            self.assertEqual(manifest["elf_sha256"].lower(), data["elf_sha256"])
+            self.assertEqual(manifest["bitstream_sha256"].lower(), data["bitstream_sha256"])
+            self.assertEqual(manifest["xsa_sha256"].lower(), data["xsa_sha256"])
+            uart = (run_dir / "uart.log").read_text(encoding="utf-8")
+            packet = self._last_packet_transaction(uart)
+            speed = re.search(r"(?m)^B3_SPEED_SPLIT ps_us=(\d+) dma_us=(\d+)\r?$", packet)
+            result = re.search(
+                r"(?m)^B3_LIVE_ENEURON_PASS sequence=\d+ .*?logits=([-\d,]+) "
+                r"group_reads=(\d+) group_skips=(\d+) .*?$",
+                packet,
+            )
+            self.assertIsNotNone(speed)
+            self.assertIsNotNone(result)
+            assert speed is not None and result is not None
+            observed_ps.append(int(speed.group(1)))
+            observed_dma.append(int(speed.group(2)))
+            self.assertEqual([int(value) for value in result.group(1).split(",")], data["logits"])
+            observed_execute.append(int(result.group(2)))
+            observed_skip.append(int(result.group(3)))
+
+            probe = (run_dir / "post_pass_probe.log").read_text(encoding="utf-8")
+            probe_values = {
+                key: int(value, 0)
+                for key, value in re.findall(r"(?m)^B2_NPU_([A-Z_]+)=(0x[0-9A-Fa-f]+|\d+)\r?$", probe)
+            }
+            observed_cycles.append(probe_values["LAST_COMPUTE_CYCLES"])
+            observed_errors.append(probe_values["PROTOCOL_ERROR_COUNT"])
+            self.assertEqual(probe_values["EXECUTE_GROUP_COUNT"], observed_execute[-1])
+            self.assertEqual(probe_values["SKIP_GROUP_COUNT"], observed_skip[-1])
+
+        self.assertEqual(len(data["run_files"]), 3)
+        self.assertEqual(len(list(artifact.glob("run-*"))), 3)
+        packet_source = subprocess.run(
+            [
+                "git",
+                "-C",
+                str(root),
+                "show",
+                f"{data['git_head']}:boards/hellozynq/b2_sw/src/packet_main.c",
+            ],
+            check=True,
+            stdout=subprocess.PIPE,
+        ).stdout
+        self.assertEqual(
+            hashlib.sha256(packet_source).hexdigest(),
+            data["packet_source_sha256"],
+        )
+        self.assertEqual(observed_ps, data["candidate_ps_us"])
+        self.assertEqual(observed_dma, data["dma_us"])
+        self.assertEqual(observed_cycles, data["npu_cycles"])
+        self.assertEqual(observed_execute, data["execute_groups"])
+        self.assertEqual(observed_skip, data["skip_groups"])
+        self.assertEqual(observed_errors, data["protocol_errors"])
+
+    def test_current_management_entries_follow_post_cache_state(self) -> None:
+        root = Path(__file__).resolve().parent
+        b2 = json.loads((root / ".nexus-map/concepts/b2_packet_npu.json").read_text(encoding="utf-8"))
+        p16 = json.loads(
+            (root / ".nexus-map/concepts/p16_board_validation.json").read_text(encoding="utf-8")
+        )
+        concept = json.loads(
+            (root / ".nexus-map/concepts/concept_model.json").read_text(encoding="utf-8")
+        )
+        state = concept["current_repository_state"]
+        p16_node = next(node for node in concept["nodes"] if node["id"] == "p16-board-validation")
+        board_b2 = next(node for node in concept["nodes"] if node["id"] == "board-phase2-b2")
+
+        self.assertEqual(b2["source_identity_rule"], "QUERY_CURRENT_CHECKOUT_AT_RUNTIME")
+        self.assertIn("B3_09_BOARD_PASS", b2["current_status"])
+        self.assertIn("B3_POWER_GATE_OPEN", b2["current_status"])
+        self.assertIn("B3_GOAL_GATE_OPEN", b2["current_status"])
+        self.assertTrue(b2["next_gate"].startswith("B3-SPEED-GATE"))
+        self.assertIn("B3-GOAL-GATE", p16["current_gates"])
+        self.assertIn("B3_L0_CACHE_BOARD_DIAGNOSTIC_PASS", p16["status"])
+        self.assertNotIn("workflow_resume_counts", p16)
+        self.assertEqual(p16["workflow_resume_count_rule"], "QUERY_WORKFLOW_RESUME_AT_RUNTIME")
+        self.assertEqual(
+            p16["current_execution_point"],
+            "FREEZE_REPEATABLE_END_TO_END_SPEED_WINDOW_AND_MEASURE_EXTERNAL_POWER_WHEN_AVAILABLE",
+        )
+        self.assertEqual(state["b3_goal_gate"], "OPEN")
+        self.assertIn("82b079e", p16_node["evidence_gap"])
+        self.assertNotIn("setup_fail", board_b2["implementation_status"])
+        generated_at = datetime.fromisoformat(concept["generated_at"])
+        self.assertEqual(generated_at.date().isoformat(), "2026-09-13")
+        self.assertEqual(generated_at.utcoffset(), timedelta(hours=8))
+
+        workflow = (root / "WORKFLOW_STATE.md").read_text(encoding="utf-8")
+        next_action = workflow.split("## 下一动作", 1)[1].split("## ", 1)[0]
+        self.assertIn("82b079e", next_action)
+        git_forensics = (root / ".nexus-map/hotspots/git_forensics.md").read_text(encoding="utf-8")
+        self.assertIn("artifacts/logs/b3_live_l0_cache_20260913_82b079e", git_forensics)
+        self.assertIn("PR #93", git_forensics)
+        self.assertIn("be84596", git_forensics)
+        current = (root / "docs/CURRENT_STATUS.md").read_text(encoding="utf-8")
+        self.assertNotIn("B3_SPEED_PASS", current)
+        self.assertIn("B3_GOAL_GATE_OPEN", current)
+
     def test_current_docs_separate_measurement_from_speed_gate(self) -> None:
         root = Path(__file__).resolve().parent
         todo = (root / "docs/planning/TODO.md").read_text(encoding="utf-8")
@@ -62,6 +229,48 @@ class B3SpeedReportContractTests(unittest.TestCase):
         self.assertIn("B3_SPEED_GATE_OPEN", current)
         self.assertIn("B3-SPEED-GATE", workflow)
         self.assertNotIn("B3_SPEED_PASS", current)
+
+    def test_nexus_keeps_speed_measurement_separate_from_goal_gate(self) -> None:
+        root = Path(__file__).resolve().parent
+        domains = (root / ".nexus-map/concepts/domains.md").read_text(encoding="utf-8")
+        coverage = (root / ".nexus-map/arch/test_coverage.md").read_text(encoding="utf-8")
+        hierarchy = json.loads(
+            (root / ".nexus-map/concepts/p16_board_validation.json").read_text(encoding="utf-8")
+        )["b3_gate_hierarchy"]
+        self.assertIn("B3_SPEED_MEASURED / B3_SPEED_GATE_OPEN", domains)
+        self.assertNotIn("`B3_SPEED_PASS`", domains)
+        self.assertIn("B3-SPEED-GATE=OPEN", coverage)
+        self.assertEqual(
+            hierarchy["parallel_goal_gates"], ["B3-SPEED-GATE", "B3-POWER-GATE"]
+        )
+        self.assertIn("B3-POWER-MEASURED", hierarchy["current_gates"])
+
+    def test_nexus_live_board_state_has_no_pending_contradiction(self) -> None:
+        root = Path(__file__).resolve().parent
+        p16 = json.loads(
+            (root / ".nexus-map/concepts/p16_board_validation.json").read_text(encoding="utf-8")
+        )
+        live = p16["b3_live_eneuron_host_subgate"]
+        board_arch = (root / ".nexus-map/arch/p16_board_validation.md").read_text(
+            encoding="utf-8"
+        )
+        concept = json.loads(
+            (root / ".nexus-map/concepts/concept_model.json").read_text(encoding="utf-8")
+        )
+        authoritative = concept["current_repository_state"]
+
+        self.assertEqual(live["status"], "BOARD_CACHE_DIAGNOSTIC_PASS_SPEED_GATE_OPEN")
+        self.assertEqual(live["board_elf_jtag"], "CURRENT_CACHE_ELF_THREE_RUNS_PASS")
+        self.assertNotIn("B3-09 board ELF/JTAG", live["does_not_close"])
+        self.assertIn("B3-09 实板已关闭", board_arch)
+        self.assertNotIn("实板 ELF/JTAG 未关闭", board_arch)
+        self.assertEqual(authoritative["source_identity_rule"], "QUERY_CURRENT_CHECKOUT_AT_RUNTIME")
+        self.assertEqual(authoritative["b3_mvp_gate"], "PASS")
+        self.assertEqual(authoritative["b3_speed_gate"], "OPEN")
+        self.assertEqual(authoritative["b3_power_gate"], "OPEN")
+        release = next(stage for stage in p16["stages"] if stage["id"] == "B4-RELEASE")
+        self.assertNotIn("B3-STRICT-GATE", release["requires"])
+        self.assertNotIn("完整 B2-GATE 与 B3-STRICT-GATE", board_arch)
 
     def test_committed_board_artifact_keeps_four_segments_and_forbids_e2e_claim(self) -> None:
         path = Path(__file__).resolve().parent / "artifacts/logs/b3_speed_20260912_be84596/b3_speed_comparison.json"

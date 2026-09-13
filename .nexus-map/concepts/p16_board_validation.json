@@ -7,51 +7,22 @@
     "part": "xc7z020clg484-2"
   },
   "workflow_context": {
-    "active_branch": "codex/b1b-high-ddr-board-repro",
-    "current_head": "fe25a7081f6a93e9d63c888ea581dc5595d84b4a",
-    "current_head_subject": "feat(board): add live ENeuron group_4way host decision",
-    "source_identity_rule": "COMMITTED_HEAD_ONLY",
-    "worktree_status": "DIRTY",
-    "worktree_not_signoff": true,
+    "checkout_identity_rule": "QUERY_GIT_AT_RUNTIME",
+    "source_identity_rule": "CHECKOUT_FROM_GIT; PHYSICAL_ARTIFACTS_FROM_MANIFEST",
+    "bitstream_rtl_identity": "be84596",
     "t0_state_workspace_is_current": false,
-    "dirty_uncommitted_status_probe_or_counter_rtl": [
-      "b2_npu_packet_adapter.sv",
-      "b2_packet_egress.sv",
-      "npu_eneuron_single_clock_skeleton.sv",
-      "npu_zynq7020_t1_wrapper.sv",
-      "boards/hellozynq/b2_hw/b2_npu_axis_top.v",
-      "boards/hellozynq/b2_hw/b2_npu_status_probe.v",
-      "tb_b2_npu_status_probe.sv",
-      "test_b2_npu_status_probe_contract.py"
-    ],
-    "worktree_entries_not_signoff": [
-      "WORKFLOW_STATE.md",
-      "b2_npu_packet_adapter.sv",
-      "b2_packet_egress.sv",
-      "boards/hellozynq/b2_hw/b2_npu_axis_top.v",
-      "boards/hellozynq/b2_hw/b2_npu_status_probe.v",
-      "boards/hellozynq/b2_hw/create_b2_bd.tcl",
-      "boards/hellozynq/b2_hw/run_b2_build.ps1",
-      "npu_eneuron_single_clock_skeleton.sv",
-      "npu_zynq7020_t1_wrapper.sv",
-      "tb_b2_npu_packet_adapter_e2e.sv",
-      "tb_b2_npu_status_probe.sv",
-      "test_b2_npu_status_probe_contract.py",
-      "task_plan.md"
-    ],
-    "parent_audit_baseline": "d7e1035",
-    "execution_chain": ["B3-09_LIVE_GROUP_4WAY_BOARD_ELF_JTAG", "B3-03_MINIMUM_OBSERVABILITY", "B3-11_EPOCH_ATOMICITY", "B3-13_B3-14_SMALL_SET_AB"],
+    "execution_chain": ["B3-SPEED-GATE", "B3-POWER-MEASURED", "B3-POWER-GATE", "B3-GOAL-GATE"],
     "qualification_execution_chain": ["B1-06B6_UART_BASELINE", "B1-06B7_OCM_HIGH_DDR_MINIMAL_REPRODUCTION"],
     "ddr_accesses_so_far": 0
   },
-  "status": "P16_B0_COMPLETE / FASTLANE_V1 / B2_PACKET_NPU_PHYSICAL_PASS / B2_GATE_RELEASE_PENDING / B3_MVP_GATE_PASS / B3_SPEED_MEASURED / B3_SPEED_GATE_OPEN / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B3_17_22_OPTIMIZATION_PENDING / B3_STRICT_PENDING / B4_RELEASE_PENDING",
+  "status": "P16_B0_COMPLETE / FASTLANE_V1 / B2_PACKET_NPU_PHYSICAL_PASS / B2_GATE_RELEASE_PENDING / B3_MVP_GATE_PASS / B3_L0_CACHE_BOARD_DIAGNOSTIC_PASS / B3_SPEED_MEASURED / B3_SPEED_GATE_OPEN / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B3_STRICT_PENDING / B4_RELEASE_PENDING",
   "current_b2_status": "FUNCTIONAL_PASS / PHYSICAL_PASS / BOARD_STATUS_PARTIAL",
   "stage2_complete": false,
-  "current_gate": "B3-SPEED-GATE + B3-POWER-GATE",
+  "current_gates": ["B3-SPEED-GATE", "B3-POWER-MEASURED", "B3-POWER-GATE", "B3-GOAL-GATE"],
   "active_stage_contract": "docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md",
   "related_contracts": ["docs/planning/TODO.md#P16", "docs/planning/NPU_PRUNING_TODO.md", "docs/planning/NPU_PRUNING_NP7_TODO.md"],
-  "workflow_resume_counts": "P16=59",
-  "current_execution_point": "B3-17_22_OPTIMIZATION_AND_POWER_ATTRIBUTION",
+  "workflow_resume_count_rule": "QUERY_WORKFLOW_RESUME_AT_RUNTIME",
+  "current_execution_point": "FREEZE_REPEATABLE_END_TO_END_SPEED_WINDOW_AND_MEASURE_EXTERNAL_POWER_WHEN_AVAILABLE",
   "ddr_accesses_so_far": 0,
   "b0": {
     "source_commit": "f3b8174e8ca30d427e9de3eea2d36feb6a5e6a06",
@@ -565,7 +536,7 @@
     "does_not_close": ["B3-MVP-GATE", "live-ENeuron automatic decision", "cycle A/B", "B3-STRICT-GATE"]
   },
   "b3_live_eneuron_host_subgate": {
-    "status": "HOST_GREEN_BOARD_PENDING",
+    "status": "BOARD_CACHE_DIAGNOSTIC_PASS_SPEED_GATE_OPEN",
     "source_commit": "fe25a7081f6a93e9d63c888ea581dc5595d84b4a",
     "source_subject": "feat(board): add live ENeuron group_4way host decision",
     "application_mode": "b3_live_eneuron",
@@ -575,7 +546,7 @@
     "python_result": "6 passed",
     "host_c": "boards/hellozynq/b2_sw/src/packet_main.c",
     "host_macro": "B3_LIVE_ENEURON",
-    "mask_computation": "PS computes 19-word group_4way mask after model load; no B3_LIVE_ENEURON_MASK_WORDS frozen table",
+    "mask_computation": "PS computes 19-word group_4way mask after model load; commit 82b079e removes 512 repeated L0 group_mac calls with a 16-item per-hidden cache; no B3_LIVE_ENEURON_MASK_WORDS frozen table",
     "algorithm": "ENeuron S2 gain=1; every four NPU groups are one meta-neuron; group MAC contribution quantized 0..3; keep 2 of 4 groups",
     "mask_granularity": "group_4way",
     "strict_2of4_candidate": false,
@@ -585,9 +556,13 @@
     "mask_word1": "0x33393335",
     "static_mixed_word1": "0x33333333",
     "mask_equals_static_mixed": false,
-    "board_elf_jtag": "NOT_CLOSED",
+    "board_elf_jtag": "CURRENT_CACHE_ELF_THREE_RUNS_PASS",
+    "cache_commit": "82b079e49f46bd20c6ea0893f61f58967553b45b",
+    "cache_elf_sha256": "cc3744e6447320bf5e948235be1154a0b70bb4e730b67a86b95740505cc7aa40",
+    "cache_board_ps_us": [827, 829, 828],
+    "cache_evidence": "artifacts/logs/b3_live_l0_cache_20260913_82b079e/",
     "terminal_marker": "B3_LIVE_ENEURON_PASS",
-    "does_not_close": ["B3-09 board ELF/JTAG", "B3-MVP-GATE", "B3-08b strict connection-level 2:4", "B3-STRICT-GATE", "cycle A/B"]
+    "does_not_close": ["B3-SPEED-GATE", "B3-POWER-MEASURED", "B3-POWER-GATE", "B3-08b strict connection-level 2:4", "B3-STRICT-GATE"]
   },
   "b3_fixed_vector_manifest": {
     "status": "B3-02_SHARED_MANIFEST_GREEN_B3-01_SHA_FREEZE_PENDING",
@@ -611,38 +586,20 @@
     "b3_01_gap": "complete file SHA-256 set and final clean-worktree bit/XSA/ELF identity freeze are not yet closed",
     "does_not_close": ["B3-MVP-GATE", "live-ENeuron group_4way", "B3-STRICT-GATE"]
   },
-  "b3_goal_optimization_line": {
-    "verified_at": "2026-09-13",
-    "status": "B3_17_22_OPEN_B3_POWER_NOT_MEASURED_B3_SPEED_GATE_OPEN_B3_GOAL_GATE_OPEN",
-    "source_contract": "docs/planning/TODO.md#P16-B3",
-    "power_contract": "docs/planning/NPU_B3_POWER_INSTRUMENT_CONTRACT_V1.md",
-    "power_observation": {
-      "report": "artifacts/logs/b3_power_20260913_be84596/b3_power_report.json",
-      "status": "POWER_NOT_MEASURED",
-      "power_goal_status": "NOT_PROVEN",
-      "power_gate": "OPEN",
-      "scope": "engineering observation and report contract only; no external trace, instrument fields, or accepted power/energy result",
-      "forbidden_inference": ["Vivado estimate as board power", "single positive measurement as power gate", "incremental board power as pure NPU power"]
-    },
-    "optimizations": {
-      "B3-17": {"status":"OPEN","scope":"low-fixed-overhead benchmark: batch fence, DMA descriptor reuse, preformatted frames, fewer per-sample cache operations; report PS/DMA/NPU/result-check time separately","boundary":"benchmark optimization must not rewrite single-sample fence correctness"},
-      "B3-18": {"status":"OPEN","scope":"active-group index table generated at mask commit; preserve dense/full-open bit-exactness and separate static/live execute-skip, cycles, first-error context"},
-      "B3-19": {"status":"OPEN","scope":"suppress skip-group BRAM/DSP activity and add CE for DMA/result/idle paths; prefer clock-enable, then rerun timing/resource/sim/board correctness"},
-      "B3-20": {"status":"OPEN","scope":"compare live mask update per sample, K=16/32/64, and batch; measure mask compute/commit/activation amortization","current_boundary":"current live measurement computes one mask at window start; not per-sample dynamic evidence"},
-      "B3-21": {"status":"OPEN","scope":"paired b3_idle/dense/static/live measurement with same identity, JTAG state, temperature and complete window; report P_incremental=P_mode-P_idle as board-level incremental inference power","pure_npu_rule":"pure NPU claim requires separate FPGA/NPU rail or NPU-off control bitstream"},
-      "B3-22": {"status":"OPEN","scope":"accept optimization only after same-input/model/bit/XSA/ELF binding, numeric/protocol regression, and comparison of NPU cycles, end-to-end throughput, board average power, and energy per correct inference","reject_when":["benefit below instrument uncertainty","reproducibility broken","historical evidence would need rewriting"]}
-    },
-    "does_not_close": ["B3-SPEED-GATE", "B3-POWER-MEASURED", "B3-POWER-GATE", "B3-GOAL-GATE", "B3-STRICT-GATE", "B2-GATE"]
-  },
   "b3_gate_hierarchy": {
-    "execution_order": ["B3-MVP-GATE", "B3-STRICT-GATE", "B4-RELEASE-GATE"],
-    "current_gate": "B3-MVP-GATE",
+    "execution_order": ["B3-MVP-GATE", "B3-GOAL-GATE", "B4-RELEASE-GATE"],
+    "current_gates": ["B3-SPEED-GATE", "B3-POWER-MEASURED", "B3-POWER-GATE", "B3-GOAL-GATE"],
+    "parallel_goal_gates": ["B3-SPEED-GATE", "B3-POWER-GATE"],
+    "mvp_status": "PASS",
     "mvp_requires": ["B3-03", "B3-04", "B3-09", "B3-11", "B3-13", "B3-14"],
     "mvp_scope": "same-bitstream small-set dense/full-open/static-group_4way/live-ENeuron-group_4way correctness, decision, epoch, and local NPU cycle A/B",
+    "goal_requires": ["B3-SPEED-GATE", "B3-POWER-GATE"],
+    "goal_scope": "repeatable end-to-end inference speed improvement and external board power/energy improvement with correctness preserved",
     "strict_requires": ["B3-01", "B3-05", "B3-08b", "B3-10", "B3-12", "B3-15", "B3-16", "B3-RECOVERY"],
     "strict_scope": "strict connection-level 2:4, at least 10000 samples per mode, full protocol and reset recovery",
-    "release_scope": "Ethernet end-to-end repeatable A/B and external power/energy measurement",
+    "release_scope": "Ethernet publication path and network-load deltas; external board power measurement belongs to B3-POWER",
     "non_blocking_for_mvp": ["B2-GATE", "B3-01 final clean-worktree release identity", "strict connection-level 2:4", "10000 samples", "full recovery matrix", "Ethernet", "external power measurement"],
+    "non_blocking_for_goal": ["B2-GATE", "B3-STRICT-GATE", "Ethernet"],
     "historical_aliases": {"B3-GATE": "B3-STRICT-GATE", "B4-GATE": "B4-RELEASE-GATE"}
   },
   "qualification_next_action": {
@@ -761,9 +718,9 @@
   "stages": [
     {"id":"B1","requires":"B0-GATE=PASS on main","scope":"PS7, DDR, UART, PHY, minimal UDP","status":"IN_PROGRESS_B1A_COMPLETE_B1B_UART_LOW_DDR_PASS_HIGH_DDR_PENDING"},
     {"id":"B2","requires":"B2-00/B2-D1 for low-address MVP; B1-GATE=PASS for full networked B2","scope":"AXI DMA, DDR ownership/cache contract, PL loopback, fixed frame adapter","status":"IN_PROGRESS_LOW_ADDRESS_MVP_PACKET_NPU_PHYSICAL_PASS_BOARD_STATUS_PARTIAL_B2_GATE_PENDING_B1_GATE_PENDING"},
-    {"id":"B3-MVP","requires":"B2 packet-NPU physical pass and legal-path smoke; B2-GATE is not an MVP prerequisite","scope":"existing group_4way live-ENeuron correctness, epoch, and small-set local NPU cycle A/B","status":"IN_PROGRESS_B3_09_HOST_GREEN_BOARD_PENDING_B3_03_B3_11_OPEN"},
+    {"id":"B3-MVP","requires":"B2 packet-NPU physical pass and legal-path smoke; B2-GATE is not an MVP prerequisite","scope":"existing group_4way live-ENeuron correctness, epoch, and small-set local NPU cycle A/B","status":"PASS"},
     {"id":"B3-STRICT","requires":"B3-MVP-GATE=PASS","scope":"strict connection-level 2:4, 10000 samples, full protocol and reset recovery","status":"PENDING_AFTER_MVP"},
-    {"id":"B4-RELEASE","requires":"B2-GATE=PASS and B3-STRICT-GATE=PASS","scope":"Ethernet end-to-end reproducible A/B and external power/energy measurement","status":"PENDING_AFTER_STRICT"}
+    {"id":"B4-RELEASE","requires":"B2-GATE=PASS","scope":"Ethernet end-to-end reproducible A/B and network-load deltas; B3-STRICT is independent and board power target belongs to B3-POWER","status":"PENDING_B2_GATE"}
   ],
   "mask_mode_boundary": {
     "host_static": "Host replays a frozen mask to validate the NPU gating executor; MVP uses group_4way and STRICT uses strict connection-level 2:4. This is not ENeuron automatic decision evidence.",

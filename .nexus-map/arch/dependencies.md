@@ -1,14 +1,14 @@
 # 依赖关系
 
 > generated_by: nexus-mapper v2 / manual synthesis
-> verified_at: 2026-09-12
-> provenance: Git HEAD `fe25a70` 与已提交 Host/manifest 人工核对；未提交 status probe / 计数器 RTL 不是签核源码身份。
+> verified_at: 2026-09-13
+> provenance: Git checkout 身份以命令实时输出为准；板级签核仍绑定 RTL `be84596` 与对应 bit/XSA/ELF/manifest。
 
-当前 B3 依赖（2026-09-12）：dense、bypass、full-open 与 Host static `group_4way` 已在 COM15 实板通过，B3-00/02/06/07/08a 已关闭。B3-09 Host 合同已接通（HEAD `fe25a70`），实板 ELF/JTAG 未关闭。下一依赖是现有 bit/XSA 上的 `b3_live_eneuron` 实板，然后 B3-03 最小观测与 B3-11 epoch 原子切换，随后用 B3-13/14 完成小集合周期 A/B。Host 合同 ≠ 板级通过。严格连接级 `2:4` 仍是 B3-08b。
+当前 B3 依赖（2026-09-13）：B3-MVP-GATE 已在 COM15 与 RTL `be84596` 的同源 bitstream 上关闭；dense/full-open/static/live 数值、epoch、execute/skip 与局部周期已有证据。当前并行依赖是 `B3-SPEED-GATE` 和 `B3-POWER-MEASURED/B3-POWER-GATE`，二者都通过后才关闭 `B3-GOAL-GATE`。严格连接级 `2:4` 仍是独立 B3-08b/STRICT 实验。
 
-当前依赖边界：`xc7z020clg484-2` NPU + ENeuron 动态剪枝是活动主线；`archive/legacy/` 不参与日常门。`B3-MVP-GATE` 使用现有 `group_4way`，不依赖完整 B2-GATE、严格连接级 `2:4`、10000 样本、完整恢复、网口或外部功耗。后两类工作分别进入 `B3-STRICT-GATE` 与 `B4-RELEASE-GATE`。
+当前依赖边界：`xc7z020clg484-2` NPU + ENeuron 动态剪枝是活动主线；`archive/legacy/` 不参与日常门。B3 速度/功耗目标不依赖完整 B2-GATE、严格连接级 `2:4`、10000 样本、完整恢复或网口。严格结构与长稳工作进入 `B3-STRICT-GATE`；外部板级功耗属于 B3-POWER，B4 只补网口发布及其负载差异。
 
-当前阶段合同由 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md` 主导，P16 TODO 段提供当前执行层级。开发链先关闭 `B3-MVP-GATE`；B2-06～B2-10/B2-GATE 可并行补齐发布证据，不再串行阻塞 MVP。B3-STRICT 在 MVP 之后，B4-RELEASE 只在完整 B2 与严格门之后启动。
+当前阶段合同由 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md` 主导，P16 TODO 段提供当前执行层级。B3-MVP-GATE 已关闭；开发链并行推进速度和功耗目标，B2-06～B2-10/B2-GATE 可补齐网口发布证据。B3-STRICT 独立于日常目标，B4-RELEASE 不再依赖严格门。
 
 B2-08 依赖更新（2026-09-12）：adapter 四流计数和 fence snapshot 已进入 `b2_npu_axis_top`，并由 `0x40430000` 只读 AXI-Lite 状态块供 JTAG/PS 读取；HEAD `88bec9e` 的 200 MHz routed build 已通过，COM15 读回 command/sample/response/result=`658/658`、`8/8`、`1/1`、`10 beats/1 packet`，fence snapshot valid。该部分证据解除“状态块不可读”阻塞，但不解除完整多 packet/error/reset ledger、B2-GATE 或 B3 数值等价门。
 

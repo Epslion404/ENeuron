@@ -1987,3 +1987,18 @@
 - `archive/legacy/README.md` 明确这些内容“不再参与当前日常开发门”，因此默认主线验证应排除该子树。另有一个非 legacy 的 B0 历史证据测试单独失败：manifest 中 runner SHA 与当前 `run_b0_power_off_probe.ps1` 不同；这不是本轮 B3 回归，需保留为历史证据新鲜度问题，不能通过改写旧 manifest 掩盖。
 - B0 hash 差异进一步定位：`git diff 5affe99..HEAD -- run_b0_power_off_probe.ps1` 为空，文件内容自证据提交后未改；失败来自测试对 PowerShell 文件做 raw SHA，而 checkout 会受 CRLF/LF 影响。证据文本已普遍使用 canonical-LF 哈希，这个 runner 校验也应改为 canonical-LF，并验证其确实匹配 manifest 后再修测试。
 - 修正后默认收集为 392 项，完整当前主线回归 `391 passed, 1 skipped, 134 subtests passed`；B0 证据定向 `8 passed, 3 subtests passed`。这不是删除历史测试：文件仍保留，只是落实 `archive/legacy/README.md` 已声明的“历史不参与日常门”。
+- 干净 PR 工作树未包含独立 lane-mask oracle，所以统一入口复核为 `388 passed, 1 skipped, 134 subtests passed`；原工作树多出的 3 项正好来自未提交 oracle 测试，不是收集边界漂移。
+- Nexus 初次同步不完整：`concepts/domains.md`、`arch/test_coverage.md`、`arch/dependencies.md`、`arch/p16_board_validation.md` 和结构化 `p16_board_validation.json` 仍保留旧 MVP/STRICT/RELEASE 执行链或 `B3_SPEED_PASS`。现已统一为 `B3-SPEED-GATE + B3-POWER-GATE → B3-GOAL-GATE`，外部功耗归 B3-POWER、B4 只承担网口发布，并把 checkout 身份改为运行时查询。
+- 当前 C 实现对每个 hidden 先循环 16 组计算 dense hidden，随后按 4 个 meta 再次计算相同 16 组 contribution；因此 L0 为 `32 × (16 + 16) = 1024` 次 `group_mac`。L1 仅为 `10 × 8 = 80` 次，没有同类重复。最小等价优化是在每个 hidden 的首遍循环保存 `s32 contributions[16]`，dense acc 与 evidence 都复用它；存储仅 64 bytes 栈空间。
+- 当前硬件枚举未见先前 COM15/COM35 CH340 或 Digilent FTDI，只见 COM32；实板仍可能暂时不可用，但不妨碍先完成等价优化、ELF 构建和环境复核。
+- 管理事实源已明确：`ENeuron-board-b0-pr-review` 是基于 `main@af455a1` 的交付工作树；`ENeuron-board-b0` 是历史实验工作树，含 lane-mask oracle、失败构建证据及未提交 Nexus 草稿。两者不得混合提交，原实验树本轮保持不动。
+- 原实验树的 bit/XSA SHA-256 与 B3-MVP 文档冻结值完全一致，可作为本次只改 Host ELF 的签核硬件输入；交付树缺少这些被 `.gitignore` 排除的本地产物。Vitis 2024.1 的 XSCT 和 ARM GCC 均存在。
+- 设备复核：PnP 当前同时显示 CH340 COM15、CH340 COM35 和 Digilent FTDI `210251A08870`；因此“实板可能断开”的旧判断已失效。runner 自动发现要求恰好一个 CH340，当前双串口条件下必须显式传 `-PortName`，并根据实际接线选择 COM15/COM35。
+- `.nexus-map/concepts/concept_model.json` 仍保存 `fe25a70`、`B3_09_BOARD_PENDING`、旧执行链和 dirty worktree override；`.nexus-map/arch/p16_board_validation.md` 第 23 行又写板级 live pending，与同文件第 27 行及当前 TODO 冲突。两处都需在本切片修正。
+- `.nexus-map/concepts/p16_board_validation.json` 的总状态/门层级已更新，但嵌套 `b3_live_eneuron_host_subgate` 仍是 `HOST_GREEN_BOARD_PENDING / NOT_CLOSED`，属于同一结构化知识库的局部漏改；应更新为历史实板 run 已关闭、当前缓存候选待新 ELF 复测。
+- Vitis 2024.1 live ELF 构建成功，签核 bit/XSA 哈希保持 `0ecbe762…3a11` / `135d979d…1d1a`，候选 ELF SHA-256=`d0fc56ce…d041f`。ARM `-O2` 对象中 `compute_live_group4way_mask` 从旧 `0x620` bytes 降到 `0x510` bytes，证明旧编译器没有自动完全消除重复 L0 计算；整个对象 text 从 6300 降到 6256 bytes。
+- 新发现交付身份漏洞：`run_b2_packet_sw_build.ps1` 的 manifest 只记录 `git_head`，当前 dirty 源码编译出的 ELF 仍标成 `af455a1`，且 runner 没有核对 `packet_main.c` 源码哈希/clean 状态。应在 manifest 加入 `git_worktree_clean` 与 packet 源码 SHA-256，并让实板 runner fail-closed。
+- Nexus 还有一处旧门依赖：结构化 P16 stages 与两处架构说明仍要求 `B3-STRICT → B4`，与当前 TODO 的“STRICT 独立、B4 只由 B2-GATE 前置”冲突；现已统一。B3-POWER 负责无网口板级速度/功耗目标，B4 只补网口闭环和网络负载差异。
+- 干净身份实板三次通过：`82b079e` / ELF `cc3744e6…aa40` / COM15，`ps_us=827/829/828`，DMA 均 56 us，NPU 均 1606 cycles，execute/skip 均 296/296，protocol errors 均 0，logits 均为 `165,-18,14,0,0,0,0,0,0,153`。相对历史单次 996 us 的中位数诊断改善约 16.9%，但统计设计不对称且仍有 dense L0 扫描，不能关闭速度门。
+- 新证据目录受 `.gitattributes` 的 `text=auto/eol=lf` 约束；摘要使用 canonical-LF SHA-256 自校验，避免 Windows CRLF 与 Linux checkout 之间的假失败。现场原始 UART 字节哈希仍保留在各 run manifest。
+- 构建/runner 身份硬门已实现：dirty 候选仍允许编译用于开发检查，但 `run_b2_packet_board.ps1` 会拒绝其 manifest；提交后重建才能上板。这样不会把未提交缓存代码错误绑定到旧 HEAD。

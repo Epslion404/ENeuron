@@ -299,9 +299,14 @@ static void compute_live_group4way_mask(void)
 
     for (hidden_index = 0U; hidden_index < 32U; ++hidden_index) {
         s32 acc = (s32)model_word_for_index(512U + hidden_index);
+        s32 l0_contributions[16];
         u32 evidence[4];
         for (group = 0U; group < 16U; ++group) {
-            acc += group_mac(model_word_for_index(16U * hidden_index + group), pixels, group * 4U);
+            l0_contributions[group] = group_mac(
+                model_word_for_index(16U * hidden_index + group),
+                pixels,
+                group * 4U);
+            acc += l0_contributions[group];
         }
         if (acc < 0) {
             hidden[hidden_index] = 0;
@@ -313,11 +318,7 @@ static void compute_live_group4way_mask(void)
         for (meta = 0U; meta < 4U; ++meta) {
             for (group = 0U; group < 4U; ++group) {
                 u32 group_index = meta * 4U + group;
-                s32 contribution = group_mac(
-                    model_word_for_index(16U * hidden_index + group_index),
-                    pixels,
-                    group_index * 4U);
-                evidence[group] = quantize_live_evidence(contribution);
+                evidence[group] = quantize_live_evidence(l0_contributions[group_index]);
             }
             apply_live_meta_mask(bits, hidden_index * 16U + meta * 4U, live_top2_mask(evidence));
         }
