@@ -2156,3 +2156,4 @@
 - 统一入口 `run_b2_checks.ps1 -Full` 最终通过：B2 `124 passed`、T1 两门 PASS、当前主线全量 `391 passed, 1 skipped, 134 subtests passed`、`git diff --check` PASS，输出 `B2_CHECKS_PASS`。本轮未运行 Vivado、未操作板卡或功耗仪。
 - 在基于最新 `origin/main` 的干净工作树复核统一入口：`B2_CHECKS_PASS`，其中当前 PR 基线为 `388 passed, 1 skipped, 134 subtests passed`；与原工作树 `391` 的差额来自未提交 lane-mask oracle 的 3 个测试。
 - 完成 Nexus 管理补丁：七个入口/结构化文件统一当前 B3 gate 层级，去掉临时 checkout 身份和 `B3_SPEED_PASS`；新增合同测试防止 domains/test coverage 再次把测量完成写成速度门通过。定向验证 `22 passed`、JSON 解析 PASS、过时门文本扫描为空、`git diff --check` PASS。
+- PR #91 已合并为 `main@30e3b38`，包含 `820542a`、`aa198ca`、`ca1384e` 三笔提交。合并前 PR 为 `CLEAN / MERGEABLE`；Actions 关闭、远端 checks 为空，本地统一入口与定向合同作为验收证据。
