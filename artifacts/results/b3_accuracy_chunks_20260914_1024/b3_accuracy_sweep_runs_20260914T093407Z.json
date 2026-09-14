@@ -1,0 +1,32 @@
+﻿{
+    "schema":  "eneuron_b3_accuracy_sweep_v1",
+    "chunk_directory":  "D:\\Documents\\Code\\ENeuron-board-b0\\artifacts\\results\\b3_accuracy_chunks_20260914_1024",
+    "start_chunk":  0,
+    "end_chunk":  3,
+    "records":  [
+                    {
+                        "chunk":  0,
+                        "manifest":  "D:\\Documents\\Code\\ENeuron-board-b0\\artifacts\\results\\b3_accuracy_chunks_20260914_1024\\b3_accuracy_chunk_00.json",
+                        "dense_summary":  "D:\\Documents\\Code\\ENeuron-board-b0\\boards\\hellozynq\\b2_sw\\build\\17d07727c73845e51c22a7835eac94e04cb22fa7\\direct\\runs\\b3_speed\\20260914T092747Z\\b3_speed_benchmark.json",
+                        "live_summary":  "D:\\Documents\\Code\\ENeuron-board-b0\\boards\\hellozynq\\b2_sw\\build\\17d07727c73845e51c22a7835eac94e04cb22fa7\\direct\\runs\\b3_speed\\20260914T092834Z\\b3_speed_benchmark.json"
+                    },
+                    {
+                        "chunk":  1,
+                        "manifest":  "D:\\Documents\\Code\\ENeuron-board-b0\\artifacts\\results\\b3_accuracy_chunks_20260914_1024\\b3_accuracy_chunk_01.json",
+                        "dense_summary":  "D:\\Documents\\Code\\ENeuron-board-b0\\boards\\hellozynq\\b2_sw\\build\\17d07727c73845e51c22a7835eac94e04cb22fa7\\direct\\runs\\b3_speed\\20260914T092923Z\\b3_speed_benchmark.json",
+                        "live_summary":  "D:\\Documents\\Code\\ENeuron-board-b0\\boards\\hellozynq\\b2_sw\\build\\17d07727c73845e51c22a7835eac94e04cb22fa7\\direct\\runs\\b3_speed\\20260914T093011Z\\b3_speed_benchmark.json"
+                    },
+                    {
+                        "chunk":  2,
+                        "manifest":  "D:\\Documents\\Code\\ENeuron-board-b0\\artifacts\\results\\b3_accuracy_chunks_20260914_1024\\b3_accuracy_chunk_02.json",
+                        "dense_summary":  "D:\\Documents\\Code\\ENeuron-board-b0\\boards\\hellozynq\\b2_sw\\build\\17d07727c73845e51c22a7835eac94e04cb22fa7\\direct\\runs\\b3_speed\\20260914T093059Z\\b3_speed_benchmark.json",
+                        "live_summary":  "D:\\Documents\\Code\\ENeuron-board-b0\\boards\\hellozynq\\b2_sw\\build\\17d07727c73845e51c22a7835eac94e04cb22fa7\\direct\\runs\\b3_speed\\20260914T093147Z\\b3_speed_benchmark.json"
+                    },
+                    {
+                        "chunk":  3,
+                        "manifest":  "D:\\Documents\\Code\\ENeuron-board-b0\\artifacts\\results\\b3_accuracy_chunks_20260914_1024\\b3_accuracy_chunk_03.json",
+                        "dense_summary":  "D:\\Documents\\Code\\ENeuron-board-b0\\boards\\hellozynq\\b2_sw\\build\\17d07727c73845e51c22a7835eac94e04cb22fa7\\direct\\runs\\b3_speed\\20260914T093235Z\\b3_speed_benchmark.json",
+                        "live_summary":  "D:\\Documents\\Code\\ENeuron-board-b0\\boards\\hellozynq\\b2_sw\\build\\17d07727c73845e51c22a7835eac94e04cb22fa7\\direct\\runs\\b3_speed\\20260914T093323Z\\b3_speed_benchmark.json"
+                    }
+                ]
+}

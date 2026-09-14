@@ -1,14 +1,21 @@
 # P16 板级 NPU 与 ENeuron 规划
 
-## 当前主线校正（2026-09-13）
+## 当前主线覆写（2026-09-14，B3-22.3 后）
+
+- `B3-22.2`、`B3-22.3` 与 `B3-22.4` 首轮已完成；校准 static 在零动态决策成本下相对 dense 旧路径仅改善约 `2%`（中位数 `157→154 us`），B3-22.4 优化路径后为 dense `63–64 us`、calibrated `60 us`，动态 live 仍为 `623 us`（mask compute 占 80.5%）。这些数字是当前协议、当前 mask 和 64 个 held-out 样本的工程上限，不是所有剪枝算法的理论上限。
+- `B3-22.5` 批量 sample frame/fence 合并仍待合同评审：保持 sample ID、epoch、CRC、逐样本隔离和 fail-closed 合同，至少 64 样本、3 组 dense/calibrated_static 对称 A/B；相对优化后基线降幅不足 10% 即停止。
+- `B3-22.6` PL-auto 暂缓；其顺序引擎虽已完成 64/64 逐 bit 合同，但 OOC 为 `8 DSP48E1/13855 LUT`，串行周期不预设超过 dense。PS NEON 与独立引擎也暂不作为攻坚主线。
+- 精度状态拆分为 `output_preservation=PASS`、`task_accuracy=MODEL_TASK_FIT_UNVERIFIED`（模型/任务适配性未证明，不自动归因标签语义）；`accuracy_gate=ACCURACY_NEAR_DENSE` 仅表示输出保持。1024 样本零 logit 偏差不能写成任务准确率证明。批量协议与 PL-auto 的决定不得建立在当前 fixture 的剪枝精度结论上（当前 `GATE_VACUOUS / MODEL_UNDER_DETERMINED`）。速度、功耗和目标门继续 OPEN。
+
+## 当前主线校正（2026-09-14）
 
 本文件前半部分保留 Pulse-Mini P0-P13 的历史研发合同；当前日常主线是 P16：在 `xc7z020clg484-2` 上部署传统 NPU，并用 ENeuron 动态剪枝证明推理加速与功耗下降。当前精确 HEAD、工作树状态和活动 TODO 计数以 `workflow_resume.ps1 -Mode Check` 与 Git 为准；历史审计基线为 `d7e1035`。Pulse-Mini-L/L2 与 NP7 共享 lane 是冻结支线，不作为当前日常门。
 
 当前板级状态：低地址 `0x01000000–0x010FFFFF` 的 1 MiB DDR 已完成三次冷启动；高地址诊断尚未真正访问 DDR。CH340 以 `VID_1A86:PID_7523` 识别，COM 号不固定；packet 实板使用 COM15。B1C PHY/UDP 继续后置。完整 `B1-GATE` 和 `B2-GATE` 仍是网口发布门槛，不阻塞板上 NPU 墙钟/功耗测量。
 
-当前 NPU 集成状态（2026-09-13）：B3 目标门管理修正已由 PR #91 合并，L0 contribution 缓存与三次实板诊断已由 PR #93 合并；`B3-MVP-GATE` 已关，`B3-SPEED-MEASURED` 已完成单样本诊断，但 `B3-SPEED-GATE` 仍开。下载/签核物理身份是 RTL `be84596`（200 MHz `WNS=+0.045 ns`、DSP48E1=4，bit SHA-256=`0ecbe762…3a11`）；缓存实现提交为 `82b079e`。外部功耗仍是 `POWER_NOT_MEASURED`；当前 checkout 身份以 Git 实时输出为准，不在文档中维护易过时的主线 HEAD。
+当前 NPU 集成状态（2026-09-14）：B3 目标门管理修正已由 PR #91 合并，L0 contribution 缓存与三次实板诊断已由 PR #93 合并；`B3-MVP-GATE` 已关。第一轮加速效果测量 `B3-17A/B/C` 已完成，`B3-22` 第一轮判定为 `NO_END_TO_END_SPEEDUP`；随后 K=16 的三组 dense/live 对称复测也已完成，完整窗口仍未形成端到端加速，因此 `B3-SPEED-GATE` 继续打开。`B3-20.1` 和 `B3-20.2` 已验证 mask 更新摊销及其边界：live 后续样本中位数约 `153 us`，但首样本约 `1.38 ms`，固定输入重复不能代表通用动态流。下载/签核物理身份是 RTL `be84596`（200 MHz `WNS=+0.045 ns`、DSP48E1=4，bit SHA-256=`0ecbe762…3a11`）；缓存实现提交为 `82b079e`。2026-09-13 已用 B10 Type-C 表完成整板 `idle / dense×2 / static / live` 人工累计读数，原始记录在 `artifacts/logs/b3_power_20260913_be84596/manual_meter_observations_20260913.json`；这些是 `POWER_ENGINEERING_OBSERVATIONS_INCOMPLETE_CONTRACT`，正式 `B3-POWER-MEASURED` 仍保持 `POWER_NOT_MEASURED`，`B3-POWER-GATE` 不变。当前 checkout 身份以 Git 实时输出为准，不在文档中维护易过时的主线 HEAD。
 
-当前日常主线是 `B3-SPEED-GATE` / `B3-POWER-GATE` / `B3-GOAL-GATE`。单样本诊断在同源 `be84596` 上看到 888 cycle ≈ 4.4 µs 的局部差值，但 DMA 包含 NPU、Host UART 又包住整个流程，三个量不能相加；当前状态是 `END_TO_END_ACCELERATION_NOT_PROVEN`。严格连接级 `2:4`（B3-08b）是结构/精度实验，不是加速硬门。禁止把 888 cycle 写成端到端加速，禁止把完成外部测量写成降功耗通过，禁止用 Vivado 估算冒充板上功耗，禁止用 19-word 冒充连接级 2:4。
+当前日常主线明确为“优先完成加速效果测量”：第一轮链、`B3-20.1/20.2`、`B3-22` 复判、`B3-22.1` 多输入实测、`B3-22.2/22.3/22.4` 和 1024 样本输出保持采集均已完成。优化路径 dense `63–64 us`、calibrated `60 us`，动态 live `623 us`，仍未形成端到端加速；`B3-SPEED-GATE` 保持 OPEN。v2 解析修复后 dense/live 与 Python golden 逐项一致，但当前 fixture 判 `GATE_VACUOUS / MODEL_UNDER_DETERMINED`，任务精度保持 `MODEL_TASK_FIT_UNVERIFIED`。下一步先评审 `B3-22.5` 批量 sample/fence 合同；未经合同和 A/B 判据批准，不修改 RTL。已测 RTL 事实：skip 组 1 cycle、执行组 4 cycles，`888 = 296×(4−1)` 的局部节省已经兑现，不再设置 skip 周期优化项。功耗优化、严格连接级 `2:4`、B2-GATE 和网口发布继续后置。2026-09-13 的 B10 读数仍是非门控工程观察，只能作为后置功耗线索；不得倒推 `B3-21` 或改变速度链顺序。live 必须按当前输入重新决策 mask，并逐样本保持 fence、epoch 和结果校验；单样本诊断中的 888 cycle 只能写成局部 NPU 周期差，DMA 已包含 NPU，Host UART 又包住整个流程，三者禁止相加。
 
 ## 2026-09-07 资源裁剪审查门
 
@@ -596,7 +603,7 @@ P15 硬门：双时钟逐 beat bit-exact；reset/ready-valid/FIFO 满空无丢�
 - [ ] B1B：PS7、正式UART路径和低地址1 MiB DDR已完成三次冷启动；PR #75已合并OCM驻留高地址诊断。当前先用 `VID_1A86:PID_7523` 恢复串口接收基准，再执行`0x10000000`最小复现并关闭高地址异常。
 - [ ] B1C：在B1B主线基线上完成PHY、MDIO和最小UDP实板门，形成B1-GATE最终摘要。
 
-当前主线执行链：`B2 packet-NPU 已验证基线 -> B3-MVP 组级 live-ENeuron 局部周期 A/B -> B3-SPEED-GATE/B3-POWER-GATE 端到端速度与功耗 -> B4 网口发布`。`B3-STRICT` 严格 2:4 是并行结构实验，不挡速度/功耗，也不作为 B4 网口发布前置。B2-GATE 仍是完整 packet/网口发布门，但不阻塞 B3-GOAL。B1-06B6～B1-06F 高地址 DDR 诊断和 B1C PHY/UDP 保留为板卡资格支线。
+当前主线执行链：`B2 packet-NPU 已验证基线 -> B3-MVP 组级 live-ENeuron 局部周期 A/B -> B3-17A/B/C -> B3-22（第一轮/复判） -> B3-20.1/20.2 -> B3-22.1 64样本/多输入实测（已完成） -> B3-18a/b/c PL staging 与 PS 计算优化（已完成） -> B3-22.2 mask 计算/提交计时拆分 -> B3-22.3 校准 static-mask 零决策成本上限 -> B3-22.4 提交路径实测比较 -> B3-22.5 fence 开销分析 -> B3-22.6 PL auto-mask 路线一 -> B3-ACCURACY-GATE -> B3-SPEED-GATE 判定`。最终目的只有两问：(1) 剪枝在固定协议与正确性下最多能加速多少；(2) dense/live 输出与任务精度偏差是否过大。若精度或速度门未通过，只执行由测量证据指向的新微结构优化并回到至少 64 样本对称复测；精度和速度门都通过后才进入 `B3-21/B3-POWER-MEASURED/B3-POWER-GATE -> B3-GOAL-GATE -> B4 网口发布`。B10 人工读数只形成工程观察，不改变上述顺序，也不能替代正式功耗合同。`B3-STRICT` 严格 2:4 是并行结构实验，不挡速度/功耗，也不作为 B4 网口发布前置。B2-GATE 仍是完整 packet/网口发布门，但不阻塞 B3-GOAL。B1-06B6～B1-06F 高地址 DDR 诊断和 B1C PHY/UDP 保留为板卡资格支线。
 
 #### P16-B0：PL 配置、50 MHz 时钟和 LED
 
@@ -674,13 +681,15 @@ P15 硬门：双时钟逐 beat bit-exact；reset/ready-valid/FIFO 满空无丢�
 
 #### P16-B3：传统 NPU + ENeuron 动态剪枝
 
-B3 现在分三条线，互不顶替：
+B3 现在分四条线；执行上采用速度优先，质量是速度/目标的必要前置，互不顶替：
 
 1. `B3-MVP-GATE`（已关）：现有 `group_4way` mask 上证明 ENeuron 动态决策能生效，并减少局部 NPU 计算周期。
-2. `B3-GOAL-GATE`（日常主线）：在同一组级粒度上实际证明可重复的端到端速度提升与外部功耗下降。不要求严格 2:4；负结果只能关闭测量事项，不能关闭目标门。
+2. `B3-GOAL-GATE`（最终目标门）：在同一组级粒度上实际证明可重复的端到端速度提升与外部功耗下降。不要求严格 2:4；负结果只能关闭测量事项，不能关闭目标门。当前先完成速度链，再做功耗线。
 3. `B3-STRICT-GATE`（结构实验）：严格连接级 `2:4`、长稳定性和完整恢复矩阵。现行四 DSP 同拍核上，合法 2:4 不能称为加速，除非微结构改为真正少读权重或少开 DSP。
 
 `B3-STRICT-GATE` 取代原 `B3-GATE` 名称；历史文档中的 `B3-GATE` 指该严格门。三条线均不允许将未测的板级功耗或网口收益写成已证明。888 cycle 只允许写成局部 NPU 周期差。
+
+新增质量门：`B3-ACCURACY-GATE` 属于速度/目标线的必要前置，不要求严格 `2:4`。它证明动态剪枝“几乎不影响推理结果/精度”，与 `B3-STRICT-GATE` 的结构合法性分开；未通过时，任何速度收益都不能写成有效目标收益。
 
 - [x] B3-00：以当前 `PHYSICAL_PASS` packet-NPU bitstream/ELF/协议版本作为实验基线，冻结其 manifest；B2-GATE 继续作为发布门，不阻塞首次固定向量 A/B。首个实验门已先证明 NPU 数值计算可用，再进入剪枝收益验证。
 - [ ] B3-01：在 `B3-STRICT-GATE` 前冻结完整发布身份：保持当前 `64→32→10`、634个模型word、8-beat样本和10-beat结果不变，固定模型word顺序、INT8/uint4解释、bias、隐藏层饱和、样本集合、期望10-logit、预测类别和所有文件 SHA-256。B3-MVP 每次实板 run 仍必须保存当次 bit/XSA/ELF/manifest 身份，但不因最终 clean-worktree 发布包未冻结而阻塞开发实验。
@@ -703,10 +712,41 @@ B3 现在分三条线，互不顶替：
 - [ ] B3-RECOVERY：若 dense错误先停在模型装载/量化/计算；full-open错误停在门控透明路径；static mask错误停在mask位序/epoch/NPU跳过；只有前三者全过后才诊断 ENeuron决策，不允许用调整训练参数掩盖基础执行错误。
 - [x] B3-MVP-GATE：B3-00/02/03/04/06/07/08a/09/11/13/14 已在同一通过物理门的 bitstream 上关闭。只允许声称组级 `group_4way` 动态剪枝正确性与局部 NPU 周期差值（dense 2494 → gated 1606）。不代表严格 `2:4`、完整 B2 发布、墙钟加速或功耗收益。
 - [x] B3-SPEED-MEASURED：COM15 同源 `be84596` bit 上完成一次 dense/full-open/static/live 单样本诊断。NPU 2494/2494/1606/1606 cycles；PS 7/7/7/996 µs；DMA 62/59/56/56 µs；Host UART 65962/76935/63070/1307241 µs。DMA 已包含 NPU，Host UART 又包含整个流程，字段不可相加；结果仅为 `END_TO_END_ACCELERATION_NOT_PROVEN`。证据 `artifacts/logs/b3_speed_20260912_be84596/`。
-- [ ] B3-SPEED-GATE：冻结不含 UART 文本传输的端到端请求→结果窗口，固定 bit/XSA、每模式 ELF 身份（或统一 ELF 的模式参数）、样本顺序和预热条件后重复测量 dense 与 live-ENeuron；只有正确性保持且 live 的中位数或预先冻结统计量严格优于 dense，才能关闭。提交 `82b079e` 已用每 hidden 16 项局部缓存消除 512 次重复 L0 `group_mac`；同源 bit/XSA、新 ELF 三次实板均保持 logits、`296/296`、1606 cycles 和 protocol errors=0，`ps_us=827/829/828`（中位数 828，历史单次 996）。该结果仅证明冻结样本上的 Host 决策诊断改善，仍保留 dense L0 扫描；未形成预先冻结的可重复端到端优势前本门保持打开。证据 `artifacts/logs/b3_live_l0_cache_20260913_82b079e/`。
-- [ ] B3-POWER-MEASURED：按冻结仪器合同（`docs/planning/NPU_B3_POWER_INSTRUMENT_CONTRACT_V1.md`）完成 dense/static/live 外部 trace 和功率数据采集。当前本机无外部功耗仪，状态 `POWER_NOT_MEASURED`。完成本项只表示测量可信，不代表功耗下降。
+- [ ] B3-SPEED-GATE：只有协议/结果完整性保持、`B3-ACCURACY-GATE` 通过且 live 的端到端中位数或预先冻结统计量严格优于 dense，才能关闭。本轮 B3-17C 已在同一 bit/XSA、固定 16 样本和 warm-up 下完成重复测量：dense `155 us`、static `153 us`、live `1386 us`；结果为 `NO_END_TO_END_SPEEDUP`，本门保持打开。提交 `82b079e` 的三次 `ps_us=827/829/828` 只证明 Host 诊断改善，不构成端到端速度门通过。证据为 `boards/hellozynq/b2_sw/build/17d07727c73845e51c22a7835eac94e04cb22fa7/direct/runs/b3_speed/20260913T182533Z/`、`20260913T182626Z/`、`20260913T182853Z/`。
+- [x] B3-17A：完成 benchmark 实现修正。固定 16 个正式样本并增加明确 warm-up；正式开始前清零聚合账本和样本槽；live 模式每个样本重新执行 ENeuron 决策、提交新 mask/epoch 并发送 fence；分别填充 `setup_us`、`mask_us`、`fence_us`。runner 已具备模式、样本数、`packet_source_sha256` 和构建身份的 fail-closed 检查；真实板卡账本读取仍由 B3-17C 完成。
+- [x] B3-17B：完成无 UART 文本传输 benchmark 的本地合同、构建和结果解析验证。固定 16 样本、同一 bit/XSA、speed 专用 ELF/manifest、样本顺序和预热条件；逐样本记录 PS 决策、DMA、NPU、结果校验及请求→结果总窗口，禁止把嵌套区间相加；校验 mode ID、sequence、sample ID、结果 CRC 和协议错误字段。runner 还要求 XSCT 编程进程退出码为 0，并检查 `B2_FPGA_PROGRAM_PASS`、`B2_ELF_DOWNLOAD_PASS`、`B2_CPU_RUN_PASS` marker。验证：`test_b3_speed_benchmark_contract.py` 通过，dense/live ARM GCC 构建通过，PowerShell 解析通过。
+- [x] B3-17C：在同一块 `xc7z020clg484-2` 板上完成 dense、static mixed、live-ENeuron 的对称 16 样本实测；三种模式均 `16/16 PASS`，保留独立 run 目录、JSON 和 JTAG/probe 结果。工作树当时含未提交变更，故 JSON 的 `formal_evidence=false`，但本轮作为工程测量证据有效。本项只关闭测量执行，不代表端到端加速目标通过。
+- [x] B3-17C.1：已定位并修复“预热样本→正式样本”启动链的 warm-up fence 校验错误；早期 `20260913T173917Z` 等失败 run 保留为失败证据，不进入比较。修复后 dense `20260913T182533Z` 与 live `20260913T182626Z` 均编程/probe 返回 `0` 且账本完整。
+- [x] B3-17C.2：dense 模式 `20260913T182533Z` 完成 16 个正式样本；端到端窗口 `155–156 us`（中位数 `155 us`），NPU `2494 cycles`，执行/跳过组 `592/0`，DMA `58–59 us`，PS `7 us`，协议错误为零。
+- [x] B3-17C.3：live-ENeuron 模式 `20260913T182626Z` 完成 16 个正式样本；端到端窗口 `1384–1387 us`（中位数 `1386 us`），NPU `1606 cycles`，执行/跳过组 `296/296`，`mask_us≈19700 us`，每样本 mask/epoch、CRC 和协议校验通过。static mixed `20260913T182853Z` 同样 `16/16 PASS`，窗口 `152–154 us`（中位数 `153 us`），用于区分“静态剪枝”和“live 决策”开销。
+- [x] B3-22：已完成第一轮速度判定，并完成 K=16 三组 dense/live 复判。第一轮 live 中位数约为 dense 的 `8.94×`；复判中 dense 完整窗口均值/中位数约 `155.5/155 us`，live K=16 约 `229.7/153 us`，后续样本中位数约 `153 us`，但首样本约 `1.38 ms`。所有 6 个 run 均 `16/16 PASS`、协议错误为 0；完整窗口仍未优于 dense，稳态尾部约 `1.3%` 的差异不足以关闭 `B3-SPEED-GATE`，当前正式结论仍为 `NO_END_TO_END_SPEEDUP`。
+- [x] B3-20（加速测量与 mask 摊销）：B3-17C/B3-22 已确认 live 的 Host mask 决策/提交是主要候选瓶颈。`mask_us≈19700 us` 是 16 个样本的累计 Host 决策时间，不是单样本端到端窗口；端到端窗口中位数为 `1386 us/样本`，两者不能直接相加。B3-20.1 已完成 K=1/K=16 正确性与摊销验证，B3-20.2 已完成同一 bit/XSA、JTAG、warm-up 条件下 3 组 dense/live K=16 对称复测并回到 B3-22 复判。固定向量的 16 次重复只能测得更新摊销上限，不能外推为不同输入流的通用动态剪枝收益；若要比较 K=32/64，必须把样本窗口扩到至少 64，并引入不同输入。
+- [x] B3-20.1：实现并实板验证 live mask 批量摊销参数 `B3_LIVE_MASK_BATCH_K`；K=1 回归 `20260914T002627Z` 为 `16/16 PASS`、中位数 `1386 us`、`mask_us=19701 us`；K=16 两次 `20260914T002938Z`/`20260914T003122Z` 均 `16/16 PASS`、中位数 `153 us`、首样本 `1380/1381 us`、后续 `153–154 us`、`mask_us=1225/1226 us`、`live_mask_update_count=1`。每个样本仍发送 fence；所有 CRC、epoch、296/296 计数和协议错误检查通过。
+- [x] B3-20.2：在同一板卡、bit/XSA、JTAG 状态、warm-up 和 16 样本条件下完成 3 组 K=16 live 与 dense 对称复测。每组均 `16/16 PASS`；dense 窗口中位数 `155 us`、均值约 `155.5 us`，live 首样本 `1378–1381 us`、后续中位数 `153 us`、整窗均值约 `229.7 us`，`mask_update_count=1`，每样本 epoch/CRC/296/296 计数和协议错误检查通过。该结果只证明固定输入重复下的摊销上限，不能关闭 `B3-SPEED-GATE`；K=32/64 仍需至少 64 样本且引入不同输入后再评估。
+- [x] B3-20 实现约束：实板第 2 个样本证明 fence 仍是逐样本协议边界；K 批处理只能摊销 live mask 的计算/提交，不能省略 fence。失败证据 `20260914T002715Z` 保留，不能作为性能结果。
+- [x] B3-22.1（64 样本速度切片）：完成通用动态流的 64 样本多输入加速效果测量；每个样本均有独立输入身份、mask/epoch、CRC、fence 和执行/跳过计数，合同测试与同源实板运行均通过。live 仍慢于 dense，速度门保持 OPEN。
+- [x] B3-22.1a（多输入合同）：已生成 64 个独立输入及 dense/live 黄金结果；合同验证 live mask 按当前样本重新决策，并逐样本检查 `sample_id`、`sequence`、`mask_epoch`、结果 CRC 和协议错误，禁止跨输入复用上一样本 mask。
+- [x] B3-22.1b（runner 与构建）：runner/manifest/C benchmark 已扩展到 64 个正式样本，并记录输入数据身份、样本数、mask 更新次数和工作树/bit/XSA/ELF 身份；本地合同、PowerShell 解析和 ARM GCC 构建通过。
+- [x] B3-22.1c（对称实测）：同一 `xc7z020clg484-2`、bit/XSA、JTAG 状态、warm-up、fence 和统计口径下完成至少 64 个正式样本、不同输入的 dense/live 对称 A/B；live `722–727 us`，dense `155–159 us`，协议错误均为 0。
+- [x] B3-22.1d（速度判定）：多输入完整窗口仍未优于 dense，记录 `NO_END_TO_END_SPEEDUP` 并保持 `B3-SPEED-GATE` 打开；下一步进入测量证据指向的 PS/PL mask 决策优化，不转入功耗线。
+- [ ] B3-22.1e（精度数据集与基线）：冻结至少 1000 个代表性、含边界/难例和非零跳过组贡献的评测样本（2026-09-14：1024 样本实板采集已完成，见 B3-22.1f；标签语义问题仍未解决）；dense 与 live 必须使用相同模型、输入、预处理、标签、bit/XSA 和样本顺序，dense/live 的编译 ELF 可不同但须分别记录 SHA-256。当前已接入 `archive/legacy/digit8x8/digit8x8_fixture.json` 的 1797 个带标签候选样本，并可由 `b3_accuracy_dataset.py` 分成 64 样本板端 run；但 Python dense 参考在前 1000 个样本上仅 `11.3%`，因此该集合目前只能作为输出保持/协议压力候选，必须先确认模型-标签语义匹配或换用正确评测集，不能直接宣称任务精度。输出偏差链（dense/live logits 差、预测一致率）不依赖标签语义，可先采集和报告；任务准确率链在标签语义确认前不进入门判定。每个样本保存 dense/live logits、预测类别、标签、mask/epoch、结果 CRC 和首错上下文；固定向量 16 样本不能代替本项。
+- [x] B3-22.1e0（本地统计器）：已新增 `b3_accuracy_report.py`，支持 JSON/JSONL 输入、同源 identity 校验、逐样本协议/CRC/输入检查、重复 ID 拒绝以及 dense/live logits 统计；该工具就绪不等于已有 1000 个实板样本。
+- [x] B3-22.1e1（板端精度采集入口）：已补齐可选的 dense/live 逐样本 logits 读回与归档入口；独立 4 KiB accuracy scratch 记录样本索引对应的输入 CRC、mask epoch、结果 CRC、协议状态和 10 维 logits，runner 输出 `accuracy_capture.samples` 并绑定 run identity。失败路径会记录失败阶段、样本索引和失败计数。该项只表示采集实现完成；2026-09-14 已完成 1024 样本采集（见 B3-22.1f）。
+- [x] B3-22.1f（精度判定）：2026-09-14 完成 16 chunk×64 样本 dense/live 实板采集并合并 1024 样本，报告 `status=PASS / accuracy_gate=ACCURACY_NEAR_DENSE`：`prediction_agreement=1.0`（CI 下界 `0.99626`）、`logit_exact_match=1024/1024`、`max/mean abs logit error=0`、`accuracy_drop_pp=0`、协议错误 0；产物 `artifacts/results/b3_accuracy_1024_board_pairs_v2.json` 与 `b3_accuracy_1024_board_report_v2.json`（由 `probe.log` 重建；旧 1024 文件因解析错误标记 SUPERSEDED），与 Python golden 逐项 `1024/1024` 一致。计算 `prediction_agreement = live_pred == dense_pred`、不依赖标签的 `logit_exact_match_rate/ci95` 与 logit 误差分布、`dense_accuracy`、`live_accuracy`、`accuracy_drop_pp = dense_accuracy - live_accuracy` 和每类召回率；门槛为观测 Top-1 一致率 `≥99.0%`、其 Wilson 95% 区间下界也 `≥99.0%`、准确率绝对下降 `≤1.0` 个百分点且配对差值 95% 区间上界 `≤1.0` 个百分点，并报告每类召回率（样本不足 1000 时不得关闭本门）。任何协议错误、结果错配或首错都会使该轮速度/精度数据无效。
+- [ ] B3-ACCURACY-GATE：只有满足 B3-22.1e/f、逐样本结果完整且点估计与置信区间都达到上述门槛，才能标记 `ACCURACY_NEAR_DENSE` 并作为 `B3-SPEED-GATE` 与 `B3-GOAL-GATE` 的必要前置；该门只证明在本评测分布和统计置信度下精度影响可接受，不代表速度或功耗目标通过。2026-09-14 更新：输出保持链已达标（v2 报告 `PASS`，一致率与 CI 均过门，与 Python golden 逐项一致）；`accuracy_gate=ACCURACY_NEAR_DENSE` 仅表示 output_preservation，不代表任务精度。任务准确率判 `MODEL_TASK_FIT_UNVERIFIED`（模型/任务适配性未证明，不自动归因标签语义；当前 fixture 判 `GATE_VACUOUS / MODEL_UNDER_DETERMINED`）。批量协议与 PL-auto 的决定不得建立在当前 fixture 的剪枝精度结论上；本门是否按"输出保持"口径关闭需管理员裁定。
+- [x] B3-18a（PL staging 第一切片）：将 `MASK_BEGIN + 19×MASK_DATA + MASK_COMMIT` 作为一个 command frame 交给 PL ingress；PL 仍逐 word 顺序执行并保持原子 epoch/fence 语义，PS 只发起一次 DMA。新增 `test_b3_mask_pl_staging_contract.py` 覆盖 21-word 边界和禁止回退到逐 command mask DMA。
+- [x] B3-18b（PL staging 实板复测）：同一 bit/XSA/JTAG 条件下完成 64 样本 live/dense 对照；初版 live `64/64 PASS`、端到端 `1025–1028 us`、均值 `1025.8 us`；dense `64/64 PASS`、端到端 `156–159 us`、均值 `156.5 us`。相对旧逐 command 提交的 live 约 `1386 us`，PL staging 改善约 `26%`，但 live 仍约为 dense 的 `6.55×`。此前一次 `could not find configuration request` 仅为烧录失败证据，不计入性能结果。
+- [x] B3-18c（PS mask 计算优化及实板复测）：`group_mac()` 对零权重组提前返回、移除 `592-bit` 临时数组和二次打包扫描；同一 bit/XSA/JTAG、64 个不同输入下 live `20260914T062138Z` 为 `64/64 PASS`、epoch `2→65`、`296/296`、协议错误 `0`、端到端 `722–727 us`、累计 `mask_us=36324 us`；同源 dense `20260914T062313Z` 为 `155–159 us`、`592/0`。相对初版 PL staging live 均值约下降 29%，但仍约为 dense 的 `4.65×`，`B3-SPEED-GATE` 继续 OPEN。下一优化按 `B3-22.2/B3-22.3/B3-22.4` 执行（先拆分计时并取得零决策成本上限，再决定计算或提交路径），必须保持逐样本 mask、epoch、fence、CRC 和 fail-closed 语义。
+- [x] B3-22.2（mask 计时拆分）：实板 64 样本 live `20260914T092629Z` 测得 `mask_us=36345 us`（`568 us/样本`），其中 `mask_compute_us=32160 us`（`502 us/样本`，88.5%）、`mask_submit_us=4156 us`（`65 us/样本`，11.5%）；逐样本 compute `501–505 us`、submit `64–65 us`。同源 dense `20260914T092552Z` 中位数 `157 us`、`2494 cycles`、`592/0`。结论：决策成本以 PS 计算为主，提交路径最多省约 `65 us/样本`；下一步按证据评估计算优化（C/NEON）或 PL 引擎，提交路径优化优先级降低。
+- [x] B3-22.3（零决策成本上限）：2026-09-14 完成。512 样本校准集按 `majority_vote_top2_stable_index_v1` 生成固定 `group_4way` mask（296 组，`tools/repro/b3_calibrated_2of4_mask.json`），在 64 个 held-out 输入上与 dense 做同源板级 A/B（dense `20260914T101035Z`、calibrated `20260914T101130Z`）：端到端中位数 `157→154 us`（均值 `157.0→153.7 us`，约 2%），DMA `58–59→55–56 us`，NPU `2494→1606 cycles`、`592/0→296/296`，输出 `64/64` logits 完全一致，协议错误 0。结论：决策成本为 0 时当前协议下的上限约 2%；速度/功耗的大头仍是每样本约 150 us 的固定协议开销，不是 mask 决策。产物 `artifacts/results/b3_calibrated_static_ab.json`。
+- [x] B3-22.4（DMA 提交/回读路径实测）：2026-09-14 完成首轮固定协议开销实验。三处协议无关修正：RX 预填充/缓存维护只做 `RX_GUARD_BYTES=256`、去掉 flush 后重复 invalidate、`usleep(10→2)`，并移除调用方的全帧 invalidate；帧格式、逐样本 fence/epoch/CRC 与 fail-closed 语义未变。held-out 64 样本三组对称 A/B：dense 中位数 `157→63/64/63 us`（约 `2.45×`）、calibrated `154→60/60/60 us`（约 `2.57×`）；`fence_us` `69→18 us/样本`、DMA 中位数 `58→22 us`、`result_us` `17→11 us`，协议错误 0，输出与基线 `64/64` 逐位一致。产物 `artifacts/results/b3_fixed_overhead_ab.json`。寄存器直写、批量帧与 fence 合并仍未实施，属后续切片。
+- [ ] B3-22.5（fence 合并/摊销分析）：按草案 `docs/planning/NPU_B3_BATCH_PROTOCOL_CONTRACT_V1.md`，解释 `20260914T002715Z` 省略 fence 失败原因，并评估在不破坏逐样本隔离、epoch 与 fail-closed 语义下能否采用批量 sample 帧、逐样本响应和每批一次 fence；本轮只把单次 fence 成本从约 `69 us` 降到约 `18 us`，每样本仍保留独立 fence。结论以请求→结果时间线证据为准。
+- [ ] B3-22.6（PL auto-mask 路线一）：在 PL 内按 `live_eneuron_s2/group_4way` 生成 mask，PS 只保留模式启用、模型装载和样本发送；先用 `tools/repro/b3_multi_input_manifest.json` 的 64 个输入逐 bit 对照 PS mask、epoch、logits、执行/跳过组、CRC 与协议错误，再评估与样本传输/计算的重叠；目标首先是 PS 退出决策链，不预设一定加速；未逐样本一致前不得切断 PS mask 路径。参考语义与顺序引擎切片已完成：`test_b3_pl_auto_mask_contract.py` 在 Icarus 下 64/64 输入与共享黄金 manifest 的 `live_mask_words` 逐 bit 一致（该值由 Python `decide_group4way_live()` 生成，尚未与板端 C 运行时导出直接对照），`eneuron_pl_auto_mask_engine.sv` 实测 `1861 cycles/样本`（预算 `<=2048`）；剩余主 NPU/适配层接入、逐样本自动 epoch、Host/runner 模式和 200 MHz 时序/资源评定。
+- [ ] B3-POWER-MEASURED：按冻结仪器合同（`docs/planning/NPU_B3_POWER_INSTRUMENT_CONTRACT_V1.md`）完成 dense/static/live 外部 trace 和功率数据采集。已有 B10 整板人工累计读数（见 `artifacts/logs/b3_power_20260913_be84596/manual_meter_observations_20260913.json`），但缺少正式合同要求的起止照片/原始 trace、五组 paired rounds、统一负载同步和完整字段绑定，因此当前记录为 `POWER_ENGINEERING_OBSERVATIONS_INCOMPLETE_CONTRACT`，正式状态仍是 `POWER_NOT_MEASURED`。完成本项只表示测量可信，不代表功耗下降。
 - [ ] B3-POWER-GATE：测量前补冻重复次数、目标量（板级平均功率并同时报告每次正确推理能耗）、统计量和超过仪器不确定度的最小改善门限；只有 live 相对 dense 达到该门限且正确性保持才可关闭。禁止用单个正数、负结果或 Vivado 估算关闭本门；不要求 2:4 或网口。
-- [ ] B3-GOAL-GATE：只有 `B3-SPEED-GATE` 与 `B3-POWER-GATE` 都实际通过才可关闭。这是对准“加速推理、降低功耗”的日常门，不要求 `B3-STRICT-GATE`；完成诊断、完成测量或得到负结果不能替代目标通过。关闭本门也不等于网口发布或 2:4 完成。
+- [ ] B3-19：在 `B3-17C/B3-22` 完成并确认速度基线稳定后，再做跳过路径的 BRAM/DSP 活动抑制与 clock-enable 优化。已有初测显示 idle 与 dense 几乎同功率、static/live 仅低于 dense 均值约 `0.49%/0.63%`，因此先确认 NPU 是否真正持续满载以及整板静态功耗占比，再把收益归因于剪枝；每次改动必须先过功能/协议回归，再重跑 200 MHz timing、资源、仿真和同一块板的速度 benchmark。该项不作为速度测量前置。
+- [ ] B3-21：速度链完成后，按冻结仪器合同执行 paired idle/dense/static/live 板级 A/B；报告整板推理增量功率 `P_incremental`、平均功率和每次正确推理能耗，不把结果写成“纯 NPU 功耗”。已有一次人工工程观察：idle `1.575996 W`、dense 两轮 `1.580277/1.569121 W`、static `1.567005 W`、live `1.564755 W`；live/static 相对 dense 均值仅约 `0.63%/0.49%`，不能关闭本项。仍需五组 paired rounds、照片/trace、统一负载与有效推理计数；该项与正式 `B3-POWER-MEASURED/B3-POWER-GATE` 同步，不阻塞当前速度链。
+- [ ] B3-GOAL-GATE：只有 `B3-ACCURACY-GATE`、`B3-SPEED-GATE` 与 `B3-POWER-GATE` 都实际通过才可关闭。这是对准“精度基本保持、加速推理、降低功耗”的日常门，不要求 `B3-STRICT-GATE`；完成诊断、完成测量或得到负结果不能替代目标通过。关闭本门也不等于网口发布或 2:4 完成。
 - [ ] B3-STRICT-GATE：先通过 B3-MVP-GATE，再完成 B3-01、B3-05、B3-08b、B3-10、B3-12、B3-15、B3-16 和 B3-RECOVERY。本门只证明连接级 `2:4` 的正确性与长稳定性，不挡 `B3-SPEED-GATE`/`B3-POWER-GATE`/`B3-GOAL-GATE`，也不作为 B4 网口发布的硬前置。在微结构未改为真正少读/少开 DSP 前，不得把本门写成加速或降功耗证明。
 
 历史记录（2026-09-12、旧计数器 bitstream）：`20260912T050553Z` dense、`20260912T053341Z` bypass、`20260912T053426Z` full-open 均通过输出校验，但当时没有同源 execute/skip 物理读回，因此不能单独关闭 B3-06/B3-07。

@@ -83,6 +83,22 @@
       "payload_bytes": 0,
       "purpose": "machine-readable counters and failure context",
       "dma_role": "cpu_only"
+    },
+    {
+      "name": "speed_benchmark_scratch",
+      "base": 16814080,
+      "capacity_bytes": 4096,
+      "payload_bytes": 3948,
+      "purpose": "B3-22.1/22.2 no-UART timing, mask compute/submit split and identity record (64 unique inputs)",
+      "dma_role": "cpu_only"
+    },
+    {
+      "name": "accuracy_benchmark_scratch",
+      "base": 16818176,
+      "capacity_bytes": 4096,
+      "payload_bytes": 3612,
+      "purpose": "B3-22.1e1 optional 64-sample logits capture",
+      "dma_role": "cpu_only"
     }
   ]
 }

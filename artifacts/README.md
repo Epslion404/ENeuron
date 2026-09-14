@@ -16,6 +16,23 @@
 | `results/hellozynq_b1b_uart_ddr_summary.json` | HelloZynq B1B正式UART与低地址1 MiB DDR三次冷启动机器摘要；高地址DDR、PHY和UDP仍未关闭 |
 | `results/hellozynq_b1a_hw_summary.json` | HelloZynq B1A 可重建PS7/DDR/UART/GEM/GMII-to-RGMII硬件定义、Vivado 2024.1实现指标和bitstream/XSA哈希；不代表B1实板门通过 |
 | `results/b2_packet_memory_ooc_manifest.json` | B2 packet ingress/egress 在 `xc7z020clg484-2` 的 OOC BRAM 映射与资源报告；仅为综合证据 |
+| `results/b3_accuracy_reference_only.json` | Python 参考模型 dense/live 对照输入（`identity=reference-only`，非实板） |
+| `results/b3_accuracy_reference_only_report.json` | `b3_accuracy_report.py` 的 1000 样本参考对照；`status=PASS` 只证明参考模型 dense/live 无差异，不是实板精度门证据 |
+| `results/b3_accuracy_chunk00_board_pairs.json` | `b3_accuracy_merge.py` 合并的 chunk00 64 样本 dense/live 成对实板输入 |
+| `results/b3_accuracy_chunk00_board_report.json` | chunk00 64 样本实板中间报告；`status=FAIL`（样本 < 1000），仅过程证据 |
+| `results/b3_accuracy_chunk00_01_board_report.json` | chunk00+01 共 128 样本实板中间报告；`status=FAIL`（样本 < 1000），仅过程证据 |
+| `results/b3_accuracy_256_board_pairs.json` | `b3_accuracy_merge.py` 合并的 256 样本 dense/live 成对实板输入 |
+| `results/b3_accuracy_256_board_report.json` | 256 样本实板中间报告；`status=FAIL`（样本 < 1000），仅过程证据 |
+| `results/b3_accuracy_1024_board_pairs.json` | **SUPERSEDED**（解析修复前数据，保留审计）：16 chunk dense/live 合并；logits 曾被 `Get-I32` 错误包裹为 `-4294967xxx`，不得用于正式结论 |
+| `results/b3_accuracy_1024_board_report.json` | **SUPERSEDED**（解析修复前报告，保留审计）：其 agreement/logit 字段由坏值产生，结论作废 |
+| `results/b3_accuracy_1024_board_pairs_v2.json` | 由 32 个 run 的 `probe.log` 十六进制重建的 1024 样本 dense/live 成对输入；与 Python golden 逐项一致 |
+| `results/b3_accuracy_1024_board_report_v2.json` | v2 报告：`agreement=1.0`、`logit_exact_match=1024/1024`、dense/live 与 golden 逐项零误差、协议 2048/2048 PASS；`accuracy_gate` 仅表示 output_preservation；任务精度 `MODEL_TASK_FIT_UNVERIFIED`（模型/任务适配性未证明） |
+| `results/b3_calibrated_static_ab.json` | B3-22.3 零决策成本上限：512 样本校准 mask 在 64 个 held-out 输入上的 dense/calibrated 板级 A/B（中位数 157→154 µs、输出 64/64 不变）；仅输出对照与上限证据，不代表任务精度或已关闭速度门 |
+| `results/b3_fixed_overhead_ab.json` | B3-22.4 固定协议开销实验：RX guard/缓存/usleep 路径修正后三组对称 A/B（dense 157→63/64/63 µs、calibrated 154→60 µs，fence 69→18 µs/sample，输出逐位一致）；协议未变，不代表速度门关闭 |
+| `results/b3_live_optimized_ab.json` | B3-22.4 后 live 基线：优化路径上三组 dense/live 对称 A/B（dense `64 µs` vs live `623 µs`，compute 占 80.5%、submit 9.1%，输出 `64/64` 一致）；速度门保持 OPEN，下一步 B=4 批量协议 |
+| `results/b3_pruning_diagnostic.json` | 只读剪枝诊断（1024 输入）：非零权重 19 word / 11 group；删除非零权重实例 35、删除非零贡献实例 0/11015；live mask 3 种且与校准 mask 差异 3.42%；判定 `GATE_VACUOUS / MODEL_UNDER_DETERMINED` |
+
+B3 精度中间报告必须由 `b3_accuracy_report.py` 的 `identity`（model/preprocess/bitstream/XSA/ELF）绑定；样本数不足 1000 的 `FAIL` 只是过程状态，不代表 `B3-ACCURACY-GATE` 判定。
 
 OOC 原始报告和 checkpoint 保存在 `logs/b2_packet_memory_ooc_20260910_bram/`；报告只证明综合资源映射，不证明完整 BD 的 routed timing 或实板运行。
 

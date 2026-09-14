@@ -1,0 +1,104 @@
+{
+  "schema": "eneuron_b3_manual_meter_observations_v1",
+  "date": "2026-09-13",
+  "instrument": {
+    "name": "B10 high-precision Type-C multifunction meter",
+    "accuracy_percent": 0.2,
+    "readout": "V/A/W to 5 decimal places; mAh/mWh integer display"
+  },
+  "measurement_point": "Type-C input to the complete board",
+  "jtag_connection_held_constant": true,
+  "window_host_tools_silent": true,
+  "observations": [
+    {
+      "mode": "b3_idle",
+      "start": "2026-09-13T16:29:57+08:00",
+      "end": "2026-09-13T17:03:50+08:00",
+      "duration_s": 2033,
+      "delta_mAh": 184,
+      "delta_mWh": 890,
+      "average_power_w": 1.57599606,
+      "readings": [
+        ["16:29:57", 4.84999, 0.32417, 1.57225, 1203, 15273],
+        ["16:36:24", 4.84999, 0.32417, 1.57225, 1238, 15443],
+        ["16:52:58", 4.84999, 0.32417, 1.57225, 1328, 15878],
+        ["16:59:54", 4.84999, 0.32417, 1.57225, 1366, 16060],
+        ["17:03:50", 4.84999, 0.31868, 1.57225, 1387, 16163]
+      ]
+    },
+    {
+      "mode": "b3_dense_round_1",
+      "start": "2026-09-13T18:11:51+08:00",
+      "end": "2026-09-13T18:39:34+08:00",
+      "duration_s": 1663,
+      "delta_mAh": 37,
+      "delta_mWh": 730,
+      "average_power_w": 1.58027661,
+      "readings": [
+        ["18:11:51", 4.84999, 0.31868, 1.54560, 1745, 17899],
+        ["18:18:38", 4.84999, 0.32417, 1.57225, 1782, 18078],
+        ["18:25:59", 4.84999, 0.32417, 1.57225, 1822, 18271],
+        ["18:33:17", 4.84999, 0.31868, 1.54560, 1861, 18463],
+        ["18:39:34", 4.84999, 0.32417, 1.57225, 1896, 18629]
+      ]
+    },
+    {
+      "mode": "b3_dense_round_2",
+      "start": "2026-09-13T19:44:17+08:00",
+      "end": "2026-09-13T20:12:21+08:00",
+      "duration_s": 1684,
+      "delta_mAh": 40,
+      "delta_mWh": 734,
+      "average_power_w": 1.56912114,
+      "readings": [
+        ["19:44:17", 4.84999, 0.32417, 1.57890, 2219, 20198],
+        ["19:51:30", 4.86250, 0.31868, 1.54958, 2258, 20387],
+        ["19:57:31", 4.83750, 0.32417, 1.56819, 2290, 20544],
+        ["20:04:13", 4.84999, 0.32417, 1.57225, 2330, 20736],
+        ["20:12:21", 4.84999, 0.32417, 1.57225, 2370, 20932]
+      ]
+    },
+    {
+      "mode": "b3_static_mixed",
+      "start": "2026-09-13T20:32:37+08:00",
+      "end": "2026-09-13T20:58:53+08:00",
+      "duration_s": 1576,
+      "delta_mAh": 42,
+      "delta_mWh": 686,
+      "average_power_w": 1.56700508,
+      "readings": [
+        ["20:32:37", 4.83750, 0.32417, 1.56819, 2473, 21429],
+        ["20:39:53", 4.83750, 0.31868, 1.54162, 2512, 21619],
+        ["20:44:46", 4.83750, 0.32417, 1.56819, 2538, 21746],
+        ["20:52:12", 4.83750, 0.32417, 1.56819, 2578, 21940],
+        ["20:58:53", 4.83750, 0.32417, 1.56819, 2615, 22115]
+      ]
+    },
+    {
+      "mode": "b3_live_eneuron",
+      "start": "2026-09-13T21:37:19+08:00",
+      "end": "2026-09-13T22:05:30+08:00",
+      "duration_s": 1691,
+      "delta_mAh": 48,
+      "delta_mWh": 735,
+      "average_power_w": 1.56475458,
+      "valid_inferences": 9094863,
+      "failed_inferences": 0,
+      "protocol_errors": 0,
+      "readings": [
+        ["21:37:19", 4.84999, 0.32967, 1.59890, 2802, 23022],
+        ["21:45:39", 4.84999, 0.32417, 1.57225, 2847, 23240],
+        ["21:53:15", 4.84999, 0.32417, 1.57225, 2888, 23438],
+        ["21:58:59", 4.83750, 0.32417, 1.56819, 2919, 23588],
+        ["22:05:30", 4.83750, 0.32417, 1.56819, 2954, 23757]
+      ]
+    }
+  ],
+  "limitations": [
+    "User-reported visual readings; no start/end photos were supplied.",
+    "Windows were stopped before the planned formal window and do not form five paired rounds.",
+    "Type-C input is whole-board power; these values are not pure NPU rail power.",
+    "Engineering observations only; do not close B3-POWER-MEASURED, B3-POWER-GATE or B3-GOAL-GATE."
+  ],
+  "status": "POWER_ENGINEERING_OBSERVATIONS_INCOMPLETE_CONTRACT"
+}

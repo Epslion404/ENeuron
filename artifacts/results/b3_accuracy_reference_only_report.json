@@ -1,0 +1,113 @@
+{
+  "schema": "eneuron_b3_accuracy_report_v1",
+  "identity": {
+    "model": "reference-only",
+    "preprocess": "uint4_64_low_nibble_first_v1",
+    "bitstream_sha256": "not-board",
+    "xsa_sha256": "not-board",
+    "elf_sha256": "not-board"
+  },
+  "sample_count": 1000,
+  "thresholds": {
+    "minimum_samples": 1000,
+    "prediction_agreement_min": 0.99,
+    "prediction_agreement_ci95_lower_min": 0.99,
+    "accuracy_drop_max_pp": 1.0,
+    "accuracy_drop_ci95_upper_max_pp": 1.0
+  },
+  "prediction_agreement": 1.0,
+  "prediction_agreement_ci95": [
+    0.996173241514445,
+    1.0
+  ],
+  "dense_accuracy": 0.113,
+  "dense_accuracy_ci95": [
+    0.09484035831643467,
+    0.13412155275138501
+  ],
+  "live_accuracy": 0.113,
+  "live_accuracy_ci95": [
+    0.09484035831643467,
+    0.13412155275138501
+  ],
+  "accuracy_drop_pp": 0.0,
+  "accuracy_drop_ci95_pp": [
+    0.0,
+    0.0
+  ],
+  "logit_error": {
+    "max_abs": {
+      "p50": 0.0,
+      "p95": 0.0,
+      "p99": 0.0,
+      "max": 0.0
+    },
+    "mean_abs": {
+      "p50": 0.0,
+      "p95": 0.0,
+      "p99": 0.0,
+      "max": 0.0
+    },
+    "max_relative": {
+      "p50": 0.0,
+      "p95": 0.0,
+      "p99": 0.0,
+      "max": 0.0
+    }
+  },
+  "per_class_recall": {
+    "0": {
+      "support": 99,
+      "dense_recall": 0.9191919191919192,
+      "live_recall": 0.9191919191919192
+    },
+    "1": {
+      "support": 102,
+      "dense_recall": 0.0,
+      "live_recall": 0.0
+    },
+    "2": {
+      "support": 100,
+      "dense_recall": 0.0,
+      "live_recall": 0.0
+    },
+    "3": {
+      "support": 104,
+      "dense_recall": 0.0,
+      "live_recall": 0.0
+    },
+    "4": {
+      "support": 98,
+      "dense_recall": 0.0,
+      "live_recall": 0.0
+    },
+    "5": {
+      "support": 100,
+      "dense_recall": 0.0,
+      "live_recall": 0.0
+    },
+    "6": {
+      "support": 101,
+      "dense_recall": 0.0,
+      "live_recall": 0.0
+    },
+    "7": {
+      "support": 99,
+      "dense_recall": 0.0,
+      "live_recall": 0.0
+    },
+    "8": {
+      "support": 98,
+      "dense_recall": 0.0,
+      "live_recall": 0.0
+    },
+    "9": {
+      "support": 99,
+      "dense_recall": 0.2222222222222222,
+      "live_recall": 0.2222222222222222
+    }
+  },
+  "failed_checks": [],
+  "status": "PASS",
+  "accuracy_gate": "ACCURACY_NEAR_DENSE"
+}

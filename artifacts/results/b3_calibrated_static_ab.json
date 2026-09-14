@@ -1,0 +1,90 @@
+{
+  "schema": "eneuron_b3_calibrated_static_ab_v1",
+  "status": "MEASURED",
+  "identity": {
+    "bitstream_sha256": "0ecbe76274c39418f2a60a88358d3ff6f09f5a2ed73a44a3a419c34eb91d3a11",
+    "xsa_sha256": "135d979d61c629922ee5419e51dd97ef045d9bab79930432816d09f109291d1a",
+    "dense_elf_sha256": "f7f9be765dd75ff639e4b2d3baa14df0bead61643afe682d4a31cb0aec60e8cb",
+    "calibrated_elf_sha256": "998d7e007ad6b6729084eb2fb2c525bdc9e194d21da1ca731d9d1e59f5c11f38",
+    "heldout_manifest": "tools/repro/b3_calibrated_heldout_manifest.json",
+    "heldout_manifest_sha256": "56a9f18521b359bc3178e29fb6c02d626d0fe3e62514a1bfdff1517e8a8680f2",
+    "calibration_mask_sha256": "b1da9e604a168485ce42e1b13e89001272bb1270f42c025a36390bdde1c144c7",
+    "calibration_policy": "majority_vote_top2_stable_index_v1",
+    "calibration_sample_count": 512,
+    "calibrated_active_groups": 296
+  },
+  "dense": {
+    "run": "boards/hellozynq/b2_sw/build/17d07727c73845e51c22a7835eac94e04cb22fa7/direct/runs/b3_speed/20260914T101035Z/b3_speed_benchmark.json",
+    "median_us": 157.0,
+    "mean_us": 156.97,
+    "min_us": 156,
+    "max_us": 157,
+    "dma_min_us": 58,
+    "dma_max_us": 59,
+    "npu_cycles": [
+      2494
+    ],
+    "execute_groups": [
+      592
+    ],
+    "skip_groups": [
+      0
+    ],
+    "protocol_errors": [
+      0
+    ],
+    "mask_epoch": [
+      1
+    ]
+  },
+  "calibrated_static": {
+    "run": "boards/hellozynq/b2_sw/build/17d07727c73845e51c22a7835eac94e04cb22fa7/direct/runs/b3_speed/20260914T101130Z/b3_speed_benchmark.json",
+    "median_us": 154.0,
+    "mean_us": 153.69,
+    "min_us": 153,
+    "max_us": 155,
+    "dma_min_us": 55,
+    "dma_max_us": 56,
+    "npu_cycles": [
+      1606
+    ],
+    "execute_groups": [
+      296
+    ],
+    "skip_groups": [
+      296
+    ],
+    "protocol_errors": [
+      0
+    ],
+    "mask_epoch": [
+      1
+    ]
+  },
+  "delta": {
+    "median_us": 3.0,
+    "mean_us": 3.28,
+    "median_ratio": 1.0195,
+    "dma_delta_us": 3
+  },
+  "output": {
+    "sample_count": 64,
+    "prediction_agreement": 1.0,
+    "logit_exact_match_count": 64,
+    "logit_exact_match_rate": 1.0,
+    "max_abs_logit_error": {
+      "p50": 0.0,
+      "p95": 0.0,
+      "p99": 0.0,
+      "max": 0.0
+    },
+    "mean_abs_logit_error": {
+      "p50": 0.0,
+      "p95": 0.0,
+      "p99": 0.0,
+      "max": 0.0
+    },
+    "report_status_at_64_samples": "FAIL"
+  },
+  "boundary": "zero-decision-cost upper bound on 64 held-out samples with a fixed 512-sample majority-vote calibration mask; output comparison only, not task accuracy and not a gate closure"
+}

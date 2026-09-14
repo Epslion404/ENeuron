@@ -1,0 +1,148 @@
+{
+  "schema": "eneuron_b3_accuracy_report_v1",
+  "identity": {
+    "model": 3,
+    "preprocess": "uint4_64_low_nibble_first_v1",
+    "bitstream_sha256": "0ecbe76274c39418f2a60a88358d3ff6f09f5a2ed73a44a3a419c34eb91d3a11",
+    "xsa_sha256": "135d979d61c629922ee5419e51dd97ef045d9bab79930432816d09f109291d1a",
+    "elf_sha256": "paired:2b5447c66d500a5fb3173b1659203546e808490150ad764931086ef68b444c7f:32931da604847d12f37d35aa24f51d5b006933d3c6432e1180baebd2fc7a882b",
+    "dense_elf_sha256": "2b5447c66d500a5fb3173b1659203546e808490150ad764931086ef68b444c7f",
+    "live_elf_sha256": "32931da604847d12f37d35aa24f51d5b006933d3c6432e1180baebd2fc7a882b",
+    "benchmark_manifest_sha256": "42a1700ef0c875e696ac8074360c571e5a4e2a03a4b3a7fd9c14446bd5b8c731",
+    "dense_run_count": 16,
+    "live_run_count": 16
+  },
+  "sample_count": 1024,
+  "thresholds": {
+    "minimum_samples": 1000,
+    "prediction_agreement_min": 0.99,
+    "prediction_agreement_ci95_lower_min": 0.99,
+    "accuracy_drop_max_pp": 1.0,
+    "accuracy_drop_ci95_upper_max_pp": 1.0
+  },
+  "prediction_agreement": 1.0,
+  "prediction_agreement_ci95": [
+    0.9962625959599825,
+    1.0
+  ],
+  "logit_exact_match_count": 1024,
+  "logit_exact_match_rate": 1.0,
+  "logit_exact_match_ci95": [
+    0.9962625959599825,
+    1.0
+  ],
+  "dense_accuracy": 0.1123046875,
+  "dense_accuracy_ci95": [
+    0.0943967480996393,
+    0.13311057495482756
+  ],
+  "live_accuracy": 0.1123046875,
+  "live_accuracy_ci95": [
+    0.0943967480996393,
+    0.13311057495482756
+  ],
+  "accuracy_drop_pp": 0.0,
+  "accuracy_drop_ci95_pp": [
+    0.0,
+    0.0
+  ],
+  "logit_error": {
+    "max_abs": {
+      "p50": 0.0,
+      "p95": 0.0,
+      "p99": 0.0,
+      "max": 0.0
+    },
+    "mean_abs": {
+      "p50": 0.0,
+      "p95": 0.0,
+      "p99": 0.0,
+      "max": 0.0
+    },
+    "max_relative": {
+      "p50": 0.0,
+      "p95": 0.0,
+      "p99": 0.0,
+      "max": 0.0
+    }
+  },
+  "per_class_recall": {
+    "0": {
+      "support": 100,
+      "dense_recall": 0.91,
+      "live_recall": 0.91
+    },
+    "1": {
+      "support": 104,
+      "dense_recall": 0.0,
+      "live_recall": 0.0
+    },
+    "2": {
+      "support": 103,
+      "dense_recall": 0.0,
+      "live_recall": 0.0
+    },
+    "3": {
+      "support": 105,
+      "dense_recall": 0.0,
+      "live_recall": 0.0
+    },
+    "4": {
+      "support": 103,
+      "dense_recall": 0.0,
+      "live_recall": 0.0
+    },
+    "5": {
+      "support": 104,
+      "dense_recall": 0.0,
+      "live_recall": 0.0
+    },
+    "6": {
+      "support": 103,
+      "dense_recall": 0.0,
+      "live_recall": 0.0
+    },
+    "7": {
+      "support": 102,
+      "dense_recall": 0.0,
+      "live_recall": 0.0
+    },
+    "8": {
+      "support": 99,
+      "dense_recall": 0.0,
+      "live_recall": 0.0
+    },
+    "9": {
+      "support": 101,
+      "dense_recall": 0.2376237623762376,
+      "live_recall": 0.2376237623762376
+    }
+  },
+  "failed_checks": [],
+  "status": "PASS",
+  "accuracy_gate": "ACCURACY_NEAR_DENSE",
+  "gate_scope": "output_preservation_only",
+  "golden_match": {
+    "dense_logits_exact": 1024,
+    "live_logits_exact": 1024,
+    "dense_prediction_exact": 1024,
+    "live_prediction_exact": 1024,
+    "dense_max_abs_error": 0,
+    "live_max_abs_error": 0,
+    "total": 1024
+  },
+  "protocol": {
+    "captures": 2048,
+    "status_pass": 2048,
+    "result_crc_match": true,
+    "probe_json_metadata_mismatches": 0,
+    "crc_note": "CRC \u4ec5\u7528\u4e8e\u539f\u59cb\u5e27\u6821\u9a8c\uff1blogits \u7ed3\u8bba\u6765\u81ea\u6570\u503c\u89e3\u6790\u4e0e Python golden \u5bf9\u7167"
+  },
+  "task_accuracy_evidence": {
+    "verdict": "MODEL_TASK_FIT_UNVERIFIED",
+    "reason": "\u975e\u96f6\u6743\u91cd\u7ec4 11/592\u30018/10 \u7c7b\u53ec\u56de\u4e3a 0\u3001dense accuracy 11.23%\uff1b\u6a21\u578b/\u4efb\u52a1\u9002\u914d\u6027\u672a\u8bc1\u660e\uff0c\u4e0d\u81ea\u52a8\u5f52\u56e0\u6807\u7b7e\u8bed\u4e49",
+    "dense_accuracy": 0.1123046875,
+    "live_accuracy": 0.1123046875
+  },
+  "supersedes": "artifacts/results/b3_accuracy_1024_board_report.json"
+}

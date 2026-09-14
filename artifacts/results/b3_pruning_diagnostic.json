@@ -1,0 +1,117 @@
+{
+  "schema": "eneuron_b3_pruning_diagnostic_v1",
+  "status": "GATE_VACUOUS / MODEL_UNDER_DETERMINED",
+  "inputs": {
+    "dataset": "artifacts/results/b3_accuracy_chunks_20260914_1024",
+    "sample_count": 1024
+  },
+  "model": {
+    "word_count": 634,
+    "nonzero_words": 19,
+    "nonzero_word_indices": [
+      0,
+      1,
+      16,
+      17,
+      34,
+      51,
+      68,
+      512,
+      513,
+      514,
+      516,
+      544,
+      552,
+      561,
+      616,
+      624,
+      625,
+      626,
+      633
+    ],
+    "nonzero_weight_groups": {
+      "total": 11,
+      "L0": [
+        0,
+        1,
+        16,
+        17,
+        34,
+        51,
+        68
+      ],
+      "L1": [
+        512,
+        520,
+        529,
+        584
+      ]
+    },
+    "nonzero_bias_words": [
+      512,
+      513,
+      514,
+      516,
+      624,
+      625,
+      626,
+      633
+    ],
+    "meta_count": 148,
+    "nonzero_groups_per_meta_histogram": {
+      "0": 139,
+      "1": 7,
+      "2": 2
+    },
+    "metas_with_nonzero_group": 9
+  },
+  "deletion": {
+    "deleted_group_instances": 303104,
+    "deleted_nonzero_weight_instances": 35,
+    "deleted_nonzero_contribution_instances": 0,
+    "deleted_zero_weight_instances": 303069,
+    "executed_nonzero_weight_instances": 11229,
+    "executed_zero_weight_instances": 291875,
+    "nonzero_contribution_instances": 11015,
+    "executed_nonzero_contribution_instances": 11015,
+    "per_sample_deleted_nonzero_weight_histogram": {
+      "0": 989,
+      "1": 35
+    }
+  },
+  "evidence": {
+    "histogram": {
+      "0": 595193,
+      "1": 3161,
+      "2": 3124,
+      "3": 4730
+    },
+    "zero_share": 0.9818,
+    "metas_all_zero": 142434,
+    "metas_total": 151552,
+    "metas_all_zero_share": 0.9398
+  },
+  "tie": {
+    "second_eq_third": 149655,
+    "metas": 151552,
+    "rate": 0.9875
+  },
+  "mask": {
+    "distinct_live_masks": 3,
+    "samples": 1024,
+    "samples_matching_calibrated": 989,
+    "difference_rate": 0.0342,
+    "mean_bit_difference_vs_calibrated": 0.07,
+    "calibrated_mask_sha256": "b1da9e604a168485ce42e1b13e89001272bb1270f42c025a36390bdde1c144c7"
+  },
+  "gate": {
+    "verdict": "GATE_VACUOUS / MODEL_UNDER_DETERMINED",
+    "reasons": [
+      "nonzero weight groups 11/592 (1.86%); metas with any nonzero group 9/148",
+      "deleted nonzero-contribution instances 0/11015",
+      "live masks nearly degenerate: 3 distinct over 1024 samples; difference vs calibrated mask 3.42%",
+      "evidence zero share 98.2%; 2nd==3rd tie rate 98.7%"
+    ]
+  },
+  "boundary": "\u534f\u8bae/\u8f93\u51fa\u4e00\u81f4\u6027\u53ea\u8bf4\u660e\u5f53\u524d mask \u672a\u5220\u9664\u975e\u96f6\u8d21\u732e\uff0c\u4e0d\u6784\u6210\u901a\u7528\u526a\u679d\u7cbe\u5ea6\u6216\u6536\u76ca\u8bc1\u660e\u3002"
+}

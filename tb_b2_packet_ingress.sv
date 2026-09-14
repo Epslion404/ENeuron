@@ -162,6 +162,36 @@ module tb_b2_packet_ingress;
         @(posedge clk);
         cmd_ready = 1'b0;
 
+        // Batch command：21 个 128-bit command word 共用一次 DMA frame，
+        // ingress 必须逐 word 顺序发布，并保持 PL staging 所需的 epoch 字段。
+        send_word(32'h3242_4e45, 1'b0);
+        send_word(32'h0800_0101, 1'b0);
+        send_word(32'h0000_0150, 1'b0);
+        send_word(32'h0000_0009, 1'b0);
+        send_word(32'h0000_0000, 1'b0);
+        send_word(32'h0000_0003, 1'b0);
+        send_word(32'h0000_0001, 1'b0);
+        send_word(32'h0000_0000, 1'b0);
+        for (i = 0; i < 21; i = i + 1) begin
+            send_word((i == 0 || i == 20) ? 32'h0000_0000 : (32'h0000_0100 + i), 1'b0);
+            send_word(32'h0000_0000, 1'b0);
+            send_word((i == 0 || i == 20) ? 32'h0100_0000 : 32'h0000_0000, 1'b0);
+            send_word((i == 0) ? 32'h4000_0000 : (i == 20) ? 32'h6000_0000 : 32'h5000_0000,
+                      1'b0);
+        end
+        send_word(32'h5f58_430d, 1'b1);
+        cmd_ready = 1'b1;
+        for (i = 0; i < 21; i = i + 1) begin
+            while (!cmd_valid) @(posedge clk);
+            #1;
+            if (cmd_sequence !== 32'd9 || cmd_model_id !== 32'd3 ||
+                cmd_data[127:124] !== ((i == 0) ? 4'h4 : (i == 20) ? 4'h6 : 4'h5) ||
+                cmd_data[31:0] !== ((i == 0 || i == 20) ? 32'd0 : (32'h100 + i)))
+                $fatal(1, "batch command mapping mismatch index=%0d data=%h", i, cmd_data);
+            @(posedge clk);
+        end
+        cmd_ready = 1'b0;
+
         // Bad CRC must not publish a sample.
         send_word(32'h3242_4e45, 1'b0);
         send_word(32'h0800_0201, 1'b0);

@@ -60,7 +60,7 @@ class InferenceResult:
 
 
 class NpuReference:
-    """最小确定性 NPU；门控只影响组是否发出乘加，不改变数值规则。"""
+    """最小确定性 NPU；组门控或 lane 门控只改变实际乘加，不改变数值规则。"""
 
     def __init__(self, config: NpuConfig | None = None) -> None:
         self.config = config or NpuConfig()
@@ -110,8 +110,15 @@ class NpuReference:
         mode: str = "bypass",
         group_mask0: Sequence[bool] | None = None,
         group_mask1: Sequence[bool] | None = None,
+        lane_mask0: Sequence[int] | None = None,
+        lane_mask1: Sequence[int] | None = None,
     ) -> InferenceResult:
-        """执行一次冻结推理；同一输入只读取已提交的门控版本。"""
+        """执行一次冻结推理；同一输入只读取已提交的门控版本。
+
+        group_mask 是组级开关（一位关四权重）。lane_mask 是每组 4-bit
+        连接开关：nibble 非 0 仍计一次 group_read，只对置位 lane 做 MAC。
+        两者不能混用。lane_mask 允许 0000/1111，严格 2:4 合法性在编码层检查。
+        """
         if self._weights0 is None or self._bias0 is None or self._weights1 is None or self._bias1 is None:
             raise RuntimeError("weights are not loaded")
         c = self.config
@@ -119,37 +126,59 @@ class NpuReference:
             raise ValueError("image shape mismatch")
         if mode not in {"bypass", "gated"}:
             raise ValueError("mode must be bypass or gated")
+        if (lane_mask0 is not None or lane_mask1 is not None) and (
+            group_mask0 is not None or group_mask1 is not None
+        ):
+            raise ValueError("lane masks and group masks cannot be combined")
         activations = [validate_uint4_input(value) for value in image]
-        mask0 = self._validate_mask(group_mask0, c.hidden_size * (c.input_size // c.group_size), mode)
+        l0_groups = c.hidden_size * (c.input_size // c.group_size)
+        l1_groups = c.output_size * (c.hidden_size // c.group_size)
+        use_lanes = lane_mask0 is not None or lane_mask1 is not None
+        if use_lanes:
+            if mode != "gated":
+                raise ValueError("lane masks require gated mode")
+            lanes0 = self._validate_lane_mask(lane_mask0, l0_groups)
+            lanes1 = self._validate_lane_mask(lane_mask1, l1_groups)
+        else:
+            mask0 = self._validate_mask(group_mask0, l0_groups, mode)
+            mask1 = self._validate_mask(group_mask1, l1_groups, mode)
         hidden: list[int] = []
         reads = 0
         macs = 0
         for output_index, row in enumerate(self._weights0):
             acc = self._bias0[output_index]
             for group, start in enumerate(range(0, c.input_size, c.group_size)):
-                if not mask0[output_index * (c.input_size // c.group_size) + group]:
+                index = output_index * (c.input_size // c.group_size) + group
+                nibble = lanes0[index] if use_lanes else (0xF if mask0[index] else 0)
+                if nibble == 0:
                     continue
                 reads += 1
                 for offset in range(c.group_size):
-                    acc += activations[start + offset] * row[start + offset]
-                    macs += 1
+                    if (nibble >> offset) & 1:
+                        acc += activations[start + offset] * row[start + offset]
+                        macs += 1
             hidden.append(saturate_hidden(acc))
-        mask1 = self._validate_mask(group_mask1, c.output_size * (c.hidden_size // c.group_size), mode)
         logits: list[int] = []
         for output_index, row in enumerate(self._weights1):
             acc = self._bias1[output_index]
             for group, start in enumerate(range(0, c.hidden_size, c.group_size)):
-                if not mask1[output_index * (c.hidden_size // c.group_size) + group]:
+                index = output_index * (c.hidden_size // c.group_size) + group
+                nibble = lanes1[index] if use_lanes else (0xF if mask1[index] else 0)
+                if nibble == 0:
                     continue
                 reads += 1
                 for offset in range(c.group_size):
-                    acc += hidden[start + offset] * row[start + offset]
-                    macs += 1
+                    if (nibble >> offset) & 1:
+                        acc += hidden[start + offset] * row[start + offset]
+                        macs += 1
             logits.append(acc)
         best = max(logits)
         winners = [index for index, value in enumerate(logits) if value == best]
         prediction = winners[0] if len(winners) == 1 else None
-        LOGGER.debug("infer mode=%s group_reads=%d mac_count=%d prediction=%s", mode, reads, macs, prediction)
+        LOGGER.debug(
+            "infer mode=%s lane_gated=%s group_reads=%d mac_count=%d prediction=%s",
+            mode, use_lanes, reads, macs, prediction,
+        )
         return InferenceResult(tuple(logits), prediction, prediction is None, reads, macs)
 
     def _validate_mask(self, mask: Sequence[bool] | None, size: int, mode: str) -> list[bool]:
@@ -158,3 +187,15 @@ class NpuReference:
         if mask is None or len(mask) != size:
             raise ValueError("gated mode requires a complete committed mask")
         return [bool(value) for value in mask]
+
+    def _validate_lane_mask(self, mask: Sequence[int] | None, size: int) -> list[int]:
+        """校验每组 4-bit nibble；0000/1111 合法，供 group_4way 展开。"""
+        if mask is None or len(mask) != size:
+            raise ValueError("gated lane mode requires a complete 4-bit mask per group")
+        lanes: list[int] = []
+        for value in mask:
+            if type(value) is not int or not 0 <= value <= 0xF:
+                LOGGER.debug("reject non-nibble lane mask value=%r", value)
+                raise ValueError("lane mask must be a 4-bit integer")
+            lanes.append(value)
+        return lanes

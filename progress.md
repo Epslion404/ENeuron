@@ -1,5 +1,109 @@
 # 进度记录
 
+## 2026-09-14 B3-22.3 后主线裁定
+
+- B3-22.3 的 calibrated static 零决策成本 A/B 已完成：dense `157 us` 对 static `154 us`，端到端改善约 `2%`，64/64 logits 完全一致，协议错误为 0。
+- 下一步改为 B3-22.4/22.5 固定协议开销与批量 sample DMA/fence 摊销；PL-auto、PS NEON 暂缓。速度、功耗和目标门继续 OPEN。
+- 精度口径明确为 `output_preservation=PASS`、`task_accuracy=MODEL_TASK_FIT_UNVERIFIED`。
+
+## 2026-09-14 mask 提交切换为 PL staging
+
+- 已将 `MASK_BEGIN + 19×MASK_DATA + MASK_COMMIT` 打包为单个 21-word command frame；PS 只执行一次 DMA，PL ingress 在 staging RAM 中缓存后仍按原顺序向 NPU 发布。
+- 未改变 active/pending epoch、首样本激活、逐样本 fence、CRC 或结果校验语义；`mask_submit_path=pl_staging_command_batch_v1` 写入 packet build manifest。
+- 新增 `test_b3_mask_pl_staging_contract.py` 与 ingress 21-word batch 仿真场景；定向回归 `16 passed`，`verify_repository.py --t1` 通过，ARM GCC/Vitis 2024.1 构建通过。
+- 尚未烧录实板；`B3-18b` 仍要求同一 bit/XSA/JTAG/ELF 下完成多输入 dense/live A/B，才能判断端到端瓶颈是否被消除。
+
+## 2026-09-14 板端精度采集入口收口
+
+## 2026-09-14 精度证明数据链补齐
+
+- 修正多输入 manifest 与 runner 的 epoch 语义：dense 正式样本固定 `1`，live 正式样本从 `2` 递增；新增 `dense_mask_epoch`/`live_mask_epoch` 字段，避免跨模式误判。
+- runner 的速度/精度摘要现在保留样本 `label`，便于真实标签统计；PowerShell AST 通过。
+- 新增 `b3_accuracy_dataset.py`：接入 `archive/legacy/digit8x8/digit8x8_fixture.json` 的 1797 个带标签、64 个 `uint4` 像素样本，可生成至少 1000 个样本的 64 样本分块；当前已生成 16 个分块（最后一块 40 样本）。
+- 新增 `b3_accuracy_merge.py`：按 `sample_id`、输入 SHA-256、标签、输入 CRC 和 bit/XSA/ELF 身份合并 dense/live 采集，拒绝不对称或不完整结果。
+- 新增合同测试后，精度数据集、合并、采集、报告和速度 runner 定向回归为 `20 passed`；这仍不等于 `B3-ACCURACY-GATE` 通过，正式门必须使用实板 logits 和真实标签。
+- 对归档 `digit8x8` 候选集做了参考基线检查：前 1000 个样本的 dense Top-1 仅 `11.3%`，预测集中在 0/9。该集合暂不能直接作为当前模型的语义准确率证明，只保留为输出保持/协议压力候选；正式精度门前必须确认模型与标签语义匹配或更换评测集。
+
+- 修复 `accuracy_bench_record_failure()` 未使用告警，并将 live mask、setup fence、warm-up sample、逐样本 fence/sample 失败统一写入 accuracy 账本：`status=FAIL`、失败计数、失败阶段和样本索引均可审计。
+- `B3_ACCURACY_BENCHMARK` ARM GCC 构建通过，`-Wall -Wextra` 无新增 warning；精度采集、速度 benchmark、统计器、多输入 manifest 相关合同共 `31 passed`，PowerShell AST 与 `git diff --check` 通过。
+- B3-22.1a/b 与 B3-22.1e1 的实现入口已完成；`B3-ACCURACY-GATE` 仍为 OPEN。要证明“几乎不影响推理结果/精度”，仍需同一 bit/XSA/ELF 下 dense/live 成对采集并合并真实标签，至少 1000 个样本满足 Top-1 一致率及 Wilson 95% 下界 `≥99%`、准确率下降及配对差值 95% 上界 `≤1.0` 个百分点。
+
+## 2026-09-14 精度证明工具就绪
+
+- 新增 `b3_accuracy_report.py` 与 `test_b3_accuracy_report_contract.py`。
+- 工具对 dense/live 逐样本计算 Top-1 一致率、两侧准确率、准确率下降、logit 绝对/相对误差分位数、每类召回率和 Wilson 95% 置信区间。
+- 顶层 identity 必须绑定模型、预处理、bit/XSA/ELF；样本必须带输入身份、mask epoch、标签、logits 及协议/CRC/输入校验。协议错误、结果错配、重复 sample_id、logit 形状或预测字段错误会直接拒绝该轮数据。
+- 当前仅完成统计与合同实现，尚无 1000 个正式实板评测样本（后续 2026-09-14 已完成 1024 样本成对采集并由 `probe.log` 重建 v2 报告；输出保持单独成立，任务精度 `MODEL_TASK_FIT_UNVERIFIED`）；`B3-ACCURACY-GATE` 保持 OPEN，不能把固定 16 样本结果写成通用精度证明。
+- 精度门已收紧为保守统计判定：除点估计外，Top-1 一致率的 Wilson 95% 下界不得低于 99%，配对准确率下降的 95% 区间上界不得高于 1.0 个百分点；这仍需真实标签样本，不能用黄金 logits 或 dense 预测反推。
+- 核对当前采集链后确认 speed runner 只归档结果 CRC，不保存 10 维 logits；已新增 B3-22.1e1，要求独立完成板端 dense/live logits 读回与真实标签合并。64 个多输入 Python 黄金样本为 `64/64` logits 完全一致、`64/64` Top-1 一致且均有非零跳过组，但这不是实板或真实精度证据。
+- 清理 `B3_SPEED_BENCHMARK` 下未使用的 `expected_logits` 编译告警；64 样本 live ENeuron ARM GCC 构建通过且无该告警。
+
+## 2026-09-14 加速测量优先级修正
+
+- 已将 B3-22.1 从“是否需要扩展”的可选决策改为当前唯一主动任务：至少 64 个正式样本、多组不同输入、逐样本 mask/epoch/CRC/fence/执行计数检查，以及至少 3 组 dense/live 对称实测。
+- 速度门未通过时，只按实测证据进入 B3-18 或新的微结构优化并回到速度复测；速度门通过后才进入功耗线。严格 `2:4`、B3-19、功耗、B2-GATE 和网口发布继续后置。
+- 新增 `B3-ACCURACY-GATE`：至少 1000 个代表性评测样本，Top-1 观测一致率及 Wilson 95% 下限均 `≥99%`，live 相对 dense 的准确率绝对下降及配对差值 95% 上限均 `≤1.0` 个百分点；该门通过前，速度收益不能写成有效目标收益。
+
+## 2026-09-14 B3-20.2 加速效果对称复测完成
+
+- 在同一 `xc7z020clg484-2`、同一 bit/XSA、同一 `hw_server:3121` 和相同 warm-up 条件下，完成 3 组 dense 与 live K=16 对称实板复测；6 个 run 均 `16/16 PASS`，JTAG probe/XSCT 均返回 0。
+- dense：完整窗口中位数 `155 us`，三组均值约 `155.4–155.6 us`，NPU `2494 cycles`、执行/跳过 `592/0`。
+- live K=16：首样本 `1378–1381 us`，后续样本中位数均为 `153 us`，完整窗口均值约 `229.4–229.9 us`、中位数 `153 us`，`mask_update_count=1`，NPU `1606 cycles`、执行/跳过 `296/296`。
+- 每个样本的结果 CRC、epoch/计数、状态和协议错误均通过；K=16 仍为固定输入重复，不能外推通用动态输入流。
+- 结论：稳态尾部约比 dense 快 `1.3%`，但首样本启动成本使完整 16 样本窗口仍慢于 dense；`B3-SPEED-GATE` 保持 OPEN，正式结论为 `NO_END_TO_END_SPEEDUP`。B3-22 复判随后已完成；当时的管理决策是进入 B3-22.1，现已明确为必须扩展至少 64 样本/不同输入，不转入功耗线。
+
+## 2026-09-14 加速复测编排错误记录
+
+- 两次额外复测的初始编排命令未进入板卡：第一次使用数组 splatting，第二次仍把数组按位置展开，均导致 PowerShell 将 `-Mode` 误作为模式值；未烧录、未运行 NPU，不计入性能数据。
+- 改用参数哈希表后，3 组 dense/live 复测全部通过；后续重复执行统一使用命名参数哈希表。
+
+## 2026-09-14 B3-20 mask 更新摊销首轮实板验证
+
+- 在不改 RTL、bit/XSA 和协议的前提下，新增 `B3_LIVE_MASK_BATCH_K`；构建 manifest/runner 记录 `live_mask_batch_k` 与 `live_mask_update_count`。当前正式 16 样本入口只开放 K=1/16，避免把 K=32/64 伪装成独立实验。
+- dense 回归 `20260914T002537Z`：`16/16 PASS`，端到端 `155–156 us`，NPU `2494 cycles`、`592/0`、协议错误为 0。
+- live K=1 `20260914T002627Z`：`16/16 PASS`，端到端中位数 `1386 us`，`mask_us=19701 us`，NPU `1606 cycles`、`296/296`。
+- 首次 live K=16 `20260914T002715Z` 失败：第 2 个样本因省略 fence 触发 `SPEED_FAILURE_SAMPLE`；证明 fence 仍是逐样本协议边界。失败目录保留，不纳入性能比较。
+- 修复为“仅摊销 mask 计算/提交、每样本保留 fence”后，K=16 `20260914T002938Z` 与 `20260914T003122Z` 均 `16/16 PASS`；首样本 `1380/1381 us`，后续 `153–154 us`，整窗中位数均 `153 us`，`mask_us=1225/1226 us`，每样本 epoch/CRC/计数/协议检查通过。
+- 结论：B3-20.1 已完成；这是固定输入重复下的更新摊销上限，不是不同输入流的通用动态剪枝证明。随后已完成 B3-20.2 三组同条件 dense/live 对称复测并更新 B3-22，速度门仍保持 OPEN。
+
+## 2026-09-13 B3-17C/B3-22 第一轮速度判定完成
+
+- warm-up fence 修复后，dense `20260913T182533Z`、live-ENeuron `20260913T182626Z`、static mixed `20260913T182853Z` 均完成 `16/16 PASS`；同源 bit/XSA、样本顺序、预热和 JTAG/probe 条件已保留在各自 run 目录。
+- dense 端到端窗口 `155–156 us`（中位数 `155 us`），NPU `2494 cycles`、执行/跳过组 `592/0`；live 窗口 `1384–1387 us`（中位数 `1386 us`），NPU `1606 cycles`、执行/跳过组 `296/296`；static 窗口 `152–154 us`（中位数 `153 us`）。协议错误、结果 CRC、sample/epoch 校验均通过。
+- live `mask_us≈19700 us` 表示 16 个样本累计的 Host mask 决策时间，不能与单样本端到端窗口直接相加；当前可归因方向是 mask 更新/提交摊销，而不是 NPU 计算本身。
+- B3-22 判定为 `NO_END_TO_END_SPEEDUP`：局部 NPU 节省 `888 cycles` 未转化为端到端加速，`B3-SPEED-GATE` 保持 OPEN。下一动作改为 B3-20，优先评估 `K=16/32/64` 批量 mask 更新，之后回到 B3-17C/B3-22 对称复测；功耗、严格 `2:4`、B2-GATE 和网口发布继续后置。
+
+## 2026-09-13 B3-17C.1 失败证据与合同收口
+
+- 已将 dense 试跑 `20260913T173917Z` 固化为 `FAIL_WARMUP_BEFORE_FORMAL_SAMPLES`：编程/下载/CPU 运行和 probe 进程返回 0，但板端 `status=3`、`sample_count=0`、`result_failures=1`，16 个正式槽位为空；该 run 不进入速度比较。
+- TODO、CURRENT_STATUS、WORKFLOW_STATE 与 Nexus 的当前执行点统一为 `B3-17C.1_LOCATE_WARMUP_FAILURE`，后续仍需首错定位后重跑 dense/live 对称 16 样本。
+- 补齐失败诊断字段 `failure_check_mask`、`failure_response_words`、`failure_response_sequence` 的合同，并将 `speed_benchmark_scratch.payload_bytes` 从 856 修正为实际结构体布局 868；定向合同 `28 passed`。
+
+## 2026-09-13 加速效果测量优先
+
+- 已将 TODO、CURRENT_STATUS、WORKFLOW_STATE 和 Nexus 的当前执行链统一为 `B3-17A → B3-17B → B3-17C → B3-22`。
+- B3-18/B3-20 改为仅在实测确认 Host 扫描或 mask 更新为主要瓶颈后执行；B3-19、功耗、严格 `2:4`、B2-GATE 和网口发布后置。
+- 已完成速度 benchmark 合同、JSON/PowerShell 语法和工作流检查；修复 runner 的模式开关传递并验证 dense/live ARM GCC 构建均通过。
+- 追加 runner 身份门：校验 manifest 的模式、packet 源码 SHA-256、XSCT 编程/下载/CPU 运行 marker 和 probe 返回码。
+- B3-17A/B 已关闭；已启动 dense 真实板卡 benchmark，但 `20260913T173917Z` 在预热样本失败（`status=3 / sample_count=0 / result_failures=1`），尚未形成可比较账本。下一动作是先定位启动链首错，再做 B3-17C 的 dense/live 对称实板采样，仍不得宣称端到端加速。
+
+## 2026-09-13 PR #93 后管理审计接管
+
+- 未重启已在运行的全量进程；会话 `55415` 终态为 `394 passed, 1 skipped, 134 subtests passed`，`git diff --check` 与 `B2_CHECKS_PASS` 均通过。
+- 确认交付树差异为 11 个文件、无实现与产物变更；实验树继续保留未提交 lane-mask oracle、规划记录和失败构建证据。
+- 已开始逐段审查 Nexus、状态文档、TODO 与新增跨文件证据合同；提交、推送和 PR 操作要等审查与最终检查完成。
+- 初审发现先前模型遗漏多处当前化表述，暂缓提交；下一步会对已在差异内的 Nexus 文件做局部修正，并用合同锁住不再回归。
+- 已复核 PR #93 核心源码：`group_mac()` 与模型读取均无副作用，缓存保持数值顺序；未发现实现级 blocker。当前主要问题确认为管理文档残留，而不是 NPU/Host 算法错误。
+- 一次规划记录补丁因空格上下文不匹配被原子拒绝；未产生部分修改，已用精确上下文完成重试。
+- 已补齐先前模型遗漏的 Nexus 历史化修复并增加防回归断言；`test_b3_speed_report_contract.py` 为 `13 passed`，JSON 解析为 PASS。
+- Grok 已提交并推送 `40a3046`；GitHub PR #94 已合并。当前评审已完成第一轮：定向 40 tests 与 PowerShell 语法通过，但发现 p16 旧 checkout 上下文、旧执行点、B3 power gate 状态遗漏和历史源码 SHA 绑定当前文件四类残留。
+- 远端 `origin/main` 已抓取到 PR #94 merge commit `18ae7d0`；本地评审分支内容提交为 `40a3046`，工作树干净。
+- 完整 `run_b2_checks.ps1 -Full` 已通过：`126 passed` B2、T1 两门 PASS、全仓 `395 passed, 1 skipped, 134 subtests passed`、`B2_CHECKS_PASS`。
+- 最终评审确认 Grok 的主体修复正确，但留下历史证据绑定当前源码、manifest schema 未升级、归档 build manifest 未交叉验证、P16 计数/执行点漂移、门状态遗漏和 UTC 时间戳错误。
+- 已从 `origin/main@18ae7d0` 创建 `codex/post94-management-contract-fix`，按五个 RED→GREEN 小循环完成上述残留修复。
+- 当前交付差异限定为 9 个文件：3 个 Nexus JSON、2 个 packet PowerShell、2 个合同测试和缓存证据的派生 JSON/README；未修改 RTL、bit/XSA/ELF 或三组原始 run 日志。
+- 修复后 speed/packet/power 定向组合 `40 passed`，JSON 与 PowerShell 语法检查通过。
+
 ## 2026-09-12 B3-MVP-GATE 实板关闭
 
 - 集中 Vivado 2024.1：`WNS=+0.045 ns` / `TNS=0` / `WHS=+0.036 ns` / `THS=0` / DSP48E1=4。bit=`0ecbe762...3a11`，XSA=`135d979d...91d1a`，RTL HEAD `be84596`。
@@ -2154,17 +2258,131 @@
 - 首次全仓 `pytest -q` 终态为 `42 failed, 624 passed, 1 skipped, 12 errors, 327 subtests passed`（376.51 s）。失败集中在已归档 legacy 子树及仍留根目录的旧 ENeuron/Pulse/digit8x8 测试，它们继续按归档前相对路径寻找源码；B2/B3 当前定向入口此前均通过。下一步修正默认收集边界，不修改归档业务实现。
 - 新增 `pytest.ini` 显式排除 `archive/legacy` 与仍依赖归档前相对路径的根级历史测试，并增加收集边界合同；B0 runner hash 改为 canonical-LF 校验，内容自证据提交后无 Git 差异。收集为 392 项，当前主线全量结果 `391 passed, 1 skipped, 134 subtests passed`（117.95 s）。
 - 统一入口 `run_b2_checks.ps1 -Full` 最终通过：B2 `124 passed`、T1 两门 PASS、当前主线全量 `391 passed, 1 skipped, 134 subtests passed`、`git diff --check` PASS，输出 `B2_CHECKS_PASS`。本轮未运行 Vivado、未操作板卡或功耗仪。
-- 在基于最新 `origin/main` 的干净工作树复核统一入口：`B2_CHECKS_PASS`，其中当前 PR 基线为 `388 passed, 1 skipped, 134 subtests passed`；与原工作树 `391` 的差额来自未提交 lane-mask oracle 的 3 个测试。
-- 完成 Nexus 管理补丁：七个入口/结构化文件统一当前 B3 gate 层级，去掉临时 checkout 身份和 `B3_SPEED_PASS`；新增合同测试防止 domains/test coverage 再次把测量完成写成速度门通过。定向验证 `22 passed`、JSON 解析 PASS、过时门文本扫描为空、`git diff --check` PASS。
-- PR #91 已合并为 `main@30e3b38`，包含 `820542a`、`aa198ca`、`ca1384e` 三笔提交。合并前 PR 为 `CLEAN / MERGEABLE`；Actions 关闭、远端 checks 为空，本地统一入口与定向合同作为验收证据。
-- 从 `main@af455a1` 创建 `codex/b3-live-l0-cache`。源码确认 live C 路径的 L0 contribution 被计算两次；开始以 RED→GREEN 方式实现 16-group 局部缓存，明确不改 RTL/bitstream/协议和 ENeuron 决策语义。
-- RED 合同按预期失败于缺少 L0 缓存；GREEN 修改只在每个 hidden 的首遍计算并保存 16 个 contribution，dense 累加与四个 meta evidence 复用。相关 `8 passed`，差异检查通过。
-- 独立管理复核确认交付分支基于最新 `main@af455a1`，原实验工作树仍保留未提交实验与失败构建证据；本轮不从原实验树搬运或提交任何文件。
-- 核对原实验树 bit/XSA 哈希，确认与 B3-MVP 签核值一致；本机 Vitis 2024.1 工具可用。交付树尚无被忽略的硬件/软件 build 目录，需显式准备后再构建。
-- 设备 PnP 已恢复 CH340 COM15/COM35 与 Digilent FTDI；发现 Nexus 结构化模型及一处架构 Markdown 仍残留 B3-09 pending，与已合并的 B3-MVP 事实冲突，纳入本轮管理修复。
-- 进一步确认 `p16_board_validation.json` 顶层门状态正确、嵌套 live 子门过时；本轮将增加一致性合同后修正，防止只更新 Markdown 或只更新顶层 JSON。
-- 完成 Nexus RED→GREEN 一致性合同；Vitis live ELF 构建通过。对象级对比确认目标函数缩小 272 bytes。构建 manifest 暴露 dirty 源码身份未记录的问题，下一步先补构建/runner 身份硬门，再做正式干净构建与实板复测。
-- 构建/runner clean-source 身份合同先 RED 后 GREEN；PowerShell 两脚本解析通过，`git diff --check` 无错误。当前 dirty 候选 manifest 按新规则不能上板，符合 fail-closed 预期。
-- 统一 `run_b2_checks.ps1 -Full` 通过：当前主线全仓 `392 passed, 1 skipped, 134 subtests passed`，T1 两门与差异检查通过，输出 `B2_CHECKS_PASS`。
-- 补充 B4/STRICT 依赖一致性 RED→GREEN：P16 JSON 与架构文档不再把严格 2:4 当作网口发布前置；Nexus 两份 JSON 解析和定向合同通过。
-- 在干净提交 `82b079e` 上重建 live ELF 并用 COM15 连续完成三次实板 PASS；新 `ps_us` 为 827/829/828，所有数值、计数、周期和协议错误判据通过。三组 UART/XSCT/probe/run manifest 与机器摘要归档到 `artifacts/logs/b3_live_l0_cache_20260913_82b079e/`。
+- 续接复核时轮询既有干净工作树会话，终态再次确认 `B2_CHECKS_PASS`；本次实际输出为当前 PR 基线 `388 passed, 1 skipped, 134 subtests passed`。此前原工作树的 `391` 比它多 3 项，是因为未提交的 lane-mask oracle 新增了 3 个测试，不是 pytest 收集边界漂移。
+- 管理审计确认成果分散：可合并提交位于 `D:/Documents/Code/ENeuron-board-b0-pr-review` 的 `codex/b3-goal-review-pr@aa198ca`，原工作树仍保留独立 lane-mask oracle、失败构建证据、`.planning/` 及未提交 Nexus 修正。Nexus 当前写死 `codex/b3-goal-review@3740d98`，若直接合并会立刻过时，必须先改为稳定的内容身份或目标主线身份。
+
+## 2026-09-13 PR #93 合并后复核启动
+
+- 已读取规划文件并核对工作树列表：交付线为干净 `main@1c64245`，实验线为 dirty `codex/b3-goal-review@3740d98`。
+- 已确认现有子代理上一轮只读审计基于旧提交 `af455a1`，可用于解释缓存候选，但不能替代对已合并 `1c64245` 的重新核验。
+- 当前不移动、不清理实验工作树中的用户/历史产物；先审查新提交、远端 PR、测试和实板证据，再决定最小管理修复。
+- 已通过 Git 与 `gh pr view 93` 核对：PR #93 于 2026-09-13 11:24（+08:00）合并，主线和远端均为 `1c64245`；下一阶段进入逐文件实现/证据审查。
+- 已完成核心 diff 和证据 manifest 第一轮阅读：缓存形态与既定最小方案一致，门状态没有在摘要中误关；正在继续核对 `group_mac` 纯度、runner 全部身份检查、原始日志字段和证据哈希。
+- 已确认 `group_mac`、`model_word_for_index` 和输入数组在该函数内无副作用，缓存不会改变 dense 累加次序或 evidence 量化输入；同时发现 PR #93 没有覆盖全部当前状态入口，管理修复仍需一个独立小切片。
+- 已人工重解析三组 UART/probe，所有机器摘要字段吻合；下一步先补跨文件证据合同与四处当前状态合同，取得 RED 后再修文档/Nexus。
+- 已在交付树从 `main@1c64245` 新建 `codex/b3-post93-management-audit`；证据跨文件合同通过，管理一致性合同按预期以 `WORKFLOW_STATE.md` 旧下一动作取得 RED（`1 failed, 1 passed`）。
+- 子代理在只读任务中意外写入 7 个状态/Nexus 文件；检测后已要求停止并中断。主代理已审查现有 diff，保留现场、不回滚，将逐项验证后决定是否纳入同一管理提交。
+- 管理修复已 GREEN：speed/power/packet 定向 `39 passed`；统一默认入口 B2 合同 `126 passed`，T1 两门 PASS，`git diff --check` PASS，输出 `B2_CHECKS_PASS`。未运行 Vivado、未烧写板卡。
+- 已完成 stale token 搜索与结构化 JSON 复核；现有 11 个文件差异均属于 PR #93 后状态/证据管理或对应合同，没有混入实验工作树的 lane-mask oracle 和失败构建目录。
+
+## 2026-09-13 PR #94 后管理/证据合同修复
+
+- 在独立交付树 `D:/Documents/Code/ENeuron-board-b0-pr-review`、分支 `codex/post94-management-contract-fix` 完成 9 文件局部修复。
+- 定向合同：`test_b3_speed_report_contract.py test_b2_packet_board_contract.py test_b3_power_report_contract.py`，结果 `40 passed`。
+- 完整入口：`./run_b2_checks.ps1 -Full`，结果 `395 passed, 1 skipped, 134 subtests passed`，最终 `B2_CHECKS_PASS`。
+- `git diff --check` 无空白错误；仅报告 PowerShell 文件未来 checkout 的 LF/CRLF 转换警告。
+- 4 个修改 JSON 解析通过，2 个 PowerShell 脚本 AST 解析通过；历史源码和 manifest 的 SHA-256 交叉校验一致。
+- 未运行 Vivado、未烧写板卡、未测外部功耗；本轮不改变三项 B3 开放门。
+- 修复提交 `ae83c95` 已推送并通过 PR #95 合并；merge commit 为 `3a38b0f`，交付树本地 `main` 已快进到 `origin/main` 且工作树干净。GitHub 未配置本 PR 的远端 checks，合并依据为上述完整本地验证。
+
+## 2026-09-13 B3 人工功率测量实现启动
+
+- 用户已批准冻结目视累计功率计方案；交付树从 `main@3a38b0f` 新建分支 `codex/b3-power-manual-meter`。
+- 已读取 TDD 与 Windows shell 规则；实施采用逐项 RED→GREEN，不修改实验工作树中的 lane-mask oracle 或失败构建证据。
+- 首次 TDD Skill 路径读取失败已记录并改正；当前尚未修改交付源码。
+- 已完成现有 power report、packet build、board runner 与 `packet_main.c` 第一轮审计；实现范围确定为合同/报告 API、统一 `B3_POWER_BENCH` 软件路径和独立人工采集入口，不修改 RTL。
+- 人工累计窗口首个 TDD 切片完成：新增公开计算合同先因 API 不存在 RED，随后实现 `mWh`→平均功率和 `mWh`→mJ/正确推理换算及 `ΔmWh>=200` 门，定向结果 `1 passed`。
+- 仪器合同已升级为 v2 并完成 RED→GREEN：冻结 Type-C 串联整板测点、1 mWh/1 mAh 与 V/A/W 显示分辨率、五轮、300 秒/200 mWh/10000 样本和 JTAG 静默要求。
+- 五轮四模式聚合与 CLI 报告工具完成 RED→GREEN；当前 power 合同回归 `13 passed`，CLI 集成测试 `1 passed`，报告绑定人工 CSV 与起止照片 SHA-256，测量完成仍固定 `power_gate=OPEN`。
+# 2026-09-13 B3 人工功耗测量冻结续接
+
+- 收到用户“同意冻结”，冻结 Type-C 串联目视功率计、JTAG 物理连接一致且积分窗口静默、四模式、五轮交替及 `300 s / 10000 samples / 200 mWh` 门限。
+- 核对交付树分支为 `codex/b3-power-manual-meter`，基线 `3a38b0f`，已有 8 个修改/新增文件。
+- 更正此前判断：统一功耗 ELF 和 manifest 已在按提交哈希隔离的目录成功生成，顶层路径检查属于定位错误；没有残留编译进程。
+- 下一步：审查 benchmark 运行语义，随后实现人工测量编排和文档更新。
+- 发现文档仍保留 V1 “门限待冻结”旧表述；已列入 V2 统一修正。
+- 发现 dense/static 每样本冗余 fence；准备先补合同测试，再改为一次初始 fence。
+- dense/static fence 修正已完成并通过新增合同测试。
+- 专用 start/result Tcl 与人工 PowerShell runner 初版已实现，runner 合同和 PowerShell AST 检查通过。
+- DDR 控制/结果块的 cache 风险经 `Xil_DCacheDisable()` 证据否决；未增加无用同步。runner 继续进入报告字段与文档闭环审查。
+- runner Tcl/PowerShell 合同 `3 passed`；报告顺序/证据扩展定向测试 `3 passed`。
+- 进入 V2 文档、TODO、CURRENT_STATUS、WORKFLOW_STATE 和 Nexus 状态修订。
+- 文档与 Nexus 已统一为 `B3_POWER_PROTOCOL_V2_FROZEN / B3_POWER_RUNNER_READY / POWER_NOT_MEASURED`；清除了“本机无仪器”和“重复次数待冻结”的当前态表述。
+- 定向验证：36 passed；4 个修改 JSON 解析通过；PowerShell AST 与 `git diff --check` 通过。
+- 修复 ARM GCC 的 `run_power_benchmark()` non-void 返回警告，新增 runner 生命周期回收合同，并修正报告 CLI 不应改写冻结合同状态的问题；定向回归 `34 passed`。
+- 修正 `WORKFLOW_STATE.md` 的缓存提交身份和 Nexus 的精确 `B3-SPEED-GATE=OPEN` 标记，解除两项全量管理合同失败。
+- 统一入口复核通过：B2 合同 `129 passed`、T1 两门 PASS、完整 pytest `407 passed, 1 skipped, 134 subtests passed`、`B2_CHECKS_PASS`；`B3_POWER_BENCH` clean-before-commit 构建通过且无 C warning。
+- 仍未运行 Vivado、未烧写板卡、未采集真实功耗。正式测量前必须提交冻结实现，在新的 clean HEAD 上重建 ELF，并由用户确认当前外部 `hw_server` 归属后再启动 runner。
+- 冻结实现已提交为 `e610cc9`；clean HEAD 重建 manifest/ELF 通过，ELF SHA-256=`3d24c944d59a92ece4cf3deea41c3cb746d347c19269aebd78aa5cf98d4ed216`。当前 `hw_server` PID `37172` 仍在运行，因此尚未启动正式功耗窗口。
+# 2026-09-14 B3-18c PS mask 计算优化实板复测
+
+- 在同一 `xc7z020clg484-2`、200 MHz bit/XSA、JTAG/hw_server 条件下，完成优化后 64 样本多输入 live/dense 对称复测。
+- live `20260914T062138Z`：`64/64 PASS`，端到端 `722–727 us`，累计 `mask_us=36324 us`，epoch `2→65`，NPU `1606 cycles`，执行/跳过 `296/296`，协议错误 `0`。
+- dense `20260914T062313Z`：`64/64 PASS`，端到端 `155–159 us`，NPU `2494 cycles`，执行/跳过 `592/0`，协议错误 `0`。
+- 相对初版 PL staging live 均值约 `1025.8 us`，本轮约 `724 us`，下降约 29%；相对旧逐 command live 约 `1386 us`，累计改善约 48%。live 仍约为 dense 的 `4.65×`，因此 `B3-SPEED-GATE` 保持 OPEN。
+- 当前确认的主要瓶颈仍为 PS `compute_live_group4way_mask()`，本轮 C 级优化已取得约 35% 的 `mask_us` 降幅；下一步应评估 PL 内 mask 决策或等价硬件接口，同时启动至少 1000 个样本的正式精度采集。
+- 证据：`boards/hellozynq/b2_sw/build/17d07727c73845e51c22a7835eac94e04cb22fa7/direct/runs/b3_speed/20260914T062138Z/` 与 `20260914T062313Z/`。
+
+# 2026-09-14 路线一 PL auto-mask 参考切片通过
+
+- 修正 `eneuron_pl_auto_mask_reference.sv`：hidden 改为完整 32-bit 有符号累加后饱和到 [0,127]；`top2_mask` 改为与 PS `live_top2_mask` 相同的降序+低位 index 稳定排序；`mask_words` 输出改为 net 数组 + generate 连续赋值（Icarus 12 不传播 unpacked-array 变量输出端口的 always_ff 写入）；`mask_calc` 扩到 608 bit 保证 word18 的 32-bit 切片完整。
+- 新增 `tb_b3_pl_auto_mask_golden.sv`：由合同测试从 manifest 生成 `+MODEL/+PIXELS/+EXPECTED` mem 文件，逐样本脉冲 start 并比对 19-word mask；新增 `test_b3_pl_auto_mask_contract.py`（smoke + golden，缺 iverilog 时 skip）。
+- 结果：64/64 输入与 `tools/repro/b3_multi_input_manifest.json` 的 `live_mask_words` 逐 bit 一致（word0–17 全 32 bit、word18 低 16 bit）；Windows 完整 check 为 `425 passed, 1 skipped, 134 subtests passed` 且 `B2_CHECKS_PASS`。
+- 边界：参考引擎仍是组合预计算模型，未接入主 NPU，未做顺序 FSM/逐样本自动 epoch/Host 模式；不得据此宣称加速或实板结果。
+
+# 2026-09-14 路线一顺序引擎切片通过
+
+- 新增 `eneuron_pl_auto_mask_engine.sv`：每 group 三拍 FETCH/EXECUTE/ACCUM；L0 全精度有符号累加后饱和到 [0,127]；L1 只生成 evidence/top-2；top-2 与 PS `live_top2_mask` 同语义；`mask_q` 608 bit，word18 保留位为 0；net 数组输出。
+- `tb_b3_pl_auto_mask_golden.sv` 增加 `-DPL_AUTO_MASK_ENGINE` 选择；`test_b3_pl_auto_mask_contract.py` 新增引擎测试并断言周期预算 `<=2048`。
+- 结果：引擎 64/64 输入与 `live_mask_words` 逐 bit 一致，实测 `1861 cycles/样本`（200 MHz 约 9.3 us）；Windows 完整 check `426 passed, 1 skipped, 134 subtests passed` 且 `B2_CHECKS_PASS`。
+- 边界：引擎是独立参考实现，未接入主 NPU、未做 Vivado 200 MHz 时序/资源评定，也不是实板或速度证据。
+
+# 2026-09-14 路线一引擎 OOC 综合探测
+
+- 新增 `tools/repro/synth_pl_auto_mask_engine_probe.tcl`，在 Vivado 2024.1、`xc7z020clg484-2`、OOC 模式下综合 `eneuron_pl_auto_mask_engine`，输出 `artifacts/logs/pl_auto_mask_engine_ooc_20260914/`，标记 `PL_AUTO_MASK_ENGINE_OOC_PASS`。
+- 资源：`13855 LUT / 1046 FF / 0 BRAM / 8 DSP48E1`。独立引擎路径超出当前"恰好 4 DSP"物理合同，LUT 也远大于主 NPU 参考规模。
+- 原因：`model_words[0:633]` 组合读端口被综合成大 mux；4 个 32-bit 乘法映射为 8 个 DSP48E1。
+- 结论：算法与周期预算成立，但独立实现不可直接接入；下一步应改为 RAM 化模型存储 + 显式窄乘法（读延迟 +1 拍）或与现有四 DSP 数据通路融合后再评。
+
+# 2026-09-14 B3-22.2 mask 计时拆分实现 + 精度报告补充
+
+- `packet_main.c` 新增逐样本 `mask_split_us`（[15:0] compute、[31:16] submit）与累计 `mask_compute_us`/`mask_submit_us`；`probe_b3_speed_benchmark.tcl` 头部偏移 100/104、样本基址 108、步长 60；runner 输出对应字段；`b2_dma_address_layout.json` 的 speed scratch payload 更新为 `3948` 字节（≤4096）。
+- 合同测试更新并扩展（`test_b3_speed_benchmark_contract.py`、`test_b2_dma_address_layout.py`），ARM 构建 `B2_PACKET_SW_BUILD_PASS`，Windows 全量 check `426 passed, 1 skipped, 134 subtests` → `B2_CHECKS_PASS`。
+- `b3_accuracy_report.py` 新增不依赖标签的 `logit_exact_match_count/rate/ci95`；256 样本实板预览报告重新生成后为 `256/256` 精确一致、`prediction_agreement=1.0`、门仍因 `sample_count<1000` 与 CI 下界 0.9852 打开。
+- 边界：计时拆分尚未上板读数；1000 样本采集、校准 mask 上限实验与 200 MHz/PL-auto 均未开始或未实测。
+
+# 2026-09-14 B3-22.2 实板计时拆分结果
+
+- runner 为兼容 Windows PowerShell 5.1 做了三处修复：去掉 PS7 数字后缀（`U/L`）、把三元表达式改为 if/else、编程子进程改用直接调用 + `$LASTEXITCODE`（原 `Start-Process` 在 PS 5.1 下拿不到 .bat 退出码）；修复后 dense/live 均一次 PASS。
+- 同源 64 样本实板：dense `20260914T092552Z`（中位数 `157 us`、`2494 cycles`、`592/0`）；live `20260914T092629Z`（中位数 `725 us`、`1606 cycles`、`296/296`）。
+- live `mask_us=36345 us` 拆分：compute `32160 us`（502/样本，88.5%）、submit `4156 us`（65/样本，11.5%）；逐样本 compute `501–505`、submit `64–65`，协议错误 0。
+- 结论：`567 us/样本` 的旧口径实际为 `568`；提交路径最多贡献约 `65 us/样本` 优化空间，主项仍是 PS 计算。
+
+# 2026-09-14 B3-22.1e/f 1024 样本板级精度采集完成
+
+- 16 个 chunk（`artifacts/results/b3_accuracy_chunks_20260914_1024`）各跑 dense+live 共 32 个板级 run，全部 PASS（4 批 sweep manifest：`...T093407Z/094041Z/094715Z/095347Z`）。
+- 合并 1024 样本（`b3_accuracy_1024_board_pairs.json`）后报告 `b3_accuracy_1024_board_report.json` 为 `status=PASS / accuracy_gate=ACCURACY_NEAR_DENSE`：`prediction_agreement=1.0`（CI `[0.99626,1.0]`）、`logit_exact_match=1024/1024`、`max/mean abs logit error=0`、`accuracy_drop_pp=0`、协议错误 0。
+- 边界：dense/live 准确率都是 `9.86%`，标签语义与模型不匹配，因此本次 PASS 只证明"剪枝不改变输出/预测"；任务准确率链仍需正确评测集，不得宣称模型精度。
+- 产物已登记进 `test_artifact_layout` 与 `artifacts/README.md`。
+
+# 2026-09-14 B3-22.3 校准 static mask 零决策成本上限实验
+
+- 新增 `b3_calibrated_mask.py`：512 样本校准集（chunk 00–07）逐样本运行 `decide_group4way_live`，按组累计票数，每个 meta 按（票数降序、index 升序）稳定保留 2 组；生成 `tools/repro/b3_calibrated_2of4_mask.json`（296 组）和 64 个 held-out 输入 manifest（chunk 08–15，`mask_epoch=1`，含 Python 参考 logits）。
+- 固件新增 `B3_CALIBRATED_STATIC` 模式（static mixed 复用路径 + 校准数组），构建脚本/runner 支持 `calibrated_static`；ARM 构建 `B2_PACKET_SW_BUILD_PASS`。
+- 板级 A/B（held-out 64 样本，同一 bit/XSA）：dense `20260914T101035Z` 中位数 `157 us`、均值 `156.97`、`2494 cycles`、`592/0`；calibrated `20260914T101130Z` 中位数 `154 us`、均值 `153.69`、`1606 cycles`、`296/296`；DMA `58–59→55–56 us`；输出 `64/64` logits 完全一致；协议错误 0。
+- 结论：决策成本为 0 时系统上限约 2%（中位数 157→154 us）；瓶颈仍是每样本约 150 us 的固定协议开销。新增 `test_b3_calibrated_mask_contract.py` 与汇总产物 `artifacts/results/b3_calibrated_static_ab.json`。
+
+# 2026-09-14 B3-22.4 固定协议开销实验（DMA 路径修正）
+
+- `submit_frame` 三处协议无关修正：RX 预填充与缓存维护从整 4 KiB 改为 `RX_GUARD_BYTES=256`；移除 `Xil_DCacheFlushRange` 之后重复的 invalidate；`usleep(10→2)`；并移除 fence/sample 调用方的全帧 `Xil_DCacheInvalidateRange`。
+- held-out 64 样本三组对称 A/B（同一 bit/XSA、同一校准 mask）：dense 中位数 `157 → 63/64/63 us`（约 `2.45×`）、calibrated `154 → 60/60/60 us`（约 `2.57×`）；`fence_us` `69→18 us/样本`，DMA 中位数 `58→22 us`（gated `19 us`），`result_us` `17→11 us`，ps/结果/执行计数与协议错误均正常；输出与基线 `64/64` 逐位一致。
+- 剩余瓶颈：每样本仍有一次约 `18 us` fence + `19–22 us` DMA（含 NPU `8–12.5 us`）+ `10–11 us` result + `8 us` PS；要再降必须改帧格式/批量语义，属 B3-22.5 之后的新合同切片。
+- 产物 `artifacts/results/b3_fixed_overhead_ab.json`；合同新增 `test_packet_dma_path_uses_bounded_guard_region`。
+
+# 2026-09-14 优化路径上的 live 基线（3 组对称 A/B）
+
+- 同一 `be84596` bit/XSA、64 个不同输入、K=1 逐样本 mask，3 组 dense/live 对称运行全部 PASS。
+- dense 三组中位数均 `64.0 us`；live 三组中位数均 `623.0 us`（约为 dense 的 `9.73×`）。
+- live 单样本构成：compute `501.5 us`（80.5%）、submit `56.9 us`（9.1%，21-command 帧已享受同上优化）、fence `18.1 us`、DMA `20 us`、PS `8 us`、result `11 us`。
+- 输出与 epoch/执行计数：`64/64` logits 与 dense 一致，`1606 cycles`、`296/296`、协议错误 0。
+- 结论：路径优化把 dense 与 static 拉快了约 2.5×，但没有改变"live 依赖 PS 全量决策"的根本结构；速度门保持 OPEN。产物 `artifacts/results/b3_live_optimized_ab.json`。
