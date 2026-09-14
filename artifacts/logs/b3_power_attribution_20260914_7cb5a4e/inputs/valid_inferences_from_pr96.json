@@ -1,0 +1,34 @@
+{
+  "inferences": [
+    {
+      "mode": "b3_dense_round_1",
+      "source_blob_sha1": "edce7ca6b18da760a956a987a7607690390a6f52",
+      "source_canonical_lf_sha256": "65e75041751e279a6dd1083dde9be66f39bf6b130817fa59594a153335cf4e9c",
+      "source_ref": "codex/b3-power-manual-meter@2de122c:artifacts/logs/b3_power_manual/continuous_b3_dense_20260913T100808Z/measurement_summary.json",
+      "valid_inferences": 8499751
+    },
+    {
+      "mode": "b3_dense_round_2",
+      "source_blob_sha1": "893476e0485ba2d03b13df081cefefb01d7b610e",
+      "source_canonical_lf_sha256": "9ca728786094b3d5f2e537c42df29a86bf682069f9880948e786ae74f60a564a",
+      "source_ref": "codex/b3-power-manual-meter@2de122c:artifacts/logs/b3_power_manual/continuous_b3_dense_20260913T114249Z/measurement_summary.json",
+      "valid_inferences": 8412993
+    },
+    {
+      "mode": "b3_static_mixed",
+      "source_blob_sha1": "5ab37986dcb95c045f76f4dc3942e092c767e9e7",
+      "source_canonical_lf_sha256": "e467062bda99fb9840289175c5603ce98074d74ada63addf6935f2cc5d26d797",
+      "source_ref": "codex/b3-power-manual-meter@2de122c:artifacts/logs/b3_power_manual/continuous_b3_static_mixed_20260913T123121Z/measurement_summary.json",
+      "valid_inferences": 8093983
+    },
+    {
+      "mode": "b3_live_eneuron",
+      "source_blob_sha1": "8742234edb0f13a1a3afcef9f10926e9ac9370c5",
+      "source_canonical_lf_sha256": "0398b28016c0058cdda8e2a5e02347052e2d3b3f99b3ab45c0d64a255ab318d7",
+      "source_ref": "codex/b3-power-manual-meter@2de122c:artifacts/logs/b3_power_manual/continuous_b3_live_eneuron_20260913T133323Z/measurement_summary.json",
+      "valid_inferences": 9094863
+    }
+  ],
+  "note": "b3_idle 无有效推理，故不在此列出（每次推理能耗对其无定义）。逐窗口计数转录自未合并分支 codex/b3-power-manual-meter@2de122c 的 measurement_summary.json；主线 rollup 只带 live 计数。每条绑定 blob SHA-1 与 canonical-LF SHA-256，可用 git show 复核。",
+  "schema": "eneuron_b3_power_valid_inferences_inputs_v1"
+}

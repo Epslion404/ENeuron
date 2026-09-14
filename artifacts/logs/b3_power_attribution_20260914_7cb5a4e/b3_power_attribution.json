@@ -1,0 +1,171 @@
+{
+  "b3_power_measured": "POWER_NOT_MEASURED",
+  "claim_boundary": {
+    "evidence_class": "engineering_observation",
+    "gate_closure_authority": "none",
+    "measurement_point": "Type-C 整板输入，非 PL 轨",
+    "pruning_power_benefit_proven": false,
+    "vivado_estimate_used_as_board_power": false
+  },
+  "clock_hz": 200000000.0,
+  "counts_from_mainline_rollup_only": false,
+  "delta_vs_dense": {
+    "live": {
+      "delta_power_percent": -0.6315,
+      "delta_power_w": -0.0099443,
+      "exceeds_instrument_uncertainty": true,
+      "exceeds_same_config_repeatability": false
+    },
+    "static_mixed": {
+      "delta_power_percent": -0.4886,
+      "delta_power_w": -0.0076938,
+      "exceeds_instrument_uncertainty": true,
+      "exceeds_same_config_repeatability": false
+    }
+  },
+  "dense_mean_power_w": 1.57469888,
+  "energy_per_valid_inference": {
+    "live": {
+      "delta_vs_dense_mean_percent": -6.643,
+      "energy_per_valid_inference_mj": 0.2909335
+    },
+    "static_mixed": {
+      "delta_vs_dense_mean_percent": -2.0922,
+      "energy_per_valid_inference_mj": 0.3051155
+    }
+  },
+  "forbidden_claims": [
+    "剪枝已降低板上功耗",
+    "power_gate=PASS",
+    "B3-POWER-MEASURED 已完成",
+    "Vivado 估算等于板上实测"
+  ],
+  "idle_baseline_w": 1.57599606,
+  "idle_inverted_load_windows": [
+    "b3_dense_round_2",
+    "b3_static_mixed",
+    "b3_live_eneuron"
+  ],
+  "input_bindings": {
+    "observations_canonical_lf_sha256": "04b2e408245aba11936607b91f612cea3c44fdf70827f35cb81b0aec5d0f265a",
+    "power_report_canonical_lf_sha256": "5918cc76582e0fe04fc1aa708770a229933d11f0d0616c01d1cdf4b22e4d4beb",
+    "valid_inference_inputs_canonical_lf_sha256": "dd491ab0d63f973f49ebb03cf4e1d4ba12a63f1fe0f769d7ef5df7ee4ddd9e0d"
+  },
+  "instrument_accuracy_percent": 0.2,
+  "instrument_uncertainty_w": 0.00315199,
+  "power_gate": "OPEN",
+  "power_goal_status": "NOT_PROVEN",
+  "same_config_repeatability_w": 0.01115547,
+  "schema": "eneuron_b3_power_attribution_v1",
+  "status": "POWER_ATTRIBUTION_NOT_ESTABLISHED",
+  "valid_inference_sources": [
+    {
+      "mode": "b3_dense_round_1",
+      "source_blob_sha1": "edce7ca6b18da760a956a987a7607690390a6f52",
+      "source_canonical_lf_sha256": "65e75041751e279a6dd1083dde9be66f39bf6b130817fa59594a153335cf4e9c",
+      "source_ref": "codex/b3-power-manual-meter@2de122c:artifacts/logs/b3_power_manual/continuous_b3_dense_20260913T100808Z/measurement_summary.json",
+      "valid_inferences": 8499751
+    },
+    {
+      "mode": "b3_dense_round_2",
+      "source_blob_sha1": "893476e0485ba2d03b13df081cefefb01d7b610e",
+      "source_canonical_lf_sha256": "9ca728786094b3d5f2e537c42df29a86bf682069f9880948e786ae74f60a564a",
+      "source_ref": "codex/b3-power-manual-meter@2de122c:artifacts/logs/b3_power_manual/continuous_b3_dense_20260913T114249Z/measurement_summary.json",
+      "valid_inferences": 8412993
+    },
+    {
+      "mode": "b3_static_mixed",
+      "source_blob_sha1": "5ab37986dcb95c045f76f4dc3942e092c767e9e7",
+      "source_canonical_lf_sha256": "e467062bda99fb9840289175c5603ce98074d74ada63addf6935f2cc5d26d797",
+      "source_ref": "codex/b3-power-manual-meter@2de122c:artifacts/logs/b3_power_manual/continuous_b3_static_mixed_20260913T123121Z/measurement_summary.json",
+      "valid_inferences": 8093983
+    },
+    {
+      "mode": "b3_live_eneuron",
+      "source_blob_sha1": "8742234edb0f13a1a3afcef9f10926e9ac9370c5",
+      "source_canonical_lf_sha256": "0398b28016c0058cdda8e2a5e02347052e2d3b3f99b3ab45c0d64a255ab318d7",
+      "source_ref": "codex/b3-power-manual-meter@2de122c:artifacts/logs/b3_power_manual/continuous_b3_live_eneuron_20260913T133323Z/measurement_summary.json",
+      "valid_inferences": 9094863
+    }
+  ],
+  "verdict_rules": {
+    "gap_exceeds_same_config_repeatability": false,
+    "idle_is_lowest_window": false,
+    "rounds_per_mode": {
+      "dense": 2,
+      "pruned": 2
+    }
+  },
+  "windows": [
+    {
+      "average_power_w": 1.57599606,
+      "delta_mwh": 890,
+      "delta_power_vs_dense_mean_percent": null,
+      "delta_power_vs_idle_percent": 0.0,
+      "duration_s": 2033,
+      "energy_per_valid_inference_mj": null,
+      "inferences_per_second": null,
+      "mode": "b3_idle",
+      "npu_compute_cycles": 0,
+      "npu_duty_percent": null,
+      "valid_inference_origin": null,
+      "valid_inferences": null
+    },
+    {
+      "average_power_w": 1.58027661,
+      "delta_mwh": 730,
+      "delta_power_vs_dense_mean_percent": null,
+      "delta_power_vs_idle_percent": 0.2716,
+      "duration_s": 1663,
+      "energy_per_valid_inference_mj": 0.3091855,
+      "inferences_per_second": 5111.095,
+      "mode": "b3_dense_round_1",
+      "npu_compute_cycles": 2494,
+      "npu_duty_percent": 6.3735,
+      "valid_inference_origin": "extra_counts",
+      "valid_inferences": 8499751
+    },
+    {
+      "average_power_w": 1.56912114,
+      "delta_mwh": 734,
+      "delta_power_vs_dense_mean_percent": null,
+      "delta_power_vs_idle_percent": -0.4362,
+      "duration_s": 1684,
+      "energy_per_valid_inference_mj": 0.3140856,
+      "inferences_per_second": 4995.839,
+      "mode": "b3_dense_round_2",
+      "npu_compute_cycles": 2494,
+      "npu_duty_percent": 6.2298,
+      "valid_inference_origin": "extra_counts",
+      "valid_inferences": 8412993
+    },
+    {
+      "average_power_w": 1.56700508,
+      "delta_mwh": 686,
+      "delta_power_vs_dense_mean_percent": -0.4886,
+      "delta_power_vs_idle_percent": -0.5705,
+      "duration_s": 1576,
+      "energy_per_valid_inference_mj": 0.3051155,
+      "inferences_per_second": 5135.776,
+      "mode": "b3_static_mixed",
+      "npu_compute_cycles": 1606,
+      "npu_duty_percent": 4.124,
+      "valid_inference_origin": "extra_counts",
+      "valid_inferences": 8093983
+    },
+    {
+      "average_power_w": 1.56475458,
+      "delta_mwh": 735,
+      "delta_power_vs_dense_mean_percent": -0.6315,
+      "delta_power_vs_idle_percent": -0.7133,
+      "duration_s": 1691,
+      "energy_per_valid_inference_mj": 0.2909335,
+      "inferences_per_second": 5378.393,
+      "mode": "b3_live_eneuron",
+      "npu_compute_cycles": 1606,
+      "npu_duty_percent": 4.3188,
+      "valid_inference_origin": "rollup",
+      "valid_inferences": 9094863
+    }
+  ]
+}

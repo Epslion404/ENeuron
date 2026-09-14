@@ -1,0 +1,278 @@
+{
+  "b3_power_measured": "POWER_NOT_MEASURED",
+  "channels": {
+    "bad_mAh_field_error_mAh": {
+      "b3_dense_round_1": -114,
+      "b3_dense_round_2": -111,
+      "b3_live_eneuron": -104,
+      "b3_static_mixed": -100
+    },
+    "defect_class": "DELTA_MAH_FIELD_INCONSISTENT_WITH_READINGS",
+    "evidence_rewrite": "forbidden",
+    "mah_field_self_consistent": false,
+    "mwh_channel_self_consistent": true,
+    "per_window": [
+      {
+        "display_voltage_mean_v": 4.84999,
+        "implied_v_vs_display_v_percent": -0.2687,
+        "implied_voltage_v_from_readings": 4.837,
+        "implied_voltage_v_from_recorded_mAh": 4.837,
+        "mah_matches_readings": true,
+        "mode": "b3_idle",
+        "mwh_matches_readings": true,
+        "readings_delta_mAh": 184,
+        "readings_delta_mWh": 890,
+        "readings_mAh_channel_plausible": true,
+        "recorded_delta_mAh": 184,
+        "recorded_delta_mWh": 890,
+        "recorded_mAh_channel_plausible": true
+      },
+      {
+        "display_voltage_mean_v": 4.84999,
+        "implied_v_vs_display_v_percent": -0.3207,
+        "implied_voltage_v_from_readings": 4.8344,
+        "implied_voltage_v_from_recorded_mAh": 19.7297,
+        "mah_matches_readings": false,
+        "mode": "b3_dense_round_1",
+        "mwh_matches_readings": true,
+        "readings_delta_mAh": 151,
+        "readings_delta_mWh": 730,
+        "readings_mAh_channel_plausible": true,
+        "recorded_delta_mAh": 37,
+        "recorded_delta_mWh": 730,
+        "recorded_mAh_channel_plausible": false
+      },
+      {
+        "display_voltage_mean_v": 4.84999,
+        "implied_v_vs_display_v_percent": 0.2254,
+        "implied_voltage_v_from_readings": 4.8609,
+        "implied_voltage_v_from_recorded_mAh": 18.35,
+        "mah_matches_readings": false,
+        "mode": "b3_dense_round_2",
+        "mwh_matches_readings": true,
+        "readings_delta_mAh": 151,
+        "readings_delta_mWh": 734,
+        "readings_mAh_channel_plausible": true,
+        "recorded_delta_mAh": 40,
+        "recorded_delta_mWh": 734,
+        "recorded_mAh_channel_plausible": false
+      },
+      {
+        "display_voltage_mean_v": 4.8375,
+        "implied_v_vs_display_v_percent": -0.1347,
+        "implied_voltage_v_from_readings": 4.831,
+        "implied_voltage_v_from_recorded_mAh": 16.3333,
+        "mah_matches_readings": false,
+        "mode": "b3_static_mixed",
+        "mwh_matches_readings": true,
+        "readings_delta_mAh": 142,
+        "readings_delta_mWh": 686,
+        "readings_mAh_channel_plausible": true,
+        "recorded_delta_mAh": 42,
+        "recorded_delta_mWh": 686,
+        "recorded_mAh_channel_plausible": false
+      },
+      {
+        "display_voltage_mean_v": 4.84499,
+        "implied_v_vs_display_v_percent": -0.1954,
+        "implied_voltage_v_from_readings": 4.8355,
+        "implied_voltage_v_from_recorded_mAh": 15.3125,
+        "mah_matches_readings": false,
+        "mode": "b3_live_eneuron",
+        "mwh_matches_readings": true,
+        "readings_delta_mAh": 152,
+        "readings_delta_mWh": 735,
+        "readings_mAh_channel_plausible": true,
+        "recorded_delta_mAh": 48,
+        "recorded_delta_mWh": 735,
+        "recorded_mAh_channel_plausible": false
+      }
+    ],
+    "power_metrics_channel": "delta_mWh（自洽，5/5 与 readings 首末差一致）",
+    "windows_with_bad_mAh_field": [
+      "b3_dense_round_1",
+      "b3_dense_round_2",
+      "b3_static_mixed",
+      "b3_live_eneuron"
+    ]
+  },
+  "claim_boundary": {
+    "audit_authority": "reports evidence defects and identifiability only; closes nothing",
+    "evidence_files_modified": false,
+    "measurement_point": "Type-C 整板输入，非 PL 轨",
+    "vivado_estimate_used_as_board_power": false
+  },
+  "findings": [
+    "delta_mWh 通道 5/5 与自身 readings 首末差一致；delta_mAh 字段 4/5 与自身 readings 矛盾（隐含电压 15–20 V，Type-C 上物理不可能），因此功率数字仍可用，但该字段不可引用。",
+    "窗口内部逐段复核发现 1 个坏读数（dense 第二轮 20:04:13）：单点抄录误差约 +16.7 mWh（60 J）。同样的单点误差若落在窗口端点，整窗口功率误差约 35.8 mW，是观测处理差（7.7–9.9 mW）的 3.6 倍。",
+    "显示通道分辨率不足以分辨本效应：功率显示只有 7 个离散值，电流 LSB 对应约 26.6 mW；能量累加器 1 mWh 在本窗口尺度约合 2.13–2.28 mW。",
+    "剪枝等级与测量时刻秩完全共线（反序对=0），单看窗口均值的线性时间趋势 R2 显著；用回归漂移率与同配置漂移率两种合法口径去漂移，处理残差符号相反，故处理效应不可辨识。",
+    "以同配置重复性为 sigma，合同 V2 计划的 5 配对轮只能分辨约 14 mW；要分辨 Vivado 外推的 1.7–3.5 mW 需要约 80–320 对，整板测点在该量级上不具备可分辨性。"
+  ],
+  "forbidden_claims": [
+    "delta_mAh 字段可用于任何指标",
+    "显示功率均值可以分辨 10 mW 级差",
+    "去漂移后的残差就是剪枝收益",
+    "5 配对轮足以分辨整板毫瓦级效应",
+    "power_gate=PASS"
+  ],
+  "gate_closure_authority": "none",
+  "identifiability": {
+    "detrended_effect": {
+      "b3_live_eneuron": {
+        "detrended_using_regression_rate_mw": 2.538,
+        "detrended_using_same_config_rate_mw": -9.256,
+        "elapsed_hours_vs_dense_mean": 2.6566,
+        "observed_drop_mw": 9.944,
+        "sign_stable_across_drift_convention": false
+      },
+      "b3_static_mixed": {
+        "detrended_using_regression_rate_mw": 3.339,
+        "detrended_using_same_config_rate_mw": -3.598,
+        "elapsed_hours_vs_dense_mean": 1.5623,
+        "observed_drop_mw": 7.694,
+        "sign_stable_across_drift_convention": false
+      }
+    },
+    "discordant_level_time_pairs": 0,
+    "level_and_time_rank_collinear": true,
+    "linear_time_fit": {
+      "r2": 0.7326,
+      "residuals_mw": [
+        -3.181,
+        5.691,
+        -1.162,
+        -1.074,
+        -0.274
+      ],
+      "slope_mw_per_h": -2.7878,
+      "slope_stderr_mw_per_h": 0.9724,
+      "slope_t_stat": -2.867
+    },
+    "measurement_order": [
+      "b3_idle",
+      "b3_dense_round_1",
+      "b3_dense_round_2",
+      "b3_static_mixed",
+      "b3_live_eneuron"
+    ],
+    "pruning_level_sequence": [
+      0,
+      1,
+      1,
+      2,
+      3
+    ],
+    "same_config_drift_rate_mw_per_h": 7.2275,
+    "verdict": "TREATMENT_NOT_IDENTIFIABLE_FROM_WINDOW_MEANS"
+  },
+  "inputs": {
+    "instrument_accuracy_percent": 0.2,
+    "observations": "artifacts/logs/b3_power_20260913_be84596/manual_meter_observations_20260913.json",
+    "observations_sha256_canonical_lf": "04b2e408245aba11936607b91f612cea3c44fdf70827f35cb81b0aec5d0f265a",
+    "observations_status": "POWER_ENGINEERING_OBSERVATIONS_INCOMPLETE_CONTRACT"
+  },
+  "power_analysis": {
+    "contract_v2_detectable_effect_mw": 13.977,
+    "contract_v2_planned_rounds": 5,
+    "detectable_effect_mw_at_rounds": {
+      "1": 31.253,
+      "10": 9.883,
+      "160": 2.471,
+      "2": 22.099,
+      "20": 6.988,
+      "3": 18.044,
+      "320": 1.747,
+      "40": 4.942,
+      "5": 13.977,
+      "80": 3.494
+    },
+    "model": "配对两轮正态，双侧 alpha=0.05，功效 80%，n = ((z_a+z_b)*sigma_pair/effect)^2",
+    "required_rounds_per_mode": {
+      "observed_live": 10,
+      "observed_static": 17,
+      "vivado_extrapolated_200mhz": 81,
+      "vivado_raw_100mhz": 322
+    },
+    "sigma_pair_caveat": "该 sigma 只有 1 个自由度（90% CI 约 5.2–107.6 mW），所以轮数是量级结论而非精确值",
+    "sigma_pair_mw": 11.1555,
+    "sigma_pair_source": "同一 dense 配置两轮的功率差（唯一无处理混淆的重复性估计）"
+  },
+  "power_gate": "OPEN",
+  "power_goal_status": "NOT_PROVEN",
+  "schema": "eneuron_b3_power_meter_audit_v1",
+  "segments": {
+    "abs_deviation_mw": {
+      "median": 8.107,
+      "outlier_threshold": 24.801,
+      "robust_sigma": 8.267
+    },
+    "displayed_current_distinct_values": [
+      0.31868,
+      0.32417,
+      0.32967
+    ],
+    "displayed_current_lsb_power_mw": 26.63,
+    "displayed_power_distinct_values": 7,
+    "endpoint_half_count_resolution_mw": {
+      "b3_dense_round_1": 1.082,
+      "b3_dense_round_2": 1.069,
+      "b3_idle": 0.885,
+      "b3_live_eneuron": 1.064,
+      "b3_static_mixed": 1.142
+    },
+    "energy_accumulator_resolution_mw": {
+      "b3_dense_round_1": 2.165,
+      "b3_dense_round_2": 2.138,
+      "b3_idle": 1.771,
+      "b3_live_eneuron": 2.129,
+      "b3_static_mixed": 2.284
+    },
+    "outlier_count": 3,
+    "outlier_segments": [
+      {
+        "delta_mWh": 166,
+        "deviation_mw": 26.221,
+        "displayed_power_mean_w": 1.558925,
+        "duration_s": 377.0,
+        "from": "18:33:17",
+        "mode": "b3_dense_round_1",
+        "segment_power_w": 1.585146,
+        "to": "18:39:34"
+      },
+      {
+        "delta_mWh": 192,
+        "deviation_mw": 149.183,
+        "displayed_power_mean_w": 1.57022,
+        "duration_s": 402.0,
+        "from": "19:57:31",
+        "mode": "b3_dense_round_2",
+        "segment_power_w": 1.719403,
+        "to": "20:04:13"
+      },
+      {
+        "delta_mWh": 196,
+        "deviation_mw": -126.348,
+        "displayed_power_mean_w": 1.57225,
+        "duration_s": 488.0,
+        "from": "20:04:13",
+        "mode": "b3_dense_round_2",
+        "segment_power_w": 1.445902,
+        "to": "20:12:21"
+      }
+    ],
+    "segment_count": 20,
+    "shared_reading_recoveries": [
+      {
+        "interpolated_mWh": 20719.25,
+        "mode": "b3_dense_round_2",
+        "recorded_mWh": 20736,
+        "same_error_at_window_endpoint_power_error_mW": 35.799,
+        "single_reading_error_J": 60.29,
+        "single_reading_error_mWh": 16.75,
+        "suspect_reading_at": "20:04:13"
+      }
+    ]
+  },
+  "status": "POWER_METER_READING_AUDIT_COMPLETE"
+}
