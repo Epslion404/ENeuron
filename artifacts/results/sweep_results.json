@@ -1,0 +1,261 @@
+{
+  "epochs": 30,
+  "order_seeds": 10,
+  "candidates": {
+    "counter_if": {
+      "separation_rate": 0.0,
+      "margins": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "final_weights": [
+        [
+          2,
+          2,
+          2,
+          2
+        ],
+        [
+          2,
+          2,
+          2,
+          2
+        ],
+        [
+          2,
+          2,
+          2,
+          2
+        ],
+        [
+          2,
+          2,
+          2,
+          2
+        ],
+        [
+          2,
+          2,
+          2,
+          2
+        ],
+        [
+          2,
+          2,
+          2,
+          2
+        ],
+        [
+          2,
+          2,
+          2,
+          2
+        ],
+        [
+          2,
+          2,
+          2,
+          2
+        ],
+        [
+          2,
+          2,
+          2,
+          2
+        ],
+        [
+          2,
+          2,
+          2,
+          2
+        ]
+      ],
+      "complexity": {
+        "name": "counter_if",
+        "state_bits": 84,
+        "event_ops": 3,
+        "learning_ops": 0
+      }
+    },
+    "pair_stdp_lif": {
+      "separation_rate": 0.0,
+      "margins": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "final_weights": [
+        [
+          7,
+          7,
+          7,
+          7
+        ],
+        [
+          7,
+          7,
+          7,
+          7
+        ],
+        [
+          7,
+          7,
+          7,
+          7
+        ],
+        [
+          7,
+          7,
+          7,
+          7
+        ],
+        [
+          7,
+          7,
+          7,
+          7
+        ],
+        [
+          7,
+          7,
+          7,
+          7
+        ],
+        [
+          7,
+          7,
+          7,
+          7
+        ],
+        [
+          7,
+          7,
+          7,
+          7
+        ],
+        [
+          7,
+          7,
+          7,
+          7
+        ],
+        [
+          7,
+          7,
+          7,
+          7
+        ]
+      ],
+      "complexity": {
+        "name": "pair_stdp_lif",
+        "state_bits": 108,
+        "event_ops": 9,
+        "learning_ops": 4
+      }
+    },
+    "three_factor_lif": {
+      "separation_rate": 1.0,
+      "margins": [
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6
+      ],
+      "final_weights": [
+        [
+          7,
+          7,
+          -7,
+          -7
+        ],
+        [
+          7,
+          7,
+          -7,
+          -7
+        ],
+        [
+          7,
+          7,
+          -7,
+          -7
+        ],
+        [
+          7,
+          7,
+          -7,
+          -7
+        ],
+        [
+          7,
+          7,
+          -7,
+          -7
+        ],
+        [
+          7,
+          7,
+          -7,
+          -7
+        ],
+        [
+          7,
+          7,
+          -7,
+          -7
+        ],
+        [
+          7,
+          7,
+          -7,
+          -7
+        ],
+        [
+          7,
+          7,
+          -7,
+          -7
+        ],
+        [
+          7,
+          7,
+          -7,
+          -7
+        ]
+      ],
+      "complexity": {
+        "name": "three_factor_lif",
+        "state_bits": 169,
+        "event_ops": 16,
+        "learning_ops": 4
+      }
+    }
+  },
+  "recommended_noise_test": {
+    "positive_mean_spikes": 5.84,
+    "negative_mean_spikes": 0.0,
+    "positive_nonzero_rate": 1.0,
+    "negative_zero_rate": 1.0
+  }
+}

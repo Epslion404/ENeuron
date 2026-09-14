@@ -1,0 +1,15 @@
+  epoch 15: NPU 精确语义 test acc 0.8892
+  epoch 30: NPU 精确语义 test acc 0.9194
+  epoch 45: NPU 精确语义 test acc 0.9345
+  epoch 60: NPU 精确语义 test acc 0.9320
+  epoch 75: NPU 精确语义 test acc 0.9295
+  epoch 90: NPU 精确语义 test acc 0.9270
+  epoch 105: NPU 精确语义 test acc 0.9295
+  epoch 120: NPU 精确语义 test acc 0.9194
+  epoch 135: NPU 精确语义 test acc 0.9244
+  epoch 150: NPU 精确语义 test acc 0.9244
+
+*** 最佳 NPU 精确语义: train 0.9557  test 0.9345 ***
+非零组: L0 453/512, L1 80/80, 合计 533/592
+非零组数>=3 的 meta: 137/148 = 92.6%
+saved int8_model_qat.json

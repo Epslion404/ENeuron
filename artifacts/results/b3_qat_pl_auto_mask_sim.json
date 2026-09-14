@@ -1,0 +1,23 @@
+{
+  "schema": "eneuron_b3_qat_pl_auto_mask_sim_v1",
+  "status": "SIM_PASS",
+  "identity": {
+    "manifest": "tools/repro/b3_qat_model_manifest.json",
+    "manifest_sha256": "de9b1d1688382343a53f2f7c8ba690cd077a9dca9413c1e9011e4320b07e51e9",
+    "packed_words_sha256": "3cf17775eda5ce264f1a8ba657098075718fcc7fff275b1596ee40268fa0a862",
+    "engine_source_sha256": "cda3e1d83e1b6b7d8925ef47a1bc4167964b7c987c7fdb7c4670143527f313ee",
+    "testbench_sha256": "93f1e39cb32c3cb8a1875f9d16e8d8b1abd7f3d1a505621588854123df11a1be"
+  },
+  "samples": 64,
+  "bit_exact": 64,
+  "engine_cycles_per_sample": 1861,
+  "cycle_budget": 2048,
+  "ooc": {
+    "lut": 13855,
+    "ff": 1046,
+    "bram": 0,
+    "dsp48e1": 8,
+    "timing": "not_run"
+  },
+  "boundary": "Icarus 仿真数据，不是板级结果；引擎尚未接入主 NPU，未做 200 MHz 时序评定。"
+}

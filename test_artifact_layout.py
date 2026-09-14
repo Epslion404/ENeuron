@@ -36,6 +36,12 @@ EXPECTED_RESULTS = {
     "b3_fixed_overhead_ab.json",
     "b3_live_optimized_ab.json",
     "b3_pruning_diagnostic.json",
+    "b3_qat_pruning_diagnostic.json",
+    "b3_qat_pl_auto_mask_sim.json",
+    "network_results.json",
+    "network_sweep_results.json",
+    "simulation_results.json",
+    "sweep_results.json",
 }
 
 

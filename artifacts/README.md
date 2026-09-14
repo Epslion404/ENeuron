@@ -31,6 +31,12 @@
 | `results/b3_fixed_overhead_ab.json` | B3-22.4 固定协议开销实验：RX guard/缓存/usleep 路径修正后三组对称 A/B（dense 157→63/64/63 µs、calibrated 154→60 µs，fence 69→18 µs/sample，输出逐位一致）；协议未变，不代表速度门关闭 |
 | `results/b3_live_optimized_ab.json` | B3-22.4 后 live 基线：优化路径上三组 dense/live 对称 A/B（dense `64 µs` vs live `623 µs`，compute 占 80.5%、submit 9.1%，输出 `64/64` 一致）；速度门保持 OPEN，下一步 B=4 批量协议 |
 | `results/b3_pruning_diagnostic.json` | 只读剪枝诊断（1024 输入）：非零权重 19 word / 11 group；删除非零权重实例 35、删除非零贡献实例 0/11015；live mask 3 种且与校准 mask 差异 3.42%；判定 `GATE_VACUOUS / MODEL_UNDER_DETERMINED` |
+| `results/b3_qat_pruning_diagnostic.json` | QAT 模型（533/592 非零组）64 held-out 剪枝仿真：dense `90.6%` → live `32.8%`（−57.8pp）、calibrated `17.2%`；删除非零贡献组 `9385`；判定 `FALSIFIABLE`；Python 语义层，不是板级 |
+| `results/b3_qat_pl_auto_mask_sim.json` | standalone PL auto-mask 引擎在 QAT 模型上的 Icarus 仿真：`64/64` 与 Python live mask 逐 bit 一致、`1861 cycles/样本`（预算 2048）；未接主 NPU、无 200 MHz 时序、非板级 |
+| `results/simulation_results.json` | `python neuron_sim.py` 的三种单神经元候选结果 |
+| `results/sweep_results.json` | `python run_sweep.py` 的单神经元候选 sweep 结果 |
+| `results/network_results.json` | `python run_network_experiment.py` 的两层网络受控实验结果 |
+| `results/network_sweep_results.json` | `python run_network_sweep.py` 的两层网络 sweep 结果 |
 
 B3 精度中间报告必须由 `b3_accuracy_report.py` 的 `identity`（model/preprocess/bitstream/XSA/ELF）绑定；样本数不足 1000 的 `FAIL` 只是过程状态，不代表 `B3-ACCURACY-GATE` 判定。
 

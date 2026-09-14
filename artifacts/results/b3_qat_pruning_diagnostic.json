@@ -1,0 +1,109 @@
+{
+  "schema": "eneuron_b3_qat_pruning_diagnostic_v1",
+  "status": "MEASURED",
+  "identity": {
+    "manifest": "tools/repro/b3_qat_model_manifest.json",
+    "manifest_sha256": "bd593a1fb2a957e02e273949cab2f113df08a0a2400cff4e5c5aa7318ee9227c",
+    "packed_words_sha256": "3cf17775eda5ce264f1a8ba657098075718fcc7fff275b1596ee40268fa0a862",
+    "source_model_sha256": "cc0b9620c4f420d03077abdfb85939bd7c552edbeb8fd03de5f0fce23c1d12dd",
+    "fixture_sha256": "6fa95b5b7493856708b0ab66814ef98a8f151efc2d9245ca10286860f9d21f5e",
+    "calibration_samples": 512,
+    "calibration_policy": "majority_vote_top2_stable_index_v1",
+    "calibrated_mask_sha256": "9a780c4c4f095a2eb585c7152a9e1f7bcbe9511057d17bdd8d53c67b7f1b4031"
+  },
+  "model": {
+    "nonzero_words": 575,
+    "nonzero_weight_groups": 533,
+    "nonzero_groups_per_meta_histogram": {
+      "2": 11,
+      "3": 37,
+      "4": 100
+    },
+    "metas_with_nonzero_group": 148,
+    "meta_count": 148
+  },
+  "accuracy": {
+    "heldout": 64,
+    "dense_correct": 58,
+    "live_correct": 21,
+    "calibrated_correct": 11,
+    "dense_accuracy": 0.90625,
+    "live_accuracy": 0.328125,
+    "calibrated_accuracy": 0.171875,
+    "accuracy_drop_live_pp": 57.8125,
+    "accuracy_drop_calibrated_pp": 73.4375
+  },
+  "output": {
+    "prediction_agreement_live": 0.3125,
+    "prediction_agreement_calibrated": 0.171875,
+    "logit_exact_match_live": 0.0,
+    "logit_exact_match_calibrated": 0.0,
+    "max_abs_logit_error_live": 5126,
+    "max_abs_logit_error_calibrated": 5772
+  },
+  "deletion": {
+    "deleted_group_instances": 18944,
+    "deleted_nonzero_weight_instances": 15420,
+    "deleted_nonzero_contribution_instances": 9385,
+    "deleted_zero_weight_instances": 3524,
+    "executed_nonzero_weight_instances": 18692,
+    "executed_zero_weight_instances": 252,
+    "executed_nonzero_contribution_instances": 17802
+  },
+  "evidence": {
+    "histogram": {
+      "0": 10701,
+      "1": 17757,
+      "2": 4152,
+      "3": 5278
+    },
+    "zero_share": 0.28243771114864863,
+    "metas_all_zero": 185,
+    "metas_total": 9472,
+    "second_third_tie_rate": 0.6958403716216216
+  },
+  "mask": {
+    "distinct_live_masks": 64,
+    "samples": 64,
+    "calibrated_mask_words": [
+      "0x6393A335",
+      "0x56333333",
+      "0x33365333",
+      "0x33363553",
+      "0xA335A35A",
+      "0x333AC336",
+      "0x95335533",
+      "0xA3963653",
+      "0x3335393C",
+      "0x3359636A",
+      "0x36C66335",
+      "0x333AC353",
+      "0x33353333",
+      "0x3365353A",
+      "0x3395A3C3",
+      "0x35353553",
+      "0x33333333",
+      "0x33333333",
+      "0x00003333"
+    ],
+    "live_vs_calibrated_difference_rate": 1.0
+  },
+  "falsifiability": {
+    "verdict": "FALSIFIABLE",
+    "checks": {
+      "nonzero_group_share": 0.9003378378378378,
+      "metas_with_nonzero_group": 148,
+      "distinct_live_masks": 64,
+      "deleted_nonzero_contribution_instances": 9385,
+      "dense_accuracy": 0.90625
+    },
+    "thresholds": {
+      "nonzero_group_share_min": 0.15,
+      "metas_with_nonzero_group_min": 37,
+      "distinct_live_masks_min": 8,
+      "deleted_nonzero_contributions_min": 1,
+      "dense_accuracy_min": 0.5
+    }
+  },
+  "boundary": "Python 语义层仿真，不是板级结果；PS C 运行时与 RTL 未参与本轮。"
+}
