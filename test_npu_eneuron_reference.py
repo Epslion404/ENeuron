@@ -6,6 +6,7 @@ from dataclasses import FrozenInstanceError
 import npu_eneuron_protocol as protocol
 from npu_eneuron_reference import NpuConfig, NpuReference
 from npu_eneuron_protocol import NpuEpochRuntime, ModelConfigPort, ModelCommand, ModelCommandKind
+from strict_2of4_mask import LEGAL_MASKS, validate_lane_mask
 
 
 class NpuReferenceTest(unittest.TestCase):
@@ -128,6 +129,71 @@ class NpuReferenceTest(unittest.TestCase):
         self.assertEqual(result.group_reads, 5)
         self.assertEqual(result.mac_count, 20)
         self.assertEqual(result.mac_count, config.group_size * result.group_reads)
+
+    def test_general_lane_mask_keeps_group_read_and_drops_disabled_macs(self):
+        """通用 lane mask 仍 FETCH 非空组，只对置位 lane 做 MAC。"""
+        config = NpuConfig()
+        model = NpuReference(config)
+        weights0 = [[0] * config.input_size for _ in range(config.hidden_size)]
+        weights1 = [[0] * config.hidden_size for _ in range(config.output_size)]
+        weights0[0][0:4] = [10, 20, 30, 40]
+        weights1[0][0] = 2
+        model.load_weights(weights0, [0] * config.hidden_size, weights1, [0] * config.output_size)
+
+        image = [0] * config.input_size
+        image[0:4] = [1, 1, 1, 1]
+        lane_mask0 = [0] * 512
+        lane_mask1 = [0] * 80
+        lane_mask0[0] = 0b0011
+        lane_mask1[0] = 0b0001
+
+        result = model.infer(
+            image, mode="gated", lane_mask0=lane_mask0, lane_mask1=lane_mask1
+        )
+
+        self.assertEqual(result.logits[0], 60)
+        self.assertEqual(result.logits[1:], (0,) * (config.output_size - 1))
+        self.assertEqual((result.group_reads, result.mac_count), (2, 3))
+
+        full_group = model.infer(
+            image,
+            mode="gated",
+            group_mask0=[True] + [False] * 511,
+            group_mask1=[True] + [False] * 79,
+        )
+        self.assertEqual(full_group.logits[0], 200)
+        self.assertEqual((full_group.group_reads, full_group.mac_count), (2, 8))
+
+    def test_lane_masks_cannot_mix_with_group_masks(self):
+        config = NpuConfig()
+        model = NpuReference(config)
+        model.load_weights(*self._valid_model_data(config))
+        with self.assertRaises(ValueError):
+            model.infer(
+                [0] * config.input_size,
+                mode="gated",
+                group_mask0=[True] * 512,
+                group_mask1=[True] * 80,
+                lane_mask0=[0b1111] * 512,
+                lane_mask1=[0b1111] * 80,
+            )
+
+    def test_strict_2of4_lane_masks_keep_all_group_reads_and_half_the_macs(self):
+        config = NpuConfig()
+        model = NpuReference(config)
+        model.load_weights(*self._valid_model_data(config))
+        lane_mask0 = [validate_lane_mask(LEGAL_MASKS[index % len(LEGAL_MASKS)]) for index in range(512)]
+        lane_mask1 = [validate_lane_mask(LEGAL_MASKS[index % len(LEGAL_MASKS)]) for index in range(80)]
+
+        result = model.infer(
+            [1] * config.input_size,
+            mode="gated",
+            lane_mask0=lane_mask0,
+            lane_mask1=lane_mask1,
+        )
+
+        self.assertEqual(result.group_reads, 592)
+        self.assertEqual(result.mac_count, 1184)
 
     def test_model_words_use_exact_segment_and_byte_mapping(self):
         words = [0] * 634

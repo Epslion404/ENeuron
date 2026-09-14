@@ -1,0 +1,236 @@
+{
+  "schema": "eneuron_b3_fixed_overhead_ab_v1",
+  "status": "MEASURED",
+  "identity": {
+    "bitstream_sha256": "0ecbe76274c39418f2a60a88358d3ff6f09f5a2ed73a44a3a419c34eb91d3a11",
+    "xsa_sha256": "135d979d61c629922ee5419e51dd97ef045d9bab79930432816d09f109291d1a",
+    "heldout_manifest": "tools/repro/b3_calibrated_heldout_manifest.json",
+    "heldout_manifest_sha256": "56a9f18521b359bc3178e29fb6c02d626d0fe3e62514a1bfdff1517e8a8680f2"
+  },
+  "code_change": {
+    "summary": "RX_GUARD_BYTES=256 guard-region fill/cache maintenance; removed redundant pre-transfer invalidate; usleep 10->2; removed caller full-frame invalidates",
+    "protocol_changed": false
+  },
+  "baseline": {
+    "dense_run": "boards/hellozynq/b2_sw/build/17d07727c73845e51c22a7835eac94e04cb22fa7/direct/runs/b3_speed/20260914T101035Z/b3_speed_benchmark.json",
+    "calibrated_run": "boards/hellozynq/b2_sw/build/17d07727c73845e51c22a7835eac94e04cb22fa7/direct/runs/b3_speed/20260914T101130Z/b3_speed_benchmark.json",
+    "dense": {
+      "run": null,
+      "median_us": 157.0,
+      "mean_us": 156.97,
+      "min_us": 156,
+      "max_us": 157,
+      "dma_median_us": 58.0,
+      "fence_us_per_sample": 69.0,
+      "ps_median_us": 7.0,
+      "result_median_us": 17.0,
+      "npu_cycles": [
+        2494
+      ],
+      "execute_groups": [
+        592
+      ],
+      "skip_groups": [
+        0
+      ],
+      "protocol_errors": [
+        0
+      ],
+      "status": "PASS"
+    },
+    "calibrated_static": {
+      "run": null,
+      "median_us": 154.0,
+      "mean_us": 153.69,
+      "min_us": 153,
+      "max_us": 155,
+      "dma_median_us": 56.0,
+      "fence_us_per_sample": 68.8,
+      "ps_median_us": 7.0,
+      "result_median_us": 17.0,
+      "npu_cycles": [
+        1606
+      ],
+      "execute_groups": [
+        296
+      ],
+      "skip_groups": [
+        296
+      ],
+      "protocol_errors": [
+        0
+      ],
+      "status": "PASS"
+    }
+  },
+  "optimized_pairs": [
+    {
+      "pair": "pair1",
+      "dense": {
+        "run": "boards/hellozynq/b2_sw/build/17d07727c73845e51c22a7835eac94e04cb22fa7/direct/runs/b3_speed/20260914T110535Z/b3_speed_benchmark.json",
+        "median_us": 64.0,
+        "mean_us": 63.84,
+        "min_us": 63,
+        "max_us": 66,
+        "dma_median_us": 22.0,
+        "fence_us_per_sample": 18.0,
+        "ps_median_us": 8.0,
+        "result_median_us": 11.0,
+        "npu_cycles": [
+          2494
+        ],
+        "execute_groups": [
+          592
+        ],
+        "skip_groups": [
+          0
+        ],
+        "protocol_errors": [
+          0
+        ],
+        "status": "PASS"
+      },
+      "calibrated_static": {
+        "run": "boards/hellozynq/b2_sw/build/17d07727c73845e51c22a7835eac94e04cb22fa7/direct/runs/b3_speed/20260914T110630Z/b3_speed_benchmark.json",
+        "median_us": 60.0,
+        "mean_us": 60.48,
+        "min_us": 60,
+        "max_us": 61,
+        "dma_median_us": 19.0,
+        "fence_us_per_sample": 18.0,
+        "ps_median_us": 8.0,
+        "result_median_us": 10.0,
+        "npu_cycles": [
+          1606
+        ],
+        "execute_groups": [
+          296
+        ],
+        "skip_groups": [
+          296
+        ],
+        "protocol_errors": [
+          0
+        ],
+        "status": "PASS"
+      }
+    },
+    {
+      "pair": "pair2",
+      "dense": {
+        "run": "boards/hellozynq/b2_sw/build/17d07727c73845e51c22a7835eac94e04cb22fa7/direct/runs/b3_speed/20260914T110732Z/b3_speed_benchmark.json",
+        "median_us": 63.0,
+        "mean_us": 63.62,
+        "min_us": 62,
+        "max_us": 66,
+        "dma_median_us": 22.0,
+        "fence_us_per_sample": 18.0,
+        "ps_median_us": 7.0,
+        "result_median_us": 10.0,
+        "npu_cycles": [
+          2494
+        ],
+        "execute_groups": [
+          592
+        ],
+        "skip_groups": [
+          0
+        ],
+        "protocol_errors": [
+          0
+        ],
+        "status": "PASS"
+      },
+      "calibrated_static": {
+        "run": "boards/hellozynq/b2_sw/build/17d07727c73845e51c22a7835eac94e04cb22fa7/direct/runs/b3_speed/20260914T110811Z/b3_speed_benchmark.json",
+        "median_us": 60.0,
+        "mean_us": 60.25,
+        "min_us": 59,
+        "max_us": 61,
+        "dma_median_us": 19.0,
+        "fence_us_per_sample": 18.1,
+        "ps_median_us": 8.0,
+        "result_median_us": 10.0,
+        "npu_cycles": [
+          1606
+        ],
+        "execute_groups": [
+          296
+        ],
+        "skip_groups": [
+          296
+        ],
+        "protocol_errors": [
+          0
+        ],
+        "status": "PASS"
+      }
+    },
+    {
+      "pair": "pair3",
+      "dense": {
+        "run": "boards/hellozynq/b2_sw/build/17d07727c73845e51c22a7835eac94e04cb22fa7/direct/runs/b3_speed/20260914T110921Z/b3_speed_benchmark.json",
+        "median_us": 63.0,
+        "mean_us": 63.3,
+        "min_us": 62,
+        "max_us": 66,
+        "dma_median_us": 22.0,
+        "fence_us_per_sample": 18.0,
+        "ps_median_us": 8.0,
+        "result_median_us": 10.0,
+        "npu_cycles": [
+          2494
+        ],
+        "execute_groups": [
+          592
+        ],
+        "skip_groups": [
+          0
+        ],
+        "protocol_errors": [
+          0
+        ],
+        "status": "PASS"
+      },
+      "calibrated_static": {
+        "run": "boards/hellozynq/b2_sw/build/17d07727c73845e51c22a7835eac94e04cb22fa7/direct/runs/b3_speed/20260914T110956Z/b3_speed_benchmark.json",
+        "median_us": 60.0,
+        "mean_us": 60.19,
+        "min_us": 59,
+        "max_us": 61,
+        "dma_median_us": 19.0,
+        "fence_us_per_sample": 18.1,
+        "ps_median_us": 8.0,
+        "result_median_us": 10.0,
+        "npu_cycles": [
+          1606
+        ],
+        "execute_groups": [
+          296
+        ],
+        "skip_groups": [
+          296
+        ],
+        "protocol_errors": [
+          0
+        ],
+        "status": "PASS"
+      }
+    }
+  ],
+  "delta": {
+    "dense_median_us": 93.0,
+    "dense_speedup": 2.453,
+    "calibrated_median_us": 94.0,
+    "calibrated_speedup": 2.567,
+    "fence_us_per_sample": 51.0,
+    "dma_median_us": 36.0
+  },
+  "output": {
+    "optimized_dense_matches_baseline_dense": true,
+    "optimized_calibrated_matches_baseline_calibrated": true,
+    "calibrated_matches_dense_on_heldout": true,
+    "samples": 64
+  },
+  "boundary": "software DMA-path tuning only; frame format, per-sample fence/epoch/CRC and fail-closed semantics unchanged; not a speed-gate closure"
+}

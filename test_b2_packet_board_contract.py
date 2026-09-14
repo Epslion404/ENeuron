@@ -155,7 +155,7 @@ class B2PacketBoardContractTests(unittest.TestCase):
 
     def test_live_eneuron_reuses_l0_contributions_for_hidden_and_evidence(self):
         source = (ROOT / "boards/hellozynq/b2_sw/src/packet_main.c").read_text(encoding="utf-8")
-        function = source.split("static void compute_live_group4way_mask(void)", 1)[1]
+        function = source.split("static void compute_live_group4way_mask(u32 sample_index)", 1)[1]
         function = function.split("static u32 live_mask_word", 1)[0]
         for token in (
             "s32 l0_contributions[16]",
@@ -184,6 +184,19 @@ class B2PacketBoardContractTests(unittest.TestCase):
             "AddSeconds(30)",
         ):
             self.assertIn(token, source)
+
+    def test_packet_dma_path_uses_bounded_guard_region(self):
+        """固定开销实验：响应缓存只维护 256 字节 guard 区，且不重复全量 invalidate。"""
+        source = (ROOT / "boards/hellozynq/b2_sw/src/packet_main.c").read_text(encoding="utf-8")
+        for token in (
+            "RX_GUARD_BYTES 256U",
+            "Xil_DCacheFlushRange(RX_BUFFER_BASE, guard_bytes);",
+            "Xil_DCacheInvalidateRange(RX_BUFFER_BASE, guard_bytes);",
+            "usleep(2U);",
+        ):
+            self.assertIn(token, source)
+        self.assertNotIn("Xil_DCacheInvalidateRange(RX_BUFFER_BASE, MAX_FRAME_BYTES)", source)
+        self.assertNotIn("Xil_DCacheInvalidateRange(RX_BUFFER_BASE, rx_capacity)", source)
 
     def test_changes_use_b2_board_scope(self):
         scopes = classify_paths([

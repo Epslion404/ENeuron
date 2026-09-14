@@ -1,0 +1,124 @@
+{
+  "schema": "eneuron_b3_accuracy_report_v1",
+  "identity": {
+    "model": 3,
+    "preprocess": "uint4_64_low_nibble_first_v1",
+    "bitstream_sha256": "0ecbe76274c39418f2a60a88358d3ff6f09f5a2ed73a44a3a419c34eb91d3a11",
+    "xsa_sha256": "135d979d61c629922ee5419e51dd97ef045d9bab79930432816d09f109291d1a",
+    "elf_sha256": "paired:2b5447c66d500a5fb3173b1659203546e808490150ad764931086ef68b444c7f:32931da604847d12f37d35aa24f51d5b006933d3c6432e1180baebd2fc7a882b",
+    "dense_elf_sha256": "2b5447c66d500a5fb3173b1659203546e808490150ad764931086ef68b444c7f",
+    "live_elf_sha256": "32931da604847d12f37d35aa24f51d5b006933d3c6432e1180baebd2fc7a882b",
+    "benchmark_manifest_sha256": "42a1700ef0c875e696ac8074360c571e5a4e2a03a4b3a7fd9c14446bd5b8c731",
+    "dense_run_count": 16,
+    "live_run_count": 16
+  },
+  "sample_count": 1024,
+  "thresholds": {
+    "minimum_samples": 1000,
+    "prediction_agreement_min": 0.99,
+    "prediction_agreement_ci95_lower_min": 0.99,
+    "accuracy_drop_max_pp": 1.0,
+    "accuracy_drop_ci95_upper_max_pp": 1.0
+  },
+  "prediction_agreement": 1.0,
+  "prediction_agreement_ci95": [
+    0.9962625959599825,
+    1.0
+  ],
+  "logit_exact_match_count": 1024,
+  "logit_exact_match_rate": 1.0,
+  "logit_exact_match_ci95": [
+    0.9962625959599825,
+    1.0
+  ],
+  "dense_accuracy": 0.0986328125,
+  "dense_accuracy_ci95": [
+    0.08184294655950851,
+    0.11842282113667758
+  ],
+  "live_accuracy": 0.0986328125,
+  "live_accuracy_ci95": [
+    0.08184294655950851,
+    0.11842282113667758
+  ],
+  "accuracy_drop_pp": 0.0,
+  "accuracy_drop_ci95_pp": [
+    0.0,
+    0.0
+  ],
+  "logit_error": {
+    "max_abs": {
+      "p50": 0.0,
+      "p95": 0.0,
+      "p99": 0.0,
+      "max": 0.0
+    },
+    "mean_abs": {
+      "p50": 0.0,
+      "p95": 0.0,
+      "p99": 0.0,
+      "max": 0.0
+    },
+    "max_relative": {
+      "p50": 0.0,
+      "p95": 0.0,
+      "p99": 0.0,
+      "max": 0.0
+    }
+  },
+  "per_class_recall": {
+    "0": {
+      "support": 100,
+      "dense_recall": 0.0,
+      "live_recall": 0.0
+    },
+    "1": {
+      "support": 104,
+      "dense_recall": 0.9711538461538461,
+      "live_recall": 0.9711538461538461
+    },
+    "2": {
+      "support": 103,
+      "dense_recall": 0.0,
+      "live_recall": 0.0
+    },
+    "3": {
+      "support": 105,
+      "dense_recall": 0.0,
+      "live_recall": 0.0
+    },
+    "4": {
+      "support": 103,
+      "dense_recall": 0.0,
+      "live_recall": 0.0
+    },
+    "5": {
+      "support": 104,
+      "dense_recall": 0.0,
+      "live_recall": 0.0
+    },
+    "6": {
+      "support": 103,
+      "dense_recall": 0.0,
+      "live_recall": 0.0
+    },
+    "7": {
+      "support": 102,
+      "dense_recall": 0.0,
+      "live_recall": 0.0
+    },
+    "8": {
+      "support": 99,
+      "dense_recall": 0.0,
+      "live_recall": 0.0
+    },
+    "9": {
+      "support": 101,
+      "dense_recall": 0.0,
+      "live_recall": 0.0
+    }
+  },
+  "failed_checks": [],
+  "status": "PASS",
+  "accuracy_gate": "ACCURACY_NEAR_DENSE"
+}

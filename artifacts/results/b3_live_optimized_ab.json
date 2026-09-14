@@ -1,0 +1,120 @@
+{
+  "schema": "eneuron_b3_live_optimized_ab_v1",
+  "status": "MEASURED",
+  "identity": {
+    "bitstream_sha256": "0ecbe76274c39418f2a60a88358d3ff6f09f5a2ed73a44a3a419c34eb91d3a11",
+    "xsa_sha256": "135d979d61c629922ee5419e51dd97ef045d9bab79930432816d09f109291d1a",
+    "manifest": "tools/repro/b3_multi_input_manifest.json",
+    "manifest_sha256": "867b55df27a10bf82d79da684c4d0337b2ea4e4adb8ffd458092a460732867e9"
+  },
+  "pairs": [
+    {
+      "pair": "pair1",
+      "dense_run": "boards/hellozynq/b2_sw/build/17d07727c73845e51c22a7835eac94e04cb22fa7/direct/runs/b3_speed/20260914T112930Z/b3_speed_benchmark.json",
+      "live_run": "boards/hellozynq/b2_sw/build/17d07727c73845e51c22a7835eac94e04cb22fa7/direct/runs/b3_speed/20260914T113019Z/b3_speed_benchmark.json",
+      "dense_median_us": 64.0,
+      "dense_mean_us": 63.95,
+      "dense_dma_min_us": 22,
+      "live_median_us": 623.0,
+      "live_mean_us": 622.7,
+      "live_dma_median_us": 20.0,
+      "live_ps_median_us": 8.0,
+      "live_result_median_us": 11.0,
+      "live_fence_us_per_sample": 18.1,
+      "live_mask_compute_us_per_sample": 501.5,
+      "live_mask_submit_us_per_sample": 56.9,
+      "live_npu_cycles": [
+        1606
+      ],
+      "live_execute_groups": [
+        296
+      ],
+      "live_skip_groups": [
+        296
+      ],
+      "logits_identical": 64,
+      "logits_total": 64,
+      "protocol_errors": [
+        0
+      ]
+    },
+    {
+      "pair": "pair2",
+      "dense_run": "boards/hellozynq/b2_sw/build/17d07727c73845e51c22a7835eac94e04cb22fa7/direct/runs/b3_speed/20260914T113108Z/b3_speed_benchmark.json",
+      "live_run": "boards/hellozynq/b2_sw/build/17d07727c73845e51c22a7835eac94e04cb22fa7/direct/runs/b3_speed/20260914T113203Z/b3_speed_benchmark.json",
+      "dense_median_us": 64.0,
+      "dense_mean_us": 64.03,
+      "dense_dma_min_us": 22,
+      "live_median_us": 623.0,
+      "live_mean_us": 622.62,
+      "live_dma_median_us": 20.0,
+      "live_ps_median_us": 8.0,
+      "live_result_median_us": 11.0,
+      "live_fence_us_per_sample": 18.1,
+      "live_mask_compute_us_per_sample": 501.7,
+      "live_mask_submit_us_per_sample": 56.9,
+      "live_npu_cycles": [
+        1606
+      ],
+      "live_execute_groups": [
+        296
+      ],
+      "live_skip_groups": [
+        296
+      ],
+      "logits_identical": 64,
+      "logits_total": 64,
+      "protocol_errors": [
+        0
+      ]
+    },
+    {
+      "pair": "pair3",
+      "dense_run": "boards/hellozynq/b2_sw/build/17d07727c73845e51c22a7835eac94e04cb22fa7/direct/runs/b3_speed/20260914T113303Z/b3_speed_benchmark.json",
+      "live_run": "boards/hellozynq/b2_sw/build/17d07727c73845e51c22a7835eac94e04cb22fa7/direct/runs/b3_speed/20260914T113413Z/b3_speed_benchmark.json",
+      "dense_median_us": 64.0,
+      "dense_mean_us": 64.05,
+      "dense_dma_min_us": 22,
+      "live_median_us": 623.0,
+      "live_mean_us": 622.94,
+      "live_dma_median_us": 20.0,
+      "live_ps_median_us": 8.0,
+      "live_result_median_us": 11.0,
+      "live_fence_us_per_sample": 18.1,
+      "live_mask_compute_us_per_sample": 501.8,
+      "live_mask_submit_us_per_sample": 56.9,
+      "live_npu_cycles": [
+        1606
+      ],
+      "live_execute_groups": [
+        296
+      ],
+      "live_skip_groups": [
+        296
+      ],
+      "logits_identical": 64,
+      "logits_total": 64,
+      "protocol_errors": [
+        0
+      ]
+    }
+  ],
+  "summary": {
+    "dense_median_us": [
+      64.0,
+      64.0,
+      64.0
+    ],
+    "live_median_us": [
+      623.0,
+      623.0,
+      623.0
+    ],
+    "live_over_dense": 9.73,
+    "live_cost_share": {
+      "mask_compute": 0.805,
+      "mask_submit": 0.091
+    }
+  },
+  "boundary": "optimized software path, per-sample live mask (K=1), 64 unique inputs, 3 symmetric pairs; live is still ~9.7x dense and the speed gate stays open; batch protocol (B=4) is the next slice"
+}

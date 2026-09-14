@@ -21,6 +21,21 @@ EXPECTED_RESULTS = {
     "npu_single_clock_ooc_manifest.json",
     "b2_packet_memory_ooc_manifest.json",
     "rtl_smoke_results.json",
+    "b3_accuracy_reference_only.json",
+    "b3_accuracy_reference_only_report.json",
+    "b3_accuracy_256_board_pairs.json",
+    "b3_accuracy_256_board_report.json",
+    "b3_accuracy_chunk00_board_pairs.json",
+    "b3_accuracy_chunk00_board_report.json",
+    "b3_accuracy_chunk00_01_board_report.json",
+    "b3_accuracy_1024_board_pairs.json",
+    "b3_accuracy_1024_board_report.json",
+    "b3_accuracy_1024_board_pairs_v2.json",
+    "b3_accuracy_1024_board_report_v2.json",
+    "b3_calibrated_static_ab.json",
+    "b3_fixed_overhead_ab.json",
+    "b3_live_optimized_ab.json",
+    "b3_pruning_diagnostic.json",
 }
 
 

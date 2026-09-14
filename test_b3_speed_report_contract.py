@@ -199,10 +199,14 @@ class B3SpeedReportContractTests(unittest.TestCase):
         self.assertEqual(p16["workflow_resume_count_rule"], "QUERY_WORKFLOW_RESUME_AT_RUNTIME")
         self.assertEqual(
             p16["current_execution_point"],
-            "FREEZE_REPEATABLE_END_TO_END_SPEED_WINDOW_AND_MEASURE_EXTERNAL_POWER_WHEN_AVAILABLE",
+            "B3-22.4_22.5_FIXED_PROTOCOL_OVERHEAD_BATCH_DMA_FENCE",
+        )
+        self.assertEqual(
+            p16["priority_execution_point"],
+            "B3-22.4_22.5_FIXED_PROTOCOL_OVERHEAD_BATCH_DMA_FENCE",
         )
         self.assertEqual(state["b3_goal_gate"], "OPEN")
-        self.assertIn("82b079e", p16_node["evidence_gap"])
+        self.assertIn("B3-22.1", p16_node["evidence_gap"])
         self.assertNotIn("setup_fail", board_b2["implementation_status"])
         generated_at = datetime.fromisoformat(concept["generated_at"])
         self.assertEqual(generated_at.date().isoformat(), "2026-09-13")
@@ -218,6 +222,7 @@ class B3SpeedReportContractTests(unittest.TestCase):
         current = (root / "docs/CURRENT_STATUS.md").read_text(encoding="utf-8")
         self.assertNotIn("B3_SPEED_PASS", current)
         self.assertIn("B3_GOAL_GATE_OPEN", current)
+        self.assertIn("NO_END_TO_END_SPEEDUP", current)
 
     def test_current_docs_separate_measurement_from_speed_gate(self) -> None:
         root = Path(__file__).resolve().parent
@@ -229,6 +234,12 @@ class B3SpeedReportContractTests(unittest.TestCase):
         self.assertIn("B3_SPEED_GATE_OPEN", current)
         self.assertIn("B3-SPEED-GATE", workflow)
         self.assertNotIn("B3_SPEED_PASS", current)
+        self.assertIn("至少 64 个正式样本", todo)
+        self.assertIn("不同输入", todo)
+        self.assertIn("禁止跨输入复用上一样本 mask", todo)
+        self.assertIn("- [ ] B3-ACCURACY-GATE", todo)
+        self.assertIn("Top-1 一致率 `≥99.0%`", todo)
+        self.assertIn("准确率绝对下降 `≤1.0` 个百分点", todo)
 
     def test_nexus_keeps_speed_measurement_separate_from_goal_gate(self) -> None:
         root = Path(__file__).resolve().parent
@@ -241,7 +252,8 @@ class B3SpeedReportContractTests(unittest.TestCase):
         self.assertNotIn("`B3_SPEED_PASS`", domains)
         self.assertIn("B3-SPEED-GATE=OPEN", coverage)
         self.assertEqual(
-            hierarchy["parallel_goal_gates"], ["B3-SPEED-GATE", "B3-POWER-GATE"]
+            hierarchy["parallel_goal_gates"],
+            ["B3-ACCURACY-GATE", "B3-SPEED-GATE", "B3-POWER-GATE"],
         )
         self.assertIn("B3-POWER-MEASURED", hierarchy["current_gates"])
 

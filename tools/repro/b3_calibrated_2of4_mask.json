@@ -1,0 +1,71 @@
+{
+  "schema": "eneuron_b3_calibrated_group4way_v1",
+  "target": {
+    "part": "xc7z020clg484-2",
+    "protocol": "ENB2_PACKET_NPU_V1",
+    "model_id": 3
+  },
+  "identity": {
+    "model": "a8d0961bf0640f004412d75068b8b1aac4a33b5be588a93c584e38d8be688013",
+    "policy": "majority_vote_top2_stable_index_v1",
+    "calibration_sample_count": 512,
+    "calibration_files": [
+      {
+        "path": "artifacts/results/b3_accuracy_chunks_20260914_1024/b3_accuracy_chunk_00.json",
+        "sha256": "42a1700ef0c875e696ac8074360c571e5a4e2a03a4b3a7fd9c14446bd5b8c731"
+      },
+      {
+        "path": "artifacts/results/b3_accuracy_chunks_20260914_1024/b3_accuracy_chunk_01.json",
+        "sha256": "3fd1e06b08f49c494d649f1906024e17c2cd81e3ac0bb6eea044e392d7c99cc5"
+      },
+      {
+        "path": "artifacts/results/b3_accuracy_chunks_20260914_1024/b3_accuracy_chunk_02.json",
+        "sha256": "9083bf218d65def0bb03af45a672661632a3e93476ac3b05a4b146beda3c6d99"
+      },
+      {
+        "path": "artifacts/results/b3_accuracy_chunks_20260914_1024/b3_accuracy_chunk_03.json",
+        "sha256": "8da3afb983bb3bccf21ccb5d71d9b68cbfd60654e1a94a9175ddcd48cbc1231e"
+      },
+      {
+        "path": "artifacts/results/b3_accuracy_chunks_20260914_1024/b3_accuracy_chunk_04.json",
+        "sha256": "e23680241c6f25cc150c323b6d0455b95a49eca2f219664f693812f40f7c4a70"
+      },
+      {
+        "path": "artifacts/results/b3_accuracy_chunks_20260914_1024/b3_accuracy_chunk_05.json",
+        "sha256": "2f5edc05cbb103c37d72776793dc017ab38e9a6a4ac5ca8f5a158986d7f9be6f"
+      },
+      {
+        "path": "artifacts/results/b3_accuracy_chunks_20260914_1024/b3_accuracy_chunk_06.json",
+        "sha256": "366800a9898e43a86a74dda4e7c8939bb6ae027831f43cc0705ab72e56bf8bf1"
+      },
+      {
+        "path": "artifacts/results/b3_accuracy_chunks_20260914_1024/b3_accuracy_chunk_07.json",
+        "sha256": "507c6cbb3b22cfac6f79ac69f7fe7f38b70c32b6652833cd7bb6dc8d5bd2578c"
+      }
+    ],
+    "base_manifest": "/mnt/d/Documents/Code/ENeuron-board-b0/tools/repro/b3_fixed_vector_manifest.json",
+    "base_manifest_sha256": "fc070986a84d90cf4d53adc6bd4d6a6378ae6e52fd5d5d315e3d1964b4ea2cec"
+  },
+  "mask_words": [
+    "0x33333333",
+    "0x33393335",
+    "0x33333333",
+    "0x33333333",
+    "0x33333333",
+    "0x33333333",
+    "0x33333333",
+    "0x33333333",
+    "0x33333333",
+    "0x33333333",
+    "0x33333333",
+    "0x33333333",
+    "0x33333333",
+    "0x33333333",
+    "0x33333333",
+    "0x33333333",
+    "0x33333333",
+    "0x33333333",
+    "0x00003333"
+  ],
+  "active_groups": 296
+}
