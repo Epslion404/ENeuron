@@ -43,6 +43,7 @@ EXPECTED_RESULTS = {
     "b3_qat_lossless_zero_group_rtl_sim.json",
     "b3_qat_lossless_zero_group_ooc.json",
     "b3_qat_cp4_lossless_zero_group_board_397.json",
+    "b3_qat_cp5a_pl_replay_board_pair.json",
     "network_results.json",
     "network_sweep_results.json",
     "simulation_results.json",

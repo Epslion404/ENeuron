@@ -8,6 +8,14 @@
 - 单样本 replay 会把数据分布压成一个点。选择 QAT `sample_index=201` 是因为其 lossless `2284 cycles` 接近总体均值，但它仍只能作为 CP5a bring-up；正式 CP5b 必须在 PL 内循环 397 样本并交替 A/B。
 - replay 计量从第一个正式样本首 beat 开始，到第 10000 个样本最后一个 result beat 结束，包含 PL 内部样本输入、NPU 计算、结果 drain 和 replay 调度气泡，不包含 PS/DMA 每样本开销。
 - execute/skip 累加器为 24 bit；11001 次总执行（首样本 + 1000 预热 + 10000 正式）最多 `6,512,592` 组，小于 `2^24`，不会溢出。
+- 正式实板验证了周期构成：dense `2512=2494+18`，lossless `2302=2284+18`。相同的 18 cycles 正好对应 8-beat 样本输入 + 10-beat 结果 drain；replay shim 没有引入额外模式相关气泡。
+- 单样本纯 PL 吞吐提升为 `2512/2302=1.091225x`，与核心周期比 `2494/2284=1.091944x` 接近。该结果证明固定输入下 PL 调度收益已兑现，但不能替代 397 样本分布统计。
+
+## 2026-09-17 CP5a 物理与调试发现
+
+- 首轮 lossless replay `WNS=-0.074 ns` 的最差路径不在 replay/NPU，而在 packet egress `output_index_reg[3] -> response_word_count_reg[10]/R`。`response_word_count` 实际上限为 254，却声明为 11 位；收窄为 8 位后 lossless replay 达到 `WNS=+0.005 ns`，dense replay为 `+0.004 ns`。
+- 首次 dense 上板失败是 JTAG `FT_Write io error`，FPGA 编程成功但 `ps7_init` 中断。重启 `hw_server` 后 target 仅显示 DAP error 与 FPGA；选择 DAP 执行 `rst -system` 后 APU/Cortex-A9 恢复，后续正式 A/B 一次通过。
+- 普通 UART runner 不适合纯 PL 长 replay：PL/DMA 账本已完整，UART 仍可能不产生终止标记。CP5a 正式 runner 因此直接用 JTAG 读取 replay 计数与 RX 结果帧，校验 magic、sample ID、epoch、10 logits 和 CRC。
 
 ## 2026-09-17 wrapper 物理复现边界
 

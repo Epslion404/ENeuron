@@ -2,15 +2,15 @@
 
 更新时间：2026-09-17
 
-## CP5a 纯 PL replay 工具切片（2026-09-17）
+## CP5a 纯 PL replay 正式实板（2026-09-17）
 
 已新增编译期可选的 `B3_PL_REPLAY_BENCHMARK`：Host 仍按既有 packet 合同装载模型并提交一个已验证 QAT 样本，`npu_clk` 域缓存该 8-beat 样本，完成 1000 次预热和 10000 次正式计量；中间结果在 PL 内消费，只把最后一次 10-beat 结果送回既有结果 FIFO。默认 dense/lossless 构建不定义该宏，正常推理路径保持原样。状态块在冻结的 `0x00–0x60` 之后新增只读 `0x64 status / 0x68 completed / 0x6C measured_cycles`。
 
-当前证据仅到开发切片：shim 行为仿真通过（2 次预热、3 次计量，首样本共执行 6 次，只有最终 10 beat 外送）；默认/replay wrapper 均可用 Icarus+XPM 模型编译；相关合同 `48 passed`，T1 统一复现通过；QAT `sample_index=201` 的 ARM packet ELF 构建通过。尚未完成 replay wrapper 的 200 MHz 物理签核或实板运行，因此状态为 `CP5A_RTL_RUNNER_PASS / PHYSICAL_BOARD_PENDING`，不得关闭 CP5 或速度门。
+CP5a 已完成正式实板 A/B。dense/lossless replay 完整 wrapper 均在 `xc7z020clg484-2`、200 MHz 通过物理门：dense `WNS/WHS=+0.004/+0.036 ns`，lossless `+0.005/+0.010 ns`，两者 TNS/THS、route、DRC hard error 为 0、DSP48E1=`4`。QAT `sample_index=201` 在相同 `1000` 次预热、`10000` 次计量口径下，dense=`2512 cycles/sample`、`79,617.834 samples/s`，lossless=`2302 cycles/sample`、`86,880.973 samples/s`，纯 PL 吞吐提升 `1.091225x`、延迟下降 `8.3599%`。两者 replay 固定开销均为 `18 cycles/sample`；最终结果帧、10 维 logits、CRC 完全一致，协议错误为 0，组计数均精确覆盖 `11001×592`。
 
-CP5 口径已校正：CP4 canonical 实板均值为 dense `2494`、lossless `2290.272 cycles/sample`，当前候选在该分布上的纯 PL 周期 roofline 是 `1.088954x`，不是旧计划中的 `>=1.30x`。`1.3272x` 是带训练集内输入置换的 RTL 预测，需作为差距分析目标而非 canonical 实板硬门。CP5a 先用 `sample_index=201`（lossless `2284 cycles`，接近总体均值）完成单样本 bring-up；CP5b 才用 397 样本循环、至少 5 轮交替 dense/lossless 关闭正式吞吐门。
+CP5a 的 `1.091225x` 与该样本的核心周期比 `2494/2284=1.091944x` 一致，差异来自两侧相同的 18-cycle replay 输入/结果开销。正式证据为 `artifacts/results/b3_qat_cp5a_pl_replay_board_pair.json`。该结果只关闭单个代表性样本的 CP5a bring-up；CP5b 仍需 397 样本 PL 内循环、至少 5 轮交替 A/B，才能判定分布吞吐和 `B3-SPEED-GATE`。
 
-附带物理复现记录：提交 `ac499d4` 后 dense 完整 wrapper 连续三次独立实现均完成 route/bit/XSA，但同一 DMA wrapper 路径为 `WNS=-0.072 ns / TNS=-0.120 ns`，route/DRC hard error 为 0。该失败不改变 RTL 源哈希相同且已通过的 `e155091` CP4 证据；后续 replay 模式必须在自己的 clean HEAD 上重新过物理门。
+附带物理修复记录：首轮 lossless replay 为 `WNS=-0.074 ns`，最差路径在 packet egress 的超宽 `response_word_count` 清零网络。该计数器真实上限为 254，收窄为 8 位后 lossless replay 达到 `WNS=+0.005 ns`；相关 egress/adapter/T1 回归通过。提交 `ac499d4` 的非 replay dense 三次 `WNS=-0.072 ns` 历史复现失败保留，不影响 CP4 或本轮 replay 的独立物理证据。
 
 ## QAT CP4 无损零组跳过实板（2026-09-16）
 
@@ -18,7 +18,7 @@ clean HEAD `e155091` 上，dense 与 lossless 两条完整 wrapper 均在 `xc7z0
 
 lossless 实板平均 `2290.272 cycles/sample`、执行/跳过组 `524.091/67.909`、跳过率 `11.4712%`，相对 dense `2494 cycles` 的核心加速为 `1.088954x`。完整 PS/DMA 单样本窗口均值为 dense `63.826 us`、lossless `63.307 us`，仅 `1.008196x`；p50=`64→63 us`、p95=`65→64 us`、p99=`66→64 us`。这说明无损跳过已在纯 PL 核心兑现，但单样本 packet 路径仍被固定开销稀释。证据为 `artifacts/results/b3_qat_cp4_lossless_zero_group_board_397.json`。
 
-裁定：两组硬件 manifest 均为 clean、同 HEAD、物理签核通过，packet ELF 也由 clean HEAD 构建；bit/XSA/ELF/manifest/run SHA-256 已写入正式结果。因此 `B3-PAPER-CP4` 与当前无损候选的 `B3-ACCURACY-GATE` 关闭。`B3-SPEED-GATE` 仍保持 OPEN，下一步是 CP5a replay 物理构建与单样本实板 bring-up，再进入 CP5b 397 样本分布连续流；功耗在吞吐负载冻结后执行。
+裁定：`B3-PAPER-CP4`、当前无损候选的 `B3-ACCURACY-GATE` 和 `B3-PAPER-CP5a` 已关闭。`B3-SPEED-GATE` 仍保持 OPEN，下一步是 CP5b 397 样本分布 PL 内循环与至少 5 轮交替 dense/lossless；功耗在分布吞吐负载冻结后执行。
 
 ## QAT 无损零组跳过 RTL/OOC（2026-09-15）
 
@@ -36,11 +36,11 @@ QAT dense 已在同一 `xc7z020clg484-2` bit/XSA 下完成 8 样本 smoke 和 64
 
 ## 当前裁定（QAT 重基线后）
 
-`B3-22.2`、`B3-22.3` 与 `B3-22.4` 首轮均已完成，但不再是当前优先级。CP0 QAT 无泄漏重基线、CP1 dense 板级逐位对拍、CP3a/b/c 和 CP4 clean 正式实测均已完成；严格 2:4 live/static 精度失败，主候选为可证明无损的零组跳过。下一步先完成 CP5a replay 物理/实板 bring-up，再执行 CP5b 397 样本循环、至少 10000 个正式样本和 5 轮交替 dense/lossless，测纯 PL 稳态吞吐并冻结随后功耗负载。`B3-SPEED-GATE`、`B3-POWER-GATE`、`B3-GOAL-GATE` 仍保持 OPEN。
+`B3-22.2`、`B3-22.3` 与 `B3-22.4` 首轮均已完成，但不再是当前优先级。CP0/CP1/CP3a/b/c/CP4 与 CP5a 已完成；严格 2:4 live/static 精度失败，主候选为可证明无损的零组跳过。下一步执行 CP5b 397 样本 PL 内循环、至少 10000 个正式样本和 5 轮交替 dense/lossless，测分布稳态吞吐并冻结随后功耗负载。`B3-SPEED-GATE`、`B3-POWER-GATE`、`B3-GOAL-GATE` 仍保持 OPEN。
 
 ## 结论
 
-当前项目状态为：`FUNCTIONAL_PASS / B3_MVP_GATE_PASS / B3_QAT_CP1_DENSE_BOARD_PASS / B3_QAT_LOSSLESS_ZERO_GROUP_RTL_SIM_PASS / B3_QAT_LOSSLESS_ZERO_GROUP_OOC_PASS_TIMING / B3_QAT_CP4_BOARD_FORMAL_PASS / B3_ACCURACY_GATE_PASS_LOSSLESS / B3_SPEED_GATE_OPEN / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B3_STRICT_DEFERRED_STRUCTURAL / PL_AUTO_MASK_BOARD_DEFERRED / B2_GATE_PENDING`。
+当前项目状态为：`FUNCTIONAL_PASS / B3_MVP_GATE_PASS / B3_QAT_CP4_BOARD_FORMAL_PASS / B3_QAT_CP5A_PL_REPLAY_FORMAL_PASS / B3_ACCURACY_GATE_PASS_LOSSLESS / B3_SPEED_GATE_OPEN / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B3_STRICT_DEFERRED_STRUCTURAL / PL_AUTO_MASK_BOARD_DEFERRED / B2_GATE_PENDING`。
 
 主线是 `xc7z020clg484-2` 上部署 NPU，并用可证明无损的组级动态跳过验证推理加速与功耗下降。历史 PS 在环 live 路径仍保留为负结果：64 样本 live `722–727 us`、dense `155–159 us`，PS mask 计算是主要瓶颈；它不代表当前纯 PL 候选。当前 QAT lossless 已在 clean 397 样本实板上完成输出与任务精度保持，`B3-ACCURACY-GATE` 通过；外部功耗未测，`B3-SPEED-GATE` 和功耗门仍 OPEN。严格连接级 `2:4` 仍是精度失败的结构实验，不是当前加速硬门。
 

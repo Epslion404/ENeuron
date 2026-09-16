@@ -4,7 +4,7 @@
 > verified_at: 2026-09-13
 > provenance: Git checkout 身份以命令实时输出为准；板级签核仍绑定 RTL `be84596` 与对应 bit/XSA/ELF/manifest。
 
-当前 B3 依赖（2026-09-17）：QAT CP0/CP1、CP3a/CP3b/CP3c 与 CP4 clean 正式对拍已完成；当前无损候选的精度门通过。CP5a replay 的 RTL/runner/ARM 构建已通过，当前前置是 dense/lossless replay wrapper 的 200 MHz 物理门与单样本实板 bring-up；通过后进入 CP5b 397 样本分布吞吐，再冻结负载进入功耗。严格连接级 `2:4`、独立 PL auto-mask、批量协议和网口发布均后置。
+当前 B3 依赖（2026-09-17）：QAT CP0/CP1、CP3a/CP3b/CP3c、CP4 与 CP5a 已完成；当前无损候选的精度门通过。CP5a 单样本纯 PL replay 正式提升 `1.091225x`，但不覆盖分布。当前前置是 CP5b 397 样本 PL 内循环与至少 5 轮交替 A/B；通过后冻结负载进入功耗。严格连接级 `2:4`、独立 PL auto-mask、批量协议和网口发布均后置。
 
 当前依赖边界：`xc7z020clg484-2` NPU + ENeuron 动态剪枝是活动主线；`archive/legacy/` 不参与日常门。B3 速度/功耗目标不依赖完整 B2-GATE、严格连接级 `2:4`、10000 样本、完整恢复或网口。严格结构与长稳工作进入 `B3-STRICT-GATE`；外部板级功耗属于 B3-POWER，B4 只补网口发布及其负载差异。
 

@@ -16,15 +16,15 @@
     "qualification_execution_chain": ["B1-06B6_UART_BASELINE", "B1-06B7_OCM_HIGH_DDR_MINIMAL_REPRODUCTION"],
     "ddr_accesses_so_far": 0
   },
-  "status": "P16_B0_COMPLETE / FASTLANE_V1 / B2_PACKET_NPU_PHYSICAL_PASS / B2_GATE_RELEASE_PENDING / B3_MVP_GATE_PASS / B3_QAT_CP4_BOARD_FORMAL_PASS / B3_QAT_CP5A_REPLAY_RTL_RUNNER_PASS / B3_QAT_CP5A_PHYSICAL_BOARD_PENDING / B3_ACCURACY_GATE_PASS_LOSSLESS / B3_SPEED_GATE_OPEN / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B3_STRICT_PENDING / B4_RELEASE_PENDING",
+  "status": "P16_B0_COMPLETE / FASTLANE_V1 / B2_PACKET_NPU_PHYSICAL_PASS / B2_GATE_RELEASE_PENDING / B3_MVP_GATE_PASS / B3_QAT_CP4_BOARD_FORMAL_PASS / B3_QAT_CP5A_PL_REPLAY_FORMAL_PASS / B3_QAT_CP5B_DISTRIBUTION_PENDING / B3_ACCURACY_GATE_PASS_LOSSLESS / B3_SPEED_GATE_OPEN / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B3_STRICT_PENDING / B4_RELEASE_PENDING",
   "current_b2_status": "FUNCTIONAL_PASS / PHYSICAL_PASS / BOARD_STATUS_PARTIAL",
   "stage2_complete": false,
   "current_gates": ["B3-SPEED-GATE", "B3-POWER-MEASURED", "B3-POWER-GATE", "B3-GOAL-GATE"],
   "active_stage_contract": "docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md",
   "related_contracts": ["docs/planning/TODO.md#P16", "docs/planning/NPU_PRUNING_TODO.md", "docs/planning/NPU_PRUNING_NP7_TODO.md"],
   "workflow_resume_count_rule": "QUERY_WORKFLOW_RESUME_AT_RUNTIME",
-  "current_execution_point": "B3-PAPER-CP5A_REPLAY_PHYSICAL_BUILD",
-  "priority_execution_point": "B3-PAPER-CP5A_REPLAY_PHYSICAL_BUILD",
+  "current_execution_point": "B3-PAPER-CP5B_DISTRIBUTION_REPLAY_DESIGN",
+  "priority_execution_point": "B3-PAPER-CP5B_DISTRIBUTION_REPLAY_DESIGN",
   "b3_accuracy_gate": {
     "status": "PASS",
     "reporter": "b3_accuracy_report.py",
@@ -42,7 +42,7 @@
     "required_outputs": ["sample_id pairing", "dense_logits", "live_logits", "label", "identity", "95% CI inputs"],
     "evidence_status": "QAT_BOARD_397_OF_397_EXACT_TASK_ACCURACY_88_665_NO_DROP_FORMAL",
     "implementation": "b3-22.1a/b contract and build pass; board logits collection entry implemented with fail-closed failure handling",
-    "next_action": "完成 CP5a dense/lossless replay wrapper 物理签核与单样本实板 A/B；通过后进入 CP5b 397 样本分布循环",
+    "next_action": "设计并实现 CP5b 397 样本 PL 内循环，随后执行至少 5 轮交替 dense/lossless 分布吞吐",
     "does_not_close": ["B3-SPEED-GATE", "B3-POWER-GATE"]
   },
   "b3_22_1e1_dataset_and_merge": {

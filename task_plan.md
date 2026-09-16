@@ -6,9 +6,9 @@
 - [x] 实现 `b3_pl_replay_shim.sv`，默认构建关闭；启用时缓存 8 beat，吞掉中间结果，只外送最后一次 10-beat 结果。
 - [x] 增加 `0x64/0x68/0x6C` 只读状态、Vivado 构建模式、QAT sample index、专用 probe/runner 和 fail-closed 身份检查。
 - [x] shim 行为仿真、默认/replay wrapper 编译、T1 统一复现、定向合同和 QAT `sample_index=201` ARM 构建通过。
-- [ ] 在 clean HEAD 构建 `dense_pl_replay` 与 `lossless_zero_group_skip_pl_replay`，要求目标器件 200 MHz、route/DRC、4 DSP 全部通过。
-- [ ] 实板运行 CP5a dense/lossless，核对 `completed=10000`、协议错误 0、组计数总和、最终 logits 和 cycles/sample。
-- [ ] CP5a 通过后设计 CP5b 397 样本 PL 内循环；正式速度判据以 canonical CP4 roofline `1.088954x` 为基准。
+- [x] 在 clean 硬件源码闭包构建 `dense_pl_replay` 与 `lossless_zero_group_skip_pl_replay`；目标器件 200 MHz、route/DRC、4 DSP 全部通过。
+- [x] 实板运行 CP5a dense/lossless：`completed=10000`、协议错误 0、组计数总和与最终 logits/CRC 通过；吞吐提升 `1.091225x`。
+- [ ] 设计并实现 CP5b 397 样本 PL 内循环；正式速度判据以 canonical CP4 roofline `1.088954x` 为基准，至少 5 轮交替 A/B。
 
 已知物理风险：`ac499d4` 的非 replay dense wrapper 三次独立实现均为 `WNS=-0.072 ns / TNS=-0.120 ns`，route/DRC hard error=0。继续盲目重跑已停止；replay 模式必须形成自己的 clean 物理证据。
 

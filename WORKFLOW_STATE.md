@@ -1,10 +1,10 @@
 # ENeuron 持久工作流状态
 
-## 当前裁定（2026-09-17，CP5a replay 切片待物理/实板）
+## 当前裁定（2026-09-17，CP5a replay 正式通过）
 
-2026-09-17：新增编译期可选的纯 PL replay shim。Host 只提交一个 QAT 样本，PL 内完成 1000 次预热和 10000 次计量，中间结果不出 PL；新增状态寄存器 `0x64/0x68/0x6C`。shim 行为仿真、默认/replay wrapper 编译、T1 统一复现、相关合同和 QAT `sample_index=201` ARM 构建均通过；尚未完成 replay wrapper 200 MHz 物理门和实板，状态为 `B3_QAT_CP5A_REPLAY_RTL_RUNNER_PASS / PHYSICAL_BOARD_PENDING`。当前执行点为 `B3-PAPER-CP5A_REPLAY_PHYSICAL_BUILD`。
+2026-09-17：CP5a 单样本纯 PL replay 正式通过。dense/lossless replay wrapper 均通过 `xc7z020clg484-2`、200 MHz 物理门和 4-DSP 合同；QAT `sample_index=201` 在 1000 预热 + 10000 计量下分别为 `2512/2302 cycles/sample`、`79,617.834/86,880.973 samples/s`，吞吐提升 `1.091225x`。两侧固定 replay 开销均为 18 cycles，最终 logits/CRC 一致、组账本完整、协议错误 0。证据 `artifacts/results/b3_qat_cp5a_pl_replay_board_pair.json`。当前执行点为 `B3-PAPER-CP5B_DISTRIBUTION_REPLAY_DESIGN`。
 
-CP5 验收口径修正：canonical CP4 实板 roofline 为 `2494/2290.272=1.088954x`；旧 `>=1.30x` 来自不同置换/仿真假设，不能作为当前 canonical 板级硬门。CP5a 单样本 replay 只用于 bring-up；CP5b 必须覆盖 397 样本分布并做 5 轮交替 dense/lossless，才能判定速度门。
+CP5a 的单样本 `1.091225x` 不能外推为分布吞吐。CP5b 必须覆盖 397 样本分布并做至少 5 轮交替 dense/lossless；速度门仍 OPEN。
 
 提交 `ac499d4` 后 dense wrapper 三次独立实现均为 `WNS=-0.072 ns / TNS=-0.120 ns`、route/DRC hard error=0；该复现失败已停止盲跑，不推翻 `e155091` 已签核 CP4 证据。replay 新模式必须在 clean HEAD 独立通过物理门后才可上板。
 
@@ -22,7 +22,7 @@ B3-22.3 已证明当前协议下零动态决策成本剪枝仅约 `2%` 端到端
 
 最后更新：2026-09-17
 
-状态：`ACTIVE / PHASE2_FASTLANE_V1 / B0_COMPLETE_MAIN_102DEE2 / B1A_HW_DEFINITION_COMPLETE / B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DIAG_READY_NO_GO / B1B_HIGH_DDR_PENDING / B2_00_LOW_ADDRESS_LAYOUT_FROZEN / B2_D1_DMA_CONTRACT_FROZEN / B2_01_BUFFER_OWNERSHIP_FROZEN / B2_DMA_SW_BUILD_READY / B2_BOUNDARY_PRESSURE_BACKPRESSURE_UART_JTAG_PASS / B2_NPU_PHYSICAL_GATE_PASS / B2_PACKET_PATH_SMOKE_PASS / B2_08_COUNTER_RTL_SLICE_GREEN / B2_08_BOARD_STATUS_INTEGRATED_TIMING_PASS / B2_08_BOARD_READ_PARTIAL / B3_MVP_GATE_PASS / B3_QAT_CP1_DENSE_BOARD_PASS / B3_QAT_LOSSLESS_ZERO_GROUP_RTL_SIM_PASS / B3_QAT_LOSSLESS_ZERO_GROUP_OOC_PASS_TIMING / B3_QAT_CP4_BOARD_FORMAL_PASS / B3_QAT_CP5A_REPLAY_RTL_RUNNER_PASS / B3_QAT_CP5A_PHYSICAL_BOARD_PENDING / B3_ACCURACY_GATE_PASS_LOSSLESS / B3_SPEED_GATE_OPEN / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B3_STRICT_DEFERRED_STRUCTURAL / PL_AUTO_MASK_BOARD_DEFERRED / B1_GATE_FALSE / XC7Z020CLG484_2_CONFIRMED / GITHUB_ACTIONS_DISABLED`
+状态：`ACTIVE / PHASE2_FASTLANE_V1 / B3_MVP_GATE_PASS / B3_QAT_CP4_BOARD_FORMAL_PASS / B3_QAT_CP5A_PL_REPLAY_FORMAL_PASS / B3_QAT_CP5B_DISTRIBUTION_PENDING / B3_ACCURACY_GATE_PASS_LOSSLESS / B3_SPEED_GATE_OPEN / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B3_STRICT_DEFERRED_STRUCTURAL / B2_GATE_PENDING / XC7Z020CLG484_2_CONFIRMED / GITHUB_ACTIONS_DISABLED`
 
 2026-09-14：B3-18a 已完成；B3-18b/18c 实板复测完成。PS 将 21 个 mask command 合并为单个 command frame，由 PL ingress staging 后按顺序提交；随后优化 `group_mac()` 零权重路径并移除 mask 临时位数组。64 个不同输入 live `20260914T062138Z` 为 `64/64 PASS`、端到端 `722–727 us`、累计 `mask_us=36324 us`、epoch `2→65`、`296/296`、协议错误 `0`；同源 dense `20260914T062313Z` 为 `155–159 us`、`592/0`。相对旧 PL staging live 均值约下降 29%，但仍约为 dense 的 4.65 倍，B3-SPEED-GATE 保持 OPEN。该段为历史工程证据；当前下一步是 QAT `CP2/CP3` 策略和精度门，不再回到 PS mask 微优化。
 

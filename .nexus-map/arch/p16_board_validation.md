@@ -1,8 +1,8 @@
 # P16 项目阶段 2：实板验证路线
 
-## 当前主线覆写（2026-09-17，CP5a replay 待物理/实板）
+## 当前主线覆写（2026-09-17，CP5a 正式通过、CP5b 待执行）
 
-当前执行点为 `B3-PAPER-CP5A_REPLAY_PHYSICAL_BUILD`。QAT-v3 CP0/CP1/CP3a/b/c/CP4 已完成；严格 2:4 live/static 精度失败。clean HEAD `e155091` 的 dense/lossless 完整 wrapper 均通过 200 MHz 物理门，397 样本正式对拍 logits、ID、CRC 和协议全一致，任务准确率均 `88.665%`；核心周期 `2494→2290.272`（`1.088954x`），单样本窗口均值 `63.826→63.307 us`。CP5a replay 的 RTL、runner、行为仿真与 ARM 构建已通过，待 replay wrapper 物理签核和单样本实板；之后 CP5b 才覆盖 397 样本分布。速度、功耗和目标门保持 OPEN。
+当前执行点为 `B3-PAPER-CP5B_DISTRIBUTION_REPLAY_DESIGN`。QAT-v3 CP0/CP1/CP3a/b/c/CP4 与 CP5a 已完成；严格 2:4 live/static 精度失败。CP5a 的 dense/lossless replay wrapper 均通过 200 MHz 物理门，代表性样本 1000/10000 replay 为 `2512/2302 cycles/sample`、吞吐提升 `1.091225x`，结果帧/logits/CRC 一致、协议错误 0。该结果只覆盖单样本；当前缺口是 CP5b 397 样本分布吞吐与 paired 功耗，速度、功耗和目标门保持 OPEN。
 
 > generated_by: nexus-mapper v2 / manual synthesis
 > verified_at: 2026-09-16
@@ -24,7 +24,7 @@ B1-06B6 实板复测（2026-09-08）：运行目录为 `artifacts/logs/hellozynq
 
 P16 的目标是在 HelloZynq `xc7z020clg484-2` 上依次打通 PL、PS/DDR/网口、DMA、`64→32→10` 传统 NPU、ENeuron 局部门控和网口端到端 A/B。阶段门只由同一身份链上的实板证据关闭；仿真和 OOC 可用于定位，但不能代替 bitstream、JTAG、UART、Host/网口日志与现场观察。
 
-当前 B3 入口：基础 dense/bypass、full-open、Host 静态 `group_4way` 和 B3-09 live-ENeuron 实板均已关闭，B3-MVP-GATE 已通过。QAT CP0/CP1/CP3c/CP4 已完成，当前无损候选的 `B3-ACCURACY-GATE` 已通过；严格 2:4 live/static 为精度负结果。下一步先完成 CP5a replay 物理/实板 bring-up，再做 CP5b 397 样本分布连续吞吐并冻结功耗负载；旧 fixed-vector、PS 在环和失败 OOC 不能替代 QAT 正式实板证据。
+当前 B3 入口：QAT CP0/CP1/CP3c/CP4/CP5a 已完成，当前无损候选的 `B3-ACCURACY-GATE` 已通过；严格 2:4 live/static 为精度负结果。下一步设计 CP5b 397 样本 PL 内循环，完成至少 5 轮交替 dense/lossless 后冻结功耗负载；旧 fixed-vector、PS 在环和单样本 CP5a 不能替代分布吞吐证据。
 
 B3-08a 已完成（2026-09-12）：同一物理通过 bit/XSA、COM15、`b3_static_mixed` 实板 run `20260912T102046Z` 通过，logits=`74,-18,14,0,0,0,0,0,0,114`，fence valid=`1`，execute/skip=`296/296`。mask 粒度是 `group_4way`；B3-08b 属于后续 STRICT。
 

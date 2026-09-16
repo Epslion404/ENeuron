@@ -2,6 +2,13 @@
 
 ## 2026-09-17 CP5a 纯 PL replay 工具切片
 
+- CP5a 正式实板完成：dense/lossless replay wrapper 物理签核分别为 `WNS/WHS=+0.004/+0.036 ns` 与 `+0.005/+0.010 ns`，TNS/THS、route、DRC hard error=0、DSP48E1=4。
+- QAT `sample_index=201`、1000/10000 replay：dense `2512 cycles/sample`、`79,617.834 samples/s`；lossless `2302 cycles/sample`、`86,880.973 samples/s`；吞吐提升 `1.091225x`、延迟下降 `8.3599%`。
+- 两侧固定 replay 开销均为 18 cycles；结果帧/logits/CRC 相同，协议错误 0，组计数覆盖 `11001×592`。正式配对证据 `artifacts/results/b3_qat_cp5a_pl_replay_board_pair.json`。
+- 首次 dense 上板在 `ps7_init` 遇到 `FT_Write io error`；重启 `hw_server` 后 DAP 仍异常，通过 DAP target `rst -system` 恢复 APU/Cortex-A9。该轮未下载 ELF，不计入性能结果。
+- 通用 UART runner 因 UART 无终止标记产生两次 `NO_TERMINAL_MARKER`，但 JTAG/DMA 已显示完整结果；专用 runner 已改为无 UART，直接轮询 replay 状态并校验 RX 19-word 结果帧。
+- 当前执行点推进到 CP5b 397 样本分布 replay 设计。
+
 - 新增 `b3_pl_replay_shim.sv`：缓存一个 8-beat 样本，在 NPU 时钟域执行可配置预热/计量；默认参数为 1000/10000，中间结果不进入结果 FIFO，仅最终结果外送。
 - wrapper、packet adapter、AXIS 顶层和状态块已贯通；新增只读 `0x64 status / 0x68 completed / 0x6C measured_cycles`，冻结的 `0x00–0x60` 未改址。
 - Vivado 构建新增 `dense_pl_replay`、`lossless_zero_group_skip_pl_replay` 两种显式模式；普通 dense/lossless 不定义 replay 宏。

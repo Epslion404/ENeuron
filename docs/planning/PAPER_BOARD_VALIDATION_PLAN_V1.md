@@ -93,7 +93,7 @@ CP4 已在 clean HEAD `e155091` 完成：dense/lossless 两条完整 wrapper 均
 
 使用 QAT-v3 和 CP4 的正式 bit/XSA，进行 dense/lossless 连续输入流测试。PS 只提交批次和搬运数据，不参与逐组跳过决策。
 
-- CP5a 先以编译期 replay shim 做单个代表性 QAT 样本 bring-up：PL 缓存 8 beat，预热 1000 次、计量 10000 次，中间结果不出 PL，只导出聚合周期/完成数和最终结果。该步不关闭 CP5。
+- CP5a 已完成：编译期 replay shim 对 QAT `sample_index=201` 缓存 8 beat，预热 1000 次、计量 10000 次，中间结果不出 PL。dense/lossless 为 `2512/2302 cycles/sample`、吞吐提升 `1.091225x`，最终结果与 CRC 一致；该步只关闭 bring-up，不关闭 CP5。
 - CP5b 再扩展为 397 个 held-out 的 PL 内循环；对照为 dense、`LOSSLESS_ZERO_GROUP_SKIP`，strict 2:4/static/独立 PL-auto 只在各自精度门通过后追加。
 - 正式统计至少 10,000 样本；至少 5 轮交替 dense/lossless。记录温度、供电、bit/XSA/ELF/model hash。
 - 至少 5 轮，交替 dense/lossless 顺序；记录温度、供电、bit/XSA/ELF/model hash。

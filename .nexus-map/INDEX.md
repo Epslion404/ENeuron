@@ -1,16 +1,16 @@
 # ENeuron 知识库入口
 
-## 当前主线覆写（2026-09-17，CP5a replay 待物理/实板）
+## 当前主线覆写（2026-09-17，CP5a 正式通过、CP5b 待执行）
 
-B3-22.2/B3-22.3/B3-22.4 与旧 1024 样本输出保持采集已完成。QAT CP0、CP1、CP3c 和 CP4 clean 已完成；严格 2:4 live/static 精度失败，当前主候选为无损零组跳过。clean HEAD `e155091` 上 dense/lossless 完整 wrapper 均通过 200 MHz 物理门，397 样本逐元素 logits、ID、CRC 和协议全一致，任务准确率均 `88.665%`，核心周期 `2494→2290.272`（`1.088954x`）。CP5a replay 的 RTL、runner、状态块与 ARM 构建已通过，当前执行点为 replay wrapper 物理签核；速度、功耗和目标门继续 OPEN。
+B3-22.2/B3-22.3/B3-22.4 与旧 1024 样本输出保持采集已完成。QAT CP0、CP1、CP3c、CP4 和 CP5a 已完成；严格 2:4 live/static 精度失败，当前主候选为无损零组跳过。CP5a 单样本纯 PL replay 正式测得 `2512→2302 cycles/sample`、吞吐提升 `1.091225x`，结果帧/logits/CRC 一致。当前执行点为 CP5b 397 样本分布 replay 设计；速度、功耗和目标门继续 OPEN。
 
 > generated_by: nexus-mapper v2 / manual synthesis
 > verified_at: 2026-09-16
 > provenance: 当前 checkout 路径、分支与提交分别以 `git rev-parse --show-toplevel`、`git branch --show-current` 和 `git rev-parse HEAD` 的实时输出为准；历史路径、分支和 PR 名称仅作来源。bitstream RTL 身份 `be84596`，raw 探针绑定历史 `c46320e`。SPEED 证据 `artifacts/logs/b3_speed_20260912_be84596/b3_speed_comparison.json`。
 
-## 当前权威快照（2026-09-17，日常主线 CP5a）
+## 当前权威快照（2026-09-17，日常主线 CP5b）
 
-器件 `xc7z020clg484-2`。clean HEAD `e155091` 上 lossless 完整 wrapper 已通过 200 MHz 物理门并完成 QAT-v3 397 样本 dense/lossless 正式对拍：logits 逐元素一致、任务准确率均 88.665%，核心周期平均 2494→2290.272（1.088954x）。CP5a replay 只用一个代表性样本做 1000/10000 PL 内部 bring-up，尚待物理门和实板；CP5b 才覆盖 397 样本分布。下一步是构建 dense/lossless replay wrapper；严格 2:4、独立 PL auto-mask、B3-22.5 和 B3-STRICT 均为后置支线。
+器件 `xc7z020clg484-2`。QAT CP4 397 样本输出保持正式通过；CP5a 的两套 replay wrapper 均通过 200 MHz 物理门，QAT sample index 201 的 1000/10000 PL 内部 replay 为 dense `79,617.834`、lossless `86,880.973 samples/s`，提升 `1.091225x`。该证据只覆盖单样本。下一步是 CP5b 397 样本 PL 内循环和至少 5 轮交替 A/B；严格 2:4、独立 PL auto-mask、B3-22.5 和 B3-STRICT 均为后置支线。
 
 B3-MVP-GATE 已在同一份集中 Vivado 2024.1 bitstream 上关闭：RTL 身份 `be84596`，200 MHz FCLK0。WNS=+0.045 ns，TNS=0，WHS=+0.036 ns，THS=0，route/DRC hard errors=0，DSP48E1=4。
 - bit SHA-256=`0ecbe76274c39418f2a60a88358d3ff6f09f5a2ed73a44a3a419c34eb91d3a11`
