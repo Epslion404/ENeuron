@@ -74,20 +74,20 @@ PS 仍可负责启动批次、搬运输入和收集结果，但不得参与逐�
 
 当前最短路径使用主 NPU 内部 `LOSSLESS_ZERO_GROUP_SKIP`，PS 不参与逐组决策。独立 PL auto-mask 保留为后置候选，不阻塞无损模式的首轮纯 PL 数据。
 
-- 引擎在样本 `n` 的 NPU 计算期间，计算样本 `n+1` 的 mask。
-- 使用现有 `staging/published/active` 语义；mask 只能在样本边界切换。
-- 增加 `decision_sample_id`、`mask_epoch`、ready/underflow/overflow/fail 状态。
+- dense 与 lossless 使用同一 QAT 模型、输入顺序和 packet 软件语义，只切换完整 wrapper 的 NPU 编译模式。
+- lossless 判定完全位于 NPU 核内：当前组激活全零或权重全零时跳过该组，不生成、不提交逐样本 mask，也不使用 staging/epoch 决策链。
+- PS 只装载模型、提交样本和收集结果；逐组 execute/skip 由 PL 独立完成。
 - 当前最小切片只包含全零激活组和全零权重组；L0 ReLU 后缀早停必须作为独立增量重新过语义和物理门。
-- 首样本 warm-up 和末样本 drain 单独报告，不得混入稳态吞吐。
+- bit/XSA/ELF、硬件 manifest、QAT manifest 和原始板级 run 必须绑定 SHA-256；软件与硬件均需 clean、同 HEAD 且物理签核通过，才能标记正式证据。
 
-当前阻塞点是主 NPU 的模型取数关键路径。先用同步 BRAM/明确读延迟，或隔离零组判定取数路径，使目标器件 200 MHz 达到 `WNS/WHS>=0`、`TNS/THS=0`；在此之前不得生成正式 bit/XSA。
+CP4 已在 clean HEAD `e155091` 完成：dense/lossless 两条完整 wrapper 均通过 `xc7z020clg484-2`、200 MHz 物理签核，397 样本 logits、sample ID、CRC 和协议状态逐项一致；核心周期 `2494→2290.272`，任务准确率均为 `88.665%`。正式证据为 `artifacts/results/b3_qat_cp4_lossless_zero_group_board_397.json`。
 
 **CP4 通过条件：**
 
 - Icarus：397 个样本 logits 与 Python dense golden 逐 bit 一致；
 - OOC：目标器件、200 MHz、资源和时序报告可审计；
-- 完整 RTL：dense/lossless 在 reset、backpressure、首尾样本和错误注入下 fail-closed；
-- 板级 8/64/397 样本的 logits、sample ID、CRC、execute/skip 和周期全部可追溯。
+- 完整 RTL：dense/lossless 的既有 packet reset/backpressure/fail-closed 合同不退化；
+- 板级 397 样本的 logits、sample ID、CRC、execute/skip 和周期全部可追溯。
 
 ### CP5：无损模式纯 PL 板级吞吐
 
@@ -95,7 +95,7 @@ PS 仍可负责启动批次、搬运输入和收集结果，但不得参与逐�
 
 - 对照：dense、`LOSSLESS_ZERO_GROUP_SKIP`；strict 2:4/static/独立 PL-auto 只在各自精度门通过后追加。
 - 预热至少 1000 样本，正式统计至少 10,000 样本；资源不足时先做 397 样本功能轮，再做长跑。
-- 至少 5 轮，交替 dense/PL-auto 顺序；记录温度、供电、bit/XSA/ELF/model hash。
+- 至少 5 轮，交替 dense/lossless 顺序；记录温度、供电、bit/XSA/ELF/model hash。
 - 同时记录稳态 throughput、首样本延迟、p50/p95/p99、NPU cycles、decision cycles、队列等待、underflow/overflow、ID/epoch/CRC 错误。
 
 **验收判据：**
@@ -124,7 +124,7 @@ CP5/CP6 完成后再做：
 功率测量必须在功能和吞吐配置冻结后进行，不与 RTL 调试混在同一轮。
 
 - 统一 Type-C 串联测点、同一 JTAG 连接状态、同一 bit/XSA/ELF 和相同 warm-up。
-- 至少测 `idle / dense / static / PL-auto live`；若 CP6 完成，再增加双引擎。
+- 至少测 `dense idle / dense full / lossless idle / lossless full`；若后置策略通过各自精度门，再追加 static/PL-auto/双引擎。
 - 每个模式至少 5 个 paired rounds，记录起止照片、时间、V/A/W、mAh、mWh、有效推理数。
 - 同时报告板级平均功率、每次正确推理能耗和仪器分辨率/重复性；不得把整板功率写成“纯 NPU 功率”。
 

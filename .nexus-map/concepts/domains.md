@@ -1,14 +1,14 @@
 # 核心领域概念
 
-当前主线（2026-09-16）：QAT CP0/CP1/CP3c 已完成，严格 2:4 live/static 精度失败；无损零组跳过已在完整 wrapper 上完成 397 样本 dirty-worktree 开发对拍，logits 逐元素一致、任务准确率 88.665% 无下降，核心周期约 1.089x，端到端约 1.005x。下一步是 clean rerun 后进入功耗；功耗证据仍为 `POWER_NOT_MEASURED / NOT_PROVEN`。
+当前主线（2026-09-16）：QAT CP0/CP1/CP3c/CP4 clean 已完成，严格 2:4 live/static 精度失败；无损零组跳过在 clean 完整 wrapper 上完成 397 样本正式对拍，logits 逐元素一致、任务准确率 88.665% 无下降，核心周期约 1.089x，单样本窗口约 1.008x。下一步是 CP5 连续流吞吐；功耗证据仍为 `POWER_NOT_MEASURED / NOT_PROVEN`。
 
 > generated_by: nexus-mapper v2 / manual synthesis
 > verified_at: 2026-09-16
 > provenance: 当前 checkout 路径、分支与提交以 Git 命令实时查询；历史路径、分支和 PR 名称仅作来源。bitstream RTL 身份 `be84596`。证据 `artifacts/logs/b3_mvp_20260912_be84596/`。
 
-## 当前权威概念边界（2026-09-16，CP4 开发对拍通过）
+## 当前权威概念边界（2026-09-16，CP4 clean 正式通过）
 
-器件 `xc7z020clg484-2`，checkout 身份以 Git 实时输出为准。B3-MVP-GATE、QAT CP1 dense 和 lossless CP3c 已完成；397 样本 CP4 开发对拍 logits 逐元素一致，核心周期约 `1.089x`，端到端约 `1.005x`。因 packet ELF 来自 dirty worktree，`B3-ACCURACY-GATE`、`B3-SPEED-GATE`、`B3-POWER-MEASURED/B3-POWER-GATE` 均保持 OPEN。严格连接级 `2:4`、独立 PL auto-mask 与网口发布是后置支线。
+器件 `xc7z020clg484-2`，checkout 身份以 Git 实时输出为准。B3-MVP-GATE、QAT CP1 dense、lossless CP3c 和 CP4 clean 已完成；397 样本正式对拍 logits 逐元素一致，核心周期约 `1.089x`，单样本窗口约 `1.008x`。无损候选的 `B3-ACCURACY-GATE` 已通过，`B3-SPEED-GATE`、`B3-POWER-MEASURED/B3-POWER-GATE` 保持 OPEN。严格连接级 `2:4`、独立 PL auto-mask 与网口发布是后置支线。
 
 - `B3_MVP_GATE_PASS`：同一份集中 Vivado 2024.1 bitstream（RTL `be84596`，200 MHz FCLK0）上关闭 B3-04/09/11/13/14。WNS=+0.045 ns，TNS=0，WHS=+0.036 ns，THS=0，route/DRC hard errors=0，DSP48E1=4。bit SHA-256=`0ecbe76274c39418f2a60a88358d3ff6f09f5a2ed73a44a3a419c34eb91d3a11`，XSA SHA-256=`135d979d61c629922ee5419e51dd97ef045d9bab79930432816d09f109291d1a`。只可声称 `group_4way` 动态剪枝正确性 + 局部 NPU 周期差值 888 cycles。
 - `B3_SPEED_MEASURED / B3_SPEED_GATE_OPEN`：COM15 同源 bit 上 dense/full-open/static/live 已分开 NPU/PS/DMA/Host UART。888 cycle ≈ 4.4 µs，小于 Host live 决策约 996 µs；DMA 包含 NPU、UART 又包含整个流程，字段不可相加。`claim=local_npu_cycle_delta_only`。证据 `artifacts/logs/b3_speed_20260912_be84596/`。

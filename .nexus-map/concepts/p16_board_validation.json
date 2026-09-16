@@ -16,34 +16,34 @@
     "qualification_execution_chain": ["B1-06B6_UART_BASELINE", "B1-06B7_OCM_HIGH_DDR_MINIMAL_REPRODUCTION"],
     "ddr_accesses_so_far": 0
   },
-  "status": "P16_B0_COMPLETE / FASTLANE_V1 / B2_PACKET_NPU_PHYSICAL_PASS / B2_GATE_RELEASE_PENDING / B3_MVP_GATE_PASS / B3_L0_CACHE_BOARD_DIAGNOSTIC_PASS / B3_QAT_CP1_DENSE_BOARD_PASS / B3_QAT_LOSSLESS_ZERO_GROUP_RTL_SIM_PASS / B3_QAT_LOSSLESS_ZERO_GROUP_OOC_PASS_TIMING / B3_QAT_CP4_BOARD_DEVELOPMENT_PASS / B3_SPEED_MEASURED / B3_ACCURACY_GATE_OPEN / B3_SPEED_GATE_OPEN / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B3_STRICT_PENDING / B4_RELEASE_PENDING",
+  "status": "P16_B0_COMPLETE / FASTLANE_V1 / B2_PACKET_NPU_PHYSICAL_PASS / B2_GATE_RELEASE_PENDING / B3_MVP_GATE_PASS / B3_L0_CACHE_BOARD_DIAGNOSTIC_PASS / B3_QAT_CP1_DENSE_BOARD_PASS / B3_QAT_LOSSLESS_ZERO_GROUP_RTL_SIM_PASS / B3_QAT_LOSSLESS_ZERO_GROUP_OOC_PASS_TIMING / B3_QAT_CP4_BOARD_FORMAL_PASS / B3_ACCURACY_GATE_PASS_LOSSLESS / B3_SPEED_GATE_OPEN / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B3_STRICT_PENDING / B4_RELEASE_PENDING",
   "current_b2_status": "FUNCTIONAL_PASS / PHYSICAL_PASS / BOARD_STATUS_PARTIAL",
   "stage2_complete": false,
-  "current_gates": ["B3-ACCURACY-GATE", "B3-SPEED-GATE", "B3-POWER-MEASURED", "B3-POWER-GATE", "B3-GOAL-GATE"],
+  "current_gates": ["B3-SPEED-GATE", "B3-POWER-MEASURED", "B3-POWER-GATE", "B3-GOAL-GATE"],
   "active_stage_contract": "docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md",
   "related_contracts": ["docs/planning/TODO.md#P16", "docs/planning/NPU_PRUNING_TODO.md", "docs/planning/NPU_PRUNING_NP7_TODO.md"],
   "workflow_resume_count_rule": "QUERY_WORKFLOW_RESUME_AT_RUNTIME",
-  "current_execution_point": "B3-PAPER-CP4_CLEAN_RERUN",
-  "priority_execution_point": "B3-PAPER-CP4_CLEAN_RERUN",
+  "current_execution_point": "B3-PAPER-CP5_CONTINUOUS_THROUGHPUT",
+  "priority_execution_point": "B3-PAPER-CP5_CONTINUOUS_THROUGHPUT",
   "b3_accuracy_gate": {
-    "status": "OPEN",
+    "status": "PASS",
     "reporter": "b3_accuracy_report.py",
     "minimum_samples": 1000,
     "required_identity": "same bit/XSA/ELF/manifest and input order",
     "thresholds": {"top1_agreement_min": 0.99, "accuracy_drop_abs_max_pp": 1.0, "confidence_interval": "95%"},
-    "evidence_status": "QAT_V3_STRICT_2OF4_FAIL_LOSSLESS_BOARD_397_DEVELOPMENT_PASS_CLEAN_PENDING",
-    "boundary": "QAT-v3 严格 2:4 live/static 精度失败；无损零组跳过在完整 wrapper 上完成 397 样本开发对拍，logits 逐元素一致且任务准确率无下降。两组 packet ELF 来自 dirty worktree，clean rerun 后才能关闭正式精度门。"
+    "evidence_status": "QAT_V3_STRICT_2OF4_FAIL_LOSSLESS_BOARD_397_FORMAL_PASS",
+    "boundary": "QAT-v3 严格 2:4 live/static 精度失败；无损零组跳过在 clean HEAD 完整 wrapper 上完成 397 样本正式对拍，logits 逐元素一致且任务准确率无下降。该门只覆盖无损候选与指定 held-out 分布。"
   },
   "b3_22_1e1_logits_collection": {
-    "status": "IMPLEMENTED_CONTRACT_PASS_BOARD_397_DEVELOPMENT_PASS_CLEAN_PENDING",
+    "status": "IMPLEMENTED_CONTRACT_PASS_BOARD_397_FORMAL_PASS",
     "reporter": "b3_accuracy_report.py",
     "scope": "same identity dense/live logits collection before accuracy aggregation",
     "minimum_samples": 1000,
     "required_outputs": ["sample_id pairing", "dense_logits", "live_logits", "label", "identity", "95% CI inputs"],
-    "evidence_status": "QAT_BOARD_397_OF_397_EXACT_TASK_ACCURACY_88_665_NO_DROP_CLEAN_PENDING",
+    "evidence_status": "QAT_BOARD_397_OF_397_EXACT_TASK_ACCURACY_88_665_NO_DROP_FORMAL",
     "implementation": "b3-22.1a/b contract and build pass; board logits collection entry implemented with fail-closed failure handling",
-    "next_action": "在 clean HEAD 重建 dense/lossless packet ELF 并复跑 397 样本，随后冻结负载进入 CP5/功耗",
-    "does_not_close": ["B3-ACCURACY-GATE", "B3-SPEED-GATE"]
+    "next_action": "执行 CP5 连续流吞吐，随后冻结 dense/lossless 负载进入功耗",
+    "does_not_close": ["B3-SPEED-GATE", "B3-POWER-GATE"]
   },
   "b3_22_1e1_dataset_and_merge": {
     "dataset_generator": "b3_accuracy_dataset.py",
@@ -51,7 +51,7 @@
     "manifest_epochs": {"dense": 1, "live": "2..65"},
     "candidate_dataset": {"name":"digit8x8_uint4_candidates","count":1797,"runner_saves":["label","identity"]},
     "semantic_baseline": "QAT-v3 dense 88.665%; strict 2:4 live/static fail; lossless zero-group RTL keeps 397/397 logits exact",
-    "status": "QAT_V3_CP1_DENSE_BOARD_PASS_LOSSLESS_CP4_BOARD_397_DEVELOPMENT_PASS_CLEAN_PENDING"
+    "status": "QAT_V3_CP1_DENSE_BOARD_PASS_LOSSLESS_CP4_BOARD_397_FORMAL_PASS"
   },
   "ddr_accesses_so_far": 0,
   "b0": {

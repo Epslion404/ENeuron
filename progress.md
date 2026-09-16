@@ -2465,3 +2465,13 @@
 - 第一版RTL-SAIF注入完成但审查未过：routed时序`WNS=+0.227 ns`、`WHS=+0.029 ns`，route/DRC无错误；然而dense/gated均仅匹配`609/4716=13%`网、overall confidence=`Medium`，且0.001 W分辨率下动态功耗都显示`0.012 W`。该结果保留为迭代证据但不进入论文。流程改为从同一routed DCP导出功能网表后门级XSim生成SAIF，并将匹配率`>=90%`、overall confidence=`High`设为汇总硬门。
 - 错误记录：首次post-route功能网表仿真在`model_valid=0`处失败；查明TB于20 ns释放局部reset，而Xilinx`glbl.GSR`门级上电复位约持续100 ns，配置命令被覆盖。修正为150 ns后开始配置，并为runner增加`-SkipImplementation`以安全复用本轮已生成的同一DCP/netlist。
 - 下一步定位可复用NPU testbench和Vivado/XSim入口，先冻结dense/gated相同输入与活动窗口，再写最小脚本。
+
+# 2026-09-16 QAT lossless CP4 clean 正式通过
+
+- dense clean wrapper：200 MHz `WNS=+0.004 ns`，route/DRC=0，4 DSP。
+- lossless clean wrapper：200 MHz `WNS=+0.008 ns`，route/DRC=0，4 DSP。
+- dense 397 样本正式 run `20260916T065247Z` 与 lossless run `20260916T064718Z` 均 PASS，397/397 logits 对 QAT golden 精确一致。
+- paired：logit/prediction/ID/CRC/protocol mismatch 全 0，accuracy drop=`0 pp`；核心 `1.088954x`，单样本完整窗口 `1.008196x`。
+- 正式结果更新为 `artifacts/results/b3_qat_cp4_lossless_zero_group_board_397.json`；CP4 与 lossless accuracy gate 关闭。
+- runner formal 证据合同已加固，定向测试 `13 passed`。
+- 当前执行点：CP5 连续流纯 PL 吞吐，之后冻结 dense/lossless 四种功耗状态。

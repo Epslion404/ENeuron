@@ -4,11 +4,11 @@
 > verified_at: 2026-09-13
 > provenance: Git checkout 身份以命令实时输出为准；板级签核仍绑定 RTL `be84596` 与对应 bit/XSA/ELF/manifest。
 
-当前 B3 依赖（2026-09-16）：QAT CP0/CP1、CP3a/CP3b 和 lossless 完整 wrapper CP3c 已完成；CP4 已有 397 样本 dirty-worktree 开发对拍。当前前置是 clean HEAD 重建/复跑并冻结 dense/lossless 负载，然后进入 CP5 纯 PL 吞吐与功耗。严格连接级 `2:4`、独立 PL auto-mask、批量协议和网口发布均后置。
+当前 B3 依赖（2026-09-16）：QAT CP0/CP1、CP3a/CP3b/CP3c 与 CP4 clean 正式对拍已完成；当前无损候选的精度门通过。当前前置是 CP5 连续流纯 PL 吞吐，随后冻结 dense/lossless 负载进入功耗。严格连接级 `2:4`、独立 PL auto-mask、批量协议和网口发布均后置。
 
 当前依赖边界：`xc7z020clg484-2` NPU + ENeuron 动态剪枝是活动主线；`archive/legacy/` 不参与日常门。B3 速度/功耗目标不依赖完整 B2-GATE、严格连接级 `2:4`、10000 样本、完整恢复或网口。严格结构与长稳工作进入 `B3-STRICT-GATE`；外部板级功耗属于 B3-POWER，B4 只补网口发布及其负载差异。
 
-当前论文验证合同由 `docs/planning/PAPER_BOARD_VALIDATION_PLAN_V1.md` 与 P16 TODO 段主导。B3-MVP-GATE、QAT CP0/CP1/CP3a/CP3b/CP3c 已完成；当前执行 CP4 clean rerun，门槛是 clean HEAD 上 dense/lossless 397 样本逐位输出、CRC、协议和身份均通过。功耗线、B2-06～B2-10/B2-GATE、B3-STRICT 与 B4-RELEASE 均后置。
+当前论文验证合同由 `docs/planning/PAPER_BOARD_VALIDATION_PLAN_V1.md` 与 P16 TODO 段主导。B3-MVP-GATE、QAT CP0/CP1/CP3a/CP3b/CP3c/CP4 与无损精度门已完成；当前执行 CP5，门槛是至少 1000 样本预热、10000 样本正式统计、5 轮交替 dense/lossless，并保持 ID/CRC/协议全绿。功耗线、B2-06～B2-10/B2-GATE、B3-STRICT 与 B4-RELEASE 均后置。
 
 B2-08 依赖更新（2026-09-12）：adapter 四流计数和 fence snapshot 已进入 `b2_npu_axis_top`，并由 `0x40430000` 只读 AXI-Lite 状态块供 JTAG/PS 读取；HEAD `88bec9e` 的 200 MHz routed build 已通过，COM15 读回 command/sample/response/result=`658/658`、`8/8`、`1/1`、`10 beats/1 packet`，fence snapshot valid。该部分证据解除“状态块不可读”阻塞，但不解除完整多 packet/error/reset ledger、B2-GATE 或 B3 数值等价门。
 

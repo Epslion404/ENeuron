@@ -1,14 +1,14 @@
 # 系统边界
 
-## 当前主线覆写（2026-09-16，CP4 clean rerun 前）
+## 当前主线覆写（2026-09-16，CP4 clean 正式通过）
 
-B3-22.3/22.4 已完成并保留为历史工程证据。QAT CP0/CP1/CP3c 已完成，严格 2:4 live/static 精度失败。当前论文主线为无损零组跳过 CP4 clean rerun：lossless 完整 wrapper 已通过 200 MHz 物理门，397 样本板级开发对拍 logits 逐元素一致、核心周期约 1.089x、端到端约 1.005x。速度、功耗和目标门继续 OPEN。
+B3-22.3/22.4 已完成并保留为历史工程证据。QAT CP0/CP1/CP3c/CP4 已完成，严格 2:4 live/static 精度失败。当前论文主线为无损零组跳过 CP5 连续吞吐：clean 397 样本板级正式对拍 logits 逐元素一致、核心周期约 `1.089x`、单样本窗口约 `1.008x`。无损精度门已通过，速度、功耗和目标门继续 OPEN。
 
 > generated_by: nexus-mapper v2 / manual synthesis
 > verified_at: 2026-09-16
 > provenance: 当前 checkout 路径、分支与提交以 Git 命令实时查询；历史路径、分支和 PR 名称仅作来源。bitstream RTL 身份 `be84596`。SPEED 证据 `artifacts/logs/b3_speed_20260912_be84596/b3_speed_comparison.json`。
 
-## 当前权威快照（2026-09-16，日常主线 CP4 clean rerun）
+## 当前权威快照（2026-09-16，日常主线 CP5）
 
 器件 `xc7z020clg484-2`。日常主线是 `B3-SPEED-GATE`（端到端速度）与 `B3-POWER-GATE`（外部功耗目标），不是 B3-08b。主线仍是板上 packet-NPU + ENeuron 组级动态剪枝。live tree 是本工作树；PR #88 仅作历史来源，不是当前分支身份。
 
@@ -18,7 +18,7 @@ B3-MVP-GATE 已关。同一份集中 Vivado 2024.1 bitstream：RTL 身份 `be845
 
 四模式 A/B 两轮一致：dense/full-open 592/0 组、2494 cycles、logits 165,-18,14,0,0,0,0,0,0,153；static mixed 296/296、1606 cycles、logits 74,-18,...,114、`decision_source=host_replay_static_mixed`；live-ENeuron 296/296、1606 cycles、dense logits、`decision_source=live_eneuron_s2`。同源 bit `be84596` / SHA `0ecbe762…3a11`、COM15 系统路径：dense/full-open PS 7 µs、DMA ~60 µs、UART ~66–77 ms；static DMA 56 µs、UART 63 ms；live PS 996 µs、DMA 56 µs。只可声称 `group_4way` 动态剪枝正确性 + 局部 NPU 周期差值 888 cycles。禁止：888 当端到端加速、Vivado 功耗当板上功耗、19-word 当连接级 `2:4`。
 
-`B3-SPEED-MEASURED`、B3-17C、B3-20.1、B3-20.2 与两轮 B3-22 已完成，但 `B3-ACCURACY-GATE` 与 `B3-SPEED-GATE` 均保持打开。QAT CP1 dense、lossless CP3c 和 397 样本 CP4 开发对拍已完成；clean HEAD 复跑、纯 PL 吞吐和外部功耗仍未完成。功耗仪器合同已冻结，`POWER_NOT_MEASURED`；`B3-POWER-MEASURED` 与 `B3-POWER-GATE` 均保持打开。`B3-STRICT-GATE` 是独立结构实验。
+`B3-SPEED-MEASURED`、B3-17C、B3-20.1、B3-20.2 与两轮 B3-22 已完成。QAT CP1 dense、lossless CP3c、CP4 clean 正式对拍和无损候选的 `B3-ACCURACY-GATE` 已完成；纯 PL 连续吞吐和外部功耗仍未完成。功耗仪器合同已冻结，`POWER_NOT_MEASURED`；`B3-SPEED-GATE`、`B3-POWER-MEASURED` 与 `B3-POWER-GATE` 均保持打开。`B3-STRICT-GATE` 是独立结构实验。
 
 pytest 日常主线收集边界由根目录 `pytest.ini` 冻结：递归排除 `archive/`、`.planning/`、Git/Xilinx/pytest 缓存目录，并忽略仍依赖归档前相对路径的根级 legacy 测试；历史文件保留，但不参与当前 ZYNQ7020 日常门。边界合同由 `test_pytest_scope_contract.py` 检查；完整 B2 编排入口为 `run_b2_checks.ps1 -Full`。
 

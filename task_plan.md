@@ -10,9 +10,9 @@
 - [x] 完成 CP3c 物理门：修复轮 route/DRC hard error 为 0，资源 `2068 LUT / 2848 FF / 1 BRAM36 / 4 DSP48E1`；允许进入完整 wrapper/bitstream 构建准备。
 - [x] 参数化完整 wrapper 构建入口：`run_b2_build.ps1 -NpuMode dense|lossless_zero_group_skip` 将模式传入 Vivado Tcl，lossless 模式显式注入 `LOSSLESS_ZERO_GROUP_SKIP,B3_USE_XPM`，并把模式/宏写入 signoff 与 build manifest。
 - [x] lossless 完整 wrapper 已生成 bit/XSA，物理门通过：`WNS=+0.008 ns`、`TNS=0`、`WHS=+0.036 ns`、`THS=0`、route/DRC hard error=0、DSP48E1=4；完成 8/64/397 样本板级 smoke/速度/输出对拍。
-- [ ] dense 完整 wrapper 当前最终 setup 未通过（`WNS=-0.072 ns`、`TNS=-0.120 ns`）；正式 dense 对照继续绑定既有通过物理门的 `boards/hellozynq/b2_hw/build` bit/XSA，直到生成新的 dense 200 MHz 通过构建。
-- [x] CP4 开发证据：397 样本 dense/lossless sample ID、输入 CRC、结果 CRC、协议状态和 logits 均逐位一致；lossless 平均 `2290.272 cycles` vs dense `2494`，核心 `1.088954x`，端到端均值 `1.004565x`，任务准确率均 `88.665%`、下降 `0 pp`。
-- [ ] 在 clean HEAD 上重建两种 packet ELF/manifest，复跑 397 样本并将 `formal_evidence` 置为 true；随后冻结负载/JTAG 条件进入 B3-POWER。
+- [x] dense 完整 wrapper 在 clean HEAD 通过 200 MHz 物理门（`WNS=+0.004 ns`、`TNS=0`、`WHS=+0.036 ns`、`THS=0`、route/DRC=0、4 DSP）。
+- [x] CP4 正式证据：clean HEAD `e155091` 上 397 样本 dense/lossless sample ID、输入 CRC、结果 CRC、协议状态和 logits 均逐位一致；lossless 平均 `2290.272 cycles` vs dense `2494`，核心 `1.088954x`，端到端窗口均值 `1.008196x`，任务准确率均 `88.665%`、下降 `0 pp`。
+- [x] clean HEAD 两种 packet ELF/manifest 已重建并复跑 397 样本，`formal_evidence=true`；正式结果见 `artifacts/results/b3_qat_cp4_lossless_zero_group_board_397.json`。
 
 当前风险：仿真 `1.3272x` 是核心周期估算，不是实板吞吐；现有四轮 OOC 均未达到 200 MHz，继续做同类组合微调不能替代结构性取数路径修复。
 
@@ -2211,3 +2211,18 @@ RED 记录：新增“完成外部测量不能自动关闭降功耗目标”合�
 - [ ] 更新 TODO、CURRENT_STATUS、WORKFLOW_STATE、progress 和 Nexus；只有端到端实测优于 dense 才关闭速度门。
 
 关键假设：路线一允许 PL 为生成 mask 先执行一次密集预计算，再执行一次现有门控推理；该方案优先证明 PS 可退出决策链，不预设一定加速。若预计算重复开销导致无收益，证据将作为路线二“决策与 NPU MAC 融合”的输入。
+
+## 2026-09-16 QAT lossless CP4 clean 正式收口
+
+状态：`COMPLETE`
+
+- [x] 在 clean HEAD `e155091` 完成 dense/lossless 两条完整 wrapper 构建，均通过 `xc7z020clg484-2`、200 MHz timing/route/DRC 与 4 DSP 合同。
+- [x] 使用同一 QAT-v3 manifest 完成 dense/lossless 各 397 样本实板运行，捕获全部 logits、ID、CRC、协议和周期字段。
+- [x] 逐样本配对确认 3970 个 logits 元素、预测类别和任务准确率均无差异，关闭当前无损候选的 `B3-ACCURACY-GATE`。
+- [x] 将 bit/XSA/ELF、硬件/软件 manifest 和原始 run SHA-256 写入正式 CP4 结果。
+- [x] 修正 PAPER/TODO/状态/Nexus 的 CP4 语义，删除当前无损实现不具备的 PL-auto staging 描述。
+- [x] 加固 formal evidence：软件 clean 之外，还必须要求硬件 clean、同 HEAD 且物理签核通过。
+
+下一阶段：`B3-PAPER-CP5`。建立长跑汇总记录，预热至少 1000 样本、正式至少 10000 样本，执行 5 轮交替 dense/lossless 的纯 PL 连续吞吐；通过后冻结功耗负载。
+
+错误记录：首次定向 pytest 使用不存在的 Windows `.venv\\Scripts\\python.exe`，未执行测试也未修改文件；已改用 WSL `.venv/bin/python`。一次大块 JSON delete/add 补丁被 apply_patch 拒绝，未修改文件；后续改用局部更新。一次 PAPER 补丁因上下文少了空格被拒绝，未产生部分修改；后续使用精确短上下文。

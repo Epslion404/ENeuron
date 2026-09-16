@@ -68,7 +68,23 @@ def test_packet_build_can_bind_an_explicit_hardware_build() -> None:
         assert "HardwareBuildDir" in source
         assert "BuildTag" in source
     assert "hardware_npu_mode" in packet_build
+    assert "hardware_build_manifest_sha256" in packet_build
+    assert "hardware_git_head" in packet_build
+    assert "hardware_git_worktree_clean" in packet_build
+    assert "hardware_signoff_pass" in packet_build
     assert "HardwareBuildDir = $HardwareBuildDir" in runner
+
+
+def test_formal_board_evidence_requires_clean_signed_hardware_from_same_head() -> None:
+    runner = (ROOT / "boards/hellozynq/b2_sw/run_b3_speed_benchmark.ps1").read_text(
+        encoding="utf-8"
+    )
+    assert "$hardwareFormalEvidence" in runner
+    assert "hardware_git_worktree_clean" in runner
+    assert "hardware_signoff_pass" in runner
+    assert "hardware_git_head" in runner
+    assert "Formal B3 speed evidence requires clean signed hardware from the same HEAD" in runner
+    assert "formal_evidence = (-not $AllowDirty -and $softwareFormalEvidence -and $hardwareFormalEvidence)" in runner
 
 
 def test_speed_probe_allows_397_samples_with_accuracy_capture() -> None:

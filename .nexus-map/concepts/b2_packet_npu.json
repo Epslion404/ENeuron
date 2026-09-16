@@ -1,11 +1,11 @@
 {
-  "current_override": {"verified_at":"2026-09-16","next_action":"B3-PAPER-CP4_CLEAN_RERUN_THEN_CP5_POWER","qat_cp1_dense":"BOARD_PASS","strict_2of4":"PRUNING_ACCURACY_FAIL","lossless_zero_group":"BOARD_397_DEVELOPMENT_PASS_CLEAN_RERUN_PENDING","b3_speed_gate":"OPEN","b3_power_gate":"OPEN","b3_goal_gate":"OPEN"},
+  "current_override": {"verified_at":"2026-09-16","next_action":"B3-PAPER-CP5_CONTINUOUS_THROUGHPUT","qat_cp1_dense":"BOARD_PASS","strict_2of4":"PRUNING_ACCURACY_FAIL","lossless_zero_group":"BOARD_397_FORMAL_PASS","b3_accuracy_gate":"PASS_LOSSLESS","b3_speed_gate":"OPEN","b3_power_gate":"OPEN","b3_goal_gate":"OPEN"},
   "$schema": "nexus-mapper/concept-model/v1",
   "verified_at": "2026-09-13",
   "label": "B2 packet-NPU integration",
   "deployment_target_part": "xc7z020clg484-2",
   "source_identity_rule": "QUERY_CURRENT_CHECKOUT_AT_RUNTIME",
-  "current_status": "FUNCTIONAL_PASS / PHYSICAL_PASS / BOARD_STATUS_PARTIAL / B3_MVP_GATE_PASS / B3_09_BOARD_PASS / B3_L0_CACHE_BOARD_DIAGNOSTIC_PASS / B3_ACCURACY_GATE_OPEN / B3_SPEED_GATE_OPEN / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B2_GATE_PENDING",
+  "current_status": "FUNCTIONAL_PASS / PHYSICAL_PASS / BOARD_STATUS_PARTIAL / B3_MVP_GATE_PASS / B3_09_BOARD_PASS / B3_L0_CACHE_BOARD_DIAGNOSTIC_PASS / B3_QAT_CP4_BOARD_FORMAL_PASS / B3_ACCURACY_GATE_PASS_LOSSLESS / B3_SPEED_GATE_OPEN / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B2_GATE_PENDING",
   "physical_evidence_head": "88bec9e9bdbec1de53ef45d2f22e4275308c0237",
   "live_eneuron_host_source_head": "fe25a7081f6a93e9d63c888ea581dc5595d84b4a",
   "commits": {
@@ -192,7 +192,7 @@
     "release": "B4-RELEASE-GATE; Ethernet end-to-end A/B and network-load deltas; board power target belongs to B3-POWER",
     "non_blocking_for_mvp": ["B2-GATE", "strict connection-level 2:4", "10000 samples", "full recovery matrix", "Ethernet", "external power measurement"]
   },
-  "next_gate": "B3-PAPER-CP4 clean rerun: rebuild dense/lossless packet ELF and manifest on clean HEAD, reproduce 397-sample output/CRC/accuracy evidence, then freeze the pair for CP5 power. Keep SPEED-GATE and POWER-GATE OPEN.",
+  "next_gate": "B3-PAPER-CP5 continuous pure-PL throughput: run alternating dense/lossless streams with warm-up and steady-state statistics, then freeze the paired load for power measurement. Keep SPEED-GATE and POWER-GATE OPEN.",
   "forbidden_claims": [
     "full packet-path/error matrix validated on board",
     "full B2-08 ledger/error matrix validated on board",

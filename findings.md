@@ -2252,3 +2252,12 @@
 - 本轮应建立同一NPU RTL、同一器件、同一200 MHz约束、同一输入序列和仅mask不同的OOC routed A/B；RTL/XSim生成SAIF，`read_saif`注入同一routed DCP后分别`report_power`。器件静态仅作为器件基线单列，不归因给NPU核心。
 - 当前QAT-v3清单已携带634个canonical packed model words与397个held-out样本；`artifacts/results/b3_qat_pruning_diagnostic.json`携带同一模型的19-word calibrated严格2:4 mask，可直接生成确定性SV数据文件，避免复用旧手工稀疏fixture。
 - 正式功耗TB应连接`execute_group_count`、`skip_group_count`和`last_compute_cycles`并在SAIF窗口内自检：dense每次592/0、2494 cycles，gated每次296/296、1606 cycles；模型/mask装载和reset不进入采样窗口。
+
+## 2026-09-16 CP4 clean 实板事实
+
+- clean dense wrapper：`WNS=+0.004 ns`、`WHS=+0.036 ns`、TNS/THS=0、route/DRC hard error=0、4 DSP；bit=`c852cfe1...ff0122`，XSA=`d96068a4...6024`。
+- clean lossless wrapper：`WNS=+0.008 ns`、`WHS=+0.036 ns`、TNS/THS=0、route/DRC hard error=0、4 DSP；bit=`22e545d7...72c79`，XSA=`135ab2b8...2d68`。
+- 397 样本逐项比较：sample ID、输入 CRC、结果 CRC、状态、协议错误、3970 个 logits 元素和预测类别的 mismatch 均为 0；任务准确率均 `352/397=88.665%`。
+- 核心周期：dense `2494`，lossless 平均 `2290.272`，核心加速 `1.088954x`；lossless 平均执行/跳过 `524.091/67.909`，跳过率 `11.4712%`。
+- 单样本完整窗口：dense `63.826 us`，lossless `63.307 us`，均值加速 `1.008196x`。该数只说明 packet 单样本路径，不能替代 CP5 连续流吞吐。
+- 旧 runner 的 `formal_evidence` 只检查软件工作树，历史 dirty 硬件也可能被标真；已增加硬件 clean、同 HEAD、signoff 三项 fail-closed 条件。

@@ -4,11 +4,11 @@
 
 ## QAT CP4 无损零组跳过实板（2026-09-16）
 
-lossless 完整 wrapper 已在 `xc7z020clg484-2`、200 MHz 通过物理门：`WNS=+0.008 ns`、`TNS=0`、`WHS=+0.036 ns`、`THS=0`、route/DRC hard error=0、DSP48E1=`4`。使用 QAT-v3 的 397 个 held-out 样本，dense 与 lossless 两轮均为 `397/397 PASS`；sample ID、输入 CRC、结果 CRC、协议状态和 10 维 logits 逐样本一致，logit element mismatch=`0`、prediction mismatch=`0`、任务准确率均为 `88.665%`、下降 `0 pp`。
+clean HEAD `e155091` 上，dense 与 lossless 两条完整 wrapper 均在 `xc7z020clg484-2`、200 MHz 通过物理门：dense `WNS=+0.004 ns`，lossless `WNS=+0.008 ns`，两者 `TNS=0`、`WHS=+0.036 ns`、`THS=0`、route/DRC hard error=0、DSP48E1=`4`。使用 QAT-v3 的 397 个 held-out 样本，两轮均为 `397/397 PASS`；sample ID、输入 CRC、结果 CRC、协议状态和 10 维 logits 逐样本一致，logit element mismatch=`0`、prediction mismatch=`0`、任务准确率均为 `88.665%`、下降 `0 pp`。
 
-lossless 实板平均 `2290.272 cycles/sample`、执行/跳过组 `524.091/67.909`、跳过率 `11.4712%`，相对 dense `2494 cycles` 的核心加速为 `1.088954x`。完整 PS/DMA 单样本窗口均值为 dense `63.746 us`、lossless `63.456 us`，仅 `1.004565x`；p50=`64→63 us`、p95/p99=`66→64 us`。这说明无损跳过已经在纯 PL 核心兑现，但当前单样本协议下系统收益仍不足 1%。证据为 `artifacts/results/b3_qat_cp4_lossless_zero_group_board_397.json`。
+lossless 实板平均 `2290.272 cycles/sample`、执行/跳过组 `524.091/67.909`、跳过率 `11.4712%`，相对 dense `2494 cycles` 的核心加速为 `1.088954x`。完整 PS/DMA 单样本窗口均值为 dense `63.826 us`、lossless `63.307 us`，仅 `1.008196x`；p50=`64→63 us`、p95=`65→64 us`、p99=`66→64 us`。这说明无损跳过已在纯 PL 核心兑现，但单样本 packet 路径仍被固定开销稀释。证据为 `artifacts/results/b3_qat_cp4_lossless_zero_group_board_397.json`。
 
-边界：两组 packet ELF 均由 dirty worktree 构建，结果属于开发证据，尚不能关闭正式 CP4、B3-ACCURACY-GATE 或 B3-SPEED-GATE。新 dense wrapper 构建已生成 bit/XSA，但最终 setup 为 `WNS=-0.072 ns/TNS=-0.120 ns`，不得作为 200 MHz 正式对照；本轮 dense 对照继续使用既有物理通过的 `boards/hellozynq/b2_hw/build` bit/XSA。
+裁定：两组硬件 manifest 均为 clean、同 HEAD、物理签核通过，packet ELF 也由 clean HEAD 构建；bit/XSA/ELF/manifest/run SHA-256 已写入正式结果。因此 `B3-PAPER-CP4` 与当前无损候选的 `B3-ACCURACY-GATE` 关闭。`B3-SPEED-GATE` 仍保持 OPEN，下一步是 CP5 连续流纯 PL 吞吐；功耗在吞吐负载冻结后执行。
 
 ## QAT 无损零组跳过 RTL/OOC（2026-09-15）
 
@@ -26,13 +26,13 @@ QAT dense 已在同一 `xc7z020clg484-2` bit/XSA 下完成 8 样本 smoke 和 64
 
 ## 当前裁定（QAT 重基线后）
 
-`B3-22.2`、`B3-22.3` 与 `B3-22.4` 首轮均已完成，但不再是当前优先级。CP0 QAT 无泄漏重基线、CP1 dense 板级逐位对拍和 CP4 无损跳过开发实测均已完成；严格 2:4 live/static 精度失败，主候选已收敛为可证明无损的零组跳过。下一步是在 clean HEAD 上重建 packet ELF/manifest 并复跑 397 样本，随后冻结 dense/lossless 负载进入 paired 功耗测量。`B3-SPEED-GATE`、`B3-POWER-GATE`、`B3-GOAL-GATE` 仍保持 OPEN。
+`B3-22.2`、`B3-22.3` 与 `B3-22.4` 首轮均已完成，但不再是当前优先级。CP0 QAT 无泄漏重基线、CP1 dense 板级逐位对拍、CP3a/b/c 和 CP4 clean 正式实测均已完成；严格 2:4 live/static 精度失败，主候选为可证明无损的零组跳过。下一步执行 CP5：连续流预热、至少 10000 样本、5 轮交替 dense/lossless，测纯 PL 稳态吞吐并冻结随后功耗负载。`B3-SPEED-GATE`、`B3-POWER-GATE`、`B3-GOAL-GATE` 仍保持 OPEN。
 
 ## 结论
 
-当前项目状态为：`FUNCTIONAL_PASS / B3_MVP_GATE_PASS / B3_QAT_CP1_DENSE_BOARD_PASS / B3_QAT_LOSSLESS_ZERO_GROUP_RTL_SIM_PASS / B3_QAT_LOSSLESS_ZERO_GROUP_OOC_PASS_TIMING / B3_QAT_CP4_BOARD_DEVELOPMENT_PASS / B3_SPEED_MEASURED / B3_ACCURACY_GATE_OPEN / B3_SPEED_GATE_OPEN / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B3_STRICT_DEFERRED_STRUCTURAL / PL_AUTO_MASK_BOARD_DEFERRED / B2_GATE_PENDING`。
+当前项目状态为：`FUNCTIONAL_PASS / B3_MVP_GATE_PASS / B3_QAT_CP1_DENSE_BOARD_PASS / B3_QAT_LOSSLESS_ZERO_GROUP_RTL_SIM_PASS / B3_QAT_LOSSLESS_ZERO_GROUP_OOC_PASS_TIMING / B3_QAT_CP4_BOARD_FORMAL_PASS / B3_ACCURACY_GATE_PASS_LOSSLESS / B3_SPEED_GATE_OPEN / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B3_STRICT_DEFERRED_STRUCTURAL / PL_AUTO_MASK_BOARD_DEFERRED / B2_GATE_PENDING`。
 
-主线是 `xc7z020clg484-2` 上部署 NPU，并用 ENeuron 组级动态剪枝证明推理加速与功耗下降且基本保持精度。B3-MVP-GATE 已关：同一 200 MHz bitstream 上 dense/full-open/static/live 小集合 A/B、epoch 读回和局部周期差值可回放。第一轮 16 样本速度测量结论为 `NO_END_TO_END_SPEEDUP`；B3-20.1/20.2 已完成 K=16 mask 摊销及 3 组 dense/live 对称复测。PL staging 与 PS mask 计算优化后的 64 样本多输入复测已通过：live `722–727 us`、dense `155–159 us`；live 仍约为 dense 的 `4.65×`，尚未形成端到端加速。优化后的 live 累计 `mask_us=36324 us`，相对上一版约 `55688 us` 下降约 35%，但 PS mask 决策仍是主要瓶颈。外部功耗未测，速度门和精度门保持 OPEN。精度证明链已补齐模式相关 epoch 合同、板端标签采集字段、1000 样本分块生成和 dense/live 合并工具；2026-09-14 已完成 1024 样本成对采集（v2 报告：agreement 1.0、golden 1024/1024、协议 2048/2048），输出保持单独成立，任务精度因模型/任务适配性未证明不能进入门判定。严格连接级 `2:4` 仍是结构实验，不是当前加速硬门。
+主线是 `xc7z020clg484-2` 上部署 NPU，并用可证明无损的组级动态跳过验证推理加速与功耗下降。历史 PS 在环 live 路径仍保留为负结果：64 样本 live `722–727 us`、dense `155–159 us`，PS mask 计算是主要瓶颈；它不代表当前纯 PL 候选。当前 QAT lossless 已在 clean 397 样本实板上完成输出与任务精度保持，`B3-ACCURACY-GATE` 通过；外部功耗未测，`B3-SPEED-GATE` 和功耗门仍 OPEN。严格连接级 `2:4` 仍是精度失败的结构实验，不是当前加速硬门。
 
 ## 已确认事实
 
@@ -72,7 +72,7 @@ QAT dense 已在同一 `xc7z020clg484-2` bit/XSA 下完成 8 样本 smoke 和 64
 - clean worktree 重建，确认最终可复现 manifest。
 - B2-06～B2-10 的多 packet、完整错误矩阵、复位账本、统一时间戳和正式机器证据包。
 - B2-GATE 发布门。
-- B3-MVP-GATE 已关。`B3-SPEED-MEASURED`、`B3-17C`、B3-20.1、B3-20.2、B3-18a/b/c 和两轮 `B3-22` 判定已完成；`B3-SPEED-GATE` 因完整窗口端到端加速未证明而保持打开。旧 fixed-vector 的 1024 样本只证明该 fixture 的输出保持，不能外推 QAT 剪枝精度。当前主动任务已从 `CP3c` 物理修复转为完整 wrapper/bitstream 构建和 CP4 实板对拍；CP3c 的 NPU core OOC 已通过。B3-22.5 批量协议、严格 2:4 和独立 PL-auto 均后置。功耗仪器合同已冻结但仍是 `POWER_NOT_MEASURED`；`B3-POWER-MEASURED` 与 `B3-POWER-GATE` 都未关闭。B2-GATE 挡网口发布。
+- B3-MVP-GATE、QAT CP4 与无损候选的 `B3-ACCURACY-GATE` 已关；`B3-SPEED-GATE` 因连续流吞吐尚未测量而保持打开。当前主动任务是 CP5 的纯 PL 连续吞吐，B3-22.5 批量协议、严格 2:4 和独立 PL-auto 均后置。功耗仪器合同已冻结但仍是 `POWER_NOT_MEASURED`；`B3-POWER-MEASURED` 与 `B3-POWER-GATE` 都未关闭。B2-GATE 挡网口发布。
 - 计数器对外仍保持 32 位 AXI-Lite 读口；核心内部加法收窄为 24 位，可覆盖 B3-13 的 10000 样本上限（`592 * 10000 = 5,920,000 < 2^24`）。
 - Pulse-Mini-L/L2 集成。它们是冻结的候选/历史支线，不是当前日常门。
 
@@ -80,9 +80,9 @@ QAT dense 已在同一 `xc7z020clg484-2` bit/XSA 下完成 8 样本 smoke 和 64
 
 ## 下一步
 
-1. **CP4 clean 复跑。** 在 clean HEAD 上重建 dense/lossless packet ELF 和 manifest，复跑 397 样本，要求 logits/CRC/协议继续全绿且 `formal_evidence=true`。
-2. **dense 物理身份收口。** 新 dense wrapper 当前 `WNS=-0.072 ns`；正式对照暂绑定既有通过物理门的 dense bit/XSA。若论文要求同源新 wrapper，再单独修复 dense setup，不阻塞现有开发结论。
-3. **CP5/功耗。** 冻结 bit/XSA/ELF/JTAG/负载后，执行 dense/lossless Type-C 整板 paired 功耗和每次正确推理能耗测量；严格 2:4、独立 PL auto-mask 和批量协议均为后置支线。
+1. **CP5 连续吞吐。** 增加不保存逐样本 logits 的长跑记录区与 fail-closed 汇总，预热至少 1000 样本、正式至少 10000 样本，做 5 轮交替 dense/lossless；同一输入循环、同一 JTAG 状态，报告稳态 samples/s、核心周期、首样本和错误计数。
+2. **功耗负载冻结。** CP5 工具通过后，冻结 dense/lossless bit/XSA/ELF、输入流、预热和持续运行脚本，形成四种可重复状态：dense idle/full、lossless idle/full。
+3. **CP8 paired 功耗。** 按 B10 仪器合同执行至少 5 组交替测量，结合 CP5 有效推理数计算整板平均功率和每次正确推理能耗；严格 2:4、独立 PL auto-mask 和批量协议均为后置支线。
 
 ## 文档口径
 

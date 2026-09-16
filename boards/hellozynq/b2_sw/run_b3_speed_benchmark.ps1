@@ -97,8 +97,15 @@ $expectedApplicationMode = "b3_$Mode"
 if ([string]$manifest.application_mode -ne $expectedApplicationMode) {
     throw "Packet build manifest mode mismatch: expected $expectedApplicationMode"
 }
-if (-not $AllowDirty -and -not [bool]$manifest.git_tracked_worktree_clean) {
+$softwareFormalEvidence = [bool]$manifest.git_tracked_worktree_clean
+$hardwareFormalEvidence = [bool]$manifest.hardware_git_worktree_clean -and
+    [bool]$manifest.hardware_signoff_pass -and
+    [string]$manifest.hardware_git_head -eq $gitHead
+if (-not $AllowDirty -and -not $softwareFormalEvidence) {
     throw 'Formal B3 speed evidence requires a clean tracked worktree; use -AllowDirty only for development'
+}
+if (-not $AllowDirty -and -not $hardwareFormalEvidence) {
+    throw 'Formal B3 speed evidence requires clean signed hardware from the same HEAD; use -AllowDirty only for development'
 }
 $packetSourcePath = Join-Path $scriptRoot 'src\packet_main.c'
 if (-not (Test-Path -LiteralPath $packetSourcePath)) { throw "Required file not found: $packetSourcePath" }
@@ -353,8 +360,12 @@ $summary = [ordered]@{
     bitstream_sha256 = [string]$manifest.bitstream_sha256
     xsa_sha256 = [string]$manifest.xsa_sha256
     elf_sha256 = [string]$manifest.elf_sha256
+    hardware_build_manifest_sha256 = [string]$manifest.hardware_build_manifest_sha256
+    hardware_git_head = [string]$manifest.hardware_git_head
+    hardware_git_worktree_clean = [bool]$manifest.hardware_git_worktree_clean
+    hardware_signoff_pass = [bool]$manifest.hardware_signoff_pass
     git_tracked_worktree_clean = [bool]$manifest.git_tracked_worktree_clean
-    formal_evidence = (-not $AllowDirty -and [bool]$manifest.git_tracked_worktree_clean)
+    formal_evidence = (-not $AllowDirty -and $softwareFormalEvidence -and $hardwareFormalEvidence)
     sample_count = $Samples
     model_id = 3
     preprocess = 'uint4_64_low_nibble_first_v1'
