@@ -33,6 +33,17 @@ def test_qat_manifest_and_runner_are_explicitly_supported() -> None:
     assert "logits=165,-18" not in packet
 
 
+def test_qat_sample_index_conversion_is_defined_before_use() -> None:
+    build = (ROOT / "boards/hellozynq/b2_sw/run_b2_packet_sw_build.ps1").read_text(
+        encoding="utf-8"
+    )
+    definition = build.index("function Convert-ManifestUInt32")
+    first_use = build.index("sample_id = Convert-ManifestUInt32")
+    assert definition < first_use
+    assert "[int]$B3QatSampleIndex = 0" in build
+    assert "qat_sample_index = if ($goldenIsQat)" in build
+
+
 def test_qat_manifest_has_cp1_dense_inputs_and_logits() -> None:
     manifest = json.loads(
         (ROOT / "tools/repro/b3_qat_model_manifest.json").read_text(encoding="utf-8")

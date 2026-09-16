@@ -115,12 +115,13 @@ class B2PacketBoardContractTests(unittest.TestCase):
         for token in (
             "if ([int]$manifest.schema_version -ne 2)",
             "Unsupported packet build manifest schema",
-            "if (-not [bool]$manifest.git_tracked_worktree_clean)",
+            "if (-not $AllowDirty -and -not [bool]$manifest.git_tracked_worktree_clean)",
             "Packet build manifest was produced from a dirty tracked worktree",
             "packet_source_sha256",
             "Packet source hash mismatch",
         ):
             self.assertIn(token, runner)
+        self.assertIn("[switch]$AllowDirty", runner)
 
     def test_packet_host_generates_c_header_from_manifest(self):
         build = (ROOT / "boards/hellozynq/b2_sw/run_b2_packet_sw_build.ps1").read_text(encoding="utf-8")

@@ -5,7 +5,9 @@ param(
     [string]$UsbPid = '7523',
     [int]$ListenSeconds = 90,
     [string]$XsctPath = 'G:\Xilinx\Vitis\2024.1\bin\xsct.bat',
-    [string]$HwServerPath = 'G:\Xilinx\Vivado\2024.1\bin\hw_server.bat'
+    [string]$HwServerPath = 'G:\Xilinx\Vivado\2024.1\bin\hw_server.bat',
+    [string]$BuildTag = 'direct',
+    [switch]$AllowDirty
 )
 
 $ErrorActionPreference = 'Stop'
@@ -63,8 +65,10 @@ function Get-ProbeU32 {
 
 $scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $repoRoot = (Resolve-Path (Join-Path $scriptRoot '..\..\..')).Path
+$BuildTag = [string]$BuildTag
+if ($BuildTag -notmatch '^[A-Za-z0-9._-]+$') { throw "Invalid BuildTag: $BuildTag" }
 $gitHead = (& git -C $repoRoot rev-parse HEAD).Trim()
-$buildRoot = Join-Path $scriptRoot (Join-Path 'build' (Join-Path $gitHead 'direct'))
+$buildRoot = Join-Path $scriptRoot (Join-Path 'build' (Join-Path $gitHead $BuildTag))
 $manifestPath = Join-Path $buildRoot 'packet_build_manifest.json'
 if (-not (Test-Path -LiteralPath $manifestPath)) {
     throw "Run run_b2_packet_sw_build.ps1 first: $manifestPath"
@@ -73,7 +77,7 @@ $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
 if ([int]$manifest.schema_version -ne 2) {
     throw "Unsupported packet build manifest schema: $($manifest.schema_version)"
 }
-if (-not [bool]$manifest.git_tracked_worktree_clean) {
+if (-not $AllowDirty -and -not [bool]$manifest.git_tracked_worktree_clean) {
     throw 'Packet build manifest was produced from a dirty tracked worktree'
 }
 $packetSourcePath = Join-Path $scriptRoot 'src\packet_main.c'
@@ -285,6 +289,8 @@ $runManifest = [ordered]@{
     application_mode = $applicationMode
     terminal_marker = $terminalMarker
     git_head = $gitHead
+    build_tag = $BuildTag
+    formal_evidence = (-not $AllowDirty -and [bool]$manifest.git_tracked_worktree_clean)
     port = $PortName
     usb_vid = [string]$UsbVid
     usb_pid = [string]$UsbPid

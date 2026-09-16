@@ -5,15 +5,20 @@ set npu_mode [lindex $argv 2]
 if {$git_head eq {}} { set git_head UNKNOWN }
 if {$out_dir eq {}} { set out_dir [file join $script_dir build] }
 if {$npu_mode eq {}} { set npu_mode dense }
-if {$npu_mode ni {dense lossless_zero_group_skip}} {
-    error "Unsupported B2_NPU_MODE=$npu_mode; expected dense or lossless_zero_group_skip"
+if {$npu_mode ni {dense lossless_zero_group_skip dense_pl_replay lossless_zero_group_skip_pl_replay}} {
+    error "Unsupported B2_NPU_MODE=$npu_mode"
 }
 file mkdir $out_dir
 
 set verilog_defines {}
-if {$npu_mode eq {lossless_zero_group_skip}} {
+if {[string match {lossless_zero_group_skip*} $npu_mode]} {
     lappend verilog_defines LOSSLESS_ZERO_GROUP_SKIP
     lappend verilog_defines B3_USE_XPM
+}
+if {[string match {*_pl_replay} $npu_mode]} {
+    lappend verilog_defines B3_PL_REPLAY_BENCHMARK
+    lappend verilog_defines B3_PL_REPLAY_WARMUP_SAMPLES=1000
+    lappend verilog_defines B3_PL_REPLAY_MEASURE_SAMPLES=10000
 }
 
 set part xc7z020clg484-2
@@ -30,6 +35,7 @@ add_files -norecurse [list \
     [file join $repo_root b2_packet_ingress.sv] \
     [file join $repo_root b2_packet_bram.sv] \
     [file join $repo_root b2_packet_egress.sv] \
+    [file join $repo_root b3_pl_replay_shim.sv] \
     [file join $repo_root npu_zynq7020_t1_wrapper.sv] \
     [file join $repo_root npu_eneuron_single_clock_skeleton.sv] \
 ]

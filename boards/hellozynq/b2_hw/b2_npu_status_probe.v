@@ -54,6 +54,9 @@ module b2_npu_status_probe (
     input wire [31:0] pending_mask_epoch,
     input wire [31:0] last_compute_cycles,
     input wire [31:0] protocol_error_count,
+    input wire [31:0] pl_replay_status,
+    input wire [31:0] pl_replay_completed_count,
+    input wire [31:0] pl_replay_measured_cycles,
     input wire        fence_snapshot_valid,
     input wire [255:0] fence_snapshot_counts
 );
@@ -73,6 +76,9 @@ module b2_npu_status_probe (
     localparam [11:0] PENDING_MASK_EPOCH_ADDR = 12'h058;
     localparam [11:0] LAST_COMPUTE_CYCLES_ADDR = 12'h05C;
     localparam [11:0] PROTOCOL_ERROR_COUNT_ADDR = 12'h060;
+    localparam [11:0] PL_REPLAY_STATUS_ADDR = 12'h064;
+    localparam [11:0] PL_REPLAY_COMPLETED_ADDR = 12'h068;
+    localparam [11:0] PL_REPLAY_CYCLES_ADDR = 12'h06C;
     localparam [11:0] FENCE_SNAPSHOT_VALID_ADDR = 12'h024;
     localparam [11:0] FENCE_SNAPSHOT_BASE_ADDR = 12'h028;
 
@@ -107,6 +113,9 @@ module b2_npu_status_probe (
                 PENDING_MASK_EPOCH_ADDR: read_value = pending_mask_epoch;
                 LAST_COMPUTE_CYCLES_ADDR: read_value = last_compute_cycles;
                 PROTOCOL_ERROR_COUNT_ADDR: read_value = protocol_error_count;
+                PL_REPLAY_STATUS_ADDR: read_value = pl_replay_status;
+                PL_REPLAY_COMPLETED_ADDR: read_value = pl_replay_completed_count;
+                PL_REPLAY_CYCLES_ADDR: read_value = pl_replay_measured_cycles;
                 FENCE_SNAPSHOT_VALID_ADDR: read_value = {31'd0, fence_snapshot_valid};
                 FENCE_SNAPSHOT_BASE_ADDR + 12'h000: read_value = fence_snapshot_counts[31:0];
                 FENCE_SNAPSHOT_BASE_ADDR + 12'h004: read_value = fence_snapshot_counts[63:32];

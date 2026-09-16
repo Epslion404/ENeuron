@@ -93,14 +93,15 @@ CP4 已在 clean HEAD `e155091` 完成：dense/lossless 两条完整 wrapper 均
 
 使用 QAT-v3 和 CP4 的正式 bit/XSA，进行 dense/lossless 连续输入流测试。PS 只提交批次和搬运数据，不参与逐组跳过决策。
 
-- 对照：dense、`LOSSLESS_ZERO_GROUP_SKIP`；strict 2:4/static/独立 PL-auto 只在各自精度门通过后追加。
-- 预热至少 1000 样本，正式统计至少 10,000 样本；资源不足时先做 397 样本功能轮，再做长跑。
+- CP5a 先以编译期 replay shim 做单个代表性 QAT 样本 bring-up：PL 缓存 8 beat，预热 1000 次、计量 10000 次，中间结果不出 PL，只导出聚合周期/完成数和最终结果。该步不关闭 CP5。
+- CP5b 再扩展为 397 个 held-out 的 PL 内循环；对照为 dense、`LOSSLESS_ZERO_GROUP_SKIP`，strict 2:4/static/独立 PL-auto 只在各自精度门通过后追加。
+- 正式统计至少 10,000 样本；至少 5 轮交替 dense/lossless。记录温度、供电、bit/XSA/ELF/model hash。
 - 至少 5 轮，交替 dense/lossless 顺序；记录温度、供电、bit/XSA/ELF/model hash。
 - 同时记录稳态 throughput、首样本延迟、p50/p95/p99、NPU cycles、decision cycles、队列等待、underflow/overflow、ID/epoch/CRC 错误。
 
 **验收判据：**
 
-- 吞吐相对 dense `>=1.30x`，否则论文的 `1.340x` 仅保留为模型预测；
+- 当前 canonical CP4 板级周期比为 `2494/2290.272=1.088954x`；CP5b 验收要求吞吐严格优于 dense，且与该周期 roofline 的差异可解释。旧 `1.3272x/1.340x` 来自带输入置换的 RTL/模型预测，不作为 canonical 实板硬门；
 - logits 与 Python golden 逐位一致；
 - 无协议、乱序、丢失、重复、epoch 或 CRC 错误；
 - 不得用首样本延迟代替稳态吞吐。

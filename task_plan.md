@@ -1,3 +1,17 @@
+# 2026-09-17 CP5a 纯 PL replay bring-up
+
+目标：在不修改正常 packet 推理语义的前提下，增加编译期可选的 PL 内部样本 replay，先获取单个代表性 QAT 样本的 1000 次预热 + 10000 次稳态周期数据，再扩展到 CP5b 的 397 样本分布循环。
+
+- [x] 冻结口径：CP5a 单样本只做调度/计数 bring-up，不关闭 CP5 或速度门；CP5b 才覆盖 397 样本分布和 5 轮交替 A/B。
+- [x] 实现 `b3_pl_replay_shim.sv`，默认构建关闭；启用时缓存 8 beat，吞掉中间结果，只外送最后一次 10-beat 结果。
+- [x] 增加 `0x64/0x68/0x6C` 只读状态、Vivado 构建模式、QAT sample index、专用 probe/runner 和 fail-closed 身份检查。
+- [x] shim 行为仿真、默认/replay wrapper 编译、T1 统一复现、定向合同和 QAT `sample_index=201` ARM 构建通过。
+- [ ] 在 clean HEAD 构建 `dense_pl_replay` 与 `lossless_zero_group_skip_pl_replay`，要求目标器件 200 MHz、route/DRC、4 DSP 全部通过。
+- [ ] 实板运行 CP5a dense/lossless，核对 `completed=10000`、协议错误 0、组计数总和、最终 logits 和 cycles/sample。
+- [ ] CP5a 通过后设计 CP5b 397 样本 PL 内循环；正式速度判据以 canonical CP4 roofline `1.088954x` 为基准。
+
+已知物理风险：`ac499d4` 的非 replay dense wrapper 三次独立实现均为 `WNS=-0.072 ns / TNS=-0.120 ns`，route/DRC hard error=0。继续盲目重跑已停止；replay 模式必须形成自己的 clean 物理证据。
+
 # 2026-09-15 QAT 无损零组跳过物理门
 
 目标：把可证明无损的 QAT 零组跳过从 Python 基线推进到主 NPU RTL，并在 `xc7z020clg484-2`、200 MHz 物理门通过后获取纯 PL 实板速度数据。

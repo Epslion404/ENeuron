@@ -1,5 +1,20 @@
 # 调研与实验发现
 
+## 2026-09-17 CP5 必须区分 packet 长跑与纯 PL replay
+
+- 现有 speed runner 每个样本都执行 PS fence、DMA 提交和结果处理；即使循环 10000 次，它测到的仍是 packet 路径，不能声称为纯 PL 吞吐。
+- 最小可审查方案是在 wrapper 内增加编译期 replay shim：Host 只装载一次模型并提交一次样本，之后的预热/计量全部发生在 `npu_clk` 域。正常模式不定义宏，因此不会改变既有推理协议。
+- canonical CP4 已给出当前硬件和数据分布的真实核心账本：dense `2494`、lossless 平均 `2290.272 cycles`，对应 `1.088954x`。文档原 `>=1.30x` 来自带输入置换的 RTL 预测 `1879.136 cycles`，条件不一致，不能继续作为板级硬门。
+- 单样本 replay 会把数据分布压成一个点。选择 QAT `sample_index=201` 是因为其 lossless `2284 cycles` 接近总体均值，但它仍只能作为 CP5a bring-up；正式 CP5b 必须在 PL 内循环 397 样本并交替 A/B。
+- replay 计量从第一个正式样本首 beat 开始，到第 10000 个样本最后一个 result beat 结束，包含 PL 内部样本输入、NPU 计算、结果 drain 和 replay 调度气泡，不包含 PS/DMA 每样本开销。
+- execute/skip 累加器为 24 bit；11001 次总执行（首样本 + 1000 预热 + 10000 正式）最多 `6,512,592` 组，小于 `2^24`，不会溢出。
+
+## 2026-09-17 wrapper 物理复现边界
+
+- 在 clean 提交 `ac499d4` 上，dense 完整 wrapper 三次独立 Vivado 实现都完成 route、bit 和 XSA，但最终均为 `WNS=-0.072 ns / TNS=-0.120 ns`，hold、route、DRC hard error 通过。
+- 最差路径属于 DMA wrapper，不是本轮新增 replay RTL；三次结果完全相同，说明继续相同策略重跑没有信息增益。
+- 旧 `e155091` dense/lossless CP4 物理签核与 397 样本实板证据仍有效，因为 RTL 源哈希未被脚本/文档提交改变；但新 replay 模式必须重新通过自己的物理门，不能复用旧 bitstream。
+
 ## 无损零组跳过同步 RAM 修复后通过 200 MHz 物理门
 
 - 根因是同步 RAM 输出与状态机使用拍错位：bias 在加载拍读取旧的 `model_word_latched`，跳过组又没有为下一组安排预取。

@@ -12,6 +12,8 @@ param(
     [int]$B3LiveMaskBatchK = 1,
     [string]$B3BenchmarkManifest = '',
     [string]$B3QatManifest = '',
+    [ValidateRange(0, 396)]
+    [int]$B3QatSampleIndex = 0,
     [int]$B3BenchmarkSampleCount = 0,
     [string]$HardwareBuildDir = '',
     [string]$BuildTag = 'direct'
@@ -57,6 +59,13 @@ $makePath = 'G:\Xilinx\Vitis\2024.1\gnuwin\bin\make.exe'
 $toolBin = 'G:\Xilinx\Vitis\2024.1\gnu\aarch32\nt\gcc-arm-none-eabi\bin'
 $gccPath = Join-Path $toolBin 'arm-none-eabi-gcc.exe'
 
+function Convert-ManifestUInt32 {
+    param([Parameter(Mandatory = $true)][object]$Value)
+    $text = [string]$Value
+    if ($text -match '^0x') { return [Convert]::ToUInt32($text.Substring(2), 16) }
+    return [uint32]$Value
+}
+
 foreach ($path in @($bitstream, $xsa, $goldenManifestPath, $makePath, $gccPath)) {
     if (-not (Test-Path -LiteralPath $path)) { throw "Required file not found: $path" }
 }
@@ -75,7 +84,14 @@ if ($goldenIsQat) {
           $golden.model.word_count -ne 634) {
     throw 'B3 golden manifest target/schema/model contract mismatch'
 }
-$goldenSample = @($golden.samples)[0]
+$goldenSamples = @($golden.samples)
+if (-not $goldenIsQat -and $B3QatSampleIndex -ne 0) {
+    throw 'B3QatSampleIndex is only valid for a QAT manifest'
+}
+if ($B3QatSampleIndex -ge $goldenSamples.Count) {
+    throw "B3QatSampleIndex out of range: $B3QatSampleIndex / $($goldenSamples.Count)"
+}
+$goldenSample = $goldenSamples[$B3QatSampleIndex]
 if ($null -eq $goldenSample -or @($goldenSample.input_beats).Count -ne 8) {
     throw 'B3 golden manifest must contain one sample with eight input beats'
 }
@@ -229,12 +245,6 @@ $env:RDI_PLATFORM = 'win64'
 
 # 从黄金 manifest 生成板端只读头文件，避免 C 源码维护第二套模型/样本/mask 常量。
 $goldenManifestSha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $goldenManifestPath).Hash.ToLowerInvariant()
-function Convert-ManifestUInt32 {
-    param([Parameter(Mandatory = $true)][object]$Value)
-    $text = [string]$Value
-    if ($text -match '^0x') { return [Convert]::ToUInt32($text.Substring(2), 16) }
-    return [uint32]$Value
-}
 $headerLines = @(
     '#ifndef B3_FIXED_VECTOR_GENERATED_H',
     '#define B3_FIXED_VECTOR_GENERATED_H',
@@ -343,6 +353,7 @@ $manifest = [ordered]@{
     application_mode = $applicationMode
     protocol = 'ENB2_PACKET_NPU_V1'
     golden_manifest = $goldenManifestPath
+    qat_sample_index = if ($goldenIsQat) { $B3QatSampleIndex } else { $null }
     benchmark_manifest = $benchmarkManifestPath
     benchmark_manifest_sha256 = if ($benchmarkManifestPath) { (Get-FileHash -Algorithm SHA256 -LiteralPath $benchmarkManifestPath).Hash.ToLowerInvariant() } else { $null }
     input_pattern = $inputPattern

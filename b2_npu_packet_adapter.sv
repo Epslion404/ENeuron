@@ -44,6 +44,9 @@ module b2_npu_packet_adapter #(
     output logic [31:0] pending_mask_epoch,
     output logic [31:0] last_compute_cycles,
     output logic [31:0] protocol_error_count,
+    output logic [31:0] pl_replay_status,
+    output logic [31:0] pl_replay_completed_count,
+    output logic [31:0] pl_replay_measured_cycles,
     output logic        fence_snapshot_valid,
     output logic [255:0] fence_snapshot_counts
 );
@@ -151,7 +154,10 @@ module b2_npu_packet_adapter #(
          .host_active_mask_epoch(active_mask_epoch),
          .host_pending_mask_epoch(pending_mask_epoch),
          .host_last_compute_cycles(last_compute_cycles),
-         .host_protocol_error_count(protocol_error_count)
+         .host_protocol_error_count(protocol_error_count),
+         .pl_replay_status(pl_replay_status),
+         .pl_replay_completed_count(pl_replay_completed_count),
+         .pl_replay_measured_cycles(pl_replay_measured_cycles)
     );
 
     // wrapper 的公开 response 没有 last；每个 response word 独立成为一帧，

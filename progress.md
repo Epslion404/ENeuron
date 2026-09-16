@@ -1,5 +1,17 @@
 # 进度记录
 
+## 2026-09-17 CP5a 纯 PL replay 工具切片
+
+- 新增 `b3_pl_replay_shim.sv`：缓存一个 8-beat 样本，在 NPU 时钟域执行可配置预热/计量；默认参数为 1000/10000，中间结果不进入结果 FIFO，仅最终结果外送。
+- wrapper、packet adapter、AXIS 顶层和状态块已贯通；新增只读 `0x64 status / 0x68 completed / 0x6C measured_cycles`，冻结的 `0x00–0x60` 未改址。
+- Vivado 构建新增 `dense_pl_replay`、`lossless_zero_group_skip_pl_replay` 两种显式模式；普通 dense/lossless 不定义 replay 宏。
+- 新增 `probe_b3_pl_replay_benchmark.tcl` 与 `run_b3_pl_replay_benchmark.ps1`；runner 默认冻结 QAT `sample_index=201`，要求硬件 manifest 含 1000/10000 宏、物理签核通过，并输出 CP5a 边界 JSON。
+- 行为仿真：2 次预热 + 3 次计量，首个 Host 样本共执行 6 次，只外送最终 10 beat，`B3_PL_REPLAY_SHIM_PASS`。
+- 验证：相关合同 `48 passed`，T1 统一复现 PASS，默认/replay wrapper Icarus 编译 PASS，QAT `sample_index=201` ARM packet build PASS。
+- 工具兼容事实：PowerShell/WSL 的 PATH 均不含 Icarus，但项目权威安装位于 `C:/msys64/ucrt64/bin`；后续使用固定路径，不重复 PATH 失败。
+- CP5 口径修正：canonical 板级 roofline 为 `2494/2290.272=1.088954x`；旧 `>=1.30x` 仅是不同置换条件下的仿真预测。
+- `ac499d4` dense wrapper 三次实现均为 `WNS=-0.072 ns / TNS=-0.120 ns`，route/DRC hard error 0；保存失败证据并停止同策略盲跑。
+
 ## 2026-09-16 CP4 wrapper 构建入口收口
 
 - `boards/hellozynq/b2_hw/build_b2.tcl` 新增显式 `dense|lossless_zero_group_skip` 模式；lossless 模式注入 `LOSSLESS_ZERO_GROUP_SKIP,B3_USE_XPM`，dense 默认不注入宏。
@@ -2474,4 +2486,4 @@
 - paired：logit/prediction/ID/CRC/protocol mismatch 全 0，accuracy drop=`0 pp`；核心 `1.088954x`，单样本完整窗口 `1.008196x`。
 - 正式结果更新为 `artifacts/results/b3_qat_cp4_lossless_zero_group_board_397.json`；CP4 与 lossless accuracy gate 关闭。
 - runner formal 证据合同已加固，定向测试 `13 passed`。
-- 当前执行点：CP5 连续流纯 PL 吞吐，之后冻结 dense/lossless 四种功耗状态。
+- 当前执行点：CP5a replay wrapper 物理签核与单样本实板 bring-up；通过后执行 CP5b 397 样本分布吞吐，再冻结 dense/lossless 四种功耗状态。
