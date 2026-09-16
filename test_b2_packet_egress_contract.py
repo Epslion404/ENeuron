@@ -8,6 +8,15 @@ ROOT = Path(__file__).resolve().parent
 
 
 class B2PacketEgressContractTests(unittest.TestCase):
+    def test_response_count_width_tracks_actual_capacity(self):
+        source = (ROOT / "b2_packet_egress.sv").read_text(encoding="utf-8")
+        self.assertIn(
+            "localparam integer RESPONSE_COUNT_WIDTH = $clog2(RESPONSE_WORD_CAPACITY + 1);",
+            source,
+        )
+        self.assertIn("logic [RESPONSE_COUNT_WIDTH-1:0] response_word_count;", source)
+        self.assertNotIn("logic [10:0] response_word_count;", source)
+
     def test_sources_exist(self):
         self.assertTrue((ROOT / "b2_packet_egress.sv").is_file())
         self.assertTrue((ROOT / "tb_b2_packet_egress.sv").is_file())

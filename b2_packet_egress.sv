@@ -43,6 +43,7 @@ module b2_packet_egress #(
     state_t state;
     // response 以 128-bit word 写入、按 32-bit lane 读出；同步读端口避免大范围 LUT mux。
     localparam integer RESPONSE_WORD_CAPACITY = (PAYLOAD_WORD_CAPACITY + 3) / 4;
+    localparam integer RESPONSE_COUNT_WIDTH = $clog2(RESPONSE_WORD_CAPACITY + 1);
     logic [127:0] response_mem_rd_data;
     logic [31:0] result_mem_rd_data;
     logic response_mem_wr_en, response_mem_rd_en;
@@ -66,7 +67,7 @@ module b2_packet_egress #(
         .rd_data(result_mem_rd_data)
     );
     logic [10:0] payload_word_count;
-    logic [10:0] response_word_count;
+    logic [RESPONSE_COUNT_WIDTH-1:0] response_word_count;
     logic [10:0] result_word_count;
     logic [10:0] output_index;
     logic [10:0] output_frame_words;
