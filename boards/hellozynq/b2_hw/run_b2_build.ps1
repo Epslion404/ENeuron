@@ -1,6 +1,6 @@
 param(
     [string]$VivadoRoot = $env:VIVADO_ROOT,
-    [ValidateSet('dense', 'lossless_zero_group_skip', 'dense_pl_replay', 'lossless_zero_group_skip_pl_replay')]
+    [ValidateSet('dense', 'lossless_zero_group_skip', 'dense_pl_replay', 'lossless_zero_group_skip_pl_replay', 'dense_pl_distribution_replay', 'lossless_zero_group_skip_pl_distribution_replay')]
     [string]$NpuMode = 'dense',
     [string]$OutDir = ''
 )
@@ -112,6 +112,7 @@ $sourceFiles = @(
     'b2_packet_bram.sv',
     'b2_packet_egress.sv',
     'b3_pl_replay_shim.sv',
+    'b3_pl_distribution_replay_shim.sv',
     'npu_zynq7020_t1_wrapper.sv',
     'npu_eneuron_single_clock_skeleton.sv'
 )
@@ -151,7 +152,8 @@ $manifest = [ordered]@{
     npu_mode = $NpuMode
     verilog_defines = @(
         if ($NpuMode -like 'lossless_zero_group_skip*') { 'LOSSLESS_ZERO_GROUP_SKIP'; 'B3_USE_XPM' }
-        if ($NpuMode -like '*_pl_replay') { 'B3_PL_REPLAY_BENCHMARK'; 'B3_PL_REPLAY_WARMUP_SAMPLES=1000'; 'B3_PL_REPLAY_MEASURE_SAMPLES=10000' }
+        if ($NpuMode -like '*_pl_replay' -and $NpuMode -notlike '*_pl_distribution_replay') { 'B3_PL_REPLAY_BENCHMARK'; 'B3_PL_REPLAY_WARMUP_SAMPLES=1000'; 'B3_PL_REPLAY_MEASURE_SAMPLES=10000' }
+        if ($NpuMode -like '*_pl_distribution_replay') { 'B3_PL_DISTRIBUTION_REPLAY_BENCHMARK'; 'B3_PL_REPLAY_INPUT_SAMPLES=397'; 'B3_PL_REPLAY_WARMUP_SAMPLES=1000'; 'B3_PL_REPLAY_MEASURE_SAMPLES=10000' }
     )
     source_sha256 = $sourceHashes
     bitstream_sha256 = Get-FileSha256 -Path $bitstreamPath

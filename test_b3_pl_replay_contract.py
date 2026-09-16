@@ -26,6 +26,7 @@ def test_pl_replay_is_compile_time_opt_in_and_exports_measurement_counters() -> 
     assert "B3_PL_REPLAY_MEASURE_SAMPLES" in wrapper
     for signal in (
         "pl_replay_status",
+        "pl_replay_capture_count",
         "pl_replay_completed_count",
         "pl_replay_measured_cycles",
     ):
@@ -41,6 +42,7 @@ def test_pl_replay_status_registers_are_read_only_and_outside_frozen_map() -> No
     ).read_text(encoding="utf-8")
 
     assert "PL_REPLAY_STATUS_ADDR = 12'h064" in status
+    assert "PL_REPLAY_CAPTURE_ADDR = 12'h070" in status
     assert "PL_REPLAY_COMPLETED_ADDR = 12'h068" in status
     assert "PL_REPLAY_CYCLES_ADDR = 12'h06C" in status
     assert "状态块没有可写寄存器" in status
@@ -53,7 +55,23 @@ def test_normal_hardware_modes_do_not_enable_pl_replay() -> None:
 
     assert "dense_pl_replay" in build
     assert "lossless_zero_group_skip_pl_replay" in build
-    assert "if {[string match {*_pl_replay} $npu_mode]}" in build
+    assert "string match {*_pl_replay} $npu_mode" in build
+
+
+def test_distribution_replay_mode_is_explicitly_wired() -> None:
+    build = (ROOT / "boards/hellozynq/b2_hw/build_b2.tcl").read_text(encoding="utf-8")
+    runner = (ROOT / "boards/hellozynq/b2_hw/run_b2_build.ps1").read_text(encoding="utf-8")
+    for token in (
+        "dense_pl_distribution_replay",
+        "lossless_zero_group_skip_pl_distribution_replay",
+        "B3_PL_DISTRIBUTION_REPLAY_BENCHMARK",
+        "B3_PL_REPLAY_INPUT_SAMPLES=397",
+        "b3_pl_distribution_replay_shim.sv",
+    ):
+        assert token in build
+        assert token in runner
+    assert "-and $NpuMode -notlike '*_pl_distribution_replay'" in runner
+    assert "![string match {*_pl_distribution_replay} $npu_mode]" in build
 
 
 def test_pl_replay_shim_behavior() -> None:

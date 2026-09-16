@@ -37,10 +37,22 @@ module npu_zynq7020_t1_wrapper #(
     output logic [31:0] host_last_compute_cycles,
     output logic [31:0] host_protocol_error_count,
     output logic [31:0] pl_replay_status,
+    output logic [31:0] pl_replay_capture_count,
     output logic [31:0] pl_replay_completed_count,
     output logic [31:0] pl_replay_measured_cycles
 );
 `ifdef B3_PL_REPLAY_BENCHMARK
+`ifndef B3_PL_REPLAY_WARMUP_SAMPLES
+`define B3_PL_REPLAY_WARMUP_SAMPLES 1000
+`endif
+`ifndef B3_PL_REPLAY_MEASURE_SAMPLES
+`define B3_PL_REPLAY_MEASURE_SAMPLES 10000
+`endif
+`endif
+`ifdef B3_PL_DISTRIBUTION_REPLAY_BENCHMARK
+`ifndef B3_PL_REPLAY_INPUT_SAMPLES
+`define B3_PL_REPLAY_INPUT_SAMPLES 397
+`endif
 `ifndef B3_PL_REPLAY_WARMUP_SAMPLES
 `define B3_PL_REPLAY_WARMUP_SAMPLES 1000
 `endif
@@ -113,6 +125,7 @@ module npu_zynq7020_t1_wrapper #(
     logic [31:0] core_protocol_error_count;
     logic core_mask_staging_open;
     logic [31:0] core_pl_replay_status;
+    logic [31:0] core_pl_replay_capture_count;
     logic [31:0] core_pl_replay_completed_count;
     logic [31:0] core_pl_replay_measured_cycles;
 
@@ -134,6 +147,7 @@ module npu_zynq7020_t1_wrapper #(
     (* ASYNC_REG = "TRUE" *) logic [31:0] compute_cycles_host_sync1, compute_cycles_host_sync2;
     (* ASYNC_REG = "TRUE" *) logic [31:0] protocol_error_host_sync1, protocol_error_host_sync2;
     (* ASYNC_REG = "TRUE" *) logic [31:0] replay_status_host_sync1, replay_status_host_sync2;
+    (* ASYNC_REG = "TRUE" *) logic [31:0] replay_capture_host_sync1, replay_capture_host_sync2;
     (* ASYNC_REG = "TRUE" *) logic [31:0] replay_completed_host_sync1, replay_completed_host_sync2;
     (* ASYNC_REG = "TRUE" *) logic [31:0] replay_cycles_host_sync1, replay_cycles_host_sync2;
     logic [31:0] fence_id_npu;
@@ -332,7 +346,29 @@ module npu_zynq7020_t1_wrapper #(
     assign core_result_ready = result_fifo_ready_npu;
     assign result_wr_en = core_result_valid && core_result_ready;
 
-`ifdef B3_PL_REPLAY_BENCHMARK
+`ifdef B3_PL_DISTRIBUTION_REPLAY_BENCHMARK
+    b3_pl_distribution_replay_shim #(
+        .INPUT_SAMPLES(`B3_PL_REPLAY_INPUT_SAMPLES),
+        .WARMUP_SAMPLES(`B3_PL_REPLAY_WARMUP_SAMPLES),
+        .MEASURE_SAMPLES(`B3_PL_REPLAY_MEASURE_SAMPLES)
+    ) replay_shim (
+        .clk(npu_clk), .rst(npu_rst),
+        .upstream_sample_data(core_sample_data), .upstream_sample_id(core_sample_id),
+        .upstream_sample_valid(core_sample_valid), .upstream_sample_ready(core_sample_ready),
+        .core_sample_data(engine_sample_data), .core_sample_id(engine_sample_id),
+        .core_sample_valid(engine_sample_valid), .core_sample_ready(engine_sample_ready),
+        .core_result_data(engine_result_data), .core_result_sample_id(engine_result_sample_id),
+        .core_result_mask_epoch(engine_result_mask_epoch), .core_result_valid(engine_result_valid),
+        .core_result_ready(engine_result_ready),
+        .downstream_result_data(core_result_data), .downstream_result_sample_id(core_result_sample_id),
+        .downstream_result_mask_epoch(core_result_mask_epoch), .downstream_result_valid(core_result_valid),
+        .downstream_result_ready(core_result_ready),
+        .pl_replay_status(core_pl_replay_status),
+        .pl_replay_capture_count(core_pl_replay_capture_count),
+        .pl_replay_completed_count(core_pl_replay_completed_count),
+        .pl_replay_measured_cycles(core_pl_replay_measured_cycles)
+    );
+`elsif B3_PL_REPLAY_BENCHMARK
     b3_pl_replay_shim #(
         .WARMUP_SAMPLES(`B3_PL_REPLAY_WARMUP_SAMPLES),
         .MEASURE_SAMPLES(`B3_PL_REPLAY_MEASURE_SAMPLES)
@@ -357,6 +393,7 @@ module npu_zynq7020_t1_wrapper #(
         .downstream_result_valid(core_result_valid),
         .downstream_result_ready(core_result_ready),
         .pl_replay_status(core_pl_replay_status),
+        .pl_replay_capture_count(core_pl_replay_capture_count),
         .pl_replay_completed_count(core_pl_replay_completed_count),
         .pl_replay_measured_cycles(core_pl_replay_measured_cycles)
     );
@@ -371,6 +408,7 @@ module npu_zynq7020_t1_wrapper #(
     assign core_result_valid = engine_result_valid;
     assign engine_result_ready = core_result_ready;
     assign core_pl_replay_status = 32'd0;
+    assign core_pl_replay_capture_count = 32'd0;
     assign core_pl_replay_completed_count = 32'd0;
     assign core_pl_replay_measured_cycles = 32'd0;
 `endif
@@ -486,6 +524,8 @@ module npu_zynq7020_t1_wrapper #(
             protocol_error_host_sync2 <= '0;
             replay_status_host_sync1 <= '0;
             replay_status_host_sync2 <= '0;
+            replay_capture_host_sync1 <= '0;
+            replay_capture_host_sync2 <= '0;
             replay_completed_host_sync1 <= '0;
             replay_completed_host_sync2 <= '0;
             replay_cycles_host_sync1 <= '0;
@@ -518,6 +558,8 @@ module npu_zynq7020_t1_wrapper #(
             protocol_error_host_sync2 <= protocol_error_host_sync1;
             replay_status_host_sync1 <= core_pl_replay_status;
             replay_status_host_sync2 <= replay_status_host_sync1;
+            replay_capture_host_sync1 <= core_pl_replay_capture_count;
+            replay_capture_host_sync2 <= replay_capture_host_sync1;
             replay_completed_host_sync1 <= core_pl_replay_completed_count;
             replay_completed_host_sync2 <= replay_completed_host_sync1;
             replay_cycles_host_sync1 <= core_pl_replay_measured_cycles;
@@ -533,6 +575,7 @@ module npu_zynq7020_t1_wrapper #(
     assign host_last_compute_cycles = compute_cycles_host_sync2;
     assign host_protocol_error_count = protocol_error_host_sync2;
     assign pl_replay_status = replay_status_host_sync2;
+    assign pl_replay_capture_count = replay_capture_host_sync2;
     assign pl_replay_completed_count = replay_completed_host_sync2;
     assign pl_replay_measured_cycles = replay_cycles_host_sync2;
 

@@ -27,6 +27,7 @@ module tb_b3_pl_replay_shim;
     logic downstream_result_ready = 1'b1;
 
     wire [31:0] pl_replay_status;
+    wire [31:0] pl_replay_capture_count;
     wire [31:0] pl_replay_completed_count;
     wire [31:0] pl_replay_measured_cycles;
 
@@ -61,6 +62,7 @@ module tb_b3_pl_replay_shim;
         .downstream_result_valid(downstream_result_valid),
         .downstream_result_ready(downstream_result_ready),
         .pl_replay_status(pl_replay_status),
+        .pl_replay_capture_count(pl_replay_capture_count),
         .pl_replay_completed_count(pl_replay_completed_count),
         .pl_replay_measured_cycles(pl_replay_measured_cycles)
     );
@@ -139,6 +141,8 @@ module tb_b3_pl_replay_shim;
             $fatal(1, "expected initial + 2 warmup + 3 measured samples, got %0d", accepted_samples);
         if (pl_replay_completed_count != 3)
             $fatal(1, "measured completion mismatch: %0d", pl_replay_completed_count);
+        if (pl_replay_capture_count != 1)
+            $fatal(1, "capture count mismatch: %0d", pl_replay_capture_count);
         if (pl_replay_measured_cycles == 0)
             $fatal(1, "measured cycle counter is zero");
         if (forwarded_result_beats != 10)

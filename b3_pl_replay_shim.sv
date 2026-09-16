@@ -31,6 +31,7 @@ module b3_pl_replay_shim #(
     input  logic        downstream_result_ready,
 
     output logic [31:0] pl_replay_status,
+    output logic [31:0] pl_replay_capture_count,
     output logic [31:0] pl_replay_completed_count,
     output logic [31:0] pl_replay_measured_cycles
 );
@@ -106,6 +107,7 @@ module b3_pl_replay_shim #(
             cached_sample_id <= 32'd0;
             warmup_completed_count <= 32'd0;
             pl_replay_completed_count <= 32'd0;
+            pl_replay_capture_count <= 32'd0;
             measured_cycle_counter <= 32'd0;
             pl_replay_measured_cycles <= 32'd0;
             pl_replay_status <= STATUS_CAPTURE;
@@ -122,6 +124,7 @@ module b3_pl_replay_shim #(
                 if (capture_beat == 4'd0)
                     cached_sample_id <= upstream_sample_id;
                 if (capture_beat == 4'd7) begin
+                    pl_replay_capture_count <= 32'd1;
                     capture_beat <= 4'd0;
                     result_beat <= 4'd0;
                     run_kind <= RUN_INITIAL;

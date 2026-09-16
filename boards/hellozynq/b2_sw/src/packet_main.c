@@ -39,7 +39,7 @@
 #define STRICT_2OF4_CANDIDATE_TEXT "false"
 #define NPU_STATUS_BASE 0x40430000U
 
-#if defined(B3_SPEED_BENCHMARK)
+#if defined(B3_SPEED_BENCHMARK) || defined(B3_PL_DISTRIBUTION_REPLAY)
 #define SPEED_BENCH_BASE 0x01009000U
 #define SPEED_BENCH_MAGIC 0x42335350U
 #define SPEED_BENCH_SAMPLES B3_BENCHMARK_SAMPLE_COUNT
@@ -238,13 +238,17 @@ static u32 xtime_delta_us(XTime start, XTime stop)
 #define APPLICATION_MODE "b3_epoch_overlap"
 #define SAMPLE_MASK_EPOCH MASK_EPOCH
 #define SEND_MASK_COMMANDS 1
+#elif defined(B3_PL_DISTRIBUTION_REPLAY)
+#define APPLICATION_MODE "b3_distribution_replay"
+#define SAMPLE_MASK_EPOCH MASK_EPOCH
+#define SEND_MASK_COMMANDS 1
 #else
 #define APPLICATION_MODE "b2_packet_smoke"
 #define SAMPLE_MASK_EPOCH MASK_EPOCH
 #define SEND_MASK_COMMANDS 1
 #endif
 
-#if defined(B3_BYPASS) || defined(B3_FULL_OPEN) || defined(B3_DENSE) || defined(B3_STATIC_MIXED) || defined(B3_CALIBRATED_STATIC) || defined(B3_LIVE_ENEURON) || defined(B3_EPOCH_OVERLAP)
+#if defined(B3_BYPASS) || defined(B3_FULL_OPEN) || defined(B3_DENSE) || defined(B3_STATIC_MIXED) || defined(B3_CALIBRATED_STATIC) || defined(B3_LIVE_ENEURON) || defined(B3_EPOCH_OVERLAP) || defined(B3_PL_DISTRIBUTION_REPLAY)
 #define B3_NUMERIC_CHECK 1
 static s32 last_result_logits[10];
 #if !defined(B3_SPEED_BENCHMARK)
@@ -420,7 +424,13 @@ static u32 static_mixed_mask_word(u32 index)
 static int send_command(u32 opcode, u32 epoch, u32 low_word);
 static int submit_frame(u32 tx_bytes, u32 rx_capacity, u32 expect_response,
                         u32 *response_words);
+static int send_sample_frame_only(u32 sample_id, u32 epoch, u32 sample_index);
+static int receive_result_frame_only(u32 sample_index);
+static int wait_distribution_replay(void);
+static int send_fence_and_check(u32 expected_epoch);
 static u32 finish_frame(volatile u32 *frame, u32 word_count);
+static u32 build_sample_frame(volatile u32 *frame, u32 sample_id,
+                              u32 model_id, u32 epoch, u32 sample_index);
 static u32 build_command_batch_frame(volatile u32 *frame,
                                      const u32 (*commands)[4],
                                      u32 command_count, u32 epoch,
@@ -747,6 +757,104 @@ static int submit_frame(u32 tx_bytes, u32 rx_capacity, u32 expect_response,
     }
     return XST_SUCCESS;
 }
+
+#if defined(B3_PL_DISTRIBUTION_REPLAY)
+static int send_sample_frame_only(u32 sample_id, u32 epoch, u32 sample_index)
+{
+    volatile u32 *const tx = (volatile u32 *)TX_BUFFER_BASE;
+    u32 frame_bytes = build_sample_frame(tx, sample_id, MODEL_ID, epoch, sample_index);
+    if (submit_frame(frame_bytes, 0U, 0U, 0) != XST_SUCCESS) {
+        return fail("distribution_sample_dma");
+    }
+    ++sequence;
+    return XST_SUCCESS;
+}
+
+static int receive_result_frame_only(u32 sample_index)
+{
+    volatile u32 *const rx = (volatile u32 *)RX_BUFFER_BASE;
+    u32 status;
+    u32 index;
+    u32 crc;
+    const u32 guard_bytes = RX_GUARD_BYTES;
+    const u32 expected_sample_id = B3_SAMPLE_IDS[sample_index];
+
+    monitor_reset(MONITOR_S2MM_BASE);
+    for (index = 0U; index < guard_bytes / 4U; ++index) {
+        rx[index] = 0xA5A5A5A5U;
+    }
+    Xil_DCacheFlushRange(RX_BUFFER_BASE, guard_bytes);
+    status = XAxiDma_SimpleTransfer(&dma, RX_BUFFER_BASE, MAX_FRAME_BYTES,
+                                    XAXIDMA_DEVICE_TO_DMA);
+    if (status != XST_SUCCESS || wait_dma(0U, 1U) != XST_SUCCESS) {
+        return fail("distribution_result_dma");
+    }
+    Xil_DCacheInvalidateRange(RX_BUFFER_BASE, guard_bytes);
+    memory_barrier();
+    if (rx[0] != MAGIC || rx[1] != 0x08000401U || rx[2] != 40U ||
+        rx[4] != expected_sample_id || rx[5] != MODEL_ID || rx[6] != SAMPLE_MASK_EPOCH ||
+        rx[7] != 0U) {
+        return fail("distribution_result_metadata");
+    }
+    crc = 0xFFFFFFFFU;
+    for (index = 0U; index < 18U; ++index) {
+        crc = crc32_word(crc, rx[index]);
+    }
+    if (rx[18] != ~crc) {
+        return fail("distribution_result_crc");
+    }
+    for (index = 0U; index < 10U; ++index) {
+        if ((s32)rx[8U + index] != B3_DENSE_EXPECTED_LOGITS[sample_index][index]) {
+            return fail("distribution_result_logit");
+        }
+    }
+    last_result_crc = rx[18];
+    return XST_SUCCESS;
+}
+
+static int wait_distribution_replay(void)
+{
+    u32 elapsed_us;
+    for (elapsed_us = 0U; elapsed_us < 10000000U; elapsed_us += 10U) {
+        u32 replay_status = Xil_In32(NPU_STATUS_BASE + 0x64U);
+        u32 capture_count = Xil_In32(NPU_STATUS_BASE + 0x70U);
+        u32 completed_count = Xil_In32(NPU_STATUS_BASE + 0x68U);
+        u32 protocol_errors = Xil_In32(NPU_STATUS_BASE + 0x60U);
+        if (replay_status == 5U || protocol_errors != 0U) {
+            return fail("distribution_replay_status");
+        }
+        if (replay_status == 4U && capture_count == B3_BENCHMARK_SAMPLE_COUNT &&
+            completed_count == 10000U) {
+            return XST_SUCCESS;
+        }
+        usleep(10U);
+    }
+    return fail("distribution_replay_timeout");
+}
+
+static int run_distribution_replay(void)
+{
+    u32 sample_index;
+    const u32 final_sample_index = (10000U - 1U) % B3_BENCHMARK_SAMPLE_COUNT;
+
+    if (send_fence_and_check(0U) != XST_SUCCESS ||
+        send_sample_frame_only(B3_SAMPLE_IDS[0], SAMPLE_MASK_EPOCH, 0U) != XST_SUCCESS) {
+        return XST_FAILURE;
+    }
+    for (sample_index = 1U; sample_index < B3_BENCHMARK_SAMPLE_COUNT; ++sample_index) {
+        if (send_fence_and_check(SAMPLE_MASK_EPOCH) != XST_SUCCESS ||
+            send_sample_frame_only(B3_SAMPLE_IDS[sample_index], SAMPLE_MASK_EPOCH,
+                                   sample_index) != XST_SUCCESS) {
+            return XST_FAILURE;
+        }
+    }
+    if (wait_distribution_replay() != XST_SUCCESS ||
+        receive_result_frame_only(final_sample_index) != XST_SUCCESS) {
+        return XST_FAILURE;
+    }
+    return XST_SUCCESS;
+}
+#endif
 
 static int send_command(u32 opcode, u32 epoch, u32 low_word)
 {
@@ -1245,7 +1353,9 @@ int main(void)
     sleep(8U);
 #endif
 #endif
-#if defined(B3_SPEED_BENCHMARK)
+#if defined(B3_PL_DISTRIBUTION_REPLAY)
+    if (run_distribution_replay() != XST_SUCCESS) return XST_FAILURE;
+#elif defined(B3_SPEED_BENCHMARK)
     if (run_speed_benchmark() != XST_SUCCESS) return XST_FAILURE;
 #else
     if (send_fence_and_check(0U) != XST_SUCCESS) return XST_FAILURE;

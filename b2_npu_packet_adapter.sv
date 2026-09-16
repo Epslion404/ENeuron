@@ -45,6 +45,7 @@ module b2_npu_packet_adapter #(
     output logic [31:0] last_compute_cycles,
     output logic [31:0] protocol_error_count,
     output logic [31:0] pl_replay_status,
+    output logic [31:0] pl_replay_capture_count,
     output logic [31:0] pl_replay_completed_count,
     output logic [31:0] pl_replay_measured_cycles,
     output logic        fence_snapshot_valid,
@@ -156,6 +157,7 @@ module b2_npu_packet_adapter #(
          .host_last_compute_cycles(last_compute_cycles),
          .host_protocol_error_count(protocol_error_count),
          .pl_replay_status(pl_replay_status),
+         .pl_replay_capture_count(pl_replay_capture_count),
          .pl_replay_completed_count(pl_replay_completed_count),
          .pl_replay_measured_cycles(pl_replay_measured_cycles)
     );
