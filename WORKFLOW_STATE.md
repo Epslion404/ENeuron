@@ -130,7 +130,7 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 
 ## 下一动作
 
-L0 缓存诊断提交 `82b079e`（PR #93）已合并并完成三次同源实板诊断（`ps_us=827/829/828`），该诊断不关闭速度门。B3-22.2/22.3/22.4 和历史 fixed-vector 输出保持采集均已完成；当前 QAT-v3 证据为 CP1 dense 实板 PASS、严格 2:4 live/static 精度失败，以及无损零组跳过 RTL `397/397` 语义 PASS。CP3c 200 MHz NPU core OOC 已通过，当前主动任务是完整 wrapper/bitstream 构建和 CP4 实板对拍；不得把 OOC 结果直接当作 bit/XSA 或板级证据。`B3-22.5` 批量 sample/fence、独立 PL auto-mask、功耗和严格 2:4 均为后置分支。
+CP5a 单个代表性 QAT 样本的纯 PL replay 已正式通过，不能外推为 397 样本分布吞吐。当前主动任务是 CP5b：设计 PL 内部 397 样本循环，完成至少 1000 次预热、10000 个正式样本和 5 轮交替 dense/lossless A/B；逐轮保存完成数、总周期、execute/skip、最终结果校验与错误计数。CP5b 通过后再冻结 dense/lossless 持续负载进入 paired 功耗测量。`B3-22.5` 批量 sample/fence、独立 PL auto-mask、严格 2:4 和网口发布均为后置分支。
 
 ## 2026-09-05 V2 OOC 签核结果
 

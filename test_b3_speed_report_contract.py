@@ -175,7 +175,7 @@ class B3SpeedReportContractTests(unittest.TestCase):
         self.assertEqual(observed_skip, data["skip_groups"])
         self.assertEqual(observed_errors, data["protocol_errors"])
 
-    def test_current_management_entries_follow_post_cache_state(self) -> None:
+    def test_current_management_entries_follow_cp5a_state(self) -> None:
         root = Path(__file__).resolve().parent
         b2 = json.loads((root / ".nexus-map/concepts/b2_packet_npu.json").read_text(encoding="utf-8"))
         p16 = json.loads(
@@ -189,30 +189,33 @@ class B3SpeedReportContractTests(unittest.TestCase):
         board_b2 = next(node for node in concept["nodes"] if node["id"] == "board-phase2-b2")
 
         self.assertEqual(b2["source_identity_rule"], "QUERY_CURRENT_CHECKOUT_AT_RUNTIME")
-        self.assertIn("B3_09_BOARD_PASS", b2["current_status"])
+        self.assertIn("B3_QAT_CP5A_PL_REPLAY_FORMAL_PASS", b2["current_status"])
+        self.assertIn("B3_QAT_CP5B_DISTRIBUTION_PENDING", b2["current_status"])
         self.assertIn("B3_POWER_GATE_OPEN", b2["current_status"])
         self.assertIn("B3_GOAL_GATE_OPEN", b2["current_status"])
-        self.assertIn("B3-PAPER-CP4", b2["next_gate"])
+        self.assertIn("B3-PAPER-CP5B", b2["next_gate"])
         self.assertIn("B3-GOAL-GATE", p16["current_gates"])
-        self.assertIn("B3_L0_CACHE_BOARD_DIAGNOSTIC_PASS", p16["status"])
+        self.assertIn("B3_QAT_CP5A_PL_REPLAY_FORMAL_PASS", p16["status"])
+        self.assertIn("B3_QAT_CP5B_DISTRIBUTION_PENDING", p16["status"])
         self.assertNotIn("workflow_resume_counts", p16)
         self.assertEqual(p16["workflow_resume_count_rule"], "QUERY_WORKFLOW_RESUME_AT_RUNTIME")
         self.assertEqual(
             p16["current_execution_point"],
-            "B3-PAPER-CP4_CLEAN_RERUN",
+            "B3-PAPER-CP5B_DISTRIBUTION_REPLAY_DESIGN",
         )
         self.assertEqual(
             p16["priority_execution_point"],
-            "B3-PAPER-CP4_CLEAN_RERUN",
+            "B3-PAPER-CP5B_DISTRIBUTION_REPLAY_DESIGN",
         )
         self.assertEqual(state["b3_goal_gate"], "OPEN")
-        self.assertIn("clean HEAD", p16_node["evidence_gap"])
+        self.assertIn("CP5b", p16_node["evidence_gap"])
         self.assertNotIn("setup_fail", board_b2["implementation_status"])
-        self.assertEqual(concept["current_override"]["verified_at"], "2026-09-16")
+        self.assertEqual(concept["current_override"]["verified_at"], "2026-09-17")
 
         workflow = (root / "WORKFLOW_STATE.md").read_text(encoding="utf-8")
         next_action = workflow.split("## 下一动作", 1)[1].split("## ", 1)[0]
-        self.assertIn("82b079e", next_action)
+        self.assertIn("CP5b", next_action)
+        self.assertIn("397", next_action)
         git_forensics = (root / ".nexus-map/hotspots/git_forensics.md").read_text(encoding="utf-8")
         self.assertIn("artifacts/logs/b3_live_l0_cache_20260913_82b079e", git_forensics)
         self.assertIn("PR #93", git_forensics)
@@ -220,7 +223,9 @@ class B3SpeedReportContractTests(unittest.TestCase):
         current = (root / "docs/CURRENT_STATUS.md").read_text(encoding="utf-8")
         self.assertNotIn("B3_SPEED_PASS", current)
         self.assertIn("B3_GOAL_GATE_OPEN", current)
-        self.assertIn("NO_END_TO_END_SPEEDUP", current)
+        self.assertIn("B3_QAT_CP5A_PL_REPLAY_FORMAL_PASS", current)
+        self.assertIn("CP5b", current)
+        self.assertIn("B3_SPEED_GATE_OPEN", current)
 
     def test_current_docs_separate_measurement_from_speed_gate(self) -> None:
         root = Path(__file__).resolve().parent
@@ -235,7 +240,7 @@ class B3SpeedReportContractTests(unittest.TestCase):
         self.assertIn("至少 64 个正式样本", todo)
         self.assertIn("不同输入", todo)
         self.assertIn("禁止跨输入复用上一样本 mask", todo)
-        self.assertIn("- [ ] B3-ACCURACY-GATE", todo)
+        self.assertIn("- [x] B3-ACCURACY-GATE", todo)
         self.assertIn("Top-1 一致率 `≥99.0%`", todo)
         self.assertIn("准确率绝对下降 `≤1.0` 个百分点", todo)
 

@@ -27,3 +27,6 @@ vivado_np7_ooc_*_reports/** -whitespace
 vivado_np7_xsim_reports/** -whitespace
 artifacts/logs/np7_vivado_xsim.txt -whitespace
 artifacts/logs/xpm_wrapper_real_xpm_vivado2024p2.txt -whitespace
+# CP5a 板级原始证据由 Vivado/XSCT/PowerShell 生成；保留采集字节，避免 CRLF
+# 规范化后使正式 SHA-256 在 Windows 工作树与干净克隆之间漂移。
+artifacts/logs/b3_qat_cp5a_pl_replay_20260917/** -text -whitespace
