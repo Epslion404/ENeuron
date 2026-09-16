@@ -114,13 +114,30 @@ def test_pl_replay_runner_freezes_bringup_boundary() -> None:
     runner = (
         ROOT / "boards/hellozynq/b2_sw/run_b3_pl_replay_benchmark.ps1"
     ).read_text(encoding="utf-8")
+    probe = (
+        ROOT / "boards/hellozynq/b2_sw/probe_b3_pl_replay_benchmark.tcl"
+    ).read_text(encoding="utf-8")
     for token in (
         "QatSampleIndex = 201",
         "B3_PL_REPLAY_COMPLETED",
         "expectedGroupInstances",
         "observedGroupInstances",
+        "resultFramePass",
         "CP5A_BRINGUP_PASS",
         "不关闭正式 CP5/B3-SPEED-GATE",
-        "Formal replay evidence requires clean signed hardware from the current HEAD",
+        "Hardware source closure mismatch",
     ):
         assert token in runner
+    assert "B3_PL_REPLAY_RX_WORD_%02d" in probe
+    assert "for {set index 0} {$index < 19}" in probe
+
+
+def test_replay_formal_identity_uses_hardware_source_closure() -> None:
+    runner = (
+        ROOT / "boards/hellozynq/b2_sw/run_b3_pl_replay_benchmark.ps1"
+    ).read_text(encoding="utf-8")
+    assert "$hardwareSourceClosurePass" in runner
+    assert "source_sha256" in runner
+    assert "Hardware source closure mismatch" in runner
+    assert "formal_evidence = $formalEvidence" in runner
+    assert "$hardwareSameHead" not in runner

@@ -8,5 +8,10 @@ puts [format "B3_PL_REPLAY_EXECUTE_GROUPS=%u" [mrd -force -value [expr {$base + 
 puts [format "B3_PL_REPLAY_SKIP_GROUPS=%u" [mrd -force -value [expr {$base + 0x4C}]]]
 puts [format "B3_PL_REPLAY_LAST_COMPUTE_CYCLES=%u" [mrd -force -value [expr {$base + 0x5C}]]]
 puts [format "B3_PL_REPLAY_PROTOCOL_ERRORS=%u" [mrd -force -value [expr {$base + 0x60}]]]
+set rx_base 0x01007000
+for {set index 0} {$index < 19} {incr index} {
+    puts [format "B3_PL_REPLAY_RX_WORD_%02d=0x%08X" $index \
+        [mrd -force -value [expr {$rx_base + ($index * 4)}]]]
+}
 disconnect
 exit 0
