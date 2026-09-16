@@ -1,25 +1,45 @@
 param(
     [ValidateSet('dense', 'static_mixed', 'calibrated_static', 'live_eneuron')]
     [string]$Mode = 'live_eneuron',
+    [ValidateRange(1, 397)]
     [int]$Samples = 64,
     [ValidateSet(1, 16, 32, 64)]
     [int]$LiveMaskBatchK = 1,
     [string]$BenchmarkManifest = '',
+    [string]$QatManifest = '',
     [switch]$CaptureLogits,
     [switch]$AllowDirty,
     [string]$XsctPath = 'G:\Xilinx\Vitis\2024.1\bin\xsct.bat',
-    [string]$HwServerPath = 'G:\Xilinx\Vivado\2024.1\bin\hw_server.bat'
+    [string]$HwServerPath = 'G:\Xilinx\Vivado\2024.1\bin\hw_server.bat',
+    [string]$HardwareBuildDir = '',
+    [string]$BuildTag = 'direct'
 )
 
 $ErrorActionPreference = 'Stop'
-if ($Samples -ne 64) { throw 'B3-22.1 benchmark currently requires exactly 64 samples' }
 if ($Mode -ne 'live_eneuron' -and $LiveMaskBatchK -ne 1) {
     throw 'LiveMaskBatchK greater than 1 is only valid for live_eneuron mode'
 }
 $scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $repoRoot = (Resolve-Path (Join-Path $scriptRoot '..\..\..')).Path
+if ($BuildTag -notmatch '^[A-Za-z0-9._-]+$') { throw "Invalid BuildTag: $BuildTag" }
+$HardwareBuildDir = if ([string]::IsNullOrWhiteSpace($HardwareBuildDir)) {
+    Join-Path $repoRoot 'boards\hellozynq\b2_hw\build'
+} else {
+    (Resolve-Path -LiteralPath $HardwareBuildDir).Path
+}
 if ([string]::IsNullOrWhiteSpace($BenchmarkManifest)) {
-    $BenchmarkManifest = Join-Path $repoRoot 'tools\repro\b3_multi_input_manifest.json'
+    $BenchmarkManifest = if ([string]::IsNullOrWhiteSpace($QatManifest)) {
+        Join-Path $repoRoot 'tools\repro\b3_multi_input_manifest.json'
+    } else {
+        $QatManifest
+    }
+} elseif (-not [string]::IsNullOrWhiteSpace($QatManifest)) {
+    throw 'BenchmarkManifest and QatManifest are mutually exclusive'
+}
+$benchmarkSchema = (Get-Content -LiteralPath $BenchmarkManifest -Raw | ConvertFrom-Json).schema
+$isQatManifest = $benchmarkSchema -eq 'eneuron_b3_qat_model_v1'
+if ($isQatManifest -and $Mode -ne 'dense') {
+    throw 'QAT speed benchmark currently supports dense mode only'
 }
 $buildScript = Join-Path $scriptRoot 'run_b2_packet_sw_build.ps1'
 $buildParams = @{
@@ -27,7 +47,14 @@ $buildParams = @{
     B3SpeedBenchmark = $true
     B3AccuracyBenchmark = $CaptureLogits
     B3LiveMaskBatchK = $LiveMaskBatchK
-    B3BenchmarkManifest = $BenchmarkManifest
+    B3BenchmarkSampleCount = $Samples
+    HardwareBuildDir = $HardwareBuildDir
+    BuildTag = $BuildTag
+}
+if ($isQatManifest) {
+    $buildParams.B3QatManifest = $BenchmarkManifest
+} else {
+    $buildParams.B3BenchmarkManifest = $BenchmarkManifest
 }
 switch ($Mode) {
     'dense' { $buildParams.B3Dense = $true }
@@ -40,7 +67,7 @@ switch ($Mode) {
 if ($LASTEXITCODE -ne 0) { throw "B3 speed benchmark software build failed: $LASTEXITCODE" }
 
 $gitHead = (& git -C $repoRoot rev-parse HEAD).Trim()
-$buildRoot = Join-Path $scriptRoot (Join-Path 'build' (Join-Path $gitHead 'direct'))
+$buildRoot = Join-Path $scriptRoot (Join-Path 'build' (Join-Path $gitHead $BuildTag))
 $manifestPath = Join-Path $buildRoot 'packet_build_manifest.json'
 if (-not (Test-Path -LiteralPath $manifestPath)) { throw "Missing packet build manifest: $manifestPath" }
 $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
@@ -58,7 +85,9 @@ if ([int]$manifest.benchmark_unique_input_count -ne $Samples) {
     throw 'Benchmark manifest does not contain one unique input per sample'
 }
 $benchmarkData = Get-Content -LiteralPath $BenchmarkManifest -Raw | ConvertFrom-Json
-$benchmarkSamples = @($benchmarkData.samples)
+$allBenchmarkSamples = @($benchmarkData.samples)
+if ($allBenchmarkSamples.Count -lt $Samples) { throw 'Benchmark manifest contains fewer samples than requested' }
+$benchmarkSamples = @($allBenchmarkSamples | Select-Object -First $Samples)
 if ($benchmarkSamples.Count -ne $Samples) { throw 'Benchmark manifest sample count mismatch' }
 $expectedMaskUpdates = if ($Mode -eq 'live_eneuron') { [int][Math]::Ceiling($Samples / [double]$LiveMaskBatchK) } else { 0 }
 if ([int]$manifest.live_mask_update_count -ne $expectedMaskUpdates) {
@@ -85,7 +114,7 @@ foreach ($path in @($XsctPath, $HwServerPath, [string]$manifest.bitstream,
 function Invoke-XsctProbe {
     param([Parameter(Mandatory = $true)][string]$OutPath,
           [Parameter(Mandatory = $true)][string]$ErrPath)
-    $probeTimeoutMs = 120000
+    $probeTimeoutMs = if ($CaptureLogits -and $Samples -gt 64) { 600000 } else { 120000 }
     $probeArgs = @((Join-Path $scriptRoot 'probe_b3_speed_benchmark.tcl'), [string]$Samples)
     if ($CaptureLogits) { $probeArgs += 'capture_logits' }
     $probe = Start-Process -FilePath $XsctPath -ArgumentList $probeArgs `
@@ -112,11 +141,12 @@ function Get-U32 {
 function Get-I32 {
     param([Parameter(Mandatory = $true)][string]$Text,
           [Parameter(Mandatory = $true)][string]$Key)
-    $value = [uint32](Get-U32 -Text $Text -Key $Key)
-    # PS 5.1 把 0x80000000 解析为 Int32 -2147483648，原比较对全部取值恒真；
-    # 这里用显式 uint32 常量，并按 2^32 显式还原符号。
-    if ($value -ge [uint32]2147483648) { return [int64]$value - 4294967296 }
-    return [int64]$value
+    $rawLogit = Get-U32 -Text $Text -Key $Key
+    $bits = [BitConverter]::ToInt32([BitConverter]::GetBytes($rawLogit), 0)
+    if ($rawLogit -ge [uint32]2147483648) {
+        return [int64]$bits
+    }
+    return [int64]$bits
 }
 
 function Ensure-HwServer {
@@ -168,7 +198,7 @@ $lastProbeCandidate = $null
 $probeErrors = @()
 $probeExit = $null
 $probeAttempts = 0
-$deadline = [DateTime]::UtcNow.AddSeconds(30)
+$deadline = [DateTime]::UtcNow.AddSeconds($(if ($CaptureLogits -and $Samples -gt 64) { 630 } else { 30 }))
 while ([DateTime]::UtcNow -lt $deadline) {
     ++$probeAttempts
     $attemptOut = Join-Path $runRoot ("probe_attempt_{0:D3}.log" -f $probeAttempts)
@@ -217,6 +247,7 @@ function Get-ExpectedMaskEpoch {
     param([Parameter(Mandatory = $true)][int]$Index,
           [Parameter(Mandatory = $true)][object]$Expected)
     if ($Mode -eq 'dense') {
+        if ($isQatManifest) { return [uint32]1 }
         if ($null -eq $Expected.dense_mask_epoch) { throw 'Benchmark manifest sample missing dense_mask_epoch' }
         return [uint32]$Expected.dense_mask_epoch
     }
@@ -276,7 +307,15 @@ if ($CaptureLogits) {
         $prefix = 'B3_ACCURACY_SAMPLE_{0:D2}_' -f $index
         $logits = @()
         for ($logit = 0; $logit -lt 10; ++$logit) {
-            $logits += Get-I32 $probeText ($prefix + ('LOGIT_{0:D2}' -f $logit))
+            $logits += [int32](Get-I32 $probeText ($prefix + ('LOGIT_{0:D2}' -f $logit)))
+        }
+        if ($isQatManifest) {
+            $expectedLogits = @($benchmarkSamples[$index].dense_logits)
+            for ($logit = 0; $logit -lt 10; ++$logit) {
+                if ([int64]$logits[$logit] -ne [int64]$expectedLogits[$logit]) {
+                    throw "B3 QAT logit mismatch at sample $index logit $logit`: expected=$($expectedLogits[$logit]) actual=$($logits[$logit])"
+                }
+            }
         }
         $captureRows += [ordered]@{
             sample_index = $index
@@ -348,6 +387,7 @@ $summary = [ordered]@{
     samples = $rows
 }
 if ($CaptureLogits) { $summary.accuracy_capture = $accuracyCapture }
+if ($CaptureLogits -and $isQatManifest) { $summary.logit_exact_match_count = $Samples }
 $summaryPath = Join-Path $runRoot 'b3_speed_benchmark.json'
 $summary | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $summaryPath -Encoding utf8
 Write-Output "B3_SPEED_BENCHMARK_STATUS=$status"

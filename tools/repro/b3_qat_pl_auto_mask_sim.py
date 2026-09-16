@@ -65,7 +65,9 @@ def run_sim(manifest_path: Path) -> dict:
         expected_file.write_text("".join(expected), encoding="ascii")
         binary = temp_path / "tb.vvp"
         compiled = subprocess.run(
-            [str(iverilog), "-g2012", "-DPL_AUTO_MASK_ENGINE", "-o", str(binary),
+            [str(iverilog), "-g2012", "-DPL_AUTO_MASK_ENGINE",
+             f"-Ptb_b3_pl_auto_mask_golden.SAMPLE_COUNT={len(samples)}",
+             "-o", str(binary),
              str(ENGINE_RTL), str(GOLDEN_TB)],
             cwd=ROOT, text=True, capture_output=True, check=False,
         )

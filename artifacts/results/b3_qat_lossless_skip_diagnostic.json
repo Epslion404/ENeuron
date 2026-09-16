@@ -1,0 +1,117 @@
+{
+  "schema": "eneuron_b3_qat_lossless_skip_diagnostic_v2",
+  "status": "MEASURED",
+  "identity": {
+    "manifest": "tools/repro/b3_qat_model_manifest.json",
+    "manifest_sha256": "10cbf793b5b8885013640e39073d00e767a8d3822601b73f4076cd14c0579388",
+    "packed_words_sha256": "4bc51712ad5502a4a19fe73862946d53be79055c1467204a857e7b25ccdf97be",
+    "split_seed": 20260914,
+    "training_samples_used_for_permutation": 1200,
+    "permutation_policy": "nonzero_frequency_plus_hillclimb_train_only_v1",
+    "permutation": [
+      0,
+      24,
+      32,
+      39,
+      40,
+      8,
+      48,
+      16,
+      31,
+      7,
+      15,
+      23,
+      56,
+      47,
+      63,
+      55,
+      57,
+      1,
+      6,
+      14,
+      33,
+      49,
+      25,
+      41,
+      9,
+      54,
+      62,
+      17,
+      22,
+      30,
+      46,
+      38,
+      42,
+      43,
+      34,
+      44,
+      5,
+      29,
+      21,
+      37,
+      61,
+      60,
+      45,
+      53,
+      51,
+      52,
+      19,
+      26,
+      58,
+      50,
+      2,
+      10,
+      27,
+      36,
+      28,
+      35,
+      11,
+      59,
+      3,
+      18,
+      12,
+      20,
+      4,
+      13
+    ]
+  },
+  "samples": 397,
+  "output": {
+    "prediction_agreement": 1.0,
+    "logit_exact_match": 1.0,
+    "max_abs_logit_error": 0
+  },
+  "accuracy": {
+    "dense_accuracy": 0.8866498740554156,
+    "lossless_skip_accuracy": 0.8866498740554156,
+    "accuracy_drop_pp": 0.0
+  },
+  "sparsity": {
+    "group_instances_total": 235024,
+    "skipped_groups_total": 83380,
+    "skipped_groups_mean": 210.02518891687657,
+    "skip_rate": 0.354772278575805,
+    "breakdown": {
+      "zero_activation": {
+        "count": 68625,
+        "share": 0.2919914561917081
+      },
+      "zero_weight": {
+        "count": 12257,
+        "share": 0.052152120634488396
+      },
+      "relu_early": {
+        "count": 2498,
+        "share": 0.010628701749608551
+      },
+      "executed": {
+        "count": 151644,
+        "share": 0.6452277214241949
+      }
+    },
+    "estimated_npu_cycles_mean": 1863.9244332493702,
+    "estimated_core_speedup": 1.3380370767779584,
+    "strict_2of4": false
+  },
+  "boundary": "Python语义层无损基线；输入置换只使用训练子集，mask由全零激活、全零权重和L0 ReLU早停产生；尚未接入RTL或板级。"
+}

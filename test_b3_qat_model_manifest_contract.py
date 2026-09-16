@@ -35,6 +35,8 @@ class B3QatModelManifestContractTests(unittest.TestCase):
         self.assertEqual(self.manifest["schema"], "eneuron_b3_qat_model_v1")
         self.assertEqual(self.manifest["model"]["word_count"], 634)
         self.assertEqual(len(self.words), 634)
+        self.assertEqual(self.manifest["model"]["model_version"], "qat-v3-val200-temp400-150ep-seed20260914")
+        self.assertIsNotNone(self.manifest["model"]["validation_acc"])
         decoded = decode_model_words(self.words)
         self.assertEqual([list(row) for row in decoded.weights0], self.model["W0"])
         self.assertEqual(list(decoded.bias0), self.model["b0"])
@@ -68,12 +70,19 @@ class B3QatModelManifestContractTests(unittest.TestCase):
 
     def test_heldout_samples_are_unique_and_disjoint_from_training(self) -> None:
         samples = self.manifest["samples"]
-        self.assertGreaterEqual(len(samples), 64)
+        self.assertEqual(len(samples), 397)
         identities = [sample["input_sha256"] for sample in samples]
         self.assertEqual(len(set(identities)), len(identities))
         self.assertEqual(
             self.manifest["identity"]["heldout_count"],
             len(samples),
+        )
+        self.assertEqual(self.manifest["identity"]["train_pool_count"], 1400)
+        self.assertEqual(self.manifest["identity"]["train_count"], 1200)
+        self.assertEqual(self.manifest["identity"]["validation_count"], 200)
+        self.assertEqual(
+            self.manifest["identity"]["selection_protocol"],
+            "validation_accuracy_only_v1",
         )
         regenerated = build_manifest(DEFAULT_MODEL, DEFAULT_FIXTURE, len(samples))
         left_identity = dict(self.manifest["identity"])

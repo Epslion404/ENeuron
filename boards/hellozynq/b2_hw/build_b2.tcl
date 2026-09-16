@@ -1,9 +1,20 @@
 set script_dir [file normalize [file dirname [info script]]]
 set git_head [lindex $argv 0]
 set out_dir [file normalize [lindex $argv 1]]
+set npu_mode [lindex $argv 2]
 if {$git_head eq {}} { set git_head UNKNOWN }
 if {$out_dir eq {}} { set out_dir [file join $script_dir build] }
+if {$npu_mode eq {}} { set npu_mode dense }
+if {$npu_mode ni {dense lossless_zero_group_skip}} {
+    error "Unsupported B2_NPU_MODE=$npu_mode; expected dense or lossless_zero_group_skip"
+}
 file mkdir $out_dir
+
+set verilog_defines {}
+if {$npu_mode eq {lossless_zero_group_skip}} {
+    lappend verilog_defines LOSSLESS_ZERO_GROUP_SKIP
+    lappend verilog_defines B3_USE_XPM
+}
 
 set part xc7z020clg484-2
 set project_dir [file join $out_dir project]
@@ -22,6 +33,7 @@ add_files -norecurse [list \
     [file join $repo_root npu_zynq7020_t1_wrapper.sv] \
     [file join $repo_root npu_eneuron_single_clock_skeleton.sv] \
 ]
+set_property verilog_define $verilog_defines [current_fileset]
 source [file join $script_dir create_b2_bd.tcl]
 make_wrapper -files [get_files */design_1.bd] -top
 add_files -norecurse [file join $project_dir ${project_name}.gen sources_1 bd design_1 hdl design_1_wrapper.v]
@@ -65,6 +77,8 @@ write_hw_platform -fixed -include_bit -force -file $xsa_path
 set summary_path [file join $out_dir signoff_summary.txt]
 set summary [open $summary_path w]
 puts $summary "B2_BUILD_HEAD=$git_head"
+puts $summary "B2_NPU_MODE=$npu_mode"
+puts $summary "B2_VERILOG_DEFINE=[join $verilog_defines ,]"
 puts $summary "B2_PART=$part"
 puts $summary "B2_TOP=design_1_wrapper"
 puts $summary "B2_DMA_MODE=SIMPLE_POLLING"

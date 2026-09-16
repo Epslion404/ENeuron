@@ -31,8 +31,16 @@
 | `results/b3_fixed_overhead_ab.json` | B3-22.4 固定协议开销实验：RX guard/缓存/usleep 路径修正后三组对称 A/B（dense 157→63/64/63 µs、calibrated 154→60 µs，fence 69→18 µs/sample，输出逐位一致）；协议未变，不代表速度门关闭 |
 | `results/b3_live_optimized_ab.json` | B3-22.4 后 live 基线：优化路径上三组 dense/live 对称 A/B（dense `64 µs` vs live `623 µs`，compute 占 80.5%、submit 9.1%，输出 `64/64` 一致）；速度门保持 OPEN，下一步 B=4 批量协议 |
 | `results/b3_pruning_diagnostic.json` | 只读剪枝诊断（1024 输入）：非零权重 19 word / 11 group；删除非零权重实例 35、删除非零贡献实例 0/11015；live mask 3 种且与校准 mask 差异 3.42%；判定 `GATE_VACUOUS / MODEL_UNDER_DETERMINED` |
-| `results/b3_qat_pruning_diagnostic.json` | QAT 模型（533/592 非零组）64 held-out 剪枝仿真：dense `90.6%` → live `32.8%`（−57.8pp）、calibrated `17.2%`；删除非零贡献组 `9385`；判定 `FALSIFIABLE`；Python 语义层，不是板级 |
-| `results/b3_qat_pl_auto_mask_sim.json` | standalone PL auto-mask 引擎在 QAT 模型上的 Icarus 仿真：`64/64` 与 Python live mask 逐 bit 一致、`1861 cycles/样本`（预算 2048）；未接主 NPU、无 200 MHz 时序、非板级 |
+| `results/b3_qat_pruning_diagnostic.json` | QAT-v3 模型（549/592 非零组）397 held-out 剪枝仿真：dense `88.665%` → live `40.302%`（−48.363pp）、calibrated `29.471%`（−59.194pp）；删除非零贡献组 `57976`；判定 `FALSIFIABLE` 且当前动态剪枝精度门失败；Python 语义层，不是板级 |
+| `results/b3_qat_pl_auto_mask_sim.json` | standalone PL auto-mask 引擎在 QAT-v3 模型上的 Icarus 仿真：`397/397` 与 Python live mask 逐 bit 一致、`1861 cycles/样本`（预算 2048）；未接主 NPU、无 200 MHz 时序、非板级 |
+| `../tools/repro/b3_qat_model_manifest.json` | QAT-v3 canonical 634-word 模型与 397 个 held-out 样本清单；1200/200 train-validation 划分、packing、训练整数 forward 和 Python reference 已逐元素对齐；不代表板级接线或剪枝精度通过 |
+| `results/b3_qat_cp1_dense_64_board.json` | B3-PAPER-CP1：QAT-v3 dense 64 样本实板装载与逐位对拍；输入/结果 CRC、sample ID、epoch、协议状态和 10 维 logits 全部通过；不代表剪枝精度或纯 PL 吞吐通过 |
+| `results/b3_qat_lossless_skip_diagnostic.json` | QAT-v3 397 样本可证明无损动态跳过基线；训练集内输入置换 + 全零激活/权重 + L0 ReLU 早停，平均跳过 35.48% 组、核心估算约 1.338x，输出逐位无损；mask 不满足严格 2:4，未接入 RTL/板级 |
+| `results/b3_qat_lossless_zero_group_rtl_sim.json` | B3-PAPER-CP3b：主 NPU `LOSSLESS_ZERO_GROUP_SKIP` 公开端口级 Icarus 对拍；397/397 logits 逐位一致，跳过率 34.6207%，平均 1879.136 cycles，核心估算约 1.3272x；不包含 L0 ReLU 后缀早停，不是实板速度证据 |
+| `results/b3_qat_lossless_zero_group_ooc.json` | B3-PAPER-CP3c：修复轮在 `xc7z020clg484-2`、200 MHz 通过 setup/hold、route 与 DRC，`WNS/WHS=+0.158/+0.070 ns`、`1 RAMB36`、`4 DSP48E1`；历史失败轮保留在 attempts 中，OOC 不替代完整 wrapper 或实板证据 |
+| `results/b3_qat_cp4_lossless_zero_group_board_397.json` | B3-PAPER-CP4 开发证据：397 样本 dense/lossless 实板逐位 logits、CRC、sample ID 和协议一致；核心周期约 `1.089x`，端到端均值约 `1.005x`；两组 ELF 来自 dirty worktree，clean rerun pending |
+
+QAT 当前裁定：CP0 无泄漏重基线与 CP1 dense 板级对拍已通过；严格 2:4 live/static 精度失败。无损零组跳过已通过 Python/RTL 语义对拍，但 200 MHz OOC setup 失败；下一步是 CP3c 模型取数路径物理修复，当前不得生成 bit/XSA 或进入板级速度测量。
 | `results/simulation_results.json` | `python neuron_sim.py` 的三种单神经元候选结果 |
 | `results/sweep_results.json` | `python run_sweep.py` 的单神经元候选 sweep 结果 |
 | `results/network_results.json` | `python run_network_experiment.py` 的两层网络受控实验结果 |

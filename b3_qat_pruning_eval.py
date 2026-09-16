@@ -1,6 +1,6 @@
 """QAT 模型上的 dense/live-PS/calibrated 剪枝仿真评估（不涉及板卡）。
 
-输入：tools/repro/b3_qat_model_manifest.json（canonical 634-word 打包 + 64 held-out）。
+输入：tools/repro/b3_qat_model_manifest.json（canonical 634-word 打包 + 397 held-out；64 可用 --manifest 指向旧 smoke 清单）。
 live 决策复用与实板 PS 相同的 `decide_group4way_live` 语义；calibrated 为
 512 训练样本多数票固定 mask（零决策成本对照）。
 """
@@ -32,7 +32,6 @@ DEFAULT_MANIFEST = ROOT / "tools" / "repro" / "b3_qat_model_manifest.json"
 DEFAULT_FIXTURE = ROOT / "archive" / "legacy" / "digit8x8" / "digit8x8_fixture.json"
 DEFAULT_OUTPUT = ROOT / "artifacts" / "results" / "b3_qat_pruning_diagnostic.json"
 CALIBRATION_SAMPLES = 512
-TRAIN_COUNT = 1400
 SPLIT_SEED = 20260914
 
 

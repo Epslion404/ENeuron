@@ -1,14 +1,14 @@
 # 核心领域概念
 
-B3-17～B3-22 优化线（2026-09-13）：当前目标是降低固定软件/协议开销、减少无效硬件活动、冻结 live mask 更新摊销并建立整板功耗归因与统一接受门；六项均未勾选，不新增发布门槛。功耗证据仍为 `POWER_NOT_MEASURED / NOT_PROVEN`，整板 `P_incremental` 也不能解释为纯 NPU 功耗；只有在同一输入、模型、bit/XSA/ELF 身份下先通过正确性回归，再以超过仪器不确定度的可重复周期/吞吐/能耗收益接受优化。
+当前主线（2026-09-16）：QAT CP0/CP1/CP3c 已完成，严格 2:4 live/static 精度失败；无损零组跳过已在完整 wrapper 上完成 397 样本 dirty-worktree 开发对拍，logits 逐元素一致、任务准确率 88.665% 无下降，核心周期约 1.089x，端到端约 1.005x。下一步是 clean rerun 后进入功耗；功耗证据仍为 `POWER_NOT_MEASURED / NOT_PROVEN`。
 
 > generated_by: nexus-mapper v2 / manual synthesis
-> verified_at: 2026-09-13
+> verified_at: 2026-09-16
 > provenance: 当前 checkout 路径、分支与提交以 Git 命令实时查询；历史路径、分支和 PR 名称仅作来源。bitstream RTL 身份 `be84596`。证据 `artifacts/logs/b3_mvp_20260912_be84596/`。
 
-## 当前权威概念边界（2026-09-13，B3-MVP-GATE 已关）
+## 当前权威概念边界（2026-09-16，CP4 开发对拍通过）
 
-器件 `xc7z020clg484-2`，checkout 身份以 Git 实时输出为准。B3-MVP-GATE 已关：组级 `group_4way` live-ENeuron 正确，局部 NPU 周期 dense 2494 → gated 1606（差值 888 cycles）。pending epoch 来自 `mask_state==MASK_PUBLISHED`，不是 `mask_valid`。`B3-SPEED-MEASURED` 已完成单样本诊断，但 `B3-SPEED-GATE=OPEN`；功耗合同已冻结但 `B3-POWER-MEASURED=OPEN / POWER_NOT_MEASURED`，`B3-POWER-GATE=OPEN`。严格连接级 `2:4` 是结构实验。不可声称端到端或网口加速、测得功耗、B2-GATE。
+器件 `xc7z020clg484-2`，checkout 身份以 Git 实时输出为准。B3-MVP-GATE、QAT CP1 dense 和 lossless CP3c 已完成；397 样本 CP4 开发对拍 logits 逐元素一致，核心周期约 `1.089x`，端到端约 `1.005x`。因 packet ELF 来自 dirty worktree，`B3-ACCURACY-GATE`、`B3-SPEED-GATE`、`B3-POWER-MEASURED/B3-POWER-GATE` 均保持 OPEN。严格连接级 `2:4`、独立 PL auto-mask 与网口发布是后置支线。
 
 - `B3_MVP_GATE_PASS`：同一份集中 Vivado 2024.1 bitstream（RTL `be84596`，200 MHz FCLK0）上关闭 B3-04/09/11/13/14。WNS=+0.045 ns，TNS=0，WHS=+0.036 ns，THS=0，route/DRC hard errors=0，DSP48E1=4。bit SHA-256=`0ecbe76274c39418f2a60a88358d3ff6f09f5a2ed73a44a3a419c34eb91d3a11`，XSA SHA-256=`135d979d61c629922ee5419e51dd97ef045d9bab79930432816d09f109291d1a`。只可声称 `group_4way` 动态剪枝正确性 + 局部 NPU 周期差值 888 cycles。
 - `B3_SPEED_MEASURED / B3_SPEED_GATE_OPEN`：COM15 同源 bit 上 dense/full-open/static/live 已分开 NPU/PS/DMA/Host UART。888 cycle ≈ 4.4 µs，小于 Host live 决策约 996 µs；DMA 包含 NPU、UART 又包含整个流程，字段不可相加。`claim=local_npu_cycle_delta_only`。证据 `artifacts/logs/b3_speed_20260912_be84596/`。
@@ -22,7 +22,7 @@ B3-02 共享固定向量合同：`tools/repro/b3_fixed_vector_manifest.json` 是
 
 B3-08a 组级静态 mixed mask 实板子门（2026-09-12）：提交 `73b12c3` 的 `b3_static_mixed` 在同一物理通过 bit/XSA、COM15 上通过，run `20260912T102046Z`，manifest 为 `boards/hellozynq/b2_sw/build/73b12c30baf1507876c6bff01059a2c28c919a8d/direct/runs/20260912T102046Z/run_manifest.json`。结果 logits=`74,-18,14,0,0,0,0,0,0,114`，`fence_snapshot_valid=1`，592 个 `group_4way` 组中 execute/skip=`296/296`。该证据关闭 B3-08a；严格连接级 `2:4` 延后到 STRICT。B3-09 板级 live 已由 `be84596` 关闭。
 
-B3 门禁分层：`B3-MVP-GATE` 已关。当前并行门为 `B3-SPEED-GATE` 与 `B3-POWER-MEASURED/B3-POWER-GATE`，两者均通过后才关闭 `B3-GOAL-GATE`。`B3-STRICT-GATE` 独立覆盖严格连接级 `2:4`、10000 样本和完整恢复；`B4-RELEASE-GATE` 覆盖网口发布，B2-GATE 仍是该发布链的未关闭门。
+B3 门禁分层：`B3-MVP-GATE`、QAT CP1 dense 和 lossless CP3c 已关，CP4 已有开发对拍；当前执行 clean HEAD 复跑，随后进入 CP5 纯 PL 吞吐与功耗。`B3-ACCURACY-GATE`、`B3-SPEED-GATE` 与 `B3-POWER-MEASURED/B3-POWER-GATE` 三者均通过后才关闭 `B3-GOAL-GATE`。`B3-STRICT-GATE` 独立覆盖严格连接级 `2:4`、10000 样本和完整恢复；`B4-RELEASE-GATE` 覆盖网口发布。
 
 B3 execute/skip 计数器前置物理状态（2026-09-12）：第三次 `route_design -directive Explore` 加既有 post-route `AggressiveExplore` 的构建绑定 HEAD `c3a50eb`，在 `xc7z020clg484-2`、200 MHz 下通过物理硬门：`WNS/TNS=+0.008/0 ns`、`WHS/THS=+0.036/0 ns`、setup/hold 失败端点为 0、route errors=0、DRC hard errors=0、DSP48E1=4；bit/XSA SHA-256 分别为 `5c6ebc07…c910a88`/`86288374…177a614`。后续 `be84596` 同源实板已读回 dense/full-open/bypass=`592/0`，并关闭 B3-06/B3-07。
 

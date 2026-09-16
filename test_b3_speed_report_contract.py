@@ -192,25 +192,23 @@ class B3SpeedReportContractTests(unittest.TestCase):
         self.assertIn("B3_09_BOARD_PASS", b2["current_status"])
         self.assertIn("B3_POWER_GATE_OPEN", b2["current_status"])
         self.assertIn("B3_GOAL_GATE_OPEN", b2["current_status"])
-        self.assertTrue(b2["next_gate"].startswith("B3-SPEED-GATE"))
+        self.assertIn("B3-PAPER-CP4", b2["next_gate"])
         self.assertIn("B3-GOAL-GATE", p16["current_gates"])
         self.assertIn("B3_L0_CACHE_BOARD_DIAGNOSTIC_PASS", p16["status"])
         self.assertNotIn("workflow_resume_counts", p16)
         self.assertEqual(p16["workflow_resume_count_rule"], "QUERY_WORKFLOW_RESUME_AT_RUNTIME")
         self.assertEqual(
             p16["current_execution_point"],
-            "B3-22.4_22.5_FIXED_PROTOCOL_OVERHEAD_BATCH_DMA_FENCE",
+            "B3-PAPER-CP4_CLEAN_RERUN",
         )
         self.assertEqual(
             p16["priority_execution_point"],
-            "B3-22.4_22.5_FIXED_PROTOCOL_OVERHEAD_BATCH_DMA_FENCE",
+            "B3-PAPER-CP4_CLEAN_RERUN",
         )
         self.assertEqual(state["b3_goal_gate"], "OPEN")
-        self.assertIn("B3-22.1", p16_node["evidence_gap"])
+        self.assertIn("clean HEAD", p16_node["evidence_gap"])
         self.assertNotIn("setup_fail", board_b2["implementation_status"])
-        generated_at = datetime.fromisoformat(concept["generated_at"])
-        self.assertEqual(generated_at.date().isoformat(), "2026-09-13")
-        self.assertEqual(generated_at.utcoffset(), timedelta(hours=8))
+        self.assertEqual(concept["current_override"]["verified_at"], "2026-09-16")
 
         workflow = (root / "WORKFLOW_STATE.md").read_text(encoding="utf-8")
         next_action = workflow.split("## 下一动作", 1)[1].split("## ", 1)[0]

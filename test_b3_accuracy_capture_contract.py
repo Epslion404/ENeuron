@@ -16,7 +16,7 @@ def test_accuracy_capture_sources_and_layout_contract() -> None:
     probe = (ROOT / "boards/hellozynq/b2_sw/probe_b3_speed_benchmark.tcl").read_text(encoding="utf-8")
 
     assert "B3_ACCURACY_BENCHMARK" in packet
-    assert "ACCURACY_BENCH_BASE 0x0100A000U" in packet
+    assert "ACCURACY_BENCH_BASE 0x01010000U" in packet
     assert "struct accuracy_bench_sample" in packet
     assert "last_result_logits" in packet
     assert "#define ACCURACY_BENCH_FAIL 3U" in packet
@@ -39,10 +39,10 @@ def test_accuracy_capture_sources_and_layout_contract() -> None:
     region = next(item for item in layout["regions"] if item["name"] == "accuracy_benchmark_scratch")
     assert region == {
         "name": "accuracy_benchmark_scratch",
-        "base": 0x0100A000,
-        "capacity_bytes": 4096,
-        "payload_bytes": 3612,
-        "purpose": "B3-22.1e1 optional 64-sample logits capture",
+        "base": 0x01010000,
+        "capacity_bytes": 24576,
+        "payload_bytes": 22260,
+        "purpose": "B3-22.1e1 optional up-to-397-sample logits capture",
         "dma_role": "cpu_only",
     }
 

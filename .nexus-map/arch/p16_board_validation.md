@@ -1,7 +1,11 @@
 # P16 项目阶段 2：实板验证路线
 
+## 当前主线覆写（2026-09-16，无损零组跳过实板开发证据）
+
+当前执行点为 `B3-PAPER-CP4-CLEAN-RERUN`。QAT-v3 CP0/CP1 已完成；严格 2:4 live/static 精度失败。无损零组跳过的完整 wrapper 已通过 200 MHz 物理门，并完成 397 样本 dense/lossless 实板开发对拍：logits 逐元素一致、任务准确率均 `88.665%`，核心周期 `2494→2290.272`（`1.088954x`），单样本墙钟均值仅 `63.746→63.456 us`。当前缺口是 clean HEAD 重建/复跑与 paired 功耗，速度、功耗和目标门保持 OPEN。
+
 > generated_by: nexus-mapper v2 / manual synthesis
-> verified_at: 2026-09-13
+> verified_at: 2026-09-16
 > provenance: Git checkout 身份以命令实时输出为准；板级签核仍绑定 RTL `be84596` 与对应 bit/XSA/ELF/manifest。旧 t0-state 工作区不是现状。
 
 当前边界（中等精简）：实板部署目标为 `xc7z020clg484-2`，主线是板上 packet-NPU + ENeuron 动态剪枝。B3-MVP-GATE 已关闭；当前按 `B3-SPEED-GATE + B3-POWER-GATE → B3-GOAL-GATE` 收口。高地址 DDR、PHY、UDP 与完整 B2-GATE 保留为网口发布依赖；严格连接级 `2:4` 仍是独立 B3-08b/STRICT 实验，不前置到速度或功耗目标。
@@ -20,7 +24,7 @@ B1-06B6 实板复测（2026-09-08）：运行目录为 `artifacts/logs/hellozynq
 
 P16 的目标是在 HelloZynq `xc7z020clg484-2` 上依次打通 PL、PS/DDR/网口、DMA、`64→32→10` 传统 NPU、ENeuron 局部门控和网口端到端 A/B。阶段门只由同一身份链上的实板证据关闭；仿真和 OOC 可用于定位，但不能代替 bitstream、JTAG、UART、Host/网口日志与现场观察。
 
-当前 B3 入口：基础 dense/bypass、full-open、Host 静态 `group_4way` 和 B3-09 live-ENeuron 实板均已关闭，B3-MVP-GATE 已通过。Host live L0 contribution 缓存候选也已完成三次同源实板诊断；下一步是冻结不含 UART 的重复端到端速度窗口，而不是继续把单样本 `ps_us` 外推为目标通过。严格连接级 `2:4` 仍是 B3-08b。
+当前 B3 入口：基础 dense/bypass、full-open、Host 静态 `group_4way` 和 B3-09 live-ENeuron 实板均已关闭，B3-MVP-GATE 已通过。QAT CP0/CP1/CP3c 已完成，397 样本 lossless CP4 开发对拍通过；严格 2:4 live/static 为精度负结果。下一步在 clean HEAD 重建并复跑 dense/lossless 397 样本，再冻结负载进入 CP5/功耗；旧 fixed-vector、PS 在环和失败 OOC 不能替代 QAT 正式实板证据。
 
 B3-08a 已完成（2026-09-12）：同一物理通过 bit/XSA、COM15、`b3_static_mixed` 实板 run `20260912T102046Z` 通过，logits=`74,-18,14,0,0,0,0,0,0,114`，fence valid=`1`，execute/skip=`296/296`。mask 粒度是 `group_4way`；B3-08b 属于后续 STRICT。
 

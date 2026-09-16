@@ -1,16 +1,24 @@
 # ENeuron 持久工作流状态
 
-## 当前裁定（2026-09-14，B3-22.3 后）
+## 当前裁定（2026-09-16，无损 PL 跳过实板开发证据）
 
-B3-22.3 已证明当前协议下零动态决策成本剪枝仅约 `2%` 端到端改善。B3-22.4 首轮固定开销实验已完成：软件 DMA 路径修正（256B guard、去重 invalidate、usleep 10→2）把 dense 中位数从 `157` 降到 `63–64 us`、calibrated `154→60 us`、单次 fence `69→18 us/样本`，三组 A/B 输出逐位一致、协议错误 0。下一动作收敛为 B3-22.4/22.5 的批量帧/fence 合并且保留逐样本 fence、epoch、CRC、隔离和 fail-closed 语义。B3-22.4 优化路径上的动态 live 三组中位数均为 `623 us`（mask compute 501.5 us / 80.5%、submit 56.9 us），仍为负收益。只有固定开销实测出现量级下降后才恢复 PL-auto；PS NEON 与独立 PL 引擎暂缓。精度状态为 `output_preservation=PASS / task_accuracy=MODEL_TASK_FIT_UNVERIFIED`（`ACCURACY_NEAR_DENSE` 仅指输出保持；当前 fixture 判 `GATE_VACUOUS / MODEL_UNDER_DETERMINED`，批量协议与 PL-auto 的决定不得建立在其剪枝精度结论上）。速度、功耗和目标门继续 OPEN。
+2026-09-16：完成 QAT-v3 397 样本 dense/lossless 两轮实板完整采集。两轮 sample ID、输入 CRC、结果 CRC、协议状态和 logits 全部一致；lossless 与 dense 的 logits 逐元素差异为 0，任务准确率均 `88.665%`。lossless 平均 `2290.272 cycles`、跳过率 `11.4712%`，相对 dense `2494 cycles` 核心加速 `1.088954x`；单样本完整窗口均值 `63.746→63.456 us`，仅 `1.004565x`。证据 `artifacts/results/b3_qat_cp4_lossless_zero_group_board_397.json`。两组 packet ELF 来自 dirty worktree，因此为开发证据；下一步 clean HEAD 重建/复跑后再判 CP4/精度门。
+
+QAT canonical 634-word `qat-v3-val200-temp400-150ep-seed20260914` 模型的 packing、训练整数 forward 与 Python reference 已通过合同测试；训练池为 1200 train + 200 validation，397 held-out 只在训练结束后评估，最终 `train=92.50%`、`validation=90.50%`、`test=88.665%`。397 样本 Python 剪枝诊断为 dense `88.665%`、live `40.302%`、calibrated static `29.471%`，因此当前 QAT 剪枝精度门失败，不能接入 PL-auto。standalone PL auto-mask 仿真为 `397/397`、`1861 cycles/sample`，但仍未接主 NPU、未做 200 MHz 时序、未取得板级证据。旧 fixed-vector 的输出保持 PASS 仅适用于该 fixture，不能作为 QAT 动态剪枝精度证明。
+
+2026-09-15：无损动态跳过已完成主 NPU RTL 最小切片。`LOSSLESS_ZERO_GROUP_SKIP` 只实现全零激活组/全零权重组跳过，不包含 L0 ReLU 后缀早停；QAT-v3 公开端口级 Icarus 对拍 `397/397` logits 逐位一致，跳过率 `34.6207%`，平均 `1879.136 cycles/sample`，核心估算约 `1.3272x`。修复轮在 `xc7z020clg484-2`、200 MHz OOC 通过 setup/hold、route 和 DRC：`WNS=+0.158 ns`、`TNS=0`、`WHS=+0.070 ns`、`THS=0`、`2068 LUT / 2848 FF / 1 BRAM36 / 4 DSP48E1`。当前状态为 `OOC_PASS_TIMING`，CP3c 已关闭；下一步是完整 wrapper/bitstream 构建和 CP4 实板验证。
+
+2026-09-15：QAT dense CP1 已完成板级验证。8 样本 smoke 与 64 样本正式对拍均 PASS；64/64 sample ID、输入/结果 CRC、epoch、协议状态和 10 维 logits 逐位一致，NPU=`2494 cycles`、`592/0` 组、端到端 `63–66 us`。证据 `artifacts/results/b3_qat_cp1_dense_64_board.json`。该状态只关闭 QAT dense 装载/输出链，CP2/CP3 剪枝精度仍未通过，PL-auto 不得接入。
+
+B3-22.3 已证明当前协议下零动态决策成本剪枝仅约 `2%` 端到端改善；B3-22.4 固定开销修正结果保留为历史工程证据。当前主线已切换到 QAT CP3a/b/c 无损零组跳过：Python、RTL 语义和 200 MHz OOC 物理门已通过。旧 fixed-vector 的精度状态仅适用于旧 fixture；QAT 正式结论必须绑定当前 QAT-v3 manifest。速度、功耗和目标门继续 OPEN。
 
 模式：`PERSISTENT_WORKFLOW_V1`
 
-最后更新：2026-09-14
+最后更新：2026-09-16
 
-状态：`ACTIVE / PHASE2_FASTLANE_V1 / B0_COMPLETE_MAIN_102DEE2 / B1A_HW_DEFINITION_COMPLETE / B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DIAG_READY_NO_GO / B1B_HIGH_DDR_PENDING / B2_00_LOW_ADDRESS_LAYOUT_FROZEN / B2_D1_DMA_CONTRACT_FROZEN / B2_01_BUFFER_OWNERSHIP_FROZEN / B2_DMA_SW_BUILD_READY / B2_BOUNDARY_PRESSURE_BACKPRESSURE_UART_JTAG_PASS / B2_NPU_PHYSICAL_GATE_PASS / B2_PACKET_PATH_SMOKE_PASS / B2_08_COUNTER_RTL_SLICE_GREEN / B2_08_BOARD_STATUS_INTEGRATED_TIMING_PASS / B2_08_BOARD_READ_PARTIAL / B3_MVP_GATE_PASS / B3_FIXED_VECTOR_PASS / B3_COUNTER_BOARD_592_0_PASS / B3_L0_CACHE_BOARD_DIAGNOSTIC_PASS / B3_SPEED_MEASURED / B3_ACCURACY_GATE_OPEN / B3_SPEED_GATE_OPEN / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B3_STRICT_DEFERRED_STRUCTURAL / PL_AUTO_MASK_CONTRACT_PASS / PL_AUTO_MASK_BOARD_PENDING / B1_GATE_FALSE / XC7Z020CLG484_2_CONFIRMED / T3_XPM_XSIM_PASS / T3_XC7Z020_OOC_PASS / RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN / GITHUB_ACTIONS_DISABLED`
+状态：`ACTIVE / PHASE2_FASTLANE_V1 / B0_COMPLETE_MAIN_102DEE2 / B1A_HW_DEFINITION_COMPLETE / B1B_UART_LOW_DDR_THREE_COLD_RUNS_PASS / B1B_HIGH_DIAG_READY_NO_GO / B1B_HIGH_DDR_PENDING / B2_00_LOW_ADDRESS_LAYOUT_FROZEN / B2_D1_DMA_CONTRACT_FROZEN / B2_01_BUFFER_OWNERSHIP_FROZEN / B2_DMA_SW_BUILD_READY / B2_BOUNDARY_PRESSURE_BACKPRESSURE_UART_JTAG_PASS / B2_NPU_PHYSICAL_GATE_PASS / B2_PACKET_PATH_SMOKE_PASS / B2_08_COUNTER_RTL_SLICE_GREEN / B2_08_BOARD_STATUS_INTEGRATED_TIMING_PASS / B2_08_BOARD_READ_PARTIAL / B3_MVP_GATE_PASS / B3_QAT_CP1_DENSE_BOARD_PASS / B3_QAT_LOSSLESS_ZERO_GROUP_RTL_SIM_PASS / B3_QAT_LOSSLESS_ZERO_GROUP_OOC_PASS_TIMING / B3_QAT_CP4_BOARD_DEVELOPMENT_PASS / B3_SPEED_MEASURED / B3_ACCURACY_GATE_OPEN / B3_SPEED_GATE_OPEN / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B3_STRICT_DEFERRED_STRUCTURAL / PL_AUTO_MASK_BOARD_DEFERRED / B1_GATE_FALSE / XC7Z020CLG484_2_CONFIRMED / GITHUB_ACTIONS_DISABLED`
 
-2026-09-14：B3-18a 已完成；B3-18b/18c 实板复测完成。PS 将 21 个 mask command 合并为单个 command frame，由 PL ingress staging 后按顺序提交；随后优化 `group_mac()` 零权重路径并移除 mask 临时位数组。64 个不同输入 live `20260914T062138Z` 为 `64/64 PASS`、端到端 `722–727 us`、累计 `mask_us=36324 us`、epoch `2→65`、`296/296`、协议错误 `0`；同源 dense `20260914T062313Z` 为 `155–159 us`、`592/0`。相对旧 PL staging live 均值约下降 29%，但仍约为 dense 的 4.65 倍，B3-SPEED-GATE 保持 OPEN。下一步是继续降低 PS mask 决策开销并完成正式精度采集。
+2026-09-14：B3-18a 已完成；B3-18b/18c 实板复测完成。PS 将 21 个 mask command 合并为单个 command frame，由 PL ingress staging 后按顺序提交；随后优化 `group_mac()` 零权重路径并移除 mask 临时位数组。64 个不同输入 live `20260914T062138Z` 为 `64/64 PASS`、端到端 `722–727 us`、累计 `mask_us=36324 us`、epoch `2→65`、`296/296`、协议错误 `0`；同源 dense `20260914T062313Z` 为 `155–159 us`、`592/0`。相对旧 PL staging live 均值约下降 29%，但仍约为 dense 的 4.65 倍，B3-SPEED-GATE 保持 OPEN。该段为历史工程证据；当前下一步是 QAT `CP2/CP3` 策略和精度门，不再回到 PS mask 微优化。
 
 2026-09-14：为“几乎不影响推理结果/精度”补齐可执行链：manifest 区分 dense epoch=1 与 live epoch=2..65；runner 逐模式校验 epoch 并归档标签；`b3_accuracy_dataset.py` 可从 1797 个带标签 `uint4` 样本生成 1000 样本/16 分块；`b3_accuracy_merge.py` 负责 dense/live 成对合并。以上是工具和合同完成，不是精度门通过；仍需同一 bit/XSA/ELF 下完成正式实板成对采集并运行统计门。
 
@@ -116,7 +124,7 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 
 ## 下一动作
 
-L0 缓存诊断提交 `82b079e`（PR #93）已合并并完成三次同源实板诊断（`ps_us=827/829/828`），该诊断不关闭速度门。B3-22.2/22.3/22.4、1024 样本输出保持采集和当前 fixture 剪枝诊断均已完成：优化路径 dense `63–64 us`、calibrated `60 us`、动态 live `623 us`；v2 dense/live logits 与 Python golden `1024/1024` 一致；任务精度仍为 `MODEL_TASK_FIT_UNVERIFIED`，fixture 判 `GATE_VACUOUS / MODEL_UNDER_DETERMINED`。当前主动任务是评审并决定 `B3-22.5` 批量 sample/fence 合同；在合同和 A/B 判据获批前不修改 RTL。精度、速度或功耗门未通过时不进入正式目标门，B10 人工读数仍属非正式工程观察。严格 2:4 仍是独立结构实验。
+L0 缓存诊断提交 `82b079e`（PR #93）已合并并完成三次同源实板诊断（`ps_us=827/829/828`），该诊断不关闭速度门。B3-22.2/22.3/22.4 和历史 fixed-vector 输出保持采集均已完成；当前 QAT-v3 证据为 CP1 dense 实板 PASS、严格 2:4 live/static 精度失败，以及无损零组跳过 RTL `397/397` 语义 PASS。CP3c 200 MHz NPU core OOC 已通过，当前主动任务是完整 wrapper/bitstream 构建和 CP4 实板对拍；不得把 OOC 结果直接当作 bit/XSA 或板级证据。`B3-22.5` 批量 sample/fence、独立 PL auto-mask、功耗和严格 2:4 均为后置分支。
 
 ## 2026-09-05 V2 OOC 签核结果
 

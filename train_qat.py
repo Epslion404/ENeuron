@@ -5,9 +5,20 @@ import json, random, math
 
 d=json.load(open('archive/legacy/digit8x8/digit8x8_fixture.json',encoding='utf-8-sig'))
 S=d['samples']
-random.seed(20260914)
-idx=list(range(len(S))); random.shuffle(idx)
-tr=[S[i] for i in idx[:1400]]; te=[S[i] for i in idx[1400:]]
+SPLIT_SEED = 20260914
+TRAIN_POOL_COUNT = 1400
+TRAIN_COUNT = 1200
+VALIDATION_COUNT = TRAIN_POOL_COUNT - TRAIN_COUNT
+HELDOUT_COUNT = len(S) - TRAIN_POOL_COUNT
+split_rng = random.Random(SPLIT_SEED)
+idx=list(range(len(S))); split_rng.shuffle(idx)
+train_pool=[S[i] for i in idx[:TRAIN_POOL_COUNT]]
+tr=train_pool[:TRAIN_COUNT]
+val=train_pool[TRAIN_COUNT:]
+te=[S[i] for i in idx[TRAIN_POOL_COUNT:]]
+
+# 训练随机性与数据划分使用独立的确定性来源，避免评估集参与模型选择。
+random.seed(SPLIT_SEED)
 H,I,O=32,64,10
 
 # 初始化：让 hidden 初始落在 0..127 中段。px 均值约 4.9, 64 个输入
@@ -37,9 +48,15 @@ def quant():
     return ([[q8(v) for v in r] for r in W0],[int(round(v)) for v in b0],
             [[q8(v) for v in r] for r in W1],[int(round(v)) for v in b1])
 
+def accuracy(dataset, q0, qb0, q1, qb1):
+    return sum(
+        1 for s in dataset
+        if max(range(O), key=lambda k: npu_fwd_w(s['pixels'], q0, qb0, q1, qb1)[1][k]) == s['label']
+    ) / len(dataset)
+
 TEMP=400.0   # softmax 温度，匹配 logit 尺度
 EPOCHS=150
-best=(0,None)
+best=(-1.0,None)
 for ep in range(EPOCHS):
     lr=0.0015*(0.5**(ep/50))
     random.shuffle(tr)
@@ -76,13 +93,14 @@ for ep in range(EPOCHS):
                 elif r[j]<-128: r[j]=-128.0
     if ep%15==14 or ep==EPOCHS-1:
         q0,qb0,q1,qb1=quant()
-        acc=sum(1 for s in te if max(range(O),key=lambda k:npu_fwd_w(s['pixels'],q0,qb0,q1,qb1)[1][k])==s['label'])/len(te)
-        print(f'  epoch {ep+1}: NPU 精确语义 test acc {acc:.4f}')
+        acc=accuracy(val,q0,qb0,q1,qb1)
+        print(f'  epoch {ep+1}: NPU 精确语义 validation acc {acc:.4f}')
         if acc>best[0]: best=(acc,(q0,qb0,q1,qb1))
 
-acc,(q0,qb0,q1,qb1)=best
-tracc=sum(1 for s in tr if max(range(O),key=lambda k:npu_fwd_w(s['pixels'],q0,qb0,q1,qb1)[1][k])==s['label'])/len(tr)
-print(f'\n*** 最佳 NPU 精确语义: train {tracc:.4f}  test {acc:.4f} ***')
+valacc,(q0,qb0,q1,qb1)=best
+tracc=accuracy(tr,q0,qb0,q1,qb1)
+testacc=accuracy(te,q0,qb0,q1,qb1)
+print(f'\n*** 最佳 NPU 精确语义: train {tracc:.4f} validation {valacc:.4f} test {testacc:.4f} ***')
 
 nzg0=sum(1 for j in range(H) for g in range(16) if any(q0[j][g*4+t] for t in range(4)))
 nzg1=sum(1 for k in range(O) for g in range(8) if any(q1[k][g*4+t] for t in range(4)))
@@ -99,5 +117,17 @@ for k in range(O):
         meta_tot+=1
         if sum(nz[m*4:(m+1)*4])>=3: meta_ge3+=1
 print(f'非零组数>=3 的 meta: {meta_ge3}/{meta_tot} = {meta_ge3/meta_tot*100:.1f}%')
-json.dump({'W0':q0,'b0':qb0,'W1':q1,'b1':qb1,'test_acc':acc,'train_acc':tracc},open('int8_model_qat.json','w'))
+json.dump({
+    'W0':q0,'b0':qb0,'W1':q1,'b1':qb1,
+    'train_acc':tracc,
+    'validation_acc':valacc,
+    'test_acc':testacc,
+    'model_version':'qat-v3-val200-temp400-150ep-seed20260914',
+    'split_seed':SPLIT_SEED,
+    'train_pool_count':TRAIN_POOL_COUNT,
+    'train_count':TRAIN_COUNT,
+    'validation_count':VALIDATION_COUNT,
+    'heldout_count':HELDOUT_COUNT,
+    'selection_protocol':'validation_accuracy_only_v1',
+},open('int8_model_qat.json','w'),indent=2)
 print('saved int8_model_qat.json')

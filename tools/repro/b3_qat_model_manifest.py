@@ -27,9 +27,11 @@ SCHEMA = "eneuron_b3_qat_model_v1"
 DEFAULT_MODEL = ROOT / "int8_model_qat.json"
 DEFAULT_FIXTURE = ROOT / "archive" / "legacy" / "digit8x8" / "digit8x8_fixture.json"
 DEFAULT_OUTPUT = Path(__file__).resolve().parent / "b3_qat_model_manifest.json"
-MODEL_VERSION = "qat-v2-temp400-150ep-seed20260914"
-HELDOUT_COUNT = 64
-TRAIN_COUNT = 1400
+MODEL_VERSION = "qat-v3-val200-temp400-150ep-seed20260914"
+HELDOUT_COUNT = 397
+TRAIN_POOL_COUNT = 1400
+TRAIN_COUNT = 1200
+VALIDATION_COUNT = TRAIN_POOL_COUNT - TRAIN_COUNT
 SPLIT_SEED = 20260914
 SAMPLE_ID_BASE = 0x51415400
 WORD_COUNT = 634
@@ -123,8 +125,8 @@ def heldout_samples(fixture_path: Path, count: int) -> list[dict]:
     rows = fixture["samples"]
     indices = list(range(len(rows)))
     random.Random(SPLIT_SEED).shuffle(indices)
-    train_indices = set(indices[:TRAIN_COUNT])
-    heldout_indices = indices[TRAIN_COUNT:TRAIN_COUNT + count]
+    train_indices = set(indices[:TRAIN_POOL_COUNT])
+    heldout_indices = indices[TRAIN_POOL_COUNT:TRAIN_POOL_COUNT + count]
     if not heldout_indices:
         raise ValueError("fixture does not contain enough held-out samples")
     samples = []
@@ -168,14 +170,17 @@ def build_manifest(model_path: Path, fixture_path: Path, heldout_count: int = HE
         "identity": {
             "source_model": model_path.relative_to(ROOT).as_posix() if model_path.is_relative_to(ROOT) else model_path.as_posix(),
             "source_model_sha256": _sha256_bytes(model_path.read_bytes()),
-            "model_version": MODEL_VERSION,
+            "model_version": model.get("model_version", MODEL_VERSION),
             "generated_at": datetime.now(timezone.utc).isoformat(),
             "generator": "tools/repro/b3_qat_model_manifest.py",
             "fixture": fixture_path.relative_to(ROOT).as_posix() if fixture_path.is_relative_to(ROOT) else fixture_path.as_posix(),
             "fixture_sha256": _sha256_bytes(fixture_path.read_bytes()),
-            "train_test_seed": SPLIT_SEED,
+            "split_seed": SPLIT_SEED,
+            "train_pool_count": TRAIN_POOL_COUNT,
             "train_count": TRAIN_COUNT,
+            "validation_count": VALIDATION_COUNT,
             "heldout_count": len(samples),
+            "selection_protocol": model.get("selection_protocol", "unknown"),
             "input_preprocess": INPUT_PREPROCESS,
         },
         "model": {
@@ -188,6 +193,8 @@ def build_manifest(model_path: Path, fixture_path: Path, heldout_count: int = HE
             "packed_words_sha256": packed_words_sha256(words),
             "layout": LAYOUT,
             "nonzero_words": nonzero,
+            "model_version": model.get("model_version", MODEL_VERSION),
+            "validation_acc": model.get("validation_acc"),
             "test_acc": model.get("test_acc"),
             "train_acc": model.get("train_acc"),
         },

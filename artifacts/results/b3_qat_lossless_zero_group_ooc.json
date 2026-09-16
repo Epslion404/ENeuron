@@ -1,0 +1,163 @@
+{
+  "schema": "eneuron_b3_qat_lossless_zero_group_ooc_v1",
+  "status": "OOC_PASS_TIMING",
+  "current_attempt": "repaired",
+  "identity": {
+    "part": "xc7z020clg484-2",
+    "clock_mhz": 200,
+    "define": "LOSSLESS_ZERO_GROUP_SKIP,B3_USE_XPM",
+    "manifest": "tools/repro/b3_qat_model_manifest.json",
+    "canonical_packed_words_sha256": "4bc51712ad5502a4a19fe73862946d53be79055c1467204a857e7b25ccdf97be",
+    "rtl_sha256": "66927c37d22173294c59d00ad9bda9d4bf027004a7e51cadfad942df512050ab",
+    "testbench_sha256": "35c0b35209eb1670047c969b018250f4a96c8f3e120e04e8d8332f731aeed999",
+    "probe_sha256": "fa23be50dd39c2004cd77274fef2e3d5a542122e36466010bb83e615d466a29e"
+  },
+  "resources": {
+    "lut_total": 2068,
+    "lut_logic": 2022,
+    "lutram": 46,
+    "ff": 2848,
+    "bram36": 1,
+    "bram18": 0,
+    "dsp48e1": 4
+  },
+  "timing": {
+    "wns_ns": 0.158,
+    "tns_ns": 0.0,
+    "failing_setup_endpoints": 0,
+    "whs_ns": 0.07,
+    "ths_ns": 0,
+    "failing_hold_endpoints": 0,
+    "route_errors": 0,
+    "drc_hard_errors": 0
+  },
+  "attempts": [
+    {
+      "label": "direct",
+      "directory": "artifacts/logs/b3_lossless_zero_group_ooc_20260916",
+      "timing": {
+        "wns_ns": -1.959,
+        "tns_ns": -342.918,
+        "failing_setup_endpoints": 561,
+        "whs_ns": -0.024,
+        "ths_ns": -0.033,
+        "failing_hold_endpoints": 2
+      },
+      "resources": {
+        "lut_total": 1697,
+        "lut_logic": 1123,
+        "lutram": 574,
+        "ff": 2167,
+        "bram36": 0,
+        "bram18": 0,
+        "dsp48e1": 4
+      }
+    },
+    {
+      "label": "prefetch",
+      "directory": "artifacts/logs/b3_lossless_zero_group_ooc_20260916_prefetch",
+      "timing": {
+        "wns_ns": -0.492,
+        "tns_ns": -16.936,
+        "failing_setup_endpoints": 119,
+        "whs_ns": 0.085,
+        "ths_ns": 0.0,
+        "failing_hold_endpoints": 0
+      },
+      "resources": {
+        "lut_total": 2217,
+        "lut_logic": 1203,
+        "lutram": 1014,
+        "ff": 2247,
+        "bram36": 0,
+        "bram18": 0,
+        "dsp48e1": 4
+      }
+    },
+    {
+      "label": "modelpath",
+      "directory": "artifacts/logs/b3_lossless_zero_group_ooc_20260916_modelpath",
+      "timing": {
+        "wns_ns": -0.329,
+        "tns_ns": -16.046,
+        "failing_setup_endpoints": 166,
+        "whs_ns": 0.083,
+        "ths_ns": 0.0,
+        "failing_hold_endpoints": 0
+      },
+      "resources": {
+        "lut_total": 2309,
+        "lut_logic": 1295,
+        "lutram": 1014,
+        "ff": 2233,
+        "bram36": 0,
+        "bram18": 0,
+        "dsp48e1": 4
+      }
+    },
+    {
+      "label": "bitflag",
+      "directory": "artifacts/logs/b3_lossless_zero_group_ooc_20260916_bitflag",
+      "timing": {
+        "wns_ns": -0.685,
+        "tns_ns": -74.457,
+        "failing_setup_endpoints": 421,
+        "whs_ns": 0.037,
+        "ths_ns": 0.0,
+        "failing_hold_endpoints": 0
+      },
+      "resources": {
+        "lut_total": 2307,
+        "lut_logic": 1293,
+        "lutram": 1014,
+        "ff": 2290,
+        "bram36": 0,
+        "bram18": 0,
+        "dsp48e1": 4
+      }
+    },
+    {
+      "label": "xpm",
+      "directory": "artifacts/logs/b3_lossless_zero_group_ooc_20260916_xpm",
+      "timing": {
+        "wns_ns": -1.034,
+        "tns_ns": -66.063,
+        "failing_setup_endpoints": 73,
+        "whs_ns": 0.03,
+        "ths_ns": 0.0,
+        "failing_hold_endpoints": 0
+      },
+      "resources": {
+        "lut_total": 2051,
+        "lut_logic": 2005,
+        "lutram": 46,
+        "ff": 2800,
+        "bram36": 1,
+        "bram18": 0,
+        "dsp48e1": 4
+      }
+    },
+    {
+      "label": "repaired",
+      "directory": "artifacts/logs/b3_lossless_zero_group_ooc_20260916_repaired",
+      "timing": {
+        "wns_ns": 0.158,
+        "tns_ns": 0.0,
+        "failing_setup_endpoints": 0,
+        "whs_ns": 0.07,
+        "ths_ns": 0.0,
+        "failing_hold_endpoints": 0
+      },
+      "resources": {
+        "lut_total": 2068,
+        "lut_logic": 2022,
+        "lutram": 46,
+        "ff": 2848,
+        "bram36": 1,
+        "bram18": 0,
+        "dsp48e1": 4
+      }
+    }
+  ],
+  "boundary": "主NPU公开端口级仿真通过；修复轮已在 xc7z020clg484-2、200MHz 完成综合、布局布线、时序和 DRC，WNS/WHS=+0.158/+0.070ns、TNS/THS=0、route/DRC hard error=0。模型存储落到 1 个 RAMB36，资源为 2068 LUT / 2848 FF / 4 DSP48E1。该 OOC 仅覆盖 NPU core，不包含 PS、DMA、板级 I/O 或外部供电；CP3c 已通过，但仍不得把 OOC 结果当作 bit/XSA 或板级吞吐/功耗证据。"
+}

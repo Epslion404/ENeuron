@@ -59,7 +59,7 @@
 #endif
 
 #if defined(B3_ACCURACY_BENCHMARK)
-#define ACCURACY_BENCH_BASE 0x0100A000U
+#define ACCURACY_BENCH_BASE 0x01010000U
 #define ACCURACY_BENCH_MAGIC 0x42334143U
 #define ACCURACY_BENCH_RUNNING 1U
 #define ACCURACY_BENCH_PASS 2U
@@ -172,8 +172,8 @@ struct accuracy_bench_record {
 
 _Static_assert(sizeof(struct accuracy_bench_sample) == ACCURACY_BENCH_SAMPLE_BYTES,
                "accuracy sample layout must remain 56 bytes");
-_Static_assert(sizeof(struct accuracy_bench_record) <= 4096U,
-               "accuracy benchmark record must fit the 4 KiB scratch region");
+_Static_assert(sizeof(struct accuracy_bench_record) <= 24576U,
+               "accuracy benchmark record must fit the 24 KiB scratch region");
 
 static volatile struct accuracy_bench_record *const accuracy_bench =
     (volatile struct accuracy_bench_record *)ACCURACY_BENCH_BASE;
@@ -856,31 +856,55 @@ static int send_sample_and_check(u32 sample_id, u32 epoch, u32 sample_index)
             if (last_result_logits[index] != expected_logit(sample_index, index)) {
                 B3_PRINT("B3_LOGIT_FAIL index=%u expected=%d actual=%d\r\n",
                            index, expected_logit(sample_index, index),
-                           result_logits[index]);
+                           last_result_logits[index]);
                 return fail("b3_logit_mismatch");
             }
         }
         last_result_crc = rx[18];
         #if defined(B3_BYPASS)
-        B3_PRINT("B3_BYPASS_PASS sequence=%u sample_id=0x%08x response_words=%u mask_words=0 logits=165,-18,14,0,0,0,0,0,0,153\r\n",
-                   request_sequence, sample_id, response_words);
+        B3_PRINT("B3_BYPASS_PASS sequence=%u sample_id=0x%08x response_words=%u mask_words=0 logits=%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\r\n",
+                   request_sequence, sample_id, response_words,
+                   last_result_logits[0], last_result_logits[1], last_result_logits[2],
+                   last_result_logits[3], last_result_logits[4], last_result_logits[5],
+                   last_result_logits[6], last_result_logits[7], last_result_logits[8],
+                   last_result_logits[9]);
         #elif defined(B3_STATIC_MIXED)
-        B3_PRINT("B3_STATIC_MIXED_PASS sequence=%u sample_id=0x%08x response_words=%u mask_words=%u logits=74,-18,14,0,0,0,0,0,0,114 group_reads=296 group_skips=296 granularity=%s strict_2of4_candidate=%u\r\n",
+        B3_PRINT("B3_STATIC_MIXED_PASS sequence=%u sample_id=0x%08x response_words=%u mask_words=%u logits=%d,%d,%d,%d,%d,%d,%d,%d,%d,%d group_reads=296 group_skips=296 granularity=%s strict_2of4_candidate=%u\r\n",
                    request_sequence, sample_id, response_words, MASK_WORDS,
+                   last_result_logits[0], last_result_logits[1], last_result_logits[2],
+                   last_result_logits[3], last_result_logits[4], last_result_logits[5],
+                   last_result_logits[6], last_result_logits[7], last_result_logits[8],
+                   last_result_logits[9],
                    GROUP_MASK_GRANULARITY, STRICT_2OF4_CANDIDATE);
         #elif defined(B3_LIVE_ENEURON)
-        B3_PRINT("B3_LIVE_ENEURON_PASS sequence=%u sample_id=0x%08x response_words=%u mask_words=%u logits=165,-18,14,0,0,0,0,0,0,153 group_reads=296 group_skips=296 granularity=%s strict_2of4_candidate=%u decision_source=live_eneuron_s2\r\n",
+        B3_PRINT("B3_LIVE_ENEURON_PASS sequence=%u sample_id=0x%08x response_words=%u mask_words=%u logits=%d,%d,%d,%d,%d,%d,%d,%d,%d,%d group_reads=296 group_skips=296 granularity=%s strict_2of4_candidate=%u decision_source=live_eneuron_s2\r\n",
                    request_sequence, sample_id, response_words, MASK_WORDS,
+                   last_result_logits[0], last_result_logits[1], last_result_logits[2],
+                   last_result_logits[3], last_result_logits[4], last_result_logits[5],
+                   last_result_logits[6], last_result_logits[7], last_result_logits[8],
+                   last_result_logits[9],
                    GROUP_MASK_GRANULARITY, STRICT_2OF4_CANDIDATE);
         #elif defined(B3_FULL_OPEN)
-        B3_PRINT("B3_FULL_OPEN_PASS sequence=%u sample_id=0x%08x response_words=%u mask_words=%u logits=165,-18,14,0,0,0,0,0,0,153\r\n",
-                   request_sequence, sample_id, response_words, MASK_WORDS);
+        B3_PRINT("B3_FULL_OPEN_PASS sequence=%u sample_id=0x%08x response_words=%u mask_words=%u logits=%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\r\n",
+                   request_sequence, sample_id, response_words, MASK_WORDS,
+                   last_result_logits[0], last_result_logits[1], last_result_logits[2],
+                   last_result_logits[3], last_result_logits[4], last_result_logits[5],
+                   last_result_logits[6], last_result_logits[7], last_result_logits[8],
+                   last_result_logits[9]);
         #elif defined(B3_EPOCH_OVERLAP)
-        B3_PRINT("B3_EPOCH_OVERLAP_PASS sequence=%u sample_id=0x%08x response_words=%u mask_words=%u logits=165,-18,14,0,0,0,0,0,0,153 result_epoch=%u\r\n",
-                   request_sequence, sample_id, response_words, MASK_WORDS, SAMPLE_MASK_EPOCH);
+        B3_PRINT("B3_EPOCH_OVERLAP_PASS sequence=%u sample_id=0x%08x response_words=%u mask_words=%u logits=%d,%d,%d,%d,%d,%d,%d,%d,%d,%d result_epoch=%u\r\n",
+                   request_sequence, sample_id, response_words, MASK_WORDS,
+                   last_result_logits[0], last_result_logits[1], last_result_logits[2],
+                   last_result_logits[3], last_result_logits[4], last_result_logits[5],
+                   last_result_logits[6], last_result_logits[7], last_result_logits[8],
+                   last_result_logits[9], SAMPLE_MASK_EPOCH);
         #else
-        B3_PRINT("B3_DENSE_PASS sequence=%u sample_id=0x%08x response_words=%u mask_words=%u logits=165,-18,14,0,0,0,0,0,0,153\r\n",
-                   request_sequence, sample_id, response_words, MASK_WORDS);
+        B3_PRINT("B3_DENSE_PASS sequence=%u sample_id=0x%08x response_words=%u mask_words=%u logits=%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\r\n",
+                   request_sequence, sample_id, response_words, MASK_WORDS,
+                   last_result_logits[0], last_result_logits[1], last_result_logits[2],
+                   last_result_logits[3], last_result_logits[4], last_result_logits[5],
+                   last_result_logits[6], last_result_logits[7], last_result_logits[8],
+                   last_result_logits[9]);
         #endif
     }
 #else

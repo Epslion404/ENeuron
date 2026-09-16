@@ -37,8 +37,8 @@ class B3QatPlAutoMaskContractTests(unittest.TestCase):
         artifact = json.loads(artifact_path.read_text(encoding="utf-8"))
         self.assertEqual(artifact["schema"], "eneuron_b3_qat_pl_auto_mask_sim_v1")
         self.assertEqual(artifact["status"], "SIM_PASS")
-        self.assertEqual(artifact["samples"], 64)
-        self.assertEqual(artifact["bit_exact"], 64)
+        self.assertEqual(artifact["samples"], 397)
+        self.assertEqual(artifact["bit_exact"], 397)
         self.assertLessEqual(artifact["engine_cycles_per_sample"], artifact["cycle_budget"])
 
 

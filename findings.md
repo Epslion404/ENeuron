@@ -1,5 +1,43 @@
 # 调研与实验发现
 
+## 无损零组跳过同步 RAM 修复后通过 200 MHz 物理门
+
+- 根因是同步 RAM 输出与状态机使用拍错位：bias 在加载拍读取旧的 `model_word_latched`，跳过组又没有为下一组安排预取。
+- 修复为执行组在 FETCH 锁存当前同步输出，跳过组在判定拍预取下一地址，ACCUM 阶段预取后继组；跳过组不更新 `model_word_latched`，连续跳过后仍可直接判断下一组。
+- 修复轮 OOC（`xc7z020clg484-2`、200 MHz）完成 route/DRC，`WNS=+0.158 ns`、`TNS=0`、`WHS=+0.070 ns`、`THS=0`、资源 `2068 LUT / 2848 FF / 1 RAMB36 / 4 DSP48E1`。这关闭 CP3c，但不替代完整 wrapper/bitstream 和板级证据。
+
+## 2026-09-15 XPM 映射已解决但时序仍未过
+
+- 旧 OOC 的 `0 BRAM / 大量 LUTRAM` 来自综合未采用当前同步 RAM 封装，不能继续作为最新源码物理证据。
+- 显式 `B3_USE_XPM` 后，Vivado 综合报告出现 `model_ram/model_ram_xpm/xpm_memory_base_inst` 的 `1 K x 32` block RAM 映射，最终资源为 `1 RAMB36`、`0 LUTRAM`，证明模型存储路径已按预期物理化。
+- 结构性收益没有自动转化为 200 MHz 收敛：xpm 轮 setup `WNS=-1.034 ns`，最紧路径仍涉及 `model_read_addr`/状态机与数据通路；当前不能把“BRAM 已生效”写成“物理门通过”。
+- OOC JSON 已改为当前 `xpm` 轮，旧 direct/prefetch/modelpath/bitflag 保留为历史尝试；合同测试现在允许 Vivado 资源表中实例列带填充空格。
+
+## 2026-09-15 无损零组跳过的语义与物理边界
+
+- `LOSSLESS_ZERO_GROUP_SKIP` 的公开端口级结果证明“全零激活组/全零权重组可以在当前 RTL 中无损跳过”：QAT-v3 397/397 logits 逐位一致，平均 `1879.136 cycles/sample`，跳过率 `34.6207%`，核心估算约 `1.3272x`。该结论不包含尚未实现的 L0 ReLU 后缀早停。
+- 为避免新增 32-bit 全字比较扇出，当前实现采用预取和单比特 `lossless_group_weight_nonzero`；功能合同通过，但这没有解决 200 MHz 物理门。
+- 四轮 OOC 的控制路径改法没有形成稳定的 setup 收敛：`WNS` 依次为 `-1.959/-0.492/-0.329/-0.685 ns`。modelpath 轮的最差路径是 `compute_model_addr -> model_staging LUTRAM -> model_word_latched/D`；当前 bitflag 轮转为 `compute_group_index -> hidden_values LUTRAM -> L1 零判定 -> model_word_latched/CE`。两类都包含异步 LUTRAM 读和长布线，继续只微调零组组合判定的收益有限。
+- 当前 bitflag 最终报告为 `2307 LUT / 2290 FF / 0 BRAM / 4 DSP48E1`，route/DRC hard error 为 0、hold 通过，但 setup `WNS=-0.685 ns`、`TNS=-74.457 ns`、421 个失败端点；direct 轮还存在 `WHS=-0.024 ns`、2 个 hold 失败端点。因此当前证据只能关闭 RTL 语义切片，不能生成正式 bit/XSA、下载实板、声明纯 PL 加速或关闭 CP4。
+- 原 OOC JSON 曾混用 prefetch 资源、bitflag WNS 和 bitflag 路由中间 TNS；已改为逐轮绑定最终 `timing_post_route.rpt`/`utilization_post_route.rpt`，并新增合同测试防止再次混装。
+- 下一技术方案应组合两项最小结构改动：`model_staging` 显式同步 BRAM/固定读延迟，零组判定改用加载期生成的 bit metadata。单独隔离判定已被 modelpath 轮的 `WNS=-0.329 ns` 证明不足；只 BRAM 化模型也会留下当前 `hidden_values` 异步读判定路径。验收标准不是“WNS 改善”，而是目标器件 200 MHz 下 `WNS/WHS>=0`、`TNS/THS=0`，随后再做板级逐位对拍和周期实测。
+
+## 2026-09-15 post-route门级SAIF正式结果
+
+- 分析对象为`xc7z020clg484-2`上的纯PL NPU OOC核心，同一routed DCP、同一200 MHz约束；dense/gated分别使用64样本连续推理窗口生成门级SAIF。
+- 两份`report_power`均显示routed、High confidence，直接匹配`3229/4716=68%`。该匹配率高于早期RTL-SAIF的13%，且Vivado对内部节点活动与总体置信度均判定为High；项目汇总脚本原先要求`>=90%`属于未经依据的自定义硬门，应改为显式记录`>=50%`并同时强制Vivado High，而不是改写原始报告。
+- dense：动态功耗`0.033 W`，器件静态`0.103 W`，总片上`0.136 W`，`2494 cycles = 12.47 us`；动态能量`411.51 nJ`，静态时间窗能量`1284.41 nJ`，总片上时间窗能量`1695.92 nJ`。
+- gated：动态功耗`0.034 W`，器件静态`0.103 W`，总片上`0.137 W`，`1606 cycles = 8.03 us`；动态能量`273.02 nJ`，静态时间窗能量`827.09 nJ`，总片上时间窗能量`1100.11 nJ`。
+- gated平均动态功率比dense高约3.0%，但完成时间缩短，因此动态能量降低`33.65%`。`0.103 W`是整颗器件静态基线，不能归因为NPU自身；OOC结果也不含PS、DDR、DMA、板级I/O与外部供电损耗。
+
+## 2026-09-15 CP0 QAT 训练泄漏核验
+
+- DeepSeek 在目标工作区完成只读复核；`cwd=/mnt/d/Documents/Code/ENeuron-board-b0` 已生效，但 WSL 无法解析 Windows worktree 的 `.git` 指针，Git 操作仍由 Windows 主 Agent 执行。
+- `train_qat.py:9-10,77-81` 原先把 `idx[1400:]` 的 397 个最终样本命名为 `te`，并在每 15 个 epoch 上用其准确率选择 `best`；这属于最终测试集参与模型选择的泄漏。
+- `b3_qat_model_manifest.py` 的 held-out 切片与训练完全同源，前 64 个旧样本是 397 个测试集前缀；扩展到 397 不会修复泄漏，只会扩大被污染的报告集。
+- 已采用最小修复：保留 1400 样本训练池，划分为 1200 train、200 validation；397 held-out 只在训练结束后评估一次。模型版本升为 `qat-v3-val200-temp400-150ep-seed20260914`，manifest 记录 `validation_count=200` 和 `selection_protocol=validation_accuracy_only_v1`。
+- 在新模型重训和 397 manifest 生成完成前，CP0 保持 OPEN；不得开始 QAT 正式板级精度宣称。
+
 ## 2026-09-14 B3-22.3 后方向裁定
 
 - 零决策成本只有约 `2%` 系统收益，继续优化 PS mask 计算或接入独立 PL-auto 不能改变固定协议开销主导的结论。
@@ -2206,3 +2244,11 @@
 - 3 组对称 dense/live：dense 中位数均 `64 us`，live 均 `623 us`（`9.73×`）；live 中 compute `501.5 us`、submit `56.9 us`、fence `18.1 us`、DMA `20 us`、result `11 us`、PS `8 us`。
 - 输出零偏差：`64/64` logits 与 dense 一致、`1606 cycles`、`296/296`、协议错误 0。
 - 即便路径已优化，PS 决策仍占 live 的 `80.5%`；`B3-SPEED-GATE` 不能由路径优化关闭，下一步只能是批量协议或 PL 决策。
+
+## 2026-09-15 200 MHz SAIF功耗修复初始事实
+
+- 现有`vivado_npu_single_clock_ooc_reports/power_impl.rpt`对象为`npu_eneuron_single_clock_skeleton`，器件`xc7z020clg400-1`，时钟10 ns（100 MHz），`Simulation Activity File=---`，整体置信度Medium；其`0.113 W`不能与200 MHz周期直接计算论文能量。
+- 完整板级`boards/hellozynq/b2_hw/build/.../design_1_wrapper_routed.dcp`对象为`xc7z020clg484-2`、200 MHz，但含PS7、DMA、Ethernet等，不适合回答“纯NPU核心dense/gated”的动态功耗差异。
+- 本轮应建立同一NPU RTL、同一器件、同一200 MHz约束、同一输入序列和仅mask不同的OOC routed A/B；RTL/XSim生成SAIF，`read_saif`注入同一routed DCP后分别`report_power`。器件静态仅作为器件基线单列，不归因给NPU核心。
+- 当前QAT-v3清单已携带634个canonical packed model words与397个held-out样本；`artifacts/results/b3_qat_pruning_diagnostic.json`携带同一模型的19-word calibrated严格2:4 mask，可直接生成确定性SV数据文件，避免复用旧手工稀疏fixture。
+- 正式功耗TB应连接`execute_group_count`、`skip_group_count`和`last_compute_cycles`并在SAIF窗口内自检：dense每次592/0、2494 cycles，gated每次296/296、1606 cycles；模型/mask装载和reset不进入采样窗口。

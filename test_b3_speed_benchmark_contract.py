@@ -57,9 +57,9 @@ def test_speed_benchmark_sources_and_address_contract() -> None:
     assert region == {
         "name": "speed_benchmark_scratch",
         "base": 0x01009000,
-        "capacity_bytes": 4096,
-        "payload_bytes": 3948,
-        "purpose": "B3-22.1/22.2 no-UART timing, mask compute/submit split and identity record (64 unique inputs)",
+        "capacity_bytes": 24576,
+        "payload_bytes": 23928,
+        "purpose": "B3-22.1/22.2 no-UART timing, mask compute/submit split and identity record (up to 397 unique inputs)",
         "dma_role": "cpu_only",
     }
 
@@ -124,7 +124,7 @@ def test_speed_benchmark_records_fail_stage_for_pre_sample_diagnostics() -> None
     assert "failure_stage = Get-U32" in runner
     assert "failure_sample_index = Get-U32" in runner
     region = next(item for item in layout["regions"] if item["name"] == "speed_benchmark_scratch")
-    assert region["payload_bytes"] == 3948
+    assert region["payload_bytes"] == 23928
 
 
 def test_multi_input_identity_is_recorded_per_sample() -> None:
