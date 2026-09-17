@@ -2281,3 +2281,18 @@ RED 记录：新增“完成外部测量不能自动关闭降功耗目标”合�
 
 错误记录：首次进度补丁因计划文件上下文与摘要不一致而被拒绝，未写入文件；改为读取文件尾部后局部更新。两次从被忽略 build 目录搜索旧 distribution manifest 均无结果，后续改用目录枚举而不重复相同搜索。
 提交前验证：`run_b2_checks.ps1` → `129 passed`、T1 PASS、`B2_CHECKS_PASS`；CP8 packet manifest 为 397 个唯一输入，ELF SHA-256=`bb53f08772fb83474001e3f8218247bc64753da6c743199beabf89d3be2b6301`（dirty compile probe，仅证明可编译，不作为正式板级证据）。
+
+# 2026-09-17 CP8 物理构建时序收口（HEAD 5c16095）
+
+状态：`IN_PROGRESS / UNCOMMITTED`
+
+- [x] dense 正式构建 PASS：`xc7z020clg484-2`、200 MHz，`WNS=+0.022/TNS=0/WHS=+0.009/THS=0`，route/DRC hard error=0，DSP48E1=4。
+- [x] lossless 正式构建 FAIL_CLOSED：同 HEAD，`WNS=-0.026/TNS=-0.036/WHS=+0.036/THS=0`，route/DRC=0，DSP=4；bit/XSA 虽生成但禁止上板。
+- [x] 失败路径定位为 397-sample replay BRAM 到 lossless `core/l0_group_nonzero_reg[*]/D`，不是 `0x74` CP8 控制链。
+- [x] 复用相同综合网表的独立 `impl_extra_timing_probe`（`Performance_ExtraTimingOpt`）得到 `WNS=+0.001/TNS=0/WHS=+0.013/THS=0`，全部约束满足。
+- [x] 生产实现策略切换到 `Performance_ExtraTimingOpt`，合同 `17 passed`。
+- [ ] 提交策略修复；提交前不得声称 CP8 物理构建通过。
+- [ ] clean HEAD 正式重建 dense 与 lossless；两者均签核通过后才进入四态实板状态验证。
+- [ ] 当前状态保持 `CP8_CONTROL_CHAIN_PASS / CP8_PHYSICAL_BUILD_PENDING`，不得写 `CP8_PHYSICAL_BUILD_PASS`。
+
+边界：probe 只用独立 implementation run 形成分析证据，不替代 clean HEAD 正式构建；CP8 新 bit/XSA 只为提供可控、持续的测量负载，不改变 NPU 算法或 CP5b 速度结论。

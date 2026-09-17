@@ -2327,3 +2327,17 @@
 - idle/full 的 PS 都停留在同一 1 ms 控制轮询；full 的逐样本执行完全位于 PL，避免 PS 决策或 DMA 持续参与功耗窗口。
 - packet build 显式要求 canonical QAT、恰好 397 样本，并禁止 CP8 与 speed/accuracy benchmark 混用。
 - DeepSeek 适合生成受限 runner/probe 初稿，但主审发现 state-specific BuildTag 会削弱同一 ELF 证据；已改为两态共享 `cp8_${Mode}_power` 构建身份。
+# 2026-09-17 CP8 lossless 物理构建签核失败
+
+- `build_cp8_lossless_5c16095/build_manifest.json` 绑定 clean HEAD `5c1609560dc8acc989e6c89723fa7de8e3d747c5`、`lossless_zero_group_skip_pl_power_replay`、`xc7z020clg484-2`、200 MHz 和 4 DSP48E1。
+- route errors 与 DRC hard errors 均为 0，bit/XSA 已生成，但最终 setup 为 `WNS=-0.026 ns`、`TNS=-0.036 ns`，因此 `B2_TIMING_PASS=0`、`B2_SIGNOFF_PASS=0`；该产物不得下载实板或作为 CP8 功耗证据。
+- post-route physical optimization 已将初始约 `WNS=-0.071 ns` 改善到 `-0.026 ns`，仍未过门。下一步必须分析最差路径后做局部修复，不能把微小时序负裕量按 seed 波动直接豁免。
+- 两个失败端点均为 replay BRAM 到 `core/l0_group_nonzero_reg[*]/D`。最差路径从 `sample_ram` 的 `RAMB36E1/DOBDO[3]` 出发，经 replay 数据选择/重映射组合逻辑后到 lossless 输入非零摘要寄存器，数据延迟 `4.878 ns`、4 级 LUT；说明 CP8 控制寄存器不是时序根因。
+- dense 模式不生成 `l0_group_nonzero`，因此同一 replay 结构能通过；lossless 模式在 `sample_valid && sample_ready` 边界同时写 `input_pixels` 和 `l0_group_nonzero`，后者暴露了 BRAM 输出到核心寄存器的完整组合路径。
+- CP5b 正式 lossless distribution replay（HEAD `2fcc528`）使用同一 `B3_PL_DISTRIBUTION_REPLAY_BENCHMARK`、397 样本 RAM 和 lossless 核，曾以 `WNS=+0.052 ns`、`TNS=0`、4 DSP 完整签核。其 bit=`a92c8f2a...113322e`、XSA=`af87dfd6...703758d`。
+- 从 CP5b 到 CP8，`CONTINUOUS_REPLAY` 只改变 measure 结束后的计数、样本索引循环和最终结果转发条件，不进入 replay BRAM 到 `l0_group_nonzero` 的组合数据表达式。当前 `-0.026 ns` 更符合新增控制逻辑导致的布局/布线裕量漂移；优先尝试物理实现策略修复，避免为 26 ps 负裕量先改动功能周期。
+- 一次 DeepSeek 新会话对照审计错误地把 `.rpt`/`.json` 路径当作 shell 命令并在 180 秒超时，未形成可信报告；其中仅通过 `git diff` 得到的 continuous 代码差异经主代理独立复核后采用。此类复杂报告对照后续应提供明确解析命令或由主代理完成。
+- Vivado 2024.1 对现有 `impl_1` 报告的可选策略中确认存在 `Performance_ExtraTimingOpt`、`Performance_ExplorePostRoutePhysOpt`、`Performance_Retiming` 等。当前先用独立 implementation run 探测 `Performance_ExtraTimingOpt + post-route AggressiveExplore`，不改 RTL 或正式构建脚本。
+- 独立 `impl_extra_timing_probe` 已完成：`WNS=+0.001 ns`、`TNS=0`、`WHS=+0.013 ns`、`THS=0`，报告明确 `All user specified timing constraints are met`。该 probe 复用旧综合网表，只证明策略可补回时序，不替代 clean HEAD 正式构建。
+- 生产 `build_b2.tcl` 已切换为 `Performance_ExtraTimingOpt`，继续保留 `route_design Explore`、post-place/post-route `AggressiveExplore` 和 fail-closed signoff parser。合同先 RED 后 GREEN，相关测试 `17 passed`；全量 `run_b2_checks.ps1` 最终 `B2_CHECKS_PASS`。
+- DeepSeek 文档同步最终文件经主代理独立 `json.tool`、状态搜索和 `git diff --check` 复核通过；其执行期间仍出现反引号被 shell 当命令及一次中间 JSON 解析错误，说明委派时不能只采信总结中的“校验成功”。

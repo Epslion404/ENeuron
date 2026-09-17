@@ -2,7 +2,7 @@
 
 ## 当前主线覆写（2026-09-17，CP8 控制链已实现并提交前验证）
 
-2026-09-17：CP8 continuous power replay 控制链已实现并通过提交前验证。`b3_pl_distribution_replay_shim.sv` 新增 `CONTINUOUS_REPLAY` 且默认 0，保持 CP5b finite 语义；power 模式为 continuous。状态块新增唯一可写寄存器 `0x74` CP8_CONTROL（READY=`0x43503849`/START=`0x43503853`/RUNNING=`0x43503852`）；idle 不提交样本，full 一次捕获 397 后 PL 持续运行。idle/full 同 mode 默认共享 BuildTag/bit/XSA/ELF 身份；独立 runner `run_b3_cp8_power_state.ps1` 与 probe `probe_b3_cp8_power_state.tcl` 成功后 disconnect，不停 CPU。packet build 要求 canonical QAT 恰好 397 且禁止 speed/accuracy 混用。合同 22 passed、B2 全量 129 passed + T1、`B2_CHECKS_PASS`，ARM `B2_PACKET_SW_BUILD_PASS`。DeepSeek 审查发现最后样本 capture 竞态，主代理已加 `wait_cp8_capture_complete` 并复测通过。当前状态 `CP8_CONTROL_CHAIN_PASS / CP8_PHYSICAL_BUILD_PENDING / B3-POWER-GATE=OPEN`；不得声称 bit/XSA、上板或功耗已通过。历史 CP5b：dense `2513.9998`、lossless `2310.3034 cycles/sample`，`1.088168676x`，`B3-PL-SPEED-GATE=PASS`。
+2026-09-17：CP8 continuous power replay 控制链已实现并通过提交前验证。`b3_pl_distribution_replay_shim.sv` 新增 `CONTINUOUS_REPLAY` 且默认 0，保持 CP5b finite 语义；power 模式为 continuous。状态块新增唯一可写寄存器 `0x74` CP8_CONTROL（READY=`0x43503849`/START=`0x43503853`/RUNNING=`0x43503852`）；idle 不提交样本，full 一次捕获 397 后 PL 持续运行。idle/full 同 mode 默认共享 BuildTag/bit/XSA/ELF 身份；独立 runner `run_b3_cp8_power_state.ps1` 与 probe `probe_b3_cp8_power_state.tcl` 成功后 disconnect，不停 CPU。packet build 要求 canonical QAT 恰好 397 且禁止 speed/accuracy 混用。合同 22 passed、B2 全量 129 passed + T1、`B2_CHECKS_PASS`，ARM `B2_PACKET_SW_BUILD_PASS`。DeepSeek 审查发现最后样本 capture 竞态，主代理已加 `wait_cp8_capture_complete` 并复测通过。当前状态 `CP8_CONTROL_CHAIN_PASS / CP8_PHYSICAL_BUILD_PENDING / B3-POWER-GATE=OPEN`；不得声称 bit/XSA、上板或功耗已通过。2026-09-17 HEAD `5c16095` 的 CP8 dense 正式构建 PASS（`WNS=+0.022/TNS=0/WHS=+0.009/THS=0`、route/DRC=0、DSP=4），lossless 正式构建 FAIL_CLOSED（`WNS=-0.026/TNS=-0.036/WHS=+0.036/THS=0`、route/DRC=0、DSP=4，bit/XSA 已生成但禁止上板）；失败路径为 397-sample replay BRAM 到 lossless `core/l0_group_nonzero_reg[*]/D`，不是 `0x74` 控制链；复用相同综合网表的独立 `impl_extra_timing_probe`（`Performance_ExtraTimingOpt`）为 `WNS=+0.001/TNS=0/WHS=+0.013/THS=0`、全部约束满足；生产实现策略已切换到 `Performance_ExtraTimingOpt`、合同 `17 passed`，但尚未提交、尚未 clean HEAD 正式重建，状态必须保持 `CP8_PHYSICAL_BUILD_PENDING`，不得写 `CP8_PHYSICAL_BUILD_PASS`。历史 CP5b：dense `2513.9998`、lossless `2310.3034 cycles/sample`，`1.088168676x`，`B3-PL-SPEED-GATE=PASS`。
 
 > generated_by: nexus-mapper v2 / manual synthesis
 > verified_at: 2026-09-17
@@ -10,7 +10,7 @@
 
 ## 当前权威快照（2026-09-17，日常主线 CP8 功耗）
 
-器件 `xc7z020clg484-2`。QAT CP4 397 样本输出保持正式通过；CP5b 397 样本、5 轮纯 PL 分布 replay 正式通过：dense `2513.9998 cycles/sample`、lossless `2310.3034 cycles/sample`，吞吐提升 `1.088168676x`、延迟下降 `8.1025%`，5 轮无抖动，`B3-PL-SPEED-GATE=PASS`、顶层 `B3-SPEED-GATE=PASS_PURE_PL_ONLY`。CP4 单样本 packet 路径 `1.008196x` 单独记为 `B3-PACKET-SPEED=MEASURED_WEAK_GAIN_1_008196X`，不称为纯 PL。CP8 控制链已实现并通过提交前验证，当前为 `CP8_CONTROL_CHAIN_PASS / CP8_PHYSICAL_BUILD_PENDING`；下一步是 CP8 物理构建（bit/XSA）与实板 idle/full 四态配对功耗。严格 2:4、独立 PL auto-mask、B3-22.5 和 B3-STRICT 均为后置支线。
+器件 `xc7z020clg484-2`。QAT CP4 397 样本输出保持正式通过；CP5b 397 样本、5 轮纯 PL 分布 replay 正式通过：dense `2513.9998 cycles/sample`、lossless `2310.3034 cycles/sample`，吞吐提升 `1.088168676x`、延迟下降 `8.1025%`，5 轮无抖动，`B3-PL-SPEED-GATE=PASS`、顶层 `B3-SPEED-GATE=PASS_PURE_PL_ONLY`。CP4 单样本 packet 路径 `1.008196x` 单独记为 `B3-PACKET-SPEED=MEASURED_WEAK_GAIN_1_008196X`，不称为纯 PL。CP8 控制链已实现并通过提交前验证，当前为 `CP8_CONTROL_CHAIN_PASS / CP8_PHYSICAL_BUILD_PENDING`；HEAD `5c16095` dense 物理构建 PASS、lossless FAIL_CLOSED（`WNS=-0.026`，bit/XSA 禁止上板），失败路径为 replay BRAM 到 lossless `core/l0_group_nonzero_reg[*]/D`，probe `WNS=+0.001`、实现策略已切 `Performance_ExtraTimingOpt`（合同 17 passed）但待提交后 clean HEAD 重建两套；两者签核通过前保持 `CP8_PHYSICAL_BUILD_PENDING`，之后才进入实板 idle/full 四态配对功耗。严格 2:4、独立 PL auto-mask、B3-22.5 和 B3-STRICT 均为后置支线。
 
 B3-MVP-GATE 已在同一份集中 Vivado 2024.1 bitstream 上关闭：RTL 身份 `be84596`，200 MHz FCLK0。WNS=+0.045 ns，TNS=0，WHS=+0.036 ns，THS=0，route/DRC hard errors=0，DSP48E1=4。
 - bit SHA-256=`0ecbe76274c39418f2a60a88358d3ff6f09f5a2ed73a44a3a419c34eb91d3a11`
@@ -26,7 +26,7 @@ B3-MVP-GATE 已在同一份集中 Vivado 2024.1 bitstream 上关闭：RTL 身份
 
 只可声称：`group_4way` 动态剪枝正确性 + 局部 NPU 周期差值 888 cycles。禁止：把 888 当端到端加速、把 Vivado 功耗当板上功耗、把 19-word 当连接级 `2:4`。不可声称网口加速、测得功耗、B2-GATE。MVP 证据：`artifacts/logs/b3_mvp_20260912_be84596/`。
 
-当前门：`B3-QAT-CP1=PASS`、`B3-PL-SPEED-GATE=PASS`、`B3-POWER-MEASURED=OPEN`、`B3-POWER-GATE=OPEN`、`B3-GOAL-GATE=OPEN`。提交 `82b079e` 以 16 项局部缓存消除 512 次重复 L0 `group_mac`；同源 bit/XSA、新 ELF 三次实板 `ps_us=827/829/828`，且 logits、`296/296`、1606 cycles、protocol errors=0。相比历史单次 996 µs 有诊断改善，但仍保留 dense L0 扫描，不能据此关闭端到端速度门。证据 `artifacts/logs/b3_live_l0_cache_20260913_82b079e/`。CP8 控制链已实现并提交前验证（`CP8_CONTROL_CHAIN_PASS`），物理构建待做（`CP8_PHYSICAL_BUILD_PENDING`）；`B3-POWER-GATE=OPEN`。严格 2:4 是结构实验。
+当前门：`B3-QAT-CP1=PASS`、`B3-PL-SPEED-GATE=PASS`、`B3-POWER-MEASURED=OPEN`、`B3-POWER-GATE=OPEN`、`B3-GOAL-GATE=OPEN`。提交 `82b079e` 以 16 项局部缓存消除 512 次重复 L0 `group_mac`；同源 bit/XSA、新 ELF 三次实板 `ps_us=827/829/828`，且 logits、`296/296`、1606 cycles、protocol errors=0。相比历史单次 996 µs 有诊断改善，但仍保留 dense L0 扫描，不能据此关闭端到端速度门。证据 `artifacts/logs/b3_live_l0_cache_20260913_82b079e/`。CP8 控制链已实现并提交前验证（`CP8_CONTROL_CHAIN_PASS`）；HEAD `5c16095` dense 物理构建 PASS、lossless FAIL_CLOSED（bit/XSA 禁止上板），实现策略已切 `Performance_ExtraTimingOpt` 待 clean HEAD 重建，物理构建保持 `CP8_PHYSICAL_BUILD_PENDING`；`B3-POWER-GATE=OPEN`。严格 2:4 是结构实验。
 
 ## 当前活动范围
 

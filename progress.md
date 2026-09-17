@@ -2540,3 +2540,17 @@
 - 错误记录：一次计划文件补丁因上下文不匹配被拒绝，未产生修改；两次被忽略 build manifest 搜索无结果，改用目录枚举定位构建环境。
 - 错误记录：一次 PowerShell `foreach {...} | Sort-Object` 单行写法产生 empty pipe parser error，未修改文件；后续拆成中间变量，避免重复。
 - 下一步：ARM packet 构建与完整定向回归，通过后提交/PR，再从 clean HEAD 构建两套 power replay bit/XSA。
+# 2026-09-17 CP8 lossless power replay timing 收口
+
+- dense CP8 物理构建已签核通过；lossless CP8 构建完成但 runner 按 fail-closed 规则以退出码 1 收口。
+- lossless 最终结果：`WNS=-0.026 ns`、`TNS=-0.036 ns`、`WHS=+0.036 ns`、`THS=0`、route/DRC hard error=0、DSP48E1=4。
+- bit SHA-256=`4cd6e7ccb1a1a378120bc004e871139fc39a64686fe242b6f3baaf4573f0d0ee`；XSA SHA-256=`7808a833fa32b735dc6b9293d178c98e3c13d996d3850558cfcd41a51c8de594`。因 setup 未通过，两者当前禁止上板。
+- 记录三次工具错误：PowerShell 默认管道、显式 UTF-8 管道及 `.bat` 多行参数均未能向 `apply_patch` 传递合法补丁；最终绕过只负责转发的 `.bat`，直接调用底层 apply-patch 接口。
+- 下一步：从 `timing_impl.rpt` 提取失败路径，判断 CP8 控制链与 lossless 数据路径的贡献，做最小 RTL/实现策略修复并重新完整签核。
+- 路径提取完成：setup 失败集中在 `replay_shim/sample_ram` 到 `core/l0_group_nonzero_reg[0,14]`，而非 CP8 AXI-Lite 控制链。正在对照 CP5b 已通过构建并评估在 shim 边界增加寄存切分的最小修复。
+- CP5b 对照完成：相同 397-sample distribution replay + lossless 核曾有 `WNS=+0.052 ns`；CP8 continuous 逻辑不在失败数据路径上。修复顺序调整为：先选择 Vivado 2024.1 支持的更强 timing strategy 完整重建；若仍失败，再做 replay 输出寄存切分并重跑合同/物理签核。
+- 已从本机 Vivado 2024.1 查询合法实现策略；开始在现有工程创建独立 `impl_extra_timing_probe`，复用综合结果探测 `Performance_ExtraTimingOpt`。probe 只形成分析报告，不替代 clean HEAD 正式构建。
+- `impl_extra_timing_probe` 终态通过：`WNS/TNS=+0.001/0 ns`、`WHS/THS=+0.013/0 ns`，全部用户时序约束满足。正式 `build_b2.tcl` 已切换为 `Performance_ExtraTimingOpt`。
+- TDD：策略合同先以旧 Tcl 复现 `1 failed`，生产修改后 `test_b2_stream_probe_contract.py + test_b3_cp8_power_replay_contract.py` 为 `17 passed`。
+- 提交前全量 `run_b2_checks.ps1` 通过并输出 `B2_CHECKS_PASS`；`run_b2_build.ps1` 与 `run_b3_cp8_power_state.ps1` 通过 PowerShell AST 解析。一次 AST 检查包装命令因 `$f:` 插值语法失败，改用 `-f` 格式化后通过，未修改被检脚本。
+- DeepSeek 已按白名单同步 task plan 与 Nexus；主代理复核两个 JSON 可解析、状态保持 `CP8_PHYSICAL_BUILD_PENDING`、`git diff --check` 干净。下一步提交后对 dense/lossless 两模式做 clean HEAD 正式重建。
