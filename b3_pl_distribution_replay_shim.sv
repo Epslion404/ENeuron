@@ -5,7 +5,8 @@
 module b3_pl_distribution_replay_shim #(
     parameter integer INPUT_SAMPLES = 397,
     parameter integer WARMUP_SAMPLES = 1000,
-    parameter integer MEASURE_SAMPLES = 10000
+    parameter integer MEASURE_SAMPLES = 10000,
+    parameter integer CONTINUOUS_REPLAY = 0
 ) (
     input  logic        clk,
     input  logic        rst,
@@ -101,6 +102,7 @@ module b3_pl_distribution_replay_shim #(
     wire replay_fire = core_sample_valid && core_sample_ready;
     wire result_fire = core_result_valid && core_result_ready;
     wire forwarding_final_result =
+        (CONTINUOUS_REPLAY == 0) &&
         (state == STATE_REPLAY_WAIT_RESULT) &&
         (phase == PHASE_MEASURE) &&
         (measured_count == MEASURE_SAMPLES - 1);
@@ -244,13 +246,23 @@ module b3_pl_distribution_replay_shim #(
                         end
                         state <= STATE_REPLAY_PREFETCH;
                     end else if (phase == PHASE_MEASURE) begin
-                        pl_replay_completed_count <= measured_count + 1'b1;
-                        if ((measured_count + 1'b1) >= MEASURE_SAMPLES) begin
+                        if (CONTINUOUS_REPLAY != 0) begin
+                            pl_replay_completed_count <= pl_replay_completed_count + 32'd1;
+                            replay_sample_index <=
+                                (replay_sample_index == INPUT_SAMPLES - 1) ?
+                                '0 : replay_sample_index + 1'b1;
+                            sample_mem_rd_addr <=
+                                ((replay_sample_index == INPUT_SAMPLES - 1) ?
+                                 0 : (replay_sample_index + 1'b1) * 8);
+                            state <= STATE_REPLAY_PREFETCH;
+                        end else if ((measured_count + 1'b1) >= MEASURE_SAMPLES) begin
+                            pl_replay_completed_count <= measured_count + 1'b1;
                             measuring <= 1'b0;
                             pl_replay_measured_cycles <= measured_cycle_counter + 32'd1;
                             pl_replay_status <= STATUS_PASS;
                             state <= STATE_DONE;
                         end else begin
+                            pl_replay_completed_count <= measured_count + 1'b1;
                             measured_count <= measured_count + 1'b1;
                             replay_sample_index <=
                                 (replay_sample_index == INPUT_SAMPLES - 1) ?

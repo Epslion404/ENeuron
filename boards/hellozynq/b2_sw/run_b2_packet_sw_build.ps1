@@ -8,6 +8,7 @@ param(
     [switch]$B3LiveEneuron,
     [switch]$B3EpochOverlap,
     [switch]$B3DistributionReplay,
+    [switch]$B3Cp8PowerMeasurement,
     [switch]$B3SpeedBenchmark,
     [switch]$B3AccuracyBenchmark,
     [int]$B3LiveMaskBatchK = 1,
@@ -76,8 +77,8 @@ if ($goldenIsQat) {
     if ($golden.model.word_count -ne 634 -or @($golden.samples).Count -lt 1) {
         throw 'QAT manifest model/sample contract mismatch'
     }
-    if (-not $B3Dense -and -not $B3SpeedBenchmark -and -not $B3DistributionReplay) {
-        throw 'QAT manifest requires B3Dense, B3SpeedBenchmark, or B3DistributionReplay'
+    if (-not $B3Dense -and -not $B3SpeedBenchmark -and -not $B3DistributionReplay -and -not $B3Cp8PowerMeasurement) {
+        throw 'QAT manifest requires B3Dense, B3SpeedBenchmark, B3DistributionReplay, or B3Cp8PowerMeasurement'
     }
 } elseif ($golden.schema -ne 'eneuron_b3_fixed_vector_v1' -or
           $golden.target.part -ne 'xc7z020clg484-2' -or
@@ -86,6 +87,12 @@ if ($goldenIsQat) {
     throw 'B3 golden manifest target/schema/model contract mismatch'
 }
 $goldenSamples = @($golden.samples)
+if ($B3Cp8PowerMeasurement -and -not $goldenIsQat) {
+    throw 'B3Cp8PowerMeasurement requires the canonical QAT manifest'
+}
+if ($B3Cp8PowerMeasurement -and ($B3SpeedBenchmark -or $B3AccuracyBenchmark)) {
+    throw 'B3Cp8PowerMeasurement cannot be combined with speed or accuracy benchmark modes'
+}
 if (-not $goldenIsQat -and $B3QatSampleIndex -ne 0) {
     throw 'B3QatSampleIndex is only valid for a QAT manifest'
 }
@@ -160,7 +167,7 @@ if ($B3SpeedBenchmark) {
         }
     }
 } else {
-    if ($B3DistributionReplay) {
+    if ($B3DistributionReplay -or $B3Cp8PowerMeasurement) {
         $benchmarkSamples = @($goldenSamples)
         $benchmarkUniqueInputCount = @($benchmarkSamples | ForEach-Object { [string]$_.input_sha256 } | Sort-Object -Unique).Count
     } else {
@@ -173,6 +180,9 @@ if ($B3SpeedBenchmark) {
         })
         $benchmarkUniqueInputCount = 1
     }
+}
+if ($B3Cp8PowerMeasurement -and $benchmarkSamples.Count -ne 397) {
+    throw "B3Cp8PowerMeasurement requires exactly 397 QAT samples, got $($benchmarkSamples.Count)"
 }
 if ($B3AccuracyBenchmark -and -not $B3SpeedBenchmark) {
     throw 'B3AccuracyBenchmark requires B3SpeedBenchmark'
@@ -187,17 +197,17 @@ if (-not $xparameters -or -not $libxil -or -not $linkerScript -or -not $xilinxSp
 
 $includeDir = Split-Path -Parent $xparameters.FullName
 $libDir = Split-Path -Parent $libxil.FullName
-$modeCount = @($B3Dense, $B3FullOpen, $B3Bypass, $B3StaticMixed, $B3CalibratedStatic, $B3LiveEneuron, $B3EpochOverlap, $B3DistributionReplay | Where-Object { $_ }).Count
+$modeCount = @($B3Dense, $B3FullOpen, $B3Bypass, $B3StaticMixed, $B3CalibratedStatic, $B3LiveEneuron, $B3EpochOverlap, $B3DistributionReplay, $B3Cp8PowerMeasurement | Where-Object { $_ }).Count
 if ($modeCount -gt 1) { throw 'B3 mode switches are mutually exclusive' }
 if ($B3SpeedBenchmark -and $modeCount -eq 0) { throw 'B3SpeedBenchmark requires an explicit B3 mode' }
 if ($B3LiveMaskBatchK -notin @(1, 16, 32, 64)) { throw 'B3LiveMaskBatchK must be one of 1, 16, 32, 64' }
-$applicationMode = if ($B3Bypass) { 'b3_bypass' } elseif ($B3StaticMixed) { 'b3_static_mixed' } elseif ($B3CalibratedStatic) { 'b3_calibrated_static' } elseif ($B3LiveEneuron) { 'b3_live_eneuron' } elseif ($B3EpochOverlap) { 'b3_epoch_overlap' } elseif ($B3DistributionReplay) { 'b3_distribution_replay' } elseif ($B3FullOpen) { 'b3_full_open' } elseif ($B3Dense) { 'b3_dense' } else { 'b2_packet_smoke' }
+$applicationMode = if ($B3Bypass) { 'b3_bypass' } elseif ($B3StaticMixed) { 'b3_static_mixed' } elseif ($B3CalibratedStatic) { 'b3_calibrated_static' } elseif ($B3LiveEneuron) { 'b3_live_eneuron' } elseif ($B3EpochOverlap) { 'b3_epoch_overlap' } elseif ($B3Cp8PowerMeasurement) { 'b3_cp8_power' } elseif ($B3DistributionReplay) { 'b3_distribution_replay' } elseif ($B3FullOpen) { 'b3_full_open' } elseif ($B3Dense) { 'b3_dense' } else { 'b2_packet_smoke' }
 $elfStem = "b2_packet_$applicationMode"
 $modeSpec = $null
 if ($applicationMode -like 'b3_*') {
     if ($goldenIsQat) {
-        if ($applicationMode -ne 'b3_dense' -and $applicationMode -ne 'b3_distribution_replay') {
-            throw 'QAT manifest currently supports B3Dense or B3DistributionReplay mode'
+        if ($applicationMode -notin @('b3_dense', 'b3_distribution_replay', 'b3_cp8_power')) {
+            throw 'QAT manifest currently supports B3Dense, B3DistributionReplay, or B3Cp8PowerMeasurement mode'
         }
         $expectedLogits = @($goldenSample.dense_logits)
         $maskWords = 19
@@ -240,6 +250,7 @@ if ($B3CalibratedStatic) { $compileDefines += '-DB3_CALIBRATED_STATIC' }
 if ($B3LiveEneuron) { $compileDefines += '-DB3_LIVE_ENEURON' }
     if ($B3EpochOverlap) { $compileDefines += '-DB3_EPOCH_OVERLAP' }
 if ($B3DistributionReplay) { $compileDefines += '-DB3_PL_DISTRIBUTION_REPLAY' }
+if ($B3Cp8PowerMeasurement) { $compileDefines += '-DB3_PL_DISTRIBUTION_REPLAY'; $compileDefines += '-DB3_CP8_POWER_MEASUREMENT' }
 if ($B3SpeedBenchmark) { $compileDefines += '-DB3_SPEED_BENCHMARK' }
 if ($B3AccuracyBenchmark) { $compileDefines += '-DB3_ACCURACY_BENCHMARK' }
 $compileDefines += "-DB3_LIVE_MASK_BATCH_K=$B3LiveMaskBatchK"
@@ -270,7 +281,7 @@ $headerLines += @(
     '    }',
     '}',
     ('#define B3_BENCHMARK_SAMPLE_COUNT {0}U' -f $benchmarkSamples.Count),
-    ('#define B3_BENCHMARK_UNIQUE_INPUT_COUNT {0}U' -f $(if ($B3SpeedBenchmark -or $B3DistributionReplay) { [int]$benchmarkUniqueInputCount } else { 1 })),
+    ('#define B3_BENCHMARK_UNIQUE_INPUT_COUNT {0}U' -f $(if ($B3SpeedBenchmark -or $B3DistributionReplay -or $B3Cp8PowerMeasurement) { [int]$benchmarkUniqueInputCount } else { 1 })),
     'static const u32 B3_SAMPLE_IDS[B3_BENCHMARK_SAMPLE_COUNT] = {',
     ('    ' + (($benchmarkSamples | ForEach-Object { '{0}U' -f (Convert-ManifestUInt32 $_.sample_id) }) -join ', ') + ','),
     '};',
@@ -370,10 +381,12 @@ $manifest = [ordered]@{
     expected_logits = $expectedLogits
     speed_benchmark = [bool]$B3SpeedBenchmark
     distribution_replay = [bool]$B3DistributionReplay
+    cp8_power_measurement = [bool]$B3Cp8PowerMeasurement
     accuracy_benchmark = [bool]$B3AccuracyBenchmark
     speed_benchmark_samples = if ($B3SpeedBenchmark) { $benchmarkSamples.Count } else { 0 }
-    benchmark_unique_input_count = if ($B3SpeedBenchmark -or $B3DistributionReplay) { [int]$benchmarkUniqueInputCount } else { 1 }
-    distribution_replay_samples = if ($B3DistributionReplay) { $benchmarkSamples.Count } else { 0 }
+    benchmark_unique_input_count = if ($B3SpeedBenchmark -or $B3DistributionReplay -or $B3Cp8PowerMeasurement) { [int]$benchmarkUniqueInputCount } else { 1 }
+    distribution_replay_samples = if ($B3DistributionReplay -or $B3Cp8PowerMeasurement) { $benchmarkSamples.Count } else { 0 }
+    cp8_power_samples = if ($B3Cp8PowerMeasurement) { $benchmarkSamples.Count } else { 0 }
     live_mask_batch_k = $B3LiveMaskBatchK
     live_mask_update_count = if ($B3SpeedBenchmark -and $B3LiveEneuron) { [int][Math]::Ceiling($benchmarkSamples.Count / [double]$B3LiveMaskBatchK) } else { 0 }
 }

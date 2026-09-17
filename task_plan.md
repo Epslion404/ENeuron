@@ -2264,3 +2264,20 @@ RED 记录：新增“完成外部测量不能自动关闭降功耗目标”合�
 - 修正 `docs/planning/NPU_PRUNING_TODO.md` 的“本机无功耗仪”过时描述。
 - 在 `test_b3_power_report_contract.py` 增加最小合同断言，冻结 B10 与 CP8 四态；历史 `b3_power_report.json` 的 dense/static/live 保持不变。
 - 历史 `artifacts/logs/b3_power_20260913_be84596/` 人工读数保留为工程观察，不改写为 CP8 正式证据。
+# 2026-09-17 CP8 dense/lossless paired 功耗执行准备
+
+目标：在同一模式内保持相同 bit/XSA/ELF、模型和 JTAG/PS 状态，提供可冻结的 idle 与持续 PL full 两种状态，随后执行 B10 至少 5 组交替 paired 功耗测量。
+
+- [x] 合并 PR #99，正式关闭 CP5b 与 `B3-PL-SPEED-GATE`；`main@fd71920` 与远端一致。
+- [x] 审计现有 CP5b replay：固定 `10000` measured 后进入 PASS/DONE，约 `0.126 s`，不能直接用于人工功耗窗口；现有状态块只读，不能冻结/启动 replay。
+- [x] 先落 RED 合同：连续 replay 默认关闭、CP8 控制寄存器 `0x74`、同 ELF READY/START/RUNNING、独立 CP8 runner/probe、CP5b 有限模式不回归。
+- [x] 实现最小控制面：状态块仅 `0x74` 可写，其他写仍 SLVERR；固件在模型/mask 装载后进入固定控制轮询。
+- [x] 实现 CP8 连续 replay：397 样本只捕获一次、1000 warmup 后持续运行，不向 PS 逐样本返回结果；CP5b 默认有限模式保持不变。
+- [x] 新增 `dense_pl_power_replay` / `lossless_zero_group_skip_pl_power_replay` build 与独立 runner/probe；Icarus与定向合同 `22 passed`，CP8 ARM packet 编译通过。
+- [ ] 分别完成 xc7z020clg484-2、200 MHz 物理签核与同一 ELF 的 idle/full 实板状态验证。
+- [ ] 状态稳定后再开始 B10 人工测量；至少 5 组交替 paired rounds，归档照片/时间/读数/有效推理计数并计算整板与增量能耗。
+
+边界：CP8 新 bit/XSA 只为提供可控、持续的测量负载，不改变 NPU 算法或 CP5b 速度结论。分钟级窗口不依赖会溢出的 32 位周期/组累计计数；活动性由 replay status、capture count、协议错误和短间隔 heartbeat 检查证明。
+
+错误记录：首次进度补丁因计划文件上下文与摘要不一致而被拒绝，未写入文件；改为读取文件尾部后局部更新。两次从被忽略 build 目录搜索旧 distribution manifest 均无结果，后续改用目录枚举而不重复相同搜索。
+提交前验证：`run_b2_checks.ps1` → `129 passed`、T1 PASS、`B2_CHECKS_PASS`；CP8 packet manifest 为 397 个唯一输入，ELF SHA-256=`bb53f08772fb83474001e3f8218247bc64753da6c743199beabf89d3be2b6301`（dirty compile probe，仅证明可编译，不作为正式板级证据）。

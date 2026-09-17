@@ -1,11 +1,11 @@
 {
-  "current_override": {"verified_at":"2026-09-17","next_action":"B3-PAPER-CP8_PAIRED_POWER","qat_cp1_dense":"BOARD_PASS","strict_2of4":"PRUNING_ACCURACY_FAIL","lossless_zero_group":"BOARD_397_FORMAL_PASS","pl_replay":"CP5A_FORMAL_PASS_1_091225X_SINGLE_SAMPLE","cp5b_distribution":"CP5B_FORMAL_PASS_1_088168676X","b3_accuracy_gate":"PASS_LOSSLESS","b3_pl_speed_gate":"PASS","b3_packet_speed":"MEASURED_WEAK_GAIN_1_008196X","b3_speed_gate":"PASS_PURE_PL_ONLY","b3_power_gate":"OPEN","b3_goal_gate":"OPEN"},
+  "current_override": {"verified_at":"2026-09-17","next_action":"B3-PAPER-CP8_PAIRED_POWER_PHYSICAL_BUILD_PENDING","qat_cp1_dense":"BOARD_PASS","strict_2of4":"PRUNING_ACCURACY_FAIL","lossless_zero_group":"BOARD_397_FORMAL_PASS","pl_replay":"CP5A_FORMAL_PASS_1_091225X_SINGLE_SAMPLE","cp5b_distribution":"CP5B_FORMAL_PASS_1_088168676X","cp8_control_chain":"CP8_CONTROL_CHAIN_PASS","cp8_physical_build":"CP8_PHYSICAL_BUILD_PENDING","b3_accuracy_gate":"PASS_LOSSLESS","b3_pl_speed_gate":"PASS","b3_packet_speed":"MEASURED_WEAK_GAIN_1_008196X","b3_speed_gate":"PASS_PURE_PL_ONLY","b3_power_gate":"OPEN","b3_goal_gate":"OPEN"},
   "$schema": "nexus-mapper/concept-model/v1",
-  "verified_at": "2026-09-13",
+  "verified_at": "2026-09-17",
   "label": "B2 packet-NPU integration",
   "deployment_target_part": "xc7z020clg484-2",
   "source_identity_rule": "QUERY_CURRENT_CHECKOUT_AT_RUNTIME",
-  "current_status": "FUNCTIONAL_PASS / PHYSICAL_PASS / BOARD_STATUS_PARTIAL / B3_MVP_GATE_PASS / B3_QAT_CP4_BOARD_FORMAL_PASS / B3_QAT_CP5A_PL_REPLAY_FORMAL_PASS / B3_QAT_CP5B_PL_DISTRIBUTION_FORMAL_PASS / B3_ACCURACY_GATE_PASS_LOSSLESS / B3_PL_SPEED_GATE_PASS / B3_PACKET_SPEED_MEASURED_WEAK_GAIN_1_008196X / B3_SPEED_GATE_PASS_PURE_PL_ONLY / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B2_GATE_PENDING",
+  "current_status": "FUNCTIONAL_PASS / PHYSICAL_PASS / BOARD_STATUS_PARTIAL / B3_MVP_GATE_PASS / B3_QAT_CP4_BOARD_FORMAL_PASS / B3_QAT_CP5A_PL_REPLAY_FORMAL_PASS / B3_QAT_CP5B_PL_DISTRIBUTION_FORMAL_PASS / B3_ACCURACY_GATE_PASS_LOSSLESS / B3_PL_SPEED_GATE_PASS / B3_PACKET_SPEED_MEASURED_WEAK_GAIN_1_008196X / B3_SPEED_GATE_PASS_PURE_PL_ONLY / B3_CP8_CONTROL_CHAIN_PASS / B3_CP8_PHYSICAL_BUILD_PENDING / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B2_GATE_PENDING",
   "physical_evidence_head": "88bec9e9bdbec1de53ef45d2f22e4275308c0237",
   "live_eneuron_host_source_head": "fe25a7081f6a93e9d63c888ea581dc5595d84b4a",
   "commits": {
@@ -77,10 +77,11 @@
       "fence_snapshot": "256-bit snapshot latched on accepted fence response",
       "completion_boundary": "response/result completion increments on m_valid && m_ready && m_last",
       "reset_contract": "all eight counters and fence_snapshot_valid clear on bridge_rst",
-      "status_block": "read-only AXI-Lite at 0x40430000; writes return SLVERR without state change",
+      "status_block": "AXI-Lite at 0x40430000; only CP8_CONTROL +0x74 is writable (READY/START/RUNNING); all other writes return SLVERR without state change",
       "register_map": {
         "live_fields_10": "+0x00 status; +0x04..+0x20 command/sample/response/result accepted/completed; +0x24 fence snapshot valid",
-        "fence_snapshot_words_8": "+0x28..+0x44 in 4-byte increments"
+        "fence_snapshot_words_8": "+0x28..+0x44 in 4-byte increments",
+        "cp8_power_replay": "+0x60 protocol errors; +0x64 replay status; +0x68 completed; +0x6C cycles; +0x70 capture; +0x74 CP8_CONTROL (only writable)"
       },
       "scope_limit": "functional integration pass; board read is partial and does not close the complete B2 ledger/error matrix"
     }
@@ -192,7 +193,7 @@
     "release": "B4-RELEASE-GATE; Ethernet end-to-end A/B and network-load deltas; board power target belongs to B3-POWER",
     "non_blocking_for_mvp": ["B2-GATE", "strict connection-level 2:4", "10000 samples", "full recovery matrix", "Ethernet", "external power measurement"]
   },
-  "next_gate": "Freeze the CP5b dense/lossless continuous load (397-sample PL-internal distribution replay, 1000 warmup) and run CP8 paired power. B3-PL-SPEED-GATE=PASS and top-level B3-SPEED-GATE=PASS_PURE_PL_ONLY; B3-PACKET-SPEED=MEASURED_WEAK_GAIN_1_008196X. Keep POWER-GATE and GOAL-GATE OPEN.",
+  "next_gate": "CP8 continuous power replay control chain is implemented and pre-commit validated (CP8_CONTROL_CHAIN_PASS). Next: CP8 physical build (bit/XSA) and board idle/full four-state paired power (CP8_PHYSICAL_BUILD_PENDING). B3-PL-SPEED-GATE=PASS and top-level B3-SPEED-GATE=PASS_PURE_PL_ONLY; B3-PACKET-SPEED=MEASURED_WEAK_GAIN_1_008196X. Keep POWER-GATE and GOAL-GATE OPEN; do not claim bit/XSA, board, or power passed.",
   "forbidden_claims": [
     "full packet-path/error matrix validated on board",
     "full B2-08 ledger/error matrix validated on board",

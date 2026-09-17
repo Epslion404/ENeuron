@@ -1,22 +1,22 @@
 # ENeuron 知识库入口
 
-## 当前主线覆写（2026-09-17，CP5b 分布吞吐正式通过）
+## 当前主线覆写（2026-09-17，CP8 控制链已实现并提交前验证）
 
-B3-22.2/B3-22.3/B3-22.4 与旧 1024 样本输出保持采集已完成。QAT CP0、CP1、CP3c、CP4、CP5a 和 CP5b 已完成；严格 2:4 live/static 精度失败，当前主候选为无损零组跳过。CP5b 397 样本、5 轮纯 PL 分布 replay 测得 dense `2513.9998 cycles/sample`、lossless `2310.3034 cycles/sample`，吞吐提升 `1.088168676x`、延迟下降 `8.1025%`，结果帧/logits/CRC 一致、协议错误 0，`B3-PL-SPEED-GATE=PASS`、顶层 `B3-SPEED-GATE=PASS_PURE_PL_ONLY`；CP4 单样本 packet 路径为 `B3-PACKET-SPEED=MEASURED_WEAK_GAIN_1_008196X`。当前执行点为冻结 CP5b 连续负载并执行 CP8 paired 功耗；功耗和目标门继续 OPEN。
+2026-09-17：CP8 continuous power replay 控制链已实现并通过提交前验证。`b3_pl_distribution_replay_shim.sv` 新增 `CONTINUOUS_REPLAY` 且默认 0，保持 CP5b finite 语义；power 模式为 continuous。状态块新增唯一可写寄存器 `0x74` CP8_CONTROL（READY=`0x43503849`/START=`0x43503853`/RUNNING=`0x43503852`）；idle 不提交样本，full 一次捕获 397 后 PL 持续运行。idle/full 同 mode 默认共享 BuildTag/bit/XSA/ELF 身份；独立 runner `run_b3_cp8_power_state.ps1` 与 probe `probe_b3_cp8_power_state.tcl` 成功后 disconnect，不停 CPU。packet build 要求 canonical QAT 恰好 397 且禁止 speed/accuracy 混用。合同 22 passed、B2 全量 129 passed + T1、`B2_CHECKS_PASS`，ARM `B2_PACKET_SW_BUILD_PASS`。DeepSeek 审查发现最后样本 capture 竞态，主代理已加 `wait_cp8_capture_complete` 并复测通过。当前状态 `CP8_CONTROL_CHAIN_PASS / CP8_PHYSICAL_BUILD_PENDING / B3-POWER-GATE=OPEN`；不得声称 bit/XSA、上板或功耗已通过。历史 CP5b：dense `2513.9998`、lossless `2310.3034 cycles/sample`，`1.088168676x`，`B3-PL-SPEED-GATE=PASS`。
 
 > generated_by: nexus-mapper v2 / manual synthesis
-> verified_at: 2026-09-16
+> verified_at: 2026-09-17
 > provenance: 当前 checkout 路径、分支与提交分别以 `git rev-parse --show-toplevel`、`git branch --show-current` 和 `git rev-parse HEAD` 的实时输出为准；历史路径、分支和 PR 名称仅作来源。bitstream RTL 身份 `be84596`，raw 探针绑定历史 `c46320e`。SPEED 证据 `artifacts/logs/b3_speed_20260912_be84596/b3_speed_comparison.json`。
 
 ## 当前权威快照（2026-09-17，日常主线 CP8 功耗）
 
-器件 `xc7z020clg484-2`。QAT CP4 397 样本输出保持正式通过；CP5b 397 样本、5 轮纯 PL 分布 replay 正式通过：dense `2513.9998 cycles/sample`、lossless `2310.3034 cycles/sample`，吞吐提升 `1.088168676x`、延迟下降 `8.1025%`，5 轮无抖动，`B3-PL-SPEED-GATE=PASS`、顶层 `B3-SPEED-GATE=PASS_PURE_PL_ONLY`。CP4 单样本 packet 路径 `1.008196x` 单独记为 `B3-PACKET-SPEED=MEASURED_WEAK_GAIN_1_008196X`，不称为纯 PL。下一步是冻结 CP5b dense/lossless 连续负载并执行 CP8 paired 功耗；严格 2:4、独立 PL auto-mask、B3-22.5 和 B3-STRICT 均为后置支线。
+器件 `xc7z020clg484-2`。QAT CP4 397 样本输出保持正式通过；CP5b 397 样本、5 轮纯 PL 分布 replay 正式通过：dense `2513.9998 cycles/sample`、lossless `2310.3034 cycles/sample`，吞吐提升 `1.088168676x`、延迟下降 `8.1025%`，5 轮无抖动，`B3-PL-SPEED-GATE=PASS`、顶层 `B3-SPEED-GATE=PASS_PURE_PL_ONLY`。CP4 单样本 packet 路径 `1.008196x` 单独记为 `B3-PACKET-SPEED=MEASURED_WEAK_GAIN_1_008196X`，不称为纯 PL。CP8 控制链已实现并通过提交前验证，当前为 `CP8_CONTROL_CHAIN_PASS / CP8_PHYSICAL_BUILD_PENDING`；下一步是 CP8 物理构建（bit/XSA）与实板 idle/full 四态配对功耗。严格 2:4、独立 PL auto-mask、B3-22.5 和 B3-STRICT 均为后置支线。
 
 B3-MVP-GATE 已在同一份集中 Vivado 2024.1 bitstream 上关闭：RTL 身份 `be84596`，200 MHz FCLK0。WNS=+0.045 ns，TNS=0，WHS=+0.036 ns，THS=0，route/DRC hard errors=0，DSP48E1=4。
 - bit SHA-256=`0ecbe76274c39418f2a60a88358d3ff6f09f5a2ed73a44a3a419c34eb91d3a11`
 - XSA SHA-256=`135d979d61c629922ee5419e51dd97ef045d9bab79930432816d09f109291d1a`
 
-冻结 AXI-Lite 状态块 `0x40430000`：0x00-0x4C 不变；0x50 runtime_status；0x54/0x58 active/pending mask epoch；0x5C last NPU compute cycles；0x60 protocol errors。pending epoch 来自 `mask_state==MASK_PUBLISHED`，不是 `mask_valid`。
+冻结 AXI-Lite 状态块 `0x40430000`：0x00-0x4C 不变；0x50 runtime_status；0x54/0x58 active/pending mask epoch；0x5C last NPU compute cycles；0x60 protocol errors。pending epoch 来自 `mask_state==MASK_PUBLISHED`，不是 `mask_valid`。CP8 控制链：`0x64` replay status、`0x68` completed、`0x6C` cycles、`0x70` capture；`0x74` CP8_CONTROL 为唯一可写寄存器（READY/START/RUNNING），其余写仍 SLVERR。
 
 板卡 COM15 CH340 `VID_1A86:PID_7523`。B3-11 hold：MASK_COMMIT 后、下一样本前 `active=0 pending=1`；样本后 `active=1 pending=0`。
 
@@ -26,11 +26,11 @@ B3-MVP-GATE 已在同一份集中 Vivado 2024.1 bitstream 上关闭：RTL 身份
 
 只可声称：`group_4way` 动态剪枝正确性 + 局部 NPU 周期差值 888 cycles。禁止：把 888 当端到端加速、把 Vivado 功耗当板上功耗、把 19-word 当连接级 `2:4`。不可声称网口加速、测得功耗、B2-GATE。MVP 证据：`artifacts/logs/b3_mvp_20260912_be84596/`。
 
-当前门：`B3-QAT-CP1=PASS`、`B3-PL-SPEED-GATE=PASS`、`B3-POWER-MEASURED=OPEN`、`B3-POWER-GATE=OPEN`、`B3-GOAL-GATE=OPEN`。提交 `82b079e` 以 16 项局部缓存消除 512 次重复 L0 `group_mac`；同源 bit/XSA、新 ELF 三次实板 `ps_us=827/829/828`，且 logits、`296/296`、1606 cycles、protocol errors=0。相比历史单次 996 µs 有诊断改善，但仍保留 dense L0 扫描，不能据此关闭端到端速度门。证据 `artifacts/logs/b3_live_l0_cache_20260913_82b079e/`。POWER 仍为 `POWER_NOT_MEASURED`；严格 2:4 是结构实验。
+当前门：`B3-QAT-CP1=PASS`、`B3-PL-SPEED-GATE=PASS`、`B3-POWER-MEASURED=OPEN`、`B3-POWER-GATE=OPEN`、`B3-GOAL-GATE=OPEN`。提交 `82b079e` 以 16 项局部缓存消除 512 次重复 L0 `group_mac`；同源 bit/XSA、新 ELF 三次实板 `ps_us=827/829/828`，且 logits、`296/296`、1606 cycles、protocol errors=0。相比历史单次 996 µs 有诊断改善，但仍保留 dense L0 扫描，不能据此关闭端到端速度门。证据 `artifacts/logs/b3_live_l0_cache_20260913_82b079e/`。CP8 控制链已实现并提交前验证（`CP8_CONTROL_CHAIN_PASS`），物理构建待做（`CP8_PHYSICAL_BUILD_PENDING`）；`B3-POWER-GATE=OPEN`。严格 2:4 是结构实验。
 
 ## 当前活动范围
 
-主线固定 `xc7z020clg484-2`：NPU 单时钟、ENeuron 组级动态剪枝、NP7 共享 lane，以及 B1/B2/B3/B4 集成。活动入口：`npu_eneuron_*`、`npu_zynq7020_t1_wrapper.sv`、`local_prune_*`、`eneuron_group4way_live.py`、`np7_*`、`b2_npu_status_probe.v`。CH340 按 VID/PID 识别；双设备时必须显式 COM15。合同：`docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`。状态串：`FUNCTIONAL_PASS / PHYSICAL_PASS / B3_MVP_GATE_PASS / B3_QAT_CP5B_PL_DISTRIBUTION_FORMAL_PASS / B3_PL_SPEED_GATE_PASS / B3_PACKET_SPEED_MEASURED_WEAK_GAIN_1_008196X / B3_SPEED_GATE_PASS_PURE_PL_ONLY / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B3_STRICT_DEFERRED_STRUCTURAL / B2_GATE_PENDING`。
+主线固定 `xc7z020clg484-2`：NPU 单时钟、ENeuron 组级动态剪枝、NP7 共享 lane，以及 B1/B2/B3/B4 集成。活动入口：`npu_eneuron_*`、`npu_zynq7020_t1_wrapper.sv`、`local_prune_*`、`eneuron_group4way_live.py`、`np7_*`、`b2_npu_status_probe.v`。CH340 按 VID/PID 识别；双设备时必须显式 COM15。合同：`docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`。状态串：`FUNCTIONAL_PASS / PHYSICAL_PASS / B3_MVP_GATE_PASS / B3_QAT_CP5B_PL_DISTRIBUTION_FORMAL_PASS / B3_PL_SPEED_GATE_PASS / B3_PACKET_SPEED_MEASURED_WEAK_GAIN_1_008196X / B3_SPEED_GATE_PASS_PURE_PL_ONLY / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B3_STRICT_DEFERRED_STRUCTURAL / B2_GATE_PENDING / CP8_CONTROL_CHAIN_PASS / CP8_PHYSICAL_BUILD_PENDING`。
 
 pytest 日常主线收集边界由根目录 `pytest.ini` 冻结：递归排除 `archive/`、`.planning/`、Git/Xilinx/pytest 缓存目录，并忽略仍依赖归档前相对路径的根级 legacy 测试；历史文件保留，但不参与当前 ZYNQ7020 日常门。边界合同由 `test_pytest_scope_contract.py` 检查；完整 B2 编排入口为 `run_b2_checks.ps1 -Full`。
 

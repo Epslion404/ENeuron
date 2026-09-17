@@ -1,5 +1,5 @@
-// B2 packet-NPU 计数器只读 AXI-Lite 状态块。
-// 该模块不参与数据通路，只把同一 FCLK0 域的计数器和 fence 快照提供给 PS/JTAG。
+// B2 packet-NPU AXI-Lite 状态块。除 CP8 控制寄存器外均只读。
+// 该模块不参与数据通路，只提供观测值和功耗测量的同 ELF 启停控制。
 module b2_npu_status_probe (
     (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME S_AXI, DATA_WIDTH 32, PROTOCOL AXI4LITE, FREQ_HZ 200000000, ADDR_WIDTH 12, ID_WIDTH 0, NUM_READ_OUTSTANDING 1, NUM_WRITE_OUTSTANDING 1" *)
     input wire        s_axi_aclk,
@@ -81,6 +81,7 @@ module b2_npu_status_probe (
     localparam [11:0] PL_REPLAY_CAPTURE_ADDR = 12'h070;
     localparam [11:0] PL_REPLAY_COMPLETED_ADDR = 12'h068;
     localparam [11:0] PL_REPLAY_CYCLES_ADDR = 12'h06C;
+    localparam [11:0] CP8_CONTROL_ADDR = 12'h074;
     localparam [11:0] FENCE_SNAPSHOT_VALID_ADDR = 12'h024;
     localparam [11:0] FENCE_SNAPSHOT_BASE_ADDR = 12'h028;
 
@@ -88,6 +89,10 @@ module b2_npu_status_probe (
     reg w_pending;
     reg read_pending;
     reg [11:0] read_addr;
+    reg [11:0] write_addr;
+    reg [31:0] write_data;
+    reg [3:0] write_strb;
+    reg [31:0] cp8_control;
     wire write_fire;
 
     assign s_axi_awready = s_axi_aresetn && !aw_pending && !s_axi_bvalid;
@@ -119,6 +124,7 @@ module b2_npu_status_probe (
                 PL_REPLAY_CAPTURE_ADDR: read_value = pl_replay_capture_count;
                 PL_REPLAY_COMPLETED_ADDR: read_value = pl_replay_completed_count;
                 PL_REPLAY_CYCLES_ADDR: read_value = pl_replay_measured_cycles;
+                CP8_CONTROL_ADDR: read_value = cp8_control;
                 FENCE_SNAPSHOT_VALID_ADDR: read_value = {31'd0, fence_snapshot_valid};
                 FENCE_SNAPSHOT_BASE_ADDR + 12'h000: read_value = fence_snapshot_counts[31:0];
                 FENCE_SNAPSHOT_BASE_ADDR + 12'h004: read_value = fence_snapshot_counts[63:32];
@@ -144,18 +150,30 @@ module b2_npu_status_probe (
             w_pending <= 1'b0;
             read_pending <= 1'b0;
             read_addr <= 12'd0;
+            write_addr <= 12'd0;
+            write_data <= 32'd0;
+            write_strb <= 4'd0;
+            cp8_control <= 32'd0;
         end else begin
             if (s_axi_awvalid && s_axi_awready) begin
                 aw_pending <= 1'b1;
+                write_addr <= s_axi_awaddr;
             end
             if (s_axi_wvalid && s_axi_wready) begin
                 w_pending <= 1'b1;
+                write_data <= s_axi_wdata;
+                write_strb <= s_axi_wstrb;
             end
             if (write_fire) begin
                 aw_pending <= 1'b0;
                 w_pending <= 1'b0;
-                // 状态块没有可写寄存器；完成握手并返回 SLVERR，避免 Host 误以为写入生效。
-                s_axi_bresp <= 2'b10;
+                if (write_addr == CP8_CONTROL_ADDR && write_strb == 4'hf) begin
+                    cp8_control <= write_data;
+                    s_axi_bresp <= 2'b00;
+                end else begin
+                    // 其他状态地址保持只读，避免 Host 误以为写入生效。
+                    s_axi_bresp <= 2'b10;
+                end
                 s_axi_bvalid <= 1'b1;
             end
             if (s_axi_bvalid && s_axi_bready)

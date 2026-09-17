@@ -59,6 +59,9 @@ module npu_zynq7020_t1_wrapper #(
 `ifndef B3_PL_REPLAY_MEASURE_SAMPLES
 `define B3_PL_REPLAY_MEASURE_SAMPLES 10000
 `endif
+`ifndef B3_PL_REPLAY_CONTINUOUS
+`define B3_PL_REPLAY_CONTINUOUS 0
+`endif
 `endif
     localparam logic [3:0] OP_SAMPLE_FENCE = 4'ha;
     localparam logic [3:0] RSP_FENCE       = 4'hd;
@@ -350,7 +353,8 @@ module npu_zynq7020_t1_wrapper #(
     b3_pl_distribution_replay_shim #(
         .INPUT_SAMPLES(`B3_PL_REPLAY_INPUT_SAMPLES),
         .WARMUP_SAMPLES(`B3_PL_REPLAY_WARMUP_SAMPLES),
-        .MEASURE_SAMPLES(`B3_PL_REPLAY_MEASURE_SAMPLES)
+        .MEASURE_SAMPLES(`B3_PL_REPLAY_MEASURE_SAMPLES),
+        .CONTINUOUS_REPLAY(`B3_PL_REPLAY_CONTINUOUS)
     ) replay_shim (
         .clk(npu_clk), .rst(npu_rst),
         .upstream_sample_data(core_sample_data), .upstream_sample_id(core_sample_id),

@@ -2521,3 +2521,22 @@
 - 主代理定向验证：功耗/CP5b/artifact 合同 `15 passed`；速度合同 `13 passed, 1 failed`，唯一失败是 WSL 普通 Git 无法解析 Windows worktree `.git` 路径，与断言和本轮状态改动无关；Windows `git diff --check` 与 4 个改动 JSON 校验通过。
 - 残留搜索发现 `.nexus-map/concepts/b2_packet_npu.json` 的旧 `b3_goal_optimization_line.B3-21` 仍写 `idle/dense/static/live`；已把该对象标为历史工程线，并将当前 B3-21 改为 CP8 dense/lossless 四态。一次 PowerShell `rg test_*.py` 再次触发通配符路径错误；后续只使用 `rg -g 'test_*.py'`，不再重复。
 - 最终扩展定向回归（CP5a/CP5b replay、distribution、speed、power、artifact、pytest scope、CI-fast）为 `55 passed`；4 个改动 JSON 通过解析，`git diff --check` 干净。残留搜索仅命中显式历史记录、当前 CP8 下一步和对旧 CP6 双引擎方向的否定说明。
+# 2026-09-17 CP8 功耗执行准备
+
+- 合并 PR #99：merge commit `fd71920`；当前新分支 `codex/b3-cp8-power-prep`。
+- 使用新的 DeepSeek 会话完成 CP5b 产物独立审计：36 个日志文件、10 个 run、SHA/引用/关键数字全 PASS，无凭证或绝对用户路径；该任务只读且未修改文件。
+- 复用同一会话完成 CP8 只读审计，确认现有 full 固定 10000 后停止且无主动 idle/start 控制；主代理复核源码后裁定需要独立 CP8 build/runner 和最小 `0x74` 控制寄存器。
+- 已把 RED 测试编写委派给同一 DeepSeek 会话，文件白名单仅 `test_b3_cp8_power_replay_contract.py` 与 `tb_b3_cp8_power_replay_shim.sv`；生产实现仍由主代理负责。
+- 错误记录：规划补丁前两次经 PowerShell 传递时分别被 `apply_patch` 以非 UTF-8、结尾解析拒绝，均未产生修改；第三次改用 Git Bash 原生 heredoc。另有 Bash heredoc 与 `rg test_*.py` 的 PowerShell 兼容失败，后续分别使用 `ConvertFrom-Json` 和 `rg -g 'test_*.py'`。
+
+## 2026-09-17 CP8 continuous power replay
+
+- 实现 shim continuous replay、status probe `0x74`、wrapper/build mode、packet build 与固件 READY/START/RUNNING 控制循环。
+- DeepSeek 在两文件白名单内生成独立 runner/probe；主代理复核后统一 idle/full BuildTag，并补 probe 失败断连。
+- 验证命令：`python -m pytest -q test_b3_cp8_power_replay_contract.py test_b2_npu_status_probe_contract.py test_b3_pl_distribution_replay_contract.py test_b3_pl_distribution_replay_software_contract.py`，结果 `22 passed`。
+- Windows PowerShell 5.1 parser 与相关范围 `git diff --check` 通过。
+- ARM 编译：`run_b2_packet_sw_build.ps1 -B3Cp8PowerMeasurement ... -BuildTag cp8_compile_probe` → `B2_PACKET_SW_BUILD_PASS`；manifest 为 `b3_cp8_power`、397/397 unique samples。
+- 全量 B2：`run_b2_checks.ps1` → `129 passed`、T1 protocol slice PASS、`B2_CHECKS_PASS`。
+- 错误记录：一次计划文件补丁因上下文不匹配被拒绝，未产生修改；两次被忽略 build manifest 搜索无结果，改用目录枚举定位构建环境。
+- 错误记录：一次 PowerShell `foreach {...} | Sort-Object` 单行写法产生 empty pipe parser error，未修改文件；后续拆成中间变量，避免重复。
+- 下一步：ARM packet 构建与完整定向回归，通过后提交/PR，再从 clean HEAD 构建两套 power replay bit/XSA。

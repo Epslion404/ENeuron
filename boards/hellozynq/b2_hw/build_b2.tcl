@@ -5,7 +5,7 @@ set npu_mode [lindex $argv 2]
 if {$git_head eq {}} { set git_head UNKNOWN }
 if {$out_dir eq {}} { set out_dir [file join $script_dir build] }
 if {$npu_mode eq {}} { set npu_mode dense }
-if {$npu_mode ni {dense lossless_zero_group_skip dense_pl_replay lossless_zero_group_skip_pl_replay dense_pl_distribution_replay lossless_zero_group_skip_pl_distribution_replay}} {
+if {$npu_mode ni {dense lossless_zero_group_skip dense_pl_replay lossless_zero_group_skip_pl_replay dense_pl_distribution_replay lossless_zero_group_skip_pl_distribution_replay dense_pl_power_replay lossless_zero_group_skip_pl_power_replay}} {
     error "Unsupported B2_NPU_MODE=$npu_mode"
 }
 file mkdir $out_dir
@@ -26,6 +26,14 @@ if {[string match {*_pl_distribution_replay} $npu_mode]} {
     lappend verilog_defines B3_PL_REPLAY_INPUT_SAMPLES=397
     lappend verilog_defines B3_PL_REPLAY_WARMUP_SAMPLES=1000
     lappend verilog_defines B3_PL_REPLAY_MEASURE_SAMPLES=10000
+}
+if {[string match {*_pl_power_replay} $npu_mode]} {
+    lappend verilog_defines B3_PL_DISTRIBUTION_REPLAY_BENCHMARK
+    lappend verilog_defines B3_CP8_POWER_MEASUREMENT
+    lappend verilog_defines B3_PL_REPLAY_INPUT_SAMPLES=397
+    lappend verilog_defines B3_PL_REPLAY_WARMUP_SAMPLES=1000
+    lappend verilog_defines B3_PL_REPLAY_MEASURE_SAMPLES=10000
+    lappend verilog_defines B3_PL_REPLAY_CONTINUOUS=1
 }
 
 set part xc7z020clg484-2

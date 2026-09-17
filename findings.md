@@ -2315,3 +2315,15 @@
 - 历史 `artifacts/logs/b3_power_20260913_be84596/` 的 dense/static/live 读数保留为 `POWER_ENGINEERING_OBSERVATIONS_INCOMPLETE_CONTRACT`，未改写为 CP8 证据。
 - 主审进一步区分两种能耗：整板总能耗/正确推理使用 `P_full / throughput`（并由 `ΔmWh/有效正确推理数` 交叉核对），mode-matched 增量能耗/正确推理使用 `(P_full-P_idle)/throughput`；二者不得混写。
 - 最终审批结论：DeepSeek 的 CP5 状态、速度门语义和 CP6 主方向可接受；CP8 初稿不足之处已由主代理补齐到正式功耗合同、机器 JSON、TODO 当前未完成项和 Nexus 当前态。当前管理口径一致，可进入 CP8 负载冻结与 paired 功耗执行。
+# 2026-09-17 CP8 连续负载准备事实
+
+- PR #99 已合并为 `main@fd71920`，工作区与 `origin/main` 一致；CP5b 正式证据为 397 样本、5 轮、纯 PL 吞吐 `1.088168676x`。
+- 现有 `b3_pl_distribution_replay_shim.sv` 在 `MEASURE_SAMPLES=10000` 后进入 `STATUS_PASS/STATE_DONE`，以 dense `79554.5 samples/s` 计仅约 `0.126 s`，不足以形成 B10 人工读数窗口。
+- `b2_npu_status_probe.v` 当前所有写返回 SLVERR；没有 replay arm/start/restart 控制。`0x64/0x68/0x6C/0x70` 只能观察状态、完成数、周期和捕获数。
+- 最小实现不需要修改 NPU 数据通路：新增状态块内部 CP8 控制寄存器 `0x74`，固件以同一 ELF 在模型/mask 装载后等待 JTAG START；连续模式只改变 replay shim 的结束条件。
+- idle/full 的 PS 状态采用同一控制轮询循环；full 只在启动时执行一次 397 样本捕获，测量从 1000 warmup 后 `STATUS_MEASURE` 开始，PS 不参与逐样本决策。
+- 32 位 measured-cycle 约 21.5 秒溢出、group count 约 84 秒溢出，不能作为分钟级功率积分的累计真值；正式功率计算使用 B10 时间/能量读数和 CP5b 已冻结吞吐，短间隔状态差用于证明负载仍活跃。
+- `0x74` 仅作为 JTAG/PS 握手邮箱，不直接驱动 replay RTL：固件写 READY，JTAG 写 START，固件捕获 397 样本后写 RUNNING。
+- idle/full 的 PS 都停留在同一 1 ms 控制轮询；full 的逐样本执行完全位于 PL，避免 PS 决策或 DMA 持续参与功耗窗口。
+- packet build 显式要求 canonical QAT、恰好 397 样本，并禁止 CP8 与 speed/accuracy benchmark 混用。
+- DeepSeek 适合生成受限 runner/probe 初稿，但主审发现 state-specific BuildTag 会削弱同一 ELF 证据；已改为两态共享 `cp8_${Mode}_power` 构建身份。
