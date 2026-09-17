@@ -55,6 +55,10 @@ module b2_npu_axis_top (
     output wire [31:0] pending_mask_epoch,
     output wire [31:0] last_compute_cycles,
     output wire [31:0] protocol_error_count,
+    output wire [31:0] pl_replay_status,
+    output wire [31:0] pl_replay_capture_count,
+    output wire [31:0] pl_replay_completed_count,
+    output wire [31:0] pl_replay_measured_cycles,
     output wire        fence_snapshot_valid,
     output wire [255:0] fence_snapshot_counts
 );
@@ -84,6 +88,10 @@ module b2_npu_axis_top (
          .pending_mask_epoch(pending_mask_epoch),
          .last_compute_cycles(last_compute_cycles),
          .protocol_error_count(protocol_error_count),
+         .pl_replay_status(pl_replay_status),
+         .pl_replay_capture_count(pl_replay_capture_count),
+         .pl_replay_completed_count(pl_replay_completed_count),
+         .pl_replay_measured_cycles(pl_replay_measured_cycles),
          .fence_snapshot_valid(fence_snapshot_valid),
          .fence_snapshot_counts(fence_snapshot_counts)
      );

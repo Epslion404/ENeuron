@@ -60,7 +60,7 @@ B3-22.4 已在不改变帧格式的前提下，将 dense 端到端中位数从�
 - 至少 64 个 held-out 样本，至少 3 组 `dense`/`calibrated_static` 对称 A/B。
 - 记录逐样本请求→结果总窗口、DMA、fence、result、PS 时间及批大小。
 - 两种模式协议错误、ID/epoch/CRC 错误均为 0；输出与现有逐样本基线逐 logit 一致。
-- 建议继续条件：相对 B3-22.4 优化后逐样本基线，批量路径中位数至少下降 `10%`，且三组方向一致；该条件只是继续投入判据，不直接关闭 `B3-SPEED-GATE`。
+- 建议继续条件：相对 B3-22.4 优化后逐样本基线，批量路径中位数至少下降 `10%`，且三组方向一致；该条件只评估 packet 路径摊销，不能替代 CP5b 的 `B3-PL-SPEED-GATE` 证据、改变 `B3-SPEED-GATE=PASS_PURE_PL_ONLY` 边界或外推 packet/end-to-end 加速。
 
 ## 8. RTL/软件改动面
 

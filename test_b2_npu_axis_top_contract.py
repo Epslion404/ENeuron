@@ -39,6 +39,7 @@ class B2NpuAxisTopContractTests(unittest.TestCase):
             "b2_npu_packet_adapter.sv",
             "b2_packet_ingress.sv",
             "b2_packet_egress.sv",
+            "b3_pl_replay_shim.sv",
             "npu_zynq7020_t1_wrapper.sv",
             "npu_eneuron_single_clock_skeleton.sv",
         ):

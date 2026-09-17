@@ -1,16 +1,54 @@
 # 当前状态
 
-更新时间：2026-09-14
+更新时间：2026-09-17
 
-## 当前裁定（B3-22.3 后）
+## CP5a 纯 PL replay 正式实板（2026-09-17）
 
-`B3-22.2`、`B3-22.3` 与 `B3-22.4` 首轮均已完成。校准 static 在零决策成本下相对 dense 旧路径仅改善约 `2%`（`157→154 us`）；B3-22.4 优化路径后 dense `63–64 us`、calibrated `60 us`，动态 live 仍为 `623 us`（mask compute 占 80.5%）。当前主线为固定协议开销/批量 sample DMA 与 fence 摊销实验；PL-auto、PS NEON 暂缓。精度口径拆分为 `output_preservation=PASS` 与 `task_accuracy=MODEL_TASK_FIT_UNVERIFIED`；`accuracy_gate=ACCURACY_NEAR_DENSE` 仅表示输出保持，不代表任务精度。`B3-SPEED-GATE`、`B3-POWER-GATE`、`B3-GOAL-GATE` 仍保持 OPEN。
+已新增编译期可选的 `B3_PL_REPLAY_BENCHMARK`：Host 仍按既有 packet 合同装载模型并提交一个已验证 QAT 样本，`npu_clk` 域缓存该 8-beat 样本，完成 1000 次预热和 10000 次正式计量；中间结果在 PL 内消费，只把最后一次 10-beat 结果送回既有结果 FIFO。默认 dense/lossless 构建不定义该宏，正常推理路径保持原样。状态块在冻结的 `0x00–0x60` 之后新增只读 `0x64 status / 0x68 completed / 0x6C measured_cycles`。
+
+CP5a 已完成正式实板 A/B。dense/lossless replay 完整 wrapper 均在 `xc7z020clg484-2`、200 MHz 通过物理门：dense `WNS/WHS=+0.004/+0.036 ns`，lossless `+0.005/+0.010 ns`，两者 TNS/THS、route、DRC hard error 为 0、DSP48E1=`4`。QAT `sample_index=201` 在相同 `1000` 次预热、`10000` 次计量口径下，dense=`2512 cycles/sample`、`79,617.834 samples/s`，lossless=`2302 cycles/sample`、`86,880.973 samples/s`，纯 PL 吞吐提升 `1.091225x`、延迟下降 `8.3599%`。两者 replay 固定开销均为 `18 cycles/sample`；最终结果帧、10 维 logits、CRC 完全一致，协议错误为 0，组计数均精确覆盖 `11001×592`。
+
+CP5a 的 `1.091225x` 与该样本的核心周期比 `2494/2284=1.091944x` 一致，差异来自两侧相同的 18-cycle replay 输入/结果开销。正式证据为 `artifacts/results/b3_qat_cp5a_pl_replay_board_pair.json`。该结果只关闭单个代表性样本的 CP5a bring-up；CP5b 已扩展为 397 样本分布并完成，见下节。
+
+## CP5b 397 样本纯 PL 分布吞吐正式实板（2026-09-17）
+
+CP5b 已完成正式实板验证。397 个 held-out 输入、每轮 1000 预热 + 10000 计量、5 轮交替 dense/lossless，中间结果不出 PL、PS 不参与逐样本决策。dense=`2513.9998 cycles/sample`、`79554.501 samples/s`；lossless=`2310.3034 cycles/sample`、`86568.716 samples/s`；纯 PL 吞吐提升 `1.088168676x`、延迟下降 `8.1025%`，5 轮无抖动。CRC、结果帧和协议均通过、协议错误 0；两模式 200 MHz 物理门通过、DSP48E1=4。当前 canonical 实板跳过率约 `11.47%`，因此 `1.088x` 是当前策略合理上限。正式证据为 `artifacts/results/b3_qat_cp5b_pl_distribution_board_pair.json`。
+
+速度门统一语义：`B3-PL-SPEED-GATE=PASS` 由 CP5b 关闭；CP4 单样本 packet 路径单独记为 `B3-PACKET-SPEED=MEASURED_WEAK_GAIN_1_008196X`，不称为纯 PL，也不宣称显著系统加速；顶层 `B3-SPEED-GATE=PASS_PURE_PL_ONLY` 表示主 NPU/剪枝纯 PL 加速门已通过，但不代表 packet 端到端显著加速。`B3-GOAL-GATE` 仍需 accuracy + `B3-PL-SPEED-GATE` + `B3-POWER-GATE`；若论文声称 packet/end-to-end 加速，必须另给重复实测，不能引用 CP5b。历史 PS-live `NO_END_TO_END_SPEEDUP` 保留为历史，不得改写成通过。当前下一步是冻结 CP5b dense/lossless 连续负载并执行 CP8 paired 功耗。
+
+附带物理修复记录：首轮 lossless replay 为 `WNS=-0.074 ns`，最差路径在 packet egress 的超宽 `response_word_count` 清零网络。该计数器真实上限为 254，收窄为 8 位后 lossless replay 达到 `WNS=+0.005 ns`；相关 egress/adapter/T1 回归通过。提交 `ac499d4` 的非 replay dense 三次 `WNS=-0.072 ns` 历史复现失败保留，不影响 CP4 或本轮 replay 的独立物理证据。
+
+## QAT CP4 无损零组跳过实板（2026-09-16）
+
+clean HEAD `e155091` 上，dense 与 lossless 两条完整 wrapper 均在 `xc7z020clg484-2`、200 MHz 通过物理门：dense `WNS=+0.004 ns`，lossless `WNS=+0.008 ns`，两者 `TNS=0`、`WHS=+0.036 ns`、`THS=0`、route/DRC hard error=0、DSP48E1=`4`。使用 QAT-v3 的 397 个 held-out 样本，两轮均为 `397/397 PASS`；sample ID、输入 CRC、结果 CRC、协议状态和 10 维 logits 逐样本一致，logit element mismatch=`0`、prediction mismatch=`0`、任务准确率均为 `88.665%`、下降 `0 pp`。
+
+lossless 实板平均 `2290.272 cycles/sample`、执行/跳过组 `524.091/67.909`、跳过率 `11.4712%`，相对 dense `2494 cycles` 的核心加速为 `1.088954x`。完整 PS/DMA 单样本窗口均值为 dense `63.826 us`、lossless `63.307 us`，仅 `1.008196x`；p50=`64→63 us`、p95=`65→64 us`、p99=`66→64 us`。这说明无损跳过已在纯 PL 核心兑现，但单样本 packet 路径仍被固定开销稀释。证据为 `artifacts/results/b3_qat_cp4_lossless_zero_group_board_397.json`。
+
+裁定：`B3-PAPER-CP4`、当前无损候选的 `B3-ACCURACY-GATE`、`B3-PAPER-CP5a` 和 `B3-PAPER-CP5b` 已关闭；`B3-PL-SPEED-GATE=PASS`、顶层 `B3-SPEED-GATE=PASS_PURE_PL_ONLY`。下一步是冻结 CP5b dense/lossless 连续负载并执行 CP8 paired 功耗。
+
+## QAT 无损零组跳过 RTL/OOC（2026-09-15）
+
+主 NPU 已实现 `LOSSLESS_ZERO_GROUP_SKIP` 最小切片，当前只跳过全零激活组和全零权重组，不包含 L0 ReLU 后缀早停；默认未定义宏时 dense 行为保持不变。QAT-v3 公开端口级 Icarus 对拍 `397/397` logits 逐位一致，平均 `1879.136 cycles/sample`、跳过率 `34.6207%`，相对 dense `2494 cycles` 的核心估算约 `1.3272x`。
+
+目标器件 `xc7z020clg484-2`、200 MHz OOC 已完成五轮历史探测及一轮修复后重建。修复轮模型存储落到 `1 RAMB36`，最终 `WNS=+0.158 ns`、`TNS=0`、`WHS=+0.070 ns`、`THS=0`、route/DRC hard error=0，资源 `2068 LUT / 2848 FF / 1 BRAM36 / 4 DSP48E1`。当前状态为 `OOC_PASS_TIMING`，CP3c 已通过；该证据仍只覆盖 NPU core，不得直接当作完整 bit/XSA、板级吞吐或功耗证据。证据为 `artifacts/results/b3_qat_lossless_zero_group_rtl_sim.json` 和 `artifacts/results/b3_qat_lossless_zero_group_ooc.json`。
+
+## QAT 新基线（2026-09-15）
+
+QAT canonical 634-word `qat-v3-val200-temp400-150ep-seed20260914` 模型及 397 个 held-out 样本已完成 packing、训练整数 forward 与 Python reference 的逐元素对齐；对应合同测试与训练划分合同通过。重训使用 1200 train + 200 validation，397 held-out 只在训练结束后评估，最终 `train=92.50%`、`validation=90.50%`、`test=88.665%`。397 样本 Python 剪枝诊断为 dense `88.665%`、live `40.302%`、calibrated `29.471%`，分别下降 `48.363 pp`、`59.194 pp`，因此当前动态剪枝精度门失败。standalone PL auto-mask 已完成 `397/397` 仿真一致和 `1861 cycles/sample`，尚未接入主 NPU、完成 200 MHz 时序或板级验证。旧 fixed-vector 的 `output_preservation=PASS` 不能外推为 QAT 精度结论。
+
+## QAT CP1 dense 实板（2026-09-15）
+
+QAT dense 已在同一 `xc7z020clg484-2` bit/XSA 下完成 8 样本 smoke 和 64 样本正式对拍。64/64 样本的 sample ID、输入 CRC、结果 CRC、epoch=`1`、协议状态和 10 维 logits 均通过；logit 与 QAT manifest 逐位一致，NPU=`2494 cycles`、执行/跳过=`592/0`、端到端=`63–66 us`。证据为 `artifacts/results/b3_qat_cp1_dense_64_board.json`。该结果只关闭 QAT dense 装载/输出链，不代表剪枝精度、纯 PL 吞吐或任务准确率。
+
+## 当前裁定（QAT 重基线后）
+
+`B3-22.2`、`B3-22.3` 与 `B3-22.4` 首轮均已完成，但不再是当前优先级。CP0/CP1/CP3a/b/c/CP4、CP5a 与 CP5b 已完成；严格 2:4 live/static 精度失败，主候选为可证明无损的零组跳过。下一步是冻结 CP5b dense/lossless 连续负载并执行 CP8 paired 功耗。`B3-PL-SPEED-GATE` 已通过、顶层 `B3-SPEED-GATE=PASS_PURE_PL_ONLY`；`B3-POWER-GATE`、`B3-GOAL-GATE` 仍保持 OPEN。
 
 ## 结论
 
-当前项目状态为：`FUNCTIONAL_PASS / PHYSICAL_PASS / B3_MVP_GATE_PASS / B3_L0_CACHE_BOARD_DIAGNOSTIC_PASS / B3_SPEED_MEASURED / B3_ACCURACY_GATE_OPEN / B3_SPEED_GATE_OPEN / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B3_STRICT_DEFERRED_STRUCTURAL / PL_AUTO_MASK_CONTRACT_PASS / PL_AUTO_MASK_BOARD_PENDING / B2_GATE_PENDING`。
+当前项目状态为：`FUNCTIONAL_PASS / B3_MVP_GATE_PASS / B3_QAT_CP4_BOARD_FORMAL_PASS / B3_QAT_CP5A_PL_REPLAY_FORMAL_PASS / B3_QAT_CP5B_PL_DISTRIBUTION_FORMAL_PASS / B3_ACCURACY_GATE_PASS_LOSSLESS / B3_PL_SPEED_GATE_PASS / B3_PACKET_SPEED_MEASURED_WEAK_GAIN_1_008196X / B3_SPEED_GATE_PASS_PURE_PL_ONLY / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B3_STRICT_DEFERRED_STRUCTURAL / PL_AUTO_MASK_BOARD_DEFERRED / B2_GATE_PENDING`。
 
-主线是 `xc7z020clg484-2` 上部署 NPU，并用 ENeuron 组级动态剪枝证明推理加速与功耗下降且基本保持精度。B3-MVP-GATE 已关：同一 200 MHz bitstream 上 dense/full-open/static/live 小集合 A/B、epoch 读回和局部周期差值可回放。第一轮 16 样本速度测量结论为 `NO_END_TO_END_SPEEDUP`；B3-20.1/20.2 已完成 K=16 mask 摊销及 3 组 dense/live 对称复测。PL staging 与 PS mask 计算优化后的 64 样本多输入复测已通过：live `722–727 us`、dense `155–159 us`；live 仍约为 dense 的 `4.65×`，尚未形成端到端加速。优化后的 live 累计 `mask_us=36324 us`，相对上一版约 `55688 us` 下降约 35%，但 PS mask 决策仍是主要瓶颈。外部功耗未测，速度门和精度门保持 OPEN。精度证明链已补齐模式相关 epoch 合同、板端标签采集字段、1000 样本分块生成和 dense/live 合并工具；2026-09-14 已完成 1024 样本成对采集（v2 报告：agreement 1.0、golden 1024/1024、协议 2048/2048），输出保持单独成立，任务精度因模型/任务适配性未证明不能进入门判定。严格连接级 `2:4` 仍是结构实验，不是当前加速硬门。
+主线是 `xc7z020clg484-2` 上部署 NPU，并用可证明无损的组级动态跳过验证推理加速与功耗下降。历史 PS 在环 live 路径仍保留为负结果：64 样本 live `722–727 us`、dense `155–159 us`，PS mask 计算是主要瓶颈；它不代表当前纯 PL 候选。当前 QAT lossless 已在 clean 397 样本实板上完成输出与任务精度保持，`B3-ACCURACY-GATE` 通过；CP5b 纯 PL 连续吞吐门 `B3-PL-SPEED-GATE` 通过，顶层 `B3-SPEED-GATE=PASS_PURE_PL_ONLY`；外部功耗未测，功耗门仍 OPEN。严格连接级 `2:4` 仍是精度失败的结构实验，不是当前加速硬门。
 
 ## 已确认事实
 
@@ -27,7 +65,7 @@
 - live ENeuron run `20260912T131302Z`（HEAD `fe25a70`、COM15、同一 bit/XSA）UART `B3_LIVE_ENEURON_PASS`，logits=`165,-18,14,0,0,0,0,0,0,153`，`decision_source=live_eneuron_s2`。JTAG `execute/skip=296/296`、`fence_snapshot_valid=1`。证据 `artifacts/logs/b3_live_eneuron_pass_20260912_fe25a70/`。关闭 B3-09 组级 live 路径，不是严格 `2:4`。
 - PR #93 已合并到 `main@1c64245`。提交 `82b079e` 复用 L0 contribution，同源 bit/XSA、新 ELF 三次实板为 `ps_us=827/829/828`，logits、`296/296`、1606 cycles 与 protocol errors=0 均保持。证据 `artifacts/logs/b3_live_l0_cache_20260913_82b079e/`；这是缓存诊断通过，不是速度门通过。
 - B3-17C 实板速度账本已完成，使用同一 `be84596` bit/XSA、固定 16 样本和 warm-up 条件。dense run `20260913T182533Z` 为 `16/16 PASS`，端到端窗口 `155–156 us`（中位数 `155 us`），NPU `2494 cycles`、执行/跳过组 `592/0`；live run `20260913T182626Z` 为 `16/16 PASS`，窗口 `1384–1387 us`（中位数 `1386 us`），NPU `1606 cycles`、执行/跳过组 `296/296`，累计 `mask_us≈19700 us`；static mixed run `20260913T182853Z` 为 `16/16 PASS`，窗口 `152–154 us`（中位数 `153 us`）。三种模式协议错误均为零，早期 warm-up 失败 run 不纳入比较。
-- B3-22 第一轮判定及 K=16 复判均已完成：第一轮 live 相对 dense 的端到端中位数约 `8.94×` 更慢；复判中 dense 完整窗口均值/中位数约 `155.5/155 us`，live K=16 约 `229.7/153 us`，首样本约 `1.38 ms`。局部 NPU 节省 `888 cycles` 未转化为完整窗口系统级加速，`B3-SPEED-GATE` 保持 OPEN。
+- B3-22 第一轮判定及 K=16 复判均已完成（历史 PS 在环路径）：第一轮 live 相对 dense 的端到端中位数约 `8.94×` 更慢；复判中 dense 完整窗口均值/中位数约 `155.5/155 us`，live K=16 约 `229.7/153 us`，首样本约 `1.38 ms`。局部 NPU 节省 `888 cycles` 未转化为完整窗口系统级加速，该历史负结果保留，不改写为通过；顶层 `B3-SPEED-GATE=PASS_PURE_PL_ONLY` 仅指纯 PL 口径。
 - B3-20.1 已完成首轮实板验证：dense `20260914T002537Z` 为 `155–156 us`；live K=1 `20260914T002627Z` 为 `1384–1388 us`、`mask_us=19701 us`；live K=16 `20260914T002938Z`/`20260914T003122Z` 均 `16/16 PASS`，首样本 `1380/1381 us`、后续 `153–154 us`、中位数 `153 us`、`mask_us=1225/1226 us`。每样本 fence、epoch、CRC、`296/296` 与协议检查均通过；失败的“省略 fence”尝试 `20260914T002715Z` 仅作失败证据。该结果仍不足以关闭速度门。
 - B3-18c 优化后复测：同一 bit/XSA/JTAG 条件和 64 个不同输入下，live `20260914T062138Z` 为 `64/64 PASS`、epoch `2→65`、执行/跳过 `296/296`、协议错误 `0`、端到端 `722–727 us`、累计 `mask_us=36324 us`；同源 dense `20260914T062313Z` 为 `64/64 PASS`、端到端 `155–159 us`、执行/跳过 `592/0`。证据目录位于 `boards/hellozynq/b2_sw/build/17d07727c73845e51c22a7835eac94e04cb22fa7/direct/runs/b3_speed/`。
 
@@ -50,7 +88,7 @@
 - clean worktree 重建，确认最终可复现 manifest。
 - B2-06～B2-10 的多 packet、完整错误矩阵、复位账本、统一时间戳和正式机器证据包。
 - B2-GATE 发布门。
-- B3-MVP-GATE 已关。`B3-SPEED-MEASURED`、`B3-17C`、B3-20.1、B3-20.2、B3-18a/b/c 和两轮 `B3-22` 判定已完成；`B3-SPEED-GATE` 因完整窗口端到端加速未证明而保持打开。64 样本多输入 dense/live 对称实测已完成，但 live 仍明显慢于 dense；当前主动任务为固定协议开销与批量切片评审。1024 样本成对采集和 v2 输出保持报告已完成：`output_preservation` 通过，`task_accuracy` 因模型/任务适配性未证明而保持 `MODEL_TASK_FIT_UNVERIFIED`；当前 fixture 另判 `GATE_VACUOUS / MODEL_UNDER_DETERMINED`。在精度门或速度门通过前不转入正式功耗线。功耗仪器合同已冻结但仍是 `POWER_NOT_MEASURED`；`B3-POWER-MEASURED` 与 `B3-POWER-GATE` 都未关闭。B2-GATE 挡网口发布。
+- B3-MVP-GATE、QAT CP4 与无损候选的 `B3-ACCURACY-GATE` 已关；`B3-PL-SPEED-GATE` 已由 CP5b 关闭，顶层 `B3-SPEED-GATE=PASS_PURE_PL_ONLY`。当前主动任务是冻结 CP5b dense/lossless 连续负载并执行 CP8 paired 功耗，B3-22.5 批量协议、严格 2:4 和独立 PL-auto 均后置。功耗仪器合同已冻结但仍是 `POWER_NOT_MEASURED`；`B3-POWER-MEASURED` 与 `B3-POWER-GATE` 都未关闭。B2-GATE 挡网口发布。
 - 计数器对外仍保持 32 位 AXI-Lite 读口；核心内部加法收窄为 24 位，可覆盖 B3-13 的 10000 样本上限（`592 * 10000 = 5,920,000 < 2^24`）。
 - Pulse-Mini-L/L2 集成。它们是冻结的候选/历史支线，不是当前日常门。
 
@@ -58,10 +96,9 @@
 
 ## 下一步
 
-1. 执行 `B3-22.1a/b/c/d`：完成 64 样本多输入 dense/live 对称实测，并按模式相关 epoch 合同核对每个样本。
-2. 执行 `B3-22.1e/e1/f`：运行 `b3_accuracy_dataset.py` 生成至少 1000 个带标签样本的 64 样本分块，逐块完成 dense/live 板端 logits 采集，用 `b3_accuracy_merge.py` 合并，再计算 Top-1 一致率、dense/live 准确率差、logit 误差和每类召回率；speed 账本的 `result_crc` 不足以做精度证明。目标为观测一致率 `≥99%` 且 Wilson 95% 下界也 `≥99%`，准确率绝对下降 `≤1.0` 个百分点且配对差值 95% 上界也 `≤1.0` 个百分点。
-   本地统计入口：`python b3_accuracy_report.py <accuracy_samples.json|jsonl> -o b3_accuracy_report.json`。输入顶层 `identity` 必须绑定 `model`、`preprocess`、`bitstream_sha256`、`xsa_sha256`、`elf_sha256`；样本必须含 `sample_id`、输入身份、`mask_epoch`、dense/live logits、标签和协议/CRC 校验字段。工具输出 `status=PASS` 且 `accuracy_gate=ACCURACY_NEAR_DENSE` 才可进入门判定；该门仅表示 output_preservation（与 dense 输出一致），不代表任务精度通过。
-3. 执行 `B3-22.1c/d`：在同一板卡、bit/XSA、JTAG、warm-up 和统计口径下完成至少 3 组 dense/live 对称实测；精度门或速度门未通过时按证据优化并回到 B3-22.1，二者都通过后才进入功耗测量。`82b079e` 的 `ps_us=827/829/828` 只证明 Host 诊断改善，仍不代表端到端加速；不得把 888 cycle 写成端到端加速，不得用 Vivado 估算冒充板上功耗。
+1. **功耗负载冻结。** 冻结 CP5b 的 dense/lossless bit/XSA/ELF、397 样本 PL-internal distribution replay 输入流、1000 warmup 和持续运行脚本，形成四种可重复状态：dense idle/full、lossless idle/full。
+2. **CP8 paired 功耗。** 按 B10 仪器合同执行至少 5 组交替测量，同一 Type-C 串联仪表和 JTAG 状态，记录照片/时间、V/A/W、mAh/mWh、有效正确推理数和持续时间；报告整板平均功率、mode-matched idle 到 full 增量功率、整板总能耗/正确推理、mode-matched 增量能耗/正确推理和仪器可分辨性。允许“平均功率不可分辨但因吞吐提高而每次推理能耗下降”的现实结论，不得把整板功率称为纯 NPU 功率。
+3. **CP6 覆盖率优化。** 按 CP6a canonical 等价输入通道 + L0 权重同步置换、CP6b L0 ReLU 后缀早停、CP6c 条件性硬件感知 QAT、CP6d 连续零组快速跳转的优先级推进；严格 2:4、独立 PL auto-mask 和批量协议均为后置支线。
 
 ## 文档口径
 
@@ -70,7 +107,7 @@
 2026-09-14 补记（B3-22.2 与 1024 样本输出保持）：
 
 - B3-22.2 实板拆分（同一 `be84596` bit/XSA、64 样本）：live `20260914T092629Z` 的 `mask_us=36345 us` 中 compute `32160 us`（502/样本，88.5%）、submit `4156 us`（65/样本，11.5%）；同源 dense `20260914T092552Z` 中位数 `157 us`、`2494 cycles`、`592/0`，live `725 us`、`1606 cycles`、`296/296`，协议错误均为 0。
-- B3-22.1f 1024 样本（16×64 dense/live 板级采集）输出保持：`prediction_agreement=1.0`（Wilson 95% 下界 `0.99626`）、`logit_exact_match=1024/1024`、logit 误差 0、`accuracy_drop_pp=0`；解析修复后的 v2 报告 `artifacts/results/b3_accuracy_1024_board_report_v2.json` 为 `PASS / ACCURACY_NEAR_DENSE`（仅 output_preservation），与 Python golden 逐项 `1024/1024` 一致。dense/live 准确率均 `11.23%`，任务精度判 `MODEL_TASK_FIT_UNVERIFIED`，不自动归因标签语义。
+- 历史 fixed-vector B3-22.1f（16×64 dense/live 板级采集）输出保持：`prediction_agreement=1.0`（Wilson 95% 下界 `0.99626`）、`logit_exact_match=1024/1024`、logit 误差 0；该报告只证明旧 fixture 的 output preservation。当前 QAT-v3 的任务/剪枝事实以 `artifacts/results/b3_qat_pruning_diagnostic.json` 为准：dense `88.665%`、live `40.302%`、calibrated `29.471%`，两种剪枝均未过精度门。
 
 2026-09-14 补记（B3-22.3 零决策成本上限）：
 

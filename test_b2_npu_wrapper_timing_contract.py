@@ -36,7 +36,7 @@ class B2NpuWrapperTimingContractTests(unittest.TestCase):
             "compute_unit_mask_latched <= l0_unit_mask(compute_unit_index)",
             "compute_unit_mask_latched <= l1_unit_mask(compute_unit_index)",
             "compute_group_mask_scan <= compute_unit_mask_latched",
-            "if (compute_group_mask_scan[0])",
+            "if (compute_group_mask_scan[0]",
             "compute_group_mask_scan <= compute_group_mask_scan >> 1",
         ):
             self.assertIn(token, source)
@@ -47,7 +47,11 @@ class B2NpuWrapperTimingContractTests(unittest.TestCase):
     def test_core_uses_registered_model_address_for_group_fetch(self):
         source = (ROOT / "npu_eneuron_single_clock_skeleton.sv").read_text(encoding="utf-8")
         self.assertIn("compute_model_addr", source)
-        self.assertIn("model_staging[compute_model_addr]", source)
+        self.assertIn("model_read_addr", source)
+        self.assertIn("model_staging_read_data", source)
+        self.assertIn("model_word_latched <= model_staging_read_data", source)
+        self.assertIn("mac_accumulator_lo <= $signed(model_staging_read_data[15:0])", source)
+        self.assertIn("mac_accumulator_hi <= $signed(model_staging_read_data[31:16])", source)
         self.assertNotIn(
             "model_staging[(compute_unit_index * 16) + compute_group_index]",
             source,

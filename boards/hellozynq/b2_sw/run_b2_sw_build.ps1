@@ -1,15 +1,23 @@
 param(
-    [string]$XsctPath = 'G:\Xilinx\Vitis\2024.1\bin\xsct.bat'
+    [string]$XsctPath = 'G:\Xilinx\Vitis\2024.1\bin\xsct.bat',
+    [string]$HardwareBuildDir = '',
+    [string]$BuildTag = 'direct'
 )
 
 $ErrorActionPreference = 'Stop'
 $scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $repoRoot = (Resolve-Path (Join-Path $scriptRoot '..\..\..')).Path
-$xsaSource = Join-Path $repoRoot 'boards\hellozynq\b2_hw\build\hello_zynq_b2.xsa'
-$bitstreamSource = Join-Path $repoRoot 'boards\hellozynq\b2_hw\build\hello_zynq_b2.bit'
-$b2ManifestPath = Join-Path $repoRoot 'boards\hellozynq\b2_hw\build\build_manifest.json'
+if ($BuildTag -notmatch '^[A-Za-z0-9._-]+$') { throw "Invalid BuildTag: $BuildTag" }
+$HardwareBuildDir = if ([string]::IsNullOrWhiteSpace($HardwareBuildDir)) {
+    Join-Path $repoRoot 'boards\hellozynq\b2_hw\build'
+} else {
+    (Resolve-Path -LiteralPath $HardwareBuildDir).Path
+}
+$xsaSource = Join-Path $HardwareBuildDir 'hello_zynq_b2.xsa'
+$bitstreamSource = Join-Path $HardwareBuildDir 'hello_zynq_b2.bit'
+$b2ManifestPath = Join-Path $HardwareBuildDir 'build_manifest.json'
 $gitHead = (& git -C $repoRoot rev-parse HEAD).Trim()
-$buildRoot = Join-Path $scriptRoot (Join-Path 'build' (Join-Path $gitHead 'direct'))
+$buildRoot = Join-Path $scriptRoot (Join-Path 'build' (Join-Path $gitHead $BuildTag))
 $bspRoot = Join-Path $buildRoot 'bsp'
 $appRoot = Join-Path $buildRoot 'app'
 $outRoot = Join-Path $buildRoot 'out'
@@ -80,6 +88,8 @@ $manifest = [ordered]@{
     generated_at = [DateTime]::UtcNow.ToString('o')
     git_head = $gitHead
     tool = 'XSCT/Vitis 2024.1'
+    hardware_build_dir = $HardwareBuildDir
+    hardware_npu_mode = [string]$b2Manifest.npu_mode
     bitstream_sha256 = $b2BitstreamSha256
     xsa_sha256 = $b2XsaSha256
     elf = $elfPath

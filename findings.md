@@ -1,5 +1,79 @@
 # 调研与实验发现
 
+## 2026-09-16 CP5b 5 轮分布吞吐实板结果
+
+- 5 轮交替 `dense → lossless_zero_group_skip` 全部返回 `CP5B_DISTRIBUTION_PASS`；两侧每轮均为 `formal_evidence=true`、397 输入、1000 次预热、10000 次计量、最终样本索引 74、协议错误 0。
+- dense 五轮均为 `2513.9998 cycles/sample`、`79,554.501 samples/s`；lossless 五轮均为 `2310.3034 cycles/sample`、`86,568.716 samples/s`，计数无轮间抖动。
+- 每轮观察组实例均为 `6,747,024=(397+1000+10000)×592`；dense 全执行，lossless 跳过 `773,919` 组，跳过率 `11.4705%`。
+- 两侧最终 result CRC 均为 `418225535`，结果帧通过；正式汇总仍需绑定每轮 raw run/log/manifest 的 SHA-256 后才能关闭速度门。
+- CP5b 测的是 PL 内部稳态分布吞吐，不包含捕获和 PS/DMA；它可用于关闭纯 PL 速度门，但不能冒充 packet 端到端墙钟收益。
+
+## 错误记录
+
+- 一次并行工具探测误调用了不存在的 `wait` cell，只产生工具错误且未修改工作区；后续改用 `exec_command`/`write_stdin` 的有效会话。
+- Windows PowerShell 下把 `*.ps1` 或 `test_*.py` 作为 `rg` 位置参数会触发路径语法错误；后续统一使用 `rg -g` 过滤，不重复该写法。
+
+## 2026-09-17 CP5 必须区分 packet 长跑与纯 PL replay
+
+- 现有 speed runner 每个样本都执行 PS fence、DMA 提交和结果处理；即使循环 10000 次，它测到的仍是 packet 路径，不能声称为纯 PL 吞吐。
+- 最小可审查方案是在 wrapper 内增加编译期 replay shim：Host 只装载一次模型并提交一次样本，之后的预热/计量全部发生在 `npu_clk` 域。正常模式不定义宏，因此不会改变既有推理协议。
+- canonical CP4 已给出当前硬件和数据分布的真实核心账本：dense `2494`、lossless 平均 `2290.272 cycles`，对应 `1.088954x`。文档原 `>=1.30x` 来自带输入置换的 RTL 预测 `1879.136 cycles`，条件不一致，不能继续作为板级硬门。
+- 单样本 replay 会把数据分布压成一个点。选择 QAT `sample_index=201` 是因为其 lossless `2284 cycles` 接近总体均值，但它仍只能作为 CP5a bring-up；正式 CP5b 必须在 PL 内循环 397 样本并交替 A/B。
+- replay 计量从第一个正式样本首 beat 开始，到第 10000 个样本最后一个 result beat 结束，包含 PL 内部样本输入、NPU 计算、结果 drain 和 replay 调度气泡，不包含 PS/DMA 每样本开销。
+- execute/skip 累加器为 24 bit；11001 次总执行（首样本 + 1000 预热 + 10000 正式）最多 `6,512,592` 组，小于 `2^24`，不会溢出。
+- 正式实板验证了周期构成：dense `2512=2494+18`，lossless `2302=2284+18`。相同的 18 cycles 正好对应 8-beat 样本输入 + 10-beat 结果 drain；replay shim 没有引入额外模式相关气泡。
+- 单样本纯 PL 吞吐提升为 `2512/2302=1.091225x`，与核心周期比 `2494/2284=1.091944x` 接近。该结果证明固定输入下 PL 调度收益已兑现，但不能替代 397 样本分布统计。
+
+## 2026-09-17 CP5a 物理与调试发现
+
+- 首轮 lossless replay `WNS=-0.074 ns` 的最差路径不在 replay/NPU，而在 packet egress `output_index_reg[3] -> response_word_count_reg[10]/R`。`response_word_count` 实际上限为 254，却声明为 11 位；收窄为 8 位后 lossless replay 达到 `WNS=+0.005 ns`，dense replay为 `+0.004 ns`。
+- 首次 dense 上板失败是 JTAG `FT_Write io error`，FPGA 编程成功但 `ps7_init` 中断。重启 `hw_server` 后 target 仅显示 DAP error 与 FPGA；选择 DAP 执行 `rst -system` 后 APU/Cortex-A9 恢复，后续正式 A/B 一次通过。
+- 普通 UART runner 不适合纯 PL 长 replay：PL/DMA 账本已完整，UART 仍可能不产生终止标记。CP5a 正式 runner 因此直接用 JTAG 读取 replay 计数与 RX 结果帧，校验 magic、sample ID、epoch、10 logits 和 CRC。
+
+## 2026-09-17 wrapper 物理复现边界
+
+- 在 clean 提交 `ac499d4` 上，dense 完整 wrapper 三次独立 Vivado 实现都完成 route、bit 和 XSA，但最终均为 `WNS=-0.072 ns / TNS=-0.120 ns`，hold、route、DRC hard error 通过。
+- 最差路径属于 DMA wrapper，不是本轮新增 replay RTL；三次结果完全相同，说明继续相同策略重跑没有信息增益。
+- 旧 `e155091` dense/lossless CP4 物理签核与 397 样本实板证据仍有效，因为 RTL 源哈希未被脚本/文档提交改变；但新 replay 模式必须重新通过自己的物理门，不能复用旧 bitstream。
+
+## 无损零组跳过同步 RAM 修复后通过 200 MHz 物理门
+
+- 根因是同步 RAM 输出与状态机使用拍错位：bias 在加载拍读取旧的 `model_word_latched`，跳过组又没有为下一组安排预取。
+- 修复为执行组在 FETCH 锁存当前同步输出，跳过组在判定拍预取下一地址，ACCUM 阶段预取后继组；跳过组不更新 `model_word_latched`，连续跳过后仍可直接判断下一组。
+- 修复轮 OOC（`xc7z020clg484-2`、200 MHz）完成 route/DRC，`WNS=+0.158 ns`、`TNS=0`、`WHS=+0.070 ns`、`THS=0`、资源 `2068 LUT / 2848 FF / 1 RAMB36 / 4 DSP48E1`。这关闭 CP3c，但不替代完整 wrapper/bitstream 和板级证据。
+
+## 2026-09-15 XPM 映射已解决但时序仍未过
+
+- 旧 OOC 的 `0 BRAM / 大量 LUTRAM` 来自综合未采用当前同步 RAM 封装，不能继续作为最新源码物理证据。
+- 显式 `B3_USE_XPM` 后，Vivado 综合报告出现 `model_ram/model_ram_xpm/xpm_memory_base_inst` 的 `1 K x 32` block RAM 映射，最终资源为 `1 RAMB36`、`0 LUTRAM`，证明模型存储路径已按预期物理化。
+- 结构性收益没有自动转化为 200 MHz 收敛：xpm 轮 setup `WNS=-1.034 ns`，最紧路径仍涉及 `model_read_addr`/状态机与数据通路；当前不能把“BRAM 已生效”写成“物理门通过”。
+- OOC JSON 已改为当前 `xpm` 轮，旧 direct/prefetch/modelpath/bitflag 保留为历史尝试；合同测试现在允许 Vivado 资源表中实例列带填充空格。
+
+## 2026-09-15 无损零组跳过的语义与物理边界
+
+- `LOSSLESS_ZERO_GROUP_SKIP` 的公开端口级结果证明“全零激活组/全零权重组可以在当前 RTL 中无损跳过”：QAT-v3 397/397 logits 逐位一致，平均 `1879.136 cycles/sample`，跳过率 `34.6207%`，核心估算约 `1.3272x`。该结论不包含尚未实现的 L0 ReLU 后缀早停。
+- 为避免新增 32-bit 全字比较扇出，当前实现采用预取和单比特 `lossless_group_weight_nonzero`；功能合同通过，但这没有解决 200 MHz 物理门。
+- 四轮 OOC 的控制路径改法没有形成稳定的 setup 收敛：`WNS` 依次为 `-1.959/-0.492/-0.329/-0.685 ns`。modelpath 轮的最差路径是 `compute_model_addr -> model_staging LUTRAM -> model_word_latched/D`；当前 bitflag 轮转为 `compute_group_index -> hidden_values LUTRAM -> L1 零判定 -> model_word_latched/CE`。两类都包含异步 LUTRAM 读和长布线，继续只微调零组组合判定的收益有限。
+- 当前 bitflag 最终报告为 `2307 LUT / 2290 FF / 0 BRAM / 4 DSP48E1`，route/DRC hard error 为 0、hold 通过，但 setup `WNS=-0.685 ns`、`TNS=-74.457 ns`、421 个失败端点；direct 轮还存在 `WHS=-0.024 ns`、2 个 hold 失败端点。因此当前证据只能关闭 RTL 语义切片，不能生成正式 bit/XSA、下载实板、声明纯 PL 加速或关闭 CP4。
+- 原 OOC JSON 曾混用 prefetch 资源、bitflag WNS 和 bitflag 路由中间 TNS；已改为逐轮绑定最终 `timing_post_route.rpt`/`utilization_post_route.rpt`，并新增合同测试防止再次混装。
+- 下一技术方案应组合两项最小结构改动：`model_staging` 显式同步 BRAM/固定读延迟，零组判定改用加载期生成的 bit metadata。单独隔离判定已被 modelpath 轮的 `WNS=-0.329 ns` 证明不足；只 BRAM 化模型也会留下当前 `hidden_values` 异步读判定路径。验收标准不是“WNS 改善”，而是目标器件 200 MHz 下 `WNS/WHS>=0`、`TNS/THS=0`，随后再做板级逐位对拍和周期实测。
+
+## 2026-09-15 post-route门级SAIF正式结果
+
+- 分析对象为`xc7z020clg484-2`上的纯PL NPU OOC核心，同一routed DCP、同一200 MHz约束；dense/gated分别使用64样本连续推理窗口生成门级SAIF。
+- 两份`report_power`均显示routed、High confidence，直接匹配`3229/4716=68%`。该匹配率高于早期RTL-SAIF的13%，且Vivado对内部节点活动与总体置信度均判定为High；项目汇总脚本原先要求`>=90%`属于未经依据的自定义硬门，应改为显式记录`>=50%`并同时强制Vivado High，而不是改写原始报告。
+- dense：动态功耗`0.033 W`，器件静态`0.103 W`，总片上`0.136 W`，`2494 cycles = 12.47 us`；动态能量`411.51 nJ`，静态时间窗能量`1284.41 nJ`，总片上时间窗能量`1695.92 nJ`。
+- gated：动态功耗`0.034 W`，器件静态`0.103 W`，总片上`0.137 W`，`1606 cycles = 8.03 us`；动态能量`273.02 nJ`，静态时间窗能量`827.09 nJ`，总片上时间窗能量`1100.11 nJ`。
+- gated平均动态功率比dense高约3.0%，但完成时间缩短，因此动态能量降低`33.65%`。`0.103 W`是整颗器件静态基线，不能归因为NPU自身；OOC结果也不含PS、DDR、DMA、板级I/O与外部供电损耗。
+
+## 2026-09-15 CP0 QAT 训练泄漏核验
+
+- DeepSeek 在目标工作区完成只读复核；`cwd=/mnt/d/Documents/Code/ENeuron-board-b0` 已生效，但 WSL 无法解析 Windows worktree 的 `.git` 指针，Git 操作仍由 Windows 主 Agent 执行。
+- `train_qat.py:9-10,77-81` 原先把 `idx[1400:]` 的 397 个最终样本命名为 `te`，并在每 15 个 epoch 上用其准确率选择 `best`；这属于最终测试集参与模型选择的泄漏。
+- `b3_qat_model_manifest.py` 的 held-out 切片与训练完全同源，前 64 个旧样本是 397 个测试集前缀；扩展到 397 不会修复泄漏，只会扩大被污染的报告集。
+- 已采用最小修复：保留 1400 样本训练池，划分为 1200 train、200 validation；397 held-out 只在训练结束后评估一次。模型版本升为 `qat-v3-val200-temp400-150ep-seed20260914`，manifest 记录 `validation_count=200` 和 `selection_protocol=validation_accuracy_only_v1`。
+- 在新模型重训和 397 manifest 生成完成前，CP0 保持 OPEN；不得开始 QAT 正式板级精度宣称。
+
 ## 2026-09-14 B3-22.3 后方向裁定
 
 - 零决策成本只有约 `2%` 系统收益，继续优化 PS mask 计算或接入独立 PL-auto 不能改变固定协议开销主导的结论。
@@ -2206,3 +2280,38 @@
 - 3 组对称 dense/live：dense 中位数均 `64 us`，live 均 `623 us`（`9.73×`）；live 中 compute `501.5 us`、submit `56.9 us`、fence `18.1 us`、DMA `20 us`、result `11 us`、PS `8 us`。
 - 输出零偏差：`64/64` logits 与 dense 一致、`1606 cycles`、`296/296`、协议错误 0。
 - 即便路径已优化，PS 决策仍占 live 的 `80.5%`；`B3-SPEED-GATE` 不能由路径优化关闭，下一步只能是批量协议或 PL 决策。
+
+## 2026-09-15 200 MHz SAIF功耗修复初始事实
+
+- 现有`vivado_npu_single_clock_ooc_reports/power_impl.rpt`对象为`npu_eneuron_single_clock_skeleton`，器件`xc7z020clg400-1`，时钟10 ns（100 MHz），`Simulation Activity File=---`，整体置信度Medium；其`0.113 W`不能与200 MHz周期直接计算论文能量。
+- 完整板级`boards/hellozynq/b2_hw/build/.../design_1_wrapper_routed.dcp`对象为`xc7z020clg484-2`、200 MHz，但含PS7、DMA、Ethernet等，不适合回答“纯NPU核心dense/gated”的动态功耗差异。
+- 本轮应建立同一NPU RTL、同一器件、同一200 MHz约束、同一输入序列和仅mask不同的OOC routed A/B；RTL/XSim生成SAIF，`read_saif`注入同一routed DCP后分别`report_power`。器件静态仅作为器件基线单列，不归因给NPU核心。
+- 当前QAT-v3清单已携带634个canonical packed model words与397个held-out样本；`artifacts/results/b3_qat_pruning_diagnostic.json`携带同一模型的19-word calibrated严格2:4 mask，可直接生成确定性SV数据文件，避免复用旧手工稀疏fixture。
+- 正式功耗TB应连接`execute_group_count`、`skip_group_count`和`last_compute_cycles`并在SAIF窗口内自检：dense每次592/0、2494 cycles，gated每次296/296、1606 cycles；模型/mask装载和reset不进入采样窗口。
+
+## 2026-09-16 CP4 clean 实板事实
+
+- clean dense wrapper：`WNS=+0.004 ns`、`WHS=+0.036 ns`、TNS/THS=0、route/DRC hard error=0、4 DSP；bit=`c852cfe1...ff0122`，XSA=`d96068a4...6024`。
+- clean lossless wrapper：`WNS=+0.008 ns`、`WHS=+0.036 ns`、TNS/THS=0、route/DRC hard error=0、4 DSP；bit=`22e545d7...72c79`，XSA=`135ab2b8...2d68`。
+- 397 样本逐项比较：sample ID、输入 CRC、结果 CRC、状态、协议错误、3970 个 logits 元素和预测类别的 mismatch 均为 0；任务准确率均 `352/397=88.665%`。
+- 核心周期：dense `2494`，lossless 平均 `2290.272`，核心加速 `1.088954x`；lossless 平均执行/跳过 `524.091/67.909`，跳过率 `11.4712%`。
+- 单样本完整窗口：dense `63.826 us`，lossless `63.307 us`，均值加速 `1.008196x`。该数只说明 packet 单样本路径，不能替代 CP5 连续流吞吐。
+- 旧 runner 的 `formal_evidence` 只检查软件工作树，历史 dirty 硬件也可能被标真；已增加硬件 clean、同 HEAD、signoff 三项 fail-closed 条件。
+# 2026-09-17 DeepSeek CP5/CP6/CP8 管理修正主审
+
+- `opencode-deepseek` 已完成 19 个管理/合同文件的初稿修改，未提交、未改 RTL/固件/原始实验数据。
+- CP5b 权威证据为 397 样本 PL-internal distribution replay、5 轮交替 A/B：吞吐 `1.088168676x`、延迟下降 `8.1025%`、200 MHz/4 DSP/正确性与协议门均通过。
+- 冻结语义：`B3-PL-SPEED-GATE=PASS`，顶层 `B3-SPEED-GATE=PASS_PURE_PL_ONLY`；CP4 packet 单样本仅 `B3-PACKET-SPEED=MEASURED_WEAK_GAIN_1_008196X`，历史 PS-live `NO_END_TO_END_SPEEDUP` 保留。
+- 已发现 DeepSeek 残留：`.nexus-map/concepts/p16_board_validation.json` 的 `goal_scope` 仍写端到端加速，与纯 PL 门边界矛盾，需修正。
+- 待核实并收口：正式功耗合同是否完整冻结 dense/lossless idle/full 四态；`NPU_PRUNING_TODO.md` 的“本机无功耗仪”已过时，用户已有 B10 串联型 Type-C 功率计。
+
+## 2026-09-17 CP5/CP6/CP8 管理修正复审结论
+
+- `p16_board_validation.json` 的 `goal_scope` 已改为纯 PL + 整板功耗范围，消除端到端声明矛盾。
+- 功耗仪器合同当前态已重写：仪器为 B10 Type-C 串联功率计，精度 `<0.2%`，V/A/W 5 位小数、mAh/mWh 7 位整数；人工拍照读数并记录时间。
+- CP8 正式对象冻结为四态：`dense idle`、`dense continuous full`、`lossless idle`、`lossless continuous full`；full 复用 CP5b 397 样本 PL-internal distribution replay（1000 warmup，PS 不逐样本决策）；idle 保持相同 bit/XSA/ELF 与 JTAG/PS 状态。
+- 至少 5 组交替 paired rounds；报告整板平均功率、mode-matched idle→full 增量功率、每次正确推理能耗和仪器可分辨性；不得称为纯 NPU 功率。
+- 合同状态仍为 `POWER_NOT_MEASURED`/`MEASUREMENT_OPEN`，因为 CP8 尚未执行。
+- 历史 `artifacts/logs/b3_power_20260913_be84596/` 的 dense/static/live 读数保留为 `POWER_ENGINEERING_OBSERVATIONS_INCOMPLETE_CONTRACT`，未改写为 CP8 证据。
+- 主审进一步区分两种能耗：整板总能耗/正确推理使用 `P_full / throughput`（并由 `ΔmWh/有效正确推理数` 交叉核对），mode-matched 增量能耗/正确推理使用 `(P_full-P_idle)/throughput`；二者不得混写。
+- 最终审批结论：DeepSeek 的 CP5 状态、速度门语义和 CP6 主方向可接受；CP8 初稿不足之处已由主代理补齐到正式功耗合同、机器 JSON、TODO 当前未完成项和 Nexus 当前态。当前管理口径一致，可进入 CP8 负载冻结与 paired 功耗执行。

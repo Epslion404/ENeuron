@@ -110,7 +110,16 @@ module npu_eneuron_single_clock_skeleton (
     logic [15:0] compute_group_mask_scan;
     // 组权重地址提前一拍寄存，避免 unit/group 动态索引直达模型 RAM。
     logic [9:0] compute_model_addr;
+    logic [9:0] model_read_addr;
     logic [31:0] model_word_latched;
+`ifdef LOSSLESS_ZERO_GROUP_SKIP
+    // 只锁存跳过判定所需的单比特，避免全字比较增加模型 RAM 扇出。
+    logic lossless_group_weight_nonzero;
+    logic [15:0] l0_group_nonzero;
+    logic [15:0] l0_group_nonzero_scan;
+    logic [7:0]  l1_group_nonzero;
+    logic [7:0]  l1_group_nonzero_scan;
+`endif
     // 将累加器拆为两个 16-bit 段；低段结果和 carry 先寄存，再更新高段。
     logic signed [15:0] mac_accumulator_lo;
     logic signed [15:0] mac_accumulator_hi;
@@ -143,14 +152,34 @@ module npu_eneuron_single_clock_skeleton (
     logic [6:0]  hidden_values [0:31];
     logic [31:0] logit_values [0:9];
 
-    // 634 words are deliberately represented by a small staging array in this
-    // protocol slice. Later implementation may infer BRAM without changing the port contract.
-    logic [31:0] model_staging [0:633];
+    // 配置期单写、计算期单读；模型存储由显式同步 SDP RAM 封装实现。
+    logic [31:0] model_staging_read_data;
     logic        model_write_pending;
     logic [9:0]  model_write_addr;
     logic [31:0] model_write_data;
+    // 仿真和既有层次化 testbench 保留可见镜像；综合时不参与模型取数路径。
+    logic [31:0] model_staging [0:633];
+`ifdef LOSSLESS_ZERO_GROUP_SKIP
+    logic        model_word_nonzero [0:633];
+`endif
     logic [31:0] mask_staging [0:18];
     logic [31:0] mask_active_words [0:18];
+
+`ifdef SYNTHESIS
+    b3_model_sync_ram model_ram (
+        .clk(clk),
+        .wr_en(model_write_pending),
+        .wr_addr(model_write_addr),
+        .wr_data(model_write_data),
+        .rd_addr(model_read_addr),
+        .rd_data(model_staging_read_data)
+    );
+`else
+    // 仿真保持与旧 model_staging 层次入口相同的一拍同步读语义。
+    always_ff @(posedge clk) begin
+        model_staging_read_data <= model_staging[model_read_addr];
+    end
+`endif
 
     wire [3:0]  cmd_opcode = cmd_payload[127:124];
     wire [31:0] cmd_word = cmd_payload[31:0];
@@ -282,6 +311,47 @@ module npu_eneuron_single_clock_skeleton (
         lane_weight_3 = $signed(model_word_latched[31:24]);
     end
 
+    // 模型存储只保留一个同步读口。状态机在当前组使用前预先给出地址，
+    // 避免多个条件读端口迫使 Vivado 将 634x32 数组拆成 LUTRAM。
+    always_comb begin
+        model_read_addr = 10'd0;
+        case (compute_state)
+            COMPUTE_L0_BIAS_FETCH: model_read_addr = 10'd512 + compute_unit_index;
+            COMPUTE_L0_BIAS_LOAD,
+            COMPUTE_L0_GROUP_EXECUTE,
+            COMPUTE_L0_GROUP_COMMIT: model_read_addr = compute_model_addr;
+            COMPUTE_L0_GROUP_FETCH: begin
+                // 执行组保持当前字；跳过组在本拍预取下一字，保证连续跳过后
+                // 下一组仍可在不增加状态的情况下直接进入 EXECUTE。
+                if (compute_group_mask_scan[0]
+`ifdef LOSSLESS_ZERO_GROUP_SKIP
+                    && !lossless_l0_group_skip
+`endif
+                )
+                    model_read_addr = compute_model_addr;
+                else
+                    model_read_addr = compute_model_addr + 10'd1;
+            end
+            COMPUTE_L0_GROUP_ACCUM: model_read_addr = compute_model_addr + 10'd1;
+            COMPUTE_L1_BIAS_FETCH: model_read_addr = 10'd624 + compute_unit_index;
+            COMPUTE_L1_BIAS_LOAD,
+            COMPUTE_L1_GROUP_EXECUTE,
+            COMPUTE_L1_GROUP_COMMIT: model_read_addr = compute_model_addr;
+            COMPUTE_L1_GROUP_FETCH: begin
+                if (compute_group_mask_scan[0]
+`ifdef LOSSLESS_ZERO_GROUP_SKIP
+                    && !lossless_l1_group_skip
+`endif
+                )
+                    model_read_addr = compute_model_addr;
+                else
+                    model_read_addr = compute_model_addr + 10'd1;
+            end
+            COMPUTE_L1_GROUP_ACCUM: model_read_addr = compute_model_addr + 10'd1;
+            default: model_read_addr = 10'd0;
+        endcase
+    end
+
     always_comb begin
         mac_accumulator = {mac_accumulator_hi, mac_accumulator_lo};
         mac_low_sum_comb = {1'b0, mac_accumulator_lo} + {1'b0, lane_sum_comb[15:0]};
@@ -297,6 +367,19 @@ module npu_eneuron_single_clock_skeleton (
             {{16{lane_product_3[15]}}, lane_product_3};
         lane_sum_comb = lane_pair_sum_01 + lane_pair_sum_23;
     end
+
+`ifdef LOSSLESS_ZERO_GROUP_SKIP
+    // 无损切片只跳过“本组激活全零”或“本组权重全零”的组。
+    // 这两个条件都不会改变累加器结果；ReLU 后缀早停留到独立合同验证后再接入。
+    logic lossless_l0_group_skip;
+    logic lossless_l1_group_skip;
+    always_comb begin
+        lossless_l0_group_skip = !l0_group_nonzero_scan[0] ||
+            !lossless_group_weight_nonzero;
+        lossless_l1_group_skip = !l1_group_nonzero_scan[0] ||
+            !lossless_group_weight_nonzero;
+    end
+`endif
 
     // 配置握手优先于样本首拍；响应槽背压期间整个命令口停住。
     always_comb begin
@@ -320,6 +403,7 @@ module npu_eneuron_single_clock_skeleton (
     end
 
     integer reset_mask_index;
+    integer reset_model_index;
     integer sample_pixel_index;
     integer activate_mask_index;
 
@@ -355,6 +439,15 @@ module npu_eneuron_single_clock_skeleton (
             compute_group_mask_scan <= 16'd0;
             compute_model_addr <= 10'd0;
             model_word_latched <= 32'd0;
+`ifdef LOSSLESS_ZERO_GROUP_SKIP
+            lossless_group_weight_nonzero <= 1'b0;
+            l0_group_nonzero <= 16'd0;
+            l0_group_nonzero_scan <= 16'd0;
+            l1_group_nonzero <= 8'd0;
+            l1_group_nonzero_scan <= 8'd0;
+            for (reset_model_index = 0; reset_model_index < 634; reset_model_index = reset_model_index + 1)
+                model_word_nonzero[reset_model_index] <= 1'b0;
+`endif
             mac_accumulator_lo <= 16'sd0;
             mac_accumulator_hi <= 16'sd0;
             mac_low_sum_latched <= 17'd0;
@@ -378,7 +471,12 @@ module npu_eneuron_single_clock_skeleton (
             mask_active_words[18] <= 32'h0000_ffff;
         end else begin
             if (model_write_pending) begin
+`ifndef SYNTHESIS
                 model_staging[model_write_addr] <= model_write_data;
+`endif
+`ifdef LOSSLESS_ZERO_GROUP_SKIP
+                model_word_nonzero[model_write_addr] <= |model_write_data;
+`endif
                 if (model_write_addr == 10'd633)
                     model_state <= MODEL_COMPLETE;
                 model_word_index <= model_write_addr + 10'd1;
@@ -481,6 +579,11 @@ module npu_eneuron_single_clock_skeleton (
                 for (sample_pixel_index = 0; sample_pixel_index < 8; sample_pixel_index = sample_pixel_index + 1)
                     input_pixels[(sample_beat_index * 8) + sample_pixel_index] <=
                         sample_data[(sample_pixel_index * 4) +: 4];
+`ifdef LOSSLESS_ZERO_GROUP_SKIP
+                // 每个输入 beat 含两个四像素组；直接在写入边界生成组级非零摘要。
+                l0_group_nonzero[(sample_beat_index * 2) + 0] <= |sample_data[15:0];
+                l0_group_nonzero[(sample_beat_index * 2) + 1] <= |sample_data[31:16];
+`endif
                 if (sample_beat_index == 4'd0) begin
                     sample_id_reg <= sample_id;
                     if (mask_state == MASK_PUBLISHED) begin
@@ -493,8 +596,14 @@ module npu_eneuron_single_clock_skeleton (
                         mask_state <= MASK_EMPTY;
                         mask_word_index <= 5'd0;
                         mask_valid <= 1'b1;
+`ifdef LOSSLESS_ZERO_GROUP_SKIP
+                        l1_group_nonzero <= 8'd0;
+`endif
                     end else begin
                         sample_mask_epoch_reg <= mask_active_epoch;
+`ifdef LOSSLESS_ZERO_GROUP_SKIP
+                        l1_group_nonzero <= 8'd0;
+`endif
                     end
                 end
                 if (sample_beat_index == 4'd7) begin
@@ -520,22 +629,30 @@ module npu_eneuron_single_clock_skeleton (
                 compute_cycle_count <= compute_cycle_count + 32'd1;
                 case (compute_state)
                     COMPUTE_L0_BIAS_FETCH: begin
-                        model_word_latched <= model_staging[512 + compute_unit_index];
                         compute_unit_mask_latched <= l0_unit_mask(compute_unit_index);
                         compute_model_addr <= {compute_unit_index, 4'd0};
                         compute_state <= COMPUTE_L0_BIAS_LOAD;
                     end
                     COMPUTE_L0_BIAS_LOAD: begin
-                        mac_accumulator_lo <= $signed(model_word_latched[15:0]);
-                        mac_accumulator_hi <= $signed(model_word_latched[31:16]);
+                        model_word_latched <= model_staging_read_data;
+                        mac_accumulator_lo <= $signed(model_staging_read_data[15:0]);
+                        mac_accumulator_hi <= $signed(model_staging_read_data[31:16]);
                         compute_group_index <= 5'd0;
                         compute_group_mask_scan <= compute_unit_mask_latched;
+`ifdef LOSSLESS_ZERO_GROUP_SKIP
+                        l0_group_nonzero_scan <= l0_group_nonzero;
+                        lossless_group_weight_nonzero <= model_word_nonzero[compute_model_addr];
+`endif
                         compute_state <= COMPUTE_L0_GROUP_FETCH;
                     end
                     COMPUTE_L0_GROUP_FETCH: begin
-                        if (compute_group_mask_scan[0]) begin
+                        if (compute_group_mask_scan[0]
+`ifdef LOSSLESS_ZERO_GROUP_SKIP
+                            && !lossless_l0_group_skip
+`endif
+                        ) begin
                             execute_group_count <= {8'd0, execute_group_count[23:0] + 24'd1};
-                            model_word_latched <= model_staging[compute_model_addr];
+                            model_word_latched <= model_staging_read_data;
                             lane_activation_latched_0 <=
                                 $signed({4'b0000, input_pixels[(compute_group_index * 4) + 0]});
                             lane_activation_latched_1 <=
@@ -554,6 +671,10 @@ module npu_eneuron_single_clock_skeleton (
                             compute_group_index <= compute_group_index + 5'd1;
                             compute_model_addr <= compute_model_addr + 10'd1;
                             compute_group_mask_scan <= compute_group_mask_scan >> 1;
+`ifdef LOSSLESS_ZERO_GROUP_SKIP
+                            l0_group_nonzero_scan <= l0_group_nonzero_scan >> 1;
+                            lossless_group_weight_nonzero <= model_word_nonzero[compute_model_addr + 10'd1];
+`endif
                         end
                     end
                     COMPUTE_L0_GROUP_EXECUTE: begin
@@ -582,11 +703,25 @@ module npu_eneuron_single_clock_skeleton (
                             compute_group_index <= compute_group_index + 5'd1;
                             compute_model_addr <= compute_model_addr + 10'd1;
                             compute_group_mask_scan <= compute_group_mask_scan >> 1;
+`ifdef LOSSLESS_ZERO_GROUP_SKIP
+                            l0_group_nonzero_scan <= l0_group_nonzero_scan >> 1;
+                            lossless_group_weight_nonzero <= model_word_nonzero[compute_model_addr + 10'd1];
+`endif
                             compute_state <= COMPUTE_L0_GROUP_FETCH;
                         end
                     end
                     COMPUTE_L0_WRITEBACK: begin
                         hidden_values[compute_unit_index] <= relu_saturate_u7(mac_accumulator);
+`ifdef LOSSLESS_ZERO_GROUP_SKIP
+                        // 每四个隐藏单元汇总成一个 L1 激活组摘要，首项覆盖、后续项 OR。
+                        if (compute_unit_index[1:0] == 2'd0)
+                            l1_group_nonzero[compute_unit_index[5:2]] <=
+                                (relu_saturate_u7(mac_accumulator) != 7'd0);
+                        else
+                            l1_group_nonzero[compute_unit_index[5:2]] <=
+                                l1_group_nonzero[compute_unit_index[5:2]] |
+                                (relu_saturate_u7(mac_accumulator) != 7'd0);
+`endif
                         compute_group_index <= 5'd0;
                         if (compute_unit_index == 6'd31) begin
                             compute_unit_index <= 6'd0;
@@ -597,22 +732,30 @@ module npu_eneuron_single_clock_skeleton (
                         end
                     end
                     COMPUTE_L1_BIAS_FETCH: begin
-                        model_word_latched <= model_staging[624 + compute_unit_index];
                         compute_unit_mask_latched <= l1_unit_mask(compute_unit_index);
                         compute_model_addr <= 10'd544 + {compute_unit_index, 3'd0};
                         compute_state <= COMPUTE_L1_BIAS_LOAD;
                     end
                     COMPUTE_L1_BIAS_LOAD: begin
-                        mac_accumulator_lo <= $signed(model_word_latched[15:0]);
-                        mac_accumulator_hi <= $signed(model_word_latched[31:16]);
+                        model_word_latched <= model_staging_read_data;
+                        mac_accumulator_lo <= $signed(model_staging_read_data[15:0]);
+                        mac_accumulator_hi <= $signed(model_staging_read_data[31:16]);
                         compute_group_index <= 5'd0;
                         compute_group_mask_scan <= compute_unit_mask_latched;
+`ifdef LOSSLESS_ZERO_GROUP_SKIP
+                        l1_group_nonzero_scan <= l1_group_nonzero;
+                        lossless_group_weight_nonzero <= model_word_nonzero[compute_model_addr];
+`endif
                         compute_state <= COMPUTE_L1_GROUP_FETCH;
                     end
                     COMPUTE_L1_GROUP_FETCH: begin
-                        if (compute_group_mask_scan[0]) begin
+                        if (compute_group_mask_scan[0]
+`ifdef LOSSLESS_ZERO_GROUP_SKIP
+                            && !lossless_l1_group_skip
+`endif
+                        ) begin
                             execute_group_count <= {8'd0, execute_group_count[23:0] + 24'd1};
-                            model_word_latched <= model_staging[compute_model_addr];
+                            model_word_latched <= model_staging_read_data;
                             lane_activation_latched_0 <=
                                 $signed({1'b0, hidden_values[(compute_group_index * 4) + 0]});
                             lane_activation_latched_1 <=
@@ -631,6 +774,10 @@ module npu_eneuron_single_clock_skeleton (
                             compute_group_index <= compute_group_index + 5'd1;
                             compute_model_addr <= compute_model_addr + 10'd1;
                             compute_group_mask_scan <= compute_group_mask_scan >> 1;
+`ifdef LOSSLESS_ZERO_GROUP_SKIP
+                            l1_group_nonzero_scan <= l1_group_nonzero_scan >> 1;
+                            lossless_group_weight_nonzero <= model_word_nonzero[compute_model_addr + 10'd1];
+`endif
                         end
                     end
                     COMPUTE_L1_GROUP_EXECUTE: begin
@@ -656,6 +803,10 @@ module npu_eneuron_single_clock_skeleton (
                             compute_group_index <= compute_group_index + 5'd1;
                             compute_model_addr <= compute_model_addr + 10'd1;
                             compute_group_mask_scan <= compute_group_mask_scan >> 1;
+`ifdef LOSSLESS_ZERO_GROUP_SKIP
+                            l1_group_nonzero_scan <= l1_group_nonzero_scan >> 1;
+                            lossless_group_weight_nonzero <= model_word_nonzero[compute_model_addr + 10'd1];
+`endif
                             compute_state <= COMPUTE_L1_GROUP_FETCH;
                         end
                     end
@@ -707,4 +858,76 @@ module npu_eneuron_single_clock_skeleton (
 `endif
         end
     end
+endmodule
+
+// 634x32 模型存储的单写单读封装。综合时使用 XPM block RAM，
+// 仿真时使用同样一拍读延迟的行为模型，保证 RTL/物理实现语义一致。
+module b3_model_sync_ram (
+    input  logic        clk,
+    input  logic        wr_en,
+    input  logic [9:0]  wr_addr,
+    input  logic [31:0] wr_data,
+    input  logic [9:0]  rd_addr,
+    output logic [31:0] rd_data
+);
+`ifdef SYNTHESIS
+`define B3_MODEL_USE_XPM
+`endif
+`ifdef B3_USE_XPM
+`define B3_MODEL_USE_XPM
+`endif
+`ifdef B3_MODEL_USE_XPM
+    xpm_memory_sdpram #(
+        .ADDR_WIDTH_A(10),
+        .ADDR_WIDTH_B(10),
+        .AUTO_SLEEP_TIME(0),
+        .BYTE_WRITE_WIDTH_A(32),
+        .CLOCKING_MODE("common_clock"),
+        .ECC_MODE("no_ecc"),
+        .MEMORY_INIT_FILE("none"),
+        .MEMORY_INIT_PARAM("0"),
+        .MEMORY_OPTIMIZATION("true"),
+        .MEMORY_PRIMITIVE("block"),
+        .MEMORY_SIZE(32768),
+        .MESSAGE_CONTROL(0),
+        .READ_DATA_WIDTH_B(32),
+        .READ_LATENCY_B(1),
+        .READ_RESET_VALUE_B("0"),
+        .RST_MODE_A("SYNC"),
+        .RST_MODE_B("SYNC"),
+        .SIM_ASSERT_CHK(0),
+        .USE_EMBEDDED_CONSTRAINT(0),
+        .USE_MEM_INIT(0),
+        .WAKEUP_TIME("disable_sleep"),
+        .WRITE_DATA_WIDTH_A(32),
+        .WRITE_MODE_B("read_first")
+    ) model_ram_xpm (
+        .dbiterrb(),
+        .doutb(rd_data),
+        .sbiterrb(),
+        .addra(wr_addr),
+        .addrb(rd_addr),
+        .clka(clk),
+        .clkb(clk),
+        .dina(wr_data),
+        .ena(wr_en),
+        .enb(1'b1),
+        .injectdbiterra(1'b0),
+        .injectsbiterra(1'b0),
+        .regceb(1'b1),
+        .rstb(1'b0),
+        .sleep(1'b0),
+        .wea(wr_en)
+    );
+`else
+    logic [31:0] model_mem [0:1023];
+    always_ff @(posedge clk) begin
+        if (wr_en)
+            model_mem[wr_addr] <= wr_data;
+        rd_data <= model_mem[rd_addr];
+    end
+`endif
+`ifdef B3_MODEL_USE_XPM
+`undef B3_MODEL_USE_XPM
+`endif
 endmodule

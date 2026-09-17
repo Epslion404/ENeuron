@@ -95,3 +95,18 @@ boards/hellozynq/b1b_sw/build/
 # Local HelloZynq B2 Vivado and Vitis workspaces, bitstream, XSA and ELF.
 boards/hellozynq/b2_hw/build/
 boards/hellozynq/b2_sw/build/
+# Vivado 备用本地构建目录：可由脚本重建，仅作为工作输出。
+boards/hellozynq/b2_hw/build_*/
+
+# 未跟踪的本地 Vivado 失败转储：保留审计，不作为源码产物。
+artifacts/logs/b2_packet_npu_counter_timing_fail_20260912_a072043/
+
+# 本地规划状态和崩溃转储：保留在本机，不进入提交。
+.planning/
+*.stackdump
+
+# CP4 本地重建输出：bit/XSA、Vivado 报告和 SAIF 体积大且可由脚本重建。
+artifacts/build/
+artifacts/logs/b3_lossless_zero_group_ooc_*/
+artifacts/logs/b3_npu_saif_power_*/
+pytest_full_*.log

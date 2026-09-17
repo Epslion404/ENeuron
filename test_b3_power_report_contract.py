@@ -1,4 +1,4 @@
-"""B3-POWER 合同：六字段仪器合同、dense/static/live 分行，禁止 Vivado 冒充板上功耗。"""
+"""B3-POWER 合同：保留历史三模式报告，并冻结 CP8 四态与 B10 仪器口径。"""
 
 from __future__ import annotations
 
@@ -103,6 +103,61 @@ class B3PowerReportContractTests(unittest.TestCase):
             self.assertIn(field, contract)
         self.assertEqual(POWER_CONTRACT_FIELDS, ("仪器", "测点", "采样率", "空闲基线", "负载同步", "积分窗口"))
         self.assertEqual(contract["status"], "POWER_NOT_MEASURED")
+
+    def test_cp8_contract_freezes_b10_instrument_and_four_states(self) -> None:
+        path = Path(__file__).resolve().parent / "tools/repro/b3_power_instrument_contract.json"
+        contract = load_power_contract(path)
+        self.assertEqual(contract["status"], "POWER_NOT_MEASURED")
+        self.assertEqual(contract["measurement_status"], "MEASUREMENT_OPEN")
+        self.assertIn("B10", contract["instrument"]["name"])
+        self.assertLessEqual(contract["instrument"]["accuracy_percent_max"], 0.2)
+        self.assertIn("Type-C", contract["measurement_point"]["location"])
+        self.assertIn("not pure NPU", contract["measurement_point"]["scope"])
+        self.assertEqual(
+            contract["cp8_states"],
+            [
+                "dense_idle",
+                "dense_continuous_full",
+                "lossless_idle",
+                "lossless_continuous_full",
+            ],
+        )
+        self.assertEqual(contract["paired_rounds_min"], 5)
+        self.assertEqual(contract["paired_order"], "alternating")
+        self.assertIn("identical", contract["jtag_ps_state"])
+        self.assertIn("CP5b", contract["full_load"]["replay"])
+        self.assertEqual(contract["full_load"]["warmup_samples"], 1000)
+        self.assertFalse(contract["full_load"]["ps_per_sample_decision"])
+        for metric in (
+            "whole_board_average_power_w",
+            "mode_matched_idle_to_full_incremental_power_w",
+            "whole_board_energy_per_correct_inference_j",
+            "mode_matched_incremental_energy_per_correct_inference_j",
+            "instrument_resolvability",
+        ):
+            self.assertIn(metric, contract["metrics"])
+        self.assertIn("pure NPU power", contract["forbidden_attribution"])
+        self.assertNotIn("b3_static_mixed", contract["cp8_states"])
+        self.assertNotIn("b3_live_eneuron", contract["cp8_states"])
+        self.assertIn("photo/manual-observation manifest", contract["close_boundary"])
+
+        power_contract = (
+            Path(__file__).resolve().parent
+            / "docs/planning/NPU_B3_POWER_INSTRUMENT_CONTRACT_V1.md"
+        ).read_text(encoding="utf-8")
+        self.assertIn("整板总能耗/正确推理", power_contract)
+        self.assertIn("mode-matched 增量能耗/正确推理", power_contract)
+
+        nexus = json.loads(
+            (
+                Path(__file__).resolve().parent
+                / ".nexus-map/concepts/b2_packet_npu.json"
+            ).read_text(encoding="utf-8")
+        )
+        optimization = nexus["b3_goal_optimization_line"]
+        self.assertIn("HISTORICAL_PRE_CP5B", optimization["scope"])
+        self.assertIn("dense idle/full and lossless idle/full", optimization["items"]["B3-21"])
+        self.assertNotIn("idle/dense/static/live", optimization["items"]["B3-21"])
 
     def test_missing_contract_field_is_rejected(self) -> None:
         contract = _open_contract()

@@ -119,6 +119,7 @@ foreach pin {
     execute_group_count skip_group_count
     runtime_status active_mask_epoch pending_mask_epoch
     last_compute_cycles protocol_error_count
+    pl_replay_status pl_replay_capture_count pl_replay_completed_count pl_replay_measured_cycles
     fence_snapshot_valid fence_snapshot_counts
 } {
     connect_bd_net [get_bd_pins b2_npu_axis_top_0/$pin] [get_bd_pins b2_npu_status_probe_0/$pin]

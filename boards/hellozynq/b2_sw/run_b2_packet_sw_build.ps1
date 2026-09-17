@@ -7,29 +7,52 @@ param(
     [switch]$B3CalibratedStatic,
     [switch]$B3LiveEneuron,
     [switch]$B3EpochOverlap,
+    [switch]$B3DistributionReplay,
     [switch]$B3SpeedBenchmark,
     [switch]$B3AccuracyBenchmark,
     [int]$B3LiveMaskBatchK = 1,
-    [string]$B3BenchmarkManifest = ''
+    [string]$B3BenchmarkManifest = '',
+    [string]$B3QatManifest = '',
+    [ValidateRange(0, 396)]
+    [int]$B3QatSampleIndex = 0,
+    [int]$B3BenchmarkSampleCount = 0,
+    [string]$HardwareBuildDir = '',
+    [string]$BuildTag = 'direct'
 )
 
 $ErrorActionPreference = 'Stop'
 $scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $repoRoot = (Resolve-Path (Join-Path $scriptRoot '..\..\..')).Path
+if ($BuildTag -notmatch '^[A-Za-z0-9._-]+$') { throw "Invalid BuildTag: $BuildTag" }
+$HardwareBuildDir = if ([string]::IsNullOrWhiteSpace($HardwareBuildDir)) {
+    Join-Path $repoRoot 'boards\hellozynq\b2_hw\build'
+} else {
+    (Resolve-Path -LiteralPath $HardwareBuildDir).Path
+}
 
 # 复用已验证的 BSP/链接布局，再单独编译 packet smoke 应用。
-& (Join-Path $scriptRoot 'run_b2_sw_build.ps1') -XsctPath $XsctPath
+& (Join-Path $scriptRoot 'run_b2_sw_build.ps1') -XsctPath $XsctPath -HardwareBuildDir $HardwareBuildDir -BuildTag $BuildTag
 
 $gitHead = (& git -C $repoRoot rev-parse HEAD).Trim()
 $gitStatus = @(& git -C $repoRoot status --porcelain --untracked-files=no)
 $gitTrackedWorktreeClean = $gitStatus.Count -eq 0
-$buildRoot = Join-Path $scriptRoot (Join-Path 'build' (Join-Path $gitHead 'direct'))
+$buildRoot = Join-Path $scriptRoot (Join-Path 'build' (Join-Path $gitHead $BuildTag))
 $bspRoot = Join-Path $buildRoot 'bsp'
 $appRoot = Join-Path $buildRoot 'app'
 $outRoot = Join-Path $buildRoot 'out'
-$bitstream = Join-Path $repoRoot 'boards\hellozynq\b2_hw\build\hello_zynq_b2.bit'
+$bitstream = Join-Path $HardwareBuildDir 'hello_zynq_b2.bit'
+$hardwareManifestPath = Join-Path $HardwareBuildDir 'build_manifest.json'
+$hardwareManifest = Get-Content -LiteralPath $hardwareManifestPath -Raw | ConvertFrom-Json
+$hardwareBuildManifestSha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $hardwareManifestPath).Hash.ToLowerInvariant()
+$hardwareGitHead = [string]$hardwareManifest.git_head
+$hardwareGitWorktreeClean = [bool]$hardwareManifest.git_worktree_clean
+$hardwareSignoffPass = [string]$hardwareManifest.signoff.B2_SIGNOFF_PASS -eq '1'
 $xsa = Join-Path $buildRoot 'hello_zynq_b2.xsa'
-$goldenManifestPath = Join-Path $repoRoot 'tools\repro\b3_fixed_vector_manifest.json'
+$goldenManifestPath = if ([string]::IsNullOrWhiteSpace($B3QatManifest)) {
+    Join-Path $repoRoot 'tools\repro\b3_fixed_vector_manifest.json'
+} else {
+    (Resolve-Path -LiteralPath $B3QatManifest).Path
+}
 $multiInputManifestDefault = Join-Path $repoRoot 'tools\repro\b3_multi_input_manifest.json'
 $calibratedMaskPath = Join-Path $repoRoot 'tools\repro\b3_calibrated_2of4_mask.json'
 $packetSourcePath = Join-Path $scriptRoot 'src\packet_main.c'
@@ -37,25 +60,57 @@ $makePath = 'G:\Xilinx\Vitis\2024.1\gnuwin\bin\make.exe'
 $toolBin = 'G:\Xilinx\Vitis\2024.1\gnu\aarch32\nt\gcc-arm-none-eabi\bin'
 $gccPath = Join-Path $toolBin 'arm-none-eabi-gcc.exe'
 
+function Convert-ManifestUInt32 {
+    param([Parameter(Mandatory = $true)][object]$Value)
+    $text = [string]$Value
+    if ($text -match '^0x') { return [Convert]::ToUInt32($text.Substring(2), 16) }
+    return [uint32]$Value
+}
+
 foreach ($path in @($bitstream, $xsa, $goldenManifestPath, $makePath, $gccPath)) {
     if (-not (Test-Path -LiteralPath $path)) { throw "Required file not found: $path" }
 }
 $golden = Get-Content -LiteralPath $goldenManifestPath -Raw | ConvertFrom-Json
-if ($golden.schema -ne 'eneuron_b3_fixed_vector_v1' -or
-    $golden.target.part -ne 'xc7z020clg484-2' -or
-    $golden.target.protocol -ne 'ENB2_PACKET_NPU_V1' -or
-    $golden.model.word_count -ne 634) {
+$goldenIsQat = $golden.schema -eq 'eneuron_b3_qat_model_v1'
+if ($goldenIsQat) {
+    if ($golden.model.word_count -ne 634 -or @($golden.samples).Count -lt 1) {
+        throw 'QAT manifest model/sample contract mismatch'
+    }
+    if (-not $B3Dense -and -not $B3SpeedBenchmark -and -not $B3DistributionReplay) {
+        throw 'QAT manifest requires B3Dense, B3SpeedBenchmark, or B3DistributionReplay'
+    }
+} elseif ($golden.schema -ne 'eneuron_b3_fixed_vector_v1' -or
+          $golden.target.part -ne 'xc7z020clg484-2' -or
+          $golden.target.protocol -ne 'ENB2_PACKET_NPU_V1' -or
+          $golden.model.word_count -ne 634) {
     throw 'B3 golden manifest target/schema/model contract mismatch'
 }
-$goldenSample = @($golden.samples)[0]
+$goldenSamples = @($golden.samples)
+if (-not $goldenIsQat -and $B3QatSampleIndex -ne 0) {
+    throw 'B3QatSampleIndex is only valid for a QAT manifest'
+}
+if ($B3QatSampleIndex -ge $goldenSamples.Count) {
+    throw "B3QatSampleIndex out of range: $B3QatSampleIndex / $($goldenSamples.Count)"
+}
+$goldenSample = $goldenSamples[$B3QatSampleIndex]
 if ($null -eq $goldenSample -or @($goldenSample.input_beats).Count -ne 8) {
     throw 'B3 golden manifest must contain one sample with eight input beats'
+}
+$goldenDenseMaskWords = if ($goldenIsQat) {
+    @((0..17 | ForEach-Object { '0xFFFFFFFF' }) + '0x0000FFFF')
+} else {
+    @($goldenSample.modes.b3_dense.mask_words_data)
+}
+if ($goldenDenseMaskWords.Count -ne 19) {
+    throw 'B3 dense mask must contain 19 words'
 }
 $benchmarkManifestPath = $null
 $benchmark = $null
 $benchmarkSamples = @()
 if ($B3SpeedBenchmark) {
-    $benchmarkManifestPath = if ([string]::IsNullOrWhiteSpace($B3BenchmarkManifest)) {
+    $benchmarkManifestPath = if ([string]::IsNullOrWhiteSpace($B3BenchmarkManifest) -and $goldenIsQat) {
+        $goldenManifestPath
+    } elseif ([string]::IsNullOrWhiteSpace($B3BenchmarkManifest)) {
         $multiInputManifestDefault
     } else {
         (Resolve-Path -LiteralPath $B3BenchmarkManifest).Path
@@ -64,15 +119,32 @@ if ($B3SpeedBenchmark) {
         throw "B3 benchmark manifest not found: $benchmarkManifestPath"
     }
     $benchmark = Get-Content -LiteralPath $benchmarkManifestPath -Raw | ConvertFrom-Json
-    if ($benchmark.schema -ne 'eneuron_b3_multi_input_v1') {
-        throw 'B3 speed benchmark requires eneNeuron multi-input manifest v1'
+    if ($benchmark.schema -ne 'eneuron_b3_multi_input_v1' -and
+        $benchmark.schema -ne 'eneuron_b3_qat_model_v1') {
+        throw 'B3 speed benchmark requires multi-input or QAT manifest v1'
     }
-    $benchmarkSamples = @($benchmark.samples)
-    if ($benchmarkSamples.Count -ne 64) {
-        throw 'B3 speed benchmark manifest must contain exactly 64 samples'
+    $allBenchmarkSamples = @($benchmark.samples)
+    $requestedCount = if ($B3BenchmarkSampleCount -gt 0) { $B3BenchmarkSampleCount } else { $allBenchmarkSamples.Count }
+    if ($requestedCount -lt 1 -or $requestedCount -gt $allBenchmarkSamples.Count) {
+        throw "B3 benchmark sample count out of range: $requestedCount / $($allBenchmarkSamples.Count)"
     }
-    if ([int]$benchmark.unique_input_count -ne $benchmarkSamples.Count) {
-        throw 'B3 benchmark manifest inputs must be unique'
+    $benchmarkSamples = @($allBenchmarkSamples | Select-Object -First $requestedCount)
+    if ($benchmark.schema -eq 'eneuron_b3_qat_model_v1') {
+        if (-not $goldenIsQat -or -not $B3Dense) {
+            throw 'QAT benchmark requires matching QAT manifest and B3Dense mode'
+        }
+        $benchmarkUniqueInputCount = @($benchmarkSamples | ForEach-Object { [string]$_.input_sha256 } | Sort-Object -Unique).Count
+        if ($benchmarkUniqueInputCount -ne $benchmarkSamples.Count) {
+            throw 'QAT benchmark inputs must be unique'
+        }
+    } else {
+        if ([int]$benchmark.unique_input_count -lt $benchmarkSamples.Count) {
+            throw 'B3 benchmark manifest unique input count is too small'
+        }
+        $benchmarkUniqueInputCount = @($benchmarkSamples | ForEach-Object { [string]$_.input_sha256 } | Sort-Object -Unique).Count
+        if ($benchmarkUniqueInputCount -ne $benchmarkSamples.Count) {
+            throw 'B3 benchmark samples must be unique'
+        }
     }
     if ($B3LiveEneuron -and $B3LiveMaskBatchK -ne 1) {
         throw 'multi-input live benchmark requires B3_LIVE_MASK_BATCH_K=1'
@@ -88,13 +160,19 @@ if ($B3SpeedBenchmark) {
         }
     }
 } else {
-    $benchmarkSamples = @([pscustomobject]@{
-        sample_id = 0x12345678
-        input_crc = 0
-        input_beats = @($goldenSample.input_beats)
-        dense_logits = @($goldenSample.modes.b3_dense.expected_logits)
-        live_logits = @($goldenSample.modes.b3_live_eneuron.expected_logits)
-    })
+    if ($B3DistributionReplay) {
+        $benchmarkSamples = @($goldenSamples)
+        $benchmarkUniqueInputCount = @($benchmarkSamples | ForEach-Object { [string]$_.input_sha256 } | Sort-Object -Unique).Count
+    } else {
+        $benchmarkSamples = @([pscustomobject]@{
+            sample_id = Convert-ManifestUInt32 $goldenSample.sample_id
+            input_crc = if ($goldenIsQat) { Convert-ManifestUInt32 $goldenSample.input_crc } else { 0 }
+            input_beats = @($goldenSample.input_beats)
+            dense_logits = if ($goldenIsQat) { @($goldenSample.dense_logits) } else { @($goldenSample.modes.b3_dense.expected_logits) }
+            live_logits = if ($goldenIsQat) { @($goldenSample.dense_logits) } else { @($goldenSample.modes.b3_live_eneuron.expected_logits) }
+        })
+        $benchmarkUniqueInputCount = 1
+    }
 }
 if ($B3AccuracyBenchmark -and -not $B3SpeedBenchmark) {
     throw 'B3AccuracyBenchmark requires B3SpeedBenchmark'
@@ -109,33 +187,43 @@ if (-not $xparameters -or -not $libxil -or -not $linkerScript -or -not $xilinxSp
 
 $includeDir = Split-Path -Parent $xparameters.FullName
 $libDir = Split-Path -Parent $libxil.FullName
-$modeCount = @($B3Dense, $B3FullOpen, $B3Bypass, $B3StaticMixed, $B3CalibratedStatic, $B3LiveEneuron, $B3EpochOverlap | Where-Object { $_ }).Count
+$modeCount = @($B3Dense, $B3FullOpen, $B3Bypass, $B3StaticMixed, $B3CalibratedStatic, $B3LiveEneuron, $B3EpochOverlap, $B3DistributionReplay | Where-Object { $_ }).Count
 if ($modeCount -gt 1) { throw 'B3 mode switches are mutually exclusive' }
 if ($B3SpeedBenchmark -and $modeCount -eq 0) { throw 'B3SpeedBenchmark requires an explicit B3 mode' }
 if ($B3LiveMaskBatchK -notin @(1, 16, 32, 64)) { throw 'B3LiveMaskBatchK must be one of 1, 16, 32, 64' }
-$applicationMode = if ($B3Bypass) { 'b3_bypass' } elseif ($B3StaticMixed) { 'b3_static_mixed' } elseif ($B3CalibratedStatic) { 'b3_calibrated_static' } elseif ($B3LiveEneuron) { 'b3_live_eneuron' } elseif ($B3EpochOverlap) { 'b3_epoch_overlap' } elseif ($B3FullOpen) { 'b3_full_open' } elseif ($B3Dense) { 'b3_dense' } else { 'b2_packet_smoke' }
+$applicationMode = if ($B3Bypass) { 'b3_bypass' } elseif ($B3StaticMixed) { 'b3_static_mixed' } elseif ($B3CalibratedStatic) { 'b3_calibrated_static' } elseif ($B3LiveEneuron) { 'b3_live_eneuron' } elseif ($B3EpochOverlap) { 'b3_epoch_overlap' } elseif ($B3DistributionReplay) { 'b3_distribution_replay' } elseif ($B3FullOpen) { 'b3_full_open' } elseif ($B3Dense) { 'b3_dense' } else { 'b2_packet_smoke' }
 $elfStem = "b2_packet_$applicationMode"
 $modeSpec = $null
 if ($applicationMode -like 'b3_*') {
-    $goldenModeName = if ($applicationMode -eq 'b3_epoch_overlap' -or $applicationMode -eq 'b3_calibrated_static') { 'b3_dense' } else { $applicationMode }
-    $modeSpec = $goldenSample.modes.PSObject.Properties[$goldenModeName].Value
-    if ($null -eq $modeSpec) { throw "B3 golden manifest has no mode: $goldenModeName" }
-    $expectedLogits = @($modeSpec.expected_logits)
-    $maskWords = [int]$modeSpec.mask_words
-    $inputPattern = [string]$goldenSample.input_pattern
-    if ([string]::IsNullOrWhiteSpace($inputPattern)) { throw 'B3 golden manifest sample input_pattern is missing' }
-    $maskPattern = if ($applicationMode -eq 'b3_bypass') {
-        'reset default full-open; no mask commands'
-    } elseif ($applicationMode -eq 'b3_static_mixed') {
-        '0x33333333 repeated; group_4way mixed mask, strict_2of4_candidate=false'
-    } elseif ($applicationMode -eq 'b3_live_eneuron') {
-        'Host live ENeuron S2 group_4way; computed on PS, not frozen mixed replay'
-    } elseif ($applicationMode -eq 'b3_calibrated_static') {
-        'calibrated group_4way mask from majority-vote calibration set; fixed for all held-out samples'
-    } elseif ($applicationMode -eq 'b3_epoch_overlap') {
-        'MASK_COMMIT then hold for JTAG 0x54/0x58 before first sample'
+    if ($goldenIsQat) {
+        if ($applicationMode -ne 'b3_dense' -and $applicationMode -ne 'b3_distribution_replay') {
+            throw 'QAT manifest currently supports B3Dense or B3DistributionReplay mode'
+        }
+        $expectedLogits = @($goldenSample.dense_logits)
+        $maskWords = 19
+        $inputPattern = 'QAT manifest uint4 pixels, packed low-nibble-first'
+        $maskPattern = 'full-open group_4way mask from QAT adapter'
     } else {
-        'full-open group_4way mask'
+        $goldenModeName = if ($applicationMode -eq 'b3_epoch_overlap' -or $applicationMode -eq 'b3_calibrated_static') { 'b3_dense' } else { $applicationMode }
+        $modeSpec = $goldenSample.modes.PSObject.Properties[$goldenModeName].Value
+        if ($null -eq $modeSpec) { throw "B3 golden manifest has no mode: $goldenModeName" }
+        $expectedLogits = @($modeSpec.expected_logits)
+        $maskWords = [int]$modeSpec.mask_words
+        $inputPattern = [string]$goldenSample.input_pattern
+        if ([string]::IsNullOrWhiteSpace($inputPattern)) { throw 'B3 golden manifest sample input_pattern is missing' }
+        $maskPattern = if ($applicationMode -eq 'b3_bypass') {
+            'reset default full-open; no mask commands'
+        } elseif ($applicationMode -eq 'b3_static_mixed') {
+            '0x33333333 repeated; group_4way mixed mask, strict_2of4_candidate=false'
+        } elseif ($applicationMode -eq 'b3_live_eneuron') {
+            'Host live ENeuron S2 group_4way; computed on PS, not frozen mixed replay'
+        } elseif ($applicationMode -eq 'b3_calibrated_static') {
+            'calibrated group_4way mask from majority-vote calibration set; fixed for all held-out samples'
+        } elseif ($applicationMode -eq 'b3_epoch_overlap') {
+            'MASK_COMMIT then hold for JTAG 0x54/0x58 before first sample'
+        } else {
+            'full-open group_4way mask'
+        }
     }
 } else {
     $expectedLogits = @()
@@ -150,7 +238,8 @@ if ($B3Bypass) { $compileDefines += '-DB3_BYPASS' }
 if ($B3StaticMixed) { $compileDefines += '-DB3_STATIC_MIXED' }
 if ($B3CalibratedStatic) { $compileDefines += '-DB3_CALIBRATED_STATIC' }
 if ($B3LiveEneuron) { $compileDefines += '-DB3_LIVE_ENEURON' }
-if ($B3EpochOverlap) { $compileDefines += '-DB3_EPOCH_OVERLAP' }
+    if ($B3EpochOverlap) { $compileDefines += '-DB3_EPOCH_OVERLAP' }
+if ($B3DistributionReplay) { $compileDefines += '-DB3_PL_DISTRIBUTION_REPLAY' }
 if ($B3SpeedBenchmark) { $compileDefines += '-DB3_SPEED_BENCHMARK' }
 if ($B3AccuracyBenchmark) { $compileDefines += '-DB3_ACCURACY_BENCHMARK' }
 $compileDefines += "-DB3_LIVE_MASK_BATCH_K=$B3LiveMaskBatchK"
@@ -163,18 +252,12 @@ $env:RDI_PLATFORM = 'win64'
 
 # 从黄金 manifest 生成板端只读头文件，避免 C 源码维护第二套模型/样本/mask 常量。
 $goldenManifestSha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $goldenManifestPath).Hash.ToLowerInvariant()
-function Convert-ManifestUInt32 {
-    param([Parameter(Mandatory = $true)][object]$Value)
-    $text = [string]$Value
-    if ($text -match '^0x') { return [Convert]::ToUInt32($text.Substring(2), 16) }
-    return [uint32]$Value
-}
 $headerLines = @(
     '#ifndef B3_FIXED_VECTOR_GENERATED_H',
     '#define B3_FIXED_VECTOR_GENERATED_H',
     ('#define B3_MANIFEST_SCHEMA_SHA256 "{0}"' -f $goldenManifestSha256),
     "#define B3_MODEL_WORD_COUNT $([int]$golden.model.word_count)U",
-    "#define B3_MASK_WORD_COUNT $([int]$goldenSample.modes.b3_dense.mask_words)U",
+    "#define B3_MASK_WORD_COUNT $([int]$maskWords)U",
     'static inline u32 b3_model_word_for_index(u32 index) {',
     '    switch (index) {'
 )
@@ -187,7 +270,7 @@ $headerLines += @(
     '    }',
     '}',
     ('#define B3_BENCHMARK_SAMPLE_COUNT {0}U' -f $benchmarkSamples.Count),
-    ('#define B3_BENCHMARK_UNIQUE_INPUT_COUNT {0}U' -f $(if ($B3SpeedBenchmark) { [int]$benchmark.unique_input_count } else { 1 })),
+    ('#define B3_BENCHMARK_UNIQUE_INPUT_COUNT {0}U' -f $(if ($B3SpeedBenchmark -or $B3DistributionReplay) { [int]$benchmarkUniqueInputCount } else { 1 })),
     'static const u32 B3_SAMPLE_IDS[B3_BENCHMARK_SAMPLE_COUNT] = {',
     ('    ' + (($benchmarkSamples | ForEach-Object { '{0}U' -f (Convert-ManifestUInt32 $_.sample_id) }) -join ', ') + ','),
     '};',
@@ -198,23 +281,31 @@ $headerLines += @(
     (($benchmarkSamples | ForEach-Object { '    { ' + (($_.input_beats | ForEach-Object { '{0}U' -f (Convert-ManifestUInt32 $_) }) -join ', ') + ' },' }) -join "`n"),
     '};'
 )
-foreach ($modeName in @('b3_dense', 'b3_static_mixed', 'b3_live_eneuron', 'b3_bypass')) {
-    $mode = $goldenSample.modes.PSObject.Properties[$modeName].Value
-    $logitName = if ($modeName -eq 'b3_static_mixed') { 'B3_STATIC_MIXED_LOGITS' } elseif ($modeName -eq 'b3_live_eneuron') { 'B3_LIVE_ENEURON_LOGITS' } else { 'B3_DENSE_LOGITS' }
-    if ($modeName -ne 'b3_bypass') {
-        $headerLines += ('static const s32 {0}[10] = {{ {1} }};' -f $logitName, (($mode.expected_logits | ForEach-Object { '{0}' -f $_ }) -join ', '))
+if ($goldenIsQat) {
+    $headerLines += ('static const s32 B3_DENSE_LOGITS[10] = {{ {0} }};' -f (($goldenSample.dense_logits | ForEach-Object { '{0}' -f [int]$_ }) -join ', '))
+    $headerLines += ('static const u32 B3_FULL_OPEN_MASK_WORDS[19] = {{ {0} }};' -f (($goldenDenseMaskWords | ForEach-Object { '{0}U' -f (Convert-ManifestUInt32 $_) }) -join ', '))
+} else {
+    foreach ($modeName in @('b3_dense', 'b3_static_mixed', 'b3_live_eneuron', 'b3_bypass')) {
+        $mode = $goldenSample.modes.PSObject.Properties[$modeName].Value
+        $logitName = if ($modeName -eq 'b3_static_mixed') { 'B3_STATIC_MIXED_LOGITS' } elseif ($modeName -eq 'b3_live_eneuron') { 'B3_LIVE_ENEURON_LOGITS' } else { 'B3_DENSE_LOGITS' }
+        if ($modeName -ne 'b3_bypass') {
+            $headerLines += ('static const s32 {0}[10] = {{ {1} }};' -f $logitName, (($mode.expected_logits | ForEach-Object { '{0}' -f $_ }) -join ', '))
+        }
     }
-}
-foreach ($modeName in @('b3_dense', 'b3_static_mixed')) {
-    $mode = $goldenSample.modes.PSObject.Properties[$modeName].Value
-    $arrayName = if ($modeName -eq 'b3_static_mixed') { 'B3_STATIC_MIXED_MASK_WORDS' } else { 'B3_FULL_OPEN_MASK_WORDS' }
-    $headerLines += ('static const u32 {0}[19] = {{ {1} }};' -f $arrayName, (($mode.mask_words_data | ForEach-Object { '{0}U' -f $_ }) -join ', '))
+    foreach ($modeName in @('b3_dense', 'b3_static_mixed')) {
+        $mode = $goldenSample.modes.PSObject.Properties[$modeName].Value
+        $arrayName = if ($modeName -eq 'b3_static_mixed') { 'B3_STATIC_MIXED_MASK_WORDS' } else { 'B3_FULL_OPEN_MASK_WORDS' }
+        $headerLines += ('static const u32 {0}[19] = {{ {1} }};' -f $arrayName, (($mode.mask_words_data | ForEach-Object { '{0}U' -f (Convert-ManifestUInt32 $_) }) -join ', '))
+    }
 }
 $headerLines += 'static const s32 B3_DENSE_EXPECTED_LOGITS[B3_BENCHMARK_SAMPLE_COUNT][10] = {'
 $headerLines += (($benchmarkSamples | ForEach-Object { '    { ' + (($_.dense_logits | ForEach-Object { '{0}' -f [int]$_ }) -join ', ') + ' },' }) -join "`n")
 $headerLines += '};'
 $headerLines += 'static const s32 B3_LIVE_EXPECTED_LOGITS[B3_BENCHMARK_SAMPLE_COUNT][10] = {'
-$headerLines += (($benchmarkSamples | ForEach-Object { '    { ' + (($_.live_logits | ForEach-Object { '{0}' -f [int]$_ }) -join ', ') + ' },' }) -join "`n")
+$headerLines += (($benchmarkSamples | ForEach-Object {
+        $logits = if ($goldenIsQat -or $null -eq $_.live_logits) { $_.dense_logits } else { $_.live_logits }
+        '    { ' + (($logits | ForEach-Object { '{0}' -f [int]$_ }) -join ', ') + ' },'
+    }) -join "`n")
 $headerLines += '};'
 $headerLines += 'static const s32 B3_STATIC_EXPECTED_LOGITS[B3_BENCHMARK_SAMPLE_COUNT][10] = {'
 $headerLines += (($benchmarkSamples | ForEach-Object { '    { ' + (($_.dense_logits | ForEach-Object { '{0}' -f [int]$_ }) -join ', ') + ' },' }) -join "`n")
@@ -252,6 +343,13 @@ $manifest = [ordered]@{
     git_tracked_worktree_clean = $gitTrackedWorktreeClean
     packet_source_sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $packetSourcePath).Hash.ToLowerInvariant()
     tool = 'XSCT/Vitis 2024.1'
+    hardware_build_dir = $HardwareBuildDir
+    hardware_build_manifest = $hardwareManifestPath
+    hardware_build_manifest_sha256 = $hardwareBuildManifestSha256
+    hardware_git_head = $hardwareGitHead
+    hardware_git_worktree_clean = $hardwareGitWorktreeClean
+    hardware_signoff_pass = $hardwareSignoffPass
+    hardware_npu_mode = [string]$hardwareManifest.npu_mode
     bitstream = $bitstream
     xsa = $xsa
     bitstream_sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $bitstream).Hash.ToLowerInvariant()
@@ -262,6 +360,7 @@ $manifest = [ordered]@{
     application_mode = $applicationMode
     protocol = 'ENB2_PACKET_NPU_V1'
     golden_manifest = $goldenManifestPath
+    qat_sample_index = if ($goldenIsQat) { $B3QatSampleIndex } else { $null }
     benchmark_manifest = $benchmarkManifestPath
     benchmark_manifest_sha256 = if ($benchmarkManifestPath) { (Get-FileHash -Algorithm SHA256 -LiteralPath $benchmarkManifestPath).Hash.ToLowerInvariant() } else { $null }
     input_pattern = $inputPattern
@@ -270,9 +369,11 @@ $manifest = [ordered]@{
     mask_submit_path = 'pl_staging_command_batch_v1'
     expected_logits = $expectedLogits
     speed_benchmark = [bool]$B3SpeedBenchmark
+    distribution_replay = [bool]$B3DistributionReplay
     accuracy_benchmark = [bool]$B3AccuracyBenchmark
     speed_benchmark_samples = if ($B3SpeedBenchmark) { $benchmarkSamples.Count } else { 0 }
-    benchmark_unique_input_count = if ($B3SpeedBenchmark) { [int]$benchmark.unique_input_count } else { 1 }
+    benchmark_unique_input_count = if ($B3SpeedBenchmark -or $B3DistributionReplay) { [int]$benchmarkUniqueInputCount } else { 1 }
+    distribution_replay_samples = if ($B3DistributionReplay) { $benchmarkSamples.Count } else { 0 }
     live_mask_batch_k = $B3LiveMaskBatchK
     live_mask_update_count = if ($B3SpeedBenchmark -and $B3LiveEneuron) { [int][Math]::Ceiling($benchmarkSamples.Count / [double]$B3LiveMaskBatchK) } else { 0 }
 }

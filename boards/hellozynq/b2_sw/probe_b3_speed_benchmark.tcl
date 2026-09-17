@@ -2,8 +2,8 @@ if {$argc < 1 || $argc > 2} {
     error "usage: probe_b3_speed_benchmark.tcl SAMPLE_COUNT [capture_logits]"
 }
 set sample_count [lindex $argv 0]
-if {$sample_count < 1 || $sample_count > 64} {
-    error "sample count must be in 1..64"
+if {$sample_count < 1 || $sample_count > 397} {
+    error "sample count must be in 1..397"
 }
 set capture_logits 0
 if {$argc == 2} {
@@ -12,7 +12,6 @@ if {$argc == 2} {
     }
     set capture_logits 1
 }
-
 set base 0x01009000
 set rx_base 0x01007000
 connect -url tcp:localhost:3121
@@ -72,7 +71,7 @@ for {set index 0} {$index < $sample_count} {incr index} {
 }
 
 if {$capture_logits} {
-    set accuracy_base 0x0100A000
+    set accuracy_base 0x01010000
     puts [format "B3_ACCURACY_MAGIC=0x%08X" [mrd -force -value $accuracy_base]]
     puts [format "B3_ACCURACY_STATUS=%u" [mrd -force -value [expr {$accuracy_base + 4}]]]
     puts [format "B3_ACCURACY_MODE_ID=%u" [mrd -force -value [expr {$accuracy_base + 8}]]]

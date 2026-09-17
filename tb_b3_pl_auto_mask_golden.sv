@@ -1,12 +1,12 @@
-// B3 路线一：PL auto-mask 参考引擎与 PS 黄金 mask 的 64 输入逐 bit 对照。
+// B3 路线一：PL auto-mask 参考引擎与 PS 黄金 mask 的逐输入逐 bit 对照。
 //
 // 输入文件由 test_b3_pl_auto_mask_contract.py 从共享 manifest 生成：
 //   +MODEL=<file>     634 个 32-bit 模型 word，每行 8 位十六进制
-//   +PIXELS=<file>    64 样本 × 64 个 4-bit 像素，每行一个十六进制 nibble
-//   +EXPECTED=<file>  64 样本 × 19 个 32-bit mask word，每行 8 位十六进制
+//   +PIXELS=<file>    SAMPLE_COUNT 样本 × 64 个 4-bit 像素，每行一个十六进制 nibble
+//   +EXPECTED=<file>  SAMPLE_COUNT 样本 × 19 个 32-bit mask word，每行 8 位十六进制
 `timescale 1ns/1ps
 module tb_b3_pl_auto_mask_golden;
-    localparam integer SAMPLE_COUNT = 64;
+    parameter integer SAMPLE_COUNT = 64;
     localparam integer PIXEL_COUNT = 64;
     localparam integer MODEL_WORD_COUNT = 634;
     localparam integer MASK_WORD_COUNT = 19;

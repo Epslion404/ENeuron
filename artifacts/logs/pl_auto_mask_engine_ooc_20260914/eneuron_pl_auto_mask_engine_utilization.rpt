@@ -1,0 +1,28 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2024.1 (win64) Build 5076996 Wed May 22 18:37:14 MDT 2024
+| Date         : Mon Sep 14 17:00:19 2026
+| Host         : LAPTOP-AJQHFMKI running 64-bit major release  (build 9200)
+| Command      : report_utilization -hierarchical -file D:/Documents/Code/ENeuron-board-b0/artifacts/logs/pl_auto_mask_engine_ooc_20260914/eneuron_pl_auto_mask_engine_utilization.rpt
+| Design       : eneuron_pl_auto_mask_engine
+| Device       : xc7z020clg484-2
+| Speed File   : -2
+| Design State : Synthesized
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Utilization Design Information
+
+Table of Contents
+-----------------
+1. Utilization by Hierarchy
+
+1. Utilization by Hierarchy
+---------------------------
+
++-----------------------------+--------+------------+------------+---------+------+------+--------+--------+------------+
+|           Instance          | Module | Total LUTs | Logic LUTs | LUTRAMs | SRLs |  FFs | RAMB36 | RAMB18 | DSP Blocks |
++-----------------------------+--------+------------+------------+---------+------+------+--------+--------+------------+
+| eneuron_pl_auto_mask_engine |  (top) |      13855 |      13855 |       0 |    0 | 1046 |      0 |      0 |          8 |
++-----------------------------+--------+------------+------------+---------+------+------+--------+--------+------------+
+
+

@@ -1,7 +1,11 @@
 # P16 项目阶段 2：实板验证路线
 
+## 当前主线覆写（2026-09-17，CP5b 分布吞吐正式通过）
+
+当前执行点为冻结 CP5b dense/lossless 连续负载并执行 CP8 paired 功耗。QAT-v3 CP0/CP1/CP3a/b/c/CP4/CP5a 与 CP5b 已完成；严格 2:4 live/static 精度失败。CP5b 397 样本、每轮 1000 预热 + 10000 计量、5 轮交替 dense/lossless：dense=`2513.9998 cycles/sample`、lossless=`2310.3034 cycles/sample`，纯 PL 吞吐提升 `1.088168676x`、延迟下降 `8.1025%`，5 轮无抖动，结果帧/logits/CRC 一致、协议错误 0，200 MHz 物理门通过、DSP48E1=4。`B3-PL-SPEED-GATE=PASS`、顶层 `B3-SPEED-GATE=PASS_PURE_PL_ONLY`；CP4 单样本 packet 路径 `1.008196x` 单独记为 `B3-PACKET-SPEED=MEASURED_WEAK_GAIN_1_008196X`，不称为纯 PL。当前缺口是 CP8 paired 功耗；功耗和目标门保持 OPEN。
+
 > generated_by: nexus-mapper v2 / manual synthesis
-> verified_at: 2026-09-13
+> verified_at: 2026-09-16
 > provenance: Git checkout 身份以命令实时输出为准；板级签核仍绑定 RTL `be84596` 与对应 bit/XSA/ELF/manifest。旧 t0-state 工作区不是现状。
 
 当前边界（中等精简）：实板部署目标为 `xc7z020clg484-2`，主线是板上 packet-NPU + ENeuron 动态剪枝。B3-MVP-GATE 已关闭；当前按 `B3-SPEED-GATE + B3-POWER-GATE → B3-GOAL-GATE` 收口。高地址 DDR、PHY、UDP 与完整 B2-GATE 保留为网口发布依赖；严格连接级 `2:4` 仍是独立 B3-08b/STRICT 实验，不前置到速度或功耗目标。
@@ -20,7 +24,7 @@ B1-06B6 实板复测（2026-09-08）：运行目录为 `artifacts/logs/hellozynq
 
 P16 的目标是在 HelloZynq `xc7z020clg484-2` 上依次打通 PL、PS/DDR/网口、DMA、`64→32→10` 传统 NPU、ENeuron 局部门控和网口端到端 A/B。阶段门只由同一身份链上的实板证据关闭；仿真和 OOC 可用于定位，但不能代替 bitstream、JTAG、UART、Host/网口日志与现场观察。
 
-当前 B3 入口：基础 dense/bypass、full-open、Host 静态 `group_4way` 和 B3-09 live-ENeuron 实板均已关闭，B3-MVP-GATE 已通过。Host live L0 contribution 缓存候选也已完成三次同源实板诊断；下一步是冻结不含 UART 的重复端到端速度窗口，而不是继续把单样本 `ps_us` 外推为目标通过。严格连接级 `2:4` 仍是 B3-08b。
+当前 B3 入口：QAT CP0/CP1/CP3c/CP4/CP5a/CP5b 已完成，当前无损候选的 `B3-ACCURACY-GATE` 与 `B3-PL-SPEED-GATE` 已通过；严格 2:4 live/static 为精度负结果。下一步是冻结 CP5b 397 样本 dense/lossless 连续负载（PL-internal distribution replay、1000 warmup）并执行 CP8 paired 功耗；旧 fixed-vector、PS 在环和单样本 CP5a 不能替代分布吞吐证据。
 
 B3-08a 已完成（2026-09-12）：同一物理通过 bit/XSA、COM15、`b3_static_mixed` 实板 run `20260912T102046Z` 通过，logits=`74,-18,14,0,0,0,0,0,0,114`，fence valid=`1`，execute/skip=`296/296`。mask 粒度是 `group_4way`；B3-08b 属于后续 STRICT。
 

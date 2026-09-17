@@ -36,6 +36,19 @@ EXPECTED_RESULTS = {
     "b3_fixed_overhead_ab.json",
     "b3_live_optimized_ab.json",
     "b3_pruning_diagnostic.json",
+    "b3_qat_pruning_diagnostic.json",
+    "b3_qat_pl_auto_mask_sim.json",
+    "b3_qat_cp1_dense_64_board.json",
+    "b3_qat_lossless_skip_diagnostic.json",
+    "b3_qat_lossless_zero_group_rtl_sim.json",
+    "b3_qat_lossless_zero_group_ooc.json",
+    "b3_qat_cp4_lossless_zero_group_board_397.json",
+    "b3_qat_cp5a_pl_replay_board_pair.json",
+    "b3_qat_cp5b_pl_distribution_board_pair.json",
+    "network_results.json",
+    "network_sweep_results.json",
+    "simulation_results.json",
+    "sweep_results.json",
 }
 
 

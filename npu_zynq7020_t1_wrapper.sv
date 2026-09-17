@@ -35,8 +35,31 @@ module npu_zynq7020_t1_wrapper #(
     output logic [31:0] host_active_mask_epoch,
     output logic [31:0] host_pending_mask_epoch,
     output logic [31:0] host_last_compute_cycles,
-    output logic [31:0] host_protocol_error_count
+    output logic [31:0] host_protocol_error_count,
+    output logic [31:0] pl_replay_status,
+    output logic [31:0] pl_replay_capture_count,
+    output logic [31:0] pl_replay_completed_count,
+    output logic [31:0] pl_replay_measured_cycles
 );
+`ifdef B3_PL_REPLAY_BENCHMARK
+`ifndef B3_PL_REPLAY_WARMUP_SAMPLES
+`define B3_PL_REPLAY_WARMUP_SAMPLES 1000
+`endif
+`ifndef B3_PL_REPLAY_MEASURE_SAMPLES
+`define B3_PL_REPLAY_MEASURE_SAMPLES 10000
+`endif
+`endif
+`ifdef B3_PL_DISTRIBUTION_REPLAY_BENCHMARK
+`ifndef B3_PL_REPLAY_INPUT_SAMPLES
+`define B3_PL_REPLAY_INPUT_SAMPLES 397
+`endif
+`ifndef B3_PL_REPLAY_WARMUP_SAMPLES
+`define B3_PL_REPLAY_WARMUP_SAMPLES 1000
+`endif
+`ifndef B3_PL_REPLAY_MEASURE_SAMPLES
+`define B3_PL_REPLAY_MEASURE_SAMPLES 10000
+`endif
+`endif
     localparam logic [3:0] OP_SAMPLE_FENCE = 4'ha;
     localparam logic [3:0] RSP_FENCE       = 4'hd;
 
@@ -88,6 +111,10 @@ module npu_zynq7020_t1_wrapper #(
     logic core_result_valid, core_result_ready;
     logic core_sample_valid, core_sample_ready;
     logic [31:0] core_sample_data, core_sample_id;
+    logic engine_result_valid, engine_result_ready;
+    logic [31:0] engine_result_data, engine_result_sample_id, engine_result_mask_epoch;
+    logic engine_sample_valid, engine_sample_ready;
+    logic [31:0] engine_sample_data, engine_sample_id;
     logic core_runtime_idle, core_model_valid, core_mask_valid, core_infer_frozen;
     logic [31:0] core_state_clear_count;
     logic [31:0] core_execute_group_count;
@@ -97,6 +124,10 @@ module npu_zynq7020_t1_wrapper #(
     logic [31:0] core_last_compute_cycles;
     logic [31:0] core_protocol_error_count;
     logic core_mask_staging_open;
+    logic [31:0] core_pl_replay_status;
+    logic [31:0] core_pl_replay_capture_count;
+    logic [31:0] core_pl_replay_completed_count;
+    logic [31:0] core_pl_replay_measured_cycles;
 
     logic sample_window_open_npu;
     logic [3:0] sample_count_npu;
@@ -115,6 +146,10 @@ module npu_zynq7020_t1_wrapper #(
     (* ASYNC_REG = "TRUE" *) logic [31:0] pending_epoch_host_sync1, pending_epoch_host_sync2;
     (* ASYNC_REG = "TRUE" *) logic [31:0] compute_cycles_host_sync1, compute_cycles_host_sync2;
     (* ASYNC_REG = "TRUE" *) logic [31:0] protocol_error_host_sync1, protocol_error_host_sync2;
+    (* ASYNC_REG = "TRUE" *) logic [31:0] replay_status_host_sync1, replay_status_host_sync2;
+    (* ASYNC_REG = "TRUE" *) logic [31:0] replay_capture_host_sync1, replay_capture_host_sync2;
+    (* ASYNC_REG = "TRUE" *) logic [31:0] replay_completed_host_sync1, replay_completed_host_sync2;
+    (* ASYNC_REG = "TRUE" *) logic [31:0] replay_cycles_host_sync1, replay_cycles_host_sync2;
     logic [31:0] fence_id_npu;
     // Host 窗口状态不能直接在 npu_clk 域采样；这里使用两级同步器。
     (* ASYNC_REG = "TRUE" *) logic sample_window_open_host_npu_d1, sample_window_open_host_npu_d2;
@@ -311,15 +346,82 @@ module npu_zynq7020_t1_wrapper #(
     assign core_result_ready = result_fifo_ready_npu;
     assign result_wr_en = core_result_valid && core_result_ready;
 
+`ifdef B3_PL_DISTRIBUTION_REPLAY_BENCHMARK
+    b3_pl_distribution_replay_shim #(
+        .INPUT_SAMPLES(`B3_PL_REPLAY_INPUT_SAMPLES),
+        .WARMUP_SAMPLES(`B3_PL_REPLAY_WARMUP_SAMPLES),
+        .MEASURE_SAMPLES(`B3_PL_REPLAY_MEASURE_SAMPLES)
+    ) replay_shim (
+        .clk(npu_clk), .rst(npu_rst),
+        .upstream_sample_data(core_sample_data), .upstream_sample_id(core_sample_id),
+        .upstream_sample_valid(core_sample_valid), .upstream_sample_ready(core_sample_ready),
+        .core_sample_data(engine_sample_data), .core_sample_id(engine_sample_id),
+        .core_sample_valid(engine_sample_valid), .core_sample_ready(engine_sample_ready),
+        .core_result_data(engine_result_data), .core_result_sample_id(engine_result_sample_id),
+        .core_result_mask_epoch(engine_result_mask_epoch), .core_result_valid(engine_result_valid),
+        .core_result_ready(engine_result_ready),
+        .downstream_result_data(core_result_data), .downstream_result_sample_id(core_result_sample_id),
+        .downstream_result_mask_epoch(core_result_mask_epoch), .downstream_result_valid(core_result_valid),
+        .downstream_result_ready(core_result_ready),
+        .pl_replay_status(core_pl_replay_status),
+        .pl_replay_capture_count(core_pl_replay_capture_count),
+        .pl_replay_completed_count(core_pl_replay_completed_count),
+        .pl_replay_measured_cycles(core_pl_replay_measured_cycles)
+    );
+`elsif B3_PL_REPLAY_BENCHMARK
+    b3_pl_replay_shim #(
+        .WARMUP_SAMPLES(`B3_PL_REPLAY_WARMUP_SAMPLES),
+        .MEASURE_SAMPLES(`B3_PL_REPLAY_MEASURE_SAMPLES)
+    ) replay_shim (
+        .clk(npu_clk), .rst(npu_rst),
+        .upstream_sample_data(core_sample_data),
+        .upstream_sample_id(core_sample_id),
+        .upstream_sample_valid(core_sample_valid),
+        .upstream_sample_ready(core_sample_ready),
+        .core_sample_data(engine_sample_data),
+        .core_sample_id(engine_sample_id),
+        .core_sample_valid(engine_sample_valid),
+        .core_sample_ready(engine_sample_ready),
+        .core_result_data(engine_result_data),
+        .core_result_sample_id(engine_result_sample_id),
+        .core_result_mask_epoch(engine_result_mask_epoch),
+        .core_result_valid(engine_result_valid),
+        .core_result_ready(engine_result_ready),
+        .downstream_result_data(core_result_data),
+        .downstream_result_sample_id(core_result_sample_id),
+        .downstream_result_mask_epoch(core_result_mask_epoch),
+        .downstream_result_valid(core_result_valid),
+        .downstream_result_ready(core_result_ready),
+        .pl_replay_status(core_pl_replay_status),
+        .pl_replay_capture_count(core_pl_replay_capture_count),
+        .pl_replay_completed_count(core_pl_replay_completed_count),
+        .pl_replay_measured_cycles(core_pl_replay_measured_cycles)
+    );
+`else
+    assign engine_sample_data = core_sample_data;
+    assign engine_sample_id = core_sample_id;
+    assign engine_sample_valid = core_sample_valid;
+    assign core_sample_ready = engine_sample_ready;
+    assign core_result_data = engine_result_data;
+    assign core_result_sample_id = engine_result_sample_id;
+    assign core_result_mask_epoch = engine_result_mask_epoch;
+    assign core_result_valid = engine_result_valid;
+    assign engine_result_ready = core_result_ready;
+    assign core_pl_replay_status = 32'd0;
+    assign core_pl_replay_capture_count = 32'd0;
+    assign core_pl_replay_completed_count = 32'd0;
+    assign core_pl_replay_measured_cycles = 32'd0;
+`endif
+
     npu_eneuron_single_clock_skeleton core (
         .clk(npu_clk), .rst(npu_rst),
         .cmd_payload(cmd_hold_data), .cmd_valid(core_cmd_valid), .cmd_ready(core_cmd_ready_wire),
         .rsp_payload(core_rsp_payload_raw), .rsp_valid(core_rsp_valid), .rsp_ready(core_rsp_ready),
-        .sample_data(core_sample_data), .sample_id(core_sample_id),
-        .sample_valid(core_sample_valid), .sample_ready(core_sample_ready),
-        .result_data(core_result_data), .result_sample_id(core_result_sample_id),
-        .result_mask_epoch(core_result_mask_epoch), .result_valid(core_result_valid),
-        .result_ready(core_result_ready), .runtime_idle(core_runtime_idle),
+        .sample_data(engine_sample_data), .sample_id(engine_sample_id),
+        .sample_valid(engine_sample_valid), .sample_ready(engine_sample_ready),
+        .result_data(engine_result_data), .result_sample_id(engine_result_sample_id),
+        .result_mask_epoch(engine_result_mask_epoch), .result_valid(engine_result_valid),
+        .result_ready(engine_result_ready), .runtime_idle(core_runtime_idle),
         .model_valid(core_model_valid), .mask_valid(core_mask_valid),
         .infer_frozen(core_infer_frozen), .state_clear_count(core_state_clear_count),
         .execute_group_count(core_execute_group_count), .skip_group_count(core_skip_group_count),
@@ -420,6 +522,14 @@ module npu_zynq7020_t1_wrapper #(
             compute_cycles_host_sync2 <= '0;
             protocol_error_host_sync1 <= '0;
             protocol_error_host_sync2 <= '0;
+            replay_status_host_sync1 <= '0;
+            replay_status_host_sync2 <= '0;
+            replay_capture_host_sync1 <= '0;
+            replay_capture_host_sync2 <= '0;
+            replay_completed_host_sync1 <= '0;
+            replay_completed_host_sync2 <= '0;
+            replay_cycles_host_sync1 <= '0;
+            replay_cycles_host_sync2 <= '0;
         end else begin
             model_valid_host_sync <= {model_valid_host_sync[0], core_model_valid};
             mask_valid_host_sync <= {mask_valid_host_sync[0], core_mask_valid};
@@ -446,6 +556,14 @@ module npu_zynq7020_t1_wrapper #(
             compute_cycles_host_sync2 <= compute_cycles_host_sync1;
             protocol_error_host_sync1 <= core_protocol_error_count;
             protocol_error_host_sync2 <= protocol_error_host_sync1;
+            replay_status_host_sync1 <= core_pl_replay_status;
+            replay_status_host_sync2 <= replay_status_host_sync1;
+            replay_capture_host_sync1 <= core_pl_replay_capture_count;
+            replay_capture_host_sync2 <= replay_capture_host_sync1;
+            replay_completed_host_sync1 <= core_pl_replay_completed_count;
+            replay_completed_host_sync2 <= replay_completed_host_sync1;
+            replay_cycles_host_sync1 <= core_pl_replay_measured_cycles;
+            replay_cycles_host_sync2 <= replay_cycles_host_sync1;
         end
     end
 
@@ -456,6 +574,10 @@ module npu_zynq7020_t1_wrapper #(
     assign host_pending_mask_epoch = pending_epoch_host_sync2;
     assign host_last_compute_cycles = compute_cycles_host_sync2;
     assign host_protocol_error_count = protocol_error_host_sync2;
+    assign pl_replay_status = replay_status_host_sync2;
+    assign pl_replay_capture_count = replay_capture_host_sync2;
+    assign pl_replay_completed_count = replay_completed_host_sync2;
+    assign pl_replay_measured_cycles = replay_cycles_host_sync2;
 
 `ifndef SYNTHESIS
     always @(posedge npu_clk) begin

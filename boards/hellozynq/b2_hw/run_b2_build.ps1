@@ -1,5 +1,8 @@
 param(
-    [string]$VivadoRoot = $env:VIVADO_ROOT
+    [string]$VivadoRoot = $env:VIVADO_ROOT,
+    [ValidateSet('dense', 'lossless_zero_group_skip', 'dense_pl_replay', 'lossless_zero_group_skip_pl_replay', 'dense_pl_distribution_replay', 'lossless_zero_group_skip_pl_distribution_replay')]
+    [string]$NpuMode = 'dense',
+    [string]$OutDir = ''
 )
 
 $ErrorActionPreference = 'Stop'
@@ -7,7 +10,7 @@ $scriptDir = $PSScriptRoot
 $repoRoot = (& git -C $scriptDir rev-parse --show-toplevel).Trim()
 $gitHead = (& git -C $repoRoot rev-parse HEAD).Trim()
 $gitStatus = (& git -C $repoRoot status --porcelain=v1) -join "`n"
-$outDir = Join-Path $scriptDir 'build'
+$outDir = if ($OutDir) { [IO.Path]::GetFullPath($OutDir) } else { Join-Path $scriptDir 'build' }
 $logPath = Join-Path $outDir 'vivado_run.log'
 $summaryPath = Join-Path $outDir 'signoff_summary.txt'
 $bitstreamPath = Join-Path $outDir 'hello_zynq_b2.bit'
@@ -66,11 +69,25 @@ function Get-B2SignoffMetrics {
     }
 }
 
+function Get-FileSha256 {
+    param([Parameter(Mandatory = $true)][string]$Path)
+
+    $sha = [System.Security.Cryptography.SHA256]::Create()
+    $stream = [IO.File]::OpenRead($Path)
+    try {
+        return ([BitConverter]::ToString($sha.ComputeHash($stream))).Replace('-', '').ToLowerInvariant()
+    }
+    finally {
+        $stream.Dispose()
+        $sha.Dispose()
+    }
+}
+
 New-Item -ItemType Directory -Force -Path $outDir | Out-Null
 $vivadoBat = if ($VivadoRoot) { Join-Path $VivadoRoot 'bin\vivado.bat' } else { 'G:\Xilinx\Vivado\2024.1\bin\vivado.bat' }
 if (-not (Test-Path -LiteralPath $vivadoBat)) { throw "Vivado not found: $vivadoBat" }
 
-& $vivadoBat -mode batch -nolog -nojournal -notrace -source (Join-Path $scriptDir 'build_b2.tcl') -tclargs $gitHead $outDir 2>&1 | Tee-Object -FilePath $logPath
+& $vivadoBat -mode batch -nolog -nojournal -notrace -source (Join-Path $scriptDir 'build_b2.tcl') -tclargs $gitHead $outDir $NpuMode 2>&1 | Tee-Object -FilePath $logPath
 if ($LASTEXITCODE -ne 0) { throw "Vivado B2 build failed with exit code $LASTEXITCODE" }
 foreach ($required in @($summaryPath, $bitstreamPath, $xsaPath)) {
     if (-not (Test-Path -LiteralPath $required)) { throw "Missing B2 artifact: $required" }
@@ -94,17 +111,22 @@ $sourceFiles = @(
     'b2_packet_ingress.sv',
     'b2_packet_bram.sv',
     'b2_packet_egress.sv',
+    'b3_pl_replay_shim.sv',
+    'b3_pl_distribution_replay_shim.sv',
     'npu_zynq7020_t1_wrapper.sv',
     'npu_eneuron_single_clock_skeleton.sv'
 )
 $sourceHashes = [ordered]@{}
 foreach ($relativePath in $sourceFiles) {
-    $sourceHashes[$relativePath] = (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $repoRoot $relativePath)).Hash.ToLowerInvariant()
+    $sourceHashes[$relativePath] = Get-FileSha256 -Path (Join-Path $repoRoot $relativePath)
 }
 $summary = [ordered]@{}
 foreach ($line in Get-Content -LiteralPath $summaryPath) {
     $parts = $line -split '=', 2
     if ($parts.Count -eq 2) { $summary[$parts[0]] = $parts[1] }
+}
+if ([string]$summary['B2_NPU_MODE'] -ne $NpuMode) {
+    throw "B2 NPU mode mismatch: requested=$NpuMode built=$($summary['B2_NPU_MODE'])"
 }
 $summary['B2_TIMING_PASS'] = if ($signoffChecks.timing_pass) { '1' } else { '0' }
 $summary['B2_ROUTE_PASS'] = if ($signoffChecks.route_pass) { '1' } else { '0' }
@@ -127,14 +149,20 @@ $manifest = [ordered]@{
     vivado = (& $vivadoBat -version 2>&1 | Select-String -Pattern '^vivado ' | Select-Object -First 1).Line.Trim()
     part = 'xc7z020clg484-2'
     top = 'design_1_wrapper'
+    npu_mode = $NpuMode
+    verilog_defines = @(
+        if ($NpuMode -like 'lossless_zero_group_skip*') { 'LOSSLESS_ZERO_GROUP_SKIP'; 'B3_USE_XPM' }
+        if ($NpuMode -like '*_pl_replay' -and $NpuMode -notlike '*_pl_distribution_replay') { 'B3_PL_REPLAY_BENCHMARK'; 'B3_PL_REPLAY_WARMUP_SAMPLES=1000'; 'B3_PL_REPLAY_MEASURE_SAMPLES=10000' }
+        if ($NpuMode -like '*_pl_distribution_replay') { 'B3_PL_DISTRIBUTION_REPLAY_BENCHMARK'; 'B3_PL_REPLAY_INPUT_SAMPLES=397'; 'B3_PL_REPLAY_WARMUP_SAMPLES=1000'; 'B3_PL_REPLAY_MEASURE_SAMPLES=10000' }
+    )
     source_sha256 = $sourceHashes
-    bitstream_sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $bitstreamPath).Hash.ToLowerInvariant()
-    xsa_sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $xsaPath).Hash.ToLowerInvariant()
+    bitstream_sha256 = Get-FileSha256 -Path $bitstreamPath
+    xsa_sha256 = Get-FileSha256 -Path $xsaPath
     reports_sha256 = [ordered]@{
-        utilization_impl = (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $outDir 'utilization_impl.rpt')).Hash.ToLowerInvariant()
-        timing_impl = (Get-FileHash -Algorithm SHA256 -LiteralPath $timingPath).Hash.ToLowerInvariant()
-        route_status_impl = (Get-FileHash -Algorithm SHA256 -LiteralPath $routePath).Hash.ToLowerInvariant()
-        drc_impl = (Get-FileHash -Algorithm SHA256 -LiteralPath $drcPath).Hash.ToLowerInvariant()
+        utilization_impl = Get-FileSha256 -Path (Join-Path $outDir 'utilization_impl.rpt')
+        timing_impl = Get-FileSha256 -Path $timingPath
+        route_status_impl = Get-FileSha256 -Path $routePath
+        drc_impl = Get-FileSha256 -Path $drcPath
     }
     signoff = $summary
 }

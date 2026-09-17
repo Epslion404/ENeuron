@@ -119,6 +119,15 @@ class B2NpuStatusProbeContractTests(unittest.TestCase):
         ):
             self.assertIn(token, self.probe_tcl)
 
+    def test_build_runner_hashes_without_get_file_hash_dependency(self):
+        for token in (
+            "function Get-FileSha256",
+            "System.Security.Cryptography.SHA256",
+            "Get-FileSha256 -Path $bitstreamPath",
+            "Get-FileSha256 -Path $xsaPath",
+        ):
+            self.assertIn(token, self.runner)
+
     def test_mvp_observability_reaches_status_block(self):
         self.assertIn("output logic [31:0] last_compute_cycles", self.core)
         self.assertIn("output logic [31:0] pending_mask_epoch", self.core)

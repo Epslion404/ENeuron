@@ -8,7 +8,7 @@
 
 当前物理边界：现有单时钟和 T3 OOC 证据绑定 `xc7z020clg400-1`，只能作为结构/协议参考；目标 `xc7z020clg484-2` 的最终 routed 证据已在 2026-09-12 完成。
 
-当前集成边界：B3 目标门管理修正已由 PR #91 合并到 `main@30e3b38`，`B3-MVP-GATE` 已关（RTL `be84596`）；`B3-SPEED-MEASURED` 已完成单样本诊断，但 `B3-SPEED-GATE` 因端到端加速未证明而保持打开。功耗仪器合同已冻结，本机无功耗仪，`POWER_NOT_MEASURED`；`B3-POWER-MEASURED` 与 `B3-POWER-GATE` 均未关闭。严格连接级 `2:4` 是结构实验；后续 checkout 身份以 Git 实时输出为准。
+当前集成边界：B3 目标门管理修正已由 PR #91 合并到 `main@30e3b38`，`B3-MVP-GATE` 已关（RTL `be84596`）；`B3-SPEED-MEASURED` 已完成单样本诊断；`B3-PL-SPEED-GATE` 已由 CP5b 397 样本纯 PL 分布吞吐关闭（`1.088168676x`），顶层 `B3-SPEED-GATE=PASS_PURE_PL_ONLY`，历史 PS 在环 `NO_END_TO_END_SPEEDUP` 保留为历史。功耗仪器合同已冻结；用户已有 B10 高精度 Type-C 串联功率计（精度 `<0.2%`），CP8 四态测量尚未执行，故仍为 `POWER_NOT_MEASURED`/`MEASUREMENT_OPEN`；`B3-POWER-MEASURED` 与 `B3-POWER-GATE` 均未关闭。严格连接级 `2:4` 是结构实验；后续 checkout 身份以 Git 实时输出为准。
 
 ## 1. 目标
 
