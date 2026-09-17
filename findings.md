@@ -2341,3 +2341,11 @@
 - 独立 `impl_extra_timing_probe` 已完成：`WNS=+0.001 ns`、`TNS=0`、`WHS=+0.013 ns`、`THS=0`，报告明确 `All user specified timing constraints are met`。该 probe 复用旧综合网表，只证明策略可补回时序，不替代 clean HEAD 正式构建。
 - 生产 `build_b2.tcl` 已切换为 `Performance_ExtraTimingOpt`，继续保留 `route_design Explore`、post-place/post-route `AggressiveExplore` 和 fail-closed signoff parser。合同先 RED 后 GREEN，相关测试 `17 passed`；全量 `run_b2_checks.ps1` 最终 `B2_CHECKS_PASS`。
 - DeepSeek 文档同步最终文件经主代理独立 `json.tool`、状态搜索和 `git diff --check` 复核通过；其执行期间仍出现反引号被 shell 当命令及一次中间 JSON 解析错误，说明委派时不能只采信总结中的“校验成功”。
+# 2026-09-17 CP8 lossless timing 复测与工作树候选（HEAD e8846a2）
+
+- HEAD=`e8846a2`。正式 CP8 lossless 构建仍 `FAIL_CLOSED`：`WNS=-0.067 ns`、`TNS=-0.080 ns`（含策略为 `Performance_ExtraTimingOpt` 的 clean build）。
+- `ExplorePostRoute` probe 也失败：`WNS=-0.088 ns`、`TNS=-0.339 ns`；该 probe 不得称为正式签核。
+- 工作树候选修复未提交、未做 clean HEAD 物理重建：`b3_pl_distribution_replay_shim.sv` 将 sample RAM `READ_LATENCY_B` 从 1 改为 2，新增 `STATE_REPLAY_PREFETCH_READY`，地址流水改为 `replay_beat + 3`；`build_b2.tcl` 暂改为 `Performance_ExploreWithRemap`。
+- 候选修复已通过定向合同 `20 passed, 1 skipped`；完整 B2 `129 passed`、T1 PASS、`B2_CHECKS_PASS`；仍没有物理时序证据。
+- 状态保持 `CP8_CONTROL_CHAIN_PASS / CP8_PHYSICAL_BUILD_PENDING / B3-POWER-GATE=OPEN`，不得写 PASS。
+- 下一步：提交候选修复，在 clean HEAD 优先正式重建 lossless；通过后再重建 dense；两者都过 200 MHz `xc7z020clg484-2` 时序且 `DSP=4` 后才可四态上板。

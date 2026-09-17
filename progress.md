@@ -2554,3 +2554,12 @@
 - TDD：策略合同先以旧 Tcl 复现 `1 failed`，生产修改后 `test_b2_stream_probe_contract.py + test_b3_cp8_power_replay_contract.py` 为 `17 passed`。
 - 提交前全量 `run_b2_checks.ps1` 通过并输出 `B2_CHECKS_PASS`；`run_b2_build.ps1` 与 `run_b3_cp8_power_state.ps1` 通过 PowerShell AST 解析。一次 AST 检查包装命令因 `$f:` 插值语法失败，改用 `-f` 格式化后通过，未修改被检脚本。
 - DeepSeek 已按白名单同步 task plan 与 Nexus；主代理复核两个 JSON 可解析、状态保持 `CP8_PHYSICAL_BUILD_PENDING`、`git diff --check` 干净。下一步提交后对 dense/lossless 两模式做 clean HEAD 正式重建。
+# 2026-09-17 CP8 lossless timing 复测与工作树候选（HEAD e8846a2）
+
+- HEAD=`e8846a2`。正式 CP8 lossless 构建仍 `FAIL_CLOSED`：`WNS=-0.067 ns`、`TNS=-0.080 ns`（含策略为 `Performance_ExtraTimingOpt` 的 clean build）。
+- `ExplorePostRoute` probe 也失败：`WNS=-0.088 ns`、`TNS=-0.339 ns`；该 probe 不得称为正式签核。
+- 工作树候选修复未提交、未做 clean HEAD 物理重建：`b3_pl_distribution_replay_shim.sv` 将 sample RAM `READ_LATENCY_B` 从 1 改为 2，新增 `STATE_REPLAY_PREFETCH_READY`，地址流水改为 `replay_beat + 3`；`build_b2.tcl` 暂改为 `Performance_ExploreWithRemap`。
+- 候选修复已通过定向合同 `20 passed, 1 skipped`；完整 B2 `129 passed`、T1 PASS、`B2_CHECKS_PASS`；仍没有物理时序证据。
+- 状态保持 `CP8_CONTROL_CHAIN_PASS / CP8_PHYSICAL_BUILD_PENDING / B3-POWER-GATE=OPEN`，不得写 PASS。
+- 下一步：提交候选修复，在 clean HEAD 优先正式重建 lossless；通过后再重建 dense；两者都过 200 MHz `xc7z020clg484-2` 时序且 `DSP=4` 后才可四态上板。
+- 错误记录：主代理三次尝试通过 Windows `apply_patch` 包装层传递补丁，分别因结尾识别和 UTF-8 PATCH 参数失败，三次均未修改文件；已停止重复该方法并改用本白名单编辑。另记录一次 PowerShell `rg` 调用把 `-g` glob 放在路径之后，退出 1 且未修改文件，后续将 `-g` 放在路径前。

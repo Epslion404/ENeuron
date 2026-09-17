@@ -88,9 +88,9 @@ class B2StreamProbeContractTests(unittest.TestCase):
         """已公开的 AXI VALID 在下游阻塞时必须保持，不能被强制背压撤回。"""
         self.assertIn("fifo_valid && !backpressure_stall && !m_axis_tready", self.probe)
 
-    def test_physical_build_uses_extra_timing_opt_and_rejects_bad_timing(self):
+    def test_physical_build_uses_explore_with_remap_and_rejects_bad_timing(self):
         self.assertIn(
-            "set_property strategy Performance_ExtraTimingOpt [get_runs impl_1]",
+            "set_property strategy Performance_ExploreWithRemap [get_runs impl_1]",
             self.build,
         )
         self.assertIn("'axis_stream_probe.v'", self.runner)

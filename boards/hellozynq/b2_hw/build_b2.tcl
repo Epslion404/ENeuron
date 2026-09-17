@@ -70,7 +70,7 @@ validate_bd_design
 generate_target all [get_files */design_1.bd]
 export_ip_user_files -of_objects [get_files */design_1.bd] -no_script -sync -force -quiet
 
-set_property strategy Performance_ExtraTimingOpt [get_runs impl_1]
+set_property strategy Performance_ExploreWithRemap [get_runs impl_1]
 set_property STEPS.PHYS_OPT_DESIGN.ARGS.DIRECTIVE AggressiveExplore [get_runs impl_1]
 set_property STEPS.ROUTE_DESIGN.ARGS.DIRECTIVE Explore [get_runs impl_1]
 set_property STEPS.POST_ROUTE_PHYS_OPT_DESIGN.IS_ENABLED true [get_runs impl_1]

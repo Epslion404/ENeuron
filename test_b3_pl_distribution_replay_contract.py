@@ -22,6 +22,13 @@ def test_distribution_replay_contract_is_compile_time_opt_in() -> None:
     assert "sample_mem" in shim
 
 
+def test_distribution_replay_registers_block_ram_output() -> None:
+    shim = (ROOT / "b3_pl_distribution_replay_shim.sv").read_text(encoding="utf-8")
+    assert ".READ_LATENCY_B(2)" in shim
+    assert "STATE_REPLAY_PREFETCH_READY" in shim
+    assert "replay_beat + 3" in shim
+
+
 def test_distribution_replay_changes_use_t1_repro_scope() -> None:
     scopes = classify_paths(
         ["b3_pl_distribution_replay_shim.sv", "tb_b3_pl_distribution_replay_shim.sv"]
