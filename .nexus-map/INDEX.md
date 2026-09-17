@@ -1,16 +1,16 @@
 # ENeuron 知识库入口
 
-## 当前主线覆写（2026-09-17，CP5a 正式通过、CP5b 待执行）
+## 当前主线覆写（2026-09-17，CP5b 分布吞吐正式通过）
 
-B3-22.2/B3-22.3/B3-22.4 与旧 1024 样本输出保持采集已完成。QAT CP0、CP1、CP3c、CP4 和 CP5a 已完成；严格 2:4 live/static 精度失败，当前主候选为无损零组跳过。CP5a 单样本纯 PL replay 正式测得 `2512→2302 cycles/sample`、吞吐提升 `1.091225x`，结果帧/logits/CRC 一致。当前执行点为 CP5b 397 样本分布 replay 设计；速度、功耗和目标门继续 OPEN。
+B3-22.2/B3-22.3/B3-22.4 与旧 1024 样本输出保持采集已完成。QAT CP0、CP1、CP3c、CP4、CP5a 和 CP5b 已完成；严格 2:4 live/static 精度失败，当前主候选为无损零组跳过。CP5b 397 样本、5 轮纯 PL 分布 replay 测得 dense `2513.9998 cycles/sample`、lossless `2310.3034 cycles/sample`，吞吐提升 `1.088168676x`、延迟下降 `8.1025%`，结果帧/logits/CRC 一致、协议错误 0，`B3-PL-SPEED-GATE=PASS`、顶层 `B3-SPEED-GATE=PASS_PURE_PL_ONLY`；CP4 单样本 packet 路径为 `B3-PACKET-SPEED=MEASURED_WEAK_GAIN_1_008196X`。当前执行点为冻结 CP5b 连续负载并执行 CP8 paired 功耗；功耗和目标门继续 OPEN。
 
 > generated_by: nexus-mapper v2 / manual synthesis
 > verified_at: 2026-09-16
 > provenance: 当前 checkout 路径、分支与提交分别以 `git rev-parse --show-toplevel`、`git branch --show-current` 和 `git rev-parse HEAD` 的实时输出为准；历史路径、分支和 PR 名称仅作来源。bitstream RTL 身份 `be84596`，raw 探针绑定历史 `c46320e`。SPEED 证据 `artifacts/logs/b3_speed_20260912_be84596/b3_speed_comparison.json`。
 
-## 当前权威快照（2026-09-17，日常主线 CP5b）
+## 当前权威快照（2026-09-17，日常主线 CP8 功耗）
 
-器件 `xc7z020clg484-2`。QAT CP4 397 样本输出保持正式通过；CP5a 的两套 replay wrapper 均通过 200 MHz 物理门，QAT sample index 201 的 1000/10000 PL 内部 replay 为 dense `79,617.834`、lossless `86,880.973 samples/s`，提升 `1.091225x`。该证据只覆盖单样本。下一步是 CP5b 397 样本 PL 内循环和至少 5 轮交替 A/B；严格 2:4、独立 PL auto-mask、B3-22.5 和 B3-STRICT 均为后置支线。
+器件 `xc7z020clg484-2`。QAT CP4 397 样本输出保持正式通过；CP5b 397 样本、5 轮纯 PL 分布 replay 正式通过：dense `2513.9998 cycles/sample`、lossless `2310.3034 cycles/sample`，吞吐提升 `1.088168676x`、延迟下降 `8.1025%`，5 轮无抖动，`B3-PL-SPEED-GATE=PASS`、顶层 `B3-SPEED-GATE=PASS_PURE_PL_ONLY`。CP4 单样本 packet 路径 `1.008196x` 单独记为 `B3-PACKET-SPEED=MEASURED_WEAK_GAIN_1_008196X`，不称为纯 PL。下一步是冻结 CP5b dense/lossless 连续负载并执行 CP8 paired 功耗；严格 2:4、独立 PL auto-mask、B3-22.5 和 B3-STRICT 均为后置支线。
 
 B3-MVP-GATE 已在同一份集中 Vivado 2024.1 bitstream 上关闭：RTL 身份 `be84596`，200 MHz FCLK0。WNS=+0.045 ns，TNS=0，WHS=+0.036 ns，THS=0，route/DRC hard errors=0，DSP48E1=4。
 - bit SHA-256=`0ecbe76274c39418f2a60a88358d3ff6f09f5a2ed73a44a3a419c34eb91d3a11`
@@ -22,15 +22,15 @@ B3-MVP-GATE 已在同一份集中 Vivado 2024.1 bitstream 上关闭：RTL 身份
 
 四模式 A/B 两轮一致：dense/full-open 592/0 组、2494 cycles、logits 165,-18,14,0,0,0,0,0,0,153；static mixed 296/296、1606 cycles、logits 74,-18,...,114、`decision_source=host_replay_static_mixed`；live-ENeuron 296/296、1606 cycles、logits 与 dense 相同、`decision_source=live_eneuron_s2`。
 
-`B3-SPEED-MEASURED` 已完成单样本诊断。同源 bit `be84596` / SHA `0ecbe762…3a11`、COM15：dense/full-open 2494 cycles、PS 7 µs、DMA ~60 µs、UART ~66–77 ms；static 1606 cycles、DMA 56 µs、UART 63 ms；live 1606 cycles、PS 996 µs、DMA 56 µs。DMA 包含 NPU，UART 又包住整个流程，字段不可相加；当前为 `B3-SPEED-GATE=OPEN / END_TO_END_ACCELERATION_NOT_PROVEN`。证据：`artifacts/logs/b3_speed_20260912_be84596/b3_speed_comparison.json`。
+`B3-SPEED-MEASURED` 已完成单样本诊断。同源 bit `be84596` / SHA `0ecbe762…3a11`、COM15：dense/full-open 2494 cycles、PS 7 µs、DMA ~60 µs、UART ~66–77 ms；static 1606 cycles、DMA 56 µs、UART 63 ms；live 1606 cycles、PS 996 µs、DMA 56 µs。DMA 包含 NPU，UART 又包住整个流程，字段不可相加；该单样本 PS 在环诊断为历史 `END_TO_END_ACCELERATION_NOT_PROVEN`，不改写为通过，顶层现为 `B3-SPEED-GATE=PASS_PURE_PL_ONLY`。证据：`artifacts/logs/b3_speed_20260912_be84596/b3_speed_comparison.json`。
 
 只可声称：`group_4way` 动态剪枝正确性 + 局部 NPU 周期差值 888 cycles。禁止：把 888 当端到端加速、把 Vivado 功耗当板上功耗、把 19-word 当连接级 `2:4`。不可声称网口加速、测得功耗、B2-GATE。MVP 证据：`artifacts/logs/b3_mvp_20260912_be84596/`。
 
-当前门：`B3-QAT-CP1=PASS`、`B3-SPEED-GATE=OPEN`、`B3-POWER-MEASURED=OPEN`、`B3-POWER-GATE=OPEN`、`B3-GOAL-GATE=OPEN`。提交 `82b079e` 以 16 项局部缓存消除 512 次重复 L0 `group_mac`；同源 bit/XSA、新 ELF 三次实板 `ps_us=827/829/828`，且 logits、`296/296`、1606 cycles、protocol errors=0。相比历史单次 996 µs 有诊断改善，但仍保留 dense L0 扫描，不能据此关闭端到端速度门。证据 `artifacts/logs/b3_live_l0_cache_20260913_82b079e/`。POWER 仍为 `POWER_NOT_MEASURED`；严格 2:4 是结构实验。
+当前门：`B3-QAT-CP1=PASS`、`B3-PL-SPEED-GATE=PASS`、`B3-POWER-MEASURED=OPEN`、`B3-POWER-GATE=OPEN`、`B3-GOAL-GATE=OPEN`。提交 `82b079e` 以 16 项局部缓存消除 512 次重复 L0 `group_mac`；同源 bit/XSA、新 ELF 三次实板 `ps_us=827/829/828`，且 logits、`296/296`、1606 cycles、protocol errors=0。相比历史单次 996 µs 有诊断改善，但仍保留 dense L0 扫描，不能据此关闭端到端速度门。证据 `artifacts/logs/b3_live_l0_cache_20260913_82b079e/`。POWER 仍为 `POWER_NOT_MEASURED`；严格 2:4 是结构实验。
 
 ## 当前活动范围
 
-主线固定 `xc7z020clg484-2`：NPU 单时钟、ENeuron 组级动态剪枝、NP7 共享 lane，以及 B1/B2/B3/B4 集成。活动入口：`npu_eneuron_*`、`npu_zynq7020_t1_wrapper.sv`、`local_prune_*`、`eneuron_group4way_live.py`、`np7_*`、`b2_npu_status_probe.v`。CH340 按 VID/PID 识别；双设备时必须显式 COM15。合同：`docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`。状态串：`FUNCTIONAL_PASS / PHYSICAL_PASS / B3_MVP_GATE_PASS / B3_SPEED_MEASURED / B3_SPEED_GATE_OPEN / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B3_STRICT_DEFERRED_STRUCTURAL / B2_GATE_PENDING`。
+主线固定 `xc7z020clg484-2`：NPU 单时钟、ENeuron 组级动态剪枝、NP7 共享 lane，以及 B1/B2/B3/B4 集成。活动入口：`npu_eneuron_*`、`npu_zynq7020_t1_wrapper.sv`、`local_prune_*`、`eneuron_group4way_live.py`、`np7_*`、`b2_npu_status_probe.v`。CH340 按 VID/PID 识别；双设备时必须显式 COM15。合同：`docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md`。状态串：`FUNCTIONAL_PASS / PHYSICAL_PASS / B3_MVP_GATE_PASS / B3_QAT_CP5B_PL_DISTRIBUTION_FORMAL_PASS / B3_PL_SPEED_GATE_PASS / B3_PACKET_SPEED_MEASURED_WEAK_GAIN_1_008196X / B3_SPEED_GATE_PASS_PURE_PL_ONLY / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B3_STRICT_DEFERRED_STRUCTURAL / B2_GATE_PENDING`。
 
 pytest 日常主线收集边界由根目录 `pytest.ini` 冻结：递归排除 `archive/`、`.planning/`、Git/Xilinx/pytest 缓存目录，并忽略仍依赖归档前相对路径的根级 legacy 测试；历史文件保留，但不参与当前 ZYNQ7020 日常门。边界合同由 `test_pytest_scope_contract.py` 检查；完整 B2 编排入口为 `run_b2_checks.ps1 -Full`。
 
@@ -72,11 +72,11 @@ pytest 日常主线收集边界由根目录 `pytest.ini` 冻结：递归排除 `
 
 主线固定为 `xc7z020clg484-2`：NPU 单时钟计算、ENeuron 动态剪枝、NP7 共享 lane，以及 B1/B2/B3/B4 集成。活动入口见 `npu_eneuron_*`、`npu_zynq7020_t1_wrapper.sv`、`local_prune_*`、`eneuron_local_prune_wrapper.sv`、`digital_lif_engine.sv`、`eneuron_group4way_live.py` 和 `np7_*`。绑定旧 `xc7z020clg400-1` 的 OOC 只能作结构参考，不能替代目标器件最终 routed 证据。
 
-`archive/legacy/` 下的 Pulse-Mini、digit8x8、G4、旧 Tile/Host Bridge、NP6/NP7 旧物理报告和普通历史结果不参与当前日常门。高地址 DDR 与 B1C UDP 保留为板卡资格支线。MVP、QAT CP0/CP1 和无损零组跳过 RTL 语义切片已完成；当前 CP3c 因 200 MHz setup 失败阻塞 bit/XSA。只有物理门通过后才执行 8/64/397 样本 dense/lossless 实板对拍与纯 PL 吞吐；`B3-ACCURACY-GATE`、`B3-SPEED-GATE`、`B3-POWER-GATE` 均 OPEN。功耗、严格连接级 `2:4`、B2-GATE 和网口发布继续后置。
+`archive/legacy/` 下的 Pulse-Mini、digit8x8、G4、旧 Tile/Host Bridge、NP6/NP7 旧物理报告和普通历史结果不参与当前日常门。高地址 DDR 与 B1C UDP 保留为板卡资格支线。MVP、QAT CP0/CP1、无损零组跳过 RTL 语义切片、CP3c、CP4、CP5a 与 CP5b 已完成；397 样本 dense/lossless 实板对拍与纯 PL 连续吞吐均已通过。`B3-ACCURACY-GATE` 与 `B3-PL-SPEED-GATE` 已通过，`B3-POWER-GATE` 仍 OPEN。当前执行点是冻结 CP5b dense/lossless 连续负载并执行 CP8 paired 功耗；功耗、严格连接级 `2:4`、B2-GATE 和网口发布继续后置。
 
 证据边界：当前部署和最终板级物理签核目标是 `xc7z020clg484-2`。`xc7z020clg400-1` 上的 T3/NP7 OOC、时序和资源报告只作为历史结构参考，不得写成 `clg484-2` 已签核；`archive/legacy/` 中的材料不进入日常 CI/PR 门。B1 高地址 DDR、PHY 和 UDP 属于板卡资格支线，仍阻塞完整 `B1-GATE`，但在已验证低地址窗口足以容纳模型与 DMA 缓冲区时，不阻塞 NPU MVP 的 RTL/软件推进。CH340 运行脚本按 `VID_1A86:PID_7523` 识别设备，COM 号只是现场枚举结果，不是固定合同。
 
-合同与恢复口径（2026-09-13）：`WORKFLOW_STATE.md` 指定 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md` 为当前阶段合同；中等精简后的主线 TODO 仅统计 `docs/planning/TODO.md` 的 P16，当前活动计数以脚本实时输出为准。`P16-E` 公共证据合同与 `P16-S` 统一停止条件是持续适用的常驻合同，不计入一次性计数；`NP8` 为 `DEFERRED_OPTIONAL`，`NP9` 已并入 P16 的 B2/B3/B4。B3-MVP-GATE 已关闭；当前门是 `B3-SPEED-GATE` 与 `B3-POWER-MEASURED/B3-POWER-GATE`，最终汇入 `B3-GOAL-GATE`。B2-GATE 仍是网口发布门；B3-STRICT 是独立结构实验，不阻塞当前速度/功耗目标。
+合同与恢复口径（2026-09-13）：`WORKFLOW_STATE.md` 指定 `docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md` 为当前阶段合同；中等精简后的主线 TODO 仅统计 `docs/planning/TODO.md` 的 P16，当前活动计数以脚本实时输出为准。`P16-E` 公共证据合同与 `P16-S` 统一停止条件是持续适用的常驻合同，不计入一次性计数；`NP8` 为 `DEFERRED_OPTIONAL`，`NP9` 已并入 P16 的 B2/B3/B4。B3-MVP-GATE 已关闭；当前门是 `B3-POWER-MEASURED/B3-POWER-GATE`，`B3-PL-SPEED-GATE` 已由 CP5b 关闭，最终汇入 `B3-GOAL-GATE`。B2-GATE 仍是网口发布门；B3-STRICT 是独立结构实验，不阻塞当前功耗目标。
 
 状态更正（2026-09-10）：上方为当前权威状态；本文件后续 2026-09-09 历史段落中若仍写“B2-03/B2-04/B2-05 未关闭”，均由后续正式边界、压力、背压、回绕、恢复、间歇和 missing-TLAST 证据 supersede。当前待关闭项仅为 B2-06/B2-07/B2-08/B2-09/B2-10 与 B2-GATE；BRAM 探针已由 `f4827e2` 提交，命令 FIFO 保持槽时序切片已由 `195e6e7` 提交，但尚未以该 RTL 重跑完整 Vivado。
 
@@ -125,7 +125,7 @@ B1A-HW更新（2026-09-08）：正式UART方向的可重建硬件定义已在干
 
 发布终态（2026-09-07）：PR #69最终HEAD为 `02514b5f4ffd3b5c6a033a2f2d9e6f7b6bcaef92`，于 `2026-09-07T16:17:15Z` 合并，merge commit为 `102dee2a004283ce4144aaf6ee0a2cee3ebd2887`。Actions关闭且checks为空；合并依据是本机Vivado/JTAG/实板证据、17项定向测试、37份JSON和PR CLEAN/MERGEABLE。
 
-P16 阶段 2 总路线见 `.nexus-map/arch/p16_board_validation.md` 和 `.nexus-map/concepts/p16_board_validation.json`。B0-GATE与 B3-MVP-GATE 已关闭。当前日常目标按 `B3-SPEED-GATE + B3-POWER-GATE → B3-GOAL-GATE` 收口；B3-STRICT 是独立结构实验，B2-GATE 与板卡资格支线保留为网口发布依赖。Host 静态 mask 与 live-ENeuron 结果继续分开验收和统计。
+P16 阶段 2 总路线见 `.nexus-map/arch/p16_board_validation.md` 和 `.nexus-map/concepts/p16_board_validation.json`。B0-GATE与 B3-MVP-GATE 已关闭。当前日常目标按 `B3-PL-SPEED-GATE + B3-POWER-GATE → B3-GOAL-GATE` 收口；B3-STRICT 是独立结构实验，B2-GATE 与板卡资格支线保留为网口发布依赖。Host 静态 mask 与 live-ENeuron 结果继续分开验收和统计。
 
 当前校正（2026-09-07）：T3 证据已用提交 `c2bc03f` 重跑并绑定；顶层资源为 `2467 LUT / 2301 FF / 6 RAMB36 / 1 RAMB18 / 4 DSP48E1`。下方旧快照中的 `822cf93` 仅保留历史来源，不覆盖本条。
 

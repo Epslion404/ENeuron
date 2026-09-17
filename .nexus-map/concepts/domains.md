@@ -8,10 +8,10 @@
 
 ## 当前权威概念边界（2026-09-16，CP4 clean 正式通过）
 
-器件 `xc7z020clg484-2`，checkout 身份以 Git 实时输出为准。B3-MVP-GATE、QAT CP1 dense、lossless CP3c 和 CP4 clean 已完成；397 样本正式对拍 logits 逐元素一致，核心周期约 `1.089x`，单样本窗口约 `1.008x`。无损候选的 `B3-ACCURACY-GATE` 已通过，`B3-SPEED-GATE`、`B3-POWER-MEASURED/B3-POWER-GATE` 保持 OPEN。严格连接级 `2:4`、独立 PL auto-mask 与网口发布是后置支线。
+器件 `xc7z020clg484-2`，checkout 身份以 Git 实时输出为准。B3-MVP-GATE、QAT CP1 dense、lossless CP3c 和 CP4 clean 已完成；397 样本正式对拍 logits 逐元素一致，核心周期约 `1.089x`，单样本窗口约 `1.008x`。CP5b 397 样本纯 PL 连续吞吐已通过（`1.088168676x`）；无损候选的 `B3-ACCURACY-GATE` 与 `B3-PL-SPEED-GATE` 已通过，`B3-POWER-MEASURED/B3-POWER-GATE` 保持 OPEN。严格连接级 `2:4`、独立 PL auto-mask 与网口发布是后置支线。
 
 - `B3_MVP_GATE_PASS`：同一份集中 Vivado 2024.1 bitstream（RTL `be84596`，200 MHz FCLK0）上关闭 B3-04/09/11/13/14。WNS=+0.045 ns，TNS=0，WHS=+0.036 ns，THS=0，route/DRC hard errors=0，DSP48E1=4。bit SHA-256=`0ecbe76274c39418f2a60a88358d3ff6f09f5a2ed73a44a3a419c34eb91d3a11`，XSA SHA-256=`135d979d61c629922ee5419e51dd97ef045d9bab79930432816d09f109291d1a`。只可声称 `group_4way` 动态剪枝正确性 + 局部 NPU 周期差值 888 cycles。
-- `B3_SPEED_MEASURED / B3_SPEED_GATE_OPEN`：COM15 同源 bit 上 dense/full-open/static/live 已分开 NPU/PS/DMA/Host UART。888 cycle ≈ 4.4 µs，小于 Host live 决策约 996 µs；DMA 包含 NPU、UART 又包含整个流程，字段不可相加。`claim=local_npu_cycle_delta_only`。证据 `artifacts/logs/b3_speed_20260912_be84596/`。
+- 历史 `B3_SPEED_MEASURED / B3_SPEED_GATE_OPEN`（单样本诊断，现顶层为 `B3-SPEED-GATE=PASS_PURE_PL_ONLY`）：COM15 同源 bit 上 dense/full-open/static/live 已分开 NPU/PS/DMA/Host UART。888 cycle ≈ 4.4 µs，小于 Host live 决策约 996 µs；DMA 包含 NPU、UART 又包含整个流程，字段不可相加。`claim=local_npu_cycle_delta_only`。证据 `artifacts/logs/b3_speed_20260912_be84596/`。
 - `PENDING_EPOCH_FROM_MASK_PUBLISHED`：公开 `pending_mask_epoch` 必须来自 `mask_state==MASK_PUBLISHED`。`mask_valid` 只表示已在样本首 beat 激活；commit 后、下一样本前它仍可为 0。B3-11 hold：MASK_COMMIT 后 `active=0 pending=1`；样本后 `active=1 pending=0`。
 - `STATUS_BLOCK_0x40430000_FROZEN`：AXI-Lite 只读状态块基址 `0x40430000`。0x00-0x4C 不变；0x50 runtime_status；0x54/0x58 active/pending mask epoch；0x5C last NPU compute cycles；0x60 protocol errors。写请求完成握手并返回 `SLVERR`，不修改状态。
 - `B3_LIVE_ENEURON_HOST_GREEN / B3_09_BOARD_PASS`：Host 路径由 `fe25a70` 接通；板级 live 已在 `be84596` bitstream、COM15 上关闭。`eneuron_group4way_live.py` 用 ENeuron S2、gain=1，把每四个 NPU 组当 meta-neuron，量化 0..3 后保留 2 组。live logits=`165,-18,14,0,0,0,0,0,0,153`，execute/skip=`296/296`，`decision_source=live_eneuron_s2`。不是 B3-08b。
@@ -22,7 +22,7 @@ B3-02 共享固定向量合同：`tools/repro/b3_fixed_vector_manifest.json` 是
 
 B3-08a 组级静态 mixed mask 实板子门（2026-09-12）：提交 `73b12c3` 的 `b3_static_mixed` 在同一物理通过 bit/XSA、COM15 上通过，run `20260912T102046Z`，manifest 为 `boards/hellozynq/b2_sw/build/73b12c30baf1507876c6bff01059a2c28c919a8d/direct/runs/20260912T102046Z/run_manifest.json`。结果 logits=`74,-18,14,0,0,0,0,0,0,114`，`fence_snapshot_valid=1`，592 个 `group_4way` 组中 execute/skip=`296/296`。该证据关闭 B3-08a；严格连接级 `2:4` 延后到 STRICT。B3-09 板级 live 已由 `be84596` 关闭。
 
-B3 门禁分层：`B3-MVP-GATE`、QAT CP1 dense 和 lossless CP3c 已关，CP4 已有开发对拍；当前执行 clean HEAD 复跑，随后进入 CP5 纯 PL 吞吐与功耗。`B3-ACCURACY-GATE`、`B3-SPEED-GATE` 与 `B3-POWER-MEASURED/B3-POWER-GATE` 三者均通过后才关闭 `B3-GOAL-GATE`。`B3-STRICT-GATE` 独立覆盖严格连接级 `2:4`、10000 样本和完整恢复；`B4-RELEASE-GATE` 覆盖网口发布。
+B3 门禁分层：`B3-MVP-GATE`、QAT CP1 dense、lossless CP3c 和 CP4 已关，CP5b 纯 PL 分布吞吐已通过；当前执行 CP8 paired 功耗。`B3-ACCURACY-GATE`、`B3-PL-SPEED-GATE` 与 `B3-POWER-MEASURED/B3-POWER-GATE` 三者均通过后才关闭 `B3-GOAL-GATE`。`B3-STRICT-GATE` 独立覆盖严格连接级 `2:4`、10000 样本和完整恢复；`B4-RELEASE-GATE` 覆盖网口发布。
 
 B3 execute/skip 计数器前置物理状态（2026-09-12）：第三次 `route_design -directive Explore` 加既有 post-route `AggressiveExplore` 的构建绑定 HEAD `c3a50eb`，在 `xc7z020clg484-2`、200 MHz 下通过物理硬门：`WNS/TNS=+0.008/0 ns`、`WHS/THS=+0.036/0 ns`、setup/hold 失败端点为 0、route errors=0、DRC hard errors=0、DSP48E1=4；bit/XSA SHA-256 分别为 `5c6ebc07…c910a88`/`86288374…177a614`。后续 `be84596` 同源实板已读回 dense/full-open/bypass=`592/0`，并关闭 B3-06/B3-07。
 

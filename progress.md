@@ -1,5 +1,14 @@
 # 进度记录
 
+## 2026-09-16 CP5b 397 样本分布 replay 实板执行
+
+- dense/lossless distribution wrapper 均通过 `xc7z020clg484-2`、200 MHz 物理门：dense `WNS/WHS=+0.033/+0.036 ns`，lossless `+0.052/+0.022 ns`；route/DRC hard error=0、DSP48E1=4。
+- 完成 5 轮 `dense → lossless` 交替实板运行，共 10 个正式 run，全部 `CP5B_DISTRIBUTION_PASS`。
+- dense 五轮固定为 `2513.9998 cycles/sample`、`79,554.501 samples/s`；lossless 五轮固定为 `2310.3034 cycles/sample`、`86,568.716 samples/s`。
+- 正确性账本：每轮 capture=397、completed=10000、observed groups=`6,747,024`、final index=74、result frame PASS、CRC=`418225535`、protocol errors=0。
+- 下一步：用脚本归档并生成正式 CP5b pair artifact，补合同测试和状态文档，再决定 `B3-SPEED-GATE`。
+- RED 测试首次调用 `.venv\\Scripts\\python.exe` 时缺少 PowerShell 调用运算符，命令被当成模块名而未执行；后续统一使用 `& .\\.venv\\Scripts\\python.exe`。
+
 ## 2026-09-17 CP5a 纯 PL replay 工具切片
 
 - CP5a 正式实板完成：dense/lossless replay wrapper 物理签核分别为 `WNS/WHS=+0.004/+0.036 ns` 与 `+0.005/+0.010 ns`，TNS/THS、route、DRC hard error=0、DSP48E1=4。
@@ -2494,3 +2503,21 @@
 - 正式结果更新为 `artifacts/results/b3_qat_cp4_lossless_zero_group_board_397.json`；CP4 与 lossless accuracy gate 关闭。
 - runner formal 证据合同已加固，定向测试 `13 passed`。
 - 当前执行点：CP5a replay wrapper 物理签核与单样本实板 bring-up；通过后执行 CP5b 397 样本分布吞吐，再冻结 dense/lossless 四种功耗状态。
+# 2026-09-17 DeepSeek CP5/CP6/CP8 管理修正主审
+
+- 已确认 DeepSeek MCP 任务完成，修改仍在工作区且未提交。
+- 已读取当前 diff、规划记录和状态残留；开始逐文件审核速度门、CP6 与 CP8 的当前态语义。
+- 下一步：修正 Nexus 目标范围、功耗合同和过时仪器描述，再运行定向 pytest、JSON 校验、残留搜索与 `git diff --check`。
+
+## 2026-09-17 CP5/CP6/CP8 管理修正复审收口
+
+- 修正 `.nexus-map/concepts/p16_board_validation.json` 的 `goal_scope`，改为纯 PL + 整板功耗范围，packet/end-to-end 加速需另行重复实测。
+- 重写 `docs/planning/NPU_B3_POWER_INSTRUMENT_CONTRACT_V1.md` 当前态（B10、接线、显示精度、人工照片、四态、paired rounds、统计量、关闭边界），状态保持 `POWER_NOT_MEASURED / MEASUREMENT_OPEN`。
+- 同步 `tools/repro/b3_power_instrument_contract.json`（保留六字段、填入真实值、新增机器可读 CP8 字段）。
+- 修正 `docs/planning/NPU_PRUNING_TODO.md` 的“本机无功耗仪”。
+- 在 `test_b3_power_report_contract.py` 增加 B10/CP8 四态最小断言；历史 `b3_power_report.json` 不改写。
+- 运行 JSON 校验与 `test_b3_power_report_contract.py`、`test_b3_speed_report_contract.py`；WSL 普通 git 受 worktree `.git` Windows 路径限制，`git diff --check` 交由主代理在 Windows 验证。
+- 第二轮 `opencode-deepseek` 同步任务在 300 秒桥接上限被终止（`failed/tool-calls`），但已留下目标文件修改；主代理逐项审查后保留可验证部分，并自行修正能耗公式与 TODO 底部残留的旧 `live/static` 当前态。
+- 主代理定向验证：功耗/CP5b/artifact 合同 `15 passed`；速度合同 `13 passed, 1 failed`，唯一失败是 WSL 普通 Git 无法解析 Windows worktree `.git` 路径，与断言和本轮状态改动无关；Windows `git diff --check` 与 4 个改动 JSON 校验通过。
+- 残留搜索发现 `.nexus-map/concepts/b2_packet_npu.json` 的旧 `b3_goal_optimization_line.B3-21` 仍写 `idle/dense/static/live`；已把该对象标为历史工程线，并将当前 B3-21 改为 CP8 dense/lossless 四态。一次 PowerShell `rg test_*.py` 再次触发通配符路径错误；后续只使用 `rg -g 'test_*.py'`，不再重复。
+- 最终扩展定向回归（CP5a/CP5b replay、distribution、speed、power、artifact、pytest scope、CI-fast）为 `55 passed`；4 个改动 JSON 通过解析，`git diff --check` 干净。残留搜索仅命中显式历史记录、当前 CP8 下一步和对旧 CP6 双引擎方向的否定说明。

@@ -10,7 +10,7 @@
 
 B3-11 COM15 hold：MASK_COMMIT 后、下一样本前 `0x54 active=0` / `0x58 pending=1`；样本后 `active=1 pending=0`。pending 必须来自 `mask_state==MASK_PUBLISHED`，不是 `mask_valid`。状态块 `0x40430000`：0x00-0x4C 不变；0x50 runtime_status；0x54/0x58 epoch；0x5C last NPU compute cycles；0x60 protocol errors。
 
-B3-13/14 与历史速度切片保留为旧 fixture 工程证据。QAT CP4 clean 正式对拍完成 397/397 dense/lossless logits 逐元素一致、任务准确率均 88.665%、协议错误 0。CP5a replay 行为、物理门和正式实板已通过：代表性样本 dense/lossless 为 `2512/2302 cycles/sample`、吞吐 `1.091225x`，结果帧/logits/CRC 一致。证据 `artifacts/results/b3_qat_cp5a_pl_replay_board_pair.json`。CP5b 397 样本分布吞吐和外部功耗未完成，`B3-SPEED-GATE=OPEN`。
+B3-13/14 与历史速度切片保留为旧 fixture 工程证据。QAT CP4 clean 正式对拍完成 397/397 dense/lossless logits 逐元素一致、任务准确率均 88.665%、协议错误 0。CP5a replay 行为、物理门和正式实板已通过；CP5b 397 样本、5 轮纯 PL 分布 replay 亦已通过：dense/lossless 为 `2513.9998/2310.3034 cycles/sample`、吞吐 `1.088168676x`、延迟下降 `8.1025%`，结果帧/logits/CRC 一致、协议错误 0，200 MHz 物理门通过、DSP48E1=4。证据 `artifacts/results/b3_qat_cp5b_pl_distribution_board_pair.json`。`B3-PL-SPEED-GATE=PASS`、顶层 `B3-SPEED-GATE=PASS_PURE_PL_ONLY`；CP4 单样本 packet 路径为 `B3-PACKET-SPEED=MEASURED_WEAK_GAIN_1_008196X`。外部功耗未完成。
 
 B3-09 Host/板级覆盖：`test_eneuron_group4way_live.py` 覆盖每 meta 保留 2/4、粒度、S2 gain 与 live/static 分离；`test_b2_packet_board_contract.py` 冻结 live 标记、禁止静态 mask 表，并检查 L0 dense/evidence 共享 16 项缓存。历史基线已在 `be84596` 关闭；QAT-v3 的 CP0 packing/reference/训练划分合同另由 `test_b3_qat_model_manifest_contract.py` 与 `test_train_qat_split_contract.py` 覆盖，397 样本 standalone PL-auto 仿真为 `397/397`。CP1 dense 已完成 8/64 样本板级逐位对拍，归档于 `artifacts/results/b3_qat_cp1_dense_64_board.json`；当前仍不能把它外推为剪枝精度或 PL-auto 证据。
 
@@ -18,7 +18,7 @@ B3-02 共享固定向量 manifest（2026-09-12）：`test_b3_fixed_vector_manife
 
 B3-08a 覆盖（2026-09-12）：run `20260912T102046Z`、manifest `boards/hellozynq/b2_sw/build/73b12c30baf1507876c6bff01059a2c28c919a8d/direct/runs/20260912T102046Z/run_manifest.json`，同一物理通过 bit/XSA、COM15、`b3_static_mixed` 实板 PASS；logits=`74,-18,14,0,0,0,0,0,0,114`，group_4way execute/skip=`296/296`，fence valid=`1`。该粒度不是严格连接级 `2:4`。严格连接级 `2:4`、10000 样本、完整恢复属于 STRICT；板级功耗目标属于 B3-POWER，网口发布属于 B4。
 
-当前测试分层（2026-09-13）：`B3-MVP-GATE` 已关；`B3-SPEED-GATE` 与 `B3-POWER-MEASURED/B3-POWER-GATE` 仍开，二者共同决定 `B3-GOAL-GATE`。`B3-STRICT-GATE` 覆盖严格 `2:4`、10000 样本和完整恢复；`B4-RELEASE-GATE` 覆盖网口发布。B2-GATE 的完整错误/复位账本仍开放。
+当前测试分层（2026-09-17）：`B3-MVP-GATE` 已关；`B3-PL-SPEED-GATE` 已由 CP5b 关闭；`B3-POWER-MEASURED/B3-POWER-GATE` 仍开，与 `B3-GOAL-GATE` 共同收口。`B3-STRICT-GATE` 覆盖严格 `2:4`、10000 样本和完整恢复；`B4-RELEASE-GATE` 覆盖网口发布。B2-GATE 的完整错误/复位账本仍开放。
 
 计数器物理覆盖（2026-09-12）：当前下载身份是 `be84596`（WNS=+0.045 ns）。历史 `c3a50eb`（WNS=+0.008 ns）与 `88bec9e` packet smoke 只作前置证据，不覆盖本条。dense/full-open/bypass 实板已读回 execute/skip=`592/0`，B3-00/B3-06/B3-07 已关闭。
 

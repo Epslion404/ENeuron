@@ -175,7 +175,7 @@ class B3SpeedReportContractTests(unittest.TestCase):
         self.assertEqual(observed_skip, data["skip_groups"])
         self.assertEqual(observed_errors, data["protocol_errors"])
 
-    def test_current_management_entries_follow_cp5a_state(self) -> None:
+    def test_current_management_entries_follow_cp5b_state(self) -> None:
         root = Path(__file__).resolve().parent
         b2 = json.loads((root / ".nexus-map/concepts/b2_packet_npu.json").read_text(encoding="utf-8"))
         p16 = json.loads(
@@ -190,32 +190,49 @@ class B3SpeedReportContractTests(unittest.TestCase):
 
         self.assertEqual(b2["source_identity_rule"], "QUERY_CURRENT_CHECKOUT_AT_RUNTIME")
         self.assertIn("B3_QAT_CP5A_PL_REPLAY_FORMAL_PASS", b2["current_status"])
-        self.assertIn("B3_QAT_CP5B_DISTRIBUTION_PENDING", b2["current_status"])
+        self.assertIn("B3_QAT_CP5B_PL_DISTRIBUTION_FORMAL_PASS", b2["current_status"])
+        self.assertIn("B3_PL_SPEED_GATE_PASS", b2["current_status"])
+        self.assertIn("B3_PACKET_SPEED_MEASURED_WEAK_GAIN_1_008196X", b2["current_status"])
+        self.assertIn("B3_SPEED_GATE_PASS_PURE_PL_ONLY", b2["current_status"])
         self.assertIn("B3_POWER_GATE_OPEN", b2["current_status"])
         self.assertIn("B3_GOAL_GATE_OPEN", b2["current_status"])
-        self.assertIn("B3-PAPER-CP5B", b2["next_gate"])
+        self.assertIn("CP8", b2["next_gate"])
+        self.assertIn("PASS_PURE_PL_ONLY", b2["next_gate"])
+        self.assertEqual(b2["current_override"]["b3_pl_speed_gate"], "PASS")
+        self.assertEqual(b2["current_override"]["b3_speed_gate"], "PASS_PURE_PL_ONLY")
         self.assertIn("B3-GOAL-GATE", p16["current_gates"])
+        self.assertIn("B3-POWER-MEASURED", p16["current_gates"])
         self.assertIn("B3_QAT_CP5A_PL_REPLAY_FORMAL_PASS", p16["status"])
-        self.assertIn("B3_QAT_CP5B_DISTRIBUTION_PENDING", p16["status"])
+        self.assertIn("B3_QAT_CP5B_PL_DISTRIBUTION_FORMAL_PASS", p16["status"])
+        self.assertIn("B3_SPEED_GATE_PASS_PURE_PL_ONLY", p16["status"])
         self.assertNotIn("workflow_resume_counts", p16)
         self.assertEqual(p16["workflow_resume_count_rule"], "QUERY_WORKFLOW_RESUME_AT_RUNTIME")
         self.assertEqual(
             p16["current_execution_point"],
-            "B3-PAPER-CP5B_DISTRIBUTION_REPLAY_DESIGN",
+            "B3-PAPER-CP8_PAIRED_POWER",
         )
         self.assertEqual(
             p16["priority_execution_point"],
-            "B3-PAPER-CP5B_DISTRIBUTION_REPLAY_DESIGN",
+            "B3-PAPER-CP8_PAIRED_POWER",
+        )
+        self.assertEqual(p16["b3_speed_gate"]["status"], "PASS_PURE_PL_ONLY")
+        self.assertEqual(p16["b3_speed_gate"]["b3_pl_speed_gate"], "PASS")
+        self.assertEqual(
+            p16["b3_speed_gate"]["b3_packet_speed"],
+            "MEASURED_WEAK_GAIN_1_008196X",
         )
         self.assertEqual(state["b3_goal_gate"], "OPEN")
+        self.assertEqual(state["b3_pl_speed_gate"], "PASS")
+        self.assertEqual(state["b3_speed_gate"], "PASS_PURE_PL_ONLY")
         self.assertIn("CP5b", p16_node["evidence_gap"])
         self.assertNotIn("setup_fail", board_b2["implementation_status"])
         self.assertEqual(concept["current_override"]["verified_at"], "2026-09-17")
+        self.assertEqual(concept["current_override"]["b3_pl_speed_gate"], "PASS")
 
         workflow = (root / "WORKFLOW_STATE.md").read_text(encoding="utf-8")
         next_action = workflow.split("## 下一动作", 1)[1].split("## ", 1)[0]
-        self.assertIn("CP5b", next_action)
-        self.assertIn("397", next_action)
+        self.assertIn("CP8", next_action)
+        self.assertIn("idle", next_action)
         git_forensics = (root / ".nexus-map/hotspots/git_forensics.md").read_text(encoding="utf-8")
         self.assertIn("artifacts/logs/b3_live_l0_cache_20260913_82b079e", git_forensics)
         self.assertIn("PR #93", git_forensics)
@@ -224,8 +241,10 @@ class B3SpeedReportContractTests(unittest.TestCase):
         self.assertNotIn("B3_SPEED_PASS", current)
         self.assertIn("B3_GOAL_GATE_OPEN", current)
         self.assertIn("B3_QAT_CP5A_PL_REPLAY_FORMAL_PASS", current)
-        self.assertIn("CP5b", current)
-        self.assertIn("B3_SPEED_GATE_OPEN", current)
+        self.assertIn("B3_QAT_CP5B_PL_DISTRIBUTION_FORMAL_PASS", current)
+        self.assertIn("B3_PL_SPEED_GATE_PASS", current)
+        self.assertIn("B3_SPEED_GATE_PASS_PURE_PL_ONLY", current)
+        self.assertIn("B3_PACKET_SPEED_MEASURED_WEAK_GAIN_1_008196X", current)
 
     def test_current_docs_separate_measurement_from_speed_gate(self) -> None:
         root = Path(__file__).resolve().parent
@@ -233,8 +252,9 @@ class B3SpeedReportContractTests(unittest.TestCase):
         current = (root / "docs/CURRENT_STATUS.md").read_text(encoding="utf-8")
         workflow = (root / "WORKFLOW_STATE.md").read_text(encoding="utf-8")
         self.assertIn("- [x] B3-SPEED-MEASURED", todo)
-        self.assertIn("- [ ] B3-SPEED-GATE", todo)
-        self.assertIn("B3_SPEED_GATE_OPEN", current)
+        self.assertIn("- [x] B3-SPEED-GATE", todo)
+        self.assertIn("B3-PL-SPEED-GATE", todo)
+        self.assertIn("B3_PL_SPEED_GATE_PASS", current)
         self.assertIn("B3-SPEED-GATE", workflow)
         self.assertNotIn("B3_SPEED_PASS", current)
         self.assertIn("至少 64 个正式样本", todo)
@@ -253,10 +273,10 @@ class B3SpeedReportContractTests(unittest.TestCase):
         )["b3_gate_hierarchy"]
         self.assertIn("B3_SPEED_MEASURED / B3_SPEED_GATE_OPEN", domains)
         self.assertNotIn("`B3_SPEED_PASS`", domains)
-        self.assertIn("B3-SPEED-GATE=OPEN", coverage)
+        self.assertIn("B3-PL-SPEED-GATE=PASS", coverage)
         self.assertEqual(
             hierarchy["parallel_goal_gates"],
-            ["B3-ACCURACY-GATE", "B3-SPEED-GATE", "B3-POWER-GATE"],
+            ["B3-ACCURACY-GATE", "B3-PL-SPEED-GATE", "B3-POWER-GATE"],
         )
         self.assertIn("B3-POWER-MEASURED", hierarchy["current_gates"])
 
@@ -281,7 +301,8 @@ class B3SpeedReportContractTests(unittest.TestCase):
         self.assertNotIn("实板 ELF/JTAG 未关闭", board_arch)
         self.assertEqual(authoritative["source_identity_rule"], "QUERY_CURRENT_CHECKOUT_AT_RUNTIME")
         self.assertEqual(authoritative["b3_mvp_gate"], "PASS")
-        self.assertEqual(authoritative["b3_speed_gate"], "OPEN")
+        self.assertEqual(authoritative["b3_pl_speed_gate"], "PASS")
+        self.assertEqual(authoritative["b3_speed_gate"], "PASS_PURE_PL_ONLY")
         self.assertEqual(authoritative["b3_power_gate"], "OPEN")
         release = next(stage for stage in p16["stages"] if stage["id"] == "B4-RELEASE")
         self.assertNotIn("B3-STRICT-GATE", release["requires"])

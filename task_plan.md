@@ -1,3 +1,16 @@
+# 2026-09-16 CP5b 397 样本纯 PL 分布吞吐收口
+
+目标：把已完成的 5 轮交替 dense/lossless 分布 replay 固化为可机器复核的正式证据，关闭 `B3-PL-SPEED-GATE` 并将顶层标为 `B3-SPEED-GATE=PASS_PURE_PL_ONLY`，随后冻结 paired 功耗测量的持续负载。
+
+- [x] 完成 397 样本捕获、1000 次预热、10000 次计量的 CP5b dense/lossless 物理构建与首轮实板运行。
+- [x] 补足 5 轮 `dense → lossless` 交替实板 A/B；每轮均为正式 clean-source 证据。
+- [x] 新增汇总器与合同测试，归档 10 份 raw run、program/probe log、packet/hardware manifest 和物理签核。
+- [x] 计算逐轮/总体吞吐收益，按正确性、物理门和稳定性判据关闭 CP5 与 `B3-PL-SPEED-GATE`；顶层状态为 `PASS_PURE_PL_ONLY`。
+- [x] 同步 TODO、CURRENT_STATUS、WORKFLOW_STATE、Nexus、artifact 索引并运行定向验证。
+- [ ] 提交、推送 PR #99；随后冻结同一 dense/lossless distribution replay 负载进入 paired 功耗测量。
+
+已知边界：CP5b 是 PL 内部 397 样本循环的稳态吞吐，不包含捕获、packet 装载和 PS/DMA 单样本开销；主候选是 `LOSSLESS_ZERO_GROUP_SKIP`，不是严格 2:4。
+
 # 2026-09-17 CP5a 纯 PL replay bring-up
 
 目标：在不修改正常 packet 推理语义的前提下，增加编译期可选的 PL 内部样本 replay，先获取单个代表性 QAT 样本的 1000 次预热 + 10000 次稳态周期数据，再扩展到 CP5b 的 397 样本分布循环。
@@ -2239,4 +2252,15 @@ RED 记录：新增“完成外部测量不能自动关闭降功耗目标”合�
 
 下一阶段：`B3-PAPER-CP5`。建立长跑汇总记录，预热至少 1000 样本、正式至少 10000 样本，执行 5 轮交替 dense/lossless 的纯 PL 连续吞吐；通过后冻结功耗负载。
 
-错误记录：首次定向 pytest 使用不存在的 Windows `.venv\\Scripts\\python.exe`，未执行测试也未修改文件；已改用 WSL `.venv/bin/python`。一次大块 JSON delete/add 补丁被 apply_patch 拒绝，未修改文件；后续改用局部更新。一次 PAPER 补丁因上下文少了空格被拒绝，未产生部分修改；后续使用精确短上下文。
+错误记录：首次定向 pytest 使用不存在的 Windows `.venv\Scripts\python.exe`，未执行测试也未修改文件；已改用 WSL `.venv/bin/python`。一次大块 JSON delete/add 补丁被 apply_patch 拒绝，未修改文件；后续改用局部更新。一次 PAPER 补丁因上下文少了空格被拒绝，未产生部分修改；后续使用精确短上下文。
+
+## 2026-09-17 CP5/CP6/CP8 管理修正复审收口
+
+状态：`COMPLETE / UNCOMMITTED`
+
+- 修正 `.nexus-map/concepts/p16_board_validation.json` 的 `goal_scope`：目标范围改为“可重复纯 PL 推理吞吐提升 + 外部整板功率/能耗改善 + 正确性保持”，并明确 packet/end-to-end 加速必须另有重复实测，不得由 CP5b 外推。
+- 重写 `docs/planning/NPU_B3_POWER_INSTRUMENT_CONTRACT_V1.md` 当前态：记录 B10 Type-C 串联仪表（精度 `<0.2%`、V/A/W 5 位小数、mAh/mWh 7 位整数）、测点、人工拍照读数、CP8 四态、至少 5 组交替 paired rounds、统计量与关闭边界；状态保持 `POWER_NOT_MEASURED / MEASUREMENT_OPEN`。
+- 同步 `tools/repro/b3_power_instrument_contract.json`：保留六个中文字段并填入真实值，增加机器可读 `cp8_states`、`paired_rounds_min=5`、`metrics`、`forbidden_attribution` 等；`status` 仍为 `POWER_NOT_MEASURED`。
+- 修正 `docs/planning/NPU_PRUNING_TODO.md` 的“本机无功耗仪”过时描述。
+- 在 `test_b3_power_report_contract.py` 增加最小合同断言，冻结 B10 与 CP8 四态；历史 `b3_power_report.json` 的 dense/static/live 保持不变。
+- 历史 `artifacts/logs/b3_power_20260913_be84596/` 人工读数保留为工程观察，不改写为 CP8 正式证据。

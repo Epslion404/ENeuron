@@ -1,5 +1,18 @@
 # 调研与实验发现
 
+## 2026-09-16 CP5b 5 轮分布吞吐实板结果
+
+- 5 轮交替 `dense → lossless_zero_group_skip` 全部返回 `CP5B_DISTRIBUTION_PASS`；两侧每轮均为 `formal_evidence=true`、397 输入、1000 次预热、10000 次计量、最终样本索引 74、协议错误 0。
+- dense 五轮均为 `2513.9998 cycles/sample`、`79,554.501 samples/s`；lossless 五轮均为 `2310.3034 cycles/sample`、`86,568.716 samples/s`，计数无轮间抖动。
+- 每轮观察组实例均为 `6,747,024=(397+1000+10000)×592`；dense 全执行，lossless 跳过 `773,919` 组，跳过率 `11.4705%`。
+- 两侧最终 result CRC 均为 `418225535`，结果帧通过；正式汇总仍需绑定每轮 raw run/log/manifest 的 SHA-256 后才能关闭速度门。
+- CP5b 测的是 PL 内部稳态分布吞吐，不包含捕获和 PS/DMA；它可用于关闭纯 PL 速度门，但不能冒充 packet 端到端墙钟收益。
+
+## 错误记录
+
+- 一次并行工具探测误调用了不存在的 `wait` cell，只产生工具错误且未修改工作区；后续改用 `exec_command`/`write_stdin` 的有效会话。
+- Windows PowerShell 下把 `*.ps1` 或 `test_*.py` 作为 `rg` 位置参数会触发路径语法错误；后续统一使用 `rg -g` 过滤，不重复该写法。
+
 ## 2026-09-17 CP5 必须区分 packet 长跑与纯 PL replay
 
 - 现有 speed runner 每个样本都执行 PS fence、DMA 提交和结果处理；即使循环 10000 次，它测到的仍是 packet 路径，不能声称为纯 PL 吞吐。
@@ -2284,3 +2297,21 @@
 - 核心周期：dense `2494`，lossless 平均 `2290.272`，核心加速 `1.088954x`；lossless 平均执行/跳过 `524.091/67.909`，跳过率 `11.4712%`。
 - 单样本完整窗口：dense `63.826 us`，lossless `63.307 us`，均值加速 `1.008196x`。该数只说明 packet 单样本路径，不能替代 CP5 连续流吞吐。
 - 旧 runner 的 `formal_evidence` 只检查软件工作树，历史 dirty 硬件也可能被标真；已增加硬件 clean、同 HEAD、signoff 三项 fail-closed 条件。
+# 2026-09-17 DeepSeek CP5/CP6/CP8 管理修正主审
+
+- `opencode-deepseek` 已完成 19 个管理/合同文件的初稿修改，未提交、未改 RTL/固件/原始实验数据。
+- CP5b 权威证据为 397 样本 PL-internal distribution replay、5 轮交替 A/B：吞吐 `1.088168676x`、延迟下降 `8.1025%`、200 MHz/4 DSP/正确性与协议门均通过。
+- 冻结语义：`B3-PL-SPEED-GATE=PASS`，顶层 `B3-SPEED-GATE=PASS_PURE_PL_ONLY`；CP4 packet 单样本仅 `B3-PACKET-SPEED=MEASURED_WEAK_GAIN_1_008196X`，历史 PS-live `NO_END_TO_END_SPEEDUP` 保留。
+- 已发现 DeepSeek 残留：`.nexus-map/concepts/p16_board_validation.json` 的 `goal_scope` 仍写端到端加速，与纯 PL 门边界矛盾，需修正。
+- 待核实并收口：正式功耗合同是否完整冻结 dense/lossless idle/full 四态；`NPU_PRUNING_TODO.md` 的“本机无功耗仪”已过时，用户已有 B10 串联型 Type-C 功率计。
+
+## 2026-09-17 CP5/CP6/CP8 管理修正复审结论
+
+- `p16_board_validation.json` 的 `goal_scope` 已改为纯 PL + 整板功耗范围，消除端到端声明矛盾。
+- 功耗仪器合同当前态已重写：仪器为 B10 Type-C 串联功率计，精度 `<0.2%`，V/A/W 5 位小数、mAh/mWh 7 位整数；人工拍照读数并记录时间。
+- CP8 正式对象冻结为四态：`dense idle`、`dense continuous full`、`lossless idle`、`lossless continuous full`；full 复用 CP5b 397 样本 PL-internal distribution replay（1000 warmup，PS 不逐样本决策）；idle 保持相同 bit/XSA/ELF 与 JTAG/PS 状态。
+- 至少 5 组交替 paired rounds；报告整板平均功率、mode-matched idle→full 增量功率、每次正确推理能耗和仪器可分辨性；不得称为纯 NPU 功率。
+- 合同状态仍为 `POWER_NOT_MEASURED`/`MEASUREMENT_OPEN`，因为 CP8 尚未执行。
+- 历史 `artifacts/logs/b3_power_20260913_be84596/` 的 dense/static/live 读数保留为 `POWER_ENGINEERING_OBSERVATIONS_INCOMPLETE_CONTRACT`，未改写为 CP8 证据。
+- 主审进一步区分两种能耗：整板总能耗/正确推理使用 `P_full / throughput`（并由 `ΔmWh/有效正确推理数` 交叉核对），mode-matched 增量能耗/正确推理使用 `(P_full-P_idle)/throughput`；二者不得混写。
+- 最终审批结论：DeepSeek 的 CP5 状态、速度门语义和 CP6 主方向可接受；CP8 初稿不足之处已由主代理补齐到正式功耗合同、机器 JSON、TODO 当前未完成项和 Nexus 当前态。当前管理口径一致，可进入 CP8 负载冻结与 paired 功耗执行。

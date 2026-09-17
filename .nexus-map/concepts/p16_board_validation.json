@@ -11,20 +11,20 @@
     "source_identity_rule": "CHECKOUT_FROM_GIT; PHYSICAL_ARTIFACTS_FROM_MANIFEST",
     "bitstream_rtl_identity": "be84596",
     "t0_state_workspace_is_current": false,
-    "execution_chain": ["B3-PAPER-CP0_QAT_IDENTITY", "B3-PAPER-CP1_QAT_DENSE_BOARD_BRINGUP", "B3-PAPER-CP3A_LOSSLESS_REFERENCE", "B3-PAPER-CP3B_LOSSLESS_RTL", "B3-PAPER-CP3C_LOSSLESS_ZERO_GROUP_TIMING", "B3-PAPER-CP4_LOSSLESS_BOARD", "B3-PAPER-CP5_LOSSLESS_PURE_PL_THROUGHPUT", "B3-POWER-GATE", "B3-GOAL-GATE"],
+    "execution_chain": ["B3-PAPER-CP0_QAT_IDENTITY", "B3-PAPER-CP1_QAT_DENSE_BOARD_BRINGUP", "B3-PAPER-CP3A_LOSSLESS_REFERENCE", "B3-PAPER-CP3B_LOSSLESS_RTL", "B3-PAPER-CP3C_LOSSLESS_ZERO_GROUP_TIMING", "B3-PAPER-CP4_LOSSLESS_BOARD", "B3-PAPER-CP5A_REPLAY_FORMAL_PASS", "B3-PAPER-CP5B_DISTRIBUTION_FORMAL_PASS", "B3-PAPER-CP8_PAIRED_POWER", "B3-POWER-GATE", "B3-GOAL-GATE"],
     "conditional_optimization_tasks": ["B3-18", "B3-19"],
     "qualification_execution_chain": ["B1-06B6_UART_BASELINE", "B1-06B7_OCM_HIGH_DDR_MINIMAL_REPRODUCTION"],
     "ddr_accesses_so_far": 0
   },
-  "status": "P16_B0_COMPLETE / FASTLANE_V1 / B2_PACKET_NPU_PHYSICAL_PASS / B2_GATE_RELEASE_PENDING / B3_MVP_GATE_PASS / B3_QAT_CP4_BOARD_FORMAL_PASS / B3_QAT_CP5A_PL_REPLAY_FORMAL_PASS / B3_QAT_CP5B_DISTRIBUTION_PENDING / B3_ACCURACY_GATE_PASS_LOSSLESS / B3_SPEED_GATE_OPEN / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B3_STRICT_PENDING / B4_RELEASE_PENDING",
+  "status": "P16_B0_COMPLETE / FASTLANE_V1 / B2_PACKET_NPU_PHYSICAL_PASS / B2_GATE_RELEASE_PENDING / B3_MVP_GATE_PASS / B3_QAT_CP4_BOARD_FORMAL_PASS / B3_QAT_CP5A_PL_REPLAY_FORMAL_PASS / B3_QAT_CP5B_PL_DISTRIBUTION_FORMAL_PASS / B3_ACCURACY_GATE_PASS_LOSSLESS / B3_PL_SPEED_GATE_PASS / B3_PACKET_SPEED_MEASURED_WEAK_GAIN_1_008196X / B3_SPEED_GATE_PASS_PURE_PL_ONLY / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B3_STRICT_PENDING / B4_RELEASE_PENDING",
   "current_b2_status": "FUNCTIONAL_PASS / PHYSICAL_PASS / BOARD_STATUS_PARTIAL",
   "stage2_complete": false,
-  "current_gates": ["B3-SPEED-GATE", "B3-POWER-MEASURED", "B3-POWER-GATE", "B3-GOAL-GATE"],
+  "current_gates": ["B3-POWER-MEASURED", "B3-POWER-GATE", "B3-GOAL-GATE"],
   "active_stage_contract": "docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md",
   "related_contracts": ["docs/planning/TODO.md#P16", "docs/planning/NPU_PRUNING_TODO.md", "docs/planning/NPU_PRUNING_NP7_TODO.md"],
   "workflow_resume_count_rule": "QUERY_WORKFLOW_RESUME_AT_RUNTIME",
-  "current_execution_point": "B3-PAPER-CP5B_DISTRIBUTION_REPLAY_DESIGN",
-  "priority_execution_point": "B3-PAPER-CP5B_DISTRIBUTION_REPLAY_DESIGN",
+  "current_execution_point": "B3-PAPER-CP8_PAIRED_POWER",
+  "priority_execution_point": "B3-PAPER-CP8_PAIRED_POWER",
   "b3_accuracy_gate": {
     "status": "PASS",
     "reporter": "b3_accuracy_report.py",
@@ -34,6 +34,15 @@
     "evidence_status": "QAT_V3_STRICT_2OF4_FAIL_LOSSLESS_BOARD_397_FORMAL_PASS",
     "boundary": "QAT-v3 严格 2:4 live/static 精度失败；无损零组跳过在 clean HEAD 完整 wrapper 上完成 397 样本正式对拍，logits 逐元素一致且任务准确率无下降。该门只覆盖无损候选与指定 held-out 分布。"
   },
+  "b3_speed_gate": {
+    "status": "PASS_PURE_PL_ONLY",
+    "b3_pl_speed_gate": "PASS",
+    "b3_packet_speed": "MEASURED_WEAK_GAIN_1_008196X",
+    "evidence": "artifacts/results/b3_qat_cp5b_pl_distribution_board_pair.json",
+    "pl_speedup": 1.088168676,
+    "latency_reduction_percent": 8.1025,
+    "boundary": "B3-PL-SPEED-GATE 由 CP5b 397 样本、5 轮纯 PL 分布 replay 关闭，提升 1.088168676x；CP4 单样本 packet 路径仅为 B3-PACKET-SPEED=MEASURED_WEAK_GAIN_1_008196X，不称为纯 PL，也不宣称显著系统加速。顶层 B3-SPEED-GATE=PASS_PURE_PL_ONLY 不代表 packet 端到端显著加速。B3-GOAL-GATE 仍需 accuracy + B3-PL-SPEED-GATE + B3-POWER-GATE；若论文声称 packet/end-to-end 加速，必须另给重复实测，不能引用 CP5b。历史 PS-live NO_END_TO_END_SPEEDUP 保留为历史。"
+  },
   "b3_22_1e1_logits_collection": {
     "status": "IMPLEMENTED_CONTRACT_PASS_BOARD_397_FORMAL_PASS",
     "reporter": "b3_accuracy_report.py",
@@ -42,8 +51,8 @@
     "required_outputs": ["sample_id pairing", "dense_logits", "live_logits", "label", "identity", "95% CI inputs"],
     "evidence_status": "QAT_BOARD_397_OF_397_EXACT_TASK_ACCURACY_88_665_NO_DROP_FORMAL",
     "implementation": "b3-22.1a/b contract and build pass; board logits collection entry implemented with fail-closed failure handling",
-    "next_action": "设计并实现 CP5b 397 样本 PL 内循环，随后执行至少 5 轮交替 dense/lossless 分布吞吐",
-    "does_not_close": ["B3-SPEED-GATE", "B3-POWER-GATE"]
+    "next_action": "冻结 CP5b dense/lossless 连续负载并执行 CP8 paired 功耗",
+    "does_not_close": ["B3-POWER-MEASURED", "B3-POWER-GATE", "B3-GOAL-GATE"]
   },
   "b3_22_1e1_dataset_and_merge": {
     "dataset_generator": "b3_accuracy_dataset.py",
@@ -620,7 +629,7 @@
     "live_execute_skip_groups": "296/296",
     "dense_execute_skip_groups": "592/0",
     "mask_us_total_16_samples": 19700,
-    "interpretation": "同一 xc7z020clg484-2、同源 bit/XSA、固定 16 样本和 warm-up 下 dense/static/live 均 16/16 PASS；live 端到端中位数约为 dense 的 8.94 倍，结论为 NO_END_TO_END_SPEEDUP。888 cycles 仅代表局部 NPU 周期差，mask_us 为 16 样本累计 Host 决策时间，不能与单样本 total_us 相加。B3-SPEED-GATE 保持 OPEN。",
+    "interpretation": "同一 xc7z020clg484-2、同源 bit/XSA、固定 16 样本和 warm-up 下 dense/static/live 均 16/16 PASS；live 端到端中位数约为 dense 的 8.94 倍，结论为 NO_END_TO_END_SPEEDUP。888 cycles 仅代表局部 NPU 周期差，mask_us 为 16 样本累计 Host 决策时间，不能与单样本 total_us 相加。该历史 PS-live 负结果保留，不改写为通过；当时 B3-SPEED-GATE 保持 OPEN，现由 CP5b 以纯 PL 口径关闭为 PASS_PURE_PL_ONLY。",
     "next_action": "执行 B3-22.1 多输入速度与精度测量；必须扩展至少 64 个速度样本并逐样本验证 mask 不跨输入复用，同时使用至少 1000 个代表性评测样本验证 Top-1 一致率不低于 99%、准确率绝对下降不超过 1.0 个百分点，再按同一 JTAG/bit/XSA/warm-up 条件完成 dense/live 对称实测。",
     "historical_failed_run": "20260913T173917Z",
     "b3_20_1_board_evidence": {
@@ -660,15 +669,15 @@
   },
   "b3_gate_hierarchy": {
     "execution_order": ["B3-MVP-GATE", "B3-GOAL-GATE", "B4-RELEASE-GATE"],
-    "current_gates": ["B3-ACCURACY-GATE", "B3-SPEED-GATE", "B3-POWER-MEASURED", "B3-POWER-GATE", "B3-GOAL-GATE"],
-    "parallel_goal_gates": ["B3-ACCURACY-GATE", "B3-SPEED-GATE", "B3-POWER-GATE"],
-    "speed_priority_chain": ["B3-17C", "B3-20.1", "B3-20.2", "B3-22", "B3-22.1_MULTI_INPUT_SPEED_AND_ACCURACY_MEASUREMENT", "B3-ACCURACY-GATE", "B3-SPEED-GATE"],
+    "current_gates": ["B3-POWER-MEASURED", "B3-POWER-GATE", "B3-GOAL-GATE"],
+    "parallel_goal_gates": ["B3-ACCURACY-GATE", "B3-PL-SPEED-GATE", "B3-POWER-GATE"],
+    "speed_priority_chain": ["B3-17C", "B3-20.1", "B3-20.2", "B3-22", "B3-22.1_MULTI_INPUT_SPEED_AND_ACCURACY_MEASUREMENT", "B3-ACCURACY-GATE", "B3-PL-SPEED-GATE"],
     "deferred_after_speed": ["B3-19", "B3-21", "B3-POWER-MEASURED", "B3-POWER-GATE"],
     "mvp_status": "PASS",
     "mvp_requires": ["B3-03", "B3-04", "B3-09", "B3-11", "B3-13", "B3-14"],
     "mvp_scope": "same-bitstream small-set dense/full-open/static-group_4way/live-ENeuron-group_4way correctness, decision, epoch, and local NPU cycle A/B",
-    "goal_requires": ["B3-ACCURACY-GATE", "B3-SPEED-GATE", "B3-POWER-GATE"],
-    "goal_scope": "repeatable end-to-end inference speed improvement and external board power/energy improvement with correctness preserved",
+    "goal_requires": ["B3-ACCURACY-GATE", "B3-PL-SPEED-GATE", "B3-POWER-GATE"],
+    "goal_scope": "repeatable pure-PL inference throughput improvement and external whole-board power/energy improvement with correctness preserved; packet/end-to-end acceleration requires separate repeated measurement and must not be inferred from CP5b",
     "strict_requires": ["B3-01", "B3-05", "B3-08b", "B3-10", "B3-12", "B3-15", "B3-16", "B3-RECOVERY"],
     "strict_scope": "strict connection-level 2:4, at least 10000 samples per mode, full protocol and reset recovery",
     "release_scope": "Ethernet publication path and network-load deltas; external board power measurement belongs to B3-POWER",

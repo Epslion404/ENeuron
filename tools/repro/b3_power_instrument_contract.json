@@ -1,13 +1,54 @@
 {
   "schema": "eneuron_b3_power_instrument_contract_v1",
   "status": "POWER_NOT_MEASURED",
-  "仪器": null,
-  "测点": null,
-  "采样率": null,
-  "空闲基线": null,
-  "负载同步": null,
-  "积分窗口": null,
-  "discovery": "host has no USBTMC/VISA/pyvisa and no named power meter; COM15/COM35 are CH340 UART, COM32/FTDI 6014 are JTAG, not a wattmeter",
+  "measurement_status": "MEASUREMENT_OPEN",
+  "仪器": "B10 高精度 Type-C 多功能无线充测试 USB 电压电流表 PD3.2 充电检测仪，标称精度 <0.2%",
+  "测点": "仪表串联在 Type-C 供电与开发板之间（整板输入，非纯 NPU 功率）",
+  "采样率": "仪表不提供机器采样接口；按人工定时拍照形成离散读数，V/A/W 小数点后 5 位（共 6 位），mAh/mWh 7 位整数",
+  "空闲基线": "dense idle / lossless idle：相同 bit/XSA/ELF、模型已装载、JTAG/PS 状态一致、replay 未启动或停在冻结 idle",
+  "负载同步": "dense/lossless continuous full 复用 CP5b 397 样本 PL-internal distribution replay，1000 warmup 后持续运行，PS 不参与逐样本决策",
+  "积分窗口": "用 delta_mWh/delta_time 计算窗口平均整板功率，delta_mAh/delta_time 只作平均电流交叉核对；同时计算整板总能耗/正确推理和 mode-matched 增量能耗/正确推理；至少 5 组交替 paired rounds",
+  "instrument": {
+    "name": "B10 high-precision Type-C multifunction USB voltage/current meter PD3.2",
+    "accuracy_percent_max": 0.2,
+    "display_voltage_current_power": "5 decimal places (6 digits total)",
+    "display_charge_energy": "mAh/mWh 7-digit integers",
+    "readout_method": "manual reading with photo evidence and timestamp"
+  },
+  "measurement_point": {
+    "location": "meter in series between Type-C supply and development board",
+    "scope": "whole-board input power; not pure NPU rail power"
+  },
+  "jtag_ps_state": "JTAG used for communication only; identical JTAG/PS state across all four CP8 states",
+  "cp8_states": [
+    "dense_idle",
+    "dense_continuous_full",
+    "lossless_idle",
+    "lossless_continuous_full"
+  ],
+  "paired_rounds_min": 5,
+  "paired_order": "alternating",
+  "full_load": {
+    "replay": "CP5b 397-sample PL-internal distribution replay",
+    "warmup_samples": 1000,
+    "ps_per_sample_decision": false
+  },
+  "idle_definition": "same bit/XSA/ELF, model loaded, identical JTAG/PS state, replay not started or stopped at frozen idle",
+  "metrics": [
+    "whole_board_average_power_w",
+    "mode_matched_idle_to_full_incremental_power_w",
+    "whole_board_energy_per_correct_inference_j",
+    "mode_matched_incremental_energy_per_correct_inference_j",
+    "instrument_resolvability"
+  ],
+  "forbidden_attribution": [
+    "pure NPU power",
+    "Vivado power estimate as board power",
+    "static/PL-auto/strict 2:4/dual-engine states in this round"
+  ],
+  "close_boundary": "B3-POWER-MEASURED requires non-empty power_source, photo/manual-observation manifest path in external_trace, and finite positive external_power_w for all four states plus all six instrument fields; this does not by itself close B3-POWER-GATE. Until CP8 runs, status stays POWER_NOT_MEASURED / MEASUREMENT_OPEN.",
+  "historical_engineering_observations": "artifacts/logs/b3_power_20260913_be84596/manual_meter_observations_20260913.json",
+  "discovery": "B10 Type-C inline meter is available; COM15/COM35 are CH340 UART, COM32/FTDI 6014 are JTAG, not a wattmeter",
   "bitstream_rtl": "be84596",
   "part": "xc7z020clg484-2"
 }
