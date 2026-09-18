@@ -1,5 +1,12 @@
 # 进度记录
 
+## 2026-09-18 CP8 dense idle 首次上板前闭包诊断
+
+- `dense idle` 首次调用在下载前因 `run_b2_build.ps1` manifest SHA 不一致 fail-closed，板卡未被改写。
+- 系统化核对发现唯一异常是非综合外层 runner；当前 Git blob 与 `14e8e06` blob一致，全部 Tcl/RTL/BD 源字节 SHA 精确匹配。manifest 自哈希来自构建结束时，而 clean 状态取自构建开始时，存在时间窗。
+- 按 RED→GREEN 增加限定 Git blob 回退和状态 manifest 记录；首次实现因 CRLF 块匹配失败未修改文件，改用行标记替换；首次 GREEN 测试因 snake_case/camelCase token 断言过严失败，修正合同后 `8 passed`。
+- 完整 `run_b2_checks.ps1` 通过：B2 `129 passed`、T1 两门 PASS、`B2_CHECKS_PASS`。下一步在 clean commit 上重试 `dense idle`。
+
 ## 2026-09-18 CP8 物理证据提交前复核
 
 - 修正 Nexus 当前态中的生产策略：clean HEAD `14e8e06` 实际闭包源码 `build_b2.tcl` 使用 `Performance_ExploreWithRemap`；`Performance_ExtraTimingOpt` 仅保留为历史 probe/失败构建记录。

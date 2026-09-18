@@ -1,5 +1,12 @@
 # 调研与实验发现
 
+## 2026-09-18 CP8 上板前源码闭包修复
+
+- 首次 `dense idle` 在下载前 fail-closed：manifest 中只有 `boards/hellozynq/b2_hw/run_b2_build.ps1` 的 SHA 与当前文件不一致，其余 Tcl/RTL/BD 源全部精确匹配。
+- 根因是构建 runner 在 Vivado 启动前记录 `git_status`，却在长时间构建结束后计算源码 SHA，两个证据不是原子快照；异常 SHA 不匹配当前 CRLF/LF/BOM/UTF-16 变体，也不匹配任一历史 Git blob。
+- 该脚本不进入综合。四态 runner 现在只对这一固定路径允许 Git blob 回退：当前文件经 Git clean filter 的 blob 必须等于 manifest 声称的 `git_head:path`；所有综合输入仍按字节 SHA fail-closed，回退写入 `hardware_source_canonical_fallbacks`。
+- 修复后 CP8 合同 `8 passed`、PowerShell AST PASS、B2 `129 passed`、T1 PASS、`B2_CHECKS_PASS`。尚未重新下载板卡。
+
 ## 2026-09-18 CP8 提交前事实复核
 
 - clean HEAD `14e8e06` 的两套 build manifest 都绑定当前 `build_b2.tcl` SHA `572a79fc90afc023607d97201920616e7d8c4af2136cbc66d4a4c255072d1205`；该源码明确采用 `Performance_ExploreWithRemap`，因此 Nexus 旧的当前字段 `Performance_ExtraTimingOpt` 是事实错误。

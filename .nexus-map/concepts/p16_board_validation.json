@@ -73,6 +73,7 @@
     "failing_path": "none on clean HEAD 14e8e06; historical lossless failure was 397-sample replay BRAM to core/l0_group_nonzero_reg[*]/D",
     "timing_probe": {"name": "impl_extra_timing_probe", "reuses_synth_netlist": true, "wns_ns": 0.001, "tns_ns": 0.0, "whs_ns": 0.013, "ths_ns": 0.0, "constraints_met": true},
     "production_strategy": "Performance_ExploreWithRemap",
+    "source_closure_rule": "all synthesized Tcl/RTL/BD inputs require byte-exact manifest SHA; only non-synth boards/hellozynq/b2_hw/run_b2_build.ps1 may use current clean-filter Git blob equality to manifest git_head:path, recorded in hardware_source_canonical_fallbacks",
     "contract": "control chain 22 passed; B2 full 129 passed + T1",
     "not_committed": false,
     "clean_head_rebuild_done": true,

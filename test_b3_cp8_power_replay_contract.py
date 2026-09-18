@@ -164,6 +164,16 @@ def test_cp8_runner_and_probe_are_separate_and_watch_registers() -> None:
     assert "catch {disconnect}" in probe, "probe 失败时也必须释放 JTAG 连接"
 
 
+def test_cp8_runner_limits_source_hash_fallback_to_non_synth_build_runner() -> None:
+    runner = _read(CP8_RUNNER)
+    assert "boards/hellozynq/b2_hw/run_b2_build.ps1" in runner
+    assert "git-blob:" in runner, "回退必须显式记录为 Git blob 证明"
+    assert "rev-parse" in runner, "必须读取 manifest git_head 对应 blob"
+    assert "hash-object" in runner, "必须对当前工作树文件应用 Git clean filter"
+    assert "hardware_source_canonical_fallbacks" in runner, "状态 JSON 必须记录回退"
+    assert runner.count("hardwareSourceCanonicalFallbacks") >= 3
+
+
 def test_cp8_continuous_replay_shim_behavior() -> None:
     iverilog = _tool(IVERILOG_CANDIDATES, "iverilog")
     vvp = _tool(VVP_CANDIDATES, "vvp")

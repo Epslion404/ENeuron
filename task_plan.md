@@ -8,6 +8,7 @@
 - [x] 生成 `artifact_sha256.json`：Python `hashlib` 实测每个归档文件、bit 和 XSA 的 SHA-256，记录 source_head、part、clock_hz、两模式 mode 与 signoff 数字。
 - [x] 在 `artifacts/README.md` 登记证据目录，并在 `test_artifact_layout.py` 增加存在性/JSON/HEAD/两模式 signoff=1/DSP=4/逐文件哈希复核合同。
 - [x] 同步 TODO、CURRENT_STATUS、WORKFLOW_STATE 与 Nexus，状态改为 `CP8_PHYSICAL_BUILD_PASS`；`B3-POWER-GATE` 与 `B3-GOAL-GATE` 保持 OPEN。
+- [x] 修复四态 runner 的物理 manifest 源码闭包：所有综合输入继续要求字节 SHA 精确匹配；仅非综合 `run_b2_build.ps1` 在 manifest 自哈希时间窗不一致时允许以 `manifest.git_head` Git blob 等价证明，并在状态 JSON 显式记录。定向合同 `8 passed`，B2 `129 passed` + T1 + `B2_CHECKS_PASS`。
 - [ ] 使用两套产物完成 dense/lossless idle/full 四态实板控制验证；通过后才开始 B10 至少 5 组交替 paired 功耗测量。
 
 已知边界：本次只关闭物理构建，不证明实板四态控制、不证明功耗已测，也不关闭功耗/目标门。此前 HEAD `5c16095` 的 dense PASS / lossless FAIL_CLOSED 已被 clean HEAD 重建取代，旧失败路径仅作历史。
