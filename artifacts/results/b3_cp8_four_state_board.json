@@ -1,0 +1,149 @@
+{
+  "schema": "eneuron_b3_cp8_four_state_board_v1",
+  "status": "CP8_BOARD_FOUR_STATE_CONTROL_PASS",
+  "generated_at": "2026-09-18T02:55:41.804Z",
+  "git_head": "1714fc85ffe498c91c3ef5a9033cb36a4042ce18",
+  "physical_build_head": "14e8e0686ada1f691e039239d0b942f8024253ca",
+  "part": "xc7z020clg484-2",
+  "clock_hz": 200000000,
+  "power_measurement_status": "NOT_MEASURED",
+  "power_gate": "OPEN",
+  "goal_gate": "OPEN",
+  "continuous_measured_cycles_semantics": "not_finalized_while_running",
+  "paired_identity": {
+    "dense": {
+      "bitstream_match": true,
+      "xsa_match": true,
+      "elf_match": true,
+      "packet_manifest_sha_match": false
+    },
+    "lossless": {
+      "bitstream_match": true,
+      "xsa_match": true,
+      "elf_match": true,
+      "packet_manifest_sha_match": false
+    }
+  },
+  "states": {
+    "dense_idle": {
+      "mode": "dense",
+      "state": "idle",
+      "source_run_path": "boards/hellozynq/b2_sw/build/1714fc85ffe498c91c3ef5a9033cb36a4042ce18/cp8_dense_power/runs/20260918T024828Z",
+      "raw_state_json": "artifacts/logs/b3_cp8_four_state_board_20260918_1714fc8/dense_idle_state.json",
+      "raw_state_json_sha256": "929110622738fdcb19421171da63ea7f372fd8cfcfefe9f324bc832585698afc",
+      "program_log": "artifacts/logs/b3_cp8_four_state_board_20260918_1714fc8/dense_idle_program.log",
+      "program_log_sha256": "ee44567958c7019148daa33a2dd59906d564f8aa1f13121abca2f69d08ab213d",
+      "probe_log": "artifacts/logs/b3_cp8_four_state_board_20260918_1714fc8/dense_idle_probe.log",
+      "probe_log_sha256": "0ce3efe95241c676645b1b95c352f53d354e6ee42b8e569d4552b3e446d70b05",
+      "formal_evidence": true,
+      "control": 1129330761,
+      "replay_status": 1,
+      "capture_count": 0,
+      "completed_count": 0,
+      "completed_first": 0,
+      "completed_second": 0,
+      "heartbeat_delta": 0,
+      "measured_cycles": 0,
+      "protocol_error_count": 0,
+      "bitstream_sha256": "8d3ca3736c0a0990e230969979cc6349b9f3fa032343d32ee7c87eb74ff48af5",
+      "xsa_sha256": "cd3cb287449e53a6a4d0fa9af48be331106b0f459af75b013e24fea385b5393e",
+      "elf_sha256": "4cd0fbda3fac97dddd2c367994c4938683ff4aa847afb6c03ac785940935d56b",
+      "packet_manifest_sha256": "02a76488809f77108f09c950641d3677ef6e3775dd6409b7728e2cd1cca50ccf",
+      "hardware_source_canonical_fallbacks": [
+        "git-blob:boards/hellozynq/b2_hw/run_b2_build.ps1"
+      ]
+    },
+    "dense_full": {
+      "mode": "dense",
+      "state": "full",
+      "source_run_path": "boards/hellozynq/b2_sw/build/1714fc85ffe498c91c3ef5a9033cb36a4042ce18/cp8_dense_power/runs/20260918T024945Z",
+      "raw_state_json": "artifacts/logs/b3_cp8_four_state_board_20260918_1714fc8/dense_full_state.json",
+      "raw_state_json_sha256": "ec9ec2fbbc663834b30b46f5ad6413606009dfbb64bbbf863ff3436c12c69951",
+      "program_log": "artifacts/logs/b3_cp8_four_state_board_20260918_1714fc8/dense_full_program.log",
+      "program_log_sha256": "ee44567958c7019148daa33a2dd59906d564f8aa1f13121abca2f69d08ab213d",
+      "probe_log": "artifacts/logs/b3_cp8_four_state_board_20260918_1714fc8/dense_full_probe.log",
+      "probe_log_sha256": "89ca2f999f592d3a68299736689c0908e792d6f99c261da1763c57ef0476b5e9",
+      "formal_evidence": true,
+      "control": 1129330770,
+      "replay_status": 3,
+      "capture_count": 397,
+      "completed_count": 33522,
+      "completed_first": 13748,
+      "completed_second": 28649,
+      "heartbeat_delta": 14901,
+      "measured_cycles": 0,
+      "protocol_error_count": 0,
+      "bitstream_sha256": "8d3ca3736c0a0990e230969979cc6349b9f3fa032343d32ee7c87eb74ff48af5",
+      "xsa_sha256": "cd3cb287449e53a6a4d0fa9af48be331106b0f459af75b013e24fea385b5393e",
+      "elf_sha256": "4cd0fbda3fac97dddd2c367994c4938683ff4aa847afb6c03ac785940935d56b",
+      "packet_manifest_sha256": "480e45b38110fee11cfc42b0b214e6d2abb990374ba3181b11aa9b6c24254bf4",
+      "hardware_source_canonical_fallbacks": [
+        "git-blob:boards/hellozynq/b2_hw/run_b2_build.ps1"
+      ]
+    },
+    "lossless_idle": {
+      "mode": "lossless_zero_group_skip",
+      "state": "idle",
+      "source_run_path": "boards/hellozynq/b2_sw/build/1714fc85ffe498c91c3ef5a9033cb36a4042ce18/cp8_lossless_zero_group_skip_power/runs/20260918T025054Z",
+      "raw_state_json": "artifacts/logs/b3_cp8_four_state_board_20260918_1714fc8/lossless_idle_state.json",
+      "raw_state_json_sha256": "d02e5245b28d500ae0947a696808ca47b53e50d8528d94d71945f6dfb6bf70f0",
+      "program_log": "artifacts/logs/b3_cp8_four_state_board_20260918_1714fc8/lossless_idle_program.log",
+      "program_log_sha256": "ee44567958c7019148daa33a2dd59906d564f8aa1f13121abca2f69d08ab213d",
+      "probe_log": "artifacts/logs/b3_cp8_four_state_board_20260918_1714fc8/lossless_idle_probe.log",
+      "probe_log_sha256": "0ce3efe95241c676645b1b95c352f53d354e6ee42b8e569d4552b3e446d70b05",
+      "formal_evidence": true,
+      "control": 1129330761,
+      "replay_status": 1,
+      "capture_count": 0,
+      "completed_count": 0,
+      "completed_first": 0,
+      "completed_second": 0,
+      "heartbeat_delta": 0,
+      "measured_cycles": 0,
+      "protocol_error_count": 0,
+      "bitstream_sha256": "ebc44d5ef68088c04456bf2fd5c4b87da22e38748d7bcdbb8a2965d73acacef5",
+      "xsa_sha256": "649f571d2e4228b21f2b53c9d3fd1e1fef92557eeb70c5fadbb2ca7d4c709aa3",
+      "elf_sha256": "ef71cb776218628bca4663913cda60bf48ccf717c8a06da6a94edecacc9d784c",
+      "packet_manifest_sha256": "2b8160658d96fb1895b310718880fd84d974ec2b2dc9157aa4e2c7159c81d64d",
+      "hardware_source_canonical_fallbacks": [
+        "git-blob:boards/hellozynq/b2_hw/run_b2_build.ps1"
+      ]
+    },
+    "lossless_full": {
+      "mode": "lossless_zero_group_skip",
+      "state": "full",
+      "source_run_path": "boards/hellozynq/b2_sw/build/1714fc85ffe498c91c3ef5a9033cb36a4042ce18/cp8_lossless_zero_group_skip_power/runs/20260918T025148Z",
+      "raw_state_json": "artifacts/logs/b3_cp8_four_state_board_20260918_1714fc8/lossless_full_state.json",
+      "raw_state_json_sha256": "6638413d5135d439d2f3d2950834e9942e0c465fe1c59f10d7598e46983eb6bd",
+      "program_log": "artifacts/logs/b3_cp8_four_state_board_20260918_1714fc8/lossless_full_program.log",
+      "program_log_sha256": "ee44567958c7019148daa33a2dd59906d564f8aa1f13121abca2f69d08ab213d",
+      "probe_log": "artifacts/logs/b3_cp8_four_state_board_20260918_1714fc8/lossless_full_probe.log",
+      "probe_log_sha256": "c101b20c651f3427c4a91fe2752a9d9595200577d91160ee3532ceb65851ffa0",
+      "formal_evidence": true,
+      "control": 1129330770,
+      "replay_status": 3,
+      "capture_count": 397,
+      "completed_count": 26072,
+      "completed_first": 4498,
+      "completed_second": 20902,
+      "heartbeat_delta": 16404,
+      "measured_cycles": 0,
+      "protocol_error_count": 0,
+      "bitstream_sha256": "ebc44d5ef68088c04456bf2fd5c4b87da22e38748d7bcdbb8a2965d73acacef5",
+      "xsa_sha256": "649f571d2e4228b21f2b53c9d3fd1e1fef92557eeb70c5fadbb2ca7d4c709aa3",
+      "elf_sha256": "ef71cb776218628bca4663913cda60bf48ccf717c8a06da6a94edecacc9d784c",
+      "packet_manifest_sha256": "eea05c041e86d17aa79f09ab21bc6b3f5f52e162595c240641fc0b0444312829",
+      "hardware_source_canonical_fallbacks": [
+        "git-blob:boards/hellozynq/b2_hw/run_b2_build.ps1"
+      ]
+    }
+  },
+  "boundary": "Closes CP8 board four-state control only. No B10 readings are included; this is whole-board load-state evidence, not pure NPU power.",
+  "packet_manifest_rebuilt_per_invocation": true,
+  "paired_identity_scope": [
+    "bitstream_sha256",
+    "xsa_sha256",
+    "elf_sha256"
+  ],
+  "measured_cycles_boundary": "continuous replay never reaches the finite DONE latch; use control/status/capture/completed heartbeat for four-state control, and do not use measured_cycles for energy normalization"
+}

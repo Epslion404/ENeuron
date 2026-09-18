@@ -1,0 +1,9 @@
+B2_TARGETS_BEGIN
+  1  APU
+     2  ARM Cortex-A9 MPCore #0 (Running)
+     3  ARM Cortex-A9 MPCore #1 (Running)
+  4  xc7z020
+B2_TARGETS_END
+B2_FPGA_PROGRAM_PASS
+B2_ELF_DOWNLOAD_PASS
+B2_CPU_RUN_PASS

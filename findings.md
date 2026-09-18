@@ -1,5 +1,13 @@
 # 调研与实验发现
 
+## 2026-09-18 CP8 四态实板控制通过（HEAD 1714fc8）
+
+- 基线 HEAD `1714fc85ffe498c91c3ef5a9033cb36a4042ce18`：dense/lossless idle/full 四态实板控制通过，状态 `CP8_BOARD_FOUR_STATE_CONTROL_PASS`。四态均 `formal_evidence=true`、`protocol_error_count=0`；idle `capture_count/completed_count=0`，full `capture_count=397` 且 heartbeat 增长；同 mode `bitstream_sha256`/`xsa_sha256`/`elf_sha256` 完全一致。摘要 `artifacts/results/b3_cp8_four_state_board.json`，原始证据 `artifacts/logs/b3_cp8_four_state_board_20260918_1714fc8/`。
+- 证据边界：packet build manifest 每次 runner 调用重建（`packet_manifest_rebuilt_per_invocation=true`），不属于 paired identity；continuous `measured_cycles=0` 表示运行中 DONE latch 未封存，不阻塞四态控制，但禁止逐周期/占空比能耗归一化。功耗尚未读取，`B3_POWER_NOT_MEASURED / B3-POWER-GATE=OPEN / B3-GOAL-GATE=OPEN`。
+- 验证事实：`test_b3_cp8_four_state_evidence.py` 单独 `1 passed`；与 `test_artifact_layout.py` 联跑最初 `2 failed`（新增结果未索引、旧 CP8 物理归档 6 个 CRLF 文件哈希失配）。`artifact_sha256` 记录的是 source 原始 CRLF 哈希，已通过 `.gitattributes` 字节冻结并从 build 目录恢复 6 个原始文件，使 12/12 哈希匹配；补齐 artifacts README 索引后定向联跑最终 `6 passed`。
+- 错误记录：主代理 4 次 PowerShell `foreach` 后直接接管道导致 parser error，1 次双引号内 `$(sed...)` 被 PowerShell 提前解析；DeepSeek 另有 1 次 `sed...` 命令拼写失败。以上均未修改非目标文件，已停止这些写法。
+- 提交闭包：普通 `git add` 会忽略四态目录中的 `*.log`，已显式强制暂存 8 份 program/probe 日志；从 Git index 重新读取汇总引用的 12 份 raw JSON/program/probe 和 2 份 packet manifest，14/14 的暂存字节 SHA-256 与磁盘及汇总声明一致。
+
 ## 2026-09-18 CP8 上板前源码闭包修复
 
 - 首次 `dense idle` 在下载前 fail-closed：manifest 中只有 `boards/hellozynq/b2_hw/run_b2_build.ps1` 的 SHA 与当前文件不一致，其余 Tcl/RTL/BD 源全部精确匹配。

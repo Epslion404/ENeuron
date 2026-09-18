@@ -1,3 +1,14 @@
+# 2026-09-18 CP8 四态实板控制收口（COMPLETE）
+
+目标：在基线 HEAD `1714fc85ffe498c91c3ef5a9033cb36a4042ce18` 上完成 CP8 `dense idle/full` 与 `lossless idle/full` 四态实板控制验证，归档状态摘要与原始证据，把执行点推进到 `B3-PAPER-CP8_PAIRED_POWER`；功耗与总目标门继续 OPEN。
+
+- [x] 四态实板控制 COMPLETE（`CP8_BOARD_FOUR_STATE_CONTROL_PASS`）：dense/lossless idle/full 均 `formal_evidence=true`、`protocol_error_count=0`；idle `capture_count/completed_count=0`，full `capture_count=397` 且 heartbeat 增长；同 mode bit/XSA/ELF 完全一致。
+- [x] 状态摘要 `artifacts/results/b3_cp8_four_state_board.json`，原始证据 `artifacts/logs/b3_cp8_four_state_board_20260918_1714fc8/`；`test_b3_cp8_four_state_evidence.py` 单独 `1 passed`，与 `test_artifact_layout.py` 定向联跑最终 `6 passed`。
+- [x] 证据边界：packet build manifest 每次 runner 调用重建（`packet_manifest_rebuilt_per_invocation=true`），不属于 paired identity；continuous `measured_cycles=0` 表示运行中 DONE latch 未封存，不用于逐周期/占空比能耗归一化。
+- [ ] **B10 paired 功耗测量（未完成）：** 在相同 B10 Type-C 串联仪表与相同 JTAG/PS 状态下，对 dense idle/full 与 lossless idle/full 执行至少 5 组交替 paired rounds，报告整板与 mode-matched 增量的功率/每次正确推理能耗。功耗未测前 `B3_POWER_NOT_MEASURED / B3-POWER-GATE=OPEN / B3-GOAL-GATE=OPEN` 保持不变。
+
+已知边界：四态控制通过不等于功耗通过；不得写“功耗已测”，不得关闭功耗门。历史 CP8 物理构建段保留不改写。
+
 # 2026-09-17 CP8 两模式物理构建与证据归档
 
 目标：在 clean HEAD `14e8e0686ada1f691e039239d0b942f8024253ca` 上完成 CP8 功耗测量所需的 dense/lossless 两套完整 wrapper 物理构建，归档只读证据并同步状态到 `CP8_PHYSICAL_BUILD_PASS`，明确四态实板控制验证仍是功耗测量的前置。
@@ -9,7 +20,7 @@
 - [x] 在 `artifacts/README.md` 登记证据目录，并在 `test_artifact_layout.py` 增加存在性/JSON/HEAD/两模式 signoff=1/DSP=4/逐文件哈希复核合同。
 - [x] 同步 TODO、CURRENT_STATUS、WORKFLOW_STATE 与 Nexus，状态改为 `CP8_PHYSICAL_BUILD_PASS`；`B3-POWER-GATE` 与 `B3-GOAL-GATE` 保持 OPEN。
 - [x] 修复四态 runner 的物理 manifest 源码闭包：所有综合输入继续要求字节 SHA 精确匹配；仅非综合 `run_b2_build.ps1` 在 manifest 自哈希时间窗不一致时允许以 `manifest.git_head` Git blob 等价证明，并在状态 JSON 显式记录。定向合同 `8 passed`，B2 `129 passed` + T1 + `B2_CHECKS_PASS`。
-- [ ] 使用两套产物完成 dense/lossless idle/full 四态实板控制验证；通过后才开始 B10 至少 5 组交替 paired 功耗测量。
+- [x] 使用两套产物完成 dense/lossless idle/full 四态实板控制验证（已在 HEAD `1714fc8` 通过，见本文件顶部 2026-09-18 收口节）；后续 B10 至少 5 组交替 paired 功耗测量仍待执行。
 
 已知边界：本次只关闭物理构建，不证明实板四态控制、不证明功耗已测，也不关闭功耗/目标门。此前 HEAD `5c16095` 的 dense PASS / lossless FAIL_CLOSED 已被 clean HEAD 重建取代，旧失败路径仅作历史。
 

@@ -1,5 +1,9 @@
 # ENeuron 持久工作流状态
 
+## 当前裁定（2026-09-18，CP8 四态实板控制通过）
+
+2026-09-18：基线 HEAD `1714fc85ffe498c91c3ef5a9033cb36a4042ce18` 上，CP8 `dense idle/full` 与 `lossless idle/full` 四态实板控制通过。四态均 `formal_evidence=true`、`protocol_error_count=0`；idle `capture_count/completed_count=0`，full `capture_count=397` 且 heartbeat 增长；同 mode `bitstream_sha256`/`xsa_sha256`/`elf_sha256` 完全一致。状态摘要 `artifacts/results/b3_cp8_four_state_board.json`，原始证据 `artifacts/logs/b3_cp8_four_state_board_20260918_1714fc8/`。状态推进为 `CP8_BOARD_FOUR_STATE_CONTROL_PASS`；packet build manifest 每次 runner 调用重建（`packet_manifest_rebuilt_per_invocation=true`），不属于 paired identity；continuous `measured_cycles=0` 表示运行中 DONE latch 未封存，不阻塞四态控制，但禁止逐周期/占空比能耗归一化。功耗仍未读取，`B3-POWER-GATE` 与 `B3-GOAL-GATE` 保持 OPEN，不得写“功耗已测”。下一步是在相同 B10 Type-C 串联仪表与相同 JTAG/PS 状态下，对 dense idle/full 与 lossless idle/full 执行至少 5 组交替 paired rounds。
+
 ## 当前裁定（2026-09-17，CP8 两模式物理构建通过）
 
 2026-09-17：clean HEAD `14e8e0686ada1f691e039239d0b942f8024253ca` 上，CP8 两套完整 wrapper 均通过 `xc7z020clg484-2`、200 MHz 物理门，timing/route/DRC/signoff 全为 `1`、DSP48E1=`4`。dense `boards/hellozynq/b2_hw/build_cp8_dense_14e8e06`，mode=`dense_pl_power_replay`，`WNS/TNS/WHS/THS=0.01/0/0.036/0`，bit SHA-256=`8d3ca373…8af5`，XSA SHA-256=`cd3cb287…5393e`。lossless `boards/hellozynq/b2_hw/build_cp8_lossless_14e8e06`，mode=`lossless_zero_group_skip_pl_power_replay`，`WNS/TNS/WHS/THS=0/0/0.036/0`，bit SHA-256=`ebc44d5e…acef5`，XSA SHA-256=`649f571d…9aa3`。归档证据 `artifacts/logs/b3_cp8_physical_pass_20260917_14e8e06/`（manifest、signoff 摘要和 4 份实现报告加 `dense_`/`lossless_` 前缀，不含 bit/XSA/DCP/project；`artifact_sha256.json` 由 Python `hashlib` 实测）。状态改为 `CP8_PHYSICAL_BUILD_PASS`；功耗仍未测，`B3-POWER-GATE` 与 `B3-GOAL-GATE` 保持 OPEN。下一步是先用这两套产物完成 dense/lossless idle/full 四态实板控制验证，通过后才开始 B10 至少 5 组交替 paired 功耗测量。此前 HEAD `5c16095` 的 dense PASS / lossless FAIL_CLOSED 结果已被本次 clean HEAD 重建取代，旧失败路径保留为历史。
@@ -24,9 +28,9 @@ B3-22.3 已证明当前协议下零动态决策成本剪枝仅约 `2%` 端到端
 
 模式：`PERSISTENT_WORKFLOW_V1`
 
-最后更新：2026-09-17
+最后更新：2026-09-18
 
-状态：`ACTIVE / PHASE2_FASTLANE_V1 / B3_MVP_GATE_PASS / B3_QAT_CP4_BOARD_FORMAL_PASS / B3_QAT_CP5A_PL_REPLAY_FORMAL_PASS / B3_QAT_CP5B_PL_DISTRIBUTION_FORMAL_PASS / B3_ACCURACY_GATE_PASS_LOSSLESS / B3_PL_SPEED_GATE_PASS / B3_PACKET_SPEED_MEASURED_WEAK_GAIN_1_008196X / B3_SPEED_GATE_PASS_PURE_PL_ONLY / CP8_CONTROL_CHAIN_PASS / CP8_PHYSICAL_BUILD_PASS / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B3_STRICT_DEFERRED_STRUCTURAL / B2_GATE_PENDING / XC7Z020CLG484_2_CONFIRMED / GITHUB_ACTIONS_DISABLED`
+状态：`ACTIVE / PHASE2_FASTLANE_V1 / B3_MVP_GATE_PASS / B3_QAT_CP4_BOARD_FORMAL_PASS / B3_QAT_CP5A_PL_REPLAY_FORMAL_PASS / B3_QAT_CP5B_PL_DISTRIBUTION_FORMAL_PASS / B3_ACCURACY_GATE_PASS_LOSSLESS / B3_PL_SPEED_GATE_PASS / B3_PACKET_SPEED_MEASURED_WEAK_GAIN_1_008196X / B3_SPEED_GATE_PASS_PURE_PL_ONLY / CP8_CONTROL_CHAIN_PASS / CP8_PHYSICAL_BUILD_PASS / CP8_BOARD_FOUR_STATE_CONTROL_PASS / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B3_STRICT_DEFERRED_STRUCTURAL / B2_GATE_PENDING / XC7Z020CLG484_2_CONFIRMED / GITHUB_ACTIONS_DISABLED`
 
 2026-09-14：B3-18a 已完成；B3-18b/18c 实板复测完成。PS 将 21 个 mask command 合并为单个 command frame，由 PL ingress staging 后按顺序提交；随后优化 `group_mac()` 零权重路径并移除 mask 临时位数组。64 个不同输入 live `20260914T062138Z` 为 `64/64 PASS`、端到端 `722–727 us`、累计 `mask_us=36324 us`、epoch `2→65`、`296/296`、协议错误 `0`；同源 dense `20260914T062313Z` 为 `155–159 us`、`592/0`。相对旧 PL staging live 均值约下降 29%，但仍约为 dense 的 4.65 倍，B3-SPEED-GATE 保持 OPEN。该段为历史工程证据；当前下一步是 QAT `CP2/CP3` 策略和精度门，不再回到 PS mask 微优化。
 
@@ -134,7 +138,7 @@ NP6/NP7 已完成并合并；I1-I6、OF1-OF6 V3、单时钟 RTL V2 八项裁定�
 
 ## 下一动作
 
-CP5b 397 样本纯 PL 分布吞吐已正式通过（`1.088168676x`，5 轮无抖动，协议/CRC/结果帧全绿，200 MHz 物理门通过）。当前主动任务是冻结 CP5b dense/lossless 连续负载（同一 bit/XSA/ELF、397 样本 PL-internal distribution replay、1000 warmup）并执行 CP8 paired 功耗：至少 5 组交替 dense idle/full 与 lossless idle/full，同一 Type-C 串联仪表和 JTAG 状态，报告整板平均功率、mode-matched idle 到 full 增量功率、整板总能耗/正确推理、mode-matched 增量能耗/正确推理和仪器可分辨性。`B3-PL-SPEED-GATE=PASS`、顶层 `B3-SPEED-GATE=PASS_PURE_PL_ONLY`；`B3-GOAL-GATE` 仍需 `B3-POWER-GATE`。`B3-22.5` 批量 sample/fence、CP6 覆盖率优化、独立 PL auto-mask、严格 2:4 和网口发布均为后置分支。
+CP5b 397 样本纯 PL 分布吞吐已正式通过（`1.088168676x`，5 轮无抖动，协议/CRC/结果帧全绿，200 MHz 物理门通过）。CP8 四态实板控制也已在 HEAD `1714fc8` 通过（`CP8_BOARD_FOUR_STATE_CONTROL_PASS`，证据 `artifacts/results/b3_cp8_four_state_board.json`）。当前主动任务是在同一 bit/XSA/ELF、397 样本 PL-internal distribution replay、1000 warmup 的冻结负载上执行 CP8 paired 功耗：至少 5 组交替 dense idle/full 与 lossless idle/full，同一 Type-C 串联仪表和 JTAG 状态，报告整板平均功率、mode-matched idle 到 full 增量功率、整板总能耗/正确推理、mode-matched 增量能耗/正确推理和仪器可分辨性。`B3-PL-SPEED-GATE=PASS`、顶层 `B3-SPEED-GATE=PASS_PURE_PL_ONLY`；`B3-GOAL-GATE` 仍需 `B3-POWER-GATE`。`B3-22.5` 批量 sample/fence、CP6 覆盖率优化、独立 PL auto-mask、严格 2:4 和网口发布均为后置分支。
 
 ## 2026-09-05 V2 OOC 签核结果
 
