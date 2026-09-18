@@ -1,8 +1,8 @@
 # 系统边界
 
-## 当前主线覆写（2026-09-17，CP5b 分布吞吐正式通过）
+## 当前主线覆写（2026-09-17，CP8 两模式物理构建通过）
 
-B3-22.3/22.4 已完成并保留为历史工程证据。QAT CP0/CP1/CP3c/CP4/CP5a/CP5b 已完成，严格 2:4 live/static 精度失败。当前论文主线为无损零组跳过：CP5b 397 样本、5 轮纯 PL 分布 replay 吞吐提升 `1.088168676x`，`B3-PL-SPEED-GATE=PASS`、顶层 `B3-SPEED-GATE=PASS_PURE_PL_ONLY`；CP4 单样本 packet 路径 `1.008196x` 记为 `B3-PACKET-SPEED=MEASURED_WEAK_GAIN_1_008196X`。无损精度门与纯 PL 速度门已通过，功耗和目标门继续 OPEN，当前下一步是 CP8 paired 功耗。
+B3-22.3/22.4 已完成并保留为历史工程证据。QAT CP0/CP1/CP3c/CP4/CP5a/CP5b 已完成，严格 2:4 live/static 精度失败。当前论文主线为无损零组跳过：CP5b 397 样本、5 轮纯 PL 分布 replay 吞吐提升 `1.088168676x`，`B3-PL-SPEED-GATE=PASS`、顶层 `B3-SPEED-GATE=PASS_PURE_PL_ONLY`；CP4 单样本 packet 路径 `1.008196x` 记为 `B3-PACKET-SPEED=MEASURED_WEAK_GAIN_1_008196X`。clean HEAD `14e8e0686ada1f691e039239d0b942f8024253ca` 上，CP8 dense/lossless 两套完整 wrapper 均通过 `xc7z020clg484-2`、200 MHz 物理门（timing/route/DRC/signoff=1、DSP48E1=4；dense `WNS/TNS/WHS/THS=0.01/0/0.036/0`，lossless `0/0/0.036/0`），证据 `artifacts/logs/b3_cp8_physical_pass_20260917_14e8e06/`，状态 `CP8_PHYSICAL_BUILD_PASS`。无损精度门与纯 PL 速度门已通过，功耗和目标门继续 OPEN；下一步先用两套产物完成 dense/lossless idle/full 四态实板控制验证，通过后才开始 B10 至少 5 组交替 paired 功耗测量。
 
 > generated_by: nexus-mapper v2 / manual synthesis
 > verified_at: 2026-09-16
@@ -84,6 +84,6 @@ B2 提交态物理基线（2026-09-11）：上述条目为历史失败记录。`
 
 状态覆盖：OF4a 至 OF6 属于已签核 Python oracle 历史阶段；当前以 `TR1_TR6_APPROVED / TR7_TR12_APPROVED / TIMING_REPAIR_V2_FUNCTIONAL_GREEN / VIVADO_OOC_100MHZ_PASS / P15_T0_APPROVED / T1_RTL_AUTHORIZED / T1_PROTOCOL_SLICE_PROVEN / T1_FULL_PENDING / T2_VARIABLE_CLOCK_SLICE_GREEN / T2_CONCURRENT_EPOCH_SLICE_GREEN / T2_EXTENDED_CLOCK_SLICE_GREEN / T2_FIFO_MATRIX_SLICE_GREEN / T2_INTERLEAVE_RESET_SLICE_GREEN / T2_FINITE_CLOCK_MATRIX_GREEN / T2_RANDOM_CLOCK_MATRIX_GREEN / T2_FULL_MATRIX_PENDING / T3_XPM_XSIM_PASS / T3_XC7Z020_OOC_PASS / T3_SIGNOFF_PASS / RESOURCE_CUT_DEFERRED_UNTIL_FIRST_END_TO_END_RUN` 为准。P15-T0 方案 A 及 A1-A7 已获批准；T1-02 主要路径、T1-06 fence 独立切片与 T1-12 四 FIFO 边界已在本机 `e4d48dd` 通过，T1-09 已记录为当前 wrapper 的 `NA_FOR_T1_WRAPPER / OUTER_SHIM_PENDING`，T2 六组可变时钟、FIFO、交错/复位、16 组有限矩阵和 24 组固定种子随机矩阵已提交并通过；T1 全量、T2 更广泛并发交错、外层 shim、首次端到端运行仍待独立验收。T3 真实 AMD XPM/xsim 与 XC7Z020 OOC 已通过，详见上方报告路径。资源裁剪审查已完成，但所有裁剪实施推迟到第一次完整端到端运行成功之后。旧 Host Bridge OOC 的 `xc7a35tcpg236-1` 不得替代 P15 目标 `xc7z020clg400-1`。V2 已复用 signed 32-bit `mac_accumulator` 作为最终写回值，不新增 `writeback_value_latched`，并完成激活锁存、WRITEBACK、功能和 OOC 证明。
 
-# CP8 物理状态更新（2026-09-17，HEAD e8846a2）
+# CP8 物理状态更新（历史状态，2026-09-17 HEAD e8846a2，已被 14e8e06 取代）
 
-HEAD=`e8846a2`。正式 CP8 lossless 构建仍 `FAIL_CLOSED`：`WNS=-0.067 ns`、`TNS=-0.080 ns`（含策略为 `Performance_ExtraTimingOpt` 的 clean build）；`ExplorePostRoute` probe 也失败（`WNS=-0.088 ns`、`TNS=-0.339 ns`），不得称为正式签核。工作树候选修复未提交、未做 clean HEAD 物理重建：`b3_pl_distribution_replay_shim.sv` 将 sample RAM `READ_LATENCY_B` 从 1 改为 2，新增 `STATE_REPLAY_PREFETCH_READY`，地址流水改为 `replay_beat + 3`；`build_b2.tcl` 暂改为 `Performance_ExploreWithRemap`。候选修复已通过定向合同 `20 passed, 1 skipped`；完整 B2 `129 passed`、T1 PASS、`B2_CHECKS_PASS`；仍没有物理时序证据。状态保持 `CP8_CONTROL_CHAIN_PASS / CP8_PHYSICAL_BUILD_PENDING / B3-POWER-GATE=OPEN`，不得写 PASS。下一步：提交候选修复，在 clean HEAD 优先正式重建 lossless；通过后再重建 dense；两者都过 200 MHz `xc7z020clg484-2` 时序且 `DSP=4` 后才可四态上板。
+历史状态 HEAD=`e8846a2`：当时正式 CP8 lossless 构建仍 `FAIL_CLOSED`：`WNS=-0.067 ns`、`TNS=-0.080 ns`（含策略为 `Performance_ExtraTimingOpt` 的 clean build）；`ExplorePostRoute` probe 也失败（`WNS=-0.088 ns`、`TNS=-0.339 ns`），不得称为正式签核。工作树候选修复未提交、未做 clean HEAD 物理重建：`b3_pl_distribution_replay_shim.sv` 将 sample RAM `READ_LATENCY_B` 从 1 改为 2，新增 `STATE_REPLAY_PREFETCH_READY`，地址流水改为 `replay_beat + 3`；`build_b2.tcl` 暂改为 `Performance_ExploreWithRemap`。候选修复已通过定向合同 `20 passed, 1 skipped`；完整 B2 `129 passed`、T1 PASS、`B2_CHECKS_PASS`；当时仍没有物理时序证据。历史状态：当时为 `CP8_CONTROL_CHAIN_PASS / CP8_PHYSICAL_BUILD_PENDING / B3-POWER-GATE=OPEN`；该 pending 已被 clean HEAD `14e8e06` 的 `CP8_PHYSICAL_BUILD_PASS` 取代。当时下一步：提交候选修复，在 clean HEAD 优先正式重建 lossless；通过后再重建 dense；两者都过 200 MHz `xc7z020clg484-2` 时序且 `DSP=4` 后才可四态上板。该重建已由 clean HEAD `14e8e06` 完成，两模式均通过。

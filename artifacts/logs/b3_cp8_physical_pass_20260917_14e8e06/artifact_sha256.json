@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-09-17T17:35:26Z",
+  "source_head": "14e8e0686ada1f691e039239d0b942f8024253ca",
+  "part": "xc7z020clg484-2",
+  "clock_hz": 200000000,
+  "dsp48e1_count": 4,
+  "evidence_dir": "artifacts/logs/b3_cp8_physical_pass_20260917_14e8e06",
+  "modes": {
+    "dense": {
+      "mode": "dense_pl_power_replay",
+      "build_dir": "boards/hellozynq/b2_hw/build_cp8_dense_14e8e06",
+      "bitstream_sha256": "8d3ca3736c0a0990e230969979cc6349b9f3fa032343d32ee7c87eb74ff48af5",
+      "xsa_sha256": "cd3cb287449e53a6a4d0fa9af48be331106b0f459af75b013e24fea385b5393e",
+      "signoff": {
+        "timing_pass": 1,
+        "route_pass": 1,
+        "drc_pass": 1,
+        "signoff_pass": 1,
+        "wns_ns": "0.01",
+        "tns_ns": "0",
+        "whs_ns": "0.036",
+        "ths_ns": "0",
+        "route_errors": 0,
+        "drc_hard_errors": 0,
+        "dsp48e1_count": 4,
+        "clock_hz": 200000000,
+        "part": "xc7z020clg484-2",
+        "build_head": "14e8e0686ada1f691e039239d0b942f8024253ca"
+      },
+      "archived_files": {
+        "artifacts/logs/b3_cp8_physical_pass_20260917_14e8e06/dense_build_manifest.json": "0a95ebf51a768f9ea80dadbfe3da76bd400429303b85b9984b69b4cbdc106330",
+        "artifacts/logs/b3_cp8_physical_pass_20260917_14e8e06/dense_signoff_summary.txt": "7150a087573ee4809b053fa32e9d20cfb56092a65ef1f3b24a92e7edd0a5408c",
+        "artifacts/logs/b3_cp8_physical_pass_20260917_14e8e06/dense_timing_impl.rpt": "98578ecb5d58eba79a538fc162018af8f66ca8d1355987e6d52c5d98c9237fb4",
+        "artifacts/logs/b3_cp8_physical_pass_20260917_14e8e06/dense_utilization_impl.rpt": "209b2d88adf0390f5fa017e47800c05e932c48dc2e5ddd2389b635507eaf7743",
+        "artifacts/logs/b3_cp8_physical_pass_20260917_14e8e06/dense_route_status_impl.rpt": "d5169dc7204e775718dd54d737f0af6eb2aa510d20806c2452ce5962d5a7d1bb",
+        "artifacts/logs/b3_cp8_physical_pass_20260917_14e8e06/dense_drc_impl.rpt": "deefba444ed3beb05f6136fae90eccfaa72c1f9d6a907993255caa8b514f04a2"
+      }
+    },
+    "lossless": {
+      "mode": "lossless_zero_group_skip_pl_power_replay",
+      "build_dir": "boards/hellozynq/b2_hw/build_cp8_lossless_14e8e06",
+      "bitstream_sha256": "ebc44d5ef68088c04456bf2fd5c4b87da22e38748d7bcdbb8a2965d73acacef5",
+      "xsa_sha256": "649f571d2e4228b21f2b53c9d3fd1e1fef92557eeb70c5fadbb2ca7d4c709aa3",
+      "signoff": {
+        "timing_pass": 1,
+        "route_pass": 1,
+        "drc_pass": 1,
+        "signoff_pass": 1,
+        "wns_ns": "0",
+        "tns_ns": "0",
+        "whs_ns": "0.036",
+        "ths_ns": "0",
+        "route_errors": 0,
+        "drc_hard_errors": 0,
+        "dsp48e1_count": 4,
+        "clock_hz": 200000000,
+        "part": "xc7z020clg484-2",
+        "build_head": "14e8e0686ada1f691e039239d0b942f8024253ca"
+      },
+      "archived_files": {
+        "artifacts/logs/b3_cp8_physical_pass_20260917_14e8e06/lossless_build_manifest.json": "e84c361c377d906cc7c3739394b49655f4e06b84f52d55f60354b2946e417501",
+        "artifacts/logs/b3_cp8_physical_pass_20260917_14e8e06/lossless_signoff_summary.txt": "a7da26e3f79f4086f7223a914f036d8e1867f351d84a7c6ca736f6344f3a527a",
+        "artifacts/logs/b3_cp8_physical_pass_20260917_14e8e06/lossless_timing_impl.rpt": "95c58145f07457f5743cdf7f37fbb7184aebf5e38fa7228647c4eea005021d6f",
+        "artifacts/logs/b3_cp8_physical_pass_20260917_14e8e06/lossless_utilization_impl.rpt": "3809008463c3f8c6b844533dcff02202f42f0fe0852d940e081993f7040957c4",
+        "artifacts/logs/b3_cp8_physical_pass_20260917_14e8e06/lossless_route_status_impl.rpt": "96ba39f95a380ca60b48520267df17b82b16a034a646a3b6a3ea42a5562e1058",
+        "artifacts/logs/b3_cp8_physical_pass_20260917_14e8e06/lossless_drc_impl.rpt": "e2045e238baa712c84c45742104e0f074e2d065cbb3f2a724566e5d1e5d05139"
+      }
+    }
+  }
+}

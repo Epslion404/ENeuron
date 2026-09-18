@@ -2,6 +2,17 @@
 
 更新时间：2026-09-17
 
+## CP8 两模式物理构建通过（2026-09-17，clean HEAD `14e8e06`）
+
+clean HEAD `14e8e0686ada1f691e039239d0b942f8024253ca` 上，CP8 功耗测量所需的两套完整 wrapper 均已通过 `xc7z020clg484-2`、200 MHz 物理门，timing/route/DRC/signoff 全为 `1`、DSP48E1=`4`：
+
+- dense `boards/hellozynq/b2_hw/build_cp8_dense_14e8e06`，mode=`dense_pl_power_replay`，`WNS/TNS/WHS/THS=0.01/0/0.036/0`，bit SHA-256=`8d3ca3736c0a0990e230969979cc6349b9f3fa032343d32ee7c87eb74ff48af5`，XSA SHA-256=`cd3cb287449e53a6a4d0fa9af48be331106b0f459af75b013e24fea385b5393e`。
+- lossless `boards/hellozynq/b2_hw/build_cp8_lossless_14e8e06`，mode=`lossless_zero_group_skip_pl_power_replay`，`WNS/TNS/WHS/THS=0/0/0.036/0`，bit SHA-256=`ebc44d5ef68088c04456bf2fd5c4b87da22e38748d7bcdbb8a2965d73acacef5`，XSA SHA-256=`649f571d2e4228b21f2b53c9d3fd1e1fef92557eeb70c5fadbb2ca7d4c709aa3`。
+
+归档证据为 `artifacts/logs/b3_cp8_physical_pass_20260917_14e8e06/`：只复制两模式的 build manifest、signoff 摘要和 timing/utilization/route/drc 实现报告（加 `dense_`/`lossless_` 前缀），不含 bit、XSA、DCP 或 project；`artifact_sha256.json` 用 Python `hashlib` 从实际文件复算每个归档文件、bit 和 XSA 的 SHA-256。该目录关闭的是 `CP8_PHYSICAL_BUILD_PASS`，不等于实板四态控制或功耗已通过；功耗仍未测，`B3-POWER-GATE` 与 `B3-GOAL-GATE` 保持 OPEN。此前 HEAD `5c16095` 的 dense PASS / lossless FAIL_CLOSED 结果已被本次 clean HEAD 重建取代，旧失败路径证据保留在 Nexus 历史中。
+
+**下一步：** 使用这两套产物完成 `dense idle/full` 与 `lossless idle/full` 四态实板控制验证；四态控制验证通过后才开始 B10 至少 5 组交替 paired 功耗测量。不得在测量完成前写“功耗已测”，不得关闭功耗门。
+
 ## CP5a 纯 PL replay 正式实板（2026-09-17）
 
 已新增编译期可选的 `B3_PL_REPLAY_BENCHMARK`：Host 仍按既有 packet 合同装载模型并提交一个已验证 QAT 样本，`npu_clk` 域缓存该 8-beat 样本，完成 1000 次预热和 10000 次正式计量；中间结果在 PL 内消费，只把最后一次 10-beat 结果送回既有结果 FIFO。默认 dense/lossless 构建不定义该宏，正常推理路径保持原样。状态块在冻结的 `0x00–0x60` 之后新增只读 `0x64 status / 0x68 completed / 0x6C measured_cycles`。
@@ -42,11 +53,11 @@ QAT dense 已在同一 `xc7z020clg484-2` bit/XSA 下完成 8 样本 smoke 和 64
 
 ## 当前裁定（QAT 重基线后）
 
-`B3-22.2`、`B3-22.3` 与 `B3-22.4` 首轮均已完成，但不再是当前优先级。CP0/CP1/CP3a/b/c/CP4、CP5a 与 CP5b 已完成；严格 2:4 live/static 精度失败，主候选为可证明无损的零组跳过。下一步是冻结 CP5b dense/lossless 连续负载并执行 CP8 paired 功耗。`B3-PL-SPEED-GATE` 已通过、顶层 `B3-SPEED-GATE=PASS_PURE_PL_ONLY`；`B3-POWER-GATE`、`B3-GOAL-GATE` 仍保持 OPEN。
+`B3-22.2`、`B3-22.3` 与 `B3-22.4` 首轮均已完成，但不再是当前优先级。CP0/CP1/CP3a/b/c/CP4、CP5a 与 CP5b 已完成；严格 2:4 live/static 精度失败，主候选为可证明无损的零组跳过。CP8 控制链与两模式 clean HEAD `14e8e06` 物理构建已完成（`CP8_PHYSICAL_BUILD_PASS`），下一步是用这两套产物完成 dense/lossless idle/full 四态实板控制验证，验证通过后才开始 B10 至少 5 组交替 paired 功耗测量。`B3-PL-SPEED-GATE` 已通过、顶层 `B3-SPEED-GATE=PASS_PURE_PL_ONLY`；`B3-POWER-GATE`、`B3-GOAL-GATE` 仍保持 OPEN。
 
 ## 结论
 
-当前项目状态为：`FUNCTIONAL_PASS / B3_MVP_GATE_PASS / B3_QAT_CP4_BOARD_FORMAL_PASS / B3_QAT_CP5A_PL_REPLAY_FORMAL_PASS / B3_QAT_CP5B_PL_DISTRIBUTION_FORMAL_PASS / B3_ACCURACY_GATE_PASS_LOSSLESS / B3_PL_SPEED_GATE_PASS / B3_PACKET_SPEED_MEASURED_WEAK_GAIN_1_008196X / B3_SPEED_GATE_PASS_PURE_PL_ONLY / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B3_STRICT_DEFERRED_STRUCTURAL / PL_AUTO_MASK_BOARD_DEFERRED / B2_GATE_PENDING`。
+当前项目状态为：`FUNCTIONAL_PASS / B3_MVP_GATE_PASS / B3_QAT_CP4_BOARD_FORMAL_PASS / B3_QAT_CP5A_PL_REPLAY_FORMAL_PASS / B3_QAT_CP5B_PL_DISTRIBUTION_FORMAL_PASS / B3_ACCURACY_GATE_PASS_LOSSLESS / B3_PL_SPEED_GATE_PASS / B3_PACKET_SPEED_MEASURED_WEAK_GAIN_1_008196X / B3_SPEED_GATE_PASS_PURE_PL_ONLY / CP8_CONTROL_CHAIN_PASS / CP8_PHYSICAL_BUILD_PASS / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B3_STRICT_DEFERRED_STRUCTURAL / PL_AUTO_MASK_BOARD_DEFERRED / B2_GATE_PENDING`。
 
 主线是 `xc7z020clg484-2` 上部署 NPU，并用可证明无损的组级动态跳过验证推理加速与功耗下降。历史 PS 在环 live 路径仍保留为负结果：64 样本 live `722–727 us`、dense `155–159 us`，PS mask 计算是主要瓶颈；它不代表当前纯 PL 候选。当前 QAT lossless 已在 clean 397 样本实板上完成输出与任务精度保持，`B3-ACCURACY-GATE` 通过；CP5b 纯 PL 连续吞吐门 `B3-PL-SPEED-GATE` 通过，顶层 `B3-SPEED-GATE=PASS_PURE_PL_ONLY`；外部功耗未测，功耗门仍 OPEN。严格连接级 `2:4` 仍是精度失败的结构实验，不是当前加速硬门。
 
@@ -88,7 +99,7 @@ QAT dense 已在同一 `xc7z020clg484-2` bit/XSA 下完成 8 样本 smoke 和 64
 - clean worktree 重建，确认最终可复现 manifest。
 - B2-06～B2-10 的多 packet、完整错误矩阵、复位账本、统一时间戳和正式机器证据包。
 - B2-GATE 发布门。
-- B3-MVP-GATE、QAT CP4 与无损候选的 `B3-ACCURACY-GATE` 已关；`B3-PL-SPEED-GATE` 已由 CP5b 关闭，顶层 `B3-SPEED-GATE=PASS_PURE_PL_ONLY`。当前主动任务是冻结 CP5b dense/lossless 连续负载并执行 CP8 paired 功耗，B3-22.5 批量协议、严格 2:4 和独立 PL-auto 均后置。功耗仪器合同已冻结但仍是 `POWER_NOT_MEASURED`；`B3-POWER-MEASURED` 与 `B3-POWER-GATE` 都未关闭。B2-GATE 挡网口发布。
+- B3-MVP-GATE、QAT CP4 与无损候选的 `B3-ACCURACY-GATE` 已关；`B3-PL-SPEED-GATE` 已由 CP5b 关闭，顶层 `B3-SPEED-GATE=PASS_PURE_PL_ONLY`。CP8 控制链与两模式 clean HEAD `14e8e06` 物理构建已通过；当前主动任务是先用这两套产物完成 dense/lossless idle/full 四态实板控制验证，再执行 B10 至少 5 组交替 paired 功耗测量，B3-22.5 批量协议、严格 2:4 和独立 PL-auto 均后置。功耗仪器合同已冻结但仍是 `POWER_NOT_MEASURED`；`B3-POWER-MEASURED` 与 `B3-POWER-GATE` 都未关闭。B2-GATE 挡网口发布。
 - 计数器对外仍保持 32 位 AXI-Lite 读口；核心内部加法收窄为 24 位，可覆盖 B3-13 的 10000 样本上限（`592 * 10000 = 5,920,000 < 2^24`）。
 - Pulse-Mini-L/L2 集成。它们是冻结的候选/历史支线，不是当前日常门。
 
@@ -96,8 +107,8 @@ QAT dense 已在同一 `xc7z020clg484-2` bit/XSA 下完成 8 样本 smoke 和 64
 
 ## 下一步
 
-1. **功耗负载冻结。** 冻结 CP5b 的 dense/lossless bit/XSA/ELF、397 样本 PL-internal distribution replay 输入流、1000 warmup 和持续运行脚本，形成四种可重复状态：dense idle/full、lossless idle/full。
-2. **CP8 paired 功耗。** 按 B10 仪器合同执行至少 5 组交替测量，同一 Type-C 串联仪表和 JTAG 状态，记录照片/时间、V/A/W、mAh/mWh、有效正确推理数和持续时间；报告整板平均功率、mode-matched idle 到 full 增量功率、整板总能耗/正确推理、mode-matched 增量能耗/正确推理和仪器可分辨性。允许“平均功率不可分辨但因吞吐提高而每次推理能耗下降”的现实结论，不得把整板功率称为纯 NPU 功率。
+1. **四态实板控制验证。** 用 clean HEAD `14e8e06` 的 `build_cp8_dense_14e8e06` / `build_cp8_lossless_14e8e06` 两套 bit/XSA/ELF，先完成 `dense idle/full` 与 `lossless idle/full` 四态实板控制验证：idle 不提交样本，full 一次捕获 397 后 PL 持续运行，确认 `0x74` READY/START/RUNNING、capture 完成和同模式 bit/XSA/ELF 身份一致。四态控制验证通过后才允许开始功耗测量。
+2. **CP8 paired 功耗。** 四态控制验证通过后，按 B10 仪器合同执行至少 5 组交替测量，同一 Type-C 串联仪表和 JTAG 状态，记录照片/时间、V/A/W、mAh/mWh、有效正确推理数和持续时间；报告整板平均功率、mode-matched idle 到 full 增量功率、整板总能耗/正确推理、mode-matched 增量能耗/正确推理和仪器可分辨性。允许“平均功率不可分辨但因吞吐提高而每次推理能耗下降”的现实结论，不得把整板功率称为纯 NPU 功率。测量完成前不得写“功耗已测”，不得关闭 `B3-POWER-GATE`。
 3. **CP6 覆盖率优化。** 按 CP6a canonical 等价输入通道 + L0 权重同步置换、CP6b L0 ReLU 后缀早停、CP6c 条件性硬件感知 QAT、CP6d 连续零组快速跳转的优先级推进；严格 2:4、独立 PL auto-mask 和批量协议均为后置支线。
 
 ## 文档口径

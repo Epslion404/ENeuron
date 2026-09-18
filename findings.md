@@ -1,5 +1,23 @@
 # 调研与实验发现
 
+## 2026-09-18 CP8 提交前事实复核
+
+- clean HEAD `14e8e06` 的两套 build manifest 都绑定当前 `build_b2.tcl` SHA `572a79fc90afc023607d97201920616e7d8c4af2136cbc66d4a4c255072d1205`；该源码明确采用 `Performance_ExploreWithRemap`，因此 Nexus 旧的当前字段 `Performance_ExtraTimingOpt` 是事实错误。
+- `Performance_ExtraTimingOpt` 的 `WNS=+0.001 ns` 结果仍可作为历史综合网表 probe，但不能描述 clean HEAD `14e8e06` 的生产构建。
+- 当前门保持 `CP8_CONTROL_CHAIN_PASS / CP8_PHYSICAL_BUILD_PASS / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN`；物理构建证据不能替代四态实板控制或外部 B10 功耗测量。
+
+## 2026-09-17 CP8 两模式物理构建通过（clean HEAD 14e8e06）
+
+- clean HEAD `14e8e0686ada1f691e039239d0b942f8024253ca` 上，dense/lossless 两套 CP8 wrapper 均在 `xc7z020clg484-2`、200 MHz 通过 timing/route/DRC/signoff，DSP48E1=4。dense `WNS/TNS/WHS/THS=0.01/0/0.036/0`，lossless `0/0/0.036/0`。
+- 两模式 bit/XSA SHA-256 由 `artifact_sha256.json` 从实际文件复算：dense bit=`8d3ca373…8af5`、XSA=`cd3cb287…5393e`；lossless bit=`ebc44d5e…acef5`、XSA=`649f571d…9aa3`。归档报告哈希与源 build manifest 的 `reports_sha256` 逐项一致，证明归档为字节级副本。
+- 证据目录只放 manifest、signoff 摘要和 4 份报告，不复制 bit/XSA/DCP/project；功耗数据仍未测，`B3-POWER-GATE=OPEN`。
+- 此前 HEAD `5c16095` 的 lossless `WNS=-0.026 ns` FAIL_CLOSED 失败路径是 397-sample replay BRAM 到 `core/l0_group_nonzero_reg[*]/D`；clean HEAD 重建后该路径已满足约束，故两模式在同一 HEAD 上并列通过。
+- 下一步边界：物理构建通过不等于实板四态控制通过；必须先验证 dense/lossless idle/full 四态，再开始 B10 至少 5 组交替 paired 功耗测量。
+
+## 错误记录
+
+- 主代理在 PowerShell 中用 `foreach` 直接接管道（`foreach (...) { ... } | ConvertFrom-Json`）触发 empty pipe parser error；该调用未修改任何文件。改为先把结果累积到数组再管道后，两个 `build_manifest.json` 均解析成功。
+
 ## 2026-09-16 CP5b 5 轮分布吞吐实板结果
 
 - 5 轮交替 `dense → lossless_zero_group_skip` 全部返回 `CP5B_DISTRIBUTION_PASS`；两侧每轮均为 `formal_evidence=true`、397 输入、1000 次预热、10000 次计量、最终样本索引 74、协议错误 0。
@@ -2341,11 +2359,11 @@
 - 独立 `impl_extra_timing_probe` 已完成：`WNS=+0.001 ns`、`TNS=0`、`WHS=+0.013 ns`、`THS=0`，报告明确 `All user specified timing constraints are met`。该 probe 复用旧综合网表，只证明策略可补回时序，不替代 clean HEAD 正式构建。
 - 生产 `build_b2.tcl` 已切换为 `Performance_ExtraTimingOpt`，继续保留 `route_design Explore`、post-place/post-route `AggressiveExplore` 和 fail-closed signoff parser。合同先 RED 后 GREEN，相关测试 `17 passed`；全量 `run_b2_checks.ps1` 最终 `B2_CHECKS_PASS`。
 - DeepSeek 文档同步最终文件经主代理独立 `json.tool`、状态搜索和 `git diff --check` 复核通过；其执行期间仍出现反引号被 shell 当命令及一次中间 JSON 解析错误，说明委派时不能只采信总结中的“校验成功”。
-# 2026-09-17 CP8 lossless timing 复测与工作树候选（HEAD e8846a2）
+# 2026-09-17 CP8 lossless timing 复测与工作树候选（历史状态，HEAD e8846a2，已被 14e8e06 取代）
 
-- HEAD=`e8846a2`。正式 CP8 lossless 构建仍 `FAIL_CLOSED`：`WNS=-0.067 ns`、`TNS=-0.080 ns`（含策略为 `Performance_ExtraTimingOpt` 的 clean build）。
+- 历史状态 HEAD=`e8846a2`：当时正式 CP8 lossless 构建仍 `FAIL_CLOSED`：`WNS=-0.067 ns`、`TNS=-0.080 ns`（含策略为 `Performance_ExtraTimingOpt` 的 clean build）。
 - `ExplorePostRoute` probe 也失败：`WNS=-0.088 ns`、`TNS=-0.339 ns`；该 probe 不得称为正式签核。
 - 工作树候选修复未提交、未做 clean HEAD 物理重建：`b3_pl_distribution_replay_shim.sv` 将 sample RAM `READ_LATENCY_B` 从 1 改为 2，新增 `STATE_REPLAY_PREFETCH_READY`，地址流水改为 `replay_beat + 3`；`build_b2.tcl` 暂改为 `Performance_ExploreWithRemap`。
-- 候选修复已通过定向合同 `20 passed, 1 skipped`；完整 B2 `129 passed`、T1 PASS、`B2_CHECKS_PASS`；仍没有物理时序证据。
-- 状态保持 `CP8_CONTROL_CHAIN_PASS / CP8_PHYSICAL_BUILD_PENDING / B3-POWER-GATE=OPEN`，不得写 PASS。
-- 下一步：提交候选修复，在 clean HEAD 优先正式重建 lossless；通过后再重建 dense；两者都过 200 MHz `xc7z020clg484-2` 时序且 `DSP=4` 后才可四态上板。
+- 候选修复已通过定向合同 `20 passed, 1 skipped`；完整 B2 `129 passed`、T1 PASS、`B2_CHECKS_PASS`；当时仍没有物理时序证据。
+- 历史状态：当时为 `CP8_CONTROL_CHAIN_PASS / CP8_PHYSICAL_BUILD_PENDING / B3-POWER-GATE=OPEN`；该 pending 已被 clean HEAD `14e8e06` 的 `CP8_PHYSICAL_BUILD_PASS` 取代。
+- 当时下一步：提交候选修复，在 clean HEAD 优先正式重建 lossless；通过后再重建 dense；两者都过 200 MHz `xc7z020clg484-2` 时序且 `DSP=4` 后才可四态上板。该重建已由 clean HEAD `14e8e06` 完成，两模式均通过。

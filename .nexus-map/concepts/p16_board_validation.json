@@ -11,20 +11,20 @@
     "source_identity_rule": "CHECKOUT_FROM_GIT; PHYSICAL_ARTIFACTS_FROM_MANIFEST",
     "bitstream_rtl_identity": "be84596",
     "t0_state_workspace_is_current": false,
-    "execution_chain": ["B3-PAPER-CP0_QAT_IDENTITY", "B3-PAPER-CP1_QAT_DENSE_BOARD_BRINGUP", "B3-PAPER-CP3A_LOSSLESS_REFERENCE", "B3-PAPER-CP3B_LOSSLESS_RTL", "B3-PAPER-CP3C_LOSSLESS_ZERO_GROUP_TIMING", "B3-PAPER-CP4_LOSSLESS_BOARD", "B3-PAPER-CP5A_REPLAY_FORMAL_PASS", "B3-PAPER-CP5B_DISTRIBUTION_FORMAL_PASS", "B3-PAPER-CP8_CONTROL_CHAIN_PASS", "B3-PAPER-CP8_PAIRED_POWER_PHYSICAL_BUILD_PENDING", "B3-POWER-GATE", "B3-GOAL-GATE"],
+    "execution_chain": ["B3-PAPER-CP0_QAT_IDENTITY", "B3-PAPER-CP1_QAT_DENSE_BOARD_BRINGUP", "B3-PAPER-CP3A_LOSSLESS_REFERENCE", "B3-PAPER-CP3B_LOSSLESS_RTL", "B3-PAPER-CP3C_LOSSLESS_ZERO_GROUP_TIMING", "B3-PAPER-CP4_LOSSLESS_BOARD", "B3-PAPER-CP5A_REPLAY_FORMAL_PASS", "B3-PAPER-CP5B_DISTRIBUTION_FORMAL_PASS", "B3-PAPER-CP8_CONTROL_CHAIN_PASS", "B3-PAPER-CP8_PHYSICAL_BUILD_PASS", "B3-PAPER-CP8_BOARD_FOUR_STATE_CONTROL", "B3-POWER-GATE", "B3-GOAL-GATE"],
     "conditional_optimization_tasks": ["B3-18", "B3-19"],
     "qualification_execution_chain": ["B1-06B6_UART_BASELINE", "B1-06B7_OCM_HIGH_DDR_MINIMAL_REPRODUCTION"],
     "ddr_accesses_so_far": 0
   },
-  "status": "P16_B0_COMPLETE / FASTLANE_V1 / B2_PACKET_NPU_PHYSICAL_PASS / B2_GATE_RELEASE_PENDING / B3_MVP_GATE_PASS / B3_QAT_CP4_BOARD_FORMAL_PASS / B3_QAT_CP5A_PL_REPLAY_FORMAL_PASS / B3_QAT_CP5B_PL_DISTRIBUTION_FORMAL_PASS / B3_ACCURACY_GATE_PASS_LOSSLESS / B3_PL_SPEED_GATE_PASS / B3_PACKET_SPEED_MEASURED_WEAK_GAIN_1_008196X / B3_SPEED_GATE_PASS_PURE_PL_ONLY / B3_CP8_CONTROL_CHAIN_PASS / B3_CP8_DENSE_BUILD_PASS / B3_CP8_LOSSLESS_BUILD_FAIL_CLOSED / B3_CP8_PHYSICAL_BUILD_PENDING / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B3_STRICT_PENDING / B4_RELEASE_PENDING",
+  "status": "P16_B0_COMPLETE / FASTLANE_V1 / B2_PACKET_NPU_PHYSICAL_PASS / B2_GATE_RELEASE_PENDING / B3_MVP_GATE_PASS / B3_QAT_CP4_BOARD_FORMAL_PASS / B3_QAT_CP5A_PL_REPLAY_FORMAL_PASS / B3_QAT_CP5B_PL_DISTRIBUTION_FORMAL_PASS / B3_ACCURACY_GATE_PASS_LOSSLESS / B3_PL_SPEED_GATE_PASS / B3_PACKET_SPEED_MEASURED_WEAK_GAIN_1_008196X / B3_SPEED_GATE_PASS_PURE_PL_ONLY / B3_CP8_CONTROL_CHAIN_PASS / B3_CP8_DENSE_BUILD_PASS / B3_CP8_LOSSLESS_BUILD_PASS / B3_CP8_PHYSICAL_BUILD_PASS / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B3_STRICT_PENDING / B4_RELEASE_PENDING",
   "current_b2_status": "FUNCTIONAL_PASS / PHYSICAL_PASS / BOARD_STATUS_PARTIAL",
   "stage2_complete": false,
   "current_gates": ["B3-POWER-MEASURED", "B3-POWER-GATE", "B3-GOAL-GATE"],
   "active_stage_contract": "docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md",
   "related_contracts": ["docs/planning/TODO.md#P16", "docs/planning/NPU_PRUNING_TODO.md", "docs/planning/NPU_PRUNING_NP7_TODO.md"],
   "workflow_resume_count_rule": "QUERY_WORKFLOW_RESUME_AT_RUNTIME",
-  "current_execution_point": "B3-PAPER-CP8_PAIRED_POWER_PHYSICAL_BUILD_PENDING",
-  "priority_execution_point": "B3-PAPER-CP8_PAIRED_POWER_PHYSICAL_BUILD_PENDING",
+  "current_execution_point": "B3-PAPER-CP8_BOARD_FOUR_STATE_CONTROL",
+  "priority_execution_point": "B3-PAPER-CP8_BOARD_FOUR_STATE_CONTROL",
   "b3_accuracy_gate": {
     "status": "PASS",
     "reporter": "b3_accuracy_report.py",
@@ -44,7 +44,7 @@
     "boundary": "B3-PL-SPEED-GATE 由 CP5b 397 样本、5 轮纯 PL 分布 replay 关闭，提升 1.088168676x；CP4 单样本 packet 路径仅为 B3-PACKET-SPEED=MEASURED_WEAK_GAIN_1_008196X，不称为纯 PL，也不宣称显著系统加速。顶层 B3-SPEED-GATE=PASS_PURE_PL_ONLY 不代表 packet 端到端显著加速。B3-GOAL-GATE 仍需 accuracy + B3-PL-SPEED-GATE + B3-POWER-GATE；若论文声称 packet/end-to-end 加速，必须另给重复实测，不能引用 CP5b。历史 PS-live NO_END_TO_END_SPEEDUP 保留为历史。"
   },
   "b3_cp8_power_control_chain": {
-    "status": "CP8_CONTROL_CHAIN_PASS / CP8_PHYSICAL_BUILD_PENDING",
+    "status": "CP8_CONTROL_CHAIN_PASS / CP8_PHYSICAL_BUILD_PASS",
     "verified_at": "2026-09-17",
     "shim": "b3_pl_distribution_replay_shim.sv",
     "continuous_replay_default": 0,
@@ -60,24 +60,25 @@
     "packet_build": "canonical QAT exactly 397; speed/accuracy modes forbidden",
     "tests": {"cp8_contract": "22 passed", "b2_full": "129 passed + T1", "b2_checks": "B2_CHECKS_PASS", "arm_build": "B2_PACKET_SW_BUILD_PASS"},
     "review": "DeepSeek found last-sample capture race; main agent added wait_cp8_capture_complete and retested",
-    "does_not_close": ["CP8 physical build (bit/XSA)", "board CP8 four-state power", "B3-POWER-MEASURED", "B3-POWER-GATE"]
+    "does_not_close": ["board CP8 four-state control", "board CP8 four-state power", "B3-POWER-MEASURED", "B3-POWER-GATE"]
   },
   "b3_cp8_physical_build": {
-    "status": "CP8_PHYSICAL_BUILD_PENDING",
+    "status": "CP8_PHYSICAL_BUILD_PASS",
     "verified_at": "2026-09-17",
-    "head": "5c16095",
+    "head": "14e8e0686ada1f691e039239d0b942f8024253ca",
     "part": "xc7z020clg484-2",
     "clock_mhz": 200,
-    "dense": {"status": "PHYSICAL_PASS", "wns_ns": 0.022, "tns_ns": 0.0, "whs_ns": 0.009, "ths_ns": 0.0, "route_errors": 0, "drc_hard_errors": 0, "dsp48e1": 4},
-    "lossless": {"status": "FAIL_CLOSED", "wns_ns": -0.026, "tns_ns": -0.036, "whs_ns": 0.036, "ths_ns": 0.0, "route_errors": 0, "drc_hard_errors": 0, "dsp48e1": 4, "bit_xsa_generated": true, "board_download_allowed": false},
-    "failing_path": "397-sample replay BRAM to lossless core/l0_group_nonzero_reg[*]/D; not the 0x74 CP8 control chain",
+    "dense": {"status": "PHYSICAL_PASS", "mode": "dense_pl_power_replay", "wns_ns": 0.01, "tns_ns": 0.0, "whs_ns": 0.036, "ths_ns": 0.0, "route_errors": 0, "drc_hard_errors": 0, "dsp48e1": 4, "bitstream_sha256": "8d3ca3736c0a0990e230969979cc6349b9f3fa032343d32ee7c87eb74ff48af5", "xsa_sha256": "cd3cb287449e53a6a4d0fa9af48be331106b0f459af75b013e24fea385b5393e"},
+    "lossless": {"status": "PHYSICAL_PASS", "mode": "lossless_zero_group_skip_pl_power_replay", "wns_ns": 0.0, "tns_ns": 0.0, "whs_ns": 0.036, "ths_ns": 0.0, "route_errors": 0, "drc_hard_errors": 0, "dsp48e1": 4, "bitstream_sha256": "ebc44d5ef68088c04456bf2fd5c4b87da22e38748d7bcdbb8a2965d73acacef5", "xsa_sha256": "649f571d2e4228b21f2b53c9d3fd1e1fef92557eeb70c5fadbb2ca7d4c709aa3", "board_download_allowed": true},
+    "failing_path": "none on clean HEAD 14e8e06; historical lossless failure was 397-sample replay BRAM to core/l0_group_nonzero_reg[*]/D",
     "timing_probe": {"name": "impl_extra_timing_probe", "reuses_synth_netlist": true, "wns_ns": 0.001, "tns_ns": 0.0, "whs_ns": 0.013, "ths_ns": 0.0, "constraints_met": true},
-    "production_strategy": "Performance_ExtraTimingOpt",
-    "contract": "17 passed",
-    "not_committed": true,
-    "clean_head_rebuild_done": false,
-    "next_action": "提交策略修复后 clean HEAD 重建 dense 与 lossless；两者均签核通过后才进入四态实板状态验证。状态保持 CP8_PHYSICAL_BUILD_PENDING，不得写 CP8_PHYSICAL_BUILD_PASS。",
-    "does_not_close": ["CP8_PHYSICAL_BUILD_PASS", "board CP8 four-state power", "B3-POWER-MEASURED", "B3-POWER-GATE"]
+    "production_strategy": "Performance_ExploreWithRemap",
+    "contract": "control chain 22 passed; B2 full 129 passed + T1",
+    "not_committed": false,
+    "clean_head_rebuild_done": true,
+    "evidence_dir": "artifacts/logs/b3_cp8_physical_pass_20260917_14e8e06/",
+    "next_action": "使用 clean HEAD 14e8e06 的 dense/lossless 两套新 bit/XSA 完成 idle/full 四态实板控制验证；通过后才开始 B10 至少 5 组交替 paired 功耗测量。B3-POWER-GATE / B3-GOAL-GATE 保持 OPEN，不得声称实板四态或功耗已通过。",
+    "does_not_close": ["board CP8 four-state control", "board CP8 four-state power", "B3-POWER-MEASURED", "B3-POWER-GATE", "B3-GOAL-GATE"]
   },
   "b3_22_1e1_logits_collection": {
     "status": "IMPLEMENTED_CONTRACT_PASS_BOARD_397_FORMAL_PASS",
@@ -87,7 +88,7 @@
     "required_outputs": ["sample_id pairing", "dense_logits", "live_logits", "label", "identity", "95% CI inputs"],
     "evidence_status": "QAT_BOARD_397_OF_397_EXACT_TASK_ACCURACY_88_665_NO_DROP_FORMAL",
     "implementation": "b3-22.1a/b contract and build pass; board logits collection entry implemented with fail-closed failure handling",
-    "next_action": "CP8 控制链已实现并提交前验证；HEAD 5c16095 dense 物理构建 PASS、lossless FAIL_CLOSED（bit/XSA 禁止上板），实现策略已切 Performance_ExtraTimingOpt 待 clean HEAD 重建。下一步：提交策略修复后重建 dense 与 lossless，两者签核通过后才进入实板 idle/full 四态配对功耗；当前 CP8_PHYSICAL_BUILD_PENDING / B3-POWER-GATE=OPEN",
+    "next_action": "CP8 控制链已实现并提交前验证；clean HEAD 14e8e06 上 dense/lossless 两套完整 wrapper 均已通过 200 MHz 物理签核（dense 0.01/0/0.036/0、lossless 0/0/0.036/0，route/DRC/signoff=1、DSP=4）。下一步：使用两套新 bit/XSA 完成实板 idle/full 四态控制验证，通过后才开始 B10 至少 5 组交替 paired 功耗；当前 CP8_PHYSICAL_BUILD_PASS / B3-POWER-GATE=OPEN",
     "does_not_close": ["B3-POWER-MEASURED", "B3-POWER-GATE", "B3-GOAL-GATE"]
   },
   "b3_22_1e1_dataset_and_merge": {
