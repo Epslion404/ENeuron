@@ -30,3 +30,7 @@ artifacts/logs/xpm_wrapper_real_xpm_vivado2024p2.txt -whitespace
 # CP5a 板级原始证据由 Vivado/XSCT/PowerShell 生成；保留采集字节，避免 CRLF
 # 规范化后使正式 SHA-256 在 Windows 工作树与干净克隆之间漂移。
 artifacts/logs/b3_qat_cp5a_pl_replay_20260917/** -text -whitespace
+
+# CP8 物理签核与四态实板记录是机器证据，必须保留采集时的原始字节。
+artifacts/logs/b3_cp8_physical_pass_20260917_14e8e06/** -text -whitespace
+artifacts/logs/b3_cp8_four_state_board_20260918_1714fc8/** -text -whitespace

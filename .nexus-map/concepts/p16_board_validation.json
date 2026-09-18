@@ -1,7 +1,7 @@
 {
   "$schema": "nexus-mapper/plan/v1",
   "plan_id": "p16-board-validation-phase2",
-  "verified_at": "2026-09-17",
+  "verified_at": "2026-09-18",
   "target": {
     "board": "HelloZynq",
     "part": "xc7z020clg484-2"
@@ -11,20 +11,20 @@
     "source_identity_rule": "CHECKOUT_FROM_GIT; PHYSICAL_ARTIFACTS_FROM_MANIFEST",
     "bitstream_rtl_identity": "be84596",
     "t0_state_workspace_is_current": false,
-    "execution_chain": ["B3-PAPER-CP0_QAT_IDENTITY", "B3-PAPER-CP1_QAT_DENSE_BOARD_BRINGUP", "B3-PAPER-CP3A_LOSSLESS_REFERENCE", "B3-PAPER-CP3B_LOSSLESS_RTL", "B3-PAPER-CP3C_LOSSLESS_ZERO_GROUP_TIMING", "B3-PAPER-CP4_LOSSLESS_BOARD", "B3-PAPER-CP5A_REPLAY_FORMAL_PASS", "B3-PAPER-CP5B_DISTRIBUTION_FORMAL_PASS", "B3-PAPER-CP8_CONTROL_CHAIN_PASS", "B3-PAPER-CP8_PHYSICAL_BUILD_PASS", "B3-PAPER-CP8_BOARD_FOUR_STATE_CONTROL", "B3-POWER-GATE", "B3-GOAL-GATE"],
+    "execution_chain": ["B3-PAPER-CP0_QAT_IDENTITY", "B3-PAPER-CP1_QAT_DENSE_BOARD_BRINGUP", "B3-PAPER-CP3A_LOSSLESS_REFERENCE", "B3-PAPER-CP3B_LOSSLESS_RTL", "B3-PAPER-CP3C_LOSSLESS_ZERO_GROUP_TIMING", "B3-PAPER-CP4_LOSSLESS_BOARD", "B3-PAPER-CP5A_REPLAY_FORMAL_PASS", "B3-PAPER-CP5B_DISTRIBUTION_FORMAL_PASS", "B3-PAPER-CP8_CONTROL_CHAIN_PASS", "B3-PAPER-CP8_PHYSICAL_BUILD_PASS", "B3-PAPER-CP8_BOARD_FOUR_STATE_CONTROL_PASS", "B3-PAPER-CP8_PAIRED_POWER", "B3-POWER-GATE", "B3-GOAL-GATE"],
     "conditional_optimization_tasks": ["B3-18", "B3-19"],
     "qualification_execution_chain": ["B1-06B6_UART_BASELINE", "B1-06B7_OCM_HIGH_DDR_MINIMAL_REPRODUCTION"],
     "ddr_accesses_so_far": 0
   },
-  "status": "P16_B0_COMPLETE / FASTLANE_V1 / B2_PACKET_NPU_PHYSICAL_PASS / B2_GATE_RELEASE_PENDING / B3_MVP_GATE_PASS / B3_QAT_CP4_BOARD_FORMAL_PASS / B3_QAT_CP5A_PL_REPLAY_FORMAL_PASS / B3_QAT_CP5B_PL_DISTRIBUTION_FORMAL_PASS / B3_ACCURACY_GATE_PASS_LOSSLESS / B3_PL_SPEED_GATE_PASS / B3_PACKET_SPEED_MEASURED_WEAK_GAIN_1_008196X / B3_SPEED_GATE_PASS_PURE_PL_ONLY / B3_CP8_CONTROL_CHAIN_PASS / B3_CP8_DENSE_BUILD_PASS / B3_CP8_LOSSLESS_BUILD_PASS / B3_CP8_PHYSICAL_BUILD_PASS / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B3_STRICT_PENDING / B4_RELEASE_PENDING",
+  "status": "P16_B0_COMPLETE / FASTLANE_V1 / B2_PACKET_NPU_PHYSICAL_PASS / B2_GATE_RELEASE_PENDING / B3_MVP_GATE_PASS / B3_QAT_CP4_BOARD_FORMAL_PASS / B3_QAT_CP5A_PL_REPLAY_FORMAL_PASS / B3_QAT_CP5B_PL_DISTRIBUTION_FORMAL_PASS / B3_ACCURACY_GATE_PASS_LOSSLESS / B3_PL_SPEED_GATE_PASS / B3_PACKET_SPEED_MEASURED_WEAK_GAIN_1_008196X / B3_SPEED_GATE_PASS_PURE_PL_ONLY / B3_CP8_CONTROL_CHAIN_PASS / B3_CP8_DENSE_BUILD_PASS / B3_CP8_LOSSLESS_BUILD_PASS / B3_CP8_PHYSICAL_BUILD_PASS / B3_CP8_BOARD_FOUR_STATE_CONTROL_PASS / B3_POWER_NOT_MEASURED / B3_POWER_GATE_OPEN / B3_GOAL_GATE_OPEN / B3_STRICT_PENDING / B4_RELEASE_PENDING",
   "current_b2_status": "FUNCTIONAL_PASS / PHYSICAL_PASS / BOARD_STATUS_PARTIAL",
   "stage2_complete": false,
   "current_gates": ["B3-POWER-MEASURED", "B3-POWER-GATE", "B3-GOAL-GATE"],
   "active_stage_contract": "docs/planning/NPU_ZYNQ7020_BOARD_VALIDATION_PHASE2_V1.md",
   "related_contracts": ["docs/planning/TODO.md#P16", "docs/planning/NPU_PRUNING_TODO.md", "docs/planning/NPU_PRUNING_NP7_TODO.md"],
   "workflow_resume_count_rule": "QUERY_WORKFLOW_RESUME_AT_RUNTIME",
-  "current_execution_point": "B3-PAPER-CP8_BOARD_FOUR_STATE_CONTROL",
-  "priority_execution_point": "B3-PAPER-CP8_BOARD_FOUR_STATE_CONTROL",
+  "current_execution_point": "B3-PAPER-CP8_PAIRED_POWER",
+  "priority_execution_point": "B3-PAPER-CP8_PAIRED_POWER",
   "b3_accuracy_gate": {
     "status": "PASS",
     "reporter": "b3_accuracy_report.py",
@@ -44,8 +44,8 @@
     "boundary": "B3-PL-SPEED-GATE 由 CP5b 397 样本、5 轮纯 PL 分布 replay 关闭，提升 1.088168676x；CP4 单样本 packet 路径仅为 B3-PACKET-SPEED=MEASURED_WEAK_GAIN_1_008196X，不称为纯 PL，也不宣称显著系统加速。顶层 B3-SPEED-GATE=PASS_PURE_PL_ONLY 不代表 packet 端到端显著加速。B3-GOAL-GATE 仍需 accuracy + B3-PL-SPEED-GATE + B3-POWER-GATE；若论文声称 packet/end-to-end 加速，必须另给重复实测，不能引用 CP5b。历史 PS-live NO_END_TO_END_SPEEDUP 保留为历史。"
   },
   "b3_cp8_power_control_chain": {
-    "status": "CP8_CONTROL_CHAIN_PASS / CP8_PHYSICAL_BUILD_PASS",
-    "verified_at": "2026-09-17",
+    "status": "CP8_CONTROL_CHAIN_PASS / CP8_PHYSICAL_BUILD_PASS / CP8_BOARD_FOUR_STATE_CONTROL_PASS",
+    "verified_at": "2026-09-18",
     "shim": "b3_pl_distribution_replay_shim.sv",
     "continuous_replay_default": 0,
     "continuous_replay_power_mode": 1,
@@ -60,7 +60,27 @@
     "packet_build": "canonical QAT exactly 397; speed/accuracy modes forbidden",
     "tests": {"cp8_contract": "22 passed", "b2_full": "129 passed + T1", "b2_checks": "B2_CHECKS_PASS", "arm_build": "B2_PACKET_SW_BUILD_PASS"},
     "review": "DeepSeek found last-sample capture race; main agent added wait_cp8_capture_complete and retested",
-    "does_not_close": ["board CP8 four-state control", "board CP8 four-state power", "B3-POWER-MEASURED", "B3-POWER-GATE"]
+    "does_not_close": ["board CP8 four-state power", "B3-POWER-MEASURED", "B3-POWER-GATE"]
+  },
+  "b3_cp8_board_four_state_control": {
+    "status": "CP8_BOARD_FOUR_STATE_CONTROL_PASS",
+    "verified_at": "2026-09-18",
+    "head": "1714fc85ffe498c91c3ef5a9033cb36a4042ce18",
+    "evidence": "artifacts/results/b3_cp8_four_state_board.json",
+    "raw_evidence_dir": "artifacts/logs/b3_cp8_four_state_board_20260918_1714fc8/",
+    "states": ["dense_idle", "dense_full", "lossless_idle", "lossless_full"],
+    "formal_evidence": true,
+    "protocol_error_count": 0,
+    "idle_capture_completed": 0,
+    "full_capture": 397,
+    "full_heartbeat_growing": true,
+    "paired_identity": "same-mode bitstream_sha256/xsa_sha256/elf_sha256 identical",
+    "packet_manifest_rebuilt_per_invocation": true,
+    "continuous_measured_cycles_semantics": "not_finalized_while_running",
+    "measured_cycles_boundary": "continuous replay never reaches the finite DONE latch; do not use measured_cycles for per-cycle/duty-cycle energy normalization",
+    "test": "test_b3_cp8_four_state_evidence.py 1 passed",
+    "next_action": "在同一 B10 Type-C 串联仪表与相同 JTAG/PS 状态下，对 dense idle/full 与 lossless idle/full 执行至少 5 组交替 paired rounds；功耗未测，B3-POWER-GATE / B3-GOAL-GATE 保持 OPEN。",
+    "does_not_close": ["board CP8 four-state power", "B3-POWER-MEASURED", "B3-POWER-GATE", "B3-GOAL-GATE"]
   },
   "b3_cp8_physical_build": {
     "status": "CP8_PHYSICAL_BUILD_PASS",
@@ -78,8 +98,8 @@
     "not_committed": false,
     "clean_head_rebuild_done": true,
     "evidence_dir": "artifacts/logs/b3_cp8_physical_pass_20260917_14e8e06/",
-    "next_action": "使用 clean HEAD 14e8e06 的 dense/lossless 两套新 bit/XSA 完成 idle/full 四态实板控制验证；通过后才开始 B10 至少 5 组交替 paired 功耗测量。B3-POWER-GATE / B3-GOAL-GATE 保持 OPEN，不得声称实板四态或功耗已通过。",
-    "does_not_close": ["board CP8 four-state control", "board CP8 four-state power", "B3-POWER-MEASURED", "B3-POWER-GATE", "B3-GOAL-GATE"]
+    "next_action": "四态实板控制已在 HEAD 1714fc8 通过（见 b3_cp8_board_four_state_control）。下一步在相同 B10 Type-C 串联仪表与相同 JTAG/PS 状态下执行至少 5 组交替 paired 功耗测量。B3-POWER-GATE / B3-GOAL-GATE 保持 OPEN，不得声称功耗已通过。",
+    "does_not_close": ["board CP8 four-state power", "B3-POWER-MEASURED", "B3-POWER-GATE", "B3-GOAL-GATE"]
   },
   "b3_22_1e1_logits_collection": {
     "status": "IMPLEMENTED_CONTRACT_PASS_BOARD_397_FORMAL_PASS",
@@ -89,7 +109,7 @@
     "required_outputs": ["sample_id pairing", "dense_logits", "live_logits", "label", "identity", "95% CI inputs"],
     "evidence_status": "QAT_BOARD_397_OF_397_EXACT_TASK_ACCURACY_88_665_NO_DROP_FORMAL",
     "implementation": "b3-22.1a/b contract and build pass; board logits collection entry implemented with fail-closed failure handling",
-    "next_action": "CP8 控制链已实现并提交前验证；clean HEAD 14e8e06 上 dense/lossless 两套完整 wrapper 均已通过 200 MHz 物理签核（dense 0.01/0/0.036/0、lossless 0/0/0.036/0，route/DRC/signoff=1、DSP=4）。下一步：使用两套新 bit/XSA 完成实板 idle/full 四态控制验证，通过后才开始 B10 至少 5 组交替 paired 功耗；当前 CP8_PHYSICAL_BUILD_PASS / B3-POWER-GATE=OPEN",
+    "next_action": "CP8 控制链与 clean HEAD 14e8e06 两模式物理签核已通过（dense 0.01/0/0.036/0、lossless 0/0/0.036/0，route/DRC/signoff=1、DSP=4）；四态实板控制也已在 HEAD 1714fc8 通过（CP8_BOARD_FOUR_STATE_CONTROL_PASS，证据 artifacts/results/b3_cp8_four_state_board.json）。下一步：在相同 B10 仪表与 JTAG/PS 状态下开始至少 5 组交替 paired 功耗；当前 CP8_BOARD_FOUR_STATE_CONTROL_PASS / B3-POWER-GATE=OPEN",
     "does_not_close": ["B3-POWER-MEASURED", "B3-POWER-GATE", "B3-GOAL-GATE"]
   },
   "b3_22_1e1_dataset_and_merge": {

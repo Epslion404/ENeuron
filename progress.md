@@ -1,5 +1,16 @@
 # 进度记录
 
+## 2026-09-18 CP8 四态实板控制通过
+
+- 基线 HEAD `1714fc85ffe498c91c3ef5a9033cb36a4042ce18` 完成 CP8 dense/lossless idle/full 四态实板控制，状态推进为 `CP8_BOARD_FOUR_STATE_CONTROL_PASS`；摘要 `artifacts/results/b3_cp8_four_state_board.json`，原始证据 `artifacts/logs/b3_cp8_four_state_board_20260918_1714fc8/`。
+- 四态均 `formal_evidence=true`、`protocol_error_count=0`；idle `capture_count/completed_count=0`，full `capture_count=397` 且 heartbeat 增长；同 mode `bitstream_sha256`/`xsa_sha256`/`elf_sha256` 一致。packet manifest 每次调用重建、不属于 paired identity；continuous `measured_cycles=0` 不用于逐周期/占空比能耗归一化。
+- 验证：`test_b3_cp8_four_state_evidence.py` 单独 `1 passed`；与 `test_artifact_layout.py` 联跑最初 `2 failed`（新增结果未索引 + 6 个 CRLF 归档哈希失配），经 `.gitattributes` 字节冻结、恢复原始文件并补齐 README 索引后，12/12 归档哈希匹配且定向联跑最终 `6 passed`。
+- 错误记录：主代理 4 次 PowerShell `foreach` 直接接管道触发 parser error、1 次双引号内 `$(sed...)` 被 PowerShell 提前解析；DeepSeek 另有 1 次 `sed...` 命令拼写失败。以上均未修改非目标文件，已停止这些写法。
+- 错误记录：一次多文件 `apply_patch` 的 Nexus 长行上下文未命中；前置三个文件补丁已成功应用，Nexus 未修改。随后改为只匹配稳定标题行完成修正，未覆盖其他改动。
+- 暂存复核发现全局忽略规则会漏掉四态目录中的 `*.log`，已用显式路径强制暂存 8 份 program/probe 日志。随后从 Git index 复算汇总引用的 14 个文件，暂存字节、工作树字节与声明 SHA-256 全部一致。
+- 提交前验证：定向合同 `6 passed`；CP8 物理归档 SHA `12/12`；四态 Git filter identity PASS；完整 `run_b2_checks.ps1` 为 B2 `129 passed`、T1 两项 PASS、`B2_CHECKS_PASS`；`git diff --check` 通过。
+- 下一步：同一 B10 Type-C 串联仪表、相同 JTAG/PS 条件下执行至少 5 组交替 paired rounds；功耗未测，`B3-POWER-GATE`/`B3-GOAL-GATE` 保持 OPEN，不得写“功耗已测”。
+
 ## 2026-09-18 CP8 dense idle 首次上板前闭包诊断
 
 - `dense idle` 首次调用在下载前因 `run_b2_build.ps1` manifest SHA 不一致 fail-closed，板卡未被改写。

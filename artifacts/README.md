@@ -41,6 +41,7 @@
 | `results/b3_qat_cp4_lossless_zero_group_board_397.json` | B3-PAPER-CP4 正式证据：clean 硬件/软件身份下 397 样本 dense/lossless 实板逐位 logits、CRC、sample ID 和协议一致，任务准确率均 `88.665%`；核心周期 `2494→2290.272`（`1.088954x`），单样本 packet 窗口约 `1.008x` |
 | `results/b3_qat_cp5a_pl_replay_board_pair.json` | B3-PAPER-CP5a 正式单样本纯 PL replay A/B：QAT sample index 201，1000 次预热 + 10000 次计量；dense/lossless 为 `2512/2302 cycles/sample`、吞吐提升 `1.091225x`，最终结果帧/logits/CRC 一致、协议错误 0。仅关闭 CP5a bring-up，不覆盖 397 样本分布，不关闭 CP5b 或 B3-SPEED-GATE |
 | `results/b3_qat_cp5b_pl_distribution_board_pair.json` | B3-PAPER-CP5b 正式 397 样本纯 PL 分布 replay：5 轮交替 dense/lossless，每轮 1000 预热 + 10000 计量；中位数吞吐提升 `1.088168676x`，5/5 轮结果帧/CRC/协议均通过，关闭纯 PL `B3-SPEED-GATE`；不包含 packet 端到端墙钟，也不关闭功耗/总目标门 |
+| `results/b3_cp8_four_state_board.json` | CP8 四态实板控制正式摘要：dense/lossless idle/full 均 `formal_evidence=true`、`protocol_error_count=0`；idle `capture_count/completed_count=0`，full `capture_count=397` 且 heartbeat 增长；同 mode bit/XSA/ELF 一致。仅关闭四态控制（`CP8_BOARD_FOUR_STATE_CONTROL_PASS`），功耗未测，`B3-POWER-GATE`/`B3-GOAL-GATE` 保持 OPEN |
 
 QAT 当前裁定：CP0 无泄漏重基线与 CP1 dense 板级对拍已通过；严格 2:4 live/static 精度失败。无损零组跳过已通过 Python/RTL 语义对拍，但 200 MHz OOC setup 失败；下一步是 CP3c 模型取数路径物理修复，当前不得生成 bit/XSA 或进入板级速度测量。
 | `results/simulation_results.json` | `python neuron_sim.py` 的三种单神经元候选结果 |
@@ -97,3 +98,9 @@ HelloZynq B1B 的 UART/DDR 原始机器证据保存在 `logs/hellozynq_b1b/<唯�
 | `logs/b3_cp8_physical_pass_20260917_14e8e06/` | CP8 功耗测量所需的 dense/lossless 两套完整 wrapper 物理构建；两模式均绑定 clean HEAD `14e8e0686ada1f691e039239d0b942f8024253ca`、`xc7z020clg484-2`、200 MHz、DSP48E1=4，timing/route/DRC/signoff 全为 `1`。dense `WNS/TNS/WHS/THS=0.01/0/0.036/0`，lossless `0/0/0.036/0`。目录内只归档 manifest、signoff 摘要和 4 份实现报告（加 `dense_`/`lossless_` 前缀），不含 bit、XSA、DCP 或 project；bit/XSA SHA-256 由 `artifact_sha256.json` 从原始构建目录实测记录。功耗仍未测，`B3-POWER-GATE` 保持 OPEN。 |
 
 `logs/b3_cp8_physical_pass_20260917_14e8e06/artifact_sha256.json` 记录 `source_head`、器件、时钟、两模式 `npu_mode`、每个归档文件相对仓库路径及实测 SHA-256、bit/XSA SHA-256 和 signoff 数字；所有哈希由 Python `hashlib` 从实际文件复算。该目录只证明两套产物通过物理构建与时序签核，不证明实板四态控制、功耗已测或任何门已关闭。
+
+## B3 CP8 四态实板控制证据（2026-09-18，HEAD `1714fc8`）
+
+| 证据目录 | 结论 |
+|---|---|
+| `logs/b3_cp8_four_state_board_20260918_1714fc8/` | CP8 dense/lossless idle/full 四态实板原始证据：每态 raw state JSON、program log、probe log 及 packet build manifest；状态摘要 `results/b3_cp8_four_state_board.json` 逐文件记录 SHA-256。四态 `formal_evidence=true`、`protocol_error_count=0`；idle `capture_count/completed_count=0`，full `capture_count=397` 且 heartbeat 增长；同 mode `bitstream_sha256`/`xsa_sha256`/`elf_sha256` 一致。packet manifest 每次 runner 调用重建（`packet_manifest_rebuilt_per_invocation=true`），不属于 paired identity；continuous `measured_cycles=0` 表示运行中 DONE latch 未封存，不得用于逐周期/占空比能耗归一化。该目录只关闭 `CP8_BOARD_FOUR_STATE_CONTROL_PASS`，功耗仍未测，`B3-POWER-GATE`/`B3-GOAL-GATE` 保持 OPEN。 |
