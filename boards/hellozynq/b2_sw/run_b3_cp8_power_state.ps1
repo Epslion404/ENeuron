@@ -62,18 +62,34 @@ if ([string]$hardwareManifest.signoff.B2_SIGNOFF_PASS -ne '1') {
 $hardwareClean = [bool]$hardwareManifest.git_worktree_clean
 $hardwareSourceClosurePass = $true
 $hardwareSourceMismatches = @()
+$hardwareSourceCanonicalFallbacks = @()
+$nonSynthBuildRunner = 'boards/hellozynq/b2_hw/run_b2_build.ps1'
 foreach ($entry in $hardwareManifest.source_sha256.PSObject.Properties) {
-    $sourcePath = Join-Path $repoRoot ([string]$entry.Name)
+    $relativePath = [string]$entry.Name
+    $sourcePath = Join-Path $repoRoot $relativePath
     if (-not (Test-Path -LiteralPath $sourcePath)) {
         $hardwareSourceClosurePass = $false
-        $hardwareSourceMismatches += "missing:$($entry.Name)"
+        $hardwareSourceMismatches += "missing:$relativePath"
         continue
     }
     $actualSha = (Get-FileHash -Algorithm SHA256 -LiteralPath $sourcePath).Hash.ToLowerInvariant()
-    if ($actualSha -ne ([string]$entry.Value).ToLowerInvariant()) {
-        $hardwareSourceClosurePass = $false
-        $hardwareSourceMismatches += "sha:$($entry.Name)"
+    if ($actualSha -eq ([string]$entry.Value).ToLowerInvariant()) { continue }
+
+    # 外层构建 runner 不进入综合；只在其当前 Git blob 与 manifest 声称的 HEAD blob 相同时接受回退。
+    if ($relativePath -eq $nonSynthBuildRunner) {
+        $expectedSpec = "{0}:{1}" -f ([string]$hardwareManifest.git_head), $nonSynthBuildRunner
+        $expectedBlob = (& git -C $repoRoot rev-parse $expectedSpec 2>$null).Trim()
+        $expectedBlobExit = $LASTEXITCODE
+        $currentBlob = (& git -C $repoRoot hash-object "--path=$nonSynthBuildRunner" $sourcePath 2>$null).Trim()
+        $currentBlobExit = $LASTEXITCODE
+        if ($expectedBlobExit -eq 0 -and $currentBlobExit -eq 0 -and $currentBlob -eq $expectedBlob) {
+            $hardwareSourceCanonicalFallbacks += "git-blob:$nonSynthBuildRunner"
+            continue
+        }
     }
+
+    $hardwareSourceClosurePass = $false
+    $hardwareSourceMismatches += "sha:$relativePath"
 }
 if (-not $AllowDirty -and (-not $hardwareClean -or -not $hardwareSourceClosurePass)) {
     throw "Hardware source closure mismatch: $($hardwareSourceMismatches -join ',')"
@@ -210,6 +226,7 @@ $manifest = [ordered]@{
     hardware_git_head = [string]$hardwareManifest.git_head
     hardware_source_closure_pass = $hardwareSourceClosurePass
     hardware_source_mismatches = $hardwareSourceMismatches
+    hardware_source_canonical_fallbacks = $hardwareSourceCanonicalFallbacks
     bitstream = [string]$packetManifest.bitstream
     bitstream_sha256 = [string]$packetManifest.bitstream_sha256
     xsa = [string]$packetManifest.xsa
