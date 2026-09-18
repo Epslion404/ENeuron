@@ -1,3 +1,17 @@
+# 2026-09-17 CP8 两模式物理构建与证据归档
+
+目标：在 clean HEAD `14e8e0686ada1f691e039239d0b942f8024253ca` 上完成 CP8 功耗测量所需的 dense/lossless 两套完整 wrapper 物理构建，归档只读证据并同步状态到 `CP8_PHYSICAL_BUILD_PASS`，明确四态实板控制验证仍是功耗测量的前置。
+
+- [x] dense 构建 `boards/hellozynq/b2_hw/build_cp8_dense_14e8e06`（mode=`dense_pl_power_replay`）通过 `xc7z020clg484-2`、200 MHz 物理门：timing/route/DRC/signoff=1、DSP48E1=4、`WNS/TNS/WHS/THS=0.01/0/0.036/0`。
+- [x] lossless 构建 `boards/hellozynq/b2_hw/build_cp8_lossless_14e8e06`（mode=`lossless_zero_group_skip_pl_power_replay`）通过同一物理门：`WNS/TNS/WHS/THS=0/0/0.036/0`、DSP48E1=4。
+- [x] 新建 `artifacts/logs/b3_cp8_physical_pass_20260917_14e8e06/`，分别复制两模式 build manifest、signoff 摘要与 timing/utilization/route/drc 报告并加 `dense_`/`lossless_` 前缀；不复制 bit/XSA/DCP/project。
+- [x] 生成 `artifact_sha256.json`：Python `hashlib` 实测每个归档文件、bit 和 XSA 的 SHA-256，记录 source_head、part、clock_hz、两模式 mode 与 signoff 数字。
+- [x] 在 `artifacts/README.md` 登记证据目录，并在 `test_artifact_layout.py` 增加存在性/JSON/HEAD/两模式 signoff=1/DSP=4/逐文件哈希复核合同。
+- [x] 同步 TODO、CURRENT_STATUS、WORKFLOW_STATE 与 Nexus，状态改为 `CP8_PHYSICAL_BUILD_PASS`；`B3-POWER-GATE` 与 `B3-GOAL-GATE` 保持 OPEN。
+- [ ] 使用两套产物完成 dense/lossless idle/full 四态实板控制验证；通过后才开始 B10 至少 5 组交替 paired 功耗测量。
+
+已知边界：本次只关闭物理构建，不证明实板四态控制、不证明功耗已测，也不关闭功耗/目标门。此前 HEAD `5c16095` 的 dense PASS / lossless FAIL_CLOSED 已被 clean HEAD 重建取代，旧失败路径仅作历史。
+
 # 2026-09-16 CP5b 397 样本纯 PL 分布吞吐收口
 
 目标：把已完成的 5 轮交替 dense/lossless 分布 replay 固化为可机器复核的正式证据，关闭 `B3-PL-SPEED-GATE` 并将顶层标为 `B3-SPEED-GATE=PASS_PURE_PL_ONLY`，随后冻结 paired 功耗测量的持续负载。
@@ -2264,3 +2278,44 @@ RED 记录：新增“完成外部测量不能自动关闭降功耗目标”合�
 - 修正 `docs/planning/NPU_PRUNING_TODO.md` 的“本机无功耗仪”过时描述。
 - 在 `test_b3_power_report_contract.py` 增加最小合同断言，冻结 B10 与 CP8 四态；历史 `b3_power_report.json` 的 dense/static/live 保持不变。
 - 历史 `artifacts/logs/b3_power_20260913_be84596/` 人工读数保留为工程观察，不改写为 CP8 正式证据。
+# 2026-09-17 CP8 dense/lossless paired 功耗执行准备
+
+目标：在同一模式内保持相同 bit/XSA/ELF、模型和 JTAG/PS 状态，提供可冻结的 idle 与持续 PL full 两种状态，随后执行 B10 至少 5 组交替 paired 功耗测量。
+
+- [x] 合并 PR #99，正式关闭 CP5b 与 `B3-PL-SPEED-GATE`；`main@fd71920` 与远端一致。
+- [x] 审计现有 CP5b replay：固定 `10000` measured 后进入 PASS/DONE，约 `0.126 s`，不能直接用于人工功耗窗口；现有状态块只读，不能冻结/启动 replay。
+- [x] 先落 RED 合同：连续 replay 默认关闭、CP8 控制寄存器 `0x74`、同 ELF READY/START/RUNNING、独立 CP8 runner/probe、CP5b 有限模式不回归。
+- [x] 实现最小控制面：状态块仅 `0x74` 可写，其他写仍 SLVERR；固件在模型/mask 装载后进入固定控制轮询。
+- [x] 实现 CP8 连续 replay：397 样本只捕获一次、1000 warmup 后持续运行，不向 PS 逐样本返回结果；CP5b 默认有限模式保持不变。
+- [x] 新增 `dense_pl_power_replay` / `lossless_zero_group_skip_pl_power_replay` build 与独立 runner/probe；Icarus与定向合同 `22 passed`，CP8 ARM packet 编译通过。
+- [ ] 分别完成 xc7z020clg484-2、200 MHz 物理签核与同一 ELF 的 idle/full 实板状态验证。
+- [ ] 状态稳定后再开始 B10 人工测量；至少 5 组交替 paired rounds，归档照片/时间/读数/有效推理计数并计算整板与增量能耗。
+
+边界：CP8 新 bit/XSA 只为提供可控、持续的测量负载，不改变 NPU 算法或 CP5b 速度结论。分钟级窗口不依赖会溢出的 32 位周期/组累计计数；活动性由 replay status、capture count、协议错误和短间隔 heartbeat 检查证明。
+
+错误记录：首次进度补丁因计划文件上下文与摘要不一致而被拒绝，未写入文件；改为读取文件尾部后局部更新。两次从被忽略 build 目录搜索旧 distribution manifest 均无结果，后续改用目录枚举而不重复相同搜索。
+提交前验证：`run_b2_checks.ps1` → `129 passed`、T1 PASS、`B2_CHECKS_PASS`；CP8 packet manifest 为 397 个唯一输入，ELF SHA-256=`bb53f08772fb83474001e3f8218247bc64753da6c743199beabf89d3be2b6301`（dirty compile probe，仅证明可编译，不作为正式板级证据）。
+
+# 2026-09-17 CP8 物理构建时序收口（历史状态，HEAD 5c16095，已被 14e8e06 取代）
+
+状态：`HISTORICAL / SUPERSEDED_BY_14e8e06`
+
+- [x] dense 正式构建 PASS：`xc7z020clg484-2`、200 MHz，`WNS=+0.022/TNS=0/WHS=+0.009/THS=0`，route/DRC hard error=0，DSP48E1=4。
+- [x] lossless 正式构建 FAIL_CLOSED：同 HEAD，`WNS=-0.026/TNS=-0.036/WHS=+0.036/THS=0`，route/DRC=0，DSP=4；bit/XSA 虽生成但禁止上板。
+- [x] 失败路径定位为 397-sample replay BRAM 到 lossless `core/l0_group_nonzero_reg[*]/D`，不是 `0x74` CP8 控制链。
+- [x] 复用相同综合网表的独立 `impl_extra_timing_probe`（`Performance_ExtraTimingOpt`）得到 `WNS=+0.001/TNS=0/WHS=+0.013/THS=0`，全部约束满足。
+- [x] 生产实现策略切换到 `Performance_ExtraTimingOpt`，合同 `17 passed`。
+- [x] 提交策略修复；当时提交前不得声称 CP8 物理构建通过。
+- [x] clean HEAD 正式重建 dense 与 lossless；已由 clean HEAD `14e8e06` 完成，两者均签核通过。
+- [x] 历史状态：当时保持 `CP8_CONTROL_CHAIN_PASS / CP8_PHYSICAL_BUILD_PENDING`；该 pending 已被 clean HEAD `14e8e06` 的 `CP8_PHYSICAL_BUILD_PASS` 取代。
+
+边界：probe 只用独立 implementation run 形成分析证据，不替代 clean HEAD 正式构建；CP8 新 bit/XSA 只为提供可控、持续的测量负载，不改变 NPU 算法或 CP5b 速度结论。
+
+# 2026-09-17 CP8 lossless timing 复测与工作树候选（历史状态，HEAD e8846a2，已被 14e8e06 取代）
+
+- 历史状态 HEAD=`e8846a2`：当时正式 CP8 lossless 构建仍 `FAIL_CLOSED`：`WNS=-0.067 ns`、`TNS=-0.080 ns`（含策略为 `Performance_ExtraTimingOpt` 的 clean build）。
+- `ExplorePostRoute` probe 也失败：`WNS=-0.088 ns`、`TNS=-0.339 ns`；该 probe 不得称为正式签核。
+- 工作树候选修复未提交、未做 clean HEAD 物理重建：`b3_pl_distribution_replay_shim.sv` 将 sample RAM `READ_LATENCY_B` 从 1 改为 2，新增 `STATE_REPLAY_PREFETCH_READY`，地址流水改为 `replay_beat + 3`；`build_b2.tcl` 暂改为 `Performance_ExploreWithRemap`。
+- 候选修复已通过定向合同 `20 passed, 1 skipped`；完整 B2 `129 passed`、T1 PASS、`B2_CHECKS_PASS`；当时仍没有物理时序证据。
+- 历史状态：当时为 `CP8_CONTROL_CHAIN_PASS / CP8_PHYSICAL_BUILD_PENDING / B3-POWER-GATE=OPEN`；该 pending 已被 clean HEAD `14e8e06` 的 `CP8_PHYSICAL_BUILD_PASS` 取代。
+- [x] 当时下一步：提交候选修复，在 clean HEAD 优先正式重建 lossless；通过后再重建 dense；两者都过 200 MHz `xc7z020clg484-2` 时序且 `DSP=4` 后才可四态上板。该重建已由 clean HEAD `14e8e06` 完成，两模式均通过。

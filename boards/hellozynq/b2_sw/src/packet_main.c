@@ -38,6 +38,10 @@
 #define STRICT_2OF4_CANDIDATE 0U
 #define STRICT_2OF4_CANDIDATE_TEXT "false"
 #define NPU_STATUS_BASE 0x40430000U
+#define CP8_CONTROL_OFFSET 0x74U
+#define CP8_CONTROL_READY 0x43503849U
+#define CP8_CONTROL_START 0x43503853U
+#define CP8_CONTROL_RUNNING 0x43503852U
 
 #if defined(B3_SPEED_BENCHMARK) || defined(B3_PL_DISTRIBUTION_REPLAY)
 #define SPEED_BENCH_BASE 0x01009000U
@@ -238,6 +242,10 @@ static u32 xtime_delta_us(XTime start, XTime stop)
 #define APPLICATION_MODE "b3_epoch_overlap"
 #define SAMPLE_MASK_EPOCH MASK_EPOCH
 #define SEND_MASK_COMMANDS 1
+#elif defined(B3_CP8_POWER_MEASUREMENT)
+#define APPLICATION_MODE "b3_cp8_power"
+#define SAMPLE_MASK_EPOCH MASK_EPOCH
+#define SEND_MASK_COMMANDS 1
 #elif defined(B3_PL_DISTRIBUTION_REPLAY)
 #define APPLICATION_MODE "b3_distribution_replay"
 #define SAMPLE_MASK_EPOCH MASK_EPOCH
@@ -426,7 +434,10 @@ static int submit_frame(u32 tx_bytes, u32 rx_capacity, u32 expect_response,
                         u32 *response_words);
 static int send_sample_frame_only(u32 sample_id, u32 epoch, u32 sample_index);
 static int receive_result_frame_only(u32 sample_index);
+static int start_distribution_replay_capture(void);
 static int wait_distribution_replay(void);
+static int wait_cp8_capture_complete(void);
+static int run_cp8_power_control_loop(void);
 static int send_fence_and_check(u32 expected_epoch);
 static u32 finish_frame(volatile u32 *frame, u32 word_count);
 static u32 build_sample_frame(volatile u32 *frame, u32 sample_id,
@@ -832,10 +843,9 @@ static int wait_distribution_replay(void)
     return fail("distribution_replay_timeout");
 }
 
-static int run_distribution_replay(void)
+static int start_distribution_replay_capture(void)
 {
     u32 sample_index;
-    const u32 final_sample_index = (10000U - 1U) % B3_BENCHMARK_SAMPLE_COUNT;
 
     if (send_fence_and_check(0U) != XST_SUCCESS ||
         send_sample_frame_only(B3_SAMPLE_IDS[0], SAMPLE_MASK_EPOCH, 0U) != XST_SUCCESS) {
@@ -848,11 +858,85 @@ static int run_distribution_replay(void)
             return XST_FAILURE;
         }
     }
+    return XST_SUCCESS;
+}
+
+static int run_distribution_replay(void)
+{
+    const u32 final_sample_index = (10000U - 1U) % B3_BENCHMARK_SAMPLE_COUNT;
+
+    if (start_distribution_replay_capture() != XST_SUCCESS) {
+        return XST_FAILURE;
+    }
     if (wait_distribution_replay() != XST_SUCCESS ||
         receive_result_frame_only(final_sample_index) != XST_SUCCESS) {
         return XST_FAILURE;
     }
     return XST_SUCCESS;
+}
+
+static int write_cp8_control(u32 value)
+{
+    Xil_Out32(NPU_STATUS_BASE + CP8_CONTROL_OFFSET, value);
+    memory_barrier();
+    if (Xil_In32(NPU_STATUS_BASE + CP8_CONTROL_OFFSET) != value) {
+        return fail("cp8_control_write");
+    }
+    return XST_SUCCESS;
+}
+
+static int wait_cp8_capture_complete(void)
+{
+    u32 elapsed_us;
+
+    for (elapsed_us = 0U; elapsed_us < 1000000U; elapsed_us += 10U) {
+        u32 replay_status = Xil_In32(NPU_STATUS_BASE + 0x64U);
+        u32 capture_count = Xil_In32(NPU_STATUS_BASE + 0x70U);
+        u32 protocol_errors = Xil_In32(NPU_STATUS_BASE + 0x60U);
+
+        if (replay_status == 5U || protocol_errors != 0U) {
+            return fail("cp8_capture_status");
+        }
+        if (capture_count == B3_BENCHMARK_SAMPLE_COUNT) {
+            return XST_SUCCESS;
+        }
+        usleep(10U);
+    }
+    return fail("cp8_capture_timeout");
+}
+
+static int run_cp8_power_control_loop(void)
+{
+    if (write_cp8_control(CP8_CONTROL_READY) != XST_SUCCESS) {
+        return XST_FAILURE;
+    }
+
+    for (;;) {
+        u32 control = Xil_In32(NPU_STATUS_BASE + CP8_CONTROL_OFFSET);
+        u32 replay_status = Xil_In32(NPU_STATUS_BASE + 0x64U);
+        u32 capture_count = Xil_In32(NPU_STATUS_BASE + 0x70U);
+        u32 protocol_errors = Xil_In32(NPU_STATUS_BASE + 0x60U);
+
+        if (replay_status == 5U || protocol_errors != 0U) {
+            return fail("cp8_replay_status");
+        }
+        if (control == CP8_CONTROL_START) {
+            if (replay_status != 1U || capture_count != 0U) {
+                return fail("cp8_start_state");
+            }
+            if (start_distribution_replay_capture() != XST_SUCCESS) {
+                return XST_FAILURE;
+            }
+            if (wait_cp8_capture_complete() != XST_SUCCESS ||
+                write_cp8_control(CP8_CONTROL_RUNNING) != XST_SUCCESS) {
+                return XST_FAILURE;
+            }
+        } else if (control != CP8_CONTROL_READY &&
+                   control != CP8_CONTROL_RUNNING) {
+            return fail("cp8_control_value");
+        }
+        usleep(1000U);
+    }
 }
 #endif
 
@@ -1353,7 +1437,9 @@ int main(void)
     sleep(8U);
 #endif
 #endif
-#if defined(B3_PL_DISTRIBUTION_REPLAY)
+#if defined(B3_CP8_POWER_MEASUREMENT)
+    if (run_cp8_power_control_loop() != XST_SUCCESS) return XST_FAILURE;
+#elif defined(B3_PL_DISTRIBUTION_REPLAY)
     if (run_distribution_replay() != XST_SUCCESS) return XST_FAILURE;
 #elif defined(B3_SPEED_BENCHMARK)
     if (run_speed_benchmark() != XST_SUCCESS) return XST_FAILURE;

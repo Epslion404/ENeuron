@@ -1,5 +1,25 @@
 # 进度记录
 
+## 2026-09-18 CP8 物理证据提交前复核
+
+- 修正 Nexus 当前态中的生产策略：clean HEAD `14e8e06` 实际闭包源码 `build_b2.tcl` 使用 `Performance_ExploreWithRemap`；`Performance_ExtraTimingOpt` 仅保留为历史 probe/失败构建记录。
+- 修正 `progress.md` 的 PowerShell heredoc 错误记录，并将 TODO 当前链统一为 `CP8_CONTROL_CHAIN_PASS / CP8_PHYSICAL_BUILD_PASS -> 四态实板控制 -> paired 功耗`。
+- 两套 build manifest 记录的 `build_b2.tcl` SHA 与当前文件一致；JSON 解析、替换字符检查和 `git diff --check` 通过。
+- `python -m pytest -q test_artifact_layout.py`：`5 passed`。
+- `run_b2_checks.ps1`：B2 `129 passed`、T1 两门 PASS、`B2_CHECKS_PASS`。
+- DeepSeek 只读交叉审查未发现 blocker；功耗仍未测，下一步在 clean commit 上执行 dense/lossless idle/full 四态实板控制。
+
+## 2026-09-17 CP8 两模式物理构建证据归档
+
+- 在 clean HEAD `14e8e0686ada1f691e039239d0b942f8024253ca` 上确认 dense/lossless 两套 CP8 wrapper 物理签核：dense `WNS/TNS/WHS/THS=0.01/0/0.036/0`，lossless `0/0/0.036/0`，两者 200 MHz、route/DRC/signoff=1、DSP48E1=4。
+- 新建 `artifacts/logs/b3_cp8_physical_pass_20260917_14e8e06/`，复制两模式 build manifest、signoff 摘要与 timing/utilization/route/drc 报告并加前缀，未复制 bit/XSA/DCP/project。
+- 生成 `artifact_sha256.json`，所有 SHA 由 Python `hashlib` 从实际文件计算；归档报告哈希与源 manifest `reports_sha256` 一致，bit/XSA 哈希与权威值一致。
+- 在 `artifacts/README.md` 登记证据目录；在 `test_artifact_layout.py` 增加 CP8 物理证据合同（存在性、JSON、HEAD、两模式 signoff=1/DSP=4、逐文件哈希复核）。
+- 同步 TODO、CURRENT_STATUS、WORKFLOW_STATE 与 Nexus，状态改为 `CP8_PHYSICAL_BUILD_PASS`；功耗未测，`B3-POWER-GATE`/`B3-GOAL-GATE` 保持 OPEN。
+- 下一步：先用两套产物完成 dense/lossless idle/full 四态实板控制验证，通过后才开始 B10 至少 5 组交替 paired 功耗测量。
+
+本轮错误记录：主代理在 PowerShell 中把 `foreach` 直接接管道（`foreach (...) { ... } | ConvertFrom-Json`）触发 empty pipe parser error；该调用未修改任何文件。改为先将结果累积到数组再管道后，两个 `build_manifest.json` 均成功解析。
+
 ## 2026-09-16 CP5b 397 样本分布 replay 实板执行
 
 - dense/lossless distribution wrapper 均通过 `xc7z020clg484-2`、200 MHz 物理门：dense `WNS/WHS=+0.033/+0.036 ns`，lossless `+0.052/+0.022 ns`；route/DRC hard error=0、DSP48E1=4。
@@ -2521,3 +2541,50 @@
 - 主代理定向验证：功耗/CP5b/artifact 合同 `15 passed`；速度合同 `13 passed, 1 failed`，唯一失败是 WSL 普通 Git 无法解析 Windows worktree `.git` 路径，与断言和本轮状态改动无关；Windows `git diff --check` 与 4 个改动 JSON 校验通过。
 - 残留搜索发现 `.nexus-map/concepts/b2_packet_npu.json` 的旧 `b3_goal_optimization_line.B3-21` 仍写 `idle/dense/static/live`；已把该对象标为历史工程线，并将当前 B3-21 改为 CP8 dense/lossless 四态。一次 PowerShell `rg test_*.py` 再次触发通配符路径错误；后续只使用 `rg -g 'test_*.py'`，不再重复。
 - 最终扩展定向回归（CP5a/CP5b replay、distribution、speed、power、artifact、pytest scope、CI-fast）为 `55 passed`；4 个改动 JSON 通过解析，`git diff --check` 干净。残留搜索仅命中显式历史记录、当前 CP8 下一步和对旧 CP6 双引擎方向的否定说明。
+# 2026-09-17 CP8 功耗执行准备
+
+- 合并 PR #99：merge commit `fd71920`；当前新分支 `codex/b3-cp8-power-prep`。
+- 使用新的 DeepSeek 会话完成 CP5b 产物独立审计：36 个日志文件、10 个 run、SHA/引用/关键数字全 PASS，无凭证或绝对用户路径；该任务只读且未修改文件。
+- 复用同一会话完成 CP8 只读审计，确认现有 full 固定 10000 后停止且无主动 idle/start 控制；主代理复核源码后裁定需要独立 CP8 build/runner 和最小 `0x74` 控制寄存器。
+- 已把 RED 测试编写委派给同一 DeepSeek 会话，文件白名单仅 `test_b3_cp8_power_replay_contract.py` 与 `tb_b3_cp8_power_replay_shim.sv`；生产实现仍由主代理负责。
+- 错误记录：规划补丁前两次经 PowerShell 传递时分别被 `apply_patch` 以非 UTF-8、结尾解析拒绝，均未产生修改；第三次改用 Git Bash 原生 heredoc。另有 Bash heredoc 与 `rg test_*.py` 的 PowerShell 兼容失败，后续分别使用 `ConvertFrom-Json` 和 `rg -g 'test_*.py'`。
+
+## 2026-09-17 CP8 continuous power replay
+
+- 实现 shim continuous replay、status probe `0x74`、wrapper/build mode、packet build 与固件 READY/START/RUNNING 控制循环。
+- DeepSeek 在两文件白名单内生成独立 runner/probe；主代理复核后统一 idle/full BuildTag，并补 probe 失败断连。
+- 验证命令：`python -m pytest -q test_b3_cp8_power_replay_contract.py test_b2_npu_status_probe_contract.py test_b3_pl_distribution_replay_contract.py test_b3_pl_distribution_replay_software_contract.py`，结果 `22 passed`。
+- Windows PowerShell 5.1 parser 与相关范围 `git diff --check` 通过。
+- ARM 编译：`run_b2_packet_sw_build.ps1 -B3Cp8PowerMeasurement ... -BuildTag cp8_compile_probe` → `B2_PACKET_SW_BUILD_PASS`；manifest 为 `b3_cp8_power`、397/397 unique samples。
+- 全量 B2：`run_b2_checks.ps1` → `129 passed`、T1 protocol slice PASS、`B2_CHECKS_PASS`。
+- 错误记录：一次计划文件补丁因上下文不匹配被拒绝，未产生修改；两次被忽略 build manifest 搜索无结果，改用目录枚举定位构建环境。
+- 错误记录：一次 PowerShell `foreach {...} | Sort-Object` 单行写法产生 empty pipe parser error，未修改文件；后续拆成中间变量，避免重复。
+- 下一步：ARM packet 构建与完整定向回归，通过后提交/PR，再从 clean HEAD 构建两套 power replay bit/XSA。
+# 2026-09-17 CP8 lossless power replay timing 收口
+
+- dense CP8 物理构建已签核通过；lossless CP8 构建完成但 runner 按 fail-closed 规则以退出码 1 收口。
+- lossless 最终结果：`WNS=-0.026 ns`、`TNS=-0.036 ns`、`WHS=+0.036 ns`、`THS=0`、route/DRC hard error=0、DSP48E1=4。
+- bit SHA-256=`4cd6e7ccb1a1a378120bc004e871139fc39a64686fe242b6f3baaf4573f0d0ee`；XSA SHA-256=`7808a833fa32b735dc6b9293d178c98e3c13d996d3850558cfcd41a51c8de594`。因 setup 未通过，两者当前禁止上板。
+- 记录三次工具错误：PowerShell 默认管道、显式 UTF-8 管道及 `.bat` 多行参数均未能向 `apply_patch` 传递合法补丁；最终绕过只负责转发的 `.bat`，直接调用底层 apply-patch 接口。
+- 下一步：从 `timing_impl.rpt` 提取失败路径，判断 CP8 控制链与 lossless 数据路径的贡献，做最小 RTL/实现策略修复并重新完整签核。
+- 路径提取完成：setup 失败集中在 `replay_shim/sample_ram` 到 `core/l0_group_nonzero_reg[0,14]`，而非 CP8 AXI-Lite 控制链。正在对照 CP5b 已通过构建并评估在 shim 边界增加寄存切分的最小修复。
+- CP5b 对照完成：相同 397-sample distribution replay + lossless 核曾有 `WNS=+0.052 ns`；CP8 continuous 逻辑不在失败数据路径上。修复顺序调整为：先选择 Vivado 2024.1 支持的更强 timing strategy 完整重建；若仍失败，再做 replay 输出寄存切分并重跑合同/物理签核。
+- 已从本机 Vivado 2024.1 查询合法实现策略；开始在现有工程创建独立 `impl_extra_timing_probe`，复用综合结果探测 `Performance_ExtraTimingOpt`。probe 只形成分析报告，不替代 clean HEAD 正式构建。
+- `impl_extra_timing_probe` 终态通过：`WNS/TNS=+0.001/0 ns`、`WHS/THS=+0.013/0 ns`，全部用户时序约束满足。正式 `build_b2.tcl` 已切换为 `Performance_ExtraTimingOpt`。
+- TDD：策略合同先以旧 Tcl 复现 `1 failed`，生产修改后 `test_b2_stream_probe_contract.py + test_b3_cp8_power_replay_contract.py` 为 `17 passed`。
+- 提交前全量 `run_b2_checks.ps1` 通过并输出 `B2_CHECKS_PASS`；`run_b2_build.ps1` 与 `run_b3_cp8_power_state.ps1` 通过 PowerShell AST 解析。一次 AST 检查包装命令因 `$f:` 插值语法失败，改用 `-f` 格式化后通过，未修改被检脚本。
+- DeepSeek 已按白名单同步 task plan 与 Nexus；主代理复核两个 JSON 可解析、当时状态为 `CP8_PHYSICAL_BUILD_PENDING`、`git diff --check` 干净。该 pending 已被 clean HEAD `14e8e06` 的 `CP8_PHYSICAL_BUILD_PASS` 取代。
+# 2026-09-17 CP8 lossless timing 复测与工作树候选（历史状态，HEAD e8846a2，已被 14e8e06 取代）
+
+- 历史状态 HEAD=`e8846a2`：当时正式 CP8 lossless 构建仍 `FAIL_CLOSED`：`WNS=-0.067 ns`、`TNS=-0.080 ns`（含策略为 `Performance_ExtraTimingOpt` 的 clean build）。
+- `ExplorePostRoute` probe 也失败：`WNS=-0.088 ns`、`TNS=-0.339 ns`；该 probe 不得称为正式签核。
+- 工作树候选修复未提交、未做 clean HEAD 物理重建：`b3_pl_distribution_replay_shim.sv` 将 sample RAM `READ_LATENCY_B` 从 1 改为 2，新增 `STATE_REPLAY_PREFETCH_READY`，地址流水改为 `replay_beat + 3`；`build_b2.tcl` 暂改为 `Performance_ExploreWithRemap`。
+- 候选修复已通过定向合同 `20 passed, 1 skipped`；完整 B2 `129 passed`、T1 PASS、`B2_CHECKS_PASS`；当时仍没有物理时序证据。
+- 历史状态：当时为 `CP8_CONTROL_CHAIN_PASS / CP8_PHYSICAL_BUILD_PENDING / B3-POWER-GATE=OPEN`；该 pending 已被 clean HEAD `14e8e06` 的 `CP8_PHYSICAL_BUILD_PASS` 取代。
+- 当时下一步：提交候选修复，在 clean HEAD 优先正式重建 lossless；通过后再重建 dense；两者都过 200 MHz `xc7z020clg484-2` 时序且 `DSP=4` 后才可四态上板。该重建已由 clean HEAD `14e8e06` 完成，两模式均通过。
+- 错误记录：主代理三次尝试通过 Windows `apply_patch` 包装层传递补丁，分别因结尾识别和 UTF-8 PATCH 参数失败，三次均未修改文件；已停止重复该方法并改用本白名单编辑。另记录一次 PowerShell `rg` 调用把 `-g` glob 放在路径之后，退出 1 且未修改文件，后续将 `-g` 放在路径前。
+
+## 2026-09-17 CP8 物理归档错误记录
+
+- 错误记录：主代理一次在 PowerShell 中执行 `python - <<'PY'`，Bash heredoc 被 PowerShell 当作重定向并触发 parser error；该调用未修改任何文件。改用 `python -c` 后归档交叉核验成功并输出 `CP8_ARCHIVE_SELF_CONTAINED_PASS`。
+- 2026-09-18：Windows `apply_patch` 包装层分别拒绝管道 UTF-8、here-string 末尾格式和 TrimEnd 后的参数格式，三次均未修改文件；达到三次失败门限后停止重试，改用带唯一命中断言的白名单精确替换。

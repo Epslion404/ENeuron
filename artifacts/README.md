@@ -89,3 +89,11 @@ HelloZynq B1B 的 UART/DDR 原始机器证据保存在 `logs/hellozynq_b1b/<唯�
 | `logs/b2_packet_npu_route_timing_fail_20260910_074ed56/` | egress BRAM 预取后的完整 route/bit/XSA/日志结果；route/DRC 通过但 setup 失败，`WNS=-0.052 ns`、`TNS=-0.134 ns`、6 个 setup failing endpoints；最差路径为 `compute_unit_mask_latched -> compute_group_index`，manifest 标为 `analysis_only_no_download` |
 
 这些 bit/XSA 仅用于失败分析，不得作为时序签核或实板下载输入。
+
+## B3 CP8 物理构建证据（2026-09-17，clean HEAD `14e8e06`）
+
+| 证据目录 | 结论 |
+|---|---|
+| `logs/b3_cp8_physical_pass_20260917_14e8e06/` | CP8 功耗测量所需的 dense/lossless 两套完整 wrapper 物理构建；两模式均绑定 clean HEAD `14e8e0686ada1f691e039239d0b942f8024253ca`、`xc7z020clg484-2`、200 MHz、DSP48E1=4，timing/route/DRC/signoff 全为 `1`。dense `WNS/TNS/WHS/THS=0.01/0/0.036/0`，lossless `0/0/0.036/0`。目录内只归档 manifest、signoff 摘要和 4 份实现报告（加 `dense_`/`lossless_` 前缀），不含 bit、XSA、DCP 或 project；bit/XSA SHA-256 由 `artifact_sha256.json` 从原始构建目录实测记录。功耗仍未测，`B3-POWER-GATE` 保持 OPEN。 |
+
+`logs/b3_cp8_physical_pass_20260917_14e8e06/artifact_sha256.json` 记录 `source_head`、器件、时钟、两模式 `npu_mode`、每个归档文件相对仓库路径及实测 SHA-256、bit/XSA SHA-256 和 signoff 数字；所有哈希由 Python `hashlib` 从实际文件复算。该目录只证明两套产物通过物理构建与时序签核，不证明实板四态控制、功耗已测或任何门已关闭。

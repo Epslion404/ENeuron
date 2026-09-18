@@ -84,6 +84,70 @@ module tb_b2_npu_status_probe;
         end
     endtask
 
+    task automatic check_write(
+        input logic [11:0] address,
+        input logic [31:0] value,
+        input logic [3:0] strobe,
+        input logic [1:0] expected_resp
+    );
+        begin
+            @(negedge clk);
+            awaddr = address;
+            awvalid = 1'b1;
+            wdata = value;
+            wstrb = strobe;
+            wvalid = 1'b1;
+            do @(posedge clk); while (!(awready && wready));
+            @(negedge clk);
+            awvalid = 1'b0;
+            wvalid = 1'b0;
+            do @(posedge clk); while (!bvalid);
+            if (bresp !== expected_resp)
+                $fatal(1, "write response mismatch addr=%03h expected=%b actual=%b",
+                       address, expected_resp, bresp);
+        end
+    endtask
+
+    task automatic check_write_split(
+        input logic [11:0] address,
+        input logic [31:0] value,
+        input logic aw_first,
+        input logic [1:0] expected_resp
+    );
+        begin
+            @(negedge clk);
+            if (aw_first) begin
+                awaddr = address;
+                awvalid = 1'b1;
+                do @(posedge clk); while (!awready);
+                @(negedge clk);
+                awvalid = 1'b0;
+                wdata = value;
+                wstrb = 4'hf;
+                wvalid = 1'b1;
+                do @(posedge clk); while (!wready);
+                @(negedge clk);
+                wvalid = 1'b0;
+            end else begin
+                wdata = value;
+                wstrb = 4'hf;
+                wvalid = 1'b1;
+                do @(posedge clk); while (!wready);
+                @(negedge clk);
+                wvalid = 1'b0;
+                awaddr = address;
+                awvalid = 1'b1;
+                do @(posedge clk); while (!awready);
+                @(negedge clk);
+                awvalid = 1'b0;
+            end
+            do @(posedge clk); while (!bvalid);
+            if (bresp !== expected_resp)
+                $fatal(1, "split write response mismatch addr=%03h expected=%b actual=%b",
+                       address, expected_resp, bresp);
+        end
+    endtask
+
     initial begin
         repeat (3) @(posedge clk);
         resetn = 1'b1;
@@ -112,19 +176,17 @@ module tb_b2_npu_status_probe;
         check_read(12'h03c, 32'hf5f5f5f5);
         check_read(12'h040, 32'hf6f6f6f6);
         check_read(12'h044, 32'hf7f7f7f7);
+        check_read(12'h074, 32'h00000000);
 
-        @(negedge clk);
-        awaddr = 12'h004;
-        awvalid = 1'b1;
-        wdata = 32'hdeadbeef;
-        wvalid = 1'b1;
-        do @(posedge clk); while (!(awready && wready));
-        @(negedge clk);
-        awvalid = 1'b0;
-        wvalid = 1'b0;
-        do @(posedge clk); while (!bvalid);
-        if (bresp !== 2'b10)
-            $fatal(1, "read-only write response must be SLVERR, got %b", bresp);
+        check_write(12'h074, 32'h43503849, 4'hf, 2'b00);
+        check_read(12'h074, 32'h43503849);
+        check_write_split(12'h074, 32'h43503853, 1'b1, 2'b00);
+        check_read(12'h074, 32'h43503853);
+        check_write_split(12'h074, 32'h43503852, 1'b0, 2'b00);
+        check_read(12'h074, 32'h43503852);
+        check_write(12'h074, 32'hdeadbeef, 4'h3, 2'b10);
+        check_read(12'h074, 32'h43503852);
+        check_write(12'h004, 32'hdeadbeef, 4'hf, 2'b10);
         check_read(12'h004, 32'h11111111);
 
         $display("B2_NPU_STATUS_PROBE_PASS");

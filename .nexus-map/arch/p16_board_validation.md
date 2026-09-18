@@ -1,8 +1,8 @@
 # P16 项目阶段 2：实板验证路线
 
-## 当前主线覆写（2026-09-17，CP5b 分布吞吐正式通过）
+## 当前主线覆写（2026-09-17，CP8 dense/lossless 物理构建已 PASS）
 
-当前执行点为冻结 CP5b dense/lossless 连续负载并执行 CP8 paired 功耗。QAT-v3 CP0/CP1/CP3a/b/c/CP4/CP5a 与 CP5b 已完成；严格 2:4 live/static 精度失败。CP5b 397 样本、每轮 1000 预热 + 10000 计量、5 轮交替 dense/lossless：dense=`2513.9998 cycles/sample`、lossless=`2310.3034 cycles/sample`，纯 PL 吞吐提升 `1.088168676x`、延迟下降 `8.1025%`，5 轮无抖动，结果帧/logits/CRC 一致、协议错误 0，200 MHz 物理门通过、DSP48E1=4。`B3-PL-SPEED-GATE=PASS`、顶层 `B3-SPEED-GATE=PASS_PURE_PL_ONLY`；CP4 单样本 packet 路径 `1.008196x` 单独记为 `B3-PACKET-SPEED=MEASURED_WEAK_GAIN_1_008196X`，不称为纯 PL。当前缺口是 CP8 paired 功耗；功耗和目标门保持 OPEN。
+2026-09-17：clean HEAD `14e8e0686ada1f691e039239d0b942f8024253ca` 上，CP8 dense/lossless 两套完整 wrapper 均通过 `xc7z020clg484-2`、200 MHz 物理门：timing/route/DRC/signoff 全为 PASS、DSP48E1=4。dense 模式 `dense_pl_power_replay`（`WNS/TNS/WHS/THS=0.01/0/0.036/0`，bit=`8d3ca373…8af5`，XSA=`cd3cb287…5393e`）；lossless 模式 `lossless_zero_group_skip_pl_power_replay`（`0/0/0.036/0`，bit=`ebc44d5e…acef5`，XSA=`649f571d…9aa3`）。证据 `artifacts/logs/b3_cp8_physical_pass_20260917_14e8e06/`。控制链保持 `CP8_CONTROL_CHAIN_PASS`：shim `CONTINUOUS_REPLAY` 默认 0、power 模式 continuous；状态块 `0x40430000` 唯一可写 `0x74` CP8_CONTROL（READY/START/RUNNING），`0x64` replay status、`0x68` completed、`0x6C` cycles、`0x70` capture；idle 不提交样本，full 一次捕获 397 后 PL 持续运行；合同 22 passed、B2 全量 129 passed + T1、ARM `B2_PACKET_SW_BUILD_PASS`。当前状态 `CP8_CONTROL_CHAIN_PASS / CP8_PHYSICAL_BUILD_PASS / B3-POWER_NOT_MEASURED / B3-POWER-GATE=OPEN / B3-GOAL-GATE=OPEN`。下一步：先用两套新 bit/XSA 完成 dense/lossless idle/full 四态实板控制验证，通过后才开始 B10 至少 5 组交替 paired 功耗测量；不得声称实板四态或功耗已通过。历史：HEAD `5c16095` dense PASS / lossless FAIL_CLOSED（`WNS=-0.026`，失败路径 397-sample replay BRAM 到 lossless `core/l0_group_nonzero_reg[*]/D`），HEAD `e8846a2` 的 `Performance_ExtraTimingOpt` clean lossless 仍 FAIL_CLOSED（`WNS=-0.067`）、`ExplorePostRoute` probe 亦失败（`WNS=-0.088`）；上述失败与旧 `Performance_ExtraTimingOpt` 待重建状态均已被 clean HEAD 重建取代，仅作历史。历史 CP5b：dense=`2513.9998 cycles/sample`、lossless=`2310.3034 cycles/sample`，纯 PL 吞吐提升 `1.088168676x`、延迟下降 `8.1025%`，`B3-PL-SPEED-GATE=PASS`、顶层 `B3-SPEED-GATE=PASS_PURE_PL_ONLY`；CP4 单样本 packet 路径 `1.008196x` 记为 `B3-PACKET-SPEED=MEASURED_WEAK_GAIN_1_008196X`。
 
 > generated_by: nexus-mapper v2 / manual synthesis
 > verified_at: 2026-09-16
@@ -24,7 +24,7 @@ B1-06B6 实板复测（2026-09-08）：运行目录为 `artifacts/logs/hellozynq
 
 P16 的目标是在 HelloZynq `xc7z020clg484-2` 上依次打通 PL、PS/DDR/网口、DMA、`64→32→10` 传统 NPU、ENeuron 局部门控和网口端到端 A/B。阶段门只由同一身份链上的实板证据关闭；仿真和 OOC 可用于定位，但不能代替 bitstream、JTAG、UART、Host/网口日志与现场观察。
 
-当前 B3 入口：QAT CP0/CP1/CP3c/CP4/CP5a/CP5b 已完成，当前无损候选的 `B3-ACCURACY-GATE` 与 `B3-PL-SPEED-GATE` 已通过；严格 2:4 live/static 为精度负结果。下一步是冻结 CP5b 397 样本 dense/lossless 连续负载（PL-internal distribution replay、1000 warmup）并执行 CP8 paired 功耗；旧 fixed-vector、PS 在环和单样本 CP5a 不能替代分布吞吐证据。
+当前 B3 入口：QAT CP0/CP1/CP3c/CP4/CP5a/CP5b 已完成，当前无损候选的 `B3-ACCURACY-GATE` 与 `B3-PL-SPEED-GATE` 已通过；严格 2:4 live/static 为精度负结果。CP8 控制链已实现并通过提交前验证；clean HEAD `14e8e06` 上 dense/lossless 两套完整 wrapper 均已通过 200 MHz 物理签核（dense `0.01/0/0.036/0`、lossless `0/0/0.036/0`，route/DRC/signoff=1、DSP=4，证据 `artifacts/logs/b3_cp8_physical_pass_20260917_14e8e06/`）。下一步：用两套新 bit/XSA 完成 dense/lossless idle/full 四态实板控制验证，通过后才开始 B10 至少 5 组交替 paired 功耗；当前 `CP8_CONTROL_CHAIN_PASS / CP8_PHYSICAL_BUILD_PASS / B3-POWER-GATE=OPEN`，不得声称实板四态或功耗已通过。HEAD `5c16095`/`e8846a2` 的 lossless FAIL_CLOSED 保留为历史。旧 fixed-vector、PS 在环和单样本 CP5a 不能替代分布吞吐证据。
 
 B3-08a 已完成（2026-09-12）：同一物理通过 bit/XSA、COM15、`b3_static_mixed` 实板 run `20260912T102046Z` 通过，logits=`74,-18,14,0,0,0,0,0,0,114`，fence valid=`1`，execute/skip=`296/296`。mask 粒度是 `group_4way`；B3-08b 属于后续 STRICT。
 

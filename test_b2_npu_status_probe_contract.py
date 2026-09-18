@@ -45,7 +45,7 @@ class B2NpuStatusProbeContractTests(unittest.TestCase):
         self.assertIn("PROTOCOL_ERROR_COUNT_ADDR = 12'h060", self.probe)
         self.assertIn("FENCE_SNAPSHOT_VALID_ADDR = 12'h024", self.probe)
 
-    def test_status_probe_has_read_only_axi_lite_and_snapshot_registers(self):
+    def test_status_probe_has_cp8_control_and_read_only_status_registers(self):
         for token in (
             "module b2_npu_status_probe",
             "S_AXI",
@@ -60,6 +60,9 @@ class B2NpuStatusProbeContractTests(unittest.TestCase):
             "PROTOCOL_ERROR_COUNT_ADDR",
             "FENCE_SNAPSHOT_VALID_ADDR",
             "FENCE_SNAPSHOT_BASE_ADDR",
+            "CP8_CONTROL_ADDR",
+            "12'h074",
+            "cp8_control",
             "input wire [255:0] fence_snapshot_counts",
         ):
             self.assertIn(token, self.probe)

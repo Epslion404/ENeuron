@@ -5,7 +5,8 @@
 module b3_pl_distribution_replay_shim #(
     parameter integer INPUT_SAMPLES = 397,
     parameter integer WARMUP_SAMPLES = 1000,
-    parameter integer MEASURE_SAMPLES = 10000
+    parameter integer MEASURE_SAMPLES = 10000,
+    parameter integer CONTINUOUS_REPLAY = 0
 ) (
     input  logic        clk,
     input  logic        rst,
@@ -48,9 +49,10 @@ module b3_pl_distribution_replay_shim #(
     localparam logic [2:0] STATE_CAPTURE_WAIT_RESULT = 3'd1;
     localparam logic [2:0] STATE_REPLAY_PREFETCH = 3'd2;
     localparam logic [2:0] STATE_REPLAY_PREFETCH_WAIT = 3'd3;
-    localparam logic [2:0] STATE_REPLAY_FEED = 3'd4;
-    localparam logic [2:0] STATE_REPLAY_WAIT_RESULT = 3'd5;
-    localparam logic [2:0] STATE_DONE = 3'd6;
+    localparam logic [2:0] STATE_REPLAY_PREFETCH_READY = 3'd4;
+    localparam logic [2:0] STATE_REPLAY_FEED = 3'd5;
+    localparam logic [2:0] STATE_REPLAY_WAIT_RESULT = 3'd6;
+    localparam logic [2:0] STATE_DONE = 3'd7;
 
     localparam logic [1:0] PHASE_WARMUP = 2'd1;
     localparam logic [1:0] PHASE_MEASURE = 2'd2;
@@ -101,6 +103,7 @@ module b3_pl_distribution_replay_shim #(
     wire replay_fire = core_sample_valid && core_sample_ready;
     wire result_fire = core_result_valid && core_result_ready;
     wire forwarding_final_result =
+        (CONTINUOUS_REPLAY == 0) &&
         (state == STATE_REPLAY_WAIT_RESULT) &&
         (phase == PHASE_MEASURE) &&
         (measured_count == MEASURE_SAMPLES - 1);
@@ -206,6 +209,11 @@ module b3_pl_distribution_replay_shim #(
 
             if (state == STATE_REPLAY_PREFETCH_WAIT) begin
                 sample_mem_rd_addr <= (replay_sample_index * 8) + 1;
+                state <= STATE_REPLAY_PREFETCH_READY;
+            end
+
+            if (state == STATE_REPLAY_PREFETCH_READY) begin
+                sample_mem_rd_addr <= (replay_sample_index * 8) + 2;
                 state <= STATE_REPLAY_FEED;
             end
 
@@ -223,7 +231,7 @@ module b3_pl_distribution_replay_shim #(
                 end else begin
                     replay_beat <= replay_beat + 1'b1;
                     sample_mem_rd_addr <=
-                        (replay_sample_index * 8) + replay_beat + 2;
+                        (replay_sample_index * 8) + replay_beat + 3;
                 end
             end
 
@@ -244,13 +252,23 @@ module b3_pl_distribution_replay_shim #(
                         end
                         state <= STATE_REPLAY_PREFETCH;
                     end else if (phase == PHASE_MEASURE) begin
-                        pl_replay_completed_count <= measured_count + 1'b1;
-                        if ((measured_count + 1'b1) >= MEASURE_SAMPLES) begin
+                        if (CONTINUOUS_REPLAY != 0) begin
+                            pl_replay_completed_count <= pl_replay_completed_count + 32'd1;
+                            replay_sample_index <=
+                                (replay_sample_index == INPUT_SAMPLES - 1) ?
+                                '0 : replay_sample_index + 1'b1;
+                            sample_mem_rd_addr <=
+                                ((replay_sample_index == INPUT_SAMPLES - 1) ?
+                                 0 : (replay_sample_index + 1'b1) * 8);
+                            state <= STATE_REPLAY_PREFETCH;
+                        end else if ((measured_count + 1'b1) >= MEASURE_SAMPLES) begin
+                            pl_replay_completed_count <= measured_count + 1'b1;
                             measuring <= 1'b0;
                             pl_replay_measured_cycles <= measured_cycle_counter + 32'd1;
                             pl_replay_status <= STATUS_PASS;
                             state <= STATE_DONE;
                         end else begin
+                            pl_replay_completed_count <= measured_count + 1'b1;
                             measured_count <= measured_count + 1'b1;
                             replay_sample_index <=
                                 (replay_sample_index == INPUT_SAMPLES - 1) ?
@@ -298,7 +316,7 @@ module b3_distribution_sample_ram #(
         .MEMORY_SIZE(DEPTH * 64),
         .MESSAGE_CONTROL(0),
         .READ_DATA_WIDTH_B(64),
-        .READ_LATENCY_B(1),
+        .READ_LATENCY_B(2),
         .READ_RESET_VALUE_B("0"),
         .RST_MODE_B("SYNC"),
         .SIM_ASSERT_CHK(0),
@@ -316,10 +334,12 @@ module b3_distribution_sample_ram #(
     );
 `else
     logic [63:0] mem [0:DEPTH-1];
+    logic [63:0] rd_pipe;
     always_ff @(posedge clk) begin
         if (wr_en)
             mem[wr_addr] <= wr_data;
-        rd_data <= mem[rd_addr];
+        rd_pipe <= mem[rd_addr];
+        rd_data <= rd_pipe;
     end
 `endif
 endmodule
